@@ -1,0 +1,5 @@
+numpy
+scipy
+tensorflow>=2.1
+tensornetwork
+graphviz
