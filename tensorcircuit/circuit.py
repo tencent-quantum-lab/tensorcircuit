@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Tuple, List
+from typing import Tuple, List, Callable
 
 import numpy as np
 import tensornetwork as tn
@@ -57,9 +57,13 @@ class Circuit:
     def _meta_appy(self) -> None:
         sgates = ["i", "x", "y", "z", "h"] + ["cnot", "cz", "swap"] + ["toffoli"]
         for g in sgates:
-            setattr(self, g, partial(self.apply_general_gate, getattr(gates, g)()))
             setattr(
-                self, g.upper(), partial(self.apply_general_gate, getattr(gates, g)())
+                self, g, partial(self.apply_general_gate_delayed, getattr(gates, g))
+            )
+            setattr(
+                self,
+                g.upper(),
+                partial(self.apply_general_gate_delayed, getattr(gates, g)),
             )
 
     def apply_single_gate(self, gate: tn.Node, index: int) -> None:
@@ -82,6 +86,12 @@ class Circuit:
             gate.get_edge(i) ^ self._front[ind]
             self._front[ind] = gate.get_edge(i + noe)
         self._nodes.append(gate)
+
+    def apply_general_gate_delayed(
+        self, gatef: Callable[[], tn.Node], *index: int
+    ) -> None:
+        gate = gatef()
+        self.apply_general_gate(gate, *index)
 
     def _copy(self) -> Tuple[List[tn.Node], List[tn.Edge]]:
         ndict, edict = tn.copy(self._nodes)
