@@ -2,6 +2,7 @@ from typing import Optional
 import sys
 
 import numpy as np
+import tensornetwork as tn
 from tensornetwork.backend_contextmanager import get_default_backend
 from tensornetwork.backends import backend_factory
 
@@ -17,6 +18,7 @@ modules = [
 dtype = "complex64"
 npdtype = np.complex64
 backend = backend_factory.get_backend("numpy")
+contractor = tn.contractors.greedy
 # these above lines are just for mypy, it is not very good at evaluating runtime object
 
 
@@ -45,3 +47,17 @@ def set_dtype(dtype: Optional[str] = None) -> None:
 
 
 set_dtype()
+
+
+def set_contractor(method: Optional[str] = None) -> None:
+    if not method:
+        method = "greedy"
+    cf = getattr(tn.contractors, method, None)
+    if not cf:
+        raise ValueError("Unknown contractor type: %s" % method)
+    for module in modules:
+        if module in sys.modules:
+            setattr(sys.modules[module], "contractor", cf)
+
+
+set_contractor()

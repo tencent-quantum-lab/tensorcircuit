@@ -15,3 +15,11 @@ def test_basics():
     assert np.allclose(c.amplitude("10"), np.array(1.0))
     c.CNOT(0, 1)
     assert np.allclose(c.amplitude("11"), np.array(1.0))
+
+
+def test_perfect_sampling():
+    c = tc.Circuit(3)
+    c.H(0)
+    c.h(1)
+    c.toffoli(0, 1, 2)
+    c.perfect_sampling()

@@ -6,7 +6,9 @@ import tensornetwork as tn
 import graphviz
 
 from . import gates
-from .cons import npdtype, backend
+from .cons import npdtype, backend, contractor
+
+Gate = gates.Gate
 
 
 class Circuit:
@@ -66,12 +68,12 @@ class Circuit:
                 partial(self.apply_general_gate_delayed, getattr(gates, g)),
             )
 
-    def apply_single_gate(self, gate: tn.Node, index: int) -> None:
+    def apply_single_gate(self, gate: Gate, index: int) -> None:
         gate.get_edge(0) ^ self._front[index]
         self._front[index] = gate.get_edge(1)
         self._nodes.append(gate)
 
-    def apply_double_gate(self, gate: tn.Node, index1: int, index2: int) -> None:
+    def apply_double_gate(self, gate: Gate, index1: int, index2: int) -> None:
         assert index1 != index2
         gate.get_edge(0) ^ self._front[index1]
         gate.get_edge(1) ^ self._front[index2]
@@ -79,7 +81,7 @@ class Circuit:
         self._front[index2] = gate.get_edge(3)
         self._nodes.append(gate)
 
-    def apply_general_gate(self, gate: tn.Node, *index: int) -> None:
+    def apply_general_gate(self, gate: Gate, *index: int) -> None:
         assert len(index) == len(set(index))
         noe = len(index)
         for i, ind in enumerate(index):
@@ -88,12 +90,17 @@ class Circuit:
         self._nodes.append(gate)
 
     def apply_general_gate_delayed(
-        self, gatef: Callable[[], tn.Node], *index: int
+        self, gatef: Callable[[], Gate], *index: int
     ) -> None:
         gate = gatef()
         self.apply_general_gate(gate, *index)
 
     def _copy(self) -> Tuple[List[tn.Node], List[tn.Edge]]:
+        """
+        copy all nodes and dangling edges correspondingly
+
+        :return:
+        """
         ndict, edict = tn.copy(self._nodes)
         newnodes = []
         for n in self._nodes:
@@ -105,8 +112,10 @@ class Circuit:
 
     def wavefunction(self) -> tn.Node.tensor:
         nodes, d_edges = self._copy()
-        t = tn.contractors.greedy(nodes, output_edge_order=d_edges)
+        t = contractor(nodes, output_edge_order=d_edges)
         return backend.reshape(t.tensor, shape=[1, -1])
+
+    state = wavefunction
 
     def amplitude(self, l: str) -> tn.Node.tensor:
         assert len(l) == self._nqubits
@@ -125,7 +134,50 @@ class Circuit:
             d_edges[i] ^ ms[i].get_edge(0)
 
         no.extend(ms)
-        return tn.contractors.greedy(no).tensor
+        return contractor(no).tensor
+
+    def measure(self) -> None:
+        # consideration on how to deal with measure in the middle of the circuit
+        pass
+
+    def perfect_sampling(self) -> Tuple[str, float]:
+        """
+        reference: arXiv:1201.3974.
+
+        :return: sampled bit string and the corresponding theoretical probability
+        """
+        sample = ""
+        p = 1
+        for j in range(self._nqubits):
+            nodes1, edge1 = self._copy()
+            nodes2, edge2 = self._copy()
+            for i, e in enumerate(edge1):
+                if i != j:
+                    e ^ edge2[i]
+            for i in range(len(sample)):
+                if sample[i] == "0":
+                    m = np.array([1, 0], dtype=npdtype)
+                else:
+                    m = np.array([0, 1], dtype=npdtype)
+                nodes1.append(tn.Node(m))
+                nodes1[-1].get_edge(0) ^ edge1[i]
+                nodes2.append(tn.Node(m))
+                nodes2[-1].get_edge(0) ^ edge2[i]
+            nodes1.extend(nodes2)
+            rho = (
+                1
+                / p
+                * contractor(nodes1, output_edge_order=[edge1[j], edge2[j]]).tensor
+            )
+            pu = rho[0, 0]
+            r = np.random.rand()
+            if r < pu:
+                sample += "0"
+                p = p * pu
+            else:
+                sample += "1"
+                p = p * (1 - pu)
+        return sample, p
 
     def to_graphviz(
         self,
@@ -133,6 +185,15 @@ class Circuit:
         include_all_names: bool = False,
         engine: str = "neato",
     ) -> graphviz.Graph:
+        """
+        Not an ideal visualization for quantum circuit, but reserve here as a general approch to show tensornetwork
+
+        :param graph:
+        :param include_all_names:
+        :param engine:
+        :return:
+        """
+        # Modified from tensornetwork
         nodes = self._nodes
         if graph is None:
             # pylint: disable=no-member

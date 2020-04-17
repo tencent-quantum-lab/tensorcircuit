@@ -67,8 +67,14 @@ _toffoli_matrix = np.array(
 )
 
 
-def template(m: np.array, n: str) -> tn.Node:
-    return tn.Node(deepcopy(m), name=n)
+class Gate(tn.Node):
+    pass
+
+
+def gate_wrapper(m: np.array, n: Optional[str] = None) -> Gate:
+    if not n:
+        n = "unknowngate"
+    return Gate(deepcopy(m), name=n)
 
 
 def meta_gate() -> None:
@@ -81,7 +87,7 @@ def meta_gate() -> None:
             if m.shape[0] == 8:
                 m = np.reshape(m, newshape=(2, 2, 2, 2, 2, 2))
             m = m.astype(npdtype)
-            temp = partial(template, m, n)
+            temp = partial(gate_wrapper, m, n)
             setattr(thismodule, n + "gate", temp)
             setattr(thismodule, n, temp)
 
@@ -89,7 +95,7 @@ def meta_gate() -> None:
 meta_gate()
 
 
-def rgate(seed: Optional[int] = None, angle_scale: float = 1.0) -> tn.Node:
+def rgate(seed: Optional[int] = None, angle_scale: float = 1.0) -> Gate:
     """Returns the random single qubit gate described in https://arxiv.org/abs/2002.07730.
 
     Args:
@@ -111,13 +117,13 @@ def rgate(seed: Optional[int] = None, angle_scale: float = 1.0) -> tn.Node:
     # Get the unitary
     unitary = expm(-1j * theta * (mx * _x_matrix + my * _y_matrix * mz * _z_matrix))
 
-    return tn.Node(unitary)
+    return Gate(unitary)
 
 
 r = rgate
 
 
-def random_two_qubit_gate(seed: Optional[int] = None) -> tn.Node:
+def random_two_qubit_gate(seed: Optional[int] = None) -> Gate:
     """Returns a random two-qubit gate.
 
     Args:
@@ -127,4 +133,4 @@ def random_two_qubit_gate(seed: Optional[int] = None) -> tn.Node:
         np.random.seed(seed)
     unitary = unitary_group.rvs(dim=4)
     unitary = np.reshape(unitary, newshape=(2, 2, 2, 2))
-    return tn.Node(deepcopy(unitary), name="R2Q")
+    return Gate(deepcopy(unitary), name="R2Q")
