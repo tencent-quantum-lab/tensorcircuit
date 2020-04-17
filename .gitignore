@@ -2,6 +2,7 @@
 .pytest_cache/
 .DS_Store
 coverage.xml
+.mypy_cache/
 .coverage
 .pytest_cache
 *.pyc

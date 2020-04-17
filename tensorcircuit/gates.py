@@ -53,17 +53,33 @@ _swap_matrix = np.array(
 )
 
 
-def template(m, n) -> tn.Node:
+_toffoli_matrix = np.array(
+    [
+        [1.0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1.0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1.0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1.0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1.0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 1.0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 1.0],
+        [0, 0, 0, 0, 0, 0, 1.0, 0],
+    ]
+)
+
+
+def template(m: np.array, n: str) -> tn.Node:
     return tn.Node(deepcopy(m), name=n)
 
 
-def meta_gate():
+def meta_gate() -> None:
     for name in dir(thismodule):
         if name.endswith("_matrix") and name.startswith("_"):
             n = name[1:-7]
             m = getattr(thismodule, name)
             if m.shape[0] == 4:
                 m = np.reshape(m, newshape=(2, 2, 2, 2))
+            if m.shape[0] == 8:
+                m = np.reshape(m, newshape=(2, 2, 2, 2, 2, 2))
             m = m.astype(npdtype)
             temp = partial(template, m, n)
             setattr(thismodule, n + "gate", temp)
@@ -73,7 +89,7 @@ def meta_gate():
 meta_gate()
 
 
-def rgate(seed: Optional[int] = None, angle_scale: float = 1.0):
+def rgate(seed: Optional[int] = None, angle_scale: float = 1.0) -> tn.Node:
     """Returns the random single qubit gate described in https://arxiv.org/abs/2002.07730.
 
     Args:

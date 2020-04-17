@@ -1,16 +1,16 @@
 from functools import partial
+from typing import Tuple, List
 
 import numpy as np
-import tensorflow as tf
 import tensornetwork as tn
 import graphviz
 
 from . import gates
-from .cons import npdtype
+from .cons import npdtype, backend
 
 
 class Circuit:
-    def __init__(self, nqubits):
+    def __init__(self, nqubits: int) -> None:
         _prefix = "qb-"
         if nqubits < 2:
             raise ValueError(
@@ -54,21 +54,20 @@ class Circuit:
         self._start = nodes
         self._meta_appy()
 
-    def _meta_appy(self):
-        sgates = ["i", "x", "y", "z", "h"]
+    def _meta_appy(self) -> None:
+        sgates = ["i", "x", "y", "z", "h"] + ["cnot", "cz", "swap"] + ["toffoli"]
         for g in sgates:
-            setattr(self, g, partial(self.apply_single_gate, getattr(gates, g)()))
+            setattr(self, g, partial(self.apply_general_gate, getattr(gates, g)()))
+            setattr(
+                self, g.upper(), partial(self.apply_general_gate, getattr(gates, g)())
+            )
 
-        dgates = ["cnot", "cz", "swap"]
-        for g in dgates:
-            setattr(self, g, partial(self.apply_double_gate, getattr(gates, g)()))
-
-    def apply_single_gate(self, gate, index):
+    def apply_single_gate(self, gate: tn.Node, index: int) -> None:
         gate.get_edge(0) ^ self._front[index]
         self._front[index] = gate.get_edge(1)
         self._nodes.append(gate)
 
-    def apply_double_gate(self, gate: tn.Node, index1: int, index2: int):
+    def apply_double_gate(self, gate: tn.Node, index1: int, index2: int) -> None:
         assert index1 != index2
         gate.get_edge(0) ^ self._front[index1]
         gate.get_edge(1) ^ self._front[index2]
@@ -76,7 +75,15 @@ class Circuit:
         self._front[index2] = gate.get_edge(3)
         self._nodes.append(gate)
 
-    def _copy(self):
+    def apply_general_gate(self, gate: tn.Node, *index: int) -> None:
+        assert len(index) == len(set(index))
+        noe = len(index)
+        for i, ind in enumerate(index):
+            gate.get_edge(i) ^ self._front[ind]
+            self._front[ind] = gate.get_edge(i + noe)
+        self._nodes.append(gate)
+
+    def _copy(self) -> Tuple[List[tn.Node], List[tn.Edge]]:
         ndict, edict = tn.copy(self._nodes)
         newnodes = []
         for n in self._nodes:
@@ -86,12 +93,12 @@ class Circuit:
             newfront.append(edict[e])
         return newnodes, newfront
 
-    def wavefunction(self):
+    def wavefunction(self) -> tn.Node.tensor:
         nodes, d_edges = self._copy()
         t = tn.contractors.greedy(nodes, output_edge_order=d_edges)
-        return tf.reshape(t.tensor, shape=[1, -1])
+        return backend.reshape(t.tensor, shape=[1, -1])
 
-    def amplitude(self, l: str):
+    def amplitude(self, l: str) -> tn.Node.tensor:
         assert len(l) == self._nqubits
         no, d_edges = self._copy()
         ms = []
@@ -111,7 +118,10 @@ class Circuit:
         return tn.contractors.greedy(no).tensor
 
     def to_graphviz(
-        self, graph=None, include_all_names=False, engine="neato",
+        self,
+        graph: graphviz.Graph = None,
+        include_all_names: bool = False,
+        engine: str = "neato",
     ) -> graphviz.Graph:
         nodes = self._nodes
         if graph is None:

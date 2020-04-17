@@ -13,3 +13,5 @@ def test_basics():
     c = tc.Circuit(2)
     c.x(0)
     assert np.allclose(c.amplitude("10"), np.array(1.0))
+    c.CNOT(0, 1)
+    assert np.allclose(c.amplitude("11"), np.array(1.0))
