@@ -79,7 +79,12 @@ class Gate(tn.Node):  # type: ignore
 
 
 def num_to_tensor(*num: float) -> Any:
-    l = [backend.convert_to_tensor(np.array(n).astype(npdtype)) for n in num]
+    l = []
+    for n in num:
+        if not backend.is_tensor(n):
+            l.append(backend.convert_to_tensor(backend.np.array(n).astype(npdtype)))
+        else:
+            l.append(n)
     if len(l) == 1:
         return l[0]
     return l

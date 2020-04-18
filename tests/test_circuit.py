@@ -42,3 +42,23 @@ r 2 theta 1.0 alpha 1.57
     assert c.measure(1)[0] == "1"
     print(c.to_qcode())
     assert c.to_qcode() == qcode[1:]
+
+
+def universal_ad():
+    def forward(theta):
+        c = tc.Circuit(2)
+        c.R(0, theta=theta, alpha=0.5, phi=0.8)
+        return tc.backend.real(c.expectation(tc.gates.z(), 0))
+
+    gg = tc.backend.grad(forward)
+    theta = tc.gates.num_to_tensor(1.0)
+    return gg(theta)
+
+
+def test_ad():
+    # this amazingly shows how to code once and run in very different AD-ML engines
+    tc.set_backend("tensorflow")
+    universal_ad()
+    tc.set_backend("jax")
+    universal_ad()
+    tc.set_backend("numpy")

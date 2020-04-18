@@ -7,7 +7,7 @@
 
 ## Programming aspects
 
-- [ ] type hint
+- [x] type hint
 
 - [ ] make the module general enough for every tensornetwork backend and do some benchmarks
 
