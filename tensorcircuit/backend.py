@@ -1,3 +1,7 @@
+"""
+backend magic inherited from tensornetwork
+"""
+
 from typing import Union, Text, Any, Optional
 from scipy.linalg import expm
 
@@ -21,6 +25,11 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def cos(self, a: Tensor) -> Tensor:
         return self.np.cos(a)
 
+    def i(self, dtype: Any = None) -> Tensor:
+        if not dtype:
+            dtype = npdtype  # type: ignore
+        return self.np.array(1j, dtype=dtype)
+
 
 class JaxBackend(NumpyBackend, jax_backend.JaxBackend):  # type: ignore
     def __init__(self) -> None:
@@ -41,6 +50,7 @@ class JaxBackend(NumpyBackend, jax_backend.JaxBackend):  # type: ignore
 
     def expm(self, a: Tensor) -> Tensor:
         return self.sp.linalg.expm(a)
+        # currently expm in jax doesn't support AD, it will raise an AssertError, see https://github.com/google/jax/issues/2645
 
 
 class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
@@ -52,6 +62,11 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
 
     def cos(self, a: Tensor) -> Tensor:
         return self.tf.math.cos(a)
+
+    def i(self, dtype: Any = None) -> Tensor:
+        if not dtype:
+            dtype = tfdtype  # type: ignore
+        return self.tf.constant(1j, dtype=dtype)
 
 
 _BACKENDS = {

@@ -1,3 +1,7 @@
+"""
+quantum circuit class
+"""
+
 from functools import partial
 from typing import Tuple, List, Callable, Union, Optional
 

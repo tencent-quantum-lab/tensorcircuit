@@ -1,18 +1,21 @@
-"""Declarations of single qubit and two-qubit gates."""
+"""
+Declarations of single qubit and two-qubit gates.
+"""
 
 import sys
 from copy import deepcopy
-from typing import Optional
+from typing import Optional, Any
 from functools import partial
 
 import numpy as np
-from scipy.linalg import expm
 from scipy.stats import unitary_group
 import tensornetwork as tn
 
 from .cons import npdtype, backend
 
 thismodule = sys.modules[__name__]
+
+Tensor = Any
 
 # Common single qubit states as np.ndarray objects
 zero_state = np.array([1.0, 0.0], dtype=npdtype)
@@ -75,6 +78,20 @@ class Gate(tn.Node):  # type: ignore
     pass
 
 
+def num_to_tensor(*num: float) -> Any:
+    l = [backend.convert_to_tensor(np.array(n).astype(npdtype)) for n in num]
+    if len(l) == 1:
+        return l[0]
+    return l
+
+
+def array_to_tensor(*num: np.array) -> Any:
+    l = [backend.convert_to_tensor(n.astype(npdtype)) for n in num]
+    if len(l) == 1:
+        return l[0]
+    return l
+
+
 def gate_wrapper(m: np.array, n: Optional[str] = None) -> Gate:
     if not n:
         n = "unknowngate"
@@ -100,28 +117,34 @@ meta_gate()
 
 
 def rgate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
-    mx = backend.sin(alpha) * backend.cos(phi)
-    my = backend.sin(alpha) * backend.sin(phi)
-    mz = backend.cos(alpha)
-    unitary = backend.expm(
-        backend.convert_to_tensor(np.array(-1j, dtype=npdtype))
-        * theta
-        * (mx * _x_matrix + my * _y_matrix * mz * _z_matrix)
+    theta, phi, alpha = num_to_tensor(theta, phi, alpha)
+    i, x, y, z = array_to_tensor(_i_matrix, _x_matrix, _y_matrix, _z_matrix)
+    unitary = (
+        backend.cos(theta) * i
+        - backend.i() * backend.cos(phi) * backend.sin(alpha) * backend.sin(theta) * x
+        - backend.i() * backend.sin(phi) * backend.sin(alpha) * backend.sin(theta) * y
+        - backend.i() * backend.sin(theta) * backend.cos(alpha) * z
     )
-
     return Gate(unitary)
 
 
 r = rgate
 
 
+def rgate_theoretical(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
+    theta, phi, alpha = num_to_tensor(theta, phi, alpha)
+    mx = backend.sin(alpha) * backend.cos(phi)
+    my = backend.sin(alpha) * backend.sin(phi)
+    mz = backend.cos(alpha)
+    x, y, z = array_to_tensor(_x_matrix, _y_matrix, _z_matrix)
+
+    unitary = backend.expm(-backend.i() * theta * (mx * x + my * y + mz * z))
+    return Gate(unitary)
+
+
 def random_single_qubit_gate() -> Gate:
     """
     Returns the random single qubit gate described in https://arxiv.org/abs/2002.07730.
-
-    :param seed: Seed for random number generator.
-    :param  angle_scale: Floating point value to scale angles by. Default 1.
-
     """
 
     # Get the random parameters
@@ -133,8 +156,6 @@ def random_single_qubit_gate() -> Gate:
 def random_two_qubit_gate() -> Gate:
     """
     Returns a random two-qubit gate.
-
-    :seed: Seed for random number generator.
     """
     unitary = unitary_group.rvs(dim=4)
     unitary = np.reshape(unitary, newshape=(2, 2, 2, 2))
