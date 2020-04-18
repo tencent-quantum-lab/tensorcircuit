@@ -99,7 +99,21 @@ def meta_gate() -> None:
 meta_gate()
 
 
-def rgate(seed: Optional[int] = None, angle_scale: float = 1.0) -> Gate:
+def rgate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
+    mx = np.sin(alpha) * np.cos(phi)
+    my = np.sin(alpha) * np.sin(phi)
+    mz = np.cos(alpha)
+    unitary = expm(-1j * theta * (mx * _x_matrix + my * _y_matrix * mz * _z_matrix))
+
+    return Gate(unitary)
+
+
+r = rgate
+
+
+def random_single_qubit_gate(
+    seed: Optional[int] = None, angle_scale: float = 1.0
+) -> Gate:
     """
     Returns the random single qubit gate described in https://arxiv.org/abs/2002.07730.
 
@@ -122,9 +136,6 @@ def rgate(seed: Optional[int] = None, angle_scale: float = 1.0) -> Gate:
     unitary = expm(-1j * theta * (mx * _x_matrix + my * _y_matrix * mz * _z_matrix))
 
     return Gate(unitary)
-
-
-r = rgate
 
 
 def random_two_qubit_gate() -> Gate:

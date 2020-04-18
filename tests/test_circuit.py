@@ -29,3 +29,16 @@ def test_expectation():
     c = tc.Circuit(2)
     c.H(0)
     assert np.allclose(c.expectation(tc.gates.z(), 0), 0)
+
+
+def test_qcode():
+    qcode = """
+4
+x 0
+cnot 0 1
+r 2 theta 1.0 alpha 1.57
+"""
+    c = tc.Circuit.from_qcode(qcode)
+    assert c.measure(1)[0] == "1"
+    print(c.to_qcode())
+    assert c.to_qcode() == qcode[1:]

@@ -3,7 +3,7 @@ on: [push, pull_request]
 jobs:
   tests:
     runs-on: ${{ matrix.os }}
-    name: black and pytest
+    name: test
     strategy:
       matrix:
         os: [ubuntu-18.04, macos-latest]

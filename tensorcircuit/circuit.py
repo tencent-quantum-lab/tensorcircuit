@@ -55,18 +55,74 @@ class Circuit:
         self._front = [n.get_edge(0) for n in nodes]
         self._start = nodes
         self._meta_appy()
+        self._qcode = ""
+        self._qcode += str(self._nqubits) + "\n"
 
     def _meta_appy(self) -> None:
         sgates = ["i", "x", "y", "z", "h"] + ["cnot", "cz", "swap"] + ["toffoli"]
         for g in sgates:
             setattr(
-                self, g, partial(self.apply_general_gate_delayed, getattr(gates, g))
+                self,
+                g,
+                partial(self.apply_general_gate_delayed, getattr(gates, g), name=g),
             )
             setattr(
                 self,
                 g.upper(),
-                partial(self.apply_general_gate_delayed, getattr(gates, g)),
+                partial(self.apply_general_gate_delayed, getattr(gates, g), name=g),
             )
+
+        vgates = ["r"]
+        for g in vgates:
+            setattr(
+                self,
+                g,
+                partial(
+                    self.apply_general_variable_gate_delayed, getattr(gates, g), name=g
+                ),
+            )
+            setattr(
+                self,
+                g.upper(),
+                partial(
+                    self.apply_general_variable_gate_delayed, getattr(gates, g), name=g
+                ),
+            )
+
+    @classmethod
+    def from_qcode(
+        cls, qcode: str
+    ) -> "Circuit":  # forward reference, see https://github.com/python/mypy/issues/3661
+        """
+        make circuit object from non universal simple assembly quantum language
+
+        :param qcode:
+        :return:
+        """
+        lines = [s for s in qcode.split("\n") if s.strip()]
+        nqubits = int(lines[0])
+        c = cls(nqubits)
+        for l in lines[1:]:
+            ls = [s for s in l.split(" ") if s.strip()]
+            g = ls[0]
+            index = []
+            errloc = 0
+            for i, s in enumerate(ls[1:]):
+                try:
+                    si = int(s)
+                    index.append(si)
+                except ValueError:
+                    errloc = i + 1
+                    break
+            kwdict = {}
+            if errloc > 0:
+                for j, s in enumerate(ls[errloc::2]):
+                    kwdict[s] = float(ls[2 * j + 1 + errloc])
+            getattr(c, g)(*index, **kwdict)
+        return c
+
+    def to_qcode(self) -> str:
+        return self._qcode
 
     def apply_single_gate(self, gate: Gate, index: int) -> None:
         gate.get_edge(0) ^ self._front[index]
@@ -81,19 +137,61 @@ class Circuit:
         self._front[index2] = gate.get_edge(3)
         self._nodes.append(gate)
 
-    def apply_general_gate(self, gate: Gate, *index: int) -> None:
+    def apply_general_gate(
+        self, gate: Gate, *index: int, name: Optional[str] = None
+    ) -> None:
         assert len(index) == len(set(index))
         noe = len(index)
         for i, ind in enumerate(index):
             gate.get_edge(i) ^ self._front[ind]
             self._front[ind] = gate.get_edge(i + noe)
         self._nodes.append(gate)
+        if (
+            name
+        ):  # if no name is specified, then the corresponding op wont be recorded in qcode
+            self._qcode += name + " "
+            for i in index:
+                self._qcode += str(i) + " "
+            self._qcode = self._qcode[:-1] + "\n"
+
+    apply = apply_general_gate
 
     def apply_general_gate_delayed(
-        self, gatef: Callable[[], Gate], *index: int
+        self, gatef: Callable[[], Gate], *index: int, name: Optional[str] = None
     ) -> None:
         gate = gatef()
-        self.apply_general_gate(gate, *index)
+        self.apply_general_gate(gate, *index, name=name)
+
+    applyd = apply_general_gate_delayed
+
+    def apply_general_variable_gate_delayed(
+        self,
+        gatef: Callable[..., Gate],
+        *index: int,
+        name: Optional[str] = None,
+        **vars: float,
+    ) -> None:
+        gate = gatef(**vars)
+        self.apply_general_gate(gate, *index, name=name)
+        self._qcode = self._qcode[:-1] + " "  # rip off the final "\n"
+        for k, v in vars.items():
+            self._qcode += k + " " + str(v) + " "
+        self._qcode = self._qcode[:-1] + "\n"
+
+    def is_valid(self) -> bool:
+        """
+        [WIP], check whether the circuit is legal
+
+        :return:
+        """
+        try:
+            assert len(self._front) == self._nqubits
+            for n in self._nodes:
+                for e in n.get_all_dangling():
+                    assert e in self._front
+            return True
+        except AssertionError:
+            return False
 
     def _copy(self) -> Tuple[List[tn.Node], List[tn.Edge]]:
         """
@@ -217,7 +315,7 @@ class Circuit:
         :param engine:
         :return:
         """
-        # Modified from tensornetwork
+        # Modified from tensornetwork codebase
         nodes = self._nodes
         if graph is None:
             # pylint: disable=no-member
