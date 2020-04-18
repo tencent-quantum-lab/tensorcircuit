@@ -17,9 +17,15 @@ def test_basics():
     assert np.allclose(c.amplitude("11"), np.array(1.0))
 
 
-def test_perfect_sampling():
+def test_measure():
     c = tc.Circuit(3)
     c.H(0)
     c.h(1)
     c.toffoli(0, 1, 2)
-    c.perfect_sampling()
+    assert c.measure(2)[0] in ["0", "1"]
+
+
+def test_expectation():
+    c = tc.Circuit(2)
+    c.H(0)
+    assert np.allclose(c.expectation(tc.gates.z(), 0), 0)

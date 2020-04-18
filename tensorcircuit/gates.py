@@ -67,7 +67,11 @@ _toffoli_matrix = np.array(
 )
 
 
-class Gate(tn.Node):
+class Gate(tn.Node):  # type: ignore
+    """
+    Wrapper of tn.Node, quantum gate
+    """
+
     pass
 
 
@@ -96,11 +100,11 @@ meta_gate()
 
 
 def rgate(seed: Optional[int] = None, angle_scale: float = 1.0) -> Gate:
-    """Returns the random single qubit gate described in https://arxiv.org/abs/2002.07730.
+    """
+    Returns the random single qubit gate described in https://arxiv.org/abs/2002.07730.
 
-    Args:
-        seed: Seed for random number generator.
-        angle_scale: Floating point value to scale angles by. Default 1.
+    :param seed: Seed for random number generator.
+    :param  angle_scale: Floating point value to scale angles by. Default 1.
 
     """
     if seed:
@@ -123,14 +127,12 @@ def rgate(seed: Optional[int] = None, angle_scale: float = 1.0) -> Gate:
 r = rgate
 
 
-def random_two_qubit_gate(seed: Optional[int] = None) -> Gate:
-    """Returns a random two-qubit gate.
-
-    Args:
-        seed: Seed for random number generator.
+def random_two_qubit_gate() -> Gate:
     """
-    if seed:
-        np.random.seed(seed)
+    Returns a random two-qubit gate.
+
+    :seed: Seed for random number generator.
+    """
     unitary = unitary_group.rvs(dim=4)
     unitary = np.reshape(unitary, newshape=(2, 2, 2, 2))
     return Gate(deepcopy(unitary), name="R2Q")

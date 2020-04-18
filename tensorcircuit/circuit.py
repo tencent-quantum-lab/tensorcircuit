@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Tuple, List, Callable
+from typing import Tuple, List, Callable, Union, Optional
 
 import numpy as np
 import tensornetwork as tn
@@ -136,19 +136,17 @@ class Circuit:
         no.extend(ms)
         return contractor(no).tensor
 
-    def measure(self) -> None:
-        # consideration on how to deal with measure in the middle of the circuit
-        pass
-
-    def perfect_sampling(self) -> Tuple[str, float]:
+    def measure(self, *index: int, with_prob: bool = False) -> Tuple[str, float]:
         """
-        reference: arXiv:1201.3974.
 
-        :return: sampled bit string and the corresponding theoretical probability
+        :param index: measure on which quantum line
+        :param with_prob: if true, theoretical probability is also returned
+        :return:
         """
+        # TODO: consideration on how to deal with measure in the middle of the circuit
         sample = ""
         p = 1
-        for j in range(self._nqubits):
+        for j in index:
             nodes1, edge1 = self._copy()
             nodes2, edge2 = self._copy()
             for i, e in enumerate(edge1):
@@ -160,9 +158,9 @@ class Circuit:
                 else:
                     m = np.array([0, 1], dtype=npdtype)
                 nodes1.append(tn.Node(m))
-                nodes1[-1].get_edge(0) ^ edge1[i]
+                nodes1[-1].get_edge(0) ^ edge1[index[i]]
                 nodes2.append(tn.Node(m))
-                nodes2[-1].get_edge(0) ^ edge2[i]
+                nodes2[-1].get_edge(0) ^ edge2[index[i]]
             nodes1.extend(nodes2)
             rho = (
                 1
@@ -177,7 +175,33 @@ class Circuit:
             else:
                 sample += "1"
                 p = p * (1 - pu)
-        return sample, p
+        if with_prob:
+            return sample, p
+        else:
+            return sample, -1.0
+
+    def perfect_sampling(self) -> Tuple[str, float]:
+        """
+        reference: arXiv:1201.3974.
+
+        :return: sampled bit string and the corresponding theoretical probability
+        """
+        return self.measure(*[i for i in range(self._nqubits)], with_prob=True)
+
+    def expectation(self, op: tn.Node, *index: int) -> tn.Node.tensor:
+        nodes1, edge1 = self._copy()
+        nodes2, edge2 = self._copy()
+        noe = len(index)
+        for j, e in enumerate(index):
+            edge1[e] ^ op.get_edge(j)
+            edge2[e] ^ op.get_edge(j + noe)
+        for j in range(self._nqubits):
+            if j not in index:  # edge1[j].is_dangling invalid here!
+                edge1[j] ^ edge2[j]
+        nodes1.append(op)
+        nodes1.extend(nodes2)
+        # self._nodes = nodes1
+        return contractor(nodes1).tensor
 
     def to_graphviz(
         self,

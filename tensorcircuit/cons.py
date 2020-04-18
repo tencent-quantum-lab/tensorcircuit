@@ -23,6 +23,12 @@ contractor = tn.contractors.greedy
 
 
 def set_tensornetwork_backend(backend: Optional[str] = None) -> None:
+    """
+    set the runtime backend of tensornetwork
+
+    :param backend: numpy, tensorflow, jax, pytorch
+    :return:
+    """
     if not backend:
         backend = get_default_backend()
     backend_obj = backend_factory.get_backend(backend)
