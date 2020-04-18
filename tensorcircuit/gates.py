@@ -10,7 +10,7 @@ from scipy.linalg import expm
 from scipy.stats import unitary_group
 import tensornetwork as tn
 
-from .cons import npdtype
+from .cons import npdtype, backend
 
 thismodule = sys.modules[__name__]
 
@@ -100,10 +100,14 @@ meta_gate()
 
 
 def rgate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
-    mx = np.sin(alpha) * np.cos(phi)
-    my = np.sin(alpha) * np.sin(phi)
-    mz = np.cos(alpha)
-    unitary = expm(-1j * theta * (mx * _x_matrix + my * _y_matrix * mz * _z_matrix))
+    mx = backend.sin(alpha) * backend.cos(phi)
+    my = backend.sin(alpha) * backend.sin(phi)
+    mz = backend.cos(alpha)
+    unitary = backend.expm(
+        backend.convert_to_tensor(np.array(-1j, dtype=npdtype))
+        * theta
+        * (mx * _x_matrix + my * _y_matrix * mz * _z_matrix)
+    )
 
     return Gate(unitary)
 
@@ -111,9 +115,7 @@ def rgate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
 r = rgate
 
 
-def random_single_qubit_gate(
-    seed: Optional[int] = None, angle_scale: float = 1.0
-) -> Gate:
+def random_single_qubit_gate() -> Gate:
     """
     Returns the random single qubit gate described in https://arxiv.org/abs/2002.07730.
 
@@ -121,21 +123,11 @@ def random_single_qubit_gate(
     :param  angle_scale: Floating point value to scale angles by. Default 1.
 
     """
-    if seed:
-        np.random.seed(seed)
 
     # Get the random parameters
     theta, alpha, phi = np.random.rand(3) * 2 * np.pi
-    mx = np.sin(alpha) * np.cos(phi)
-    my = np.sin(alpha) * np.sin(phi)
-    mz = np.cos(alpha)
 
-    theta *= angle_scale
-
-    # Get the unitary
-    unitary = expm(-1j * theta * (mx * _x_matrix + my * _y_matrix * mz * _z_matrix))
-
-    return Gate(unitary)
+    return rgate(theta, alpha, phi)
 
 
 def random_two_qubit_gate() -> Gate:

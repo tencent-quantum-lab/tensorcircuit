@@ -4,7 +4,8 @@ import sys
 import numpy as np
 import tensornetwork as tn
 from tensornetwork.backend_contextmanager import get_default_backend
-from tensornetwork.backends import backend_factory
+
+from .backend import get_backend
 
 
 modules = [
@@ -17,7 +18,7 @@ modules = [
 
 dtype = "complex64"
 npdtype = np.complex64
-backend = backend_factory.get_backend("numpy")
+backend = get_backend("numpy")
 contractor = tn.contractors.greedy
 # these above lines are just for mypy, it is not very good at evaluating runtime object
 
@@ -31,10 +32,11 @@ def set_tensornetwork_backend(backend: Optional[str] = None) -> None:
     """
     if not backend:
         backend = get_default_backend()
-    backend_obj = backend_factory.get_backend(backend)
+    backend_obj = get_backend(backend)
     for module in modules:
         if module in sys.modules:
             setattr(sys.modules[module], "backend", backend_obj)
+    tn.set_default_backend(backend)
 
 
 set_backend = set_tensornetwork_backend

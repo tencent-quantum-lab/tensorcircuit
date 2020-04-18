@@ -193,13 +193,13 @@ class Circuit:
         except AssertionError:
             return False
 
-    def _copy(self) -> Tuple[List[tn.Node], List[tn.Edge]]:
+    def _copy(self, conj: bool = False) -> Tuple[List[tn.Node], List[tn.Edge]]:
         """
         copy all nodes and dangling edges correspondingly
 
         :return:
         """
-        ndict, edict = tn.copy(self._nodes)
+        ndict, edict = tn.copy(self._nodes, conjugate=conj)
         newnodes = []
         for n in self._nodes:
             newnodes.append(ndict[n])
@@ -246,7 +246,7 @@ class Circuit:
         p = 1
         for j in index:
             nodes1, edge1 = self._copy()
-            nodes2, edge2 = self._copy()
+            nodes2, edge2 = self._copy(conj=True)
             for i, e in enumerate(edge1):
                 if i != j:
                     e ^ edge2[i]
@@ -288,7 +288,7 @@ class Circuit:
 
     def expectation(self, op: tn.Node, *index: int) -> tn.Node.tensor:
         nodes1, edge1 = self._copy()
-        nodes2, edge2 = self._copy()
+        nodes2, edge2 = self._copy(conj=True)
         noe = len(index)
         for j, e in enumerate(index):
             edge1[e] ^ op.get_edge(j)
