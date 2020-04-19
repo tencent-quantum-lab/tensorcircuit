@@ -42,6 +42,9 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def grad(self, f: Callable[..., Any]) -> Callable[..., Any]:
         raise NotImplementedError("numpy backend doesn't support AD")
 
+    def jit(self, f: Callable[..., Any]) -> Callable[..., Any]:
+        raise NotImplementedError("numpy backend doesn't support jit compiling")
+
 
 class JaxBackend(NumpyBackend, jax_backend.JaxBackend):  # type: ignore
     def __init__(self) -> None:
@@ -78,6 +81,9 @@ class JaxBackend(NumpyBackend, jax_backend.JaxBackend):  # type: ignore
     def grad(self, f: Callable[..., Any]) -> Any:
         # TODO
         return self.jax.grad(f)
+
+    def jit(self, f: Callable[..., Any]) -> Any:
+        return self.jax.jit(f)
 
 
 class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
@@ -127,6 +133,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
             return g
 
         return wrapper
+
+    def jit(self, f: Callable[..., Any]) -> Any:
+        return self.tf.function(f)
 
 
 _BACKENDS = {

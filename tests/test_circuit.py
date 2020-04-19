@@ -45,12 +45,14 @@ r 2 theta 1.0 alpha 1.57
 
 
 def universal_ad():
+    @tc.backend.jit
     def forward(theta):
         c = tc.Circuit(2)
         c.R(0, theta=theta, alpha=0.5, phi=0.8)
         return tc.backend.real(c.expectation(tc.gates.z(), 0))
 
     gg = tc.backend.grad(forward)
+    gg = tc.backend.jit(gg)
     theta = tc.gates.num_to_tensor(1.0)
     return gg(theta)
 
