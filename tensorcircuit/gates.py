@@ -11,7 +11,7 @@ import numpy as np
 from scipy.stats import unitary_group
 import tensornetwork as tn
 
-from .cons import npdtype, backend
+from .cons import dtypestr, npdtype, backend
 
 thismodule = sys.modules[__name__]
 
@@ -78,11 +78,13 @@ class Gate(tn.Node):  # type: ignore
     pass
 
 
-def num_to_tensor(*num: float) -> Any:
+def num_to_tensor(*num: float, dtype: Optional[str] = None) -> Any:
     l = []
+    if not dtype:
+        dtype = dtypestr
     for n in num:
         if not backend.is_tensor(n):
-            l.append(backend.convert_to_tensor(backend.np.array(n).astype(npdtype)))
+            l.append(backend.cast(backend.convert_to_tensor(n), dtype=dtype))
         else:
             l.append(n)
     if len(l) == 1:

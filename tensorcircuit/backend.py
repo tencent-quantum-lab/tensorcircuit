@@ -2,7 +2,7 @@
 backend magic inherited from tensornetwork
 """
 
-from typing import Union, Text, Any, Optional, Callable
+from typing import Union, Text, Any, Optional, Callable, Sequence
 from scipy.linalg import expm
 import numpy as np
 
@@ -39,6 +39,9 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def real(self, a: Tensor) -> Tensor:
         return self.np.real(a)
 
+    def cast(self, a: Tensor, dtype: str) -> Tensor:
+        return a.astype(getattr(self.np, dtype))
+
     def grad(self, f: Callable[..., Any]) -> Callable[..., Any]:
         raise NotImplementedError("numpy backend doesn't support AD")
 
@@ -61,9 +64,6 @@ class JaxBackend(NumpyBackend, jax_backend.JaxBackend):  # type: ignore
         self.sp = self.jax.scipy
         self.name = "jax"
 
-    # def convert_to_tensor(self, tensor: Tensor) -> Tensor:
-    #     return tensor
-
     # it is already child of numpy backend, and self.np = self.jax.np
 
     def expm(self, a: Tensor) -> Tensor:
@@ -78,9 +78,11 @@ class JaxBackend(NumpyBackend, jax_backend.JaxBackend):  # type: ignore
             return True
         return False
 
-    def grad(self, f: Callable[..., Any]) -> Any:
+    def grad(
+        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+    ) -> Any:
         # TODO
-        return self.jax.grad(f)
+        return self.jax.grad(f, argnums=argnums)
 
     def jit(self, f: Callable[..., Any]) -> Any:
         return self.jax.jit(f)
@@ -115,21 +117,30 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         return self.tf.constant(1j, dtype=dtype)
 
     def is_tensor(self, a: Any) -> bool:
-        if isinstance(a, self.tf.Tensor):
+        if isinstance(a, self.tf.Tensor) or isinstance(a, self.tf.Variable):
             return True
         return False
 
     def real(self, a: Tensor) -> Tensor:
         return self.tf.math.real(a)
 
-    def grad(self, f: Callable[..., Any]) -> Callable[..., Any]:
-        # experimental attempt [WIP]
-        # TODO
+    def cast(self, a: Tensor, dtype: str) -> Tensor:
+        return self.tf.cast(a, dtype=getattr(self.tf, dtype))
+
+    def grad(
+        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+    ) -> Callable[..., Any]:
+        # experimental attempt
+        # Note: tensorflow grad is gradient while jax grad is derivative, they are different with a conjugate!
         def wrapper(*args: Any, **kws: Any) -> Any:
             with self.tf.GradientTape() as t:
-                t.watch(*args)
+                t.watch(args)
                 y = f(*args, **kws)
-                g = t.gradient(y, args)
+                if isinstance(argnums, int):
+                    x = args[argnums]
+                else:
+                    x = [args[i] for i in argnums]
+                g = t.gradient(y, x)
             return g
 
         return wrapper

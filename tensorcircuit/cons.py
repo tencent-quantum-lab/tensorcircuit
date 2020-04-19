@@ -22,7 +22,7 @@ modules = [
 ]
 
 
-dtype = "complex64"
+dtypestr = "complex64"
 npdtype = np.complex64
 tfdtype = tf.complex64
 backend = get_backend("numpy")
@@ -59,6 +59,7 @@ def set_dtype(dtype: Optional[str] = None) -> None:
     tfdtype = getattr(tf, dtype)
     for module in modules:
         if module in sys.modules:
+            setattr(sys.modules[module], "dtypestr", dtype)
             setattr(sys.modules[module], "npdtype", npdtype)
             setattr(sys.modules[module], "tfdtype", tfdtype)
 

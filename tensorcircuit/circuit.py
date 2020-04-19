@@ -58,11 +58,11 @@ class Circuit:
         self._nodes = nodes
         self._front = [n.get_edge(0) for n in nodes]
         self._start = nodes
-        self._meta_appy()
+        self._meta_apply()
         self._qcode = ""
         self._qcode += str(self._nqubits) + "\n"
 
-    def _meta_appy(self) -> None:
+    def _meta_apply(self) -> None:
         sgates = ["i", "x", "y", "z", "h"] + ["cnot", "cz", "swap"] + ["toffoli"]
         for g in sgates:
             setattr(
