@@ -29,3 +29,6 @@ jobs:
       - name: test scripts
         run: |
           pytest --cov=tensorcircuit -svv
+      - name: setup build
+        run: |
+          python3 setup.py build

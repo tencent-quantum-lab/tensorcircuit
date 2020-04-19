@@ -1,6 +1,6 @@
 ## Physics aspects
 
-- [ ] differentiable circuits with tensorflow backend in optimization setups
+- [x] differentiable circuits with tensorflow backend in optimization setups
 
 - [ ] svd type simulation like in arXiv:2002.07730
 

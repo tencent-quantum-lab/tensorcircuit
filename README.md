@@ -4,7 +4,7 @@ This project is partially inspired by [mpsim](https://github.com/grmlarose/mpsim
 
 With [TensorNetwork](https://github.com/google/TensorNetwork) project announced by Google, such setup may gain benefits from swift implementation to auto differentiation abilities.
 
-This is only a toy project and it is at very early stage. There might be not only sharp edges but also essential bugs in the project.
+This is only a toy project at very early stage and it may always be at this stage. There might be not only sharp edges but also essential bugs in the project.
 Try it on your own risk.
 
 ## Baisc Usage
@@ -28,7 +28,7 @@ tc.set_dtype("complex128")
 tc.set_contractor("greedy")
 ```
 
-Auto differentiations with jit:
+Auto differentiations with jit (tf and jax supported):
 
 ```python
 @tc.backend.jit
