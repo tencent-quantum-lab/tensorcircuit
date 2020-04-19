@@ -2,4 +2,4 @@ mypy
 pytest
 pytest-cov
 black
-sphnix>=2.4
+sphinx>=2.4
