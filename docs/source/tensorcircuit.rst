@@ -1,10 +1,10 @@
 tensorcircuit package
 ===========================
 
-tensorcircuit.backend module
+tensorcircuit.backends module
 ------------------------------------
 
-.. automodule:: tensorcircuit.backend
+.. automodule:: tensorcircuit.backends
     :members:
     :undoc-members:
     :show-inheritance:

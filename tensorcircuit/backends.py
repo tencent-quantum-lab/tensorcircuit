@@ -3,6 +3,7 @@ backend magic inherited from tensornetwork
 """
 
 from typing import Union, Text, Any, Optional, Callable, Sequence
+from functools import partial
 from scipy.linalg import expm
 import numpy as np
 
@@ -29,6 +30,8 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def i(self, dtype: Any = None) -> Tensor:
         if not dtype:
             dtype = npdtype  # type: ignore
+        if isinstance(dtype, str):
+            dtype = getattr(self.np, dtype)
         return self.np.array(1j, dtype=dtype)
 
     def is_tensor(self, a: Any) -> bool:
@@ -47,6 +50,9 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
 
     def jit(self, f: Callable[..., Any]) -> Callable[..., Any]:
         raise NotImplementedError("numpy backend doesn't support jit compiling")
+
+    def vmap(self, f: Callable[..., Any]) -> Callable[..., Any]:
+        raise NotImplementedError("numpy backend doesn't support vmap compiling")
 
 
 class JaxBackend(NumpyBackend, jax_backend.JaxBackend):  # type: ignore
@@ -87,6 +93,11 @@ class JaxBackend(NumpyBackend, jax_backend.JaxBackend):  # type: ignore
     def jit(self, f: Callable[..., Any]) -> Any:
         return self.jax.jit(f)
 
+    def vmap(self, f: Callable[..., Any]) -> Any:
+        return self.jax.vmap(
+            f
+        )  # since tf doesn't support in&out axes options, we don't support them in universal backend
+
 
 class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     def __init__(self) -> None:
@@ -114,6 +125,8 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     def i(self, dtype: Any = None) -> Tensor:
         if not dtype:
             dtype = tfdtype  # type: ignore
+        if isinstance(dtype, str):
+            dtype = getattr(self.tf, dtype)
         return self.tf.constant(1j, dtype=dtype)
 
     def is_tensor(self, a: Any) -> bool:
@@ -147,6 +160,17 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
 
     def jit(self, f: Callable[..., Any]) -> Any:
         return self.tf.function(f)
+
+    def vmap(self, f: Callable[..., Any]) -> Any:
+        def wrapper(f: Callable[..., Any], args: Sequence[Any]) -> Any:
+            return f(*args)
+
+        wrapper = partial(wrapper, f)
+
+        def own_vectorized_map(f: Callable[..., Any], *args: Any) -> Any:
+            return self.tf.vectorized_map(f, args)
+
+        return partial(own_vectorized_map, wrapper)
 
 
 _BACKENDS = {

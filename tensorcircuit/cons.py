@@ -10,7 +10,7 @@ import tensorflow as tf
 import tensornetwork as tn
 from tensornetwork.backend_contextmanager import get_default_backend
 
-from .backend import get_backend
+from .backends import get_backend
 
 
 modules = [
@@ -18,7 +18,7 @@ modules = [
     "tensorcircuit.cons",
     "tensorcircuit.gates",
     "tensorcircuit.circuit",
-    "tensorcircuit.backend",
+    "tensorcircuit.backends",
 ]
 
 
