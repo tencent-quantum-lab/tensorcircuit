@@ -61,8 +61,8 @@ class JaxBackend(NumpyBackend, jax_backend.JaxBackend):  # type: ignore
         self.sp = self.jax.scipy
         self.name = "jax"
 
-    def convert_to_tensor(self, tensor: Tensor) -> Tensor:
-        return tensor
+    # def convert_to_tensor(self, tensor: Tensor) -> Tensor:
+    #     return tensor
 
     # it is already child of numpy backend, and self.np = self.jax.np
 
