@@ -51,8 +51,8 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def jit(self, f: Callable[..., Any]) -> Callable[..., Any]:
         raise NotImplementedError("numpy backend doesn't support jit compiling")
 
-    def vmap(self, f: Callable[..., Any]) -> Callable[..., Any]:
-        raise NotImplementedError("numpy backend doesn't support vmap compiling")
+    def vmap(self, f: Callable[..., Any]) -> Any:
+        return self.np.vectorize(f)
 
 
 class JaxBackend(NumpyBackend, jax_backend.JaxBackend):  # type: ignore

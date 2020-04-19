@@ -14,7 +14,7 @@ import tensorcircuit as tc
 def tfb():
     tc.set_backend("tensorflow")
     yield
-    tc.set_backend("numpy") # default backend
+    tc.set_backend("numpy")  # default backend
 
 
 @pytest.fixture(scope="function")
@@ -31,6 +31,11 @@ def universal_vmap():
     vop = tc.backend.vmap(sum_real)
     t = tc.gates.array_to_tensor(np.ones([20, 1]))
     return vop(t, 2.0 * t)
+
+
+def test_vmap_np():
+    r = universal_vmap()
+    assert r.shape == (20, 1)
 
 
 def test_vmap_jax(jaxb):
