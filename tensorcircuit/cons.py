@@ -26,7 +26,7 @@ dtypestr = "complex64"
 npdtype = np.complex64
 tfdtype = tf.complex64
 backend = get_backend("numpy")
-contractor = tn.contractors.greedy
+contractor = tn.contractors.auto
 # these above lines are just for mypy, it is not very good at evaluating runtime object
 
 
@@ -69,7 +69,7 @@ set_dtype()
 
 def set_contractor(method: Optional[str] = None) -> None:
     if not method:
-        method = "greedy"
+        method = "auto"
     cf = getattr(tn.contractors, method, None)
     if not cf:
         raise ValueError("Unknown contractor type: %s" % method)

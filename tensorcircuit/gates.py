@@ -160,6 +160,9 @@ def random_single_qubit_gate() -> Gate:
     return rgate(theta, alpha, phi)
 
 
+rs = random_single_qubit_gate
+
+
 def random_two_qubit_gate() -> Gate:
     """
     Returns a random two-qubit gate.

@@ -63,6 +63,10 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
 
 
 class JaxBackend(NumpyBackend, jax_backend.JaxBackend):  # type: ignore
+    # Jax doesn't support 64bit dtype, unless claim
+    # from jax.config import config
+    # config.update("jax_enable_x64", True)
+    # at very beginning, i.e. before import tensorcircuit
     def __init__(self) -> None:
         super(JaxBackend, self).__init__()
         try:
@@ -78,6 +82,10 @@ class JaxBackend(NumpyBackend, jax_backend.JaxBackend):  # type: ignore
         self.name = "jax"
 
     # it is already child of numpy backend, and self.np = self.jax.np
+
+    def convert_to_tensor(self, tensor: Tensor) -> Tensor:
+        result = self.np.asarray(tensor)
+        return result
 
     def expm(self, a: Tensor) -> Tensor:
         return self.sp.linalg.expm(a)
@@ -238,7 +246,8 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
             "pytorch backend has no intrinsic vmap like interface"
             ", use plain for loop for compatibility"
         )
-
+        # the vmap support is vey limited, f must return one tensor
+        # nested list of tensor as return is not supported
         def vmapf(*args: Tensor, **kws: Any) -> Tensor:
             r = []
             for i in range(args[0].shape[0]):
@@ -250,6 +259,10 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         # raise NotImplementedError("pytorch backend doesn't support vmap")
         # There seems to be no map like architecture in pytorch for now
         # see https://discuss.pytorch.org/t/fast-way-to-use-map-in-pytorch/70814
+
+    def jit(self, f: Callable[..., Any]) -> Any:
+        return f  # do nothing here until I figure out what torch.jit is for and how does it work
+        # see https://github.com/pytorch/pytorch/issues/36910
 
 
 _BACKENDS = {

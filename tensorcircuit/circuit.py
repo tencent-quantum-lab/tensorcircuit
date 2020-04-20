@@ -10,7 +10,7 @@ import tensornetwork as tn
 import graphviz
 
 from . import gates
-from .cons import npdtype, backend, contractor
+from .cons import dtypestr, npdtype, backend, contractor
 
 Gate = gates.Gate
 
@@ -63,7 +63,7 @@ class Circuit:
         self._qcode += str(self._nqubits) + "\n"
 
     def _meta_apply(self) -> None:
-        sgates = ["i", "x", "y", "z", "h"] + ["cnot", "cz", "swap"] + ["toffoli"]
+        sgates = ["i", "x", "y", "z", "h", "rs"] + ["cnot", "cz", "swap"] + ["toffoli"]
         for g in sgates:
             setattr(
                 self,
@@ -247,7 +247,7 @@ class Circuit:
         """
         # TODO: consideration on how to deal with measure in the middle of the circuit
         sample = ""
-        p = 1
+        p = 1.0
         for j in index:
             nodes1, edge1 = self._copy()
             nodes2, edge2 = self._copy(conj=True)
@@ -270,8 +270,10 @@ class Circuit:
                 * contractor(nodes1, output_edge_order=[edge1[j], edge2[j]]).tensor
             )
             pu = rho[0, 0]
-            r = np.random.rand()
-            if r < pu:
+            print(pu.dtype)
+            r = backend.random_uniform([])
+            r = backend.real(backend.cast(r, dtypestr))
+            if r < backend.real(pu):
                 sample += "0"
                 p = p * pu
             else:
