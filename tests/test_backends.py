@@ -24,6 +24,15 @@ def jaxb():
     tc.set_backend("numpy")
 
 
+@pytest.fixture(scope="function")
+def torchb():
+    tc.set_backend("pytorch")
+    tc.set_dtype("float64")
+    yield
+    tc.set_backend("numpy")
+    tc.set_dtype("complex64")
+
+
 def universal_vmap():
     def sum_real(x, y):
         return tc.backend.real(x + y)
@@ -44,5 +53,10 @@ def test_vmap_jax(jaxb):
 
 
 def test_vmap_tf(tfb):
+    r = universal_vmap()
+    assert r.numpy()[0, 0] == 3.0
+
+
+def test_vmap_torch(torchb):
     r = universal_vmap()
     assert r.numpy()[0, 0] == 3.0
