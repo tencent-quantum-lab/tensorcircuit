@@ -63,7 +63,11 @@ class Circuit:
         self._qcode += str(self._nqubits) + "\n"
 
     def _meta_apply(self) -> None:
-        sgates = ["i", "x", "y", "z", "h", "rs"] + ["cnot", "cz", "swap"] + ["toffoli"]
+        sgates = (
+            ["i", "x", "y", "z", "h", "t", "s", "rs"]
+            + ["cnot", "cz", "swap"]
+            + ["toffoli"]
+        )
         for g in sgates:
             setattr(
                 self,
@@ -76,7 +80,7 @@ class Circuit:
                 partial(self.apply_general_gate_delayed, getattr(gates, g), name=g),
             )
 
-        vgates = ["r"]
+        vgates = ["r", "cr"]
         for g in vgates:
             setattr(
                 self,
@@ -270,7 +274,6 @@ class Circuit:
                 * contractor(nodes1, output_edge_order=[edge1[j], edge2[j]]).tensor
             )
             pu = rho[0, 0]
-            print(pu.dtype)
             r = backend.random_uniform([])
             r = backend.real(backend.cast(r, dtypestr))
             if r < backend.real(pu):
@@ -279,6 +282,7 @@ class Circuit:
             else:
                 sample += "1"
                 p = p * (1 - pu)
+            print(p)
         if with_prob:
             return sample, p
         else:

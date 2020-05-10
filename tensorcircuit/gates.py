@@ -29,6 +29,8 @@ _i_matrix = np.array([[1.0, 0.0], [0.0, 1.0]])
 _x_matrix = np.array([[0.0, 1.0], [1.0, 0.0]])
 _y_matrix = np.array([[0.0, -1j], [1j, 0.0]])
 _z_matrix = np.array([[1.0, 0.0], [0.0, -1.0]])
+_s_matrix = np.array([[1.0, 0.0], [0.0, 1j]])
+_t_matrix = np.array([[1.0, 0.0], [0.0, np.exp(np.pi / 4 * 1j)]])
 
 _cnot_matrix = np.array(
     [
@@ -161,6 +163,31 @@ def random_single_qubit_gate() -> Gate:
 
 
 rs = random_single_qubit_gate
+
+
+def crgate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
+    theta, phi, alpha = num_to_tensor(theta, phi, alpha)
+    u = np.array([[1.0, 0.0], [0.0, 0.0]])
+    d = np.array([[0.0, 0.0], [0.0, 1.0]])
+    j = np.kron(u, _i_matrix)
+    i = np.kron(d, _i_matrix)
+    x = np.kron(d, _x_matrix)
+    y = np.kron(d, _y_matrix)
+    z = np.kron(d, _z_matrix)
+
+    j, i, x, y, z = array_to_tensor(j, i, x, y, z)
+    unitary = (
+        j
+        + backend.cos(theta) * i
+        - backend.i() * backend.cos(phi) * backend.sin(alpha) * backend.sin(theta) * x
+        - backend.i() * backend.sin(phi) * backend.sin(alpha) * backend.sin(theta) * y
+        - backend.i() * backend.sin(theta) * backend.cos(alpha) * z
+    )
+    unitary = backend.reshape(unitary, [2, 2, 2, 2])
+    return Gate(unitary)
+
+
+cr = crgate
 
 
 def random_two_qubit_gate() -> Gate:

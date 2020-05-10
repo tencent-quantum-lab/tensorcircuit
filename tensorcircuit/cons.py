@@ -2,11 +2,11 @@
 some cons and sets.
 """
 
-from typing import Optional
+from typing import Optional, Any
 import sys
+from functools import partial
 
 import numpy as np
-import tensorflow as tf
 import tensornetwork as tn
 from tensornetwork.backend_contextmanager import get_default_backend
 
@@ -24,7 +24,6 @@ modules = [
 
 dtypestr = "complex64"
 npdtype = np.complex64
-tfdtype = tf.complex64
 backend = get_backend("numpy")
 contractor = tn.contractors.auto
 # these above lines are just for mypy, it is not very good at evaluating runtime object
@@ -56,23 +55,25 @@ def set_dtype(dtype: Optional[str] = None) -> None:
     if not dtype:
         dtype = "complex64"
     npdtype = getattr(np, dtype)
-    tfdtype = getattr(tf, dtype)
     for module in modules:
         if module in sys.modules:
             setattr(sys.modules[module], "dtypestr", dtype)
             setattr(sys.modules[module], "npdtype", npdtype)
-            setattr(sys.modules[module], "tfdtype", tfdtype)
 
 
 set_dtype()
 
 
-def set_contractor(method: Optional[str] = None) -> None:
+def set_contractor(
+    method: Optional[str] = None, optimizer: Optional[Any] = None
+) -> None:
     if not method:
         method = "auto"
     cf = getattr(tn.contractors, method, None)
     if not cf:
         raise ValueError("Unknown contractor type: %s" % method)
+    if method == "custom":
+        cf = partial(cf, optimizer=optimizer)
     for module in modules:
         if module in sys.modules:
             setattr(sys.modules[module], "contractor", cf)

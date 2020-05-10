@@ -17,34 +17,40 @@ from tensornetwork.backends import base_backend
 
 Tensor = Any
 
+libjax: Any
+jnp: Any
+jsp: Any
+torchlib: Any
+tf: Any
+
 
 class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def expm(self, a: Tensor) -> Tensor:
         return expm(a)
 
     def sin(self, a: Tensor) -> Tensor:
-        return self.np.sin(a)
+        return np.sin(a)
 
     def cos(self, a: Tensor) -> Tensor:
-        return self.np.cos(a)
+        return np.cos(a)
 
     def i(self, dtype: Any = None) -> Tensor:
         if not dtype:
             dtype = npdtype  # type: ignore
         if isinstance(dtype, str):
-            dtype = getattr(self.np, dtype)
-        return self.np.array(1j, dtype=dtype)
+            dtype = getattr(np, dtype)
+        return np.array(1j, dtype=dtype)
 
     def is_tensor(self, a: Any) -> bool:
-        if isinstance(a, self.np.ndarray):
+        if isinstance(a, np.ndarray):
             return True
         return False
 
     def real(self, a: Tensor) -> Tensor:
-        return self.np.real(a)
+        return np.real(a)
 
     def cast(self, a: Tensor, dtype: str) -> Tensor:
-        return a.astype(getattr(self.np, dtype))
+        return a.astype(getattr(np, dtype))
 
     def grad(self, f: Callable[..., Any]) -> Callable[..., Any]:
         raise NotImplementedError("numpy backend doesn't support AD")
@@ -59,15 +65,18 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
             "numpy backend has no intrinsic vmap like interface"
             ", use vectorize instead (plain for loop)"
         )
-        return self.np.vectorize(f)
+        return np.vectorize(f)
 
 
-class JaxBackend(NumpyBackend, jax_backend.JaxBackend):  # type: ignore
+class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     # Jax doesn't support 64bit dtype, unless claim
     # from jax.config import config
     # config.update("jax_enable_x64", True)
     # at very beginning, i.e. before import tensorcircuit
     def __init__(self) -> None:
+        global libjax  # Jax module
+        global jnp  # jax.numpy module
+        global jsp  # jax.scipy module
         super(JaxBackend, self).__init__()
         try:
             import jax
@@ -76,26 +85,45 @@ class JaxBackend(NumpyBackend, jax_backend.JaxBackend):  # type: ignore
                 "Jax not installed, please switch to a different "
                 "backend or install Jax."
             )
-        self.jax = jax
-        self.np = self.jax.numpy
-        self.sp = self.jax.scipy
+        libjax = jax
+        jnp = libjax.numpy
+        jsp = libjax.scipy
         self.name = "jax"
 
     # it is already child of numpy backend, and self.np = self.jax.np
 
     def convert_to_tensor(self, tensor: Tensor) -> Tensor:
-        result = self.np.asarray(tensor)
+        result = jnp.asarray(tensor)
         return result
 
+    def sin(self, a: Tensor) -> Tensor:
+        return jnp.sin(a)
+
+    def cos(self, a: Tensor) -> Tensor:
+        return jnp.cos(a)
+
+    def i(self, dtype: Any = None) -> Tensor:
+        if not dtype:
+            dtype = npdtype  # type: ignore
+        if isinstance(dtype, str):
+            dtype = getattr(jnp, dtype)
+        return np.array(1j, dtype=dtype)
+
+    def real(self, a: Tensor) -> Tensor:
+        return jnp.real(a)
+
+    def cast(self, a: Tensor, dtype: str) -> Tensor:
+        return a.astype(getattr(jnp, dtype))
+
     def expm(self, a: Tensor) -> Tensor:
-        return self.sp.linalg.expm(a)
+        return jsp.linalg.expm(a)
         # currently expm in jax doesn't support AD, it will raise an AssertError, see https://github.com/google/jax/issues/2645
 
     def is_tensor(self, a: Any) -> bool:
-        if not isinstance(a, self.np.ndarray):
+        if not isinstance(a, jnp.ndarray):
             return False
         # isinstance(np.eye(1), jax.numpy.ndarray) = True!
-        if getattr(a, "_value", None):
+        if getattr(a, "_value", None) is not None:
             return True
         return False
 
@@ -103,56 +131,56 @@ class JaxBackend(NumpyBackend, jax_backend.JaxBackend):  # type: ignore
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Any:
         # TODO
-        return self.jax.grad(f, argnums=argnums)
+        return libjax.grad(f, argnums=argnums)
 
     def jit(self, f: Callable[..., Any]) -> Any:
-        return self.jax.jit(f)
+        return libjax.jit(f)
 
     def vmap(self, f: Callable[..., Any]) -> Any:
-        return self.jax.vmap(f)
+        return libjax.vmap(f)
         # since tf doesn't support in&out axes options, we don't support them in universal backend
 
 
 class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     def __init__(self) -> None:
+        global tf
         super(TensorFlowBackend, self).__init__()
         try:
-            import tensorflow as tf
+            import tensorflow
         except ImportError:
             raise ImportError(
                 "Tensorflow not installed, please switch to a "
                 "different backend or install Tensorflow."
             )
-        self.tf = tf
+        tf = tensorflow
         self.name = "tensorflow"
-        self.np = np
 
     def expm(self, a: Tensor) -> Tensor:
-        return self.tf.linalg.expm(a)
+        return tf.linalg.expm(a)
 
     def sin(self, a: Tensor) -> Tensor:
-        return self.tf.math.sin(a)
+        return tf.math.sin(a)
 
     def cos(self, a: Tensor) -> Tensor:
-        return self.tf.math.cos(a)
+        return tf.math.cos(a)
 
     def i(self, dtype: Any = None) -> Tensor:
         if not dtype:
-            dtype = tfdtype  # type: ignore
+            dtype = getattr(tf, dtypestr)  # type: ignore
         if isinstance(dtype, str):
-            dtype = getattr(self.tf, dtype)
-        return self.tf.constant(1j, dtype=dtype)
+            dtype = getattr(tf, dtype)
+        return tf.constant(1j, dtype=dtype)
 
     def is_tensor(self, a: Any) -> bool:
-        if isinstance(a, self.tf.Tensor) or isinstance(a, self.tf.Variable):
+        if isinstance(a, tf.Tensor) or isinstance(a, tf.Variable):
             return True
         return False
 
     def real(self, a: Tensor) -> Tensor:
-        return self.tf.math.real(a)
+        return tf.math.real(a)
 
     def cast(self, a: Tensor, dtype: str) -> Tensor:
-        return self.tf.cast(a, dtype=getattr(self.tf, dtype))
+        return tf.cast(a, dtype=getattr(tf, dtype))
 
     def grad(
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
@@ -160,7 +188,7 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         # experimental attempt
         # Note: tensorflow grad is gradient while jax grad is derivative, they are different with a conjugate!
         def wrapper(*args: Any, **kws: Any) -> Any:
-            with self.tf.GradientTape() as t:
+            with tf.GradientTape() as t:
                 t.watch(args)
                 y = f(*args, **kws)
                 if isinstance(argnums, int):
@@ -173,7 +201,7 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         return wrapper
 
     def jit(self, f: Callable[..., Any]) -> Any:
-        return self.tf.function(f)
+        return tf.function(f)
 
     def vmap(self, f: Callable[..., Any]) -> Any:
         def wrapper(f: Callable[..., Any], args: Sequence[Any]) -> Any:
@@ -182,22 +210,35 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         wrapper = partial(wrapper, f)
 
         def own_vectorized_map(f: Callable[..., Any], *args: Any) -> Any:
-            return self.tf.vectorized_map(f, args)
+            return tf.vectorized_map(f, args)
 
         return partial(own_vectorized_map, wrapper)
 
 
 class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
+    def __init__(self) -> None:
+        super(PyTorchBackend, self).__init__()
+        global torchlib
+        try:
+            import torch
+        except ImportError:
+            raise ImportError(
+                "PyTorch not installed, please switch to a different "
+                "backend or install PyTorch."
+            )
+        torchlib = torch
+        self.name = "pytorch"
+
     def expm(self, a: Tensor) -> Tensor:
         raise NotImplementedError("pytorch backend doesn't support expm")
         # in 2020, torch has no expm, hmmm. but that's ok, it doesn't support complex numbers which is more severe issue.
         # see https://github.com/pytorch/pytorch/issues/9983
 
     def sin(self, a: Tensor) -> Tensor:
-        return self.torch.sin(a)
+        return torchlib.sin(a)
 
     def cos(self, a: Tensor) -> Tensor:
-        return self.torch.cos(a)
+        return torchlib.cos(a)
 
     def i(self, dtype: Any = None) -> Tensor:
         raise NotImplementedError(
@@ -209,12 +250,12 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         # hmm, in torch, everyone is real.
 
     def is_tensor(self, a: Any) -> bool:
-        if isinstance(a, self.torch.Tensor):
+        if isinstance(a, torchlib.Tensor):
             return True
         return False
 
     def cast(self, a: Tensor, dtype: str) -> Tensor:
-        return a.type(getattr(self.torch, dtype))
+        return a.type(getattr(torchlib, dtype))
 
     def grad(
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
@@ -253,7 +294,7 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
             for i in range(args[0].shape[0]):
                 nargs = [arg[i] for arg in args]
                 r.append(f(*nargs, **kws))
-            return self.torch.stack(r)
+            return torchlib.stack(r)
 
         return vmapf
         # raise NotImplementedError("pytorch backend doesn't support vmap")
