@@ -80,7 +80,7 @@ class Circuit:
                 partial(self.apply_general_gate_delayed, getattr(gates, g), name=g),
             )
 
-        vgates = ["r", "cr"]
+        vgates = ["r", "cr", "rx", "ry", "rz"]
         for g in vgates:
             setattr(
                 self,
@@ -282,7 +282,6 @@ class Circuit:
             else:
                 sample += "1"
                 p = p * (1 - pu)
-            print(p)
         if with_prob:
             return sample, p
         else:
@@ -296,17 +295,37 @@ class Circuit:
         """
         return self.measure(*[i for i in range(self._nqubits)], with_prob=True)
 
-    def expectation(self, op: tn.Node, *index: int) -> tn.Node.tensor:
+    # def expectation(self, op: tn.Node, *index: int) -> tn.Node.tensor:
+    #     nodes1, edge1 = self._copy()
+    #     nodes2, edge2 = self._copy(conj=True)
+    #     noe = len(index)
+    #     for j, e in enumerate(index):
+    #         edge1[e] ^ op.get_edge(j)
+    #         edge2[e] ^ op.get_edge(j + noe)
+    #     for j in range(self._nqubits):
+    #         if j not in index:  # edge1[j].is_dangling invalid here!
+    #             edge1[j] ^ edge2[j]
+    #     nodes1.append(op)
+    #     nodes1.extend(nodes2)
+    #     # self._nodes = nodes1
+    #     return contractor(nodes1).tensor
+
+    def expectation(self, *ops: Tuple[tn.Node, List[int]]) -> tn.Node.tensor:
         nodes1, edge1 = self._copy()
         nodes2, edge2 = self._copy(conj=True)
-        noe = len(index)
-        for j, e in enumerate(index):
-            edge1[e] ^ op.get_edge(j)
-            edge2[e] ^ op.get_edge(j + noe)
+        occupied = set()
+        for op, index in ops:
+            noe = len(index)
+            for j, e in enumerate(index):
+                if e in occupied:
+                    raise ValueError("Cannot measure two operators in one index")
+                edge1[e] ^ op.get_edge(j)
+                edge2[e] ^ op.get_edge(j + noe)
+                occupied.add(e)
+            nodes1.append(op)
         for j in range(self._nqubits):
-            if j not in index:  # edge1[j].is_dangling invalid here!
+            if j not in occupied:  # edge1[j].is_dangling invalid here!
                 edge1[j] ^ edge2[j]
-        nodes1.append(op)
         nodes1.extend(nodes2)
         # self._nodes = nodes1
         return contractor(nodes1).tensor

@@ -17,7 +17,7 @@ c.CNOT(0,1)
 print(c.perfect_sampling())
 print(c.wavefunction())
 print(c.measure(1))
-print(c.expectation(tc.gates.z(), 1))
+print(c.expectation((tc.gates.z(), 1)))
 ```
 
 Runtime behavior changing:
@@ -35,7 +35,7 @@ Auto differentiations with jit (tf and jax supported):
 def forward(theta):
     c = tc.Circuit(2)
     c.R(0, theta=theta, alpha=0.5, phi=0.8)
-    return tc.backend.real(c.expectation(tc.gates.z(), 0))
+    return tc.backend.real(c.expectation((tc.gates.z(), [0])))
 
 g = tc.backend.grad(forward)
 g = tc.backend.jit(g)

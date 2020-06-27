@@ -28,7 +28,7 @@ def test_measure():
 def test_expectation():
     c = tc.Circuit(2)
     c.H(0)
-    assert np.allclose(c.expectation(tc.gates.z(), 0), 0)
+    assert np.allclose(c.expectation((tc.gates.z(), [0])), 0)
 
 
 def test_qcode():
@@ -48,7 +48,7 @@ def universal_ad():
     def forward(theta):
         c = tc.Circuit(2)
         c.R(0, theta=theta, alpha=0.5, phi=0.8)
-        return tc.backend.real(c.expectation(tc.gates.z(), 0))
+        return tc.backend.real(c.expectation((tc.gates.z(), [0])))
 
     gg = tc.backend.grad(forward)
     gg = tc.backend.jit(gg)
