@@ -16,6 +16,11 @@ Gate = gates.Gate
 
 
 class Circuit:
+    sgates = (
+        ["i", "x", "y", "z", "h", "t", "s", "rs"] + ["cnot", "cz", "swap"] + ["toffoli"]
+    )
+    vgates = ["r", "cr", "rx", "ry", "rz"]
+
     def __init__(self, nqubits: int) -> None:
         _prefix = "qb-"
         if nqubits < 2:
@@ -63,12 +68,8 @@ class Circuit:
         self._qcode += str(self._nqubits) + "\n"
 
     def _meta_apply(self) -> None:
-        sgates = (
-            ["i", "x", "y", "z", "h", "t", "s", "rs"]
-            + ["cnot", "cz", "swap"]
-            + ["toffoli"]
-        )
-        for g in sgates:
+
+        for g in Circuit.sgates:
             setattr(
                 self,
                 g,
@@ -80,8 +81,7 @@ class Circuit:
                 partial(self.apply_general_gate_delayed, getattr(gates, g), name=g),
             )
 
-        vgates = ["r", "cr", "rx", "ry", "rz"]
-        for g in vgates:
+        for g in Circuit.vgates:
             setattr(
                 self,
                 g,

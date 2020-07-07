@@ -25,7 +25,7 @@ jobs:
           black . --check
       - name: mypy checker
         run: |
-          mypy tensorcircuit --ignore-missing-imports --strict
+          mypy tensorcircuit
       - name: test scripts
         run: |
           pytest --cov=tensorcircuit -svv

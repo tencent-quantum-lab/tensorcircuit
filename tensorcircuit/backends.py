@@ -28,6 +28,9 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def expm(self, a: Tensor) -> Tensor:
         return expm(a)
 
+    def abs(self, a: Tensor) -> Tensor:
+        return np.abs(a)
+
     def sin(self, a: Tensor) -> Tensor:
         return np.sin(a)
 
@@ -95,6 +98,9 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     def convert_to_tensor(self, tensor: Tensor) -> Tensor:
         result = jnp.asarray(tensor)
         return result
+
+    def abs(self, a: Tensor) -> Tensor:
+        return jnp.abs(a)
 
     def sin(self, a: Tensor) -> Tensor:
         return jnp.sin(a)
@@ -175,6 +181,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         if isinstance(a, tf.Tensor) or isinstance(a, tf.Variable):
             return True
         return False
+
+    def abs(self, a: Tensor) -> Tensor:
+        return tf.math.abs(a)
 
     def real(self, a: Tensor) -> Tensor:
         return tf.math.real(a)
