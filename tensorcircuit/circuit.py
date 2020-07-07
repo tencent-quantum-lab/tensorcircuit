@@ -221,6 +221,25 @@ class Circuit:
         t = contractor(nodes, output_edge_order=d_edges)
         return backend.reshape(t.tensor, shape=[1, -1])
 
+    def _copy_state_tensor(
+        self, conj: bool = False, reuse: bool = True
+    ) -> Tuple[List[tn.Node], List[tn.Edge]]:
+        if reuse:
+            t = getattr(self, "state_tensor", None)
+        else:
+            t = None
+        if t is None:
+            nodes, d_edges = self._copy()
+            t = contractor(nodes, output_edge_order=d_edges)
+            setattr(self, "state_tensor", t)
+        ndict, edict = tn.copy([t], conjugate=conj)
+        newnodes = []
+        newnodes.append(ndict[t])
+        newfront = []
+        for e in t.edges:
+            newfront.append(edict[e])
+        return newnodes, newfront
+
     state = wavefunction
 
     def amplitude(self, l: str) -> tn.Node.tensor:
@@ -295,24 +314,15 @@ class Circuit:
         """
         return self.measure(*[i for i in range(self._nqubits)], with_prob=True)
 
-    # def expectation(self, op: tn.Node, *index: int) -> tn.Node.tensor:
-    #     nodes1, edge1 = self._copy()
-    #     nodes2, edge2 = self._copy(conj=True)
-    #     noe = len(index)
-    #     for j, e in enumerate(index):
-    #         edge1[e] ^ op.get_edge(j)
-    #         edge2[e] ^ op.get_edge(j + noe)
-    #     for j in range(self._nqubits):
-    #         if j not in index:  # edge1[j].is_dangling invalid here!
-    #             edge1[j] ^ edge2[j]
-    #     nodes1.append(op)
-    #     nodes1.extend(nodes2)
-    #     # self._nodes = nodes1
-    #     return contractor(nodes1).tensor
-
-    def expectation(self, *ops: Tuple[tn.Node, List[int]]) -> tn.Node.tensor:
-        nodes1, edge1 = self._copy()
-        nodes2, edge2 = self._copy(conj=True)
+    def expectation(
+        self, *ops: Tuple[tn.Node, List[int]], reuse: bool = True
+    ) -> tn.Node.tensor:
+        if not reuse:
+            nodes1, edge1 = self._copy()
+            nodes2, edge2 = self._copy(conj=True)
+        else:  # reuse
+            nodes1, edge1 = self._copy_state_tensor()
+            nodes2, edge2 = self._copy_state_tensor(conj=True)
         occupied = set()
         for op, index in ops:
             noe = len(index)
