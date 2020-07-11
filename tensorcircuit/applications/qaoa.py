@@ -139,7 +139,7 @@ def qas_vag_factory(
             # if all gates in preset are not trainable, then gr returns None instead of 0s
             gr = tf.zeros_like(pnnp)
         gr = cons.backend.real(gr)
-
+        # gr = tf.where(tf.math.is_nan(gr), 0.0, gr)
         gmatrix = np.zeros_like(nnp)
         for i, j in enumerate(preset):
             gmatrix[i, j] = gr[i]
@@ -147,6 +147,51 @@ def qas_vag_factory(
         return loss[0], gmatrix
 
     return qas_vag
+
+
+def qas_block_vag_factory(
+    f: Tuple[Callable[[float], float], Callable[[Tensor], Tensor]]
+) -> Callable[[Graph, Tensor, Sequence[int]], Tuple[Tensor, Tensor]]:
+    # for universality, nnp always occupy two rows for each block
+    def qas_block_vag(
+        gdata: Graph, nnp: Tensor, preset: Sequence[int]
+    ) -> Tuple[Tensor, Tensor]:
+        nnp = nnp.numpy()  # real
+        pnnp = []
+        ops = get_op_pool()
+        for i, j in enumerate(preset):
+            # print(ops[j].__repr__)
+            if ops[j].__repr__.endswith("_block"):
+                pnnp.append([nnp[2 * i, j], nnp[2 * i + 1, j]])
+            else:
+                pnnp.append([nnp[2 * i, j]])
+        # pnnp = array_to_tensor(np.array(pnnp))  # complex
+        pnnp = tf.ragged.constant(pnnp, dtype=getattr(tf, cons.dtypestr))
+        with tf.GradientTape() as t:
+            t.watch(pnnp.values)  # type: ignore
+            loss = exp_forward(pnnp, preset, gdata, f)
+        gr = t.gradient(loss, pnnp.values)  # type:ignore
+        # gr = tf.where(tf.math.is_nan(gr), 0.0, gr)
+        if gr is None:
+            # if all gates in preset are not trainable, then gr returns None instead of 0s
+            gr = tf.zeros_like(pnnp)
+        else:
+            gr = pnnp.with_values(gr)  # type:ignore
+
+        gr = cons.backend.real(gr)
+
+        gmatrix = np.zeros_like(nnp)
+        for j in range(gr.shape[0]):
+            if gr[j].shape[0] == 2:
+                gmatrix[2 * j, preset[j]] = gr[j][0]
+                gmatrix[2 * j + 1, preset[j]] = gr[j][1]
+            else:  # 1
+                gmatrix[2 * j, preset[j]] = gr[j][0]
+
+        gmatrix = tf.constant(gmatrix)
+        return loss[0], gmatrix
+
+    return qas_block_vag
 
 
 def evaluate_vag(
@@ -309,12 +354,14 @@ def parallel_kernel(
 
 def DQAS_search(
     g: Iterator[Any],
-    p: int,
     op_pool: Sequence[Any],
     kernel_func: Callable[
         [Iterator[Any], Tensor, Sequence[int]], Tuple[Tensor, Tensor]
     ],
     *,
+    p: Optional[int] = None,
+    p_nnp: Optional[int] = None,
+    p_stp: Optional[int] = None,
     batch: int = 300,
     prethermal: int = 100,
     epochs: int = 100,
@@ -330,6 +377,7 @@ def DQAS_search(
     stp_regularization: Optional[Callable[[Tensor, Tensor], Tensor]] = None,
     nnp_regularization: Optional[Callable[[Tensor, Tensor], Tensor]] = None,
 ) -> Tuple[Tensor, Tensor]:
+    # shape of nnp and stp is not necessarily compatible in complicated settings
     dtype = tf.float32  # caution, simply changing this is not guranteed to work
     c = len(op_pool)
     set_op_pool(op_pool)
@@ -346,14 +394,27 @@ def DQAS_search(
         )  # structure
     if prethermal_opt is None:
         prethermal_opt = tf.keras.optimizers.Adam(learning_rate=0.1)  # prethermal
+
     if nnp_initial_value is None:
-        nnp_initial_value = np.random.uniform(size=[p, c])
+        if p_nnp is None:
+            if p is not None:
+                p_nnp = p
+            else:
+                raise ValueError("Please give the shape information on nnp")
+        nnp_initial_value = np.random.uniform(size=[p_nnp, c])
     if stp_initial_value is None:
-        stp_initial_value = np.zeros([p, c])
+        if p_stp is None:
+            if p is not None:
+                p_stp = p
+            else:
+                raise ValueError("Please give the shape information on nnp")
+        stp_initial_value = np.zeros([p_stp, c])
+    if p is None:
+        p = stp_initial_value.shape[0]
     if baseline_func is None:
         baseline_func = np.mean
-    nnp = tf.Variable(initial_value=nnp_initial_value, shape=[p, c], dtype=dtype)
-    stp = tf.Variable(initial_value=stp_initial_value, shape=[p, c], dtype=dtype)
+    nnp = tf.Variable(initial_value=nnp_initial_value, dtype=dtype)
+    stp = tf.Variable(initial_value=stp_initial_value, dtype=dtype)
 
     prob = tf.math.exp(stp) / tf.tile(
         tf.math.reduce_sum(tf.math.exp(stp), axis=1)[:, tf.newaxis], [1, c]
@@ -473,14 +534,13 @@ def DQAS_search(
             )
             cand_preset = get_preset(stp).numpy()
             cand_preset_repr = [op_pool[f].__repr__ for f in cand_preset]
+            print("best candidates so far:", cand_preset_repr)
             # TODO, more general repr
-            cand_weight = get_weights(nnp, stp).numpy()
-            print(
-                "best candidates so far:",
-                cand_preset_repr,
-                "\n and associating weights:",
-                cand_weight,
-            )
+            if nnp.shape == stp.shape:
+                cand_weight = get_weights(nnp, stp).numpy()
+                print(
+                    "And associating weights:", cand_weight,
+                )
         if parallel_num > 0:
             pool.close()
         return stp, nnp  # TODO: history list trackings

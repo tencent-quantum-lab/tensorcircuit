@@ -90,6 +90,22 @@ def generate_double_gate_layer(gates: str) -> None:
     setattr(thismodule, gates + "layer", f)
 
 
+def generate_double_layer_block(gates: str) -> None:
+    d1, d2 = gates[0], gates[1]
+
+    def f(circuit: Circuit, symbol: Tensor, g: Graph = None) -> Circuit:
+        if g is None:
+            g = nx.complete_graph(circuit._nqubits)
+        getattr(thismodule, d1 + "layer")(circuit, symbol[0], g)
+        getattr(thismodule, d2 + "layer")(circuit, symbol[1], g)
+        return circuit
+
+    f.__doc__ = """%s_%s_block""" % (d1, d2)
+    f.__repr__ = """%s_%s_block""" % (d1, d2)  # type: ignore
+    f.__trainable__ = False if (d1 in Circuit.sgates) and (d2 in Circuit.sgates) else True  # type: ignore
+    setattr(thismodule, "%s_%s_block" % (d1, d2), f)
+
+
 for gate in ["rx", "ry", "rz", "H", "I"]:
     generate_gate_layer(gate)
 
@@ -97,3 +113,9 @@ for gates in itertools.product(*[["x", "y", "z"] for _ in range(2)]):
     gates = gates[0] + gates[1]
     generate_double_gate(gates)  # type: ignore
     generate_double_gate_layer(gates)  # type: ignore
+
+for gates in itertools.product(
+    *[["rx", "ry", "rz", "xx", "yy", "zz"] for _ in range(2)]
+):
+    gates = gates[0] + gates[1]
+    generate_double_layer_block(gates)  # type: ignore
