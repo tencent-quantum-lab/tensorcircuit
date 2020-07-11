@@ -9,6 +9,7 @@ import networkx as nx
 from typing import Sequence, Union, Callable, Any, Optional
 
 from ..circuit import Circuit
+from ..gates import num_to_tensor
 
 thismodule = sys.modules[__name__]
 
@@ -25,22 +26,22 @@ def generate_double_gate(gates: str) -> None:
         if d1 == "x":
             circuit.H(qubit1)  # type: ignore
         elif d1 == "y":
-            circuit.rx(qubit1, theta=-np.pi / 2)  # type: ignore
+            circuit.rx(qubit1, theta=num_to_tensor(-np.pi / 2))  # type: ignore
         if d2 == "x":
             circuit.H(qubit2)  # type: ignore
         elif d2 == "y":
-            circuit.rx(qubit2, theta=-np.pi / 2)  # type: ignore
+            circuit.rx(qubit2, theta=num_to_tensor(-np.pi / 2))  # type: ignore
         circuit.CNOT(qubit1, qubit2)  # type: ignore
         circuit.rz(qubit2, theta=symbol)  # type: ignore
         circuit.CNOT(qubit1, qubit2)  # type: ignore
         if d1 == "x":
             circuit.H(qubit1)  # type: ignore
         elif d1 == "y":
-            circuit.rx(qubit1, theta=np.pi / 2)  # type: ignore
+            circuit.rx(qubit1, theta=num_to_tensor(np.pi / 2))  # type: ignore
         if d2 == "x":
             circuit.H(qubit2)  # type: ignore
         elif d2 == "y":
-            circuit.rx(qubit2, theta=np.pi / 2)  # type: ignore
+            circuit.rx(qubit2, theta=num_to_tensor(np.pi / 2))  # type: ignore
         return circuit
 
     f.__doc__ = """%sgate""" % gates
@@ -63,7 +64,7 @@ def generate_gate_layer(gate: str) -> None:
                 getattr(circuit, gate)(n)
         else:
             for n in range(circuit._nqubits):
-                getattr(circuit, gate)(n, theta=2 * symbol)  # type: ignore
+                getattr(circuit, gate)(n, theta=2 * symbol)
         return circuit
 
     f.__doc__ = """%slayer""" % gate
@@ -89,32 +90,10 @@ def generate_double_gate_layer(gates: str) -> None:
     setattr(thismodule, gates + "layer", f)
 
 
-for gate in ["rx", "ry", "rz", "H"]:
+for gate in ["rx", "ry", "rz", "H", "I"]:
     generate_gate_layer(gate)
 
 for gates in itertools.product(*[["x", "y", "z"] for _ in range(2)]):
     gates = gates[0] + gates[1]
     generate_double_gate(gates)  # type: ignore
     generate_double_gate_layer(gates)  # type: ignore
-
-_cset: Sequence[Callable[[Circuit, Union[Tensor, float], Graph], Circuit]] = []
-
-
-def set_choice(
-    l: Optional[
-        Sequence[Callable[[Circuit, Union[Tensor, float], Graph], Circuit]]
-    ] = None
-) -> None:
-    global _cset
-
-    if not l:
-        _cset = [Hlayer, rxlayer, rzlayer, zzlayer]  # type: ignore
-    else:
-        _cset = l
-
-
-set_choice()
-
-
-def get_choice() -> Sequence[Callable[[Circuit, Union[Tensor, float], Graph], Circuit]]:
-    return _cset

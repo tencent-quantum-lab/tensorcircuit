@@ -1,4 +1,4 @@
-from .qaoa import evaluate_vag
+from .qaoa import evaluate_vag, set_op_pool
 from .graphdata import get_graph
 from .layers import *
 from ..cons import set_backend
@@ -6,7 +6,7 @@ from ..cons import set_backend
 
 def test_vag():
     set_backend("tensorflow")
-    set_choice([Hlayer, rxlayer, zzlayer])
+    set_op_pool([Hlayer, rxlayer, zzlayer])
     expene, ene, eneg, p = evaluate_vag(
         np.array([0.0, 0.3, 0.5, 0.7, -0.8]),
         [0, 2, 1, 2, 1],
