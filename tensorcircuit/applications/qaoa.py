@@ -139,7 +139,7 @@ def qas_vag_factory(
             # if all gates in preset are not trainable, then gr returns None instead of 0s
             gr = tf.zeros_like(pnnp)
         gr = cons.backend.real(gr)
-        # gr = tf.where(tf.math.is_nan(gr), 0.0, gr)
+        gr = tf.where(tf.math.is_nan(gr), 0.0, gr)
         gmatrix = np.zeros_like(nnp)
         for i, j in enumerate(preset):
             gmatrix[i, j] = gr[i]
@@ -176,6 +176,9 @@ def qas_block_vag_factory(
             # if all gates in preset are not trainable, then gr returns None instead of 0s
             gr = tf.zeros_like(pnnp)
         else:
+            gr = cons.backend.real(gr)
+            gr = tf.where(tf.math.is_nan(gr), 0.0, gr)
+            # if all gates in preset are not trainable, then gr returns None instead of 0s
             gr = pnnp.with_values(gr)  # type:ignore
 
         gr = cons.backend.real(gr)
@@ -352,13 +355,16 @@ def parallel_kernel(
     return loss, gnnp, gs
 
 
+def void_generator() -> Iterator[Any]:
+    while True:
+        yield None
+
+
 def DQAS_search(
-    g: Iterator[Any],
-    op_pool: Sequence[Any],
-    kernel_func: Callable[
-        [Iterator[Any], Tensor, Sequence[int]], Tuple[Tensor, Tensor]
-    ],
+    kernel_func: Callable[[Any, Tensor, Sequence[int]], Tuple[Tensor, Tensor]],
     *,
+    g: Optional[Iterator[Any]] = None,
+    op_pool: Optional[Sequence[Any]] = None,
     p: Optional[int] = None,
     p_nnp: Optional[int] = None,
     p_stp: Optional[int] = None,
@@ -377,10 +383,41 @@ def DQAS_search(
     stp_regularization: Optional[Callable[[Tensor, Tensor], Tensor]] = None,
     nnp_regularization: Optional[Callable[[Tensor, Tensor], Tensor]] = None,
 ) -> Tuple[Tensor, Tensor]:
+    """
+
+    :param kernel_func: function with input of data instance, circuit parameters theta and structural paramter k,
+                    return tuple of objective value and gradient with respect to theta
+    :param g: data generator as dataset
+    :param op_pool: list of operations as primitive operator pool
+    :param p: the default layer number of the circuit ansatz
+    :param p_nnp: shape of circuit parameter pool, in general p_stp*l, where l is the max number of circuit parameters for
+            op in the operator pool
+    :param p_stp: the same as p in the most times
+    :param batch: batch size of one epoch
+    :param prethermal: prethermal update times
+    :param epochs: training epochs
+    :param parallel_num: parallel thread number, 0 to disable multiprocessing model by default
+    :param baseline_func: function accepting list of objective values and return the baseline value used in the next round
+    :param pertubation_func: return noise with the same shape as circuit parameter pool
+    :param nnp_initial_value: initial values for circuit parameter pool
+    :param stp_initial_value: initial values for probabilistic model parameters
+    :param network_opt: optimizer for circuit parameters theta
+    :param structure_opt: optimizer for model parameters alpha
+    :param prethermal_opt: optimizer for circuit parameters in prethermal stage
+    :param prethermal_preset: fixed structural parameters for prethermal training
+    :param stp_regularization: regularization function for model parameters alpha
+    :param nnp_regularization: regularization function for circuit parameters theta
+    :return:
+    """
+
     # shape of nnp and stp is not necessarily compatible in complicated settings
     dtype = tf.float32  # caution, simply changing this is not guranteed to work
+    if op_pool is None:
+        op_pool = get_op_pool()
     c = len(op_pool)
     set_op_pool(op_pool)
+    if g is None:
+        g = void_generator()
     if parallel_num > 0:
         pool = Pool(parallel_num)
         global parallel_kernel
@@ -533,7 +570,12 @@ def DQAS_search(
                 nnp.numpy(),
             )
             cand_preset = get_preset(stp).numpy()
-            cand_preset_repr = [op_pool[f].__repr__ for f in cand_preset]
+            cand_preset_repr = [
+                op_pool[f].__repr__()
+                if callable(op_pool[f].__repr__)
+                else op_pool[f].__repr__
+                for f in cand_preset
+            ]
             print("best candidates so far:", cand_preset_repr)
             # TODO, more general repr
             if nnp.shape == stp.shape:

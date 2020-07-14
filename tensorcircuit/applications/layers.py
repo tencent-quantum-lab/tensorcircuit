@@ -6,7 +6,7 @@ import sys
 import itertools
 import numpy as np
 import networkx as nx
-from typing import Sequence, Union, Callable, Any, Optional
+from typing import Sequence, Union, Callable, Any, Optional, Tuple
 
 from ..circuit import Circuit
 from ..gates import num_to_tensor
@@ -90,8 +90,8 @@ def generate_double_gate_layer(gates: str) -> None:
     setattr(thismodule, gates + "layer", f)
 
 
-def generate_double_layer_block(gates: str) -> None:
-    d1, d2 = gates[0], gates[1]
+def generate_double_layer_block(gates: Tuple[str]) -> None:
+    d1, d2 = gates[0], gates[1]  # type: ignore
 
     def f(circuit: Circuit, symbol: Tensor, g: Graph = None) -> Circuit:
         if g is None:
@@ -117,5 +117,4 @@ for gates in itertools.product(*[["x", "y", "z"] for _ in range(2)]):
 for gates in itertools.product(
     *[["rx", "ry", "rz", "xx", "yy", "zz"] for _ in range(2)]
 ):
-    gates = gates[0] + gates[1]
     generate_double_layer_block(gates)  # type: ignore
