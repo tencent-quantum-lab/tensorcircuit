@@ -20,6 +20,8 @@ from typing import (
     Iterable,
 )
 import networkx as nx
+import cirq
+import tensorflow_quantum as tfq
 
 from ..gates import array_to_tensor, num_to_tensor
 from .. import cons
@@ -372,6 +374,7 @@ def DQAS_search(
     prethermal: int = 100,
     epochs: int = 100,
     parallel_num: int = 0,
+    verbose: bool = False,
     baseline_func: Optional[Callable[[Sequence[float]], float]] = None,
     pertubation_func: Optional[Callable[[], Tensor]] = None,
     nnp_initial_value: Optional[Array] = None,
@@ -384,6 +387,7 @@ def DQAS_search(
     nnp_regularization: Optional[Callable[[Tensor, Tensor], Tensor]] = None,
 ) -> Tuple[Tensor, Tensor]:
     """
+    DQAS framework entrypoint
 
     :param kernel_func: function with input of data instance, circuit parameters theta and structural paramter k,
                     return tuple of objective value and gradient with respect to theta
@@ -397,6 +401,7 @@ def DQAS_search(
     :param prethermal: prethermal update times
     :param epochs: training epochs
     :param parallel_num: parallel thread number, 0 to disable multiprocessing model by default
+    :param verbose: set verbose log to print
     :param baseline_func: function accepting list of objective values and return the baseline value used in the next round
     :param pertubation_func: return noise with the same shape as circuit parameter pool
     :param nnp_initial_value: initial values for circuit parameter pool
@@ -466,7 +471,8 @@ def DQAS_search(
         forwardv, gnnp = kernel_func(gdata, nnp, preset)
         prethermal_opt.apply_gradients([(gnnp, nnp)])
 
-    print("network parameter after prethermalization: \n", nnp.numpy())
+    if verbose:
+        print("network parameter after prethermalization: \n", nnp.numpy())
 
     try:
         for epoch in range(epochs):  # iteration to update strcuture param
@@ -474,7 +480,8 @@ def DQAS_search(
             prob = tf.math.exp(stp) / tf.tile(
                 tf.math.reduce_sum(tf.math.exp(stp), axis=1)[:, tf.newaxis], [1, c]
             )
-            print("probability: \n", prob.numpy())
+            if verbose:
+                print("probability: \n", prob.numpy())
 
             print("----------new epoch %s-----------" % epoch)
 
@@ -487,12 +494,14 @@ def DQAS_search(
             # collect nn param graident on the matrix with the same form as nnp
             if stp_regularization is not None:
                 stp_penalty_gradient = stp_regularization(stp, nnp)
-                print("stp_penalty_gradient:", stp_penalty_gradient.numpy())
+                if verbose:
+                    print("stp_penalty_gradient:", stp_penalty_gradient.numpy())
             else:
                 stp_penalty_gradient = 0.0
             if nnp_regularization is not None:
                 nnp_penalty_gradient = nnp_regularization(stp, nnp)
-                print("nnpp_penalty_gradient:", nnp_penalty_gradient.numpy())
+                if verbose:
+                    print("nnpp_penalty_gradient:", nnp_penalty_gradient.numpy())
 
             else:
                 nnp_penalty_gradient = 0.0
@@ -554,8 +563,9 @@ def DQAS_search(
             batched_gnnp = tf.math.reduce_mean(
                 tf.convert_to_tensor(deri_nnp, dtype=dtype), axis=0
             )
-            print("batched gradient of stp: \n", batched_gs.numpy())
-            print("batched gradient of nnp: \n", batched_gnnp.numpy())
+            if verbose:
+                print("batched gradient of stp: \n", batched_gs.numpy())
+                print("batched gradient of nnp: \n", batched_gnnp.numpy())
 
             network_opt.apply_gradients(
                 zip([batched_gnnp + nnp_penalty_gradient], [nnp])
@@ -563,12 +573,13 @@ def DQAS_search(
             structure_opt.apply_gradients(
                 zip([batched_gs + stp_penalty_gradient], [stp])
             )
-            print(
-                "strcuture parameter: \n",
-                stp.numpy(),
-                "\n network parameter: \n",
-                nnp.numpy(),
-            )
+            if verbose:
+                print(
+                    "strcuture parameter: \n",
+                    stp.numpy(),
+                    "\n network parameter: \n",
+                    nnp.numpy(),
+                )
             cand_preset = get_preset(stp).numpy()
             cand_preset_repr = [
                 op_pool[f].__repr__()
@@ -578,7 +589,7 @@ def DQAS_search(
             ]
             print("best candidates so far:", cand_preset_repr)
             # TODO, more general repr
-            if nnp.shape == stp.shape:
+            if nnp.shape == stp.shape and verbose:
                 cand_weight = get_weights(nnp, stp).numpy()
                 print(
                     "And associating weights:", cand_weight,
@@ -590,3 +601,101 @@ def DQAS_search(
         if parallel_num > 0:
             pool.close()
         return stp, nnp
+
+
+def GHZ_vag(
+    gdata: Any, nnp: Tensor, preset: Sequence[int], verbose: bool = False, n: int = 3
+) -> Tuple[Tensor, Tensor]:
+    # gdata = None
+    reference_state = np.zeros([2 ** n])
+    #     W states benchmarks
+    #     for i in range(n):
+    #         reference_state[2**(i)] = 1/np.sqrt(n)
+    reference_state[0] = 1 / np.sqrt(2)
+    reference_state[-1] = 1 / np.sqrt(2)
+    reference_state = tf.constant(reference_state, dtype=tf.complex64)
+    nnp = nnp.numpy()  # real
+    pnnp = [nnp[i, j] for i, j in enumerate(preset)]
+    pnnp = array_to_tensor(np.array(pnnp))  # complex
+    circuit = Circuit(n)
+    cset = get_op_pool()
+
+    with tf.GradientTape() as t:
+        t.watch(pnnp)
+        for i, j in enumerate(preset):
+            gate = cset[j]
+            if gate[0].startswith("r"):
+                getattr(circuit, gate[0])(gate[1], theta=pnnp[i])
+            elif len(gate[0]) == 1:
+                getattr(circuit, gate[0])(gate[1])
+            elif gate[0] == "CNOT":
+                circuit.CNOT(gate[1], gate[2])  # type: ignore
+        s = circuit.wavefunction()
+        s = tf.reshape(s, [2 ** n,])
+        loss = tf.math.reduce_sum(
+            tf.math.abs(s - reference_state)
+        )  # better for overlap objective to optimize
+    #   loss = (tf.math.abs(tf.tensordot(s, reference_state, [0,0]))-1.)**2
+    if verbose:
+        print(s.numpy())
+    gr = t.gradient(loss, pnnp)
+    if gr is None:
+        # if all gates in preset are not trainable, then gr returns None instead of 0s
+        gr = tf.zeros_like(pnnp)
+    gr = cons.backend.real(gr)
+    gr = tf.where(tf.math.is_nan(gr), 0.0, gr)
+    gmatrix = np.zeros_like(nnp)
+    for i, j in enumerate(preset):
+        gmatrix[i, j] = gr[i]
+    gmatrix = tf.constant(gmatrix)
+    return loss, gmatrix
+
+
+def double_qubits_initial() -> Iterator[Sequence[Any]]:
+    while True:
+        yield [
+            cirq.Circuit(
+                [cirq.rx(0.0)(cirq.GridQubit(0, 0)), cirq.rx(0.0)(cirq.GridQubit(1, 0))]
+            ),  # 00 +xx +zz
+            cirq.Circuit(
+                [cirq.X(cirq.GridQubit(1, 0)), cirq.rx(0.0)(cirq.GridQubit(0, 0))]
+            ),  # 01 +xx -zz
+            cirq.Circuit(
+                [cirq.X(cirq.GridQubit(0, 0)), cirq.rx(0.0)(cirq.GridQubit(1, 0))]
+            ),  # 10 -xx +zz
+            cirq.Circuit(
+                [cirq.X(cirq.GridQubit(0, 0)), cirq.X(cirq.GridQubit(1, 0))]
+            ),  # 11 -xx -zz
+        ]
+
+
+def GHZ_vag_tfq(
+    gdata: Any, nnp: Tensor, preset: Sequence[int], verbose: bool = False,
+) -> Tuple[Tensor, Tensor]:
+    # gdata = quantum_circuit
+
+    circuit = cirq.Circuit()
+    cset = get_op_pool()
+    for i, j in enumerate(preset):
+        circuit.append(cset[j])
+    input_circuits = [c + circuit for c in gdata]
+    measurements = [
+        cirq.Z(cirq.GridQubit(0, 0)) * cirq.Z(cirq.GridQubit(1, 0)),
+        cirq.X(cirq.GridQubit(0, 0)) * cirq.X(cirq.GridQubit(1, 0)),
+    ]
+    expl = tfq.layers.Expectation()
+    res = expl(input_circuits, operators=measurements)
+    if verbose:
+        print(res.numpy())
+    loss = (
+        -res[0, 0]
+        - res[0, 1]
+        - res[1, 0]
+        + res[1, 1]
+        + res[2, 0]
+        - res[2, 1]
+        + res[3, 0]
+        + res[3, 1]
+    )
+    #     loss = -tf.reduce_sum(tf.abs(res)) # for more general case
+    return loss, tf.zeros_like(nnp)
