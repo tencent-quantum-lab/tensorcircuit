@@ -21,6 +21,7 @@ tc.set_backend("tensorflow")
 def main_tn():
     """
     DQAS with tensorcircuit engine backend by TensorNetwork
+    state preparation example
 
     :return:
     """
@@ -57,6 +58,7 @@ def main_tn():
 def main_tfq():
     """
     DQAS with tensorflow quantum engine
+    unitary learning example
 
     :return:
     """
@@ -88,3 +90,4 @@ def main_tfq():
 
 if __name__ == "__main__":
     main_tfq()
+    # main_tn()

@@ -133,16 +133,16 @@ class Circuit:
         return self._qcode
 
     def apply_single_gate(self, gate: Gate, index: int) -> None:
-        gate.get_edge(0) ^ self._front[index]
-        self._front[index] = gate.get_edge(1)
+        gate.get_edge(1) ^ self._front[index]  # pay attention on the rank index here
+        self._front[index] = gate.get_edge(0)
         self._nodes.append(gate)
 
     def apply_double_gate(self, gate: Gate, index1: int, index2: int) -> None:
         assert index1 != index2
-        gate.get_edge(0) ^ self._front[index1]
-        gate.get_edge(1) ^ self._front[index2]
-        self._front[index1] = gate.get_edge(2)
-        self._front[index2] = gate.get_edge(3)
+        gate.get_edge(2) ^ self._front[index1]
+        gate.get_edge(3) ^ self._front[index2]
+        self._front[index1] = gate.get_edge(0)
+        self._front[index2] = gate.get_edge(1)
         self._nodes.append(gate)
 
     def apply_general_gate(
@@ -151,8 +151,8 @@ class Circuit:
         assert len(index) == len(set(index))
         noe = len(index)
         for i, ind in enumerate(index):
-            gate.get_edge(i) ^ self._front[ind]
-            self._front[ind] = gate.get_edge(i + noe)
+            gate.get_edge(i + noe) ^ self._front[ind]
+            self._front[ind] = gate.get_edge(i)
         self._nodes.append(gate)
         if (
             name

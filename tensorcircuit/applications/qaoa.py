@@ -371,7 +371,7 @@ def DQAS_search(
     p_nnp: Optional[int] = None,
     p_stp: Optional[int] = None,
     batch: int = 300,
-    prethermal: int = 100,
+    prethermal: int = 0,
     epochs: int = 100,
     parallel_num: int = 0,
     verbose: bool = False,
@@ -670,7 +670,11 @@ def double_qubits_initial() -> Iterator[Sequence[Any]]:
 
 
 def GHZ_vag_tfq(
-    gdata: Any, nnp: Tensor, preset: Sequence[int], verbose: bool = False,
+    gdata: Any,
+    nnp: Tensor,
+    preset: Sequence[int],
+    verbose: bool = False,
+    index: Tuple[int, int, int, int, int, int, int, int] = (1, 1, 1, 0, 0, 1, 0, 0),
 ) -> Tuple[Tensor, Tensor]:
     # gdata = quantum_circuit
 
@@ -688,14 +692,107 @@ def GHZ_vag_tfq(
     if verbose:
         print(res.numpy())
     loss = (
-        -res[0, 0]
-        - res[0, 1]
-        - res[1, 0]
-        + res[1, 1]
-        + res[2, 0]
-        - res[2, 1]
-        + res[3, 0]
-        + res[3, 1]
+        (-1.0) ** index[0] * res[0, 0]
+        + (-1.0) ** index[1] * res[0, 1]
+        + (-1.0) ** index[2] * res[1, 0]
+        + (-1.0) ** index[3] * res[1, 1]
+        + (-1.0) ** index[4] * res[2, 0]
+        + (-1.0) ** index[5] * res[2, 1]
+        + (-1.0) ** index[6] * res[3, 0]
+        + (-1.0) ** index[7] * res[3, 1]
     )
     #     loss = -tf.reduce_sum(tf.abs(res)) # for more general case
     return loss, tf.zeros_like(nnp)
+
+
+cr1 = cirq.ControlledGate(cirq.S)
+cr2 = cirq.ControlledGate(cirq.T)
+# control rotated gates for 3-QFT
+
+
+def q(i: int) -> cirq.LineQubit:
+    """
+    short cut for ``cirq.LineQubit(i)``
+
+    :param i:
+    :return:
+    """
+    return cirq.LineQubit(i)
+
+
+def qft3(*placeholders: cirq.Gate) -> cirq.Circuit:
+    """
+
+    :param placeholders: cirq.Gate that should be inserted into blank position of QFT3
+    :return: cirq.Circuit
+    """
+    if not placeholders:
+        placeholders = [cirq.I for _ in range(6)]  # type: ignore
+    assert len(placeholders) == 6
+    circuit = cirq.Circuit()
+    if placeholders[0] != cirq.I:
+        circuit.append(placeholders[0](q(0)))
+    if placeholders[1] != cirq.I:
+        circuit.append(placeholders[1](q(0)))
+    if placeholders[2] != cirq.I:
+        circuit.append(placeholders[2](q(1)))
+    circuit.append(cirq.H(q(2)))
+    circuit.append(cr1(q(1), q(2)))
+    circuit.append(cr2(q(0), q(2)))
+    circuit.append(cirq.H(q(1)))
+    circuit.append(cr1(q(0), q(1)))
+    circuit.append(cirq.H(q(0)))
+    if placeholders[3] != cirq.I:
+        circuit.append(placeholders[3](q(1)))
+    if placeholders[4] != cirq.I:
+        circuit.append(placeholders[4](q(2)))
+    if placeholders[5] != cirq.I:
+        circuit.append(placeholders[5](q(2)))
+    return circuit
+
+
+def noisyfy(
+    circuit: cirq.Circuit,
+    error_model: str = "bit_flip",
+    p_idle: float = 0.3,
+    p_sep: float = 0.1,
+) -> cirq.Circuit:
+    noise_circuit = cirq.Circuit()
+    error = getattr(cirq, error_model)
+    all_qubits = circuit.all_qubits()
+    for m in circuit.moments:
+        noise_circuit.append(m)
+        occupied_qubits = set()
+        for g in m:
+            for q in g.qubits:
+                occupied_qubits.add(q)
+        for q in all_qubits:
+            if q not in occupied_qubits:
+                noise_circuit.append(error(p_idle)(q))
+        noise_circuit.append(error(p_sep).on_each(*all_qubits))
+    return noise_circuit
+
+
+def qft_qem_vag(
+    gdata: Any,
+    nnp: Tensor,
+    preset: Sequence[int],
+    p_idle: float = 0.2,
+    p_sep: float = 0.02,
+) -> Tuple[Tensor, Tensor]:
+    # gdata = None
+    s = cirq.DensityMatrixSimulator()
+    cset = get_op_pool()
+    placeholder = [cset[j] for j in preset]
+    ncq = qft3()
+    prepend = cirq.Circuit()
+    for i in range(3):
+        prepend.append(cirq.rx(np.random.uniform(high=np.pi, low=-np.pi))(q(i)))
+    ncq = prepend + ncq
+    pdm = s.simulate(ncq).final_density_matrix
+    ncq2 = qft3(*placeholder)
+    ncq2 = prepend + ncq2
+    ncq2 = noisyfy(ncq2, p_idle=p_idle, p_sep=p_sep)
+    ndm = s.simulate(ncq2).final_density_matrix
+    loss = -cirq.fidelity(pdm, ndm)
+    return tf.constant(loss, dtype=tf.float32), tf.zeros_like(nnp)
