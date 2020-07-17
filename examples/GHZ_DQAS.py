@@ -6,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 import cirq
 
-from tensorcircuit.applications.qaoa import (
+from tensorcircuit.applications.dqas import (
     set_op_pool,
     get_preset,
     GHZ_vag,

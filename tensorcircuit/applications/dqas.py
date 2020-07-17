@@ -1,9 +1,9 @@
 """
-modules for QAOA application and its variants
-layers and graphdata module are utilized
+modules for DQAS, including kernels on various applications
 """
 
 import sys
+import inspect
 from functools import lru_cache, partial
 from multiprocessing import Pool
 import numpy as np
@@ -22,6 +22,7 @@ from typing import (
 import networkx as nx
 import cirq
 import tensorflow_quantum as tfq
+from cirq.contrib.svg import SVGCircuit  # type: ignore
 
 from ..gates import array_to_tensor, num_to_tensor
 from .. import cons
@@ -35,7 +36,258 @@ Opt = Any  # tf.keras.optimizer
 
 thismodule = sys.modules[__name__]
 
-lbd = 2.0
+
+_op_pool: Sequence[Any] = []
+
+
+def set_op_pool(l: Sequence[Any]) -> None:
+    global _op_pool
+    _op_pool = l
+
+
+def get_op_pool() -> Sequence[Any]:
+    global _op_pool
+    return _op_pool
+
+
+## GHZ circuit application
+
+
+def GHZ_vag(
+    gdata: Any, nnp: Tensor, preset: Sequence[int], verbose: bool = False, n: int = 3
+) -> Tuple[Tensor, Tensor]:
+    # gdata = None
+    reference_state = np.zeros([2 ** n])
+    #     W states benchmarks
+    #     for i in range(n):
+    #         reference_state[2**(i)] = 1/np.sqrt(n)
+    reference_state[0] = 1 / np.sqrt(2)
+    reference_state[-1] = 1 / np.sqrt(2)
+    reference_state = tf.constant(reference_state, dtype=tf.complex64)
+    nnp = nnp.numpy()  # real
+    pnnp = [nnp[i, j] for i, j in enumerate(preset)]
+    pnnp = array_to_tensor(np.array(pnnp))  # complex
+    circuit = Circuit(n)
+    cset = get_op_pool()
+
+    with tf.GradientTape() as t:
+        t.watch(pnnp)
+        for i, j in enumerate(preset):
+            gate = cset[j]
+            if gate[0].startswith("r"):
+                getattr(circuit, gate[0])(gate[1], theta=pnnp[i])
+            elif len(gate[0]) == 1:
+                getattr(circuit, gate[0])(gate[1])
+            elif gate[0] == "CNOT":
+                circuit.CNOT(gate[1], gate[2])  # type: ignore
+        s = circuit.wavefunction()
+        s = tf.reshape(s, [2 ** n,])
+        loss = tf.math.reduce_sum(
+            tf.math.abs(s - reference_state)
+        )  # better for overlap objective to optimize
+    #   loss = (tf.math.abs(tf.tensordot(s, reference_state, [0,0]))-1.)**2
+    if verbose:
+        print(s.numpy())
+    gr = t.gradient(loss, pnnp)
+    if gr is None:
+        # if all gates in preset are not trainable, then gr returns None instead of 0s
+        gr = tf.zeros_like(pnnp)
+    gr = cons.backend.real(gr)
+    gr = tf.where(tf.math.is_nan(gr), 0.0, gr)
+    gmatrix = np.zeros_like(nnp)
+    for i, j in enumerate(preset):
+        gmatrix[i, j] = gr[i]
+    gmatrix = tf.constant(gmatrix)
+    return loss, gmatrix
+
+
+def double_qubits_initial() -> Iterator[Sequence[Any]]:
+    while True:
+        yield [
+            cirq.Circuit(
+                [cirq.rx(0.0)(cirq.GridQubit(0, 0)), cirq.rx(0.0)(cirq.GridQubit(1, 0))]
+            ),  # 00 +xx +zz
+            cirq.Circuit(
+                [cirq.X(cirq.GridQubit(1, 0)), cirq.rx(0.0)(cirq.GridQubit(0, 0))]
+            ),  # 01 +xx -zz
+            cirq.Circuit(
+                [cirq.X(cirq.GridQubit(0, 0)), cirq.rx(0.0)(cirq.GridQubit(1, 0))]
+            ),  # 10 -xx +zz
+            cirq.Circuit(
+                [cirq.X(cirq.GridQubit(0, 0)), cirq.X(cirq.GridQubit(1, 0))]
+            ),  # 11 -xx -zz
+        ]
+
+
+def GHZ_vag_tfq(
+    gdata: Any,
+    nnp: Tensor,
+    preset: Sequence[int],
+    verbose: bool = False,
+    index: Tuple[int, int, int, int, int, int, int, int] = (1, 1, 1, 0, 0, 1, 0, 0),
+) -> Tuple[Tensor, Tensor]:
+    # gdata = quantum_circuit
+
+    circuit = cirq.Circuit()
+    cset = get_op_pool()
+    for i, j in enumerate(preset):
+        circuit.append(cset[j])
+    input_circuits = [c + circuit for c in gdata]
+    measurements = [
+        cirq.Z(cirq.GridQubit(0, 0)) * cirq.Z(cirq.GridQubit(1, 0)),
+        cirq.X(cirq.GridQubit(0, 0)) * cirq.X(cirq.GridQubit(1, 0)),
+    ]
+    expl = tfq.layers.Expectation()
+    res = expl(input_circuits, operators=measurements)
+    if verbose:
+        print(res.numpy())
+    loss = (
+        (-1.0) ** index[0] * res[0, 0]
+        + (-1.0) ** index[1] * res[0, 1]
+        + (-1.0) ** index[2] * res[1, 0]
+        + (-1.0) ** index[3] * res[1, 1]
+        + (-1.0) ** index[4] * res[2, 0]
+        + (-1.0) ** index[5] * res[2, 1]
+        + (-1.0) ** index[6] * res[3, 0]
+        + (-1.0) ** index[7] * res[3, 1]
+    )
+    #     loss = -tf.reduce_sum(tf.abs(res)) # for more general case
+    return loss, tf.zeros_like(nnp)
+
+
+## QFT QEM application
+
+
+def q(i: int) -> cirq.LineQubit:
+    """
+    short cut for ``cirq.LineQubit(i)``
+
+    :param i:
+    :return:
+    """
+    return cirq.LineQubit(i)
+
+
+@lru_cache()
+def qft_circuit(n: int) -> cirq.Circuit:
+
+    circuit = cirq.Circuit()
+    for i in reversed(range(n)):
+        circuit.append(cirq.H(q(i)))
+        for d, j in enumerate(reversed(range(i))):
+            circuit.append(
+                cirq.ControlledGate(cirq.Z ** (1 / 2 ** (d + 1)))(q(j), q(i))
+            )
+
+    return circuit
+
+
+def gapfilling(circuit: cirq.Circuit, placeholder: Sequence[Any]) -> cirq.Circuit:
+    """
+    Fill single qubit gates according to placeholder on circuit
+
+    :param circuit:
+    :param placeholder:
+    :return:
+    """
+    n_circuit = cirq.Circuit()
+    all_qubits = sorted(circuit.all_qubits())
+    i = 0
+    for m in circuit.moments:
+        n_circuit.append(m)
+        occupied_qubits = set()
+        for g in m:
+            for q in g.qubits:
+                occupied_qubits.add(q)
+        for q in all_qubits:
+            if q not in occupied_qubits:
+                if placeholder[i] != cirq.I:
+                    n_circuit.append(placeholder[i](q))
+                i += 1
+    return n_circuit
+
+
+def noisyfy(
+    circuit: cirq.Circuit,
+    error_model: str = "bit_flip",
+    p_idle: float = 0.2,
+    p_sep: float = 0.02,
+) -> cirq.Circuit:
+    noise_circuit = cirq.Circuit()
+    error = getattr(cirq, error_model)
+    all_qubits = circuit.all_qubits()
+    for m in circuit.moments:
+        noise_circuit.append(m)
+        occupied_qubits = set()
+        for g in m:
+            for q in g.qubits:
+                occupied_qubits.add(q)
+        for q in all_qubits:
+            if q not in occupied_qubits:
+                noise_circuit.append(error(p_idle)(q))
+        noise_circuit.append(error(p_sep).on_each(*all_qubits))
+    return noise_circuit
+
+
+def unitary_design_block(circuit: cirq.Circuit, n: int) -> cirq.Circuit:
+    for i in range(n):
+        theta = np.random.choice([0, 2 / 3, 4 / 3])
+        circuit.append(cirq.ZPowGate(exponent=theta)(q(i)))
+    for i in range(n - 1):
+        for j in range(i + 1, n):
+            if np.random.choice([0, 1]) < 0.5:
+                circuit.append(cirq.CZ(q(i), q(j)))
+    for i in range(n):
+        circuit.append(cirq.H(q(i)))
+    return circuit
+
+
+def unitary_design(n: int, l: int = 3) -> cirq.Circuit:
+    """
+    generate random wavefunction from approximately Haar measure,
+    reference:  https://doi.org/10.1063/1.4983266
+
+    :param n: number of qubits
+    :param l: repetition of the blocks
+    :return:
+    """
+    circuit = cirq.Circuit()
+    for i in range(n):
+        circuit.append(cirq.H(q(i)))  # the first block only final H layer has effect
+    for _ in range(l):
+        unitary_design_block(circuit, n)
+    return circuit
+
+
+def qft_qem_vag(
+    gdata: Any,
+    nnp: Tensor,
+    preset: Sequence[int],
+    n: int = 3,
+    p_idle: float = 0.2,
+    p_sep: float = 0.02,
+) -> Tuple[Tensor, Tensor]:
+    # gdata = None
+    if gdata is None:
+        prepend = unitary_design(n)
+    else:
+        prepend = gdata
+    s = cirq.DensityMatrixSimulator()
+    cset = get_op_pool()
+    placeholder = [cset[j] for j in preset]
+    qftc = qft_circuit(n)
+
+    ideal = prepend + qftc
+    pdm = s.simulate(ideal).final_density_matrix
+    ncq = gapfilling(qftc, placeholder)
+    ncq = noisyfy(ncq, p_idle=p_idle, p_sep=p_sep)
+    ncq = prepend + ncq
+    ndm = s.simulate(ncq).final_density_matrix
+    loss = -cirq.fidelity(pdm, ndm)
+    return tf.constant(loss, dtype=tf.float32), tf.zeros_like(nnp)
+
+
+## QAOA application
 
 
 @lru_cache()
@@ -173,7 +425,6 @@ def qas_block_vag_factory(
             t.watch(pnnp.values)  # type: ignore
             loss = exp_forward(pnnp, preset, gdata, f)
         gr = t.gradient(loss, pnnp.values)  # type:ignore
-        # gr = tf.where(tf.math.is_nan(gr), 0.0, gr)
         if gr is None:
             # if all gates in preset are not trainable, then gr returns None instead of 0s
             gr = tf.zeros_like(pnnp)
@@ -207,7 +458,7 @@ def evaluate_vag(
     overlap_threhold: float = 0.0,
 ) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
     """
-    value and gradient, currently on tensorflow backend is supported
+    value and gradient, currently only tensorflow backend is supported
     jax and numpy seems to be slow in circuit simulation anyhow.
 
     :param params:
@@ -250,6 +501,20 @@ def qaoa_train(
     overlap_threhold: float = 0.0,
     verbose: bool = True,
 ) -> Tuple[Array, Sequence[float], Sequence[float], Sequence[float]]:
+    """
+    training QAOA with only optimizing circuit parameters, can be well replaced with more general function `DQAS_search`
+
+    :param preset:
+    :param g:
+    :param epochs:
+    :param batch:
+    :param initial_param:
+    :param opt:
+    :param lbd:
+    :param overlap_threhold:
+    :param verbose:
+    :return:
+    """
     if initial_param is None:
         initial_param = np.random.normal(loc=0.3, scale=0.05, size=[len(preset)])
     theta = tf.Variable(initial_value=initial_param, dtype=tf.float32)
@@ -301,6 +566,20 @@ def qaoa_train(
     return theta.numpy(), mean_history, gibbs_history, overlap_history
 
 
+## infrastrcture for DQAS search
+
+
+def get_var(name: str) -> Any:
+    return inspect.stack()[2][0].f_locals[name]
+
+
+def verbose_output(max_prob: bool = True) -> None:
+    if max_prob:
+        prob = get_var("prob")
+        print("max probability for each layer:")
+        print(np.max(prob.numpy(), axis=1))
+
+
 def preset_byprob(prob: Tensor) -> Sequence[int]:
     preset = []
     p = prob.shape[0]
@@ -318,24 +597,19 @@ def get_preset(stp: Tensor) -> Tensor:
 def get_weights(
     nnp: Tensor, stp: Tensor = None, preset: Optional[Sequence[int]] = None
 ) -> Tensor:
+    """
+    works only when nnp has the same shape as stp, i.e. one parameter for each op
+
+    :param nnp:
+    :param stp:
+    :param preset:
+    :return:
+    """
     if preset is None:
         preset = get_preset(stp)
     p = nnp.shape[0]
     ind_ = tf.stack([tf.cast(tf.range(p), tf.int32), tf.cast(preset, tf.int32)])
     return tf.gather_nd(nnp, tf.transpose(ind_))
-
-
-_op_pool: Sequence[Any] = []
-
-
-def set_op_pool(l: Sequence[Any]) -> None:
-    global _op_pool
-    _op_pool = l
-
-
-def get_op_pool() -> Sequence[Any]:
-    global _op_pool
-    return _op_pool
 
 
 def parallel_kernel(
@@ -362,6 +636,11 @@ def void_generator() -> Iterator[Any]:
         yield None
 
 
+def single_generator(g: Any) -> Iterator[Any]:
+    while True:
+        yield g
+
+
 def DQAS_search(
     kernel_func: Callable[[Any, Tensor, Sequence[int]], Tuple[Tensor, Tensor]],
     *,
@@ -375,6 +654,9 @@ def DQAS_search(
     epochs: int = 100,
     parallel_num: int = 0,
     verbose: bool = False,
+    verbose_func: Optional[Callable[[], None]] = None,
+    history_func: Optional[Callable[[], Any]] = None,
+    prob_clip: Optional[float] = None,
     baseline_func: Optional[Callable[[Sequence[float]], float]] = None,
     pertubation_func: Optional[Callable[[], Tensor]] = None,
     nnp_initial_value: Optional[Array] = None,
@@ -385,7 +667,7 @@ def DQAS_search(
     prethermal_preset: Optional[Sequence[int]] = None,
     stp_regularization: Optional[Callable[[Tensor, Tensor], Tensor]] = None,
     nnp_regularization: Optional[Callable[[Tensor, Tensor], Tensor]] = None,
-) -> Tuple[Tensor, Tensor]:
+) -> Tuple[Tensor, Tensor, Sequence[Any]]:
     """
     DQAS framework entrypoint
 
@@ -402,6 +684,9 @@ def DQAS_search(
     :param epochs: training epochs
     :param parallel_num: parallel thread number, 0 to disable multiprocessing model by default
     :param verbose: set verbose log to print
+    :param vebose_func: function to output verbose information
+    :param history_func: function return intermiediate result for final history list
+    :param prob_clip: cutoff probability to avoid peak distribution
     :param baseline_func: function accepting list of objective values and return the baseline value used in the next round
     :param pertubation_func: return noise with the same shape as circuit parameter pool
     :param nnp_initial_value: initial values for circuit parameter pool
@@ -458,6 +743,8 @@ def DQAS_search(
     nnp = tf.Variable(initial_value=nnp_initial_value, dtype=dtype)
     stp = tf.Variable(initial_value=stp_initial_value, dtype=dtype)
 
+    history = []
+
     prob = tf.math.exp(stp) / tf.tile(
         tf.math.reduce_sum(tf.math.exp(stp), axis=1)[:, tf.newaxis], [1, c]
     )  # softmax categorical probability
@@ -480,6 +767,13 @@ def DQAS_search(
             prob = tf.math.exp(stp) / tf.tile(
                 tf.math.reduce_sum(tf.math.exp(stp), axis=1)[:, tf.newaxis], [1, c]
             )
+            if prob_clip is not None:
+                prob = tf.clip_by_value(prob, (1 - prob_clip) / c, prob_clip)
+                prob = prob / tf.tile(
+                    tf.reshape(tf.reduce_sum(prob, axis=1), [prob.shape[0], 1]),
+                    tf.constant([1, prob.shape[1]]),
+                )
+
             if verbose:
                 print("probability: \n", prob.numpy())
 
@@ -580,6 +874,12 @@ def DQAS_search(
                     "\n network parameter: \n",
                     nnp.numpy(),
                 )
+
+            if verbose_func is not None:
+                verbose_func()
+            if history_func is not None:
+                history.append(history_func())
+
             cand_preset = get_preset(stp).numpy()
             cand_preset_repr = [
                 op_pool[f].__repr__()
@@ -596,203 +896,42 @@ def DQAS_search(
                 )
         if parallel_num > 0:
             pool.close()
-        return stp, nnp  # TODO: history list trackings
+        return stp, nnp, history  # TODO: history list trackings
     except KeyboardInterrupt:
         if parallel_num > 0:
             pool.close()
-        return stp, nnp
+        return stp, nnp, history
 
 
-def GHZ_vag(
-    gdata: Any, nnp: Tensor, preset: Sequence[int], verbose: bool = False, n: int = 3
-) -> Tuple[Tensor, Tensor]:
-    # gdata = None
-    reference_state = np.zeros([2 ** n])
-    #     W states benchmarks
-    #     for i in range(n):
-    #         reference_state[2**(i)] = 1/np.sqrt(n)
-    reference_state[0] = 1 / np.sqrt(2)
-    reference_state[-1] = 1 / np.sqrt(2)
-    reference_state = tf.constant(reference_state, dtype=tf.complex64)
-    nnp = nnp.numpy()  # real
-    pnnp = [nnp[i, j] for i, j in enumerate(preset)]
-    pnnp = array_to_tensor(np.array(pnnp))  # complex
-    circuit = Circuit(n)
-    cset = get_op_pool()
-
-    with tf.GradientTape() as t:
-        t.watch(pnnp)
-        for i, j in enumerate(preset):
-            gate = cset[j]
-            if gate[0].startswith("r"):
-                getattr(circuit, gate[0])(gate[1], theta=pnnp[i])
-            elif len(gate[0]) == 1:
-                getattr(circuit, gate[0])(gate[1])
-            elif gate[0] == "CNOT":
-                circuit.CNOT(gate[1], gate[2])  # type: ignore
-        s = circuit.wavefunction()
-        s = tf.reshape(s, [2 ** n,])
-        loss = tf.math.reduce_sum(
-            tf.math.abs(s - reference_state)
-        )  # better for overlap objective to optimize
-    #   loss = (tf.math.abs(tf.tensordot(s, reference_state, [0,0]))-1.)**2
-    if verbose:
-        print(s.numpy())
-    gr = t.gradient(loss, pnnp)
-    if gr is None:
-        # if all gates in preset are not trainable, then gr returns None instead of 0s
-        gr = tf.zeros_like(pnnp)
-    gr = cons.backend.real(gr)
-    gr = tf.where(tf.math.is_nan(gr), 0.0, gr)
-    gmatrix = np.zeros_like(nnp)
-    for i, j in enumerate(preset):
-        gmatrix[i, j] = gr[i]
-    gmatrix = tf.constant(gmatrix)
-    return loss, gmatrix
+## some utils
 
 
-def double_qubits_initial() -> Iterator[Sequence[Any]]:
-    while True:
-        yield [
-            cirq.Circuit(
-                [cirq.rx(0.0)(cirq.GridQubit(0, 0)), cirq.rx(0.0)(cirq.GridQubit(1, 0))]
-            ),  # 00 +xx +zz
-            cirq.Circuit(
-                [cirq.X(cirq.GridQubit(1, 0)), cirq.rx(0.0)(cirq.GridQubit(0, 0))]
-            ),  # 01 +xx -zz
-            cirq.Circuit(
-                [cirq.X(cirq.GridQubit(0, 0)), cirq.rx(0.0)(cirq.GridQubit(1, 0))]
-            ),  # 10 -xx +zz
-            cirq.Circuit(
-                [cirq.X(cirq.GridQubit(0, 0)), cirq.X(cirq.GridQubit(1, 0))]
-            ),  # 11 -xx -zz
-        ]
-
-
-def GHZ_vag_tfq(
-    gdata: Any,
-    nnp: Tensor,
-    preset: Sequence[int],
-    verbose: bool = False,
-    index: Tuple[int, int, int, int, int, int, int, int] = (1, 1, 1, 0, 0, 1, 0, 0),
-) -> Tuple[Tensor, Tensor]:
-    # gdata = quantum_circuit
-
-    circuit = cirq.Circuit()
-    cset = get_op_pool()
-    for i, j in enumerate(preset):
-        circuit.append(cset[j])
-    input_circuits = [c + circuit for c in gdata]
-    measurements = [
-        cirq.Z(cirq.GridQubit(0, 0)) * cirq.Z(cirq.GridQubit(1, 0)),
-        cirq.X(cirq.GridQubit(0, 0)) * cirq.X(cirq.GridQubit(1, 0)),
-    ]
-    expl = tfq.layers.Expectation()
-    res = expl(input_circuits, operators=measurements)
-    if verbose:
-        print(res.numpy())
-    loss = (
-        (-1.0) ** index[0] * res[0, 0]
-        + (-1.0) ** index[1] * res[0, 1]
-        + (-1.0) ** index[2] * res[1, 0]
-        + (-1.0) ** index[3] * res[1, 1]
-        + (-1.0) ** index[4] * res[2, 0]
-        + (-1.0) ** index[5] * res[2, 1]
-        + (-1.0) ** index[6] * res[3, 0]
-        + (-1.0) ** index[7] * res[3, 1]
-    )
-    #     loss = -tf.reduce_sum(tf.abs(res)) # for more general case
-    return loss, tf.zeros_like(nnp)
-
-
-cr1 = cirq.ControlledGate(cirq.S)
-cr2 = cirq.ControlledGate(cirq.T)
-# control rotated gates for 3-QFT
-
-
-def q(i: int) -> cirq.LineQubit:
+def color_svg(circuit: cirq.Circuit, *coords: Tuple[int, int]) -> Any:
     """
-    short cut for ``cirq.LineQubit(i)``
+    color cirq circuit given gates
 
-    :param i:
+    :param circuit:
+    :param coords: integer coordinate which gate is colored
     :return:
     """
-    return cirq.LineQubit(i)
+    import xml
 
+    svg_str = SVGCircuit(circuit)._repr_svg_()
+    DOMTree = xml.dom.minidom.parseString(svg_str)  # type: ignore
+    xpos = []
+    ypos = []
+    for r in DOMTree.getElementsByTagName("rect"):  # [0].setAttribute("fill", "gray")
 
-def qft3(*placeholders: cirq.Gate) -> cirq.Circuit:
-    """
-
-    :param placeholders: cirq.Gate that should be inserted into blank position of QFT3
-    :return: cirq.Circuit
-    """
-    if not placeholders:
-        placeholders = [cirq.I for _ in range(6)]  # type: ignore
-    assert len(placeholders) == 6
-    circuit = cirq.Circuit()
-    if placeholders[0] != cirq.I:
-        circuit.append(placeholders[0](q(0)))
-    if placeholders[1] != cirq.I:
-        circuit.append(placeholders[1](q(0)))
-    if placeholders[2] != cirq.I:
-        circuit.append(placeholders[2](q(1)))
-    circuit.append(cirq.H(q(2)))
-    circuit.append(cr1(q(1), q(2)))
-    circuit.append(cr2(q(0), q(2)))
-    circuit.append(cirq.H(q(1)))
-    circuit.append(cr1(q(0), q(1)))
-    circuit.append(cirq.H(q(0)))
-    if placeholders[3] != cirq.I:
-        circuit.append(placeholders[3](q(1)))
-    if placeholders[4] != cirq.I:
-        circuit.append(placeholders[4](q(2)))
-    if placeholders[5] != cirq.I:
-        circuit.append(placeholders[5](q(2)))
-    return circuit
-
-
-def noisyfy(
-    circuit: cirq.Circuit,
-    error_model: str = "bit_flip",
-    p_idle: float = 0.3,
-    p_sep: float = 0.1,
-) -> cirq.Circuit:
-    noise_circuit = cirq.Circuit()
-    error = getattr(cirq, error_model)
-    all_qubits = circuit.all_qubits()
-    for m in circuit.moments:
-        noise_circuit.append(m)
-        occupied_qubits = set()
-        for g in m:
-            for q in g.qubits:
-                occupied_qubits.add(q)
-        for q in all_qubits:
-            if q not in occupied_qubits:
-                noise_circuit.append(error(p_idle)(q))
-        noise_circuit.append(error(p_sep).on_each(*all_qubits))
-    return noise_circuit
-
-
-def qft_qem_vag(
-    gdata: Any,
-    nnp: Tensor,
-    preset: Sequence[int],
-    p_idle: float = 0.2,
-    p_sep: float = 0.02,
-) -> Tuple[Tensor, Tensor]:
-    # gdata = None
-    s = cirq.DensityMatrixSimulator()
-    cset = get_op_pool()
-    placeholder = [cset[j] for j in preset]
-    ncq = qft3()
-    prepend = cirq.Circuit()
-    for i in range(3):
-        prepend.append(cirq.rx(np.random.uniform(high=np.pi, low=-np.pi))(q(i)))
-    ncq = prepend + ncq
-    pdm = s.simulate(ncq).final_density_matrix
-    ncq2 = qft3(*placeholder)
-    ncq2 = prepend + ncq2
-    ncq2 = noisyfy(ncq2, p_idle=p_idle, p_sep=p_sep)
-    ndm = s.simulate(ncq2).final_density_matrix
-    loss = -cirq.fidelity(pdm, ndm)
-    return tf.constant(loss, dtype=tf.float32), tf.zeros_like(nnp)
+        xpos.append(int(float(r.getAttribute("x"))))
+        ypos.append(int(float(r.getAttribute("y"))))
+    xpos = sorted(list(set(xpos)))
+    ypos = sorted(list(set(ypos)))
+    # xpos_dict = dict(zip(range(len(xpos)), xpos))
+    # ypos_dict = dict(zip(range(len(ypos)), ypos))
+    i_xpos_dict = dict(zip(xpos, range(len(xpos))))
+    i_ypos_dict = dict(zip(ypos, range(len(ypos))))
+    for r in DOMTree.getElementsByTagName("rect"):
+        x, y = int(float(r.getAttribute("x"))), int(float(r.getAttribute("y")))
+        if (i_xpos_dict[x], i_ypos_dict[y]) in coords:
+            r.setAttribute("fill", "gray")
+    return DOMTree.toxml()

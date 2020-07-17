@@ -1,4 +1,4 @@
-from .qaoa import evaluate_vag, set_op_pool
+from .dqas import evaluate_vag, set_op_pool
 from .graphdata import get_graph
 from .layers import *
 from ..cons import set_backend

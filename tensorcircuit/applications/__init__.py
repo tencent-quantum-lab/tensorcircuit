@@ -1,2 +1,2 @@
 from . import layers
-from . import qaoa
+from . import dqas
