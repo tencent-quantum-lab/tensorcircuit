@@ -3,6 +3,7 @@ import sys
 sys.path.insert(0, "../")
 
 from functools import partial
+from collections import namedtuple
 import cirq
 import numpy as np
 import tensorflow as tf
@@ -11,6 +12,7 @@ from tensorcircuit.applications.dqas import (
     qft_qem_vag,
     DQAS_search,
     verbose_output,
+    get_var,
 )
 
 
@@ -52,7 +54,7 @@ def main_4():
         nnp_initial_value=tf.zeros([12, 11]),
         p=12,
         prethermal=0,
-        batch=6,
+        batch=256,
         verbose=False,
         verbose_func=verbose_output,
         epochs=3000,

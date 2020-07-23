@@ -376,78 +376,76 @@ def _overlap_fun(s: Any, overlap_threhold: float = 0.0) -> Tensor:
     return 0.0
 
 
-def qas_vag_factory(
-    f: Tuple[Callable[[float], float], Callable[[Tensor], Tensor]]
-) -> Callable[[Graph, Tensor, Sequence[int]], Tuple[Tensor, Tensor]]:
-    def qas_vag(
-        gdata: Graph, nnp: Tensor, preset: Sequence[int]
-    ) -> Tuple[Tensor, Tensor]:
-        nnp = nnp.numpy()  # real
-        pnnp = [nnp[i, j] for i, j in enumerate(preset)]
-        pnnp = array_to_tensor(np.array(pnnp))  # complex
-        with tf.GradientTape() as t:
-            t.watch(pnnp)
-            loss = exp_forward(pnnp, preset, gdata, f)
-        gr = t.gradient(loss, pnnp)
-        if gr is None:
-            # if all gates in preset are not trainable, then gr returns None instead of 0s
-            gr = tf.zeros_like(pnnp)
+def qaoa_vag(
+    gdata: Graph,
+    nnp: Tensor,
+    preset: Sequence[int],
+    f: Tuple[Callable[[float], float], Callable[[Tensor], Tensor]],
+) -> Tuple[Tensor, Tensor]:
+
+    nnp = nnp.numpy()  # real
+    pnnp = [nnp[i, j] for i, j in enumerate(preset)]
+    pnnp = array_to_tensor(np.array(pnnp))  # complex
+    with tf.GradientTape() as t:
+        t.watch(pnnp)
+        loss = exp_forward(pnnp, preset, gdata, f)
+    gr = t.gradient(loss, pnnp)
+    if gr is None:
+        # if all gates in preset are not trainable, then gr returns None instead of 0s
+        gr = tf.zeros_like(pnnp)
+    gr = cons.backend.real(gr)
+    gr = tf.where(tf.math.is_nan(gr), 0.0, gr)
+    gmatrix = np.zeros_like(nnp)
+    for i, j in enumerate(preset):
+        gmatrix[i, j] = gr[i]
+    gmatrix = tf.constant(gmatrix)
+    return loss[0], gmatrix
+
+
+def qaoa_block_vag(
+    gdata: Graph,
+    nnp: Tensor,
+    preset: Sequence[int],
+    f: Tuple[Callable[[float], float], Callable[[Tensor], Tensor]],
+) -> Tuple[Tensor, Tensor]:
+    # for universality, nnp always occupy two rows for each block
+
+    nnp = nnp.numpy()  # real
+    pnnp = []
+    ops = get_op_pool()
+    for i, j in enumerate(preset):
+        # print(ops[j].__repr__)
+        if ops[j].__repr__.endswith("_block"):
+            pnnp.append([nnp[2 * i, j], nnp[2 * i + 1, j]])
+        else:
+            pnnp.append([nnp[2 * i, j]])
+    # pnnp = array_to_tensor(np.array(pnnp))  # complex
+    pnnp = tf.ragged.constant(pnnp, dtype=getattr(tf, cons.dtypestr))
+    with tf.GradientTape() as t:
+        t.watch(pnnp.values)  # type: ignore
+        loss = exp_forward(pnnp, preset, gdata, f)
+    gr = t.gradient(loss, pnnp.values)  # type:ignore
+    if gr is None:
+        # if all gates in preset are not trainable, then gr returns None instead of 0s
+        gr = tf.zeros_like(pnnp)
+    else:
         gr = cons.backend.real(gr)
         gr = tf.where(tf.math.is_nan(gr), 0.0, gr)
-        gmatrix = np.zeros_like(nnp)
-        for i, j in enumerate(preset):
-            gmatrix[i, j] = gr[i]
-        gmatrix = tf.constant(gmatrix)
-        return loss[0], gmatrix
+        # if all gates in preset are not trainable, then gr returns None instead of 0s
+        gr = pnnp.with_values(gr)  # type:ignore
 
-    return qas_vag
+    gr = cons.backend.real(gr)
 
+    gmatrix = np.zeros_like(nnp)
+    for j in range(gr.shape[0]):
+        if gr[j].shape[0] == 2:
+            gmatrix[2 * j, preset[j]] = gr[j][0]
+            gmatrix[2 * j + 1, preset[j]] = gr[j][1]
+        else:  # 1
+            gmatrix[2 * j, preset[j]] = gr[j][0]
 
-def qas_block_vag_factory(
-    f: Tuple[Callable[[float], float], Callable[[Tensor], Tensor]]
-) -> Callable[[Graph, Tensor, Sequence[int]], Tuple[Tensor, Tensor]]:
-    # for universality, nnp always occupy two rows for each block
-    def qas_block_vag(
-        gdata: Graph, nnp: Tensor, preset: Sequence[int]
-    ) -> Tuple[Tensor, Tensor]:
-        nnp = nnp.numpy()  # real
-        pnnp = []
-        ops = get_op_pool()
-        for i, j in enumerate(preset):
-            # print(ops[j].__repr__)
-            if ops[j].__repr__.endswith("_block"):
-                pnnp.append([nnp[2 * i, j], nnp[2 * i + 1, j]])
-            else:
-                pnnp.append([nnp[2 * i, j]])
-        # pnnp = array_to_tensor(np.array(pnnp))  # complex
-        pnnp = tf.ragged.constant(pnnp, dtype=getattr(tf, cons.dtypestr))
-        with tf.GradientTape() as t:
-            t.watch(pnnp.values)  # type: ignore
-            loss = exp_forward(pnnp, preset, gdata, f)
-        gr = t.gradient(loss, pnnp.values)  # type:ignore
-        if gr is None:
-            # if all gates in preset are not trainable, then gr returns None instead of 0s
-            gr = tf.zeros_like(pnnp)
-        else:
-            gr = cons.backend.real(gr)
-            gr = tf.where(tf.math.is_nan(gr), 0.0, gr)
-            # if all gates in preset are not trainable, then gr returns None instead of 0s
-            gr = pnnp.with_values(gr)  # type:ignore
-
-        gr = cons.backend.real(gr)
-
-        gmatrix = np.zeros_like(nnp)
-        for j in range(gr.shape[0]):
-            if gr[j].shape[0] == 2:
-                gmatrix[2 * j, preset[j]] = gr[j][0]
-                gmatrix[2 * j + 1, preset[j]] = gr[j][1]
-            else:  # 1
-                gmatrix[2 * j, preset[j]] = gr[j][0]
-
-        gmatrix = tf.constant(gmatrix)
-        return loss[0], gmatrix
-
-    return qas_block_vag
+    gmatrix = tf.constant(gmatrix)
+    return loss[0], gmatrix
 
 
 def evaluate_vag(
@@ -559,7 +557,7 @@ def qaoa_train(
         opt.apply_gradients([(gr, theta)])
         if verbose:
             print("epoch:", i)
-            print("Gibbs objective:", overlap_history[-1])
+            print("Gibbs objective:", gibbs_history[-1])
             print("mean energy:", mean_history[-1])
             print("overlap:", overlap_history[-1])
             print("trainable weights:", theta.numpy())
@@ -639,6 +637,10 @@ def void_generator() -> Iterator[Any]:
 def single_generator(g: Any) -> Iterator[Any]:
     while True:
         yield g
+
+
+def history_loss() -> Array:
+    return get_var("avcost1").numpy()
 
 
 def DQAS_search(
@@ -841,6 +843,7 @@ def DQAS_search(
                         (tf.cast(loss, dtype=dtype) - tf.cast(avcost2, dtype=dtype))
                         * tf.cast(gs, dtype=dtype)
                     )
+
             avcost1 = tf.convert_to_tensor(baseline_func(costl))
 
             print(
@@ -877,8 +880,6 @@ def DQAS_search(
 
             if verbose_func is not None:
                 verbose_func()
-            if history_func is not None:
-                history.append(history_func())
 
             cand_preset = get_preset(stp).numpy()
             cand_preset_repr = [
@@ -894,6 +895,9 @@ def DQAS_search(
                 print(
                     "And associating weights:", cand_weight,
                 )
+
+            if history_func is not None:
+                history.append(history_func())
         if parallel_num > 0:
             pool.close()
         return stp, nnp, history  # TODO: history list trackings
@@ -901,6 +905,105 @@ def DQAS_search(
         if parallel_num > 0:
             pool.close()
         return stp, nnp, history
+
+
+## training based on DQAS
+
+qaoa_vag_energy = partial(qaoa_vag, f=(_identity, _neg))
+
+
+def qaoa_simple_train(
+    preset: Sequence[int],
+    graph: Union[Sequence[Graph], Iterator[Graph]],
+    vag_func: Optional[
+        Callable[[Any, Tensor, Sequence[int]], Tuple[Tensor, Tensor]]
+    ] = None,
+    epochs: int = 60,
+    batch: int = 1,
+    nnp_initial_value: Optional[Array] = None,
+    opt: Optional[Opt] = None,
+) -> Tuple[Array, float]:
+    p = len(preset)
+    c = len(get_op_pool())
+    stp_train = np.zeros([p, c])
+    for i, j in enumerate(preset):
+        stp_train[i, j] = 10.0
+    if nnp_initial_value is not None:
+        nnp_initial_value = np.random.normal(loc=0.23, scale=0.8, size=[p, c])
+    if vag_func is None:
+        vag_func = qaoa_vag_energy
+    if isinstance(graph, list):
+
+        def graph_generator() -> Iterator[Graph]:
+            i = 0
+            l = len(graph)  # type: ignore
+            while True:
+                if i < l:
+                    yield graph[i]  # type: ignore
+                    i += 1
+                else:
+                    i = 0
+                    yield graph[i]  # type: ignore
+
+        graph_g = graph_generator()
+    else:
+        graph_g = graph  # type: ignore
+
+    stp, nnp, h = DQAS_search(
+        vag_func,
+        g=graph_g,
+        p=p,
+        batch=batch,
+        prethermal=0,
+        epochs=epochs,
+        history_func=history_loss,
+        nnp_initial_value=nnp_initial_value,
+        stp_initial_value=stp_train,
+        network_opt=opt,
+    )
+    return (get_weights(nnp, preset=preset).numpy(), h[-1])
+
+
+def parallel_qaoa_train(
+    preset: Sequence[int],
+    g: Any,
+    vag_func: Any = None,
+    opt: Opt = None,
+    epochs: int = 60,
+    tries: int = 16,
+    batch: int = 1,
+    cores: int = 8,
+    scale: float = 1.0,
+) -> Sequence[Any]:
+
+    if not opt:
+        opt = tf.keras.optimizers.Adam(learning_rate=0.1)
+    p = len(preset)
+    c = len(get_op_pool())
+    glist = []
+    for _ in range(epochs * batch):
+        glist.append(g.send(None))  # pickle doesn't support generators even in dill
+    if vag_func is None:
+        vag_func = qaoa_vag_energy
+    pool = Pool(cores)
+    args_list = [
+        (
+            preset,
+            glist,
+            vag_func,
+            epochs,
+            batch,
+            np.random.normal(loc=0.23, scale=scale, size=[p, c]),
+            opt,
+        )
+        for _ in range(tries)
+    ]
+    result_list = pool.starmap(qaoa_simple_train, args_list)
+    pool.close()
+    result_list = sorted(result_list, key=lambda s: s[1])
+    print(result_list)
+    print("the optimal result is %s" % result_list[0][1])
+    return result_list
 
 
 ## some utils

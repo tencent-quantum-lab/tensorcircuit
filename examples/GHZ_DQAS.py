@@ -41,7 +41,7 @@ def main_tn():
     set_op_pool(ghz_pool)
     c = len(ghz_pool)
     p = 4
-    stp, nnp = DQAS_search(
+    stp, nnp, _ = DQAS_search(
         GHZ_vag,
         p=p,
         batch=128,
@@ -73,7 +73,7 @@ def main_tfq():
     ]
     set_op_pool(cset)
     c = len(cset)
-    stp, nnp = DQAS_search(
+    stp, nnp, _ = DQAS_search(
         GHZ_vag_tfq,
         g=double_qubits_initial(),
         p=p,
