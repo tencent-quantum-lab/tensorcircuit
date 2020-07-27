@@ -169,7 +169,7 @@ def _maxcut(g: Graph, values: Sequence[int]) -> float:
     """
     cost = 0
     for e in g.edges:
-        cost += g[e[0]][e[1]]["weight"] / 2 * (1 - values[e[0]] * values[e[1]])
+        cost += g[e[0]][e[1]].get("weight", 1.0) / 2 * (1 - values[e[0]] * values[e[1]])
     return cost
 
 
@@ -190,3 +190,23 @@ def ensemble_maxcut_solution(g: Graph, samples: int = 100) -> Tuple[float, float
     for _ in range(samples):
         r.append(maxcut_solution_bruteforce(g.send(None))[0])
     return np.mean(r), np.std(r) / np.sqrt(len(r))
+
+
+def reduce_edges(g: Graph, m: int = 1) -> Sequence[Graph]:
+    n = len(g.nodes)
+    e = len(g.edges)
+    el = list(g.edges)
+    glist = []
+    for missing_edges in itertools.product(*[[i for i in range(e)] for _ in range(m)]):
+        missing_set = set(list(missing_edges))
+        if len(missing_set) == m:  # no replication
+            ng = nx.Graph()
+            for i in range(n):
+                ng.add_node(i)
+            for i, edge in enumerate(el):
+                if i not in missing_set:
+                    ng.add_edge(*edge, weight=g[edge[0]][edge[1]]["weight"])
+            ng.__repr__ = str(missing_set)
+            glist.append(ng)
+
+    return glist

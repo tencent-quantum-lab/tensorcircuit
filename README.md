@@ -1,11 +1,9 @@
 # TENSORCIRCUIT
 
-This project is partially inspired by [mpsim](https://github.com/grmlarose/mpsim) which builds the quantum circuit model on top of tensornetwork setups instead of directly matrix manipulations.
 
-With [TensorNetwork](https://github.com/google/TensorNetwork) project announced by Google, such setup may gain benefits from swift implementation to auto differentiation abilities.
+With [TensorNetwork](https://github.com/google/TensorNetwork) project announced by Google, quantum circuit simulator based on it may gain benefits from swift implementation to auto differentiation abilities.
 
-This is only a toy project at very early stage and it may always be at this stage. There might be not only sharp edges but also essential bugs in the project.
-Try it on your own risk.
+See ``tensorcircuit.applications`` for relevant code on so-call differentiable quantum architecture search.
 
 ## Baisc Usage
 
@@ -42,3 +40,4 @@ g = tc.backend.jit(g)
 theta = tc.gates.num_to_tensor(1.0)
 print(g(theta))
 ```
+

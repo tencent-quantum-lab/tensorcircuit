@@ -310,7 +310,14 @@ def energy(i: int, n: int, g: Graph) -> float:
 def ave_func(
     state: Array,
     g: Graph,
-    *fs: Tuple[Callable[[float], float], Callable[[Tensor], Tensor]],
+    *fs: Union[
+        Tuple[Callable[[float], float], Callable[[Tensor], Tensor]],
+        Tuple[
+            Callable[[float], float],
+            Callable[[Tensor], Tensor],
+            Callable[[Tensor, Tensor], Tensor],
+        ],
+    ],
 ) -> Sequence[Tensor]:
     """
 
@@ -322,11 +329,18 @@ def ave_func(
     n = int(np.log2(len(state)))
     ebasis = [energy(i, n, g) for i in range(len(state))]
     result = []
-    for f, g in fs:
+    for ftuple in fs:
+        if len(ftuple) == 2:
+            f, f2 = ftuple # type: ignore
+        else:
+            f, f2, f3 = ftuple # type: ignore
         r = [f(e) for e in ebasis]
+        if len(ftuple) == 3:
+            r = f3(r, cons.backend.abs(state) ** 2)
         r = array_to_tensor(np.array(r))
+
         result.append(
-            g(
+            f2(
                 cons.backend.real(
                     cons.backend.tensordot(
                         r,
@@ -358,6 +372,25 @@ def exp_forward(
     return losses
 
 
+def graph_forward(
+    theta: Tensor,
+    preset: Sequence[int],
+    g: Graph,
+    *fs: Tuple[Callable[[float], float], Callable[[Tensor], Tensor]],
+) -> Sequence[Tensor]:
+    n = len(g.nodes)
+    ci = Circuit(n)
+    cset = get_op_pool()  # [(Hlayer, nx.Graph), ...]
+
+    for i, j in enumerate(preset):
+        layer, graph = cset[j]
+        layer(ci, theta[i], graph)
+
+    state = ci.wavefunction()[0]
+    losses = ave_func(state, g, *fs)  # objective graph
+    return losses
+
+
 def _identity(s: Any) -> Any:
     return s
 
@@ -376,19 +409,61 @@ def _overlap_fun(s: Any, overlap_threhold: float = 0.0) -> Tensor:
     return 0.0
 
 
+def cvar(r: List[float], p: Tensor, percent: float = 0.2) -> Sequence[float]:
+    """
+    as f3
+
+    :param r:
+    :param p:
+    :param percent:
+    :return:
+    """
+
+    rs = sorted(
+        [(i, j) for i, j in enumerate(r)], key=lambda s: -s[1]
+    )  # larger to smaller
+    sump = 0.0
+    count = 0
+    while sump < percent:
+        count += 1
+        if sump + p[rs[count][0]] > percent:
+            r[rs[count][0]] = (percent - sump) / (p[rs[count][0]]) * r[rs[count][0]]
+            break
+        else:
+            sump += p[rs[count][0]]
+    for i in range(count, len(r)):
+        r[rs[i][0]] = 0
+    r = [k / percent for k in r]
+    return r
+
+
 def qaoa_vag(
     gdata: Graph,
     nnp: Tensor,
     preset: Sequence[int],
-    f: Tuple[Callable[[float], float], Callable[[Tensor], Tensor]],
+    f: Optional[Tuple[Callable[[float], float], Callable[[Tensor], Tensor]]] = None,
+    forward_func: Optional[
+        Callable[
+            [
+                Tensor,
+                Sequence[int],
+                Graph,
+                Tuple[Callable[[float], float], Callable[[Tensor], Tensor]],
+            ],
+            Tuple[Tensor, Tensor],
+        ]
+    ] = None,
 ) -> Tuple[Tensor, Tensor]:
-
+    if forward_func is None:
+        forward_func = exp_forward  # type: ignore
+    if f is None:
+        f = (_identity, _neg)
     nnp = nnp.numpy()  # real
     pnnp = [nnp[i, j] for i, j in enumerate(preset)]
     pnnp = array_to_tensor(np.array(pnnp))  # complex
     with tf.GradientTape() as t:
         t.watch(pnnp)
-        loss = exp_forward(pnnp, preset, gdata, f)
+        loss = forward_func(pnnp, preset, gdata, f)  # type: ignore
     gr = t.gradient(loss, pnnp)
     if gr is None:
         # if all gates in preset are not trainable, then gr returns None instead of 0s
@@ -400,6 +475,9 @@ def qaoa_vag(
         gmatrix[i, j] = gr[i]
     gmatrix = tf.constant(gmatrix)
     return loss[0], gmatrix
+
+
+qaoa_graph_vag = partial(qaoa_vag, forward_func=graph_forward)
 
 
 def qaoa_block_vag(
@@ -643,6 +721,17 @@ def history_loss() -> Array:
     return get_var("avcost1").numpy()
 
 
+def repr_op(element: Any) -> str:
+    if isinstance(element, str):
+        return element
+    if isinstance(element, list) or isinstance(element, tuple):
+        return str(tuple([repr_op(e) for e in element]))
+    if callable(element.__repr__):
+        return element.__repr__()  # type: ignore
+    else:
+        return element.__repr__  # type: ignore
+
+
 def DQAS_search(
     kernel_func: Callable[[Any, Tensor, Sequence[int]], Tuple[Tensor, Tensor]],
     *,
@@ -882,12 +971,7 @@ def DQAS_search(
                 verbose_func()
 
             cand_preset = get_preset(stp).numpy()
-            cand_preset_repr = [
-                op_pool[f].__repr__()
-                if callable(op_pool[f].__repr__)
-                else op_pool[f].__repr__
-                for f in cand_preset
-            ]
+            cand_preset_repr = [repr_op(op_pool[f]) for f in cand_preset]
             print("best candidates so far:", cand_preset_repr)
             # TODO, more general repr
             if nnp.shape == stp.shape and verbose:
