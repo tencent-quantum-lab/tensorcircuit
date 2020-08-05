@@ -6,7 +6,11 @@ import sys
 import inspect
 from functools import lru_cache, partial
 from multiprocessing import Pool
+import functools
+import operator
 import numpy as np
+import scipy as sp
+import sympy
 import tensorflow as tf
 from typing import (
     List,
@@ -331,9 +335,9 @@ def ave_func(
     result = []
     for ftuple in fs:
         if len(ftuple) == 2:
-            f, f2 = ftuple # type: ignore
+            f, f2 = ftuple  # type: ignore
         else:
-            f, f2, f3 = ftuple # type: ignore
+            f, f2, f3 = ftuple  # type: ignore
         r = [f(e) for e in ebasis]
         if len(ftuple) == 3:
             r = f3(r, cons.backend.abs(state) ** 2)
@@ -425,12 +429,14 @@ def cvar(r: List[float], p: Tensor, percent: float = 0.2) -> Sequence[float]:
     sump = 0.0
     count = 0
     while sump < percent:
-        count += 1
         if sump + p[rs[count][0]] > percent:
             r[rs[count][0]] = (percent - sump) / (p[rs[count][0]]) * r[rs[count][0]]
+            count += 1
             break
         else:
             sump += p[rs[count][0]]
+            count += 1
+
     for i in range(count, len(r)):
         r[rs[i][0]] = 0
     r = [k / percent for k in r]
@@ -486,6 +492,15 @@ def qaoa_block_vag(
     preset: Sequence[int],
     f: Tuple[Callable[[float], float], Callable[[Tensor], Tensor]],
 ) -> Tuple[Tensor, Tensor]:
+    """
+    QAOA block encoding kernel
+
+    :param gdata:
+    :param nnp:
+    :param preset:
+    :param f:
+    :return:
+    """
     # for universality, nnp always occupy two rows for each block
 
     nnp = nnp.numpy()  # real
@@ -642,18 +657,123 @@ def qaoa_train(
     return theta.numpy(), mean_history, gibbs_history, overlap_history
 
 
+## functions for quantum Hamiltonian QAOA with tensorflow quantum backend
+
+
+v = sympy.symbols("v_{0:99}")
+# symbol pool
+
+
+@lru_cache()
+def tfim_measurements(
+    g: Graph, hzz: float = 1, hx: float = 0, hz: float = 0, one: bool = True
+) -> Any:
+    """
+    Hamiltonian for tfim on lattice defined by graph g
+
+    :param g:
+    :param hzz:
+    :param hx:
+    :param hz:
+    :param one:
+    :return: cirq.PauliSum as operators for tfq expectation layer
+    """
+    # one=True and False seems give no speed difference
+    measurements = []
+    qubits = generate_qubits(g)
+    for e in g.edges:
+        measurements.append(
+            hzz * g[e[0]][e[1]]["weight"] * cirq.Z(qubits[e[0]]) * cirq.Z(qubits[e[1]])
+        )
+
+    if hx != 0:
+        for i in range(len(g.nodes)):
+            measurements.append(hx * cirq.X(qubits[i]))
+    if hz != 0:
+        for i in range(len(g.nodes)):
+            measurements.append(hz * cirq.Z(qubits[i]))
+    if one:
+        measurements = functools.reduce(operator.add, measurements)
+    return measurements
+
+
+def quantum_qaoa_vag(
+    gdata: Graph,
+    nnp: Tensor,
+    preset: Sequence[int],
+    measurements_func: Optional[Callable[..., Any]] = None,
+    **kws: Any,
+) -> Tuple[Tensor, Tensor]:
+    """
+    tensorflow quantum backend compare to qaoa_vag which is tensorcircuit backend
+
+    :param gdata:
+    :param nnp:
+    :param preset:
+    :param measurements_func:
+    :param kws: kw arguments for measurements_func
+    :return:
+    """
+    if measurements_func is None:
+        measurements_func = tfim_measurements
+    ep = tfq.layers.Expectation()
+    nnp = nnp.numpy()  # real
+    pnnp = [nnp[i, j] for i, j in enumerate(preset)]
+    pnnp = array_to_tensor(np.array(pnnp))  # complex
+    ci = cirq.Circuit()
+    cset = get_op_pool()
+    for i, j in enumerate(preset):
+        if callable(cset[j]):
+            cset[j](ci, gdata, v[i])
+        else:  # op is a tuple with graph info as (op, g)
+            cset[j][0](ci, cset[j][1], v[i])
+
+    with tf.GradientTape() as t:
+        t.watch(pnnp)
+        loss = ep(
+            inputs=[ci],
+            symbol_names=v[: len(preset)],
+            symbol_values=[pnnp],
+            operators=measurements_func(gdata, **kws),
+        )[0]
+        gr = t.gradient(loss, pnnp)
+    if gr is None:
+        # if all gates in preset are not trainable, then gr returns None instead of 0s
+        gr = tf.zeros_like(pnnp)
+    gr = cons.backend.real(gr)
+    gr = tf.where(tf.math.is_nan(gr), 0.0, gr)
+    gmatrix = np.zeros_like(nnp)
+    for i, j in enumerate(preset):
+        gmatrix[i, j] = gr[i]
+    gmatrix = tf.constant(gmatrix)
+    return loss[0], gmatrix
+
+
 ## infrastrcture for DQAS search
 
 
 def get_var(name: str) -> Any:
+    """
+    call in customized functions and grab variable within DQAF framework function by var name str
+
+    :param name:
+    :return:
+    """
     return inspect.stack()[2][0].f_locals[name]
 
 
-def verbose_output(max_prob: bool = True) -> None:
+def verbose_output(max_prob: bool = True, weight: bool = True) -> None:
     if max_prob:
         prob = get_var("prob")
         print("max probability for each layer:")
         print(np.max(prob.numpy(), axis=1))
+    if weight:
+        nnp = get_var("nnp")
+        stp = get_var("stp")
+        cand_weight = get_weights(nnp, stp).numpy()
+        print(
+            "associating weights:", cand_weight,
+        )
 
 
 def preset_byprob(prob: Tensor) -> Sequence[int]:
@@ -694,6 +814,19 @@ def parallel_kernel(
     nnp: Tensor,
     kernel_func: Callable[[Any, Tensor, Sequence[int]], Tuple[Tensor, Tensor]],
 ) -> Tuple[Tensor, Tensor, Tensor]:
+    """
+    kernel for multiprocess to run parallel in DQAS function
+
+    :param prob:
+    :param gdata:
+    :param nnp:
+    :param kernel_func:
+    :return:
+    """
+    sp.random.seed()  # make each subprocess run with different random state
+    # see https://stackoverflow.com/a/6914470/9062180
+    # it is still not the best way to corporate numpy random and multiprocessing
+    # see more in https://github.com/numpy/numpy/issues/9650
     dtype = tf.float32
     p = prob.shape[0]
     preset = preset_byprob(prob)
@@ -940,7 +1073,7 @@ def DQAS_search(
                 np.mean(costl),
                 " batched loss std: ",
                 np.std(costl),
-                "\n new baseline: ",
+                "\nnew baseline: ",
                 avcost1.numpy(),  # type: ignore
             )
             batched_gs = tf.math.reduce_mean(
@@ -1007,12 +1140,14 @@ def qaoa_simple_train(
     nnp_initial_value: Optional[Array] = None,
     opt: Optional[Opt] = None,
 ) -> Tuple[Array, float]:
+    sp.random.seed()
+    # TODO: the best practice combine mulprocessing and random generator still needs further investigation
     p = len(preset)
     c = len(get_op_pool())
     stp_train = np.zeros([p, c])
     for i, j in enumerate(preset):
         stp_train[i, j] = 10.0
-    if nnp_initial_value is not None:
+    if nnp_initial_value is None:
         nnp_initial_value = np.random.normal(loc=0.23, scale=0.8, size=[p, c])
     if vag_func is None:
         vag_func = qaoa_vag_energy
@@ -1057,8 +1192,26 @@ def parallel_qaoa_train(
     tries: int = 16,
     batch: int = 1,
     cores: int = 8,
+    loc: float = 0.,
     scale: float = 1.0,
 ) -> Sequence[Any]:
+    """
+    parallel variational parameter training and search to avoid local minimum
+    not limited to qaoa setup as the function name indicates,
+    as long as you provided suitable `vag_func`
+
+    :param preset:
+    :param g: data input generator for vag_func
+    :param vag_func: vag_kernel
+    :param opt:
+    :param epochs:
+    :param tries: number of tries
+    :param batch: for optimization problem the input is in general fixed so batch is often 1
+    :param cores: number of parallel jobs
+    :param loc: mean value of normal distribution for nnp
+    :param scale: std deviation of normal distribution for nnp
+    :return:
+    """
 
     if not opt:
         opt = tf.keras.optimizers.Adam(learning_rate=0.1)
@@ -1077,7 +1230,7 @@ def parallel_qaoa_train(
             vag_func,
             epochs,
             batch,
-            np.random.normal(loc=0.23, scale=scale, size=[p, c]),
+            np.random.normal(loc=loc, scale=scale, size=[p, c]),
             opt,
         )
         for _ in range(tries)
@@ -1095,7 +1248,7 @@ def parallel_qaoa_train(
 
 def color_svg(circuit: cirq.Circuit, *coords: Tuple[int, int]) -> Any:
     """
-    color cirq circuit given gates
+    color cirq circuit SVG for given gates
 
     :param circuit:
     :param coords: integer coordinate which gate is colored

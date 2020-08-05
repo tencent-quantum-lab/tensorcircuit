@@ -5,8 +5,9 @@ module for functions adding layers of circuits
 import sys
 import itertools
 import numpy as np
+import cirq
 import networkx as nx
-from typing import Sequence, Union, Callable, Any, Optional, Tuple
+from typing import Sequence, Union, Callable, Any, Optional, Tuple, List
 
 from ..circuit import Circuit
 from ..gates import num_to_tensor
@@ -15,6 +16,7 @@ thismodule = sys.modules[__name__]
 
 Tensor = Any  # tf.Tensor
 Graph = Any  # nx.Graph
+Symbol = Any  # sympy.Symbol
 
 
 def generate_double_gate(gates: str) -> None:
@@ -118,3 +120,102 @@ for gates in itertools.product(
     *[["rx", "ry", "rz", "xx", "yy", "zz"] for _ in range(2)]
 ):
     generate_double_layer_block(gates)  # type: ignore
+
+
+## below is similar layer but in cirq API instead of tensrocircuit native API
+
+basis_rotation = {
+    "x": (cirq.H, cirq.H),
+    "y": (cirq.rx(-np.pi / 2), cirq.rx(np.pi / 2)),
+    "z": None,
+}
+
+
+def generate_qubits(g: Graph) -> List[Any]:
+    return sorted([v for _, v in g.nodes.data("qubit")])
+
+
+def generate_cirq_double_gate(gates: str) -> None:
+    d1, d2 = gates[0], gates[1]
+    r1, r2 = basis_rotation[d1], basis_rotation[d2]
+
+    def f(
+        circuit: cirq.Circuit,
+        qubit1: cirq.GridQubit,
+        qubit2: cirq.GridQubit,
+        symbol: Symbol,
+    ) -> cirq.Circuit:
+        if r1 is not None:
+            circuit.append(r1[0](qubit1))
+        if r2 is not None:
+            circuit.append(r2[0](qubit2))
+        circuit.append(cirq.CNOT(qubit1, qubit2))
+        circuit.append(cirq.rz(symbol)(qubit2))
+        circuit.append(cirq.CNOT(qubit1, qubit2))
+        if r1 is not None:
+            circuit.append(r1[1](qubit1))
+        if r2 is not None:
+            circuit.append(r2[1](qubit2))
+        return circuit
+
+    f.__doc__ = """%sgate""" % gates
+    setattr(thismodule, "cirq" + gates + "gate", f)
+
+
+def generate_cirq_gate_layer(gate: str) -> None:
+    """
+    $$e^{-i\theta \sigma}$$
+
+    :param gate:
+    :return:
+    """
+
+    def f(
+        circuit: cirq.Circuit,
+        g: Graph,
+        symbol: Symbol,
+        qubits: Optional[Sequence[Any]] = None,
+    ) -> cirq.Circuit:
+        if not qubits:
+            qubits = generate_qubits(g)
+        rotation = getattr(cirq, gate)
+        if isinstance(rotation, cirq.Gate):
+            circuit.append(rotation.on_each(qubits))
+        else:  # function
+            circuit.append(rotation(2.0 * symbol).on_each(qubits))
+        return circuit
+
+    f.__doc__ = """%slayer""" % gate
+    f.__repr__ = """%slayer""" % gate  # type: ignore
+    f.__trainable__ = False if isinstance(getattr(cirq, gate), cirq.Gate) else True  # type: ignore
+    setattr(thismodule, "cirq" + gate + "layer", f)
+
+
+def generate_cirq_double_gate_layer(gates: str) -> None:
+    def f(
+        circuit: cirq.Circuit,
+        g: Graph,
+        symbol: Symbol,
+        qubits: Optional[Sequence[Any]] = None,
+    ) -> cirq.Circuit:
+        for e in g.edges:
+            qubit1 = g.nodes[e[0]]["qubit"]
+            qubit2 = g.nodes[e[1]]["qubit"]
+            getattr(thismodule, "cirq" + gates + "gate")(
+                circuit, qubit1, qubit2, -symbol * g[e[0]][e[1]]["weight"] * 2
+            )  ## should be better as * 2 # e^{-i\theta H}, H=-ZZ
+        return circuit
+
+    f.__doc__ = """%slayer""" % gates
+    f.__repr__ = """%slayer""" % gates  # type: ignore
+    f.__trainable__ = True  # type: ignore
+    setattr(thismodule, "cirq" + gates + "layer", f)
+
+
+for gate in ["rx", "ry", "rz", "H"]:
+    generate_cirq_gate_layer(gate)
+
+for gates in itertools.product(*[["x", "y", "z"] for _ in range(2)]):
+    gates = gates[0] + gates[1]
+    generate_cirq_double_gate(gates)  # type: ignore
+    generate_cirq_double_gate_layer(gates)  # type: ignore

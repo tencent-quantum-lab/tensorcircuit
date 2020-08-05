@@ -5,7 +5,8 @@ modules for graph instance data and more
 import itertools
 import networkx as nx
 import numpy as np
-from typing import Any, Dict, Iterator, Sequence, Tuple
+import cirq
+from typing import Any, Dict, Iterator, Sequence, Tuple, Optional
 
 Graph = Any
 
@@ -93,6 +94,134 @@ graph_instances = {
         3: {1: {"weight": 1.0}, 2: {"weight": 1.0}, 0: {"weight": 1.0}},
         6: {7: {"weight": 1.0}, 4: {"weight": 1.0}, 5: {"weight": 1.0}},
         5: {6: {"weight": 1.0}, 4: {"weight": 1.0}, 2: {"weight": 1.0}},
+    },
+    "8BW": {
+        0: {
+            1: {"weight": -0.08015762930148482},
+            7: {"weight": 0.5760374347070247},
+            3: {"weight": 2.130555257631913},
+        },
+        1: {
+            0: {"weight": -0.08015762930148482},
+            2: {"weight": -1.3460396434739554},
+            3: {"weight": 0.44190622039475597},
+        },
+        2: {
+            1: {"weight": -1.3460396434739554},
+            3: {"weight": -0.9906762424422002},
+            5: {"weight": 0.00023144222616794873},
+        },
+        4: {
+            7: {"weight": -0.08800323266198477},
+            6: {"weight": -0.4554192225796251},
+            5: {"weight": -0.8386283543725825},
+        },
+        7: {
+            0: {"weight": 0.5760374347070247},
+            4: {"weight": -0.08800323266198477},
+            6: {"weight": 1.7363683549872604},
+        },
+        3: {
+            0: {"weight": 2.130555257631913},
+            1: {"weight": 0.44190622039475597},
+            2: {"weight": -0.9906762424422002},
+        },
+        6: {
+            4: {"weight": -0.4554192225796251},
+            7: {"weight": 1.7363683549872604},
+            5: {"weight": -1.232667082395665},
+        },
+        5: {
+            2: {"weight": 0.00023144222616794873},
+            4: {"weight": -0.8386283543725825},
+            6: {"weight": -1.232667082395665},
+        },
+    },
+    "8BP": {
+        0: {
+            1: {"weight": 1.194287393754959},
+            7: {"weight": 1.0245561910654257},
+            3: {"weight": 0.7068030998131771},
+        },
+        1: {
+            0: {"weight": 1.194287393754959},
+            2: {"weight": 0.6799813983516487},
+            3: {"weight": 1.0241436821477117},
+        },
+        2: {
+            1: {"weight": 0.6799813983516487},
+            3: {"weight": 0.8195552276675298},
+            5: {"weight": 1.1544896529892292},
+        },
+        4: {
+            7: {"weight": 1.35187907862147},
+            6: {"weight": 1.0893647845617211},
+            5: {"weight": 0.8339167938538325},
+        },
+        7: {
+            0: {"weight": 1.0245561910654257},
+            4: {"weight": 1.35187907862147},
+            6: {"weight": 1.0711550783285257},
+        },
+        3: {
+            0: {"weight": 0.7068030998131771},
+            1: {"weight": 1.0241436821477117},
+            2: {"weight": 0.8195552276675298},
+        },
+        6: {
+            4: {"weight": 1.0893647845617211},
+            7: {"weight": 1.0711550783285257},
+            5: {"weight": 1.3692516705972504},
+        },
+        5: {
+            2: {"weight": 1.1544896529892292},
+            4: {"weight": 0.8339167938538325},
+            6: {"weight": 1.3692516705972504},
+        },
+    },
+    "8C": {
+        0: {
+            1: {"weight": 1.0},
+            3: {"weight": 1.0},
+            4: {"weight": 1.0},
+            6: {"weight": 1.0},
+            7: {"weight": 1.0},
+        },
+        1: {
+            0: {"weight": 1.0},
+            2: {"weight": 1.0},
+            3: {"weight": 1.0},
+            4: {"weight": 1.0},
+            5: {"weight": 1.0},
+        },
+        2: {
+            1: {"weight": 1.0},
+            3: {"weight": 1.0},
+            4: {"weight": 1.0},
+            5: {"weight": 1.0},
+            6: {"weight": 1.0},
+        },
+        3: {
+            0: {"weight": 1.0},
+            1: {"weight": 1.0},
+            2: {"weight": 1.0},
+            7: {"weight": 1.0},
+        },
+        4: {
+            0: {"weight": 1.0},
+            1: {"weight": 1.0},
+            2: {"weight": 1.0},
+            5: {"weight": 1.0},
+            6: {"weight": 1.0},
+        },
+        5: {
+            1: {"weight": 1.0},
+            2: {"weight": 1.0},
+            4: {"weight": 1.0},
+            7: {"weight": 1.0},
+        },
+        6: {0: {"weight": 1.0}, 2: {"weight": 1.0}, 4: {"weight": 1.0}},
+        7: {0: {"weight": 1.0}, 3: {"weight": 1.0}, 5: {"weight": 1.0}},
     },
     "3C": {
         0: {1: {"weight": 1.0}, 2: {"weight": 1.0}},
@@ -193,6 +322,12 @@ def ensemble_maxcut_solution(g: Graph, samples: int = 100) -> Tuple[float, float
 
 
 def reduce_edges(g: Graph, m: int = 1) -> Sequence[Graph]:
+    """
+
+    :param g:
+    :param m:
+    :return: all graphs with m edge out from g
+    """
     n = len(g.nodes)
     e = len(g.edges)
     el = list(g.edges)
@@ -210,3 +345,65 @@ def reduce_edges(g: Graph, m: int = 1) -> Sequence[Graph]:
             glist.append(ng)
 
     return glist
+
+
+def reduced_ansatz(g: Graph, ratio: Optional[int] = None) -> Graph:
+    """
+    generate reduced graph with give ratio of edges compared to original graph g
+
+    :param g: base graph
+    :param ratio: num of edges kept, default half of the edges
+    :return:
+    """
+    nn = len(g.nodes)
+    ne = len(g.edges)
+    if ratio is None:
+        ratio = int(ne / 2)
+    edges = np.array(g.edges)[np.random.choice(len(g.edges), size=ratio, replace=False)]
+    ng = nx.Graph()
+    for i in range(nn):
+        ng.add_node(i)
+    for j, k in edges:
+        ng.add_edge(j, k, weight=g[j][k].get("weight", 1))
+    return ng
+
+
+def graph1D(n: int) -> Graph:
+    """
+    1D PBC chain with n sites
+
+    :param n:
+    :return:
+    """
+
+    g = nx.Graph()
+    for i in range(n):
+        g.add_node(i)
+    for i in range(n):
+        g.add_edge(i, (i + 1) % n, weight=1.0)
+    return g
+
+
+def Grid2D(m: int, n: int) -> Graph:
+    def one2two(i: int) -> Tuple[int, int]:
+        x = i // n
+        y = i % n
+        return x, y
+
+    def two2one(x: int, y: int) -> int:
+        return x * n + y
+
+    g = nx.Graph()
+    for i in range(m * n):
+        g.add_node(i)
+    for i in range(m * n):
+        x, y = one2two(i)
+        g.add_edge(i, two2one((x - 1) % m, y), weight=1)
+        g.add_edge(i, two2one(x, (y - 1) % n), weight=1)
+    return g
+
+
+def dress_graph_with_cirq_qubit(g: Graph) -> Graph:
+    for i in range(len(g.nodes)):
+        g.nodes[i]["qubit"] = cirq.GridQubit(i, 0)
+    return g
