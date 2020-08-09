@@ -5,7 +5,7 @@ modules for DQAS, including kernels on various applications
 import sys
 import inspect
 from functools import lru_cache, partial
-from multiprocessing import Pool
+from multiprocessing import Pool, get_context
 import functools
 import operator
 import numpy as np
@@ -37,6 +37,7 @@ from .layers import *
 
 Array = Any  # np.array
 Opt = Any  # tf.keras.optimizer
+Model = Any  # tf.keras.Model
 
 thismodule = sys.modules[__name__]
 
@@ -933,7 +934,7 @@ def DQAS_search(
     if g is None:
         g = void_generator()
     if parallel_num > 0:
-        pool = Pool(parallel_num)
+        pool = get_context("spawn").Pool(parallel_num)
         global parallel_kernel
         p_parallel_kernel = partial(parallel_kernel, kernel_func=kernel_func)
 
@@ -958,7 +959,7 @@ def DQAS_search(
             if p is not None:
                 p_stp = p
             else:
-                raise ValueError("Please give the shape information on nnp")
+                raise ValueError("Please give the shape information on stp")
         stp_initial_value = np.zeros([p_stp, c])
     if p is None:
         p = stp_initial_value.shape[0]
@@ -1052,7 +1053,6 @@ def DQAS_search(
                         args_list.append((prob, gdata, nnp + pertubation_func()))
                     else:
                         args_list.append((prob, gdata, nnp))
-                parallel_kernel = getattr(thismodule, "parallel_kernel")
                 parallel_result = pool.starmap(p_parallel_kernel, args_list)
                 # [(loss, gnnp, gs), ...]
                 deri_nnp = []
@@ -1192,7 +1192,7 @@ def parallel_qaoa_train(
     tries: int = 16,
     batch: int = 1,
     cores: int = 8,
-    loc: float = 0.,
+    loc: float = 0.0,
     scale: float = 1.0,
 ) -> Sequence[Any]:
     """
@@ -1241,6 +1241,196 @@ def parallel_qaoa_train(
     print(result_list)
     print("the optimal result is %s" % result_list[0][1])
     return result_list
+
+
+## probabilisitic model based DQAS
+
+
+def van_sample(
+    prob_model: Model, batch_size: int
+) -> Tuple[List[Tensor], List[List[Tensor]]]:
+    glnprob_list = []
+    with tf.GradientTape(persistent=True) as t:
+        sample, xhat = prob_model.sample(batch_size)
+        lnprob = prob_model._log_prob(sample, xhat)
+        for i in range(batch_size):
+            glnprob_list.append(t.gradient(lnprob[i], prob_model.variables))
+    sample = tf.argmax(sample, axis=-1)
+    sample_list = [sample[i] for i in range(batch_size)]
+    del t
+    return sample_list, glnprob_list
+
+
+def DQAS_search_pmb(
+    kernel_func: Callable[[Any, Tensor, Sequence[int]], Tuple[Tensor, Tensor]],
+    prob_model: Optional[Any],
+    *,
+    sample_func: Optional[
+        Callable[[Model, int], Tuple[List[Tensor], List[List[Tensor]]]]
+    ] = None,
+    g: Optional[Iterator[Any]] = None,
+    op_pool: Optional[Sequence[Any]] = None,
+    p: Optional[int] = None,
+    batch: int = 300,
+    prethermal: int = 0,
+    epochs: int = 100,
+    parallel_num: int = 0,
+    verbose: bool = False,
+    verbose_func: Optional[Callable[[], None]] = None,
+    history_func: Optional[Callable[[], Any]] = None,
+    baseline_func: Optional[Callable[[Sequence[float]], float]] = None,
+    pertubation_func: Optional[Callable[[], Tensor]] = None,
+    nnp_initial_value: Optional[Array] = None,
+    network_opt: Optional[Opt] = None,
+    structure_opt: Optional[Opt] = None,
+    prethermal_opt: Optional[Opt] = None,
+) -> Tuple[Tensor, Tensor, Sequence[Any]]:
+
+    # shape of nnp and stp is not necessarily compatible in complicated settings
+    dtype = tf.float32  # caution, simply changing this is not guranteed to work
+    if op_pool is None:
+        op_pool = get_op_pool()
+    c = len(op_pool)
+    set_op_pool(op_pool)
+    if sample_func is None:
+        sample_func = van_sample
+    if g is None:
+        g = void_generator()
+    if parallel_num > 0:
+        pool = get_context("spawn").Pool(parallel_num)
+        # use spawn model instead of default fork which has threading lock issues
+
+    if network_opt is None:
+        network_opt = tf.keras.optimizers.Adam(learning_rate=0.1)  # network
+    if structure_opt is None:
+        structure_opt = tf.keras.optimizers.Adam(
+            learning_rate=0.1, beta_1=0.8, beta_2=0.99
+        )  # structure
+    if prethermal_opt is None:
+        prethermal_opt = tf.keras.optimizers.Adam(learning_rate=0.1)  # prethermal
+    if p is None:
+        p = nnp_initial_value.shape[0]  # type: ignore
+    if nnp_initial_value is None:
+        nnp_initial_value = np.random.normal(loc=0, scale=0.3, size=[p, c])
+
+    if baseline_func is None:
+        baseline_func = np.mean
+    nnp = tf.Variable(initial_value=nnp_initial_value, dtype=dtype)
+
+    history = []
+
+    avcost1 = 0
+
+    presets, glnprobs = sample_func(prob_model, prethermal)
+    for i, gdata in zip(range(prethermal), g):  # prethermal for nn param
+        forwardv, gnnp = kernel_func(gdata, nnp, presets[i])
+        prethermal_opt.apply_gradients([(gnnp, nnp)])
+
+    if verbose:
+        print("network parameter after prethermalization: \n", nnp.numpy())
+
+    try:
+        for epoch in range(epochs):  # iteration to update strcuture param
+
+            print("----------new epoch %s-----------" % epoch)
+
+            deri_stp = []
+            deri_nnp = []
+            avcost2 = avcost1
+            costl = []
+
+            presets, glnprobs = sample_func(prob_model, batch)
+            if parallel_num == 0:
+
+                for i, gdata in zip(range(batch), g):
+                    if pertubation_func is not None:
+                        loss, gnnp = kernel_func(
+                            gdata, nnp + pertubation_func(), presets[i]
+                        )
+                    else:
+                        loss, gnnp = kernel_func(gdata, nnp, presets[i])
+
+                    deri_stp.append(
+                        [
+                            (tf.cast(loss, dtype=dtype) - tf.cast(avcost2, dtype=dtype))
+                            * w
+                            for w in glnprobs[i]
+                        ]
+                    )
+                    deri_nnp.append(gnnp)
+                    costl.append(loss.numpy())
+            else:  ## parallel mode for batch evaluation
+                args_list = []
+                for i, gdata in zip(range(batch), g):
+                    if pertubation_func is not None:
+                        args_list.append(
+                            (gdata, nnp + pertubation_func(), presets[i].numpy())
+                        )
+                    else:
+                        args_list.append((gdata, nnp, presets[i].numpy()))
+                # print(args_list)
+                parallel_result = pool.starmap(kernel_func, args_list)
+                # [(loss, gnnp), ...]
+                deri_nnp = []
+                deri_stp = []
+                costl = []
+                for i, r in enumerate(parallel_result):
+                    loss, gnnp = r
+                    costl.append(loss.numpy())
+                    deri_nnp.append(gnnp)
+                    deri_stp.append(
+                        [
+                            (tf.cast(loss, dtype=dtype) - tf.cast(avcost2, dtype=dtype))
+                            * w
+                            for w in glnprobs[i]
+                        ]
+                    )
+
+            avcost1 = tf.convert_to_tensor(baseline_func(costl))
+
+            print(
+                "batched average loss: ",
+                np.mean(costl),
+                " batched loss std: ",
+                np.std(costl),
+                "\nnew baseline: ",
+                avcost1.numpy(),  # type: ignore
+            )
+            batched_gs = []
+            for i in range(len(glnprobs[0])):
+                batched_gs.append(
+                    tf.math.reduce_mean(
+                        tf.convert_to_tensor([w[i] for w in deri_stp], dtype=dtype),
+                        axis=0,
+                    )
+                )
+
+            batched_gnnp = tf.math.reduce_mean(
+                tf.convert_to_tensor(deri_nnp, dtype=dtype), axis=0
+            )
+            if verbose:
+                #                 print("batched gradient of stp: \n", batched_gs)
+                print("batched gradient of nnp: \n", batched_gnnp.numpy())
+
+            network_opt.apply_gradients(zip([batched_gnnp], [nnp]))
+            structure_opt.apply_gradients(zip(batched_gs, prob_model.variables))  # type: ignore
+            if verbose:
+                print(
+                    "\n network parameter: \n", nnp.numpy(),
+                )
+
+            if verbose_func is not None:
+                verbose_func()
+
+            if history_func is not None:
+                history.append(history_func())
+        if parallel_num > 0:
+            pool.close()
+        return prob_model, nnp, history
+    except KeyboardInterrupt:
+        if parallel_num > 0:
+            pool.close()
+        return prob_model, nnp, history
 
 
 ## some utils

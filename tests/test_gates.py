@@ -9,8 +9,9 @@ sys.path.insert(0, modulepath)
 import tensorcircuit as tc
 
 
-def test_rgate():
-    tc.set_dtype("complex128")
+def test_rgate(highp):
+    # tc.set_dtype("complex128")
     np.testing.assert_almost_equal(
         tc.gates.rgate(1, 2, 3).tensor, tc.gates.rgate_theoretical(1, 2, 3).tensor
     )
+    # tc.set_dtype("complex64")
