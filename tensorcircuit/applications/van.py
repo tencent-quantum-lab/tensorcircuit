@@ -10,14 +10,17 @@ class MaskedLinear(tf.keras.layers.Layer):
         else:
             self._dtype = dtype
         self.w = self.add_weight(
+            name="w",
             shape=(output_space, spin_channel, input_space, spin_channel),
             initializer="random_normal",
             trainable=True,
             dtype=self._dtype,
         )
         self.b = self.add_weight(
+            name="b",  # every variables in customized layer must have a explicit name so that the model can be saved
+            # see https://github.com/tensorflow/tensorflow/issues/26811
             shape=(output_space, spin_channel),
-            initializer="zero",
+            initializer="random_normal",  # zero is not ok, as the first output will always equal probabilitied
             trainable=True,
             dtype=self._dtype,
         )
@@ -33,6 +36,9 @@ class MaskedLinear(tf.keras.layers.Layer):
         w_mask = tf.multiply(self.mask, self.w)
         return tf.tensordot(inputs, w_mask, axes=[[-2, -1], [2, 3]]) + self.b
 
+    def regularization(self, lbd_w=1.0, lbd_b=1.0):
+        return lbd_w * tf.reduce_sum(self.w ** 2) + lbd_b * tf.reduce_sum(self.b ** 2)
+
 
 class MADE(tf.keras.Model):
     def __init__(
@@ -45,6 +51,8 @@ class MADE(tf.keras.Model):
         evenly=True,
         dtype=None,
         activation=None,
+        nonmerge=True,
+        probamp=None,
     ):
         super().__init__()
         if not dtype:
@@ -66,6 +74,8 @@ class MADE(tf.keras.Model):
             activation = tf.keras.layers.PReLU
         for i in range(depth):
             self.relu.append(activation())
+        self.nonmerge = nonmerge
+        self.probamp = probamp
 
     def _build_masks(
         self, input_space, output_space, hidden_space, spin_channel, depth, evenly
@@ -85,16 +95,16 @@ class MADE(tf.keras.Model):
                 # assign hidden layer units a number between 1 and D-1
                 if evenly:
                     assert (
-                        hidden_space % input_space == 0
-                    ), "hidden space must by multiple of input space when you set evenly as True"
+                        hidden_space % (input_space - 1) == 0
+                    ), "hidden space must be multiple of input space -1 when you set evenly as True"
                     m = np.arange(
-                        0, input_space
+                        1, input_space
                     )  # TODO: whether 0 is ok need further scrunity, this is a bit away from original MADE idea
                     self._m.append(
-                        np.hstack([m for _ in range(hidden_space // input_space)])
+                        np.hstack([m for _ in range(hidden_space // (input_space - 1))])
                     )
                 else:
-                    self._m.append(np.random.randint(0, input_space, size=hidden_sapce))
+                    self._m.append(np.random.randint(1, input_space, size=hidden_space))
             if i == depth:
                 mask = self._m[i][None, :] > self._m[i - 1][:, None]
             else:
@@ -140,15 +150,29 @@ class MADE(tf.keras.Model):
         pass
 
     def call(self, inputs):
+        if self.nonmerge:
+            nonmerge_block = tf.roll(inputs, axis=-2, shift=1) * -10.0
+            # PBC here
+            # once the last pixel is i, the next one cannot be i
         for i in range(self.depth):
             inputs = self.ml_layer[i](inputs)
             inputs = self.relu[i](inputs)
+        if self.probamp is not None:
+            inputs = self.probamp + inputs
+        if self.nonmerge:
+            inputs = nonmerge_block + inputs
         outputs = tf.keras.layers.Softmax()(inputs)
         return outputs
 
     def model(self):
         x = tf.keras.layers.Input(shape=(self.input_space, self.spin_channel))
         return tf.keras.Model(inputs=[x], outputs=self.call(x))
+
+    def regularization(self, lbd_w=1.0, lbd_b=1.0):
+        loss = 0.0
+        for l in self.ml_layer:
+            loss += l.regularization(lbd_w=lbd_w, lbd_b=lbd_b)
+        return loss
 
     def sample(self, batch_size):
         eps = 1e-10

@@ -1261,9 +1261,15 @@ def van_sample(
     return sample_list, glnprob_list
 
 
+def van_regularization(
+    prob_model: Model, nnp: Tensor = None, lbd_w: float = 0.01, lbd_b: float = 0.01
+) -> Tensor:
+    return prob_model.regularization(lbd_w=lbd_w, lbd_b=lbd_b)
+
+
 def DQAS_search_pmb(
     kernel_func: Callable[[Any, Tensor, Sequence[int]], Tuple[Tensor, Tensor]],
-    prob_model: Optional[Any],
+    prob_model: Model,
     *,
     sample_func: Optional[
         Callable[[Model, int], Tuple[List[Tensor], List[List[Tensor]]]]
@@ -1281,6 +1287,7 @@ def DQAS_search_pmb(
     baseline_func: Optional[Callable[[Sequence[float]], float]] = None,
     pertubation_func: Optional[Callable[[], Tensor]] = None,
     nnp_initial_value: Optional[Array] = None,
+    stp_regularization: Optional[Callable[[Model, Tensor], Tensor]] = None,
     network_opt: Optional[Opt] = None,
     structure_opt: Optional[Opt] = None,
     prethermal_opt: Optional[Opt] = None,
@@ -1321,7 +1328,8 @@ def DQAS_search_pmb(
 
     avcost1 = 0
 
-    presets, glnprobs = sample_func(prob_model, prethermal)
+    if prethermal > 0:
+        presets, glnprobs = sample_func(prob_model, prethermal)
     for i, gdata in zip(range(prethermal), g):  # prethermal for nn param
         forwardv, gnnp = kernel_func(gdata, nnp, presets[i])
         prethermal_opt.apply_gradients([(gnnp, nnp)])
@@ -1340,6 +1348,29 @@ def DQAS_search_pmb(
             costl = []
 
             presets, glnprobs = sample_func(prob_model, batch)
+
+            if stp_regularization is not None:
+                with tf.GradientTape() as t:
+                    stp_penalty = stp_regularization(prob_model, nnp)
+                gr = t.gradient(stp_penalty, prob_model.variables)
+                g_stp_penalty = []
+                for v, gi in zip(prob_model.variables, gr):
+                    if gi is not None:
+                        g_stp_penalty.append(gi)
+                    else:
+                        g_stp_penalty.append(tf.zeros_like(v))
+
+                if verbose:
+                    print(
+                        "typical scale of gradient from stp variable regularization:",
+                        [tf.reduce_mean(tf.math.abs(w)).numpy() for w in g_stp_penalty],
+                    )
+
+            else:
+                g_stp_penalty = []
+                for v in prob_model.variables:
+                    g_stp_penalty.append(tf.zeros_like(v))
+
             if parallel_num == 0:
 
                 for i, gdata in zip(range(batch), g):
@@ -1403,20 +1434,31 @@ def DQAS_search_pmb(
                         tf.convert_to_tensor([w[i] for w in deri_stp], dtype=dtype),
                         axis=0,
                     )
+                    + g_stp_penalty[i]
                 )
 
             batched_gnnp = tf.math.reduce_mean(
                 tf.convert_to_tensor(deri_nnp, dtype=dtype), axis=0
             )
             if verbose:
-                #                 print("batched gradient of stp: \n", batched_gs)
                 print("batched gradient of nnp: \n", batched_gnnp.numpy())
+                print(
+                    "typical scale of batched graident of stp: \n",
+                    [tf.reduce_mean(tf.math.abs(w)).numpy() for w in batched_gs],
+                )
 
             network_opt.apply_gradients(zip([batched_gnnp], [nnp]))
-            structure_opt.apply_gradients(zip(batched_gs, prob_model.variables))  # type: ignore
+            structure_opt.apply_gradients(zip(batched_gs, prob_model.variables))
             if verbose:
                 print(
                     "\n network parameter: \n", nnp.numpy(),
+                )
+                print(
+                    "typical scale of stp parameter: \n",
+                    [
+                        tf.reduce_mean(tf.math.abs(w)).numpy()
+                        for w in prob_model.variables
+                    ],
                 )
 
             if verbose_func is not None:
