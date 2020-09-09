@@ -1,3 +1,6 @@
+"""
+one-hot variational autoregressive models for multiple categorical choices beyond binary
+"""
 import tensorflow as tf
 import numpy as np
 
@@ -115,7 +118,18 @@ class MADE(tf.keras.Model):
             mask = mask[:, np.newaxis, :, np.newaxis]
             mask = np.tile(mask, [1, spin_channel, 1, spin_channel])
             self._masks.append(tf.constant(mask, dtype=self._dtype))
-            if i == depth:
+            if i == depth and depth == 1:
+                # in case there is only one layer
+                self.ml_layer.append(
+                    MaskedLinear(
+                        input_space,
+                        output_space,
+                        spin_channel,
+                        mask=self._masks[i - 1],
+                        dtype=self._dtype,
+                    )
+                )
+            elif i == depth:
                 self.ml_layer.append(
                     MaskedLinear(
                         hidden_space,

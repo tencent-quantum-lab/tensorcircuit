@@ -1428,6 +1428,7 @@ def DQAS_search_pmb(
                 avcost1.numpy(),  # type: ignore
             )
             batched_gs = []
+            batched_gs_std = []
             for i in range(len(glnprobs[0])):
                 batched_gs.append(
                     tf.math.reduce_mean(
@@ -1436,6 +1437,13 @@ def DQAS_search_pmb(
                     )
                     + g_stp_penalty[i]
                 )
+                if verbose:  # check on baseline fluctuation reduction effect
+                    batched_gs_std.append(
+                        tf.math.reduce_std(
+                            tf.convert_to_tensor([w[i] for w in deri_stp], dtype=dtype),
+                            axis=0,
+                        )
+                    )
 
             batched_gnnp = tf.math.reduce_mean(
                 tf.convert_to_tensor(deri_nnp, dtype=dtype), axis=0
@@ -1458,6 +1466,14 @@ def DQAS_search_pmb(
                     [
                         tf.reduce_mean(tf.math.abs(w)).numpy()
                         for w in prob_model.variables
+                    ],
+                )
+                print(
+                    "typical scale standard deviation of batched gradient (ratio to mean): \n",
+                    [
+                        tf.reduce_mean(tf.math.abs(w1)).numpy()
+                        / tf.reduce_mean(tf.math.abs(w2) + 1.0e-20).numpy()
+                        for w1, w2 in zip(batched_gs_std, prob_model.variables)
                     ],
                 )
 
@@ -1507,3 +1523,19 @@ def color_svg(circuit: cirq.Circuit, *coords: Tuple[int, int]) -> Any:
         if (i_xpos_dict[x], i_ypos_dict[y]) in coords:
             r.setAttribute("fill", "gray")
     return DOMTree.toxml()
+
+
+def repr2array(inputs: str) -> Array:
+    """
+    transform repr form of an array to real numpy array
+
+    :param inputs:
+    :return:
+    """
+    inputs = inputs.split("]") # type: ignore
+    inputs = [l.strip().strip("[") for l in inputs if l.strip()] # type ignore
+    outputs = []
+    for l in inputs:
+        o = [float(c.strip()) for c in l.split(" ") if c.strip()]
+        outputs.append(o)
+    return np.array(outputs)
