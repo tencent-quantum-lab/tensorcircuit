@@ -330,3 +330,57 @@ class PixelCNN(tf.keras.Model):
         log_prob = self._log_prob(sample, x_hat)
 
         return log_prob
+
+
+class NMF(tf.keras.Model):
+    def __init__(self, spin_channel, *dimensions, _dtype=tf.float32, probamp=None):
+        super().__init__()
+        self.w = self.add_weight(
+            name="meanfield-parameter",
+            shape=list(dimensions) + [spin_channel],
+            initializer="random_normal",
+            trainable=True,
+            dtype=_dtype,
+        )
+        self._dtype = _dtype
+        self.dimensions = list(dimensions)
+        self.D = len(self.dimensions)
+        self.spin_channel = spin_channel
+        self.probamp = probamp
+
+    def call(self, inputs=None):
+        # x = tf.keras.layers.Softmax(axis=-1)(self.w)
+        if self.probamp is None:
+            return self.w
+        else:
+            return self.w + self.probamp
+
+    def sample(self, batch_size):
+        x_hat = self.call()
+        x_hat = x_hat[tf.newaxis, :]
+        tile_shape = tuple([batch_size] + [1 for _ in range(self.D + 1)])
+        x_hat = tf.tile(x_hat, tile_shape)
+        totalsize = tf.reduce_prod(self.dimensions)
+        logits = tf.reshape(x_hat, (batch_size * totalsize, self.spin_channel))
+        sample = tf.random.categorical(logits, 1)  # [system size, batch size]
+        # [ * dimensions, batch size, spin channel]
+        sample = tf.one_hot(sample, depth=self.spin_channel)
+        sample = tf.reshape(
+            sample, [batch_size] + self.dimensions + [self.spin_channel]
+        )
+        x_hat = tf.keras.layers.Softmax(axis=-1)(x_hat)
+        return sample, x_hat
+
+    def _log_prob(self, sample, x_hat):
+        eps = 1e-10
+        probm = tf.multiply(x_hat, sample)
+        probm = tf.reduce_sum(probm, axis=-1)
+        lnprobm = tf.math.log(probm + eps)
+
+        return tf.reduce_sum(lnprobm, axis=[-i - 1 for i in range(self.D)])
+
+    def log_prob(self, sample):
+        x_hat = self.call(sample)
+        log_prob = self._log_prob(sample, x_hat)
+
+        return log_prob

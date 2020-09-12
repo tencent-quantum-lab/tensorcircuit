@@ -22,6 +22,7 @@ from typing import (
     Optional,
     Union,
     Iterable,
+    Dict,
 )
 import networkx as nx
 import cirq
@@ -661,7 +662,8 @@ def qaoa_train(
 ## functions for quantum Hamiltonian QAOA with tensorflow quantum backend
 
 
-v = sympy.symbols("v_{0:99}")
+v = sympy.symbols("v_{0:64}")
+vv = sympy.symbols(["v_" + str(i) + "_0:16" for i in range(16)])
 # symbol pool
 
 
@@ -693,6 +695,37 @@ def tfim_measurements(
     if hz != 0:
         for i in range(len(g.nodes)):
             measurements.append(hz * cirq.Z(qubits[i]))
+    if one:
+        measurements = functools.reduce(operator.add, measurements)
+    return measurements
+
+
+@lru_cache()
+def heisenberg_measurements(
+    g: Graph, hxx: float = 1.0, hyy: float = 1.0, hzz: float = 1.0, one: bool = True
+) -> Any:
+    """
+    Hamiltonian measurements for Heisenberg model on graph lattice g
+
+    :param g:
+    :param hxx:
+    :param hyy:
+    :param hzz:
+    :param one:
+    :return:
+    """
+    measurements = []
+    qubits = generate_qubits(g)
+    for e in g.edges:
+        measurements.append(
+            hzz * g[e[0]][e[1]]["weight"] * cirq.Z(qubits[e[0]]) * cirq.Z(qubits[e[1]])
+        )
+        measurements.append(
+            hxx * g[e[0]][e[1]]["weight"] * cirq.X(qubits[e[0]]) * cirq.X(qubits[e[1]])
+        )
+        measurements.append(
+            hyy * g[e[0]][e[1]]["weight"] * cirq.Y(qubits[e[0]]) * cirq.Y(qubits[e[1]])
+        )
     if one:
         measurements = functools.reduce(operator.add, measurements)
     return measurements
@@ -746,6 +779,64 @@ def quantum_qaoa_vag(
     gmatrix = np.zeros_like(nnp)
     for i, j in enumerate(preset):
         gmatrix[i, j] = gr[i]
+    gmatrix = tf.constant(gmatrix)
+    return loss[0], gmatrix
+
+
+def quantum_mp_qaoa_vag(
+    gdata: Graph,
+    nnp: Tensor,
+    preset: Sequence[int],
+    measurements_func: Optional[Callable[..., Any]] = None,
+    **kws: Any,
+) -> Tuple[Tensor, Tensor]:
+    """
+    multi parameter for one layer
+
+    :param gdata:
+    :param nnp:
+    :param preset:
+    :param measurements_func:
+    :param kws: kw arguments for measurements_func
+    :return:
+    """
+    if measurements_func is None:
+        measurements_func = tfim_measurements
+    assert len(nnp.shape) == 3  # p * c * l
+    nnp = nnp.numpy()  # real
+    p, c, l = nnp.shape[0], nnp.shape[1], nnp.shape[2]
+    pnnp = np.empty(dtype=np.float32, shape=[p, l])
+    for i, j in enumerate(preset):
+        pnnp[i, :] = nnp[i, j, :]
+    pnnp = array_to_tensor(np.array(pnnp))  # complex
+    ci = cirq.Circuit()
+    cset = get_op_pool()
+    for i, j in enumerate(preset):
+        if callable(cset[j]):
+            cset[j](ci, gdata, vv[i][:l])
+        else:  # op is a tuple with graph info as (op, g)
+            cset[j][0](ci, cset[j][1], v[i][:l])
+    ep = tfq.layers.Expectation()
+    symbol_names = []
+    for i in range(len(preset)):
+        symbol_names.extend(vv[i][:l])
+    with tf.GradientTape() as t:
+        t.watch(pnnp)
+        loss = ep(
+            inputs=[ci],
+            symbol_names=symbol_names,
+            symbol_values=[tf.reshape(pnnp, [-1])],
+            operators=measurements_func(gdata, **kws),
+        )[0]
+    gr = t.gradient(loss, pnnp)
+    if gr is None:
+        # if all gates in preset are not trainable, then gr returns None instead of 0s
+        gr = tf.zeros_like(pnnp)
+    gr = cons.backend.real(gr)
+    gr = tf.where(tf.math.is_nan(gr), 0.0, gr)
+    gmatrix = np.zeros_like(nnp)
+    for i, j in enumerate(preset):
+        gmatrix[i, j, :] = gr[i, :]
     gmatrix = tf.constant(gmatrix)
     return loss[0], gmatrix
 
@@ -807,6 +898,21 @@ def get_weights(
     p = nnp.shape[0]
     ind_ = tf.stack([tf.cast(tf.range(p), tf.int32), tf.cast(preset, tf.int32)])
     return tf.gather_nd(nnp, tf.transpose(ind_))
+
+
+def get_weights_v2(nnp: Tensor, preset: Sequence[int]) -> Tensor:
+    if len(nnp.shape) == 3:
+        l = nnp.shape[-1]
+    else:
+        l = 1
+        nnp = nnp[..., tf.newaxis]
+    p, c = nnp.shape[0], nnp.shape[1]
+    weights = np.empty(dtype=np.float32, shape=[p, l])
+    for i, j in enumerate(preset):
+        weights[i, :] = nnp[i, j, :]
+    if l == 1:
+        weights = weights.reshape([p, c])
+    return tf.constant(weights)
 
 
 def parallel_kernel(
@@ -1137,8 +1243,11 @@ def qaoa_simple_train(
     ] = None,
     epochs: int = 60,
     batch: int = 1,
+    nnp_shape: Optional[Array] = None,
     nnp_initial_value: Optional[Array] = None,
     opt: Optional[Opt] = None,
+    search_func: Optional[Callable[..., Any]] = None,
+    kws: Optional[Dict[Any, Any]] = None,
 ) -> Tuple[Array, float]:
     sp.random.seed()
     # TODO: the best practice combine mulprocessing and random generator still needs further investigation
@@ -1147,10 +1256,18 @@ def qaoa_simple_train(
     stp_train = np.zeros([p, c])
     for i, j in enumerate(preset):
         stp_train[i, j] = 10.0
-    if nnp_initial_value is None:
+    if nnp_initial_value is None and nnp_shape is None:
         nnp_initial_value = np.random.normal(loc=0.23, scale=0.8, size=[p, c])
+    elif nnp_shape is not None and nnp_initial_value is None:
+        nnp_initial_value = np.random.normal(loc=0.23, scale=0.8, size=nnp_shape)
     if vag_func is None:
         vag_func = qaoa_vag_energy
+    if kws is None:
+        kws = {}
+    if "prob_model_func" in kws:
+        pmf = kws["prob_model_func"]
+        del kws["prob_model_func"]
+        kws["prob_model"] = pmf()
     if isinstance(graph, list):
 
         def graph_generator() -> Iterator[Graph]:
@@ -1168,7 +1285,11 @@ def qaoa_simple_train(
     else:
         graph_g = graph  # type: ignore
 
-    stp, nnp, h = DQAS_search(
+    if search_func is None:
+        search_func = DQAS_search
+        kws.update({"stp_initial_value": stp_train})
+
+    stp, nnp, h = search_func(
         vag_func,
         g=graph_g,
         p=p,
@@ -1177,10 +1298,10 @@ def qaoa_simple_train(
         epochs=epochs,
         history_func=history_loss,
         nnp_initial_value=nnp_initial_value,
-        stp_initial_value=stp_train,
         network_opt=opt,
+        **kws,
     )
-    return (get_weights(nnp, preset=preset).numpy(), h[-1])
+    return (get_weights_v2(nnp, preset=preset).numpy(), h[-1])
 
 
 def parallel_qaoa_train(
@@ -1194,6 +1315,9 @@ def parallel_qaoa_train(
     cores: int = 8,
     loc: float = 0.0,
     scale: float = 1.0,
+    nnp_shape: Optional[Sequence[int]] = None,
+    search_func: Optional[Callable[..., Any]] = None,
+    kws: Optional[Dict[Any, Any]] = None,
 ) -> Sequence[Any]:
     """
     parallel variational parameter training and search to avoid local minimum
@@ -1222,6 +1346,8 @@ def parallel_qaoa_train(
         glist.append(g.send(None))  # pickle doesn't support generators even in dill
     if vag_func is None:
         vag_func = qaoa_vag_energy
+    if nnp_shape is None:
+        nnp_shape = [p, c]
     pool = Pool(cores)
     args_list = [
         (
@@ -1230,8 +1356,11 @@ def parallel_qaoa_train(
             vag_func,
             epochs,
             batch,
-            np.random.normal(loc=loc, scale=scale, size=[p, c]),
+            None,
+            np.random.normal(loc=loc, scale=scale, size=nnp_shape),
             opt,
+            search_func,
+            kws,
         )
         for _ in range(tries)
     ]
@@ -1265,6 +1394,28 @@ def van_regularization(
     prob_model: Model, nnp: Tensor = None, lbd_w: float = 0.01, lbd_b: float = 0.01
 ) -> Tensor:
     return prob_model.regularization(lbd_w=lbd_w, lbd_b=lbd_b)
+
+
+def micro_sample(
+    prob_model: Model, batch_size: int, repetitions: Optional[List[int]] = None,
+) -> Tuple[List[Tensor], List[List[Tensor]]]:
+    glnprob_list = []
+    with tf.GradientTape(persistent=True) as t:
+        sample, xhat = prob_model.sample(batch_size)
+        lnprob = prob_model._log_prob(sample, xhat)
+        for i in range(batch_size):
+            glnprob_list.append(t.gradient(lnprob[i], prob_model.variables))
+    sample = tf.argmax(sample, axis=-1)
+    sample_list = sample.numpy()
+    del t
+
+    if not repetitions:
+        return tf.constant(sample_list), glnprob_list
+    else:
+        ns = np.empty(shape=[batch_size, len(repetitions)], dtype=np.int32)
+        for i, j in enumerate(repetitions):
+            ns[:, i] = sample_list[:, j]
+        return tf.constant(ns), glnprob_list
 
 
 def DQAS_search_pmb(
@@ -1532,8 +1683,8 @@ def repr2array(inputs: str) -> Array:
     :param inputs:
     :return:
     """
-    inputs = inputs.split("]") # type: ignore
-    inputs = [l.strip().strip("[") for l in inputs if l.strip()] # type ignore
+    inputs = inputs.split("]")  # type: ignore
+    inputs = [l.strip().strip("[") for l in inputs if l.strip()]  # type: ignore
     outputs = []
     for l in inputs:
         o = [float(c.strip()) for c in l.split(" ") if c.strip()]

@@ -162,6 +162,16 @@ def generate_cirq_double_gate(gates: str) -> None:
     setattr(thismodule, "cirq" + gates + "gate", f)
 
 
+def cirqswapgate(
+    circuit: cirq.Circuit,
+    qubit1: cirq.GridQubit,
+    qubit2: cirq.GridQubit,
+    symbol: Symbol,
+) -> cirq.Circuit:
+    circuit.append(cirq.SwapPowGate(exponent=symbol)(qubit1, qubit2))
+    return circuit
+
+
 def generate_cirq_gate_layer(gate: str) -> None:
     """
     $$e^{-i\theta \sigma}$$
@@ -176,6 +186,8 @@ def generate_cirq_gate_layer(gate: str) -> None:
         symbol: Symbol,
         qubits: Optional[Sequence[Any]] = None,
     ) -> cirq.Circuit:
+        if isinstance(symbol, list) or isinstance(symbol, tuple):
+            symbol = symbol[0]
         if not qubits:
             qubits = generate_qubits(g)
         rotation = getattr(cirq, gate)
@@ -191,6 +203,34 @@ def generate_cirq_gate_layer(gate: str) -> None:
     setattr(thismodule, "cirq" + gate + "layer", f)
 
 
+def generate_cirq_any_gate_layer(gate: str) -> None:
+    """
+    $$e^{-i\theta \sigma}$$
+
+    :param gate:
+    :return:
+    """
+
+    def f(
+        circuit: cirq.Circuit,
+        g: Graph,
+        symbol: Symbol,
+        qubits: Optional[Sequence[Any]] = None,
+    ) -> cirq.Circuit:
+        if not qubits:
+            qubits = generate_qubits(g)
+        l = len(qubits)
+        rotation = getattr(cirq, gate)
+        for i, q in enumerate(qubits):
+            circuit.append(rotation(2.0 * symbol[i])(q))
+        return circuit
+
+    f.__doc__ = """any%slayer""" % gate
+    f.__repr__ = """any%slayer""" % gate  # type: ignore
+    f.__trainable__ = True  # type: ignore
+    setattr(thismodule, "cirqany" + gate + "layer", f)
+
+
 def generate_cirq_double_gate_layer(gates: str) -> None:
     def f(
         circuit: cirq.Circuit,
@@ -198,6 +238,8 @@ def generate_cirq_double_gate_layer(gates: str) -> None:
         symbol: Symbol,
         qubits: Optional[Sequence[Any]] = None,
     ) -> cirq.Circuit:
+        if isinstance(symbol, list) or isinstance(symbol, tuple):
+            symbol = symbol[0]
         for e in g.edges:
             qubit1 = g.nodes[e[0]]["qubit"]
             qubit2 = g.nodes[e[1]]["qubit"]
@@ -214,8 +256,11 @@ def generate_cirq_double_gate_layer(gates: str) -> None:
 
 for gate in ["rx", "ry", "rz", "H"]:
     generate_cirq_gate_layer(gate)
+    if gate != "H":
+        generate_cirq_any_gate_layer(gate)
 
 for gates in itertools.product(*[["x", "y", "z"] for _ in range(2)]):
     gates = gates[0] + gates[1]
     generate_cirq_double_gate(gates)  # type: ignore
     generate_cirq_double_gate_layer(gates)  # type: ignore
+generate_cirq_double_gate_layer("swap")
