@@ -47,6 +47,7 @@ _op_pool: Sequence[Any] = []
 
 
 def set_op_pool(l: Sequence[Any]) -> None:
+    # sometimes, to make parallel mode work, one should set_op_pool in global level of the script
     global _op_pool
     _op_pool = l
 
@@ -236,6 +237,13 @@ def noisyfy(
 
 
 def unitary_design_block(circuit: cirq.Circuit, n: int) -> cirq.Circuit:
+    """
+    random Haar measure approximation
+
+    :param circuit: cirq.Circuit, empty circuit
+    :param n: # of qubit
+    :return:
+    """
     for i in range(n):
         theta = np.random.choice([0, 2 / 3, 4 / 3])
         circuit.append(cirq.ZPowGate(exponent=theta)(q(i)))
@@ -371,30 +379,34 @@ def exp_forward(
     ci = Circuit(n)
     cset = get_op_pool()
     for i, j in enumerate(preset):
-        cset[j](ci, theta[i], g)
+        if callable(cset[j]):
+            cset[j](ci, theta[i], g)
+        else:
+            layer, graph = cset[j]
+            layer(ci, theta[i], graph)
 
     state = ci.wavefunction()[0]
     losses = ave_func(state, g, *fs)
     return losses
 
 
-def graph_forward(
-    theta: Tensor,
-    preset: Sequence[int],
-    g: Graph,
-    *fs: Tuple[Callable[[float], float], Callable[[Tensor], Tensor]],
-) -> Sequence[Tensor]:
-    n = len(g.nodes)
-    ci = Circuit(n)
-    cset = get_op_pool()  # [(Hlayer, nx.Graph), ...]
-
-    for i, j in enumerate(preset):
-        layer, graph = cset[j]
-        layer(ci, theta[i], graph)
-
-    state = ci.wavefunction()[0]
-    losses = ave_func(state, g, *fs)  # objective graph
-    return losses
+# def graph_forward(
+#     theta: Tensor,
+#     preset: Sequence[int],
+#     g: Graph,
+#     *fs: Tuple[Callable[[float], float], Callable[[Tensor], Tensor]],
+# ) -> Sequence[Tensor]:
+#     n = len(g.nodes)
+#     ci = Circuit(n)
+#     cset = get_op_pool()  # [(Hlayer, nx.Graph), ...]
+#
+#     for i, j in enumerate(preset):
+#         layer, graph = cset[j]
+#         layer(ci, theta[i], graph)
+#
+#     state = ci.wavefunction()[0]
+#     losses = ave_func(state, g, *fs)  # objective graph
+#     return losses
 
 
 def _identity(s: Any) -> Any:
@@ -485,7 +497,7 @@ def qaoa_vag(
     return loss[0], gmatrix
 
 
-qaoa_graph_vag = partial(qaoa_vag, forward_func=graph_forward)
+# qaoa_graph_vag = partial(qaoa_vag, forward_func=graph_forward)
 
 
 def qaoa_block_vag(
@@ -495,7 +507,7 @@ def qaoa_block_vag(
     f: Tuple[Callable[[float], float], Callable[[Tensor], Tensor]],
 ) -> Tuple[Tensor, Tensor]:
     """
-    QAOA block encoding kernel
+    QAOA block encoding kernel, support 2 params in one op
 
     :param gdata:
     :param nnp:
@@ -504,6 +516,7 @@ def qaoa_block_vag(
     :return:
     """
     # for universality, nnp always occupy two rows for each block
+    # for a more general approach of multi params in one op, see ``quantum_mp_qaoa_vag``
 
     nnp = nnp.numpy()  # real
     pnnp = []
@@ -663,7 +676,7 @@ def qaoa_train(
 
 
 v = sympy.symbols("v_{0:64}")
-vv = sympy.symbols(["v_" + str(i) + "_0:16" for i in range(16)])
+vv = sympy.symbols(["v_" + str(i) + "_0:32" for i in range(32)])
 # symbol pool
 
 
@@ -798,7 +811,7 @@ def quantum_mp_qaoa_vag(
     :param preset:
     :param measurements_func:
     :param kws: kw arguments for measurements_func
-    :return:
+    :return: loss function, gradient of nnp
     """
     if measurements_func is None:
         measurements_func = tfim_measurements
@@ -815,7 +828,7 @@ def quantum_mp_qaoa_vag(
         if callable(cset[j]):
             cset[j](ci, gdata, vv[i][:l])
         else:  # op is a tuple with graph info as (op, g)
-            cset[j][0](ci, cset[j][1], v[i][:l])
+            cset[j][0](ci, cset[j][1], vv[i][:l])
     ep = tfq.layers.Expectation()
     symbol_names = []
     for i in range(len(preset)):
@@ -855,6 +868,13 @@ def get_var(name: str) -> Any:
 
 
 def verbose_output(max_prob: bool = True, weight: bool = True) -> None:
+    """
+    doesn't support prob model DQAS search
+
+    :param max_prob:
+    :param weight:
+    :return:
+    """
     if max_prob:
         prob = get_var("prob")
         print("max probability for each layer:")
@@ -911,7 +931,7 @@ def get_weights_v2(nnp: Tensor, preset: Sequence[int]) -> Tensor:
     for i, j in enumerate(preset):
         weights[i, :] = nnp[i, j, :]
     if l == 1:
-        weights = weights.reshape([p, c])
+        weights = weights.reshape([p])
     return tf.constant(weights)
 
 
@@ -1267,7 +1287,9 @@ def qaoa_simple_train(
     if "prob_model_func" in kws:
         pmf = kws["prob_model_func"]
         del kws["prob_model_func"]
-        kws["prob_model"] = pmf()
+        kws[
+            "prob_model"
+        ] = pmf()  # in case keras model cannot pickled for multiprocessing map
     if isinstance(graph, list):
 
         def graph_generator() -> Iterator[Graph]:
@@ -1443,6 +1465,31 @@ def DQAS_search_pmb(
     structure_opt: Optional[Opt] = None,
     prethermal_opt: Optional[Opt] = None,
 ) -> Tuple[Tensor, Tensor, Sequence[Any]]:
+    """
+    probabilistic model based DQAS, can use extensively for DQAS case for ``NMF`` probabilistic model
+
+    :param kernel_func: vag func, return loss and nabla lnp
+    :param prob_model: keras model
+    :param sample_func: sample func of logic with keras model input
+    :param g: input data pipeline generator
+    :param op_pool: operation pool
+    :param p: depth for DQAS
+    :param batch:
+    :param prethermal:
+    :param epochs:
+    :param parallel_num: parallel kernels
+    :param verbose:
+    :param verbose_func:
+    :param history_func:
+    :param baseline_func:
+    :param pertubation_func:
+    :param nnp_initial_value:
+    :param stp_regularization:
+    :param network_opt:
+    :param structure_opt:
+    :param prethermal_opt:
+    :return:
+    """
 
     # shape of nnp and stp is not necessarily compatible in complicated settings
     dtype = tf.float32  # caution, simply changing this is not guranteed to work

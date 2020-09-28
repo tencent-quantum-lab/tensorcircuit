@@ -6,6 +6,7 @@ import itertools
 import networkx as nx
 import numpy as np
 import cirq
+from functools import partial
 from typing import Any, Dict, Iterator, Sequence, Tuple, Optional
 
 Graph = Any
@@ -368,6 +369,17 @@ def reduced_ansatz(g: Graph, ratio: Optional[int] = None) -> Graph:
     return ng
 
 
+def split_ansatz(g: Graph, split: int = 2) -> Sequence[Graph]:
+    edges = np.array(g.edges)
+    ne = len(edges)
+    np.random.shuffle(edges)
+    gs = [nx.Graph() for _ in range(split)]
+    for i in range(split):
+        for j, k in edges[int(i * ne / split) : int((i + 1) * ne / split)]:
+            gs[i].add_edge(j, k, weight=g[j][k].get("weight", 1))
+    return gs
+
+
 def graph1D(n: int) -> Graph:
     """
     1D PBC chain with n sites
@@ -382,6 +394,18 @@ def graph1D(n: int) -> Graph:
     for i in range(n):
         g.add_edge(i, (i + 1) % n, weight=1.0)
     return g
+
+
+def even1D(n: int, s: int = 0) -> Graph:
+    g = nx.Graph()
+    for i in range(n):
+        g.add_node(i)
+    for i in range(s, n, 2):
+        g.add_edge(i, (i + 1) % n, weight=1.0)
+    return g
+
+
+odd1D = partial(even1D, s=1)
 
 
 def Grid2D(m: int, n: int) -> Graph:
@@ -400,6 +424,26 @@ def Grid2D(m: int, n: int) -> Graph:
         x, y = one2two(i)
         g.add_edge(i, two2one((x - 1) % m, y), weight=1)
         g.add_edge(i, two2one(x, (y - 1) % n), weight=1)
+    return g
+
+
+def Triangle2D(m: int, n: int) -> Graph:
+    def one2two(i: int) -> Tuple[int, int]:
+        y = i // m
+        x = i % m
+        return x, y
+
+    def two2one(x: int, y: int) -> int:
+        return x + y * m
+
+    g = nx.Graph()
+    for i in range(m * n):
+        g.add_node(i)
+    for i in range(m * n):
+        x, y = one2two(i)
+        g.add_edge(i, two2one((x + 1) % m, y), weight=1)
+        g.add_edge(i, two2one(x, (y + 1) % n), weight=1)
+        g.add_edge(i, two2one((x + 1) % m, (y - 1) % n), weight=1)
     return g
 
 

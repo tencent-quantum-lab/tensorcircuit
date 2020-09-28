@@ -123,6 +123,7 @@ for gates in itertools.product(
 
 
 ## below is similar layer but in cirq API instead of tensrocircuit native API
+## special notes to the API, the arguments order are different due to historical reason
 
 basis_rotation = {
     "x": (cirq.H, cirq.H),
@@ -169,6 +170,16 @@ def cirqswapgate(
     symbol: Symbol,
 ) -> cirq.Circuit:
     circuit.append(cirq.SwapPowGate(exponent=symbol)(qubit1, qubit2))
+    return circuit
+
+
+def cirqcnotgate(
+    circuit: cirq.Circuit,
+    qubit1: cirq.GridQubit,
+    qubit2: cirq.GridQubit,
+    symbol: Symbol,
+) -> cirq.Circuit:
+    circuit.append(cirq.CNOT(qubit1, qubit2))
     return circuit
 
 
@@ -254,6 +265,35 @@ def generate_cirq_double_gate_layer(gates: str) -> None:
     setattr(thismodule, "cirq" + gates + "layer", f)
 
 
+def generate_cirq_any_double_gate_layer(gates: str) -> None:
+    """
+    The following function generated layer should be used with special case,
+    as its soundness depends on the nature of task or problem, it doesn't always make sense
+
+    :param gates:
+    :return:
+    """
+
+    def f(
+        circuit: cirq.Circuit,
+        g: Graph,
+        symbol: Symbol,
+        qubits: Optional[Sequence[Any]] = None,
+    ) -> cirq.Circuit:
+        for i, e in enumerate(g.edges):
+            qubit1 = g.nodes[e[0]]["qubit"]
+            qubit2 = g.nodes[e[1]]["qubit"]
+            getattr(thismodule, "cirq" + gates + "gate")(
+                circuit, qubit1, qubit2, -symbol[i] * g[e[0]][e[1]]["weight"] * 2
+            )  ## should be better as * 2 # e^{-i\theta H}, H=-ZZ
+        return circuit
+
+    f.__doc__ = """%slayer""" % gates
+    f.__repr__ = """%slayer""" % gates  # type: ignore
+    f.__trainable__ = True  # type: ignore
+    setattr(thismodule, "cirqany" + gates + "layer", f)
+
+
 for gate in ["rx", "ry", "rz", "H"]:
     generate_cirq_gate_layer(gate)
     if gate != "H":
@@ -263,4 +303,8 @@ for gates in itertools.product(*[["x", "y", "z"] for _ in range(2)]):
     gates = gates[0] + gates[1]
     generate_cirq_double_gate(gates)  # type: ignore
     generate_cirq_double_gate_layer(gates)  # type: ignore
+    generate_cirq_any_double_gate_layer(gates)  # type: ignore
+
 generate_cirq_double_gate_layer("swap")
+generate_cirq_any_double_gate_layer("swap")
+generate_cirq_double_gate_layer("cnot")
