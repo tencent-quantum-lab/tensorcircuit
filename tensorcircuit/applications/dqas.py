@@ -88,7 +88,10 @@ def GHZ_vag(
             elif gate[0] == "CNOT":
                 circuit.CNOT(gate[1], gate[2])  # type: ignore
         s = circuit.wavefunction()
-        s = tf.reshape(s, [2 ** n,])
+        s = tf.reshape(
+            s,
+            [2 ** n],
+        )
         loss = tf.math.reduce_sum(
             tf.math.abs(s - reference_state)
         )  # better for overlap objective to optimize
@@ -884,7 +887,8 @@ def verbose_output(max_prob: bool = True, weight: bool = True) -> None:
         stp = get_var("stp")
         cand_weight = get_weights(nnp, stp).numpy()
         print(
-            "associating weights:", cand_weight,
+            "associating weights:",
+            cand_weight,
         )
 
 
@@ -1236,7 +1240,8 @@ def DQAS_search(
             if nnp.shape == stp.shape and verbose:
                 cand_weight = get_weights(nnp, stp).numpy()
                 print(
-                    "And associating weights:", cand_weight,
+                    "And associating weights:",
+                    cand_weight,
                 )
 
             if history_func is not None:
@@ -1270,7 +1275,7 @@ def qaoa_simple_train(
     kws: Optional[Dict[Any, Any]] = None,
 ) -> Tuple[Array, float]:
     sp.random.seed()
-    # TODO: the best practice combine mulprocessing and random generator still needs further investigation
+    # TODO: the best practice combine multiprocessing and random generator still needs further investigation
     p = len(preset)
     c = len(get_op_pool())
     stp_train = np.zeros([p, c])
@@ -1323,7 +1328,7 @@ def qaoa_simple_train(
         network_opt=opt,
         **kws,
     )
-    return (get_weights_v2(nnp, preset=preset).numpy(), h[-1])
+    return (get_weights_v2(nnp, preset=preset).numpy(), np.mean(h[-10:]))
 
 
 def parallel_qaoa_train(
@@ -1419,7 +1424,9 @@ def van_regularization(
 
 
 def micro_sample(
-    prob_model: Model, batch_size: int, repetitions: Optional[List[int]] = None,
+    prob_model: Model,
+    batch_size: int,
+    repetitions: Optional[List[int]] = None,
 ) -> Tuple[List[Tensor], List[List[Tensor]]]:
     glnprob_list = []
     with tf.GradientTape(persistent=True) as t:
@@ -1657,7 +1664,8 @@ def DQAS_search_pmb(
             structure_opt.apply_gradients(zip(batched_gs, prob_model.variables))
             if verbose:
                 print(
-                    "\n network parameter: \n", nnp.numpy(),
+                    "\n network parameter: \n",
+                    nnp.numpy(),
                 )
                 print(
                     "typical scale of stp parameter: \n",

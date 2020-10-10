@@ -31,18 +31,42 @@ class Circuit:
         # Get nodes on the interior
         nodes = [
             tn.Node(
-                np.array([[[1.0]], [[0,]]], dtype=npdtype), name=_prefix + str(x + 1),
+                np.array(
+                    [
+                        [[1.0]],
+                        [[0.0]],
+                    ],
+                    dtype=npdtype,
+                ),
+                name=_prefix + str(x + 1),
             )
             for x in range(nqubits - 2)
         ]
 
         # Get nodes on the end
         nodes.insert(
-            0, tn.Node(np.array([[1.0], [0,]], dtype=npdtype), name=_prefix + str(0),),
+            0,
+            tn.Node(
+                np.array(
+                    [
+                        [1.0],
+                        [0.0],
+                    ],
+                    dtype=npdtype,
+                ),
+                name=_prefix + str(0),
+            ),
         )
         nodes.append(
             tn.Node(
-                np.array([[1.0], [0,]], dtype=npdtype), name=_prefix + str(nqubits - 1),
+                np.array(
+                    [
+                        [1.0],
+                        [0.0],
+                    ],
+                    dtype=npdtype,
+                ),
+                name=_prefix + str(nqubits - 1),
             )
         )
 
@@ -390,6 +414,8 @@ class Circuit:
                     )
                 else:
                     graph.edge(
-                        str(id(edge.node1)), str(id(edge.node2)), label=edge_label,
+                        str(id(edge.node1)),
+                        str(id(edge.node2)),
+                        label=edge_label,
                     )
         return graph

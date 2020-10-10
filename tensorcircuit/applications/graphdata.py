@@ -370,6 +370,16 @@ def reduced_ansatz(g: Graph, ratio: Optional[int] = None) -> Graph:
 
 
 def split_ansatz(g: Graph, split: int = 2) -> Sequence[Graph]:
+    """
+    split the graph in exactly ``split`` piece evenly
+
+    :param g: the monther graph
+    :type g: Graph
+    :param split: how many pieces of the graph we want to divide into, defaults to 2
+    :type split: int, optional
+    :return: list of graph instance of size ``split``
+    :rtype: Sequence[Graph]
+    """
     edges = np.array(g.edges)
     ne = len(edges)
     np.random.shuffle(edges)
