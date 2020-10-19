@@ -13,6 +13,7 @@ from tensorcircuit.applications.dqas import (
     set_op_pool,
     qaoa_block_vag,
     qaoa_vag,
+    qaoa_vag_energy,
     DQAS_search,
     _identity,
     _neg,
@@ -21,7 +22,6 @@ from tensorcircuit.applications.dqas import (
 from tensorcircuit.applications.layers import *
 from tensorcircuit.applications.graphdata import regular_graph_generator
 
-qaoa_vag_energy = partial(qaoa_vag, f=(_identity, _neg))
 qaoa_block_vag_energy = partial(qaoa_block_vag, f=(_identity, _neg))
 
 tc.set_backend("tensorflow")
@@ -30,7 +30,6 @@ tc.set_backend("tensorflow")
 def main_layerwise_encoding():
     p = 5
     c = 7
-    set_op_pool([Hlayer, rxlayer, rylayer, rzlayer, xxlayer, yylayer, zzlayer])
 
     def noise():
         n = np.random.normal(loc=0.0, scale=0.002, size=[p, c])
@@ -60,11 +59,11 @@ def main_layerwise_encoding():
         qaoa_vag_energy,
         g=regular_graph_generator(n=8, d=3),
         p=p,
-        batch=28 * 30,
+        batch=8,
         prethermal=0,
         prethermal_preset=[0, 6, 1, 6, 1],
-        epochs=3000,
-        parallel_num=28,
+        epochs=3,
+        parallel_num=2,
         pertubation_func=noise,
         nnp_initial_value=np.random.normal(loc=0.23, scale=0.06, size=[p, c]),
         stp_regularization=penalty_gradient,
@@ -87,19 +86,6 @@ def main_block_encoding():
             get_var("epoch"), get_var("cand_preset_repr"), get_var("avcost1").numpy()
         )
 
-    set_op_pool(
-        [
-            Hlayer,
-            rx_zz_block,
-            zz_ry_block,
-            zz_rx_block,
-            zz_rz_block,
-            xx_rz_block,
-            yy_rx_block,
-            rx_rz_block,
-        ]
-    )
-
     def noise():
         # p = 6
         # c = 6
@@ -109,11 +95,11 @@ def main_block_encoding():
     stp, nnp, h = DQAS_search(
         qaoa_block_vag_energy,
         g=regular_graph_generator(n=8, d=3),
-        batch=28 * 40,
+        batch=8,
         prethermal=0,
         prethermal_preset=[0, 6, 1, 6, 1],
-        epochs=3000,
-        parallel_num=28,
+        epochs=3,
+        parallel_num=2,
         pertubation_func=noise,
         p=p,
         history_func=record,
@@ -133,6 +119,19 @@ def main_block_encoding():
     plt.ylabel("objective")
     plt.savefig("qaoa_block.pdf")
 
+
+layer_pool = [Hlayer, rxlayer, rylayer, rzlayer, xxlayer, yylayer, zzlayer]
+block_pool = [
+    Hlayer,
+    rx_zz_block,
+    zz_ry_block,
+    zz_rx_block,
+    zz_rz_block,
+    xx_rz_block,
+    yy_rx_block,
+    rx_rz_block,
+]
+set_op_pool(block_pool)
 
 if __name__ == "__main__":
     # main_layerwise_encoding()

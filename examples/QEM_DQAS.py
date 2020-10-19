@@ -25,9 +25,9 @@ def main_3():
         nnp_initial_value=tf.zeros([6, 6]),
         p=6,
         prethermal=0,
-        batch=256,
+        batch=32,
         verbose=False,
-        epochs=3000,
+        epochs=30,
     )
 
 
@@ -54,10 +54,10 @@ def main_4():
         nnp_initial_value=tf.zeros([12, 11]),
         p=12,
         prethermal=0,
-        batch=256,
+        batch=32,
         verbose=False,
         verbose_func=verbose_output,
-        epochs=3000,
+        epochs=6,
     )
 
 
