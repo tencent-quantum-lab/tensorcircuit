@@ -42,4 +42,4 @@ print(g(theta))
 
 ## DQAS
 
-For application of Differentiable Quantum Architecture Search, see [applications](/applications)
+For application of Differentiable Quantum Architecture Search, see [applications](/tensorcircuit/applications)
