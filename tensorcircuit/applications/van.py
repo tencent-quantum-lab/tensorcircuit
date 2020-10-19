@@ -1,6 +1,7 @@
 """
 one-hot variational autoregressive models for multiple categorical choices beyond binary
 """
+
 import tensorflow as tf
 import numpy as np
 
@@ -174,7 +175,9 @@ class MADE(tf.keras.Model):
         if self.probamp is not None:
             inputs = self.probamp + inputs
         if self.nonmerge:
-            inputs = nonmerge_block + inputs
+            inputs = (
+                nonmerge_block + inputs
+            )  # TODO: to be investigated whether the nonmerge block can affect on unity of probability
         outputs = tf.keras.layers.Softmax()(inputs)
         return outputs
 

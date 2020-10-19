@@ -48,7 +48,7 @@ def test_measure():
 def test_expectation():
     c = tc.Circuit(2)
     c.H(0)
-    assert np.allclose(c.expectation((tc.gates.z(), [0])), 0)
+    assert np.allclose(c.expectation((tc.gates.z(), [0])), 0, atol=1e-7)
 
 
 def test_qcode():

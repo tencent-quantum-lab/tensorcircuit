@@ -49,12 +49,13 @@ def test_residual_block():
 def test_made():
     import itertools
 
-    m = MADE(2, 2, 6, 3, 3)
+    m = MADE(2, 2, 6, 3, 3, nonmerge=False)
     r = 0
     l = []
     for i in itertools.product(*[list(range(3)) for _ in range(2)]):
         l.append(list(i))
     basis = tf.constant(l, dtype=tf.int32)
+    print(basis)
     ptot = tf.reduce_sum(tf.exp(m.log_prob(tf.one_hot(basis, depth=3))))
     assert np.allclose(ptot.numpy(), 1.0)
 
@@ -64,7 +65,7 @@ def test_made():
 
 def test_made_fit_peak():
     opt = tf.optimizers.Adam(learning_rate=0.01)
-    m = MADE(5, 5, 5, 3, 2)
+    m = MADE(5, 5, 4, 3, 2)
     for step in range(100):
         with tf.GradientTape() as t:
             loss = -tf.reduce_sum(

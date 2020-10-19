@@ -1,5 +1,5 @@
-mypy
+mypy==0.782
 pytest
 pytest-cov
-black
+black==20.8b1
 sphinx>=2.4
