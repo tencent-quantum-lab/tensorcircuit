@@ -1471,6 +1471,8 @@ def DQAS_search_pmb(
     network_opt: Optional[Opt] = None,
     structure_opt: Optional[Opt] = None,
     prethermal_opt: Optional[Opt] = None,
+    loss_func: Optional[Callable[[Tensor], Tensor]] = None,
+    loss_derivative_func: Optional[Callable[[Tensor], Tensor]] = None,
 ) -> Tuple[Tensor, Tensor, Sequence[Any]]:
     """
     probabilistic model based DQAS, can use extensively for DQAS case for ``NMF`` probabilistic model
@@ -1495,6 +1497,8 @@ def DQAS_search_pmb(
     :param network_opt:
     :param structure_opt:
     :param prethermal_opt:
+    :param loss_func: final loss function in terms of average of sub loss for each circuit
+    :param loss_derivative_func: derivative function for ``loss_func``
     :return:
     """
 
@@ -1528,6 +1532,12 @@ def DQAS_search_pmb(
     if baseline_func is None:
         baseline_func = np.mean
     nnp = tf.Variable(initial_value=nnp_initial_value, dtype=dtype)
+
+    if loss_func is None:
+        loss_func = lambda s: s
+
+    if loss_derivative_func is None:
+        loss_derivative_func = lambda s: tf.constant(1.0)
 
     history = []
 
@@ -1577,7 +1587,6 @@ def DQAS_search_pmb(
                     g_stp_penalty.append(tf.zeros_like(v))
 
             if parallel_num == 0:
-
                 for i, gdata in zip(range(batch), g):
                     if pertubation_func is not None:
                         loss, gnnp = kernel_func(
@@ -1585,7 +1594,10 @@ def DQAS_search_pmb(
                         )
                     else:
                         loss, gnnp = kernel_func(gdata, nnp, presets[i])
-
+                    # gnnp \equiv \partial L_i/\partial \theta
+                    # batched_gnnp = sum_{i\in batch} \partial \mathcal{L}/\partial L_i \partial L_i/\partial \theta
+                    # batched_gstp = \partial \mathcal{L}/\partial \bar{L} (\sum_i (L-\bar{L})\nabla \ln p)
+                    # \partial \mathcal{L}/\partial L_i = \partial \mathcal{L}/\partial \bar{L} 1/n
                     deri_stp.append(
                         [
                             (tf.cast(loss, dtype=dtype) - tf.cast(avcost2, dtype=dtype))
@@ -1634,9 +1646,14 @@ def DQAS_search_pmb(
             )
             batched_gs = []
             batched_gs_std = []
+            loss_bar = tf.reduce_mean(costl)
+            loss_bar_d = loss_derivative_func(
+                loss_bar
+            )  # \partial \mathcal{L} /\partial \bar{L}
             for i in range(len(glnprobs[0])):
                 batched_gs.append(
-                    tf.math.reduce_mean(
+                    loss_bar_d
+                    * tf.math.reduce_mean(
                         tf.convert_to_tensor([w[i] for w in deri_stp], dtype=dtype),
                         axis=0,
                     )
@@ -1650,9 +1667,16 @@ def DQAS_search_pmb(
                         )
                     )
 
-            batched_gnnp = tf.math.reduce_mean(
+            batched_gnnp = loss_bar_d * tf.math.reduce_mean(
                 tf.convert_to_tensor(deri_nnp, dtype=dtype), axis=0
             )
+            if verbose:
+                print(
+                    "final loss:",
+                    loss_func(loss_bar),
+                    " final loss derivative multiplier:",
+                    loss_bar_d,
+                )
             if verbose:
                 print("batched gradient of nnp: \n", batched_gnnp.numpy())
                 print(
