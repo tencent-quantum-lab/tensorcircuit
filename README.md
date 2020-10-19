@@ -1,9 +1,8 @@
 # TENSORCIRCUIT
 
-
 With [TensorNetwork](https://github.com/google/TensorNetwork) project announced by Google, quantum circuit simulator based on it may gain benefits from swift implementation to auto differentiation abilities.
 
-See ``tensorcircuit.applications`` for relevant code on so-call differentiable quantum architecture search.
+See `tensorcircuit.applications` for relevant code on so-call differentiable quantum architecture search.
 
 ## Baisc Usage
 
@@ -41,3 +40,6 @@ theta = tc.gates.num_to_tensor(1.0)
 print(g(theta))
 ```
 
+## DQAS
+
+For application of Differentiable Quantum Architecture Search, see [applications](/applications)
