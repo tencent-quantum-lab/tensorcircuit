@@ -33,6 +33,9 @@ jobs:
         run: |
           cd examples
           python GHZ_DQAS.py
+          python QEM_DQAS.py
+          python QAOA_DQAS.py
+          python qaoa_parallel_opt.py
       - name: setup build
         run: |
           python3 setup.py build
