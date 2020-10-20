@@ -6,13 +6,12 @@ import numpy as np
 import tensorflow as tf
 import cirq
 
+from tensorcircuit.applications.vags import double_qubits_initial, GHZ_vag, GHZ_vag_tfq
 from tensorcircuit.applications.dqas import (
     set_op_pool,
+    get_op_pool,
     get_preset,
-    GHZ_vag,
-    GHZ_vag_tfq,
     DQAS_search,
-    double_qubits_initial,
 )
 
 tc.set_backend("tensorflow")
@@ -45,7 +44,7 @@ def main_tn():
         GHZ_vag,
         p=p,
         batch=128,
-        epochs=200,
+        epochs=20,
         verbose=True,
         parallel_num=0,
         nnp_initial_value=np.zeros([p, c]),

@@ -9,6 +9,7 @@ sys.path.insert(0, modulepath)
 from tensorcircuit.applications.dqas import *
 from tensorcircuit.applications.graphdata import *
 from tensorcircuit.applications.layers import *
+from tensorcircuit.applications.vags import *
 from tensorcircuit.cons import set_backend
 
 

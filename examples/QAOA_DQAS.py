@@ -9,20 +9,12 @@ from matplotlib import pyplot as plt
 import numpy as np
 import tensorflow as tf
 import tensorcircuit as tc
-from tensorcircuit.applications.dqas import (
-    set_op_pool,
-    qaoa_block_vag,
-    qaoa_vag,
-    qaoa_vag_energy,
-    DQAS_search,
-    _identity,
-    _neg,
-    get_var,
-)
+from tensorcircuit.applications.dqas import *
+from tensorcircuit.applications.vags import *
 from tensorcircuit.applications.layers import *
 from tensorcircuit.applications.graphdata import regular_graph_generator
 
-qaoa_block_vag_energy = partial(qaoa_block_vag, f=(_identity, _neg))
+# qaoa_block_vag_energy = partial(qaoa_block_vag, f=(_identity, _neg))
 
 tc.set_backend("tensorflow")
 

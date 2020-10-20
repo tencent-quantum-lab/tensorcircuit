@@ -7,9 +7,9 @@ from collections import namedtuple
 import cirq
 import numpy as np
 import tensorflow as tf
+from tensorcircuit.applications.vags import qft_qem_vag
 from tensorcircuit.applications.dqas import (
     set_op_pool,
-    qft_qem_vag,
     DQAS_search,
     verbose_output,
     get_var,
