@@ -19,7 +19,7 @@ class Circuit:
     sgates = (
         ["i", "x", "y", "z", "h", "t", "s", "rs"] + ["cnot", "cz", "swap"] + ["toffoli"]
     )
-    vgates = ["r", "cr", "rx", "ry", "rz"]
+    vgates = ["r", "cr", "rx", "ry", "rz", "any", "exp"]
 
     def __init__(self, nqubits: int) -> None:
         _prefix = "qb-"

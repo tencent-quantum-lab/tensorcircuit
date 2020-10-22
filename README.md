@@ -14,7 +14,7 @@ c.CNOT(0,1)
 print(c.perfect_sampling())
 print(c.wavefunction())
 print(c.measure(1))
-print(c.expectation((tc.gates.z(), 1)))
+print(c.expectation((tc.gates.z(), [1])))
 ```
 
 Runtime behavior changing:

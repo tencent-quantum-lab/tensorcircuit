@@ -15,3 +15,22 @@ def test_rgate(highp):
         tc.gates.rgate(1, 2, 3).tensor, tc.gates.rgate_theoretical(1, 2, 3).tensor
     )
     # tc.set_dtype("complex64")
+
+
+def test_exp_gate():
+    c = tc.Circuit(2)
+    c.exp(
+        0,
+        1,
+        unitary=tc.gates.array_to_tensor(
+            np.array([[1.0, 0, 0, 0], [0, -1.0, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
+        ),
+        theta=tc.gates.num_to_tensor(np.pi / 2),
+    )
+    assert np.allclose(c.wavefunction()[0, 0], -1j)
+
+
+def test_any_gate():
+    c = tc.Circuit(2)
+    c.any(0, unitary=np.eye(2))
+    assert np.allclose(c.expectation((tc.gates.z(), [0])), 1.0)

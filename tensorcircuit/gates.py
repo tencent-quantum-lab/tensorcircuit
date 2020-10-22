@@ -5,7 +5,8 @@ Declarations of single qubit and two-qubit gates.
 import sys
 from copy import deepcopy
 from typing import Optional, Any
-from functools import partial
+from functools import partial, reduce
+from operator import mul
 
 import numpy as np
 from scipy.stats import unitary_group
@@ -242,3 +243,30 @@ def random_two_qubit_gate() -> Gate:
     unitary = unitary_group.rvs(dim=4)
     unitary = np.reshape(unitary, newshape=(2, 2, 2, 2))
     return Gate(deepcopy(unitary), name="R2Q")
+
+
+def any_gate(unitary: Tensor) -> Gate:
+    """
+    Note one should provide the gate with properly reshaped
+
+    :param unitary: corresponding gate
+    """
+    return Gate(deepcopy(unitary), name="any")
+
+
+any = any_gate
+
+
+def exponential_gate(unitary: Tensor, theta: float, name: str = "none") -> Gate:
+    """
+    $\exp{-i\theta unitary}$
+    """
+    theta = num_to_tensor(theta)
+    mat = backend.expm(-backend.i() * theta * unitary)
+    dimension = reduce(mul, mat.shape)
+    nolegs = int(np.log(dimension) / np.log(2))
+    mat = backend.reshape(mat, shape=[2 for _ in range(nolegs)])
+    return Gate(mat, name="exp-" + name)
+
+
+exp = exponential_gate
