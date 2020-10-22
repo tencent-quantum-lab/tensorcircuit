@@ -51,6 +51,16 @@ def test_expectation():
     assert np.allclose(c.expectation((tc.gates.z(), [0])), 0, atol=1e-7)
 
 
+def test_complex128(highp):
+    tc.set_backend("tensorflow")
+    tc.set_dtype("complex128")
+    c = tc.Circuit(2)
+    c.H(1)
+    c.rx(0, theta=tc.gates.num_to_tensor(1j))
+    c.wavefunction()
+    assert np.allclose(c.expectation((tc.gates.z(), [1])), 0)
+
+
 def test_qcode():
     qcode = """
 4

@@ -59,6 +59,9 @@ def set_dtype(dtype: Optional[str] = None) -> None:
         if module in sys.modules:
             setattr(sys.modules[module], "dtypestr", dtype)
             setattr(sys.modules[module], "npdtype", npdtype)
+    from .gates import meta_gate
+
+    meta_gate()
 
 
 set_dtype()
