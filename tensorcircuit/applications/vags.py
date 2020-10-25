@@ -370,25 +370,6 @@ def exp_forward(
     return losses
 
 
-# def graph_forward(
-#     theta: Tensor,
-#     preset: Sequence[int],
-#     g: Graph,
-#     *fs: Tuple[Callable[[float], float], Callable[[Tensor], Tensor]],
-# ) -> Sequence[Tensor]:
-#     n = len(g.nodes)
-#     ci = Circuit(n)
-#     cset = get_op_pool()  # [(Hlayer, nx.Graph), ...]
-#
-#     for i, j in enumerate(preset):
-#         layer, graph = cset[j]
-#         layer(ci, theta[i], graph)
-#
-#     state = ci.wavefunction()[0]
-#     losses = ave_func(state, g, *fs)  # objective graph
-#     return losses
-
-
 def _identity(s: Any) -> Any:
     return s
 
@@ -453,6 +434,9 @@ def qaoa_vag(
             Tuple[Tensor, Tensor],
         ]
     ] = None,
+    verbose_fs: Optional[
+        Sequence[Tuple[Callable[[float], float], Callable[[Tensor], Tensor]]]
+    ] = None,
 ) -> Tuple[Tensor, Tensor]:
     if forward_func is None:
         forward_func = exp_forward  # type: ignore
@@ -465,6 +449,9 @@ def qaoa_vag(
         t.watch(pnnp)
         loss = forward_func(pnnp, preset, gdata, f)  # type: ignore
     gr = t.gradient(loss, pnnp)
+    if verbose_fs:
+        for vf in verbose_fs:
+            print(forward_func(pnnp, preset, gdata, vf))  # type: ignore
     if gr is None:
         # if all gates in preset are not trainable, then gr returns None instead of 0s
         gr = tf.zeros_like(pnnp)
