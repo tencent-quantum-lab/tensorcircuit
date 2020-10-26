@@ -4,7 +4,7 @@ Declarations of single qubit and two-qubit gates.
 
 import sys
 from copy import deepcopy
-from typing import Optional, Any
+from typing import Optional, Any, Union
 from functools import partial, reduce
 from operator import mul
 
@@ -78,7 +78,9 @@ class Gate(tn.Node):  # type: ignore
     Wrapper of tn.Node, quantum gate
     """
 
-    pass
+    def __rmul__(self, lvalue: Union[float, complex]) -> "Gate":
+        newg = Gate(lvalue * self.tensor)
+        return newg
 
 
 def num_to_tensor(*num: float, dtype: Optional[str] = None) -> Any:

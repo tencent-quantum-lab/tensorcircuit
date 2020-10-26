@@ -19,8 +19,9 @@ modules = [
     "tensorcircuit.gates",
     "tensorcircuit.circuit",
     "tensorcircuit.backends",
+    "tensorcircuit.densitymatrix",
+    "tensorcircuit.channels",
 ]
-
 
 dtypestr = "complex64"
 npdtype = np.complex64
