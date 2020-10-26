@@ -73,14 +73,20 @@ _toffoli_matrix = np.array(
 )
 
 
+def __rmul__(self: tn.Node, lvalue: Union[float, complex]) -> "Gate":
+    newg = Gate(lvalue * self.tensor)
+    return newg
+
+
+tn.Node.__rmul__ = __rmul__
+
+
 class Gate(tn.Node):  # type: ignore
     """
     Wrapper of tn.Node, quantum gate
     """
 
-    def __rmul__(self, lvalue: Union[float, complex]) -> "Gate":
-        newg = Gate(lvalue * self.tensor)
-        return newg
+    pass
 
 
 def num_to_tensor(*num: float, dtype: Optional[str] = None) -> Any:
