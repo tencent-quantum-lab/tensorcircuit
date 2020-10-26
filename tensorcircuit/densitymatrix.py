@@ -17,7 +17,7 @@ from .circuit import Circuit
 Gate = gates.Gate
 Tensor = Any
 
-
+# TODO: Monte Carlo State Circuit Simulator
 class DMCircuit:
     def __init__(self, nqubits: int, empty: bool = False) -> None:
         if not empty:
@@ -193,6 +193,7 @@ class DMCircuit:
     def apply_general_kraus(
         self, kraus: Sequence[Gate], index: Sequence[Tuple[int]]
     ) -> None:
+        # TODO: quick way to apply layers of kraus
         self.check_kraus(kraus)
         assert len(kraus) == len(index) or len(index) == 1
         if len(index) == 1:

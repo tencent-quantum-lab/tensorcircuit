@@ -10,7 +10,9 @@ import networkx as nx
 from typing import Sequence, Union, Callable, Any, Optional, Tuple, List
 
 from ..circuit import Circuit
+from ..densitymatrix import DMCircuit
 from ..gates import num_to_tensor
+from ..channels import depolarizingchannel
 
 thismodule = sys.modules[__name__]
 
@@ -308,3 +310,11 @@ for gates in itertools.product(*[["x", "y", "z"] for _ in range(2)]):
 generate_cirq_double_gate_layer("swap")
 generate_cirq_any_double_gate_layer("swap")
 generate_cirq_double_gate_layer("cnot")
+
+
+def bitfliplayer(ci: DMCircuit, g: Graph, p: float) -> None:
+    n = len(g.nodes)
+    for i in range(n):
+        ci.apply_general_kraus(depolarizingchannel(p, 0.0, 0.0), [(i,)])
+    bitfliplayer.__repr__ = """bitfliplayer"""  # type: ignore
+    bitfliplayer.__trainable__ = True  # type: ignore

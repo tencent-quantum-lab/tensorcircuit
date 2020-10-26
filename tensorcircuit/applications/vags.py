@@ -26,7 +26,9 @@ from typing import (
 
 from ..gates import array_to_tensor, num_to_tensor
 from .. import cons
+from .. import gates as G
 from ..circuit import Circuit
+from ..densitymatrix import DMCircuit
 from .layers import *
 from .dqas import get_op_pool
 
@@ -464,9 +466,6 @@ def qaoa_vag(
     return loss[0], gmatrix
 
 
-# qaoa_graph_vag = partial(qaoa_vag, forward_func=graph_forward)
-
-
 def qaoa_block_vag(
     gdata: Graph,
     nnp: Tensor,
@@ -564,6 +563,77 @@ def evaluate_vag(
     else:
         gr = t.gradient(expe, params)
     return expe, ene, cons.backend.real(gr), probasum
+
+
+## noise qaoa tensorcircuits setup
+
+
+def noise_forward(
+    theta: Tensor,
+    preset: Sequence[int],
+    g: Graph,
+    measure_func: Callable[[DMCircuit, Graph], Tensor],
+) -> Tensor:
+    n = len(g.nodes)
+    ci = DMCircuit(n)
+    cset = get_op_pool()
+    for i, j in enumerate(preset):
+        if len(cset[j]) == 3:  # (rxlayer, noiselayer, [0.2])
+            layer, noisemodel, params = cset[j]
+            layer(ci, theta[i], g)
+            noisemodel(ci, g, *params)
+        elif len(cset[j]) == 4:  # (rxlayer, graph, noiselayer, [0.1])
+            layer, graph, noisemodel, params = cset[j]
+            layer(ci, theta[i], graph)
+            noisemodel(ci, g, *params)
+        elif len(cset[j]) == 2:  # no noise
+            layer, graph = cset[j]
+            layer(ci, theta[i], graph)
+        else:  # len == 1
+            cset[j](ci, theta[i], g)
+
+    loss = measure_func(ci, g)
+    return loss
+
+
+def maxcut_measurement(c: DMCircuit, g: Graph) -> Tensor:
+    loss = 0.0
+    for e in g.edges:
+        loss += (
+            g[e[0]][e[1]]["weight"]
+            * 0.5
+            * (c.expectation((G.z(), [e[0]]), (G.z(), [e[1]])) - 1)  # type: ignore
+        )
+    return loss
+
+
+def qaoa_noise_vag(
+    gdata: Graph,
+    nnp: Tensor,
+    preset: Sequence[int],
+    measure_func: Optional[Callable[[DMCircuit, Graph], Tensor]] = None,
+) -> Tuple[Tensor, Tensor]:
+    if measure_func is None:
+        measure_func = maxcut_measurement
+    nnp = nnp.numpy()  # real
+    pnnp = [nnp[i, j] for i, j in enumerate(preset)]
+    pnnp = array_to_tensor(np.array(pnnp))  # complex
+    with tf.GradientTape() as t:
+        t.watch(pnnp)
+        loss = noise_forward(pnnp, preset, gdata, measure_func)
+        loss = tf.math.real(loss)
+        gr = t.gradient(loss, pnnp)
+    if gr is None:
+        # if all gates in preset are not trainable, then gr returns None instead of 0s
+        gr = tf.zeros_like(pnnp)
+    gr = cons.backend.real(gr)
+    gr = tf.where(tf.math.is_nan(gr), 0.0, gr)
+    gmatrix = np.zeros_like(nnp)
+    for i, j in enumerate(preset):
+        gmatrix[i, j] = gr[i]
+    gmatrix = tf.constant(gmatrix)
+    # print("loss", loss, "g\n", gmatrix)
+    return loss, gmatrix
 
 
 def qaoa_train(
