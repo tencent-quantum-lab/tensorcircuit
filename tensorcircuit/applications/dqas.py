@@ -610,8 +610,8 @@ def van_sample(
     with tf.GradientTape(persistent=True) as t:
         sample, xhat = prob_model.sample(batch_size)
         lnprob = prob_model._log_prob(sample, xhat)
-        for i in range(batch_size):
-            glnprob_list.append(t.gradient(lnprob[i], prob_model.variables))
+    for i in range(batch_size):
+        glnprob_list.append(t.gradient(lnprob[i], prob_model.variables))
     sample = tf.argmax(sample, axis=-1)
     sample_list = [sample[i] for i in range(batch_size)]
     del t

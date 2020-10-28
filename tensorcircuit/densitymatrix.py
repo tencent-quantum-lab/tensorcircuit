@@ -18,6 +18,7 @@ Gate = gates.Gate
 Tensor = Any
 
 # TODO: Monte Carlo State Circuit Simulator
+# note not all channels but only deploarizing channel can be simulated in that Monte Carlo way with pure state simulators
 class DMCircuit:
     def __init__(self, nqubits: int, empty: bool = False) -> None:
         if not empty:
@@ -193,7 +194,7 @@ class DMCircuit:
     def apply_general_kraus(
         self, kraus: Sequence[Gate], index: Sequence[Tuple[int]]
     ) -> None:
-        # TODO: quick way to apply layers of kraus
+        # TODO: quick way to apply layers of kraus: seems no simply way to do that?
         self.check_kraus(kraus)
         assert len(kraus) == len(index) or len(index) == 1
         if len(index) == 1:

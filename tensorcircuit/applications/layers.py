@@ -7,6 +7,7 @@ import itertools
 import numpy as np
 import cirq
 import networkx as nx
+import tensorflow as tf
 from typing import Sequence, Union, Callable, Any, Optional, Tuple, List
 
 from ..circuit import Circuit
@@ -19,6 +20,23 @@ thismodule = sys.modules[__name__]
 Tensor = Any  # tf.Tensor
 Graph = Any  # nx.Graph
 Symbol = Any  # sympy.Symbol
+
+
+def _resolve(symbol: Union[Symbol, Tensor], i: int = 0) -> Tensor:
+    """
+    make sure the layer is compatible with both multiparam and single param requirements
+
+    what could be the input: list/tuple of sympy.symbol, tf.tensor with 1D or 0D shape
+    """
+    if isinstance(symbol, list) or isinstance(symbol, tuple):
+        return symbol[i]
+    elif tf.is_tensor(symbol):  # tf.tensor of 1D or 2D
+        if len(symbol.shape) == 1:
+            return symbol[i]
+        else:  # len(shape) == 0
+            return symbol
+    else:  # sympy.symbol
+        return symbol
 
 
 def generate_double_gate(gates: str) -> None:
@@ -63,12 +81,13 @@ def generate_gate_layer(gate: str) -> None:
     def f(
         circuit: Circuit, symbol: Union[Tensor, float] = None, g: Graph = None
     ) -> Circuit:  # compatible with graph mode
+        symbol0 = _resolve(symbol)
         if gate.lower() in Circuit.sgates:
             for n in range(circuit._nqubits):
                 getattr(circuit, gate)(n)
         else:
             for n in range(circuit._nqubits):
-                getattr(circuit, gate)(n, theta=2 * symbol)
+                getattr(circuit, gate)(n, theta=2 * symbol0)
         return circuit
 
     f.__doc__ = """%slayer""" % gate
@@ -77,14 +96,61 @@ def generate_gate_layer(gate: str) -> None:
     setattr(thismodule, gate + "layer", f)
 
 
+def generate_any_gate_layer(gate: str) -> None:
+    """
+    $$e^{-i\theta_i \sigma}$$
+
+    :param gate:
+    :return:
+    """
+
+    def f(
+        circuit: Circuit, symbol: Union[Tensor, float] = None, g: Graph = None
+    ) -> Circuit:  # compatible with graph mode
+        if gate.lower() in Circuit.sgates:
+            for n in range(circuit._nqubits):
+                getattr(circuit, gate)(n)
+        else:
+            for n in range(circuit._nqubits):
+                getattr(circuit, gate)(n, theta=2 * symbol[n])  # type: ignore
+        return circuit
+
+    f.__doc__ = """any%slayer""" % gate
+    f.__repr__ = """any%slayer""" % gate  # type: ignore
+    f.__trainable__ = False if gate in Circuit.sgates else True  # type: ignore
+    setattr(thismodule, "any" + gate + "layer", f)
+
+
+def generate_any_double_gate_layer(gates: str) -> None:
+    def f(circuit: Circuit, symbol: Union[Tensor, float], g: Graph = None) -> Circuit:
+        if g is None:
+            g = nx.complete_graph(circuit._nqubits)
+        for i, e in enumerate(g.edges):
+            qubit1, qubit2 = e
+            getattr(thismodule, gates + "gate")(
+                circuit,
+                qubit1,
+                qubit2,
+                -symbol[i] * g[e[0]][e[1]].get("weight", 1.0) * 2,  # type: ignore
+            )
+            ## should be better as * 2 # e^{-i\theta H}, H=-ZZ
+        return circuit
+
+    f.__doc__ = """any%slayer""" % gates
+    f.__repr__ = """any%slayer""" % gates  # type: ignore
+    f.__trainable__ = True  # type: ignore
+    setattr(thismodule, "any" + gates + "layer", f)
+
+
 def generate_double_gate_layer(gates: str) -> None:
     def f(circuit: Circuit, symbol: Union[Tensor, float], g: Graph = None) -> Circuit:
+        symbol0 = _resolve(symbol)
         if g is None:
             g = nx.complete_graph(circuit._nqubits)
         for e in g.edges:
             qubit1, qubit2 = e
             getattr(thismodule, gates + "gate")(
-                circuit, qubit1, qubit2, -symbol * g[e[0]][e[1]].get("weight", 1.0) * 2
+                circuit, qubit1, qubit2, -symbol0 * g[e[0]][e[1]].get("weight", 1.0) * 2
             )  ## should be better as * 2 # e^{-i\theta H}, H=-ZZ
         return circuit
 
@@ -92,6 +158,33 @@ def generate_double_gate_layer(gates: str) -> None:
     f.__repr__ = """%slayer""" % gates  # type: ignore
     f.__trainable__ = True  # type: ignore
     setattr(thismodule, gates + "layer", f)
+
+
+def generate_double_gate_layer_bitflip(gates: str) -> None:
+    def f(
+        circuit: DMCircuit, symbol: Union[Tensor, float], g: Graph, *params: float
+    ) -> DMCircuit:
+        symbol0 = _resolve(symbol)
+        for e in g.edges:
+            qubit1, qubit2 = e
+            getattr(thismodule, gates + "gate")(
+                circuit,
+                qubit1,
+                qubit2,
+                -symbol0 * g[e[0]][e[1]].get("weight", 1.0) * 2,
+            )  ## should be better as * 2 # e^{-i\theta H}, H=-ZZ
+            circuit.apply_general_kraus(
+                depolarizingchannel(params[0], params[1], params[2]), [(e[0],)]
+            )
+            circuit.apply_general_kraus(
+                depolarizingchannel(params[0], params[1], params[2]), [(e[1],)]
+            )
+        return circuit
+
+    f.__doc__ = """%slayer_bitflip""" % gates
+    f.__repr__ = """%slayer_bitflip""" % gates  # type: ignore
+    f.__trainable__ = True  # type: ignore
+    setattr(thismodule, gates + "layer_bitflip", f)
 
 
 def generate_double_layer_block(gates: Tuple[str]) -> None:
@@ -112,11 +205,14 @@ def generate_double_layer_block(gates: Tuple[str]) -> None:
 
 for gate in ["rx", "ry", "rz", "H", "I"]:
     generate_gate_layer(gate)
+    generate_any_gate_layer(gate)
 
 for gates in itertools.product(*[["x", "y", "z"] for _ in range(2)]):
     gates = gates[0] + gates[1]
     generate_double_gate(gates)  # type: ignore
     generate_double_gate_layer(gates)  # type: ignore
+    generate_any_double_gate_layer(gates)  # type: ignore
+    generate_double_gate_layer_bitflip(gates)  # type: ignore
 
 for gates in itertools.product(
     *[["rx", "ry", "rz", "xx", "yy", "zz"] for _ in range(2)]
@@ -199,15 +295,14 @@ def generate_cirq_gate_layer(gate: str) -> None:
         symbol: Symbol,
         qubits: Optional[Sequence[Any]] = None,
     ) -> cirq.Circuit:
-        if isinstance(symbol, list) or isinstance(symbol, tuple):
-            symbol = symbol[0]
+        symbol0 = _resolve(symbol[0])
         if not qubits:
             qubits = generate_qubits(g)
         rotation = getattr(cirq, gate)
         if isinstance(rotation, cirq.Gate):
             circuit.append(rotation.on_each(qubits))
         else:  # function
-            circuit.append(rotation(2.0 * symbol).on_each(qubits))
+            circuit.append(rotation(2.0 * symbol0).on_each(qubits))
         return circuit
 
     f.__doc__ = """%slayer""" % gate
@@ -251,13 +346,12 @@ def generate_cirq_double_gate_layer(gates: str) -> None:
         symbol: Symbol,
         qubits: Optional[Sequence[Any]] = None,
     ) -> cirq.Circuit:
-        if isinstance(symbol, list) or isinstance(symbol, tuple):
-            symbol = symbol[0]
+        symbol0 = _resolve(symbol)
         for e in g.edges:
             qubit1 = g.nodes[e[0]]["qubit"]
             qubit2 = g.nodes[e[1]]["qubit"]
             getattr(thismodule, "cirq" + gates + "gate")(
-                circuit, qubit1, qubit2, -symbol * g[e[0]][e[1]]["weight"] * 2
+                circuit, qubit1, qubit2, -symbol0 * g[e[0]][e[1]]["weight"] * 2
             )  ## should be better as * 2 # e^{-i\theta H}, H=-ZZ
         return circuit
 
@@ -312,9 +406,9 @@ generate_cirq_any_double_gate_layer("swap")
 generate_cirq_double_gate_layer("cnot")
 
 
-def bitfliplayer(ci: DMCircuit, g: Graph, p: float) -> None:
+def bitfliplayer(ci: DMCircuit, g: Graph, px: float, py: float, pz: float) -> None:
     n = len(g.nodes)
     for i in range(n):
-        ci.apply_general_kraus(depolarizingchannel(p, 0.0, 0.0), [(i,)])
+        ci.apply_general_kraus(depolarizingchannel(px, py, pz), [(i,)])
     bitfliplayer.__repr__ = """bitfliplayer"""  # type: ignore
     bitfliplayer.__trainable__ = True  # type: ignore

@@ -586,9 +586,9 @@ def noise_forward(
             layer, graph, noisemodel, params = cset[j]
             layer(ci, theta[i], graph)
             noisemodel(ci, g, *params)
-        elif len(cset[j]) == 2:  # no noise
-            layer, graph = cset[j]
-            layer(ci, theta[i], graph)
+        elif len(cset[j]) == 2:  # (noiselayer, [0.2]) no noise
+            layer, params = cset[j]
+            layer(ci, theta[i], g, *params)
         else:  # len == 1
             cset[j](ci, theta[i], g)
 
@@ -596,7 +596,7 @@ def noise_forward(
     return loss
 
 
-def maxcut_measurement(c: DMCircuit, g: Graph) -> Tensor:
+def maxcut_measurements_tc(c: DMCircuit, g: Graph) -> Tensor:
     loss = 0.0
     for e in g.edges:
         loss += (
@@ -607,6 +607,25 @@ def maxcut_measurement(c: DMCircuit, g: Graph) -> Tensor:
     return loss
 
 
+def tfim_measurements_tc(
+    c: DMCircuit, g: Graph, hzz: float = 1.0, hx: float = 0.0, hz: float = 0.0
+) -> Tensor:
+    loss = 0.0
+    for e in g.edges:
+        loss += (
+            g[e[0]][e[1]]["weight"]
+            * hzz
+            * c.expectation((G.z(), [e[0]]), (G.z(), [e[1]]))  # type: ignore
+        )
+    if hx != 0.0:
+        for i in range(len(g.nodes)):
+            loss += hx * c.expectation((G.x(), [i]))  # type: ignore
+    if hz != 0.0:
+        for i in range(len(g.nodes)):
+            loss += hz * c.expectation((G.z(), [i]))  # type: ignore
+    return loss
+
+
 def qaoa_noise_vag(
     gdata: Graph,
     nnp: Tensor,
@@ -614,7 +633,7 @@ def qaoa_noise_vag(
     measure_func: Optional[Callable[[DMCircuit, Graph], Tensor]] = None,
 ) -> Tuple[Tensor, Tensor]:
     if measure_func is None:
-        measure_func = maxcut_measurement
+        measure_func = maxcut_measurements_tc
     nnp = nnp.numpy()  # real
     pnnp = [nnp[i, j] for i, j in enumerate(preset)]
     pnnp = array_to_tensor(np.array(pnnp))  # complex
@@ -634,6 +653,9 @@ def qaoa_noise_vag(
     gmatrix = tf.constant(gmatrix)
     # print("loss", loss, "g\n", gmatrix)
     return loss, gmatrix
+
+
+## depracated qaoa train
 
 
 def qaoa_train(
