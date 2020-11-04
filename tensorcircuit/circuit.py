@@ -210,6 +210,22 @@ class Circuit:
             self._qcode += k + " " + str(v) + " "
         self._qcode = self._qcode[:-1] + "\n"
 
+    def depolarizing(self, index: int, *, px: float, py: float, pz: float) -> None:
+        # px/y/z here not support differentiation for now
+        assert px + py + pz < 1 and px >= 0 and py >= 0 and pz >= 0
+        status = np.random.choice(a=[0, 1, 2, 3], p=[1 - px - py - pz, px, py, pz])
+        if status == 0:
+            return
+        if status == 1:
+            self.X(index)  # type: ignore
+            return
+        if status == 2:
+            self.Y(index)  # type: ignore
+            return
+        if status == 3:
+            self.Z(index)  # type: ignore
+            return
+
     def is_valid(self) -> bool:
         """
         [WIP], check whether the circuit is legal

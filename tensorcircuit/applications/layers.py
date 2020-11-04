@@ -187,6 +187,29 @@ def generate_double_gate_layer_bitflip(gates: str) -> None:
     setattr(thismodule, gates + "layer_bitflip", f)
 
 
+def generate_double_gate_layer_bitflip_mc(gates: str) -> None:
+    def f(
+        circuit: Circuit, symbol: Union[Tensor, float], g: Graph, *params: float
+    ) -> Circuit:
+        symbol0 = _resolve(symbol)
+        for e in g.edges:
+            qubit1, qubit2 = e
+            getattr(thismodule, gates + "gate")(
+                circuit,
+                qubit1,
+                qubit2,
+                -symbol0 * g[e[0]][e[1]].get("weight", 1.0) * 2,
+            )  ## should be better as * 2 # e^{-i\theta H}, H=-ZZ
+            circuit.depolarizing(e[0], px=params[0], py=params[1], pz=params[2])
+            circuit.depolarizing(e[1], px=params[0], py=params[1], pz=params[2])
+        return circuit
+
+    f.__doc__ = """%slayer_bitflip_mc""" % gates
+    f.__repr__ = """%slayer_bitflip_mc""" % gates  # type: ignore
+    f.__trainable__ = True  # type: ignore
+    setattr(thismodule, gates + "layer_bitflip_mc", f)
+
+
 def generate_double_layer_block(gates: Tuple[str]) -> None:
     d1, d2 = gates[0], gates[1]  # type: ignore
 
@@ -213,11 +236,29 @@ for gates in itertools.product(*[["x", "y", "z"] for _ in range(2)]):
     generate_double_gate_layer(gates)  # type: ignore
     generate_any_double_gate_layer(gates)  # type: ignore
     generate_double_gate_layer_bitflip(gates)  # type: ignore
+    generate_double_gate_layer_bitflip_mc(gates)  # type: ignore
+
 
 for gates in itertools.product(
     *[["rx", "ry", "rz", "xx", "yy", "zz"] for _ in range(2)]
 ):
     generate_double_layer_block(gates)  # type: ignore
+
+
+def bitfliplayer(ci: DMCircuit, g: Graph, px: float, py: float, pz: float) -> None:
+    n = len(g.nodes)
+    for i in range(n):
+        ci.apply_general_kraus(depolarizingchannel(px, py, pz), [(i,)])
+    bitfliplayer.__repr__ = """bitfliplayer"""  # type: ignore
+    bitfliplayer.__trainable__ = True  # type: ignore
+
+
+def bitfliplayer_mc(ci: Circuit, g: Graph, px: float, py: float, pz: float) -> None:
+    n = len(g.nodes)
+    for i in range(n):
+        ci.depolarizing(i, px=px, py=py, pz=pz)
+    bitfliplayer.__repr__ = """bitfliplayer_mc"""  # type: ignore
+    bitfliplayer.__trainable__ = True  # type: ignore
 
 
 ## below is similar layer but in cirq API instead of tensrocircuit native API
@@ -384,8 +425,8 @@ def generate_cirq_any_double_gate_layer(gates: str) -> None:
             )  ## should be better as * 2 # e^{-i\theta H}, H=-ZZ
         return circuit
 
-    f.__doc__ = """%slayer""" % gates
-    f.__repr__ = """%slayer""" % gates  # type: ignore
+    f.__doc__ = """any%slayer""" % gates
+    f.__repr__ = """any%slayer""" % gates  # type: ignore
     f.__trainable__ = True  # type: ignore
     setattr(thismodule, "cirqany" + gates + "layer", f)
 
@@ -404,11 +445,3 @@ for gates in itertools.product(*[["x", "y", "z"] for _ in range(2)]):
 generate_cirq_double_gate_layer("swap")
 generate_cirq_any_double_gate_layer("swap")
 generate_cirq_double_gate_layer("cnot")
-
-
-def bitfliplayer(ci: DMCircuit, g: Graph, px: float, py: float, pz: float) -> None:
-    n = len(g.nodes)
-    for i in range(n):
-        ci.apply_general_kraus(depolarizingchannel(px, py, pz), [(i,)])
-    bitfliplayer.__repr__ = """bitfliplayer"""  # type: ignore
-    bitfliplayer.__trainable__ = True  # type: ignore

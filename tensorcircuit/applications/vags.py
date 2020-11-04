@@ -573,9 +573,13 @@ def noise_forward(
     preset: Sequence[int],
     g: Graph,
     measure_func: Callable[[DMCircuit, Graph], Tensor],
+    is_mc: bool = False,
 ) -> Tensor:
     n = len(g.nodes)
-    ci = DMCircuit(n)
+    if is_mc is True:
+        ci = Circuit(n)
+    else:
+        ci = DMCircuit(n)  # type: ignore
     cset = get_op_pool()
     for i, j in enumerate(preset):
         if len(cset[j]) == 3:  # (rxlayer, noiselayer, [0.2])
@@ -592,7 +596,7 @@ def noise_forward(
         else:  # len == 1
             cset[j](ci, theta[i], g)
 
-    loss = measure_func(ci, g)
+    loss = measure_func(ci, g)  # type: ignore
     return loss
 
 
@@ -631,15 +635,24 @@ def qaoa_noise_vag(
     nnp: Tensor,
     preset: Sequence[int],
     measure_func: Optional[Callable[[DMCircuit, Graph], Tensor]] = None,
+    forward_func: Optional[
+        Callable[
+            [Tensor, Sequence[int], Graph, Callable[[DMCircuit, Graph], Tensor]],
+            Tensor,
+        ]
+    ] = None,
+    **kws: Any,
 ) -> Tuple[Tensor, Tensor]:
     if measure_func is None:
         measure_func = maxcut_measurements_tc
+    if forward_func is None:
+        forward_func = noise_forward
     nnp = nnp.numpy()  # real
     pnnp = [nnp[i, j] for i, j in enumerate(preset)]
     pnnp = array_to_tensor(np.array(pnnp))  # complex
     with tf.GradientTape() as t:
         t.watch(pnnp)
-        loss = noise_forward(pnnp, preset, gdata, measure_func)
+        loss = forward_func(pnnp, preset, gdata, measure_func, **kws)  # type: ignore
         loss = tf.math.real(loss)
         gr = t.gradient(loss, pnnp)
     if gr is None:
