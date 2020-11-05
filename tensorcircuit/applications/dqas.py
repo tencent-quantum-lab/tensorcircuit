@@ -600,6 +600,26 @@ def parallel_qaoa_train(
     return result_list
 
 
+def evaluate_everyone(
+    vag_func: Any,
+    gdata: Iterator[Any],
+    nnp: Tensor,
+    presets: Sequence[Sequence[List[int]]],
+    batch: int = 1,
+) -> Sequence[Tuple[Tensor, Tensor]]:
+    losses = []
+    if not isinstance(nnp, tf.Tensor):
+        nnp = tf.Variable(initial_value=nnp)
+
+    for preset in presets:
+        loss = 0
+        for i, g in zip(range(batch), gdata):
+            loss += vag_func(g, nnp, preset)[0]
+        loss /= batch  # type: ignore
+        losses.append((preset, loss.numpy()))  # type: ignore
+    return losses
+
+
 ## probabilisitic model based DQAS
 
 
@@ -610,8 +630,8 @@ def van_sample(
     with tf.GradientTape(persistent=True) as t:
         sample, xhat = prob_model.sample(batch_size)
         lnprob = prob_model._log_prob(sample, xhat)
-    for i in range(batch_size):
-        glnprob_list.append(t.gradient(lnprob[i], prob_model.variables))
+        for i in range(batch_size):
+            glnprob_list.append(t.gradient(lnprob[i], prob_model.variables))
     sample = tf.argmax(sample, axis=-1)
     sample_list = [sample[i] for i in range(batch_size)]
     del t
@@ -764,7 +784,6 @@ def DQAS_search_pmb(
             costl = []
 
             presets, glnprobs = sample_func(prob_model, batch)
-
             if stp_regularization is not None:
                 with tf.GradientTape() as t:
                     stp_penalty = stp_regularization(prob_model, nnp)

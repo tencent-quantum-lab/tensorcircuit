@@ -536,6 +536,7 @@ def evaluate_vag(
     """
     value and gradient, currently only tensorflow backend is supported
     jax and numpy seems to be slow in circuit simulation anyhow.
+    *deprecated*
 
     :param params:
     :param preset:
@@ -600,7 +601,7 @@ def noise_forward(
     return loss
 
 
-def maxcut_measurements_tc(c: DMCircuit, g: Graph) -> Tensor:
+def maxcut_measurements_tc(c: Union[Circuit, DMCircuit], g: Graph) -> Tensor:
     loss = 0.0
     for e in g.edges:
         loss += (
@@ -612,7 +613,11 @@ def maxcut_measurements_tc(c: DMCircuit, g: Graph) -> Tensor:
 
 
 def tfim_measurements_tc(
-    c: DMCircuit, g: Graph, hzz: float = 1.0, hx: float = 0.0, hz: float = 0.0
+    c: Union[Circuit, DMCircuit],
+    g: Graph,
+    hzz: float = 1.0,
+    hx: float = 0.0,
+    hz: float = 0.0,
 ) -> Tensor:
     loss = 0.0
     for e in g.edges:
@@ -627,6 +632,33 @@ def tfim_measurements_tc(
     if hz != 0.0:
         for i in range(len(g.nodes)):
             loss += hz * c.expectation((G.z(), [i]))  # type: ignore
+    return loss
+
+
+def heisenberg_measurements_tc(
+    c: Union[Circuit, DMCircuit],
+    g: Graph,
+    hzz: float = 1.0,
+    hxx: float = 1.0,
+    hyy: float = 1.0,
+) -> Tensor:
+    loss = 0.0
+    for e in g.edges:
+        loss += (
+            g[e[0]][e[1]]["weight"]
+            * hzz
+            * c.expectation((G.z(), [e[0]]), (G.z(), [e[1]]))  # type: ignore
+        )
+        loss += (
+            g[e[0]][e[1]]["weight"]
+            * hyy
+            * c.expectation((G.y(), [e[0]]), (G.y(), [e[1]]))  # type: ignore
+        )
+        loss += (
+            g[e[0]][e[1]]["weight"]
+            * hxx
+            * c.expectation((G.x(), [e[0]]), (G.x(), [e[1]]))  # type: ignore
+        )
     return loss
 
 
@@ -653,8 +685,8 @@ def qaoa_noise_vag(
     with tf.GradientTape() as t:
         t.watch(pnnp)
         loss = forward_func(pnnp, preset, gdata, measure_func, **kws)  # type: ignore
-        loss = tf.math.real(loss)
-        gr = t.gradient(loss, pnnp)
+        loss = cons.backend.real(loss)
+    gr = t.gradient(loss, pnnp)
     if gr is None:
         # if all gates in preset are not trainable, then gr returns None instead of 0s
         gr = tf.zeros_like(pnnp)
@@ -746,6 +778,73 @@ def qaoa_train(
             print("overlap:", overlap_history[-1])
             print("trainable weights:", theta.numpy())
     return theta.numpy(), mean_history, gibbs_history, overlap_history
+
+
+def compose_tc_circuit_with_multiple_pools(
+    theta: Tensor,
+    preset: Sequence[int],
+    g: Graph,
+    pool_choice: Sequence[int],
+    cset: Optional[Sequence[Any]] = None,
+    measure_func: Optional[Callable[[DMCircuit, Graph], Tensor]] = None,
+) -> Circuit:
+    n = len(g.nodes)
+    ci = Circuit(n)
+    if cset is None:
+        cset = get_op_pool()
+    mem = 0
+    for i, j in enumerate(preset):
+        ele = cset[pool_choice[i]][j]
+        if isinstance(ele, tuple) or isinstance(ele, list):
+            gate = ele[0]
+            index = ele[1]
+        else:
+            index = [mem % n]
+            gate = ele
+            mem += 1
+        if gate.lower() in ["cnot"]:
+            getattr(ci, gate)(*index)
+        else:
+            getattr(ci, gate)(*index, theta=theta[i])
+    print(ci._qcode)
+    return ci
+
+
+def gatewise_vqe_vag(
+    gdata: Graph,
+    nnp: Tensor,
+    preset: Sequence[int],
+    pool_choice: Sequence[int],
+    measure_func: Optional[Callable[[Union[Circuit, DMCircuit], Graph], Tensor]] = None,
+) -> Tuple[Tensor, Tensor]:
+    nnp = nnp.numpy()  # real
+    pnnp = []
+    cset = get_op_pool()
+    if measure_func is None:
+        measure_func = maxcut_measurements_tc
+    for i, j in enumerate(preset):
+        k = pool_choice[i]
+        if j >= len(cset[k]):
+            j = len(cset[k]) - 1
+            preset[i] = j  # type: ignore
+        pnnp.append(nnp[i, j])
+    pnnp = array_to_tensor(np.array(pnnp))  # complex
+    with tf.GradientTape() as tape:
+        tape.watch(pnnp)
+        ci = compose_tc_circuit_with_multiple_pools(pnnp, preset, gdata, pool_choice)
+        loss = measure_func(ci, gdata)
+        loss = cons.backend.real(loss)
+    gr = tape.gradient(loss, pnnp)
+    if gr is None:
+        # if all gates in preset are not trainable, then gr returns None instead of 0s
+        gr = tf.zeros_like(pnnp)
+    gr = cons.backend.real(gr)
+    gr = tf.where(tf.math.is_nan(gr), 0.0, gr)
+    gmatrix = np.zeros_like(nnp)
+    for i, j in enumerate(preset):
+        gmatrix[i, j] = gr[i]
+    gmatrix = tf.constant(gmatrix)
+    return loss, gmatrix
 
 
 ## functions for quantum Hamiltonian QAOA with tensorflow quantum backend
