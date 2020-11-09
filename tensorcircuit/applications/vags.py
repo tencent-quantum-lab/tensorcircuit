@@ -595,7 +595,7 @@ def noise_forward(
             layer, params = cset[j]
             layer(ci, theta[i], g, *params)
         else:  # len == 1
-            cset[j](ci, theta[i], g)
+            cset[j][0](ci, theta[i], g)
 
     loss = measure_func(ci, g)  # type: ignore
     return loss

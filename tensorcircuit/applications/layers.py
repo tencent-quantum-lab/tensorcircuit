@@ -210,6 +210,31 @@ def generate_double_gate_layer_bitflip_mc(gates: str) -> None:
     setattr(thismodule, gates + "layer_bitflip_mc", f)
 
 
+def generate_any_double_gate_layer_bitflip_mc(gates: str) -> None:
+    def f(
+        circuit: Circuit, symbol: Union[Tensor, float], g: Graph = None, *params: float
+    ) -> Circuit:
+        if g is None:
+            g = nx.complete_graph(circuit._nqubits)
+        for i, e in enumerate(g.edges):
+            qubit1, qubit2 = e
+            getattr(thismodule, gates + "gate")(
+                circuit,
+                qubit1,
+                qubit2,
+                -symbol[i] * g[e[0]][e[1]].get("weight", 1.0) * 2,  # type: ignore
+            )
+            ## should be better as * 2 # e^{-i\theta H}, H=-ZZ
+            circuit.depolarizing(e[0], px=params[0], py=params[1], pz=params[2])
+            circuit.depolarizing(e[1], px=params[0], py=params[1], pz=params[2])
+        return circuit
+
+    f.__doc__ = """any%slayer_bitflip_mc""" % gates
+    f.__repr__ = """any%slayer_bitflip_mc""" % gates  # type: ignore
+    f.__trainable__ = True  # type: ignore
+    setattr(thismodule, "any" + gates + "layer_bitflip_mc", f)
+
+
 def generate_double_layer_block(gates: Tuple[str]) -> None:
     d1, d2 = gates[0], gates[1]  # type: ignore
 
@@ -237,6 +262,7 @@ for gates in itertools.product(*[["x", "y", "z"] for _ in range(2)]):
     generate_any_double_gate_layer(gates)  # type: ignore
     generate_double_gate_layer_bitflip(gates)  # type: ignore
     generate_double_gate_layer_bitflip_mc(gates)  # type: ignore
+    generate_any_double_gate_layer_bitflip_mc(gates)  # type: ignore
 
 
 for gates in itertools.product(

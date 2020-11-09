@@ -1,12 +1,14 @@
 import sys
 import os
 import numpy as np
+import pytest
 
 thisfile = os.path.abspath(__file__)
 modulepath = os.path.dirname(os.path.dirname(thisfile))
 
 sys.path.insert(0, modulepath)
 import tensorcircuit as tc
+from .conftest import tfb
 
 
 def test_wavefunction():
@@ -93,3 +95,32 @@ def test_ad():
     tc.set_backend("jax")
     universal_ad()
     tc.set_backend("numpy")
+
+
+@pytest.mark.parametrize("backend", [None, tfb])
+def test_expectation_between_two_states(backend):
+    zp = np.array([1.0, 0.0])
+    zd = np.array([0.0, 1.0])
+    assert tc.expectation((tc.gates.y(), [0]), ket=zp, bra=zd) == 1j
+
+    c = tc.Circuit(3)
+    c.H(0)
+    c.ry(1, theta=tc.num_to_tensor(0.8))
+    c.cnot(1, 2)
+
+    state = c.wavefunction()
+    x1z2 = [(tc.gates.x(), [0]), (tc.gates.z(), [1])]
+    e1 = c.expectation(*x1z2)
+    e2 = tc.expectation(*x1z2, ket=state, bra=state, normalization=True)
+    assert np.allclose(e2, e1)
+
+    c = tc.Circuit(3)
+    c.H(0)
+    c.ry(1, theta=tc.num_to_tensor(0.8 + 0.7j))
+    c.cnot(1, 2)
+
+    state = c.wavefunction()
+    x1z2 = [(tc.gates.x(), [0]), (tc.gates.z(), [1])]
+    e1 = c.expectation(*x1z2) / tc.backend.norm(state) ** 2
+    e2 = tc.expectation(*x1z2, ket=state, normalization=True)
+    assert np.allclose(e2, e1)

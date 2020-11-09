@@ -3,7 +3,7 @@ quantum circuit class
 """
 
 from functools import partial
-from typing import Tuple, List, Callable, Union, Optional
+from typing import Tuple, List, Callable, Union, Optional, Any
 
 import numpy as np
 import tensornetwork as tn
@@ -13,6 +13,7 @@ from . import gates
 from .cons import dtypestr, npdtype, backend, contractor
 
 Gate = gates.Gate
+Tensor = Any
 
 
 class Circuit:
@@ -435,3 +436,51 @@ class Circuit:
                         label=edge_label,
                     )
         return graph
+
+
+def expectation(
+    *ops: Tuple[tn.Node, List[int]],
+    ket: Tensor,
+    bra: Optional[Tensor] = None,
+    conj: bool = True,
+    normalization: bool = False,
+) -> Tensor:
+    if bra is None:
+        bra = ket
+    if conj is True:
+        bra = backend.conj(bra)
+    ket = backend.reshape(ket, [-1])
+    N = ket.shape[0]
+    n = int(np.log(N) / np.log(2))
+    ket = backend.reshape(ket, [2 for _ in range(n)])
+    bra = backend.reshape(bra, [2 for _ in range(n)])
+    ket = Gate(ket)
+    bra = Gate(bra)
+    occupied = set()
+    nodes = [ket, bra]
+    if normalization is True:
+        ndict, _ = tn.copy(nodes)
+        nket = ndict[ket]
+        nbra = ndict[bra]
+    for op, index in ops:
+        noe = len(index)
+        for j, e in enumerate(index):
+            if e in occupied:
+                raise ValueError("Cannot measure two operators in one index")
+            bra[e] ^ op.get_edge(j)
+            ket[e] ^ op.get_edge(j + noe)
+            occupied.add(e)
+        nodes.append(op)
+    for j in range(n):
+        if j not in occupied:  # edge1[j].is_dangling invalid here!
+            ket[j] ^ bra[j]
+    # self._nodes = nodes1
+    num = contractor(nodes).tensor
+    if normalization is True:
+        nnodes = [nket, nbra]
+        for j in range(n):
+            nket[j] ^ nbra[j]
+        den = contractor(nnodes).tensor
+    else:
+        den = 1.0
+    return num / den
