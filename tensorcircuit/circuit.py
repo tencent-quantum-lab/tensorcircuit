@@ -22,7 +22,7 @@ class Circuit:
     )
     vgates = ["r", "cr", "rx", "ry", "rz", "any", "exp"]
 
-    def __init__(self, nqubits: int) -> None:
+    def __init__(self, nqubits: int, inputs: Optional[Tensor] = None) -> None:
         _prefix = "qb-"
         if nqubits < 2:
             raise ValueError(
@@ -30,63 +30,73 @@ class Circuit:
             )
 
         # Get nodes on the interior
-        nodes = [
-            tn.Node(
-                np.array(
-                    [
-                        [[1.0]],
-                        [[0.0]],
-                    ],
-                    dtype=npdtype,
+        if inputs is None:
+            nodes = [
+                tn.Node(
+                    np.array(
+                        [
+                            [[1.0]],
+                            [[0.0]],
+                        ],
+                        dtype=npdtype,
+                    ),
+                    name=_prefix + str(x + 1),
+                )
+                for x in range(nqubits - 2)
+            ]
+
+            # Get nodes on the end
+            nodes.insert(
+                0,
+                tn.Node(
+                    np.array(
+                        [
+                            [1.0],
+                            [0.0],
+                        ],
+                        dtype=npdtype,
+                    ),
+                    name=_prefix + str(0),
                 ),
-                name=_prefix + str(x + 1),
             )
-            for x in range(nqubits - 2)
-        ]
-
-        # Get nodes on the end
-        nodes.insert(
-            0,
-            tn.Node(
-                np.array(
-                    [
-                        [1.0],
-                        [0.0],
-                    ],
-                    dtype=npdtype,
-                ),
-                name=_prefix + str(0),
-            ),
-        )
-        nodes.append(
-            tn.Node(
-                np.array(
-                    [
-                        [1.0],
-                        [0.0],
-                    ],
-                    dtype=npdtype,
-                ),
-                name=_prefix + str(nqubits - 1),
+            nodes.append(
+                tn.Node(
+                    np.array(
+                        [
+                            [1.0],
+                            [0.0],
+                        ],
+                        dtype=npdtype,
+                    ),
+                    name=_prefix + str(nqubits - 1),
+                )
             )
-        )
 
-        # Connect edges between middle nodes
-        for i in range(1, nqubits - 2):
-            tn.connect(nodes[i].get_edge(2), nodes[i + 1].get_edge(1))
+            # Connect edges between middle nodes
+            for i in range(1, nqubits - 2):
+                tn.connect(nodes[i].get_edge(2), nodes[i + 1].get_edge(1))
 
-        # Connect end nodes to the adjacent middle nodes
-        if nqubits < 3:
-            tn.connect(nodes[0].get_edge(1), nodes[1].get_edge(1))
-        else:
-            tn.connect(
-                nodes[0].get_edge(1), nodes[1].get_edge(1)
-            )  # something wrong here?
-            tn.connect(nodes[-1].get_edge(1), nodes[-2].get_edge(2))
+            # Connect end nodes to the adjacent middle nodes
+            if nqubits < 3:
+                tn.connect(nodes[0].get_edge(1), nodes[1].get_edge(1))
+            else:
+                tn.connect(
+                    nodes[0].get_edge(1), nodes[1].get_edge(1)
+                )  # something wrong here?
+                tn.connect(nodes[-1].get_edge(1), nodes[-2].get_edge(2))
+            self._front = [n.get_edge(0) for n in nodes]
+        else:  # provide input function
+            inputs = backend.reshape(inputs, [-1])
+            N = inputs.shape[0]
+            n = int(np.log(N) / np.log(2))
+            assert n == nqubits
+            inputs = backend.reshape(inputs, [2 for _ in range(n)])
+            inputs = Gate(inputs)
+            nodes = [inputs]
+            self._front = [inputs.get_edge(i) for i in range(n)]
 
         self._nqubits = nqubits
         self._nodes = nodes
-        self._front = [n.get_edge(0) for n in nodes]
         self._start = nodes
         self._meta_apply()
         self._qcode = ""
@@ -459,9 +469,8 @@ def expectation(
     occupied = set()
     nodes = [ket, bra]
     if normalization is True:
-        ndict, _ = tn.copy(nodes)
-        nket = ndict[ket]
-        nbra = ndict[bra]
+        normket = backend.norm(ket.tensor)
+        normbra = backend.norm(bra.tensor)
     for op, index in ops:
         noe = len(index)
         for j, e in enumerate(index):
@@ -477,10 +486,7 @@ def expectation(
     # self._nodes = nodes1
     num = contractor(nodes).tensor
     if normalization is True:
-        nnodes = [nket, nbra]
-        for j in range(n):
-            nket[j] ^ nbra[j]
-        den = contractor(nnodes).tensor
+        den = normket * normbra
     else:
         den = 1.0
     return num / den

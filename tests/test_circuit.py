@@ -124,3 +124,26 @@ def test_expectation_between_two_states(backend):
     e1 = c.expectation(*x1z2) / tc.backend.norm(state) ** 2
     e2 = tc.expectation(*x1z2, ket=state, normalization=True)
     assert np.allclose(e2, e1)
+
+
+@pytest.mark.parametrize("backend", [None, tfb])
+def test_any_inputs_state(backend):
+    c = tc.Circuit(2, inputs=tc.array_to_tensor(np.array([0.0, 0.0, 0.0, 1.0])))
+    c.X(0)
+    z0 = c.expectation((tc.gates.z(), [0]))
+    assert z0 == 1.0
+    c = tc.Circuit(2, inputs=tc.array_to_tensor(np.array([0.0, 0.0, 1.0, 0.0])))
+    c.X(0)
+    z0 = c.expectation((tc.gates.z(), [0]))
+    assert z0 == 1.0
+    c = tc.Circuit(2, inputs=tc.array_to_tensor(np.array([1.0, 0.0, 0.0, 0.0])))
+    c.X(0)
+    z0 = c.expectation((tc.gates.z(), [0]))
+    assert z0 == -1.0
+    c = tc.Circuit(
+        2,
+        inputs=tc.array_to_tensor(np.array([1 / np.sqrt(2), 0.0, 1 / np.sqrt(2), 0.0])),
+    )
+    c.X(0)
+    z0 = c.expectation((tc.gates.z(), [0]))
+    assert z0 == 0.0
