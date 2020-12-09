@@ -12,7 +12,7 @@ from typing import Sequence, Union, Callable, Any, Optional, Tuple, List
 
 from ..circuit import Circuit
 from ..densitymatrix import DMCircuit
-from ..gates import num_to_tensor
+from ..gates import num_to_tensor, array_to_tensor, _swap_matrix
 from ..channels import depolarizingchannel
 
 thismodule = sys.modules[__name__]
@@ -249,6 +249,35 @@ def generate_double_layer_block(gates: Tuple[str]) -> None:
     f.__repr__ = """%s_%s_block""" % (d1, d2)  # type: ignore
     f.__trainable__ = False if (d1 in Circuit.sgates) and (d2 in Circuit.sgates) else True  # type: ignore
     setattr(thismodule, "%s_%s_block" % (d1, d2), f)
+
+
+def anyswaplayer(circuit: Circuit, symbol: Tensor, g: Graph) -> Circuit:
+    for i, e in enumerate(g.edges):
+        qubit1, qubit2 = e
+        circuit.exp(  # type: ignore
+            qubit1,
+            qubit2,
+            unitary=array_to_tensor(_swap_matrix),
+            theta=symbol[i] * g[e[0]][e[1]].get("weight", 1.0),
+        )
+
+    return circuit
+
+
+def anyswaplayer_bitflip_mc(
+    circuit: Circuit, symbol: Tensor, g: Graph, px: float, py: float, pz: float
+) -> Circuit:
+    for i, e in enumerate(g.edges):
+        qubit1, qubit2 = e
+        circuit.exp(  # type: ignore
+            qubit1,
+            qubit2,
+            unitary=array_to_tensor(_swap_matrix),
+            theta=symbol[i] * g[e[0]][e[1]].get("weight", 1.0),
+        )
+        circuit.depolarizing(e[0], px=px, py=py, pz=pz)
+        circuit.depolarizing(e[1], px=px, py=py, pz=pz)
+    return circuit
 
 
 for gate in ["rx", "ry", "rz", "H", "I"]:

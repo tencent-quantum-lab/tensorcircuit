@@ -18,7 +18,9 @@ Tensor = Any
 
 class Circuit:
     sgates = (
-        ["i", "x", "y", "z", "h", "t", "s", "rs"] + ["cnot", "cz", "swap"] + ["toffoli"]
+        ["i", "x", "y", "z", "h", "t", "s", "rs", "wroot"]
+        + ["cnot", "cz", "swap"]
+        + ["toffoli"]
     )
     vgates = ["r", "cr", "rx", "ry", "rz", "any", "exp"]
 
@@ -28,7 +30,10 @@ class Circuit:
             raise ValueError(
                 f"Number of qubits must be greater than 2 but is {nqubits}."
             )
-
+        if inputs is not None:
+            self.has_inputs = True
+        else:
+            self.has_inputs = False
         # Get nodes on the interior
         if inputs is None:
             nodes = [
@@ -101,6 +106,15 @@ class Circuit:
         self._meta_apply()
         self._qcode = ""
         self._qcode += str(self._nqubits) + "\n"
+
+    def replace_inputs(self, inputs: Tensor) -> None:
+        assert self.has_inputs is True
+        inputs = backend.reshape(inputs, [-1])
+        N = inputs.shape[0]
+        n = int(np.log(N) / np.log(2))
+        assert n == self._nqubits
+        inputs = backend.reshape(inputs, [2 for _ in range(n)])
+        self._nodes[0].tensor = inputs
 
     def _meta_apply(self) -> None:
 

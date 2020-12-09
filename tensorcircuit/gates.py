@@ -32,6 +32,11 @@ _y_matrix = np.array([[0.0, -1j], [1j, 0.0]])
 _z_matrix = np.array([[1.0, 0.0], [0.0, -1.0]])
 _s_matrix = np.array([[1.0, 0.0], [0.0, 1j]])
 _t_matrix = np.array([[1.0, 0.0], [0.0, np.exp(np.pi / 4 * 1j)]])
+_wroot_matrix = (
+    1
+    / np.sqrt(2)
+    * np.array([[1, -1 / np.sqrt(2) * (1 + 1.0j)], [1 / np.sqrt(2) * (1 - 1.0j), 1]])
+)
 
 _cnot_matrix = np.array(
     [

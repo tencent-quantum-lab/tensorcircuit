@@ -583,10 +583,9 @@ def noise_forward(
         ci = DMCircuit(n)  # type: ignore
     cset = get_op_pool()
     for i, j in enumerate(preset):
-        if len(cset[j]) == 3:  # (rxlayer, noiselayer, [0.2])
-            layer, noisemodel, params = cset[j]
-            layer(ci, theta[i], g)
-            noisemodel(ci, g, *params)
+        if len(cset[j]) == 3:  # (noiselayer, graph, [0.2])
+            layer, graph, params = cset[j]
+            layer(ci, theta[i], graph, *params)
         elif len(cset[j]) == 4:  # (rxlayer, graph, noiselayer, [0.1])
             layer, graph, noisemodel, params = cset[j]
             layer(ci, theta[i], graph)
@@ -641,23 +640,24 @@ def heisenberg_measurements_tc(
     hzz: float = 1.0,
     hxx: float = 1.0,
     hyy: float = 1.0,
+    reuse: bool = True,
 ) -> Tensor:
     loss = 0.0
     for e in g.edges:
         loss += (
             g[e[0]][e[1]]["weight"]
             * hzz
-            * c.expectation((G.z(), [e[0]]), (G.z(), [e[1]]))  # type: ignore
+            * c.expectation((G.z(), [e[0]]), (G.z(), [e[1]]), reuse=reuse)  # type: ignore
         )
         loss += (
             g[e[0]][e[1]]["weight"]
             * hyy
-            * c.expectation((G.y(), [e[0]]), (G.y(), [e[1]]))  # type: ignore
+            * c.expectation((G.y(), [e[0]]), (G.y(), [e[1]]), reuse=reuse)  # type: ignore
         )
         loss += (
             g[e[0]][e[1]]["weight"]
             * hxx
-            * c.expectation((G.x(), [e[0]]), (G.x(), [e[1]]))  # type: ignore
+            * c.expectation((G.x(), [e[0]]), (G.x(), [e[1]]), reuse=reuse)  # type: ignore
         )
     return loss
 
@@ -1027,6 +1027,177 @@ def quantum_mp_qaoa_vag(
         gmatrix[i, j, :] = gr[i, :]
     gmatrix = tf.constant(gmatrix)
     return loss[0], gmatrix
+
+
+## explore on enseble qml examples
+
+# mnist data preprocessing
+
+
+def amplitude_encoding(fig: Tensor, qubits: int) -> Tensor:
+    if fig.shape[-1] == 1:
+        fig = tf.reshape(fig, shape=fig.shape[:-1])
+    if len(fig.shape) == 2:
+        fig = fig[tf.newaxis, ...]
+    fig = tf.reshape(fig, shape=(fig.shape[0], fig.shape[1] * fig.shape[2]))
+    norm = tf.linalg.norm(fig, axis=1)
+    norm = norm[..., tf.newaxis]
+    fig = fig / norm
+    fig = tf.concat(
+        [fig, tf.zeros([fig.shape[0], 2 ** qubits - fig.shape[1]], dtype=tf.float64)],
+        axis=1,
+    )
+    return fig
+
+
+def mnist_amplitude_data(a: int, b: int) -> Tensor:
+    def filter_pair(x: Tensor, y: Tensor, a: int, b: int) -> Tuple[Tensor, Tensor]:
+        keep = (y == a) | (y == b)
+        x, y = x[keep], y[keep]
+        y = y == a
+        return x, y
+
+    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+    x_train, x_test = x_train[..., np.newaxis] / 255.0, x_test[..., np.newaxis] / 255.0
+    x_train, y_train = filter_pair(x_train, y_train, a, b)
+    x_test, y_test = filter_pair(x_test, y_test, a, b)
+    x_train_q = amplitude_encoding(x_train, 10)
+    x_test_q = amplitude_encoding(x_test, 10)
+    return (x_train_q, y_train), (x_test_q, y_test)
+
+
+def mnist_generator(
+    x_train: Tensor, y_train: Tensor, batch: int = 1, random: bool = True
+) -> Iterator[Any]:
+    x_train = x_train.numpy()
+    i = np.array(list(range(batch)))
+    while True:
+        if random:
+            i = np.random.randint(low=0, high=x_train.shape[0], size=batch)
+        else:
+            i += batch
+        yield tf.constant(x_train[i]), tf.constant(y_train[i])
+
+
+def generate_random_circuit(
+    inputs: Tensor, nqubits: int = 10, epochs: int = 3, layouts: Tensor = None
+) -> Circuit:
+    inputs = tf.cast(inputs, dtype=tf.complex64)
+    c = Circuit(nqubits, inputs=inputs)
+    if layouts is None:
+        layouts = np.random.choice([0, 1, 2], size=[epochs, nqubits])
+    layouts = tf.reshape(layouts, shape=[epochs, nqubits])
+    for epoch in range(epochs):
+        for i in range(nqubits):
+            flg = layouts[epoch, i]
+            if flg == 0:
+                c.rx(i, theta=num_to_tensor(np.pi / 2))  # type: ignore
+            elif flg == 1:
+                c.ry(i, theta=num_to_tensor(np.pi / 2))  # type: ignore
+            else:
+                c.wroot(i)  # type: ignore
+        for i in range(nqubits):  # entangling layer
+            c.swap(i, (i + 1) % nqubits)  # type: ignore
+    return c
+
+
+def naive_qml_vag(
+    gdata: Graph,
+    nnp: Tensor,
+    preset: Sequence[int],
+    nqubits: int = 10,
+    epochs: int = 3,
+    target: int = 0,
+) -> Tuple[Tensor, Tensor]:
+    xs, ys = gdata
+    loss = 0.0
+    for x, y in zip(xs, ys):
+        circuit = generate_random_circuit(
+            x, nqubits=nqubits, epochs=epochs, layouts=preset
+        )
+        value = circuit.expectation(
+            (
+                G.z(),  # type: ignore
+                [
+                    target,
+                ],
+            )
+        )
+        y = tf.cast(y, dtype=tf.complex64)
+        y = 2 * y - 1
+        loss += (value - y) ** 2
+    return tf.constant(tf.cast(loss, dtype=tf.float32)), tf.zeros_like(nnp)  # MSE loss
+
+
+def train_qml_vag(
+    gdata: Graph,
+    nnp: Tensor,
+    preset: Optional[Sequence[int]] = None,
+    nqubits: int = 10,
+    epochs: int = 3,
+    target: int = 0,
+    batch: int = 64,
+    validation: bool = False,
+) -> Any:
+    xs, ys = gdata
+    with tf.GradientTape() as tape:
+        tape.watch(nnp)
+        cnnp = tf.cast(nnp, dtype=tf.complex64)
+        loss = 0.0
+        c = Circuit(nqubits, inputs=np.ones([1024], dtype=np.complex64) / 2 ** 5)
+        for epoch in range(epochs):
+            for i in range(10):
+                c.rx(i, theta=cnnp[2 * epoch, i])  # type: ignore
+                c.ry(i, theta=cnnp[2 * epoch + 1, i])  # type: ignore
+            for i in range(10):
+                c.swap(i, (i + 1) % 10)  # type: ignore
+        count = 0
+        for x, y in zip(xs, ys):
+            y = 2 * tf.cast(y, dtype=tf.float32) - 1
+            c.replace_inputs(tf.cast(x, dtype=tf.complex64))
+            flg = False
+            yp = 0.0
+            for i in range(nqubits):
+                yp += cnnp[2 * epochs, i] * (
+                    c.expectation(
+                        (
+                            G.z(),  # type: ignore
+                            [
+                                i,
+                            ],
+                        ),
+                        reuse=False,
+                    )
+                    / nqubits
+                    / 2
+                )
+                flg = True
+
+                yp += cnnp[2 * epochs + 1, i] * (
+                    c.expectation(
+                        (
+                            G.y(),  # type: ignore
+                            [
+                                i,
+                            ],
+                        ),
+                        reuse=False,
+                    )
+                    / nqubits
+                    / 2
+                )
+            yp = tf.cast(yp, dtype=tf.float32)
+            yp = tf.math.atan(yp) / 1.5707963
+
+            loss += (yp - y) ** 2
+            if (yp - y) ** 2 < 1:
+                count += 1
+        # print("accuracy:", count / batch)
+        gr = tape.gradient(loss, cnnp)
+        if not validation:
+            return tf.constant(count / batch, dtype=tf.float32), gr
+        else:
+            return count / batch  # evaluate as validation kernel
 
 
 ## some utils

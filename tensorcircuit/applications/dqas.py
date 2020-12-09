@@ -694,6 +694,12 @@ def DQAS_search_pmb(
     prethermal_opt: Optional[Opt] = None,
     loss_func: Optional[Callable[[Tensor], Tensor]] = None,
     loss_derivative_func: Optional[Callable[[Tensor], Tensor]] = None,
+    validate_period: int = 0,
+    validate_batch: int = 1,
+    validate_func: Optional[
+        Callable[[Any, Tensor, Sequence[int]], Tuple[Tensor, Tensor]]
+    ] = None,
+    vg: Optional[Iterator[Any]] = None,
 ) -> Tuple[Tensor, Tensor, Sequence[Any]]:
     """
     probabilistic model based DQAS, can use extensively for DQAS case for ``NMF`` probabilistic model
@@ -733,6 +739,8 @@ def DQAS_search_pmb(
         sample_func = van_sample
     if g is None:
         g = void_generator()
+    if vg is None:
+        vg = void_generator()
     if parallel_num > 0:
         pool = get_context("spawn").Pool(parallel_num)
         # use spawn model instead of default fork which has threading lock issues
@@ -827,6 +835,13 @@ def DQAS_search_pmb(
                     )
                     deri_nnp.append(gnnp)
                     costl.append(loss.numpy())
+                if validate_period != 0 and epoch % validate_period == 0:
+                    accuracy = []
+                    validate_presets, _ = sample_func(prob_model, validate_batch)
+                    for i, gdata in zip(range(validate_batch), vg):
+                        accuracy.append(validate_func(gdata, nnp, validate_presets[i]))  # type: ignore
+                    print("accuracy on validation set:", np.mean(accuracy))
+
             else:  ## parallel mode for batch evaluation
                 args_list = []
                 for i, gdata in zip(range(batch), g):
@@ -932,6 +947,20 @@ def DQAS_search_pmb(
 
             if history_func is not None:
                 history.append(history_func())
+
+            if validate_period != 0 and epoch % validate_period == 0:
+                args_list = []
+                validate_presets, _ = sample_func(prob_model, validate_batch)
+
+                for i, gdata in zip(range(validate_batch), vg):
+                    args_list.append((gdata, nnp, validate_presets[i].numpy()))
+                # print(args_list)
+                parallel_validation_result = pool.starmap(validate_func, args_list)  # type: ignore
+                print("--------")
+                print(
+                    "accuracy on validation set:", np.mean(parallel_validation_result)
+                )
+
         if parallel_num > 0:
             pool.close()
         return prob_model, nnp, history
