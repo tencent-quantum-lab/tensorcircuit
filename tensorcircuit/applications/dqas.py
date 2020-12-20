@@ -948,7 +948,7 @@ def DQAS_search_pmb(
             if history_func is not None:
                 history.append(history_func())
 
-            if validate_period != 0 and epoch % validate_period == 0:
+            if validate_period != 0 and (epoch + 1) % validate_period == 0:
                 args_list = []
                 validate_presets, _ = sample_func(prob_model, validate_batch)
 
@@ -957,9 +957,17 @@ def DQAS_search_pmb(
                 # print(args_list)
                 parallel_validation_result = pool.starmap(validate_func, args_list)  # type: ignore
                 print("--------")
-                print(
-                    "accuracy on validation set:", np.mean(parallel_validation_result)
-                )
+                if isinstance(parallel_validation_result[0], dict):
+                    for kk in parallel_validation_result[0]:
+                        print(
+                            "%s on validation set:" % kk,
+                            np.mean([p[kk] for p in parallel_validation_result]),
+                        )
+                else:
+                    print(
+                        "accuracy on validation set:",
+                        np.mean(parallel_validation_result),
+                    )
 
         if parallel_num > 0:
             pool.close()

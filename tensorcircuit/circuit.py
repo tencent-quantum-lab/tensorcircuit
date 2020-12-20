@@ -382,12 +382,12 @@ class Circuit:
     def expectation(
         self, *ops: Tuple[tn.Node, List[int]], reuse: bool = True
     ) -> tn.Node.tensor:
-        if not reuse:
-            nodes1, edge1 = self._copy()
-            nodes2, edge2 = self._copy(conj=True)
-        else:  # reuse
-            nodes1, edge1 = self._copy_state_tensor()
-            nodes2, edge2 = self._copy_state_tensor(conj=True)
+        # if not reuse:
+        #     nodes1, edge1 = self._copy()
+        #     nodes2, edge2 = self._copy(conj=True)
+        # else:  # reuse
+        nodes1, edge1 = self._copy_state_tensor(reuse=reuse)
+        nodes2, edge2 = self._copy_state_tensor(conj=True, reuse=reuse)
         occupied = set()
         for op, index in ops:
             noe = len(index)
