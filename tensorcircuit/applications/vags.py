@@ -640,6 +640,9 @@ def heisenberg_measurements_tc(
     hzz: float = 1.0,
     hxx: float = 1.0,
     hyy: float = 1.0,
+    hz: float = 0.0,
+    hx: float = 0.0,
+    hy: float = 0.0,
     reuse: bool = True,
 ) -> Tensor:
     loss = 0.0
@@ -659,6 +662,15 @@ def heisenberg_measurements_tc(
             * hxx
             * c.expectation((G.x(), [e[0]]), (G.x(), [e[1]]), reuse=reuse)  # type: ignore
         )
+    if hx != 0:
+        for i in range(len(g.nodes)):
+            loss += hx * c.expectation((G.x(), [i]), reuse=reuse)  # type: ignore
+    if hy != 0:
+        for i in range(len(g.nodes)):
+            loss += hy * c.expectation((G.y(), [i]), reuse=reuse)  # type: ignore
+    if hz != 0:
+        for i in range(len(g.nodes)):
+            loss += hz * c.expectation((G.z(), [i]), reuse=reuse)  # type: ignore
     return loss
 
 

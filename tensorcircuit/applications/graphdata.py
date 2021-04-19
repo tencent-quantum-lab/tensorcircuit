@@ -390,7 +390,7 @@ def split_ansatz(g: Graph, split: int = 2) -> Sequence[Graph]:
     return gs
 
 
-def graph1D(n: int) -> Graph:
+def graph1D(n: int, pbc: bool = True) -> Graph:
     """
     1D PBC chain with n sites
 
@@ -401,8 +401,10 @@ def graph1D(n: int) -> Graph:
     g = nx.Graph()
     for i in range(n):
         g.add_node(i)
-    for i in range(n):
-        g.add_edge(i, (i + 1) % n, weight=1.0)
+    for i in range(n - 1):
+        g.add_edge(i, i + 1, weight=1.0)
+    if pbc is True:
+        g.add_edge(n - 1, 0, weight=1.0)
     return g
 
 

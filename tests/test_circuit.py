@@ -162,3 +162,14 @@ def test_any_inputs_state(backend):
     c.X(0)
     z0 = c.expectation((tc.gates.z(), [0]))
     assert z0 == 0.0
+
+
+@pytest.mark.parametrize("backend", [None, tfb])
+def test_postselection(backend):
+    c = tc.Circuit(3)
+    c.H(1)
+    c.H(2)
+    c.mid_measurement(1, 1)
+    c.mid_measurement(2, 1)
+    s = c.wavefunction()[0]
+    assert round(np.real(s[3]), 1) == 0.5

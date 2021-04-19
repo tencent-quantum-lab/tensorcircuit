@@ -54,6 +54,16 @@ _cz_matrix = np.array(
         [0.0, 0.0, 0.0, -1.0],
     ]
 )
+
+_cy_matrix = np.array(
+    [
+        [1.0, 0.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, -1.0j],
+        [0.0, 0.0, 1.0j, 0.0],
+    ]
+)
+
 _swap_matrix = np.array(
     [
         [1.0, 0.0, 0.0, 0.0],
@@ -264,7 +274,8 @@ def any_gate(unitary: Tensor) -> Gate:
 
     :param unitary: corresponding gate
     """
-    return Gate(deepcopy(unitary), name="any")
+    # deepcopy roadblocks tf.function, pls take care of the unitary outside
+    return Gate(unitary, name="any")
 
 
 any = any_gate

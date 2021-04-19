@@ -19,7 +19,7 @@ Tensor = Any
 class Circuit:
     sgates = (
         ["i", "x", "y", "z", "h", "t", "s", "rs", "wroot"]
-        + ["cnot", "cz", "swap"]
+        + ["cnot", "cz", "swap", "cy"]
         + ["toffoli"]
     )
     vgates = ["r", "cr", "rx", "ry", "rz", "any", "exp"]
@@ -234,6 +234,34 @@ class Circuit:
         for k, v in vars.items():
             self._qcode += k + " " + str(v) + " "
         self._qcode = self._qcode[:-1] + "\n"
+
+    def mid_measurement(self, index: int, keep: int = 0) -> None:
+        # normalization not guaranteed
+        assert keep in [0, 1]
+        if keep == 0:
+            gate = np.array(
+                [
+                    [1.0],
+                    [0.0],
+                ],
+                dtype=npdtype,
+            )
+        else:
+            gate = np.array(
+                [
+                    [0.0],
+                    [1.0],
+                ],
+                dtype=npdtype,
+            )
+
+        mg1 = tn.Node(gate)
+        mg2 = tn.Node(gate)
+        mg1.get_edge(0) ^ self._front[index]
+        mg1.get_edge(1) ^ mg2.get_edge(1)
+        self._front[index] = mg2.get_edge(0)
+        self._nodes.append(mg1)
+        self._nodes.append(mg2)
 
     def depolarizing(self, index: int, *, px: float, py: float, pz: float) -> None:
         # px/y/z here not support differentiation for now
