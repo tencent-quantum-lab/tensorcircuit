@@ -51,7 +51,7 @@ def paulistring(term: Tuple[int, ...]) -> Array:
     return ps
 
 
-def contruct_matrix(ham: List[List[float]]) -> Array:
+def construct_matrix(ham: List[List[float]]) -> Array:
     h = 0.0j
     for j, term in enumerate(ham):
         term = list(term)
@@ -79,6 +79,54 @@ def vqe_energy(c: Circuit, h: List[List[float]], reuse: bool = True) -> Tensor:
             loss += term[0]
 
     return loss
+
+
+def vqe_energy_shortcut(c: Circuit, h: Tensor) -> Tensor:
+    # n = c._nqubits
+    # return c.expectation([h, [i for i in range(n)]])
+    w = c.wavefunction()
+    e = (tf.math.conj(w) @ h @ tf.reshape(w, [1024, 1]))[0, 0]
+    return e
+
+
+class Linear(tf.keras.layers.Layer):  # type: ignore
+    def __init__(self, units: int, input_dim: int, stddev: float = 0.1) -> None:
+        super().__init__()
+        self.wr = tf.Variable(
+            initial_value=tf.random.normal(
+                shape=[input_dim, units], stddev=stddev, dtype=tf.float64
+            ),
+            trainable=True,
+        )
+        self.wi = tf.Variable(
+            initial_value=tf.random.normal(
+                shape=[input_dim, units], stddev=stddev, dtype=tf.float64
+            ),
+            trainable=True,
+        )
+        self.br = tf.Variable(
+            initial_value=tf.random.normal(
+                shape=[units], stddev=stddev, dtype=tf.float64
+            ),
+            trainable=True,
+        )
+        self.bi = tf.Variable(
+            initial_value=tf.random.normal(
+                shape=[units], stddev=stddev, dtype=tf.float64
+            ),
+            trainable=True,
+        )
+
+    def call(self, inputs: Tensor) -> Tensor:
+        inputs = tf.cast(inputs, dtype=dtype)
+        return (
+            tf.matmul(
+                inputs,
+                tf.cast(self.wr, dtype=dtype) + 1.0j * tf.cast(self.wi, dtype=dtype),
+            )
+            + tf.cast(self.br, dtype=dtype)
+            + 1.0j * tf.cast(self.bi, dtype=dtype)
+        )
 
 
 class JointSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):  # type: ignore
@@ -115,6 +163,7 @@ class VQNHE:
         hamiltonian: List[List[float]],
         model_params: Optional[Dict[str, Any]] = None,
         circuit_params: Optional[Dict[str, Any]] = None,
+        shortcut: bool = False,
     ) -> None:
         self.n = n
         if not model_params:
@@ -133,6 +182,11 @@ class VQNHE:
         self.circuit = self.create_circuit(**circuit_params)
         self.base = tf.constant(list(product(*[[0, 1] for _ in range(n)])))
         self.hamiltonian = hamiltonian
+        self.shortcut = shortcut
+        if shortcut:
+            hmatrix = construct_matrix(self.hamiltonian)
+            self.hop = tf.constant(hmatrix, dtype=tf.complex128)
+            # self.hop = G.any(hmatrix.copy().reshape([2 for _ in range(2 * n)]))
 
     def assign(
         self, c: Optional[List[Tensor]] = None, q: Optional[Tensor] = None
@@ -142,17 +196,27 @@ class VQNHE:
         if q:
             self.circuit_variable = q
 
-    def create_model(
+    def create_model(self, choose: str = "real", **kws: Any) -> Model:
+        if choose == "real":
+            return self.create_real_model(**kws)
+        if choose == "complex":
+            return self.create_complex_model(**kws)
+        if choose == "complex-rbm":
+            return self.create_complex_rbm_model(**kws)
+
+    def create_real_model(
         self,
         init_value: float = 0.0,
         max_value: float = 1.0,
         min_value: float = 0,
         depth: int = 2,
+        width: int = 2,
+        **kws: Any,
     ) -> Model:
 
         model = tf.keras.Sequential()
         for _ in range(depth):
-            model.add(tf.keras.layers.Dense(2 * self.n, activation="relu"))
+            model.add(tf.keras.layers.Dense(width * self.n, activation="relu"))
 
         model.add(tf.keras.layers.Dense(1, activation="tanh"))
         model.add(
@@ -168,6 +232,58 @@ class VQNHE:
             )
         )
         model.build([None, self.n])
+        return model
+
+    def create_complex_model(
+        self,
+        init_value: float = 0.0,
+        max_value: float = 1.0,
+        min_value: float = 0,
+        **kws: Any,
+    ) -> Model:
+        inputs = tf.keras.layers.Input(shape=[self.n])
+        x = tf.keras.layers.Dense(2 * self.n, activation="relu")(inputs)
+        x = tf.keras.layers.Dense(4 * self.n, activation="relu")(x)
+
+        lnr = tf.keras.layers.Dense(2 * self.n, activation="relu")(x)
+        lnr = tf.keras.layers.Dense(self.n, activation=None)(lnr)
+        lnr = tf.math.log(tf.math.cosh(lnr))
+        # lnr = lnr + inputs
+
+        phi = tf.keras.layers.Dense(2 * self.n, activation="relu")(x)
+        phi = tf.keras.layers.Dense(self.n, activation="relu")(phi)
+        # phi = phi + inputs
+
+        lnr = tf.keras.layers.Dense(1, activation=None)(lnr)
+        # lnr = tf.keras.layers.Dense(
+        #     1,
+        #     activation=None,
+        #     use_bias=False,
+        #     kernel_initializer=tf.keras.initializers.Constant(value=init_value),
+        #     kernel_constraint=tf.keras.constraints.MinMaxNorm(
+        #         min_value=min_value,
+        #         max_value=max_value,
+        #     ),
+        # )(lnr)
+        phi = tf.keras.layers.Dense(1, activation="tanh")(phi)
+        lnr = tf.cast(lnr, dtype=dtype)
+        phi = tf.cast(phi, dtype=dtype)
+        phi = 3.14159j * phi
+        outputs = lnr + phi
+        model = tf.keras.Model(inputs=inputs, outputs=outputs)
+        return model
+
+    def create_complex_rbm_model(
+        self, stddev: float = 0.1, width: int = 2, **kws: Any
+    ) -> Model:
+        inputs = tf.keras.layers.Input(shape=[self.n])
+        x = Linear(width * self.n, self.n, stddev=stddev)(inputs)
+        x = tf.math.log(2 * tf.math.cosh(x))
+        x = tf.reduce_sum(x, axis=-1)
+        x = tf.reshape(x, [-1, 1])
+        y = Linear(1, self.n, stddev=stddev)(inputs)
+        outputs = y + x
+        model = tf.keras.Model(inputs=inputs, outputs=outputs)
         return model
 
     def create_circuit(
@@ -200,15 +316,24 @@ class VQNHE:
             nm = tf.linalg.norm(w1)
             w1 = w1 / nm
             c2 = Circuit(self.n, inputs=w1)
-            loss = tf.math.real(vqe_energy(c2, self.hamiltonian))
+            if not self.shortcut:
+                loss = tf.math.real(vqe_energy(c2, self.hamiltonian))
+            else:
+                loss = tf.math.real(vqe_energy_shortcut(c2, self.hop))
         grad = tape.gradient(loss, [cv, self.model.variables])
         return loss, grad, nm
 
     @tf.function  # type: ignore
     def plain_evaluation(self, cv: Tensor) -> Tensor:
-        c = self.circuit(cv)
-        loss = tf.math.real(vqe_energy(c, self.hamiltonian))
-        return loss
+        with tf.GradientTape() as tape:
+
+            c = self.circuit(cv)
+            if not self.shortcut:
+                loss = tf.math.real(vqe_energy(c, self.hamiltonian))
+            else:
+                loss = tf.math.real(vqe_energy_shortcut(c, self.hop))
+        grad = tape.gradient(loss, cv)
+        return loss, grad
 
     def training(
         self,
@@ -217,6 +342,8 @@ class VQNHE:
         learn_c: Optional[Callable[[], Any]] = None,
         threshold: float = 1e-8,
         debug: int = 150,
+        onlyq: int = 0,
+        checkpoints: Optional[List[Tuple[int, float]]] = None,
     ) -> Tuple[Array, Array, Array, int]:
         loss_prev = 0
         ccount = 0
@@ -234,8 +361,13 @@ class VQNHE:
         optq = tf.keras.optimizers.Adam(learning_rate=learnq)
 
         for j in range(maxiter):
-            loss, grad, nm = self.evaluation(self.circuit_variable)
-
+            if j < onlyq:
+                loss, grad = self.plain_evaluation(self.circuit_variable)
+            else:
+                loss, grad, nm = self.evaluation(self.circuit_variable)
+            if not tf.math.is_finite(loss):
+                print("failed optimization since nan")
+                break
             if np.abs(loss - loss_prev) < threshold:  # 0.3e-7
                 ccount += 1
                 if ccount >= 100:
@@ -244,17 +376,29 @@ class VQNHE:
             if debug > 0:
                 if j % debug == 0:
                     print(loss.numpy())
-                    quantume = self.plain_evaluation(self.circuit_variable)
+                    if checkpoints is not None:
+                        bk = False
+                        for rd, tv in checkpoints:
+                            if j > rd and loss.numpy() > tv:
+                                print("failed optimization, as checkpoint is not met")
+                                bk = True
+                                break
+                        if bk:
+                            break
+                    quantume, _ = self.plain_evaluation(self.circuit_variable)
                     print("quantum part: ", quantume.numpy())
             loss_prev = loss
-            optq.apply_gradients(zip(grad[0:1], [self.circuit_variable]))
-            optc.apply_gradients(zip(grad[1], self.model.variables))
-        quantume = self.plain_evaluation(self.circuit_variable)
-        print(
-            loss.numpy(), nm.numpy(), quantume.numpy(), self.model.variables[-1].numpy()
-        )
+            if j < onlyq:
+                gradofc = [grad]
+            else:
+                gradofc = grad[0:1]
+            optq.apply_gradients(zip(gradofc, [self.circuit_variable]))
+            if j >= onlyq:
+                optc.apply_gradients(zip(grad[1], self.model.variables))
+        quantume, _ = self.plain_evaluation(self.circuit_variable)
+        print(loss.numpy(), quantume.numpy(), self.model.variables[-1].numpy())
         print("----------END TRAINING------------")
-        return loss.numpy(), nm.numpy(), quantume.numpy(), j
+        return loss.numpy(), np.real(nm.numpy()), quantume.numpy(), j
 
     def multi_training(
         self,
@@ -263,6 +407,8 @@ class VQNHE:
         learn_c: Optional[Callable[[], Any]] = None,
         threshold: float = 1e-8,
         debug: int = 150,
+        onlyq: int = 0,
+        checkpoints: Optional[List[Tuple[int, float]]] = None,
         tries: int = 10,
         initialization_func: Optional[Callable[[int], Dict[str, Any]]] = None,
     ) -> List[Dict[str, Any]]:
@@ -288,7 +434,9 @@ class VQNHE:
                 )
             else:
                 self.circuit_variable = qweights
-            r = self.training(maxiter, learn_q, learn_c, threshold, debug)
+            r = self.training(
+                maxiter, learn_q, learn_c, threshold, debug, onlyq, checkpoints
+            )
             rs.append(
                 {
                     "energy": r[0],
@@ -296,7 +444,7 @@ class VQNHE:
                     "quantum_energy": r[2],
                     "iterations": r[-1],
                     "model_weights": self.model.get_weights(),
-                    "circuit_weights": self.circuit_variable,
+                    "circuit_weights": self.circuit_variable.numpy(),
                 }
             )
         return rs

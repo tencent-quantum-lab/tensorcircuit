@@ -10,7 +10,7 @@ import sympy
 import tensorflow as tf
 import tensorflow_quantum as tfq
 import cirq
-from cirq.contrib.svg import SVGCircuit
+from cirq.contrib.svg import SVGCircuit  # type: ignore
 from typing import (
     List,
     Sequence,
