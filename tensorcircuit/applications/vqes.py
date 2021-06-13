@@ -305,11 +305,14 @@ class VQNHE:
         model = tf.keras.Model(inputs=inputs, outputs=outputs)
         return model
 
-    def create_circuit(self, choose="hea", **kws: Any) -> Callable[[Tensor], Tensor]:
+    def create_circuit(
+        self, choose: str = "hea", **kws: Any
+    ) -> Callable[[Tensor], Tensor]:
         if choose == "hea":
             return self.create_hea_circuit(**kws)
         if choose == "hn":
             return self.create_hn_circuit(**kws)
+        raise ValueError("no such choose option: %s" % choose)
 
     def create_hn_circuit(self, **kws: Any) -> Callable[[Tensor], Tensor]:
         def circuit(a: Tensor) -> Tensor:

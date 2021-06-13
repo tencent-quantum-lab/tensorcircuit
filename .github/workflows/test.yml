@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-18.04, macos-latest]
-        python-version: [3.6, 3.7] # tf doesn't support py3.8 now, shame
+        python-version: [3.6]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
