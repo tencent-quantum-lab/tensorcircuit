@@ -56,5 +56,4 @@ rs = vqeinstance.multi_training(
     debug=200,
     checkpoints=[(900, -3.18), (2600, -3.19), (4500, -3.2)],
 )
-# -3.1659 # -3.1664 # complex 3.18 # exact:-3.237746566460727 # RBM -3.2139 (-3.2097)
 print(rs)

@@ -171,12 +171,16 @@ class VQNHE:
         self.model = self.create_model(**model_params)
         self.model_params = model_params
         if not circuit_params:
-            circuit_params = {"epochs": 2}
+            circuit_params = {"epochs": 2, "stddev": 0.1}
         self.epochs = circuit_params.get("epochs", 2)
+        self.circuit_stddev = circuit_params.get("stddev", 0.1)
 
         self.circuit_variable = tf.Variable(
             tf.random.normal(
-                mean=0.0, stddev=0.2, shape=[2 * self.epochs, self.n], dtype=tf.float64
+                mean=0.0,
+                stddev=self.circuit_stddev,
+                shape=[2 * self.epochs, self.n],
+                dtype=tf.float64,
             )
         )
         self.circuit = self.create_circuit(**circuit_params)
@@ -201,6 +205,8 @@ class VQNHE:
             return self.create_real_model(**kws)
         if choose == "complex":
             return self.create_complex_model(**kws)
+        if choose == "real-rbm":
+            return self.create_real_rbm_model(**kws)
         if choose == "complex-rbm":
             return self.create_complex_rbm_model(**kws)
 
@@ -273,6 +279,19 @@ class VQNHE:
         model = tf.keras.Model(inputs=inputs, outputs=outputs)
         return model
 
+    def create_real_rbm_model(
+        self, stddev: float = 0.1, width: int = 2, **kws: Any
+    ) -> Model:
+        inputs = tf.keras.layers.Input(shape=[self.n])
+        x = tf.keras.layers.Dense(width * self.n, activation=None)(inputs)
+        x = tf.math.log(2 * tf.math.cosh(x))
+        x = tf.reduce_sum(x, axis=-1)
+        x = tf.reshape(x, [-1, 1])
+        y = tf.keras.layers.Dense(1, activation=None)(inputs)
+        outputs = y + x
+        model = tf.keras.Model(inputs=inputs, outputs=outputs)
+        return model
+
     def create_complex_rbm_model(
         self, stddev: float = 0.1, width: int = 2, **kws: Any
     ) -> Model:
@@ -286,8 +305,23 @@ class VQNHE:
         model = tf.keras.Model(inputs=inputs, outputs=outputs)
         return model
 
-    def create_circuit(
-        self, epochs: int = 2, filled_qubit: List[int] = [0]
+    def create_circuit(self, choose="hea", **kws: Any) -> Callable[[Tensor], Tensor]:
+        if choose == "hea":
+            return self.create_hea_circuit(**kws)
+        if choose == "hn":
+            return self.create_hn_circuit(**kws)
+
+    def create_hn_circuit(self, **kws: Any) -> Callable[[Tensor], Tensor]:
+        def circuit(a: Tensor) -> Tensor:
+            c = Circuit(self.n)
+            for i in range(self.n):
+                c.H(i)  # type: ignore
+            return c
+
+        return circuit
+
+    def create_hea_circuit(
+        self, epochs: int = 2, filled_qubit: List[int] = [0], **kws: Any
     ) -> Callable[[Tensor], Tensor]:
         def circuit(a: Tensor) -> Tensor:
             c = Circuit(self.n)
@@ -321,6 +355,12 @@ class VQNHE:
             else:
                 loss = tf.math.real(vqe_energy_shortcut(c2, self.hop))
         grad = tape.gradient(loss, [cv, self.model.variables])
+        for i, gr in enumerate(grad):
+            if gr is None:
+                if i == 0:
+                    grad[i] = tf.zeros_like(cv)
+                else:
+                    grad[i] = tf.zeros_like(self.model.variables[i - 1])
         return loss, grad, nm
 
     @tf.function  # type: ignore
@@ -359,7 +399,7 @@ class VQNHE:
 
         optc = tf.keras.optimizers.Adam(learning_rate=learnc)
         optq = tf.keras.optimizers.Adam(learning_rate=learnq)
-
+        nm = tf.constant(1.0)
         for j in range(maxiter):
             if j < onlyq:
                 loss, grad = self.plain_evaluation(self.circuit_variable)
@@ -427,7 +467,7 @@ class VQNHE:
                 self.circuit_variable = tf.Variable(
                     tf.random.normal(
                         mean=0.0,
-                        stddev=0.2,
+                        stddev=self.circuit_stddev,
                         shape=[2 * self.epochs, self.n],
                         dtype=tf.float64,
                     )
