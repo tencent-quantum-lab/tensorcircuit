@@ -1,3 +1,7 @@
+"""
+relevant classes for VQNHE
+"""
+
 import cirq
 import numpy as np
 import scipy

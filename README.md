@@ -42,4 +42,8 @@ print(g(theta))
 
 ## DQAS
 
-For application of Differentiable Quantum Architecture Search, see [applications](/tensorcircuit/applications)
+For application of Differentiable Quantum Architecture Search, see [applications](/tensorcircuit/applications). Reference paper: https://arxiv.org/pdf/2010.08561.pdf.
+
+## VQNHE
+
+For application of Variational Quantum-Neural Hybrid Eigensolver, see [applications](/tensorcircuit/applications). Reference paper: https://arxiv.org/pdf/2106.05105.pdf.
