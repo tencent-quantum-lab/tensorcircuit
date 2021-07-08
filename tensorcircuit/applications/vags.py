@@ -2,15 +2,15 @@
 DQAS application kernels as vag functions
 """
 
+
 import functools
 import operator
 from functools import lru_cache, partial
 import numpy as np
-import sympy
-import tensorflow as tf
-import tensorflow_quantum as tfq
 import cirq
 from cirq.contrib.svg import SVGCircuit  # type: ignore
+
+import tensorflow as tf
 from typing import (
     List,
     Sequence,
@@ -31,6 +31,14 @@ from ..circuit import Circuit
 from ..densitymatrix import DMCircuit
 from .layers import *
 from .dqas import get_op_pool
+
+try:
+    import sympy
+    import tensorflow_quantum as tfq
+
+except ImportError as e:
+    print(e)
+
 
 Array = Any  # np.array
 Opt = Any  # tf.keras.optimizer
@@ -1126,7 +1134,10 @@ def mnist_amplitude_data(
 def mnist_generator(
     x_train: Tensor, y_train: Tensor, batch: int = 1, random: bool = True
 ) -> Iterator[Any]:
-    x_train = x_train.numpy()
+    if isinstance(x_train, tf.Tensor):
+        x_train = x_train.numpy()
+    if isinstance(y_train, tf.Tensor):
+        y_train = y_train.numpy()
     i = np.array(list(range(batch)))
     while True:
         if random:

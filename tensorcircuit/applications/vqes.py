@@ -2,10 +2,8 @@
 relevant classes for VQNHE
 """
 
-import cirq
 import numpy as np
 import scipy
-import networkx as nx
 import tensorflow as tf
 from functools import partial, lru_cache
 from itertools import product
@@ -63,6 +61,19 @@ def construct_matrix(ham: List[List[float]]) -> Array:
             if i > 0:
                 term[i] = int(t)
         h += term[0] * paulistring(tuple(term[1:]))
+    return h
+
+
+def construct_matrix_tf(ham: List[List[float]], dtype: Any = tf.complex128) -> Array:
+    h = 0.0j
+    for j, term in enumerate(ham):
+        term = list(term)
+        for i, t in enumerate(term):
+            if i > 0:
+                term[i] = int(t)
+        h += tf.cast(term[0], dtype=dtype) * tf.constant(
+            paulistring(tuple(term[1:])), dtype=dtype
+        )
     return h
 
 

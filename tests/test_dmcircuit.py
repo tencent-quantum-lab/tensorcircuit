@@ -20,6 +20,16 @@ def test_gate_dm():
     assert np.allclose(c.expectation((tc.gates.z(), [1])), -1.0)
 
 
+def test_dm_inputs():
+    w = np.zeros([8])
+    w[1] = 1.0
+    c = tc.DMCircuit(3, inputs=w)
+    c.cnot(2, 1)
+    assert np.allclose(c.expectation((tc.gates.z(), [1])), -1.0)
+    assert np.allclose(c.expectation((tc.gates.z(), [2])), -1.0)
+    assert np.allclose(c.expectation((tc.gates.z(), [0])), 1.0)
+
+
 def test_gate_depolarizing():
     c = tc.DMCircuit(2)
     c.H(0)

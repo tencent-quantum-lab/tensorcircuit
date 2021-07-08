@@ -10,7 +10,6 @@ import functools
 import operator
 import numpy as np
 import scipy as sp
-import sympy
 import tensorflow as tf
 from typing import (
     List,
@@ -26,7 +25,6 @@ from typing import (
 )
 import networkx as nx
 import cirq
-import tensorflow_quantum as tfq
 
 from ..gates import array_to_tensor, num_to_tensor
 from .. import cons
@@ -34,6 +32,14 @@ from .. import cons
 # don't directly import backend, as it is supposed to change at runtime
 from ..circuit import Circuit
 from .layers import *
+
+try:
+    import sympy
+    import tensorflow_quantum as tfq
+
+except ImportError as e:
+    print(e)
+
 
 Array = Any  # np.array
 Opt = Any  # tf.keras.optimizer

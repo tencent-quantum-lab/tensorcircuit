@@ -11,11 +11,23 @@ import warnings
 from tensornetwork.backends.tensorflow import tensorflow_backend
 from tensornetwork.backends.numpy import numpy_backend
 from tensornetwork.backends.jax import jax_backend
-from tensornetwork.backends.shell import shell_backend
+
+# from tensornetwork.backends.shell import shell_backend
 from tensornetwork.backends.pytorch import pytorch_backend
-from tensornetwork.backends import base_backend
+
+try:
+    from tensornetwork import base_backend
+
+    tnbackend = base_backend.BaseBackend
+
+except ImportError:
+    from tensornetwork.backends import abstract_backend
+
+    tnbackend = abstract_backend.AbstractBackend
+
 
 Tensor = Any
+
 
 libjax: Any
 jnp: Any
@@ -319,15 +331,13 @@ _BACKENDS = {
     "tensorflow": TensorFlowBackend,
     "numpy": NumpyBackend,
     "jax": JaxBackend,
-    "shell": shell_backend.ShellBackend,  # no intention to maintain this one
+    # "shell": shell_backend.ShellBackend,  # no intention to maintain this one
     "pytorch": PyTorchBackend,  # no intention to fully maintain this one
 }
 
 
-def get_backend(
-    backend: Union[Text, base_backend.BaseBackend]
-) -> base_backend.BaseBackend:
-    if isinstance(backend, base_backend.BaseBackend):
+def get_backend(backend: Union[Text, tnbackend]) -> tnbackend:
+    if isinstance(backend, tnbackend):
         return backend
     if backend not in _BACKENDS:
         raise ValueError("Backend '{}' does not exist".format(backend))

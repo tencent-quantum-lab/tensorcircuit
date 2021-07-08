@@ -6,7 +6,6 @@ import sys
 import itertools
 import numpy as np
 import cirq
-import networkx as nx
 import tensorflow as tf
 from typing import Sequence, Union, Callable, Any, Optional, Tuple, List
 
@@ -14,6 +13,11 @@ from ..circuit import Circuit
 from ..densitymatrix import DMCircuit
 from ..gates import num_to_tensor, array_to_tensor, _swap_matrix
 from ..channels import depolarizingchannel
+
+try:
+    import networkx as nx
+except ImportError as e:
+    print(e)
 
 thismodule = sys.modules[__name__]
 

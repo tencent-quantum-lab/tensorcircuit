@@ -9,7 +9,7 @@ import numpy as np
 import tensornetwork as tn
 import graphviz
 
-from . import gates
+from . import gates, cons
 from .cons import dtypestr, npdtype, backend, contractor
 
 Gate = gates.Gate
@@ -266,18 +266,22 @@ class Circuit:
     def depolarizing(self, index: int, *, px: float, py: float, pz: float) -> None:
         # px/y/z here not support differentiation for now
         assert px + py + pz < 1 and px >= 0 and py >= 0 and pz >= 0
-        status = np.random.choice(a=[0, 1, 2, 3], p=[1 - px - py - pz, px, py, pz])
-        if status == 0:
-            return
-        if status == 1:
+        # status = np.random.choice(a=[0, 1, 2, 3], p=[1 - px - py - pz, px, py, pz])
+        status = cons.global_r.uniform(
+            []
+        )  ## not here the random generator is currently not backend ignostic
+        if status >= 0 and status < 1 - px - py - pz:
+            self.I(index)
+            return 0.0
+        elif status >= 1 - px - py - pz and status < 1 - py - pz:
             self.X(index)  # type: ignore
-            return
-        if status == 2:
+            return 0.0
+        elif status >= 1 - py - pz and status < 1 - pz:
             self.Y(index)  # type: ignore
-            return
-        if status == 3:
+            return 0.0
+        else:
             self.Z(index)  # type: ignore
-            return
+            return 0.0
 
     def is_valid(self) -> bool:
         """

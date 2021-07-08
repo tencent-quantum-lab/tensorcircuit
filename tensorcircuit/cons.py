@@ -7,6 +7,7 @@ import sys
 from functools import partial
 
 import numpy as np
+import tensorflow as tf
 import tensornetwork as tn
 from tensornetwork.backend_contextmanager import get_default_backend
 
@@ -84,3 +85,18 @@ def set_contractor(
 
 
 set_contractor()
+
+
+def set_seed():
+    try:
+        global_r = tf.random.Generator.from_non_deterministic_state()
+    except AttributeError:
+        global_r = (
+            tf.random.experimental.Generator.from_non_deterministic_state()
+        )  # early version of tf2
+    for module in modules:
+        if module in sys.modules:
+            setattr(sys.modules[module], "global_r", global_r)
+
+
+set_seed()

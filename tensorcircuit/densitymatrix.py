@@ -20,71 +20,82 @@ Tensor = Any
 # TODO: Monte Carlo State Circuit Simulator
 # note not all channels but only deploarizing channel can be simulated in that Monte Carlo way with pure state simulators
 class DMCircuit:
-    def __init__(self, nqubits: int, empty: bool = False) -> None:
+    def __init__(
+        self, nqubits: int, empty: bool = False, inputs: Optional[Tensor] = None
+    ) -> None:
         if not empty:
             _prefix = "qb-"
             if nqubits < 2:
                 raise ValueError(
                     f"Number of qubits must be greater than 2 but is {nqubits}."
                 )
+            if inputs is None:
+                # Get nodes on the interior
+                nodes = [
+                    tn.Node(
+                        np.array(
+                            [
+                                [[1.0]],
+                                [[0.0]],
+                            ],
+                            dtype=npdtype,
+                        ),
+                        name=_prefix + str(x + 1),
+                    )
+                    for x in range(nqubits - 2)
+                ]
 
-            # Get nodes on the interior
-            nodes = [
-                tn.Node(
-                    np.array(
-                        [
-                            [[1.0]],
-                            [[0.0]],
-                        ],
-                        dtype=npdtype,
+                # Get nodes on the end
+                nodes.insert(
+                    0,
+                    tn.Node(
+                        np.array(
+                            [
+                                [1.0],
+                                [0.0],
+                            ],
+                            dtype=npdtype,
+                        ),
+                        name=_prefix + str(0),
                     ),
-                    name=_prefix + str(x + 1),
                 )
-                for x in range(nqubits - 2)
-            ]
-
-            # Get nodes on the end
-            nodes.insert(
-                0,
-                tn.Node(
-                    np.array(
-                        [
-                            [1.0],
-                            [0.0],
-                        ],
-                        dtype=npdtype,
-                    ),
-                    name=_prefix + str(0),
-                ),
-            )
-            nodes.append(
-                tn.Node(
-                    np.array(
-                        [
-                            [1.0],
-                            [0.0],
-                        ],
-                        dtype=npdtype,
-                    ),
-                    name=_prefix + str(nqubits - 1),
+                nodes.append(
+                    tn.Node(
+                        np.array(
+                            [
+                                [1.0],
+                                [0.0],
+                            ],
+                            dtype=npdtype,
+                        ),
+                        name=_prefix + str(nqubits - 1),
+                    )
                 )
-            )
 
-            # Connect edges between middle nodes
-            for i in range(1, nqubits - 2):
-                tn.connect(nodes[i].get_edge(2), nodes[i + 1].get_edge(1))
+                # Connect edges between middle nodes
+                for i in range(1, nqubits - 2):
+                    tn.connect(nodes[i].get_edge(2), nodes[i + 1].get_edge(1))
 
-            # Connect end nodes to the adjacent middle nodes
-            if nqubits < 3:
-                tn.connect(nodes[0].get_edge(1), nodes[1].get_edge(1))
+                # Connect end nodes to the adjacent middle nodes
+                if nqubits < 3:
+                    tn.connect(nodes[0].get_edge(1), nodes[1].get_edge(1))
+                else:
+                    tn.connect(
+                        nodes[0].get_edge(1), nodes[1].get_edge(1)
+                    )  # something wrong here?
+                    tn.connect(nodes[-1].get_edge(1), nodes[-2].get_edge(2))
+                self._rfront = [n.get_edge(0) for n in nodes]
             else:
-                tn.connect(
-                    nodes[0].get_edge(1), nodes[1].get_edge(1)
-                )  # something wrong here?
-                tn.connect(nodes[-1].get_edge(1), nodes[-2].get_edge(2))
+                inputs = backend.reshape(inputs, [-1])
+                N = inputs.shape[0]
+                n = int(np.log(N) / np.log(2))
+                assert n == nqubits
+                inputs = backend.reshape(inputs, [2 for _ in range(n)])
+                inputs = Gate(inputs)
+                nodes = [inputs]
+                self._rfront = [inputs.get_edge(i) for i in range(n)]
 
             self._nqubits = nqubits
-            self._rfront = [n.get_edge(0) for n in nodes]
             lnodes, self._lfront = self._copy(nodes, self._rfront, conj=True)
             lnodes.extend(nodes)
             self._nodes = lnodes
