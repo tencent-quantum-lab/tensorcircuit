@@ -9,6 +9,7 @@ modulepath = os.path.dirname(os.path.dirname(thisfile))
 
 sys.path.insert(0, modulepath)
 import tensorcircuit as tc
+from tensorcircuit.channels import *
 from .conftest import tfb
 
 
@@ -33,7 +34,7 @@ def test_dm_inputs():
 def test_gate_depolarizing():
     c = tc.DMCircuit(2)
     c.H(0)
-    c.apply_general_kraus(tc.channels.depolarizingchannel(0.1, 0.1, 0.1), [(1,)])
+    c.apply_general_kraus(depolarizingchannel(0.1, 0.1, 0.1), [(1,)])
     np.testing.assert_allclose(
         c.densitymatrix(check=True),
         np.array(
@@ -45,13 +46,13 @@ def test_gate_depolarizing():
 
 @pytest.mark.parametrize("backend", [None, tfb])
 def test_channel_identity(backend):
-    cs = tc.channels.depolarizingchannel(0.1, 0.15, 0.2)
+    cs = depolarizingchannel(0.1, 0.15, 0.2)
     tc.channels.single_qubit_kraus_identity_check(cs)
-    cs = tc.channels.amplitudedampingchannel(0.25, 0.3)
+    cs = amplitudedampingchannel(0.25, 0.3)
     tc.channels.single_qubit_kraus_identity_check(cs)
-    cs = tc.channels.phasedampingchannel(0.6)
+    cs = phasedampingchannel(0.6)
     tc.channels.single_qubit_kraus_identity_check(cs)
-    cs = tc.channels.resetchannel()
+    cs = resetchannel()
     tc.channels.single_qubit_kraus_identity_check(cs)
 
 
@@ -62,7 +63,7 @@ def test_ad_channel(tfb):
         tape.watch(p)
         c = tc.DMCircuit(3)
         c.rx(1, theta=theta)
-        c.apply_general_kraus(tc.channels.depolarizingchannel(p, 0.2 * p, p), [(1,)])
+        c.apply_general_kraus(depolarizingchannel(p, 0.2 * p, p), [(1,)])
         c.H(0)
         loss = c.expectation((tc.gates.z(), [1]))
         g = tape.gradient(loss, p)

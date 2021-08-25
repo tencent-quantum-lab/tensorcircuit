@@ -92,8 +92,11 @@ def test_ad():
     # this amazingly shows how to code once and run in very different AD-ML engines
     tc.set_backend("tensorflow")
     universal_ad()
-    tc.set_backend("jax")
-    universal_ad()
+    try:
+        tc.set_backend("jax")
+        universal_ad()
+    except ImportError as e:
+        pass
     tc.set_backend("numpy")
 
 

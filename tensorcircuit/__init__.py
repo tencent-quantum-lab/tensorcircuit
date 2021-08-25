@@ -8,7 +8,8 @@ from . import gates
 from .circuit import Circuit, expectation
 from .densitymatrix import DMCircuit
 from .gates import num_to_tensor, array_to_tensor
-from . import channels
+
+# from . import channels
 
 __version__ = "0.0.1"
 __author__ = "refraction-ray"

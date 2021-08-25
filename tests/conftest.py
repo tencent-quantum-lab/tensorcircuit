@@ -18,16 +18,25 @@ def tfb():
 
 @pytest.fixture(scope="function")
 def jaxb():
-    tc.set_backend("jax")
-    yield
+    try:
+        tc.set_backend("jax")
+        yield
+    except ImportError as e:
+        print(e)
+        pytest.skip("****** No jax backend found, skipping test suit *******")
+
     tc.set_backend("numpy")
 
 
 @pytest.fixture(scope="function")
 def torchb():
-    tc.set_backend("pytorch")
-    tc.set_dtype("float64")
-    yield
+    try:
+        tc.set_backend("pytorch")
+        tc.set_dtype("float64")
+        yield
+    except ImportError as e:
+        print(e)
+        pytest.skip("****** No torch backend found, skipping test suit *******")
     tc.set_backend("numpy")
     tc.set_dtype("complex64")
 

@@ -87,7 +87,7 @@ def set_contractor(
 set_contractor()
 
 
-def set_seed():
+def set_seed() -> None:
     try:
         global_r = tf.random.Generator.from_non_deterministic_state()
     except AttributeError:

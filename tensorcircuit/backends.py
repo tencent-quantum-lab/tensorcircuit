@@ -16,7 +16,7 @@ from tensornetwork.backends.jax import jax_backend
 from tensornetwork.backends.pytorch import pytorch_backend
 
 try:
-    from tensornetwork import base_backend
+    from tensornetwork.backends import base_backend
 
     tnbackend = base_backend.BaseBackend
 
@@ -336,7 +336,7 @@ _BACKENDS = {
 }
 
 
-def get_backend(backend: Union[Text, tnbackend]) -> tnbackend:
+def get_backend(backend: Union[Text, tnbackend]) -> Any:  # type: ignore
     if isinstance(backend, tnbackend):
         return backend
     if backend not in _BACKENDS:

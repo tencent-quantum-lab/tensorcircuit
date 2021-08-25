@@ -420,7 +420,7 @@ def even1D(n: int, s: int = 0) -> Graph:
 odd1D = partial(even1D, s=1)
 
 
-def Grid2D(m: int, n: int) -> Graph:
+def Grid2D(m: int, n: int, pbc: bool = True) -> Graph:
     def one2two(i: int) -> Tuple[int, int]:
         x = i // n
         y = i % n
@@ -434,8 +434,14 @@ def Grid2D(m: int, n: int) -> Graph:
         g.add_node(i)
     for i in range(m * n):
         x, y = one2two(i)
-        g.add_edge(i, two2one((x - 1) % m, y), weight=1)
-        g.add_edge(i, two2one(x, (y - 1) % n), weight=1)
+        if pbc is False and x - 1 < 0:
+            pass
+        else:
+            g.add_edge(i, two2one((x - 1) % m, y), weight=1)
+        if pbc is False and y - 1 < 0:
+            pass
+        else:
+            g.add_edge(i, two2one(x, (y - 1) % n), weight=1)
     return g
 
 

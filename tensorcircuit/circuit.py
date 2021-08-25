@@ -263,15 +263,14 @@ class Circuit:
         self._nodes.append(mg1)
         self._nodes.append(mg2)
 
-    def depolarizing(self, index: int, *, px: float, py: float, pz: float) -> None:
+    def depolarizing(self, index: int, *, px: float, py: float, pz: float) -> float:
         # px/y/z here not support differentiation for now
         assert px + py + pz < 1 and px >= 0 and py >= 0 and pz >= 0
         # status = np.random.choice(a=[0, 1, 2, 3], p=[1 - px - py - pz, px, py, pz])
-        status = cons.global_r.uniform(
-            []
-        )  ## not here the random generator is currently not backend ignostic
+        status = cons.global_r.uniform([])  # type:ignore
+        ## not here the random generator is currently not backend ignostic
         if status >= 0 and status < 1 - px - py - pz:
-            self.I(index)
+            self.I(index)  # type: ignore
             return 0.0
         elif status >= 1 - px - py - pz and status < 1 - py - pz:
             self.X(index)  # type: ignore

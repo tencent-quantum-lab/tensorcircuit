@@ -1369,14 +1369,41 @@ def validate_qml_vag(
 ## some quantum quantities
 
 
-def entropy(rho: Tensor) -> Tensor:
-    e = np.linalg.eigvals(rho)
-    eps = 1e-12
-    return -np.real(np.dot(e, np.log(e + eps)))
+def entropy(rho: Tensor, eps: float = 1e-12) -> Tensor:
+    lbd = tf.math.real(tf.linalg.eigvals(rho))
+    entropy = -tf.math.reduce_sum(lbd * tf.math.log(lbd + eps))
+    return tf.math.real(entropy)
+    # e = np.linalg.eigvals(rho)
+    # eps = 1e-12
+    # return -np.real(np.dot(e, np.log(e + eps)))
     # return np.trace(rho@LA.logm(rho))
 
 
+def reduced_density_matrix(
+    state: Tensor, freedom: int, cut: Union[int, List[int]], p: Optional[Tensor] = None
+) -> Tensor:
+    if isinstance(cut, list) or isinstance(cut, tuple):
+        traceout = cut
+    else:
+        traceout = [i for i in range(cut)]
+    w = state / tf.linalg.norm(state)
+    perm = [i for i in range(freedom) if i not in traceout]
+    perm = perm + traceout
+    w = tf.reshape(w, [2 for _ in range(freedom)])
+    w = tf.transpose(w, perm=perm)
+    w = tf.reshape(w, [-1, 2 ** len(traceout)])
+    if p is None:
+        rho = w @ tf.transpose(w, conjugate=True)
+    else:
+        rho = w @ tf.linalg.diag(p) @ tf.transpose(w, conjugate=True)
+        rho /= tf.linalg.trace(rho)
+    return rho
+
+
 def entanglement_entropy(state: Tensor) -> Tensor:
+    """
+    depracated as non tf and non flexible, use the combination of ``reduced_density_matrix`` and ``entropy`` instead.
+    """
     state = state.reshape([-1])
     state = state / np.linalg.norm(state)
     t = state.shape[0]
@@ -1384,6 +1411,41 @@ def entanglement_entropy(state: Tensor) -> Tensor:
     square = state.reshape([ht, ht])
     rho = square @ np.conj(np.transpose(square))
     return entropy(rho)
+
+
+def free_energy(rho: Tensor, h: Tensor, beta: float = 1, eps: float = 1e-12) -> Tensor:
+    energy = tf.math.real(tf.linalg.trace(rho @ h))
+    s = entropy(rho, eps)
+    return tf.math.real(energy - s / beta)
+
+
+def trace_distance(rho: Tensor, rho0: Tensor, eps: float = 1e-12) -> Tensor:
+    d2 = rho - rho0
+    d2 = tf.transpose(d2, conjugate=True) @ d2
+    lbds = tf.math.real(tf.linalg.eigvals(d2))
+    return 0.5 * tf.reduce_sum(tf.sqrt(lbds + eps))
+
+
+def fidelity(rho: Tensor, rho0: Tensor) -> Tensor:
+    rhosqrt = tf.linalg.sqrtm(rho)
+    return tf.math.real(tf.linalg.trace(tf.linalg.sqrtm(rhosqrt @ rho0 @ rhosqrt)) ** 2)
+
+
+def gibbs_state(h: Tensor, beta: float = 1) -> Tensor:
+    rho = tf.linalg.expm(-beta * h)
+    rho /= tf.linalg.trace(rho)
+    return rho
+
+
+def double_state(h: Tensor, beta: float = 1) -> Tensor:
+    rho = tf.linalg.expm(-beta / 2 * h)
+    state = tf.reshape(rho, [-1])
+    norm = tf.linalg.norm(state)
+    return state / norm
+
+
+def correlation(m: Tensor, rho: Tensor) -> Tensor:
+    return tf.math.real(tf.linalg.trace(rho @ m))
 
 
 ## some utils

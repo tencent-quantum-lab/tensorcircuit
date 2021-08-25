@@ -100,7 +100,7 @@ def vqe_energy_shortcut(c: Circuit, h: Tensor) -> Tensor:
     # n = c._nqubits
     # return c.expectation([h, [i for i in range(n)]])
     w = c.wavefunction()
-    e = (tf.math.conj(w) @ h @ tf.reshape(w, [1024, 1]))[0, 0]
+    e = (tf.math.conj(w) @ h @ tf.reshape(w, [-1, 1]))[0, 0]
     return e
 
 
