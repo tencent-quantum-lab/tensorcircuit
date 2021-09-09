@@ -1379,6 +1379,14 @@ def entropy(rho: Tensor, eps: float = 1e-12) -> Tensor:
     # return np.trace(rho@LA.logm(rho))
 
 
+def renyi_entropy(rho: Tensor, k: int = 2, eps: float = 1e-12) -> Tensor:
+    # no matrix power in tf?
+    rhok = rho
+    for i in range(k - 1):
+        rhok = rhok @ rho
+    return 1 / (1 - k) * tf.math.real(tf.linalg.trace(rhok))
+
+
 def reduced_density_matrix(
     state: Tensor, freedom: int, cut: Union[int, List[int]], p: Optional[Tensor] = None
 ) -> Tensor:
@@ -1417,6 +1425,35 @@ def free_energy(rho: Tensor, h: Tensor, beta: float = 1, eps: float = 1e-12) -> 
     energy = tf.math.real(tf.linalg.trace(rho @ h))
     s = entropy(rho, eps)
     return tf.math.real(energy - s / beta)
+
+
+def renyi_free_energy(rho: Tensor, h: Tensor, beta: float = 1) -> Tensor:
+    energy = tf.math.real(tf.linalg.trace(rho @ h))
+    s = -tf.math.real(tf.math.log(tf.linalg.trace(rho @ rho)))
+    return tf.math.real(energy - s / beta)
+
+
+def taylorlnm(x: Tensor, k: int) -> Tensor:
+    dtype = x.dtype
+    s = x.shape[-1]
+    y = 1 / k * (-1) ** (k + 1) * tf.eye(s, dtype=dtype)
+    for i in reversed(range(k)):
+        y = y @ x
+        if i > 0:
+            y += 1 / (i) * (-1) ** (i + 1) * tf.eye(s, dtype=dtype)
+    return y
+
+
+def truncated_free_energy(
+    rho: Tensor, h: Tensor, beta: float = 1, k: int = 2, eps: float = 1e-12
+) -> Tensor:
+    dtype = rho.dtype
+    s = rho.shape[-1]
+    tyexpand = rho @ taylorlnm(rho - tf.eye(s, dtype=dtype), k - 1)
+    renyi = -tf.math.real(tf.linalg.trace(tyexpand))
+    energy = tf.math.real(tf.linalg.trace(rho @ h))
+    print(energy, renyi, renyi / beta)
+    return tf.math.real(energy - renyi / beta)
 
 
 def trace_distance(rho: Tensor, rho0: Tensor, eps: float = 1e-12) -> Tensor:

@@ -94,7 +94,7 @@ class Circuit:
             inputs = backend.reshape(inputs, [-1])
             N = inputs.shape[0]
             n = int(np.log(N) / np.log(2))
-            assert n == nqubits
+            assert n == nqubits or n == 2 * nqubits
             inputs = backend.reshape(inputs, [2 for _ in range(n)])
             inputs = Gate(inputs)
             nodes = [inputs]
