@@ -2,7 +2,6 @@ from .cons import (
     set_backend,
     set_dtype,
     set_contractor,
-    set_seed,
 )  # prerun of set hooks
 from . import gates
 from .circuit import Circuit, expectation
