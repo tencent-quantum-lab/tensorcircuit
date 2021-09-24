@@ -8,6 +8,7 @@ from scipy.linalg import expm
 import numpy as np
 import warnings
 
+import tensornetwork
 from tensornetwork.backends.tensorflow import tensorflow_backend
 from tensornetwork.backends.numpy import numpy_backend
 from tensornetwork.backends.jax import jax_backend
@@ -157,6 +158,27 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     def vmap(self, f: Callable[..., Any]) -> Any:
         return libjax.vmap(f)
         # since tf doesn't support in&out axes options, we don't support them in universal backend
+
+
+def _tensordot_v1(
+    self: Any, a: Tensor, b: Tensor, axes: Union[int, Sequence[Sequence[int]]]
+) -> Tensor:
+    return tf.tensordot(a, b, axes)
+
+
+def _outer_product_v1(self: Any, tensor1: Tensor, tensor2: Tensor) -> Tensor:
+    return tf.tensordot(tensor1, tensor2, 0)
+
+
+# temporary hot replace until new version of tensorflow is released, see issue: https://github.com/google/TensorNetwork/issues/940
+# avoid buggy tensordot2 in tensornetwork
+
+tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.tensordot = (
+    _tensordot_v1
+)
+tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.outer_product = (
+    _outer_product_v1
+)
 
 
 class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
