@@ -84,6 +84,20 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
         return np.vectorize(f)
 
 
+def _convert_to_tensor_jax(self: Any, tensor: Tensor) -> Tensor:
+    if not isinstance(tensor, (np.ndarray, jnp.ndarray)) and not jnp.isscalar(tensor):
+        raise TypeError(
+            ("Expected a `jnp.array`, `np.array` or scalar. " f"Got {type(tensor)}")
+        )
+    result = jnp.asarray(tensor)
+    return result
+
+
+tensornetwork.backends.jax.jax_backend.JaxBackend.convert_to_tensor = (
+    _convert_to_tensor_jax
+)
+
+
 class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     # Jax doesn't support 64bit dtype, unless claim
     # from jax.config import config
@@ -160,13 +174,13 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         # since tf doesn't support in&out axes options, we don't support them in universal backend
 
 
-def _tensordot_v1(
+def _tensordot_tf(
     self: Any, a: Tensor, b: Tensor, axes: Union[int, Sequence[Sequence[int]]]
 ) -> Tensor:
     return tf.tensordot(a, b, axes)
 
 
-def _outer_product_v1(self: Any, tensor1: Tensor, tensor2: Tensor) -> Tensor:
+def _outer_product_tf(self: Any, tensor1: Tensor, tensor2: Tensor) -> Tensor:
     return tf.tensordot(tensor1, tensor2, 0)
 
 
@@ -174,10 +188,10 @@ def _outer_product_v1(self: Any, tensor1: Tensor, tensor2: Tensor) -> Tensor:
 # avoid buggy tensordot2 in tensornetwork
 
 tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.tensordot = (
-    _tensordot_v1
+    _tensordot_tf
 )
 tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.outer_product = (
-    _outer_product_v1
+    _outer_product_tf
 )
 
 
