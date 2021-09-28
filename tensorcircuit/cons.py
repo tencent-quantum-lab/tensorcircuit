@@ -105,7 +105,11 @@ def nodes_to_adj(ns: List[Any]) -> Any:
     return adj
 
 
-_ps = tn.contractors.custom_path_solvers.pathsolvers
+try:
+    _ps = tn.contractors.custom_path_solvers.pathsolvers
+    has_ps = True
+except AttributeError:
+    has_ps = False
 
 
 def d2s(n: int, dl: List[Any]) -> List[Any]:
@@ -147,7 +151,7 @@ base = tn.contractors.opt_einsum_paths.path_contractors.base
 
 # designed for cotengra.HyperOptimizer
 # usage ``opt = ctg.HyperOptimizer``
-# ``tc.set_contractor("custom_stateful", optimizer=opt)``
+# ``tc.set_contractor("custom_stateful", optimizer=opt, parallel=False)``
 
 
 def custom_stateful(
@@ -174,7 +178,12 @@ def set_contractor(
     if method == "plain":
         cf = plain_contractor
     elif method == "tng":
-        cf = tn_greedy_contractor
+        if has_ps:
+            cf = tn_greedy_contractor
+        else:
+            raise Exception(
+                "current version of tensornetwork doesn't support tng contraction"
+            )
     elif method == "custom_stateful":
         cf = custom_stateful  # type: ignore
         cf = partial(cf, optimizer=optimizer, **kws)
