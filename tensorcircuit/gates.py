@@ -128,10 +128,14 @@ def array_to_tensor(*num: np.array) -> Any:
 def gate_wrapper(m: np.array, n: Optional[str] = None) -> Gate:
     if not n:
         n = "unknowngate"
+    m = m.astype(npdtype)
     return Gate(deepcopy(m), name=n)
 
 
 def meta_gate() -> None:
+    """
+    Inner helper function to generate gate functions, such as ``z()`` from ``_z_matrix``
+    """
     for name in dir(thismodule):
         if name.endswith("_matrix") and name.startswith("_"):
             n = name[1:-7]
@@ -140,13 +144,39 @@ def meta_gate() -> None:
                 m = np.reshape(m, newshape=(2, 2, 2, 2))
             if m.shape[0] == 8:
                 m = np.reshape(m, newshape=(2, 2, 2, 2, 2, 2))
-            m = m.astype(npdtype)
+            m = m.astype(
+                npdtype
+            )  # not enough for new mechanism: register method on class instead of instance
             temp = partial(gate_wrapper, m, n)
             setattr(thismodule, n + "gate", temp)
             setattr(thismodule, n, temp)
 
 
 meta_gate()
+
+
+def matrix_for_gate(gate: Gate) -> Tensor:
+    t = gate.tensor
+    l = int(np.sqrt(t.size))
+    t = t.reshape([l, l])
+    return t
+
+
+def bmatrix(a: np.array) -> str:
+    """Returns a LaTeX bmatrix
+    From https://stackoverflow.com/questions/17129290/numpy-2d-and-1d-array-to-latex-bmatrix/17131750
+
+    :a: numpy array
+    :returns: LaTeX bmatrix as a string
+    """
+    if len(a.shape) > 2:
+        raise ValueError("bmatrix can at most display two dimensions")
+    lines = str(a).replace("[", "").replace("]", "").splitlines()
+    rv = [r"\begin{bmatrix}"]
+    rv += ["    " + " & ".join(l.split()) + r"\\" for l in lines]
+    rv[-1] = rv[-1][:-2]
+    rv += [r" \end{bmatrix}"]
+    return "".join(rv)
 
 
 def rgate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:

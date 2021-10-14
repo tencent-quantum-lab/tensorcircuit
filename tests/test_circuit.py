@@ -164,7 +164,7 @@ def test_any_inputs_state(backend):
     )
     c.X(0)
     z0 = c.expectation((tc.gates.z(), [0]))
-    assert np.allclose(z0, 0.0, rtol=1e-4)
+    assert np.allclose(z0, 0.0, rtol=1e-4, atol=1e-4)
 
 
 @pytest.mark.parametrize("backend", [None, tfb])

@@ -25,6 +25,16 @@ class Circuit:
     vgates = ["r", "cr", "rx", "ry", "rz", "any", "exp"]
 
     def __init__(self, nqubits: int, inputs: Optional[Tensor] = None) -> None:
+        """
+        Circuit object based on state simulator.
+
+        :param nqubits: The number of qubits in the circuit.
+        :type nqubits: int
+        :param inputs: If not None, the initial state of the circuit is taken as ``inputs`` instead of :math:`\\vert 0\\rangle^n` qubits, defaults to None
+        :type inputs: Optional[Tensor], optional
+        :raises ValueError: nqubits is less than 2.
+        """
+
         _prefix = "qb-"
         if nqubits < 2:
             raise ValueError(
@@ -103,11 +113,17 @@ class Circuit:
         self._nqubits = nqubits
         self._nodes = nodes
         self._start = nodes
-        self._meta_apply()
+        # self._meta_apply()
         self._qcode = ""
         self._qcode += str(self._nqubits) + "\n"
 
     def replace_inputs(self, inputs: Tensor) -> None:
+        """
+        Replace the input state with the circuit structure unchanged.
+
+        :param inputs: Input wavefunction.
+        :type inputs: Tensor
+        """
         assert self.has_inputs is True
         inputs = backend.reshape(inputs, [-1])
         N = inputs.shape[0]
@@ -116,35 +132,78 @@ class Circuit:
         inputs = backend.reshape(inputs, [2 for _ in range(n)])
         self._nodes[0].tensor = inputs
 
-    def _meta_apply(self) -> None:
+    @classmethod
+    def _meta_apply(cls) -> None:
 
         for g in Circuit.sgates:
             setattr(
-                self,
-                g,
-                partial(self.apply_general_gate_delayed, getattr(gates, g), name=g),
+                cls, g, cls.apply_general_gate_delayed(gatef=getattr(gates, g), name=g)
             )
             setattr(
-                self,
+                cls,
                 g.upper(),
-                partial(self.apply_general_gate_delayed, getattr(gates, g), name=g),
+                cls.apply_general_gate_delayed(gatef=getattr(gates, g), name=g),
             )
+            matrix = gates.matrix_for_gate(getattr(gates, g)())
+            matrix = gates.bmatrix(matrix)
+            doc = """
+            Apply %s gate on the circuit.
+
+            :param index: Qubit number than the gate applies on.
+                The matrix for the gate is
+                
+                .. math::
+
+                      %s
+                
+            :type index: int.
+            """ % (
+                g,
+                matrix,
+            )
+            docs = """
+            Apply %s gate on the circuit.
+
+            :param index: Qubit number than the gate applies on.
+            :type index: int.
+            """ % (
+                g
+            )
+            if g in ["rs"]:
+                getattr(cls, g).__doc__ = docs
+                getattr(cls, g.upper()).__doc__ = docs
+
+            else:
+                getattr(cls, g).__doc__ = doc
+                getattr(cls, g.upper()).__doc__ = doc
 
         for g in Circuit.vgates:
             setattr(
-                self,
+                cls,
                 g,
-                partial(
-                    self.apply_general_variable_gate_delayed, getattr(gates, g), name=g
+                cls.apply_general_variable_gate_delayed(
+                    gatef=getattr(gates, g), name=g
                 ),
             )
             setattr(
-                self,
+                cls,
                 g.upper(),
-                partial(
-                    self.apply_general_variable_gate_delayed, getattr(gates, g), name=g
+                cls.apply_general_variable_gate_delayed(
+                    gatef=getattr(gates, g), name=g
                 ),
             )
+            doc = """
+            Apply %s gate with parameters on the circuit.
+
+            :param index: Qubit number than the gate applies on.
+            :type index: int.
+            :param vars: Parameters for the gate
+            :type vars: float.
+            """ % (
+                g
+            )
+            getattr(cls, g).__doc__ = doc
+            getattr(cls, g.upper()).__doc__ = doc
 
     @classmethod
     def from_qcode(
@@ -213,27 +272,33 @@ class Circuit:
 
     apply = apply_general_gate
 
+    @staticmethod
     def apply_general_gate_delayed(
-        self, gatef: Callable[[], Gate], *index: int, name: Optional[str] = None
-    ) -> None:
-        gate = gatef()
-        self.apply_general_gate(gate, *index, name=name)
+        gatef: Callable[[], Gate], name: Optional[str] = None
+    ) -> Callable[..., None]:
+        # nested function must be utilized, functools.partial doesn't work for method register on class
+        def apply(self: "Circuit", *index: int) -> None:
+            gate = gatef()
+            self.apply_general_gate(gate, *index, name=name)
+
+        return apply
 
     applyd = apply_general_gate_delayed
 
+    @staticmethod
     def apply_general_variable_gate_delayed(
-        self,
         gatef: Callable[..., Gate],
-        *index: int,
         name: Optional[str] = None,
-        **vars: float,
-    ) -> None:
-        gate = gatef(**vars)
-        self.apply_general_gate(gate, *index, name=name)
-        self._qcode = self._qcode[:-1] + " "  # rip off the final "\n"
-        for k, v in vars.items():
-            self._qcode += k + " " + str(v) + " "
-        self._qcode = self._qcode[:-1] + "\n"
+    ) -> Callable[..., None]:
+        def apply(self: "Circuit", *index: int, **vars: float) -> None:
+            gate = gatef(**vars)
+            self.apply_general_gate(gate, *index, name=name)
+            self._qcode = self._qcode[:-1] + " "  # rip off the final "\n"
+            for k, v in vars.items():
+                self._qcode += k + " " + str(v) + " "
+            self._qcode = self._qcode[:-1] + "\n"
+
+        return apply
 
     def mid_measurement(self, index: int, keep: int = 0) -> None:
         # normalization not guaranteed
@@ -500,6 +565,9 @@ class Circuit:
                         label=edge_label,
                     )
         return graph
+
+
+Circuit._meta_apply()
 
 
 def expectation(
