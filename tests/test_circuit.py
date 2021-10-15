@@ -2,6 +2,9 @@ import sys
 import os
 import numpy as np
 import pytest
+from pytest_lazyfixture import lazy_fixture as lf
+
+# see https://stackoverflow.com/questions/56307329/how-can-i-parametrize-tests-to-run-with-different-fixtures-in-pytest
 
 thisfile = os.path.abspath(__file__)
 modulepath = os.path.dirname(os.path.dirname(thisfile))
@@ -83,25 +86,23 @@ def universal_ad():
         return tc.backend.real(c.expectation((tc.gates.z(), [0])))
 
     gg = tc.backend.grad(forward)
+    vag = tc.backend.value_and_grad(forward)
     gg = tc.backend.jit(gg)
+    vag = tc.backend.jit(vag)
     theta = tc.gates.num_to_tensor(1.0)
-    return gg(theta)
+    grad1 = gg(theta)
+    v2, grad2 = vag(theta)
+    assert grad1 == grad2
+    return v2, grad2
 
 
-def test_ad():
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_ad(backend):
     # this amazingly shows how to code once and run in very different AD-ML engines
-    tc.set_backend("tensorflow")
-    universal_ad()
-    try:
-        tc.set_backend("jax")
-        universal_ad()
-    except ImportError as e:
-        pass
-    tc.set_backend("numpy")
+    print(universal_ad())
 
 
-@pytest.mark.parametrize("backend", [None, tfb])
-def test_expectation_between_two_states(backend):
+def test_expectation_between_two_states():
     zp = np.array([1.0, 0.0])
     zd = np.array([0.0, 1.0])
     assert tc.expectation((tc.gates.y(), [0]), ket=zp, bra=zd) == 1j
@@ -144,7 +145,7 @@ def test_expectation_between_two_states(backend):
     assert np.allclose(e2, 1.0 / np.sqrt(2))
 
 
-@pytest.mark.parametrize("backend", [None, tfb])
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_any_inputs_state(backend):
     c = tc.Circuit(2, inputs=tc.array_to_tensor(np.array([0.0, 0.0, 0.0, 1.0])))
     c.X(0)
@@ -167,7 +168,7 @@ def test_any_inputs_state(backend):
     assert np.allclose(z0, 0.0, rtol=1e-4, atol=1e-4)
 
 
-@pytest.mark.parametrize("backend", [None, tfb])
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb")])
 def test_postselection(backend):
     c = tc.Circuit(3)
     c.H(1)
@@ -175,4 +176,4 @@ def test_postselection(backend):
     c.mid_measurement(1, 1)
     c.mid_measurement(2, 1)
     s = c.wavefunction()[0]
-    assert round(np.real(s[3]), 1) == 0.5
+    assert np.allclose(tc.backend.real(s[3]), 0.5)

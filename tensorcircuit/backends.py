@@ -2,7 +2,7 @@
 backend magic inherited from tensornetwork
 """
 
-from typing import Union, Text, Any, Optional, Callable, Sequence
+from typing import Union, Text, Any, Optional, Callable, Sequence, Tuple
 from functools import partial
 from scipy.linalg import expm
 import numpy as np
@@ -68,7 +68,14 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def cast(self, a: Tensor, dtype: str) -> Tensor:
         return a.astype(getattr(np, dtype))
 
-    def grad(self, f: Callable[..., Any]) -> Callable[..., Any]:
+    def grad(
+        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+    ) -> Callable[..., Any]:
+        raise NotImplementedError("numpy backend doesn't support AD")
+
+    def value_and_grad(
+        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+    ) -> Callable[..., Tuple[Any, Any]]:
         raise NotImplementedError("numpy backend doesn't support AD")
 
     def jit(self, f: Callable[..., Any]) -> Callable[..., Any]:
@@ -166,6 +173,11 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         # TODO
         return libjax.grad(f, argnums=argnums)
 
+    def value_and_grad(
+        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+    ) -> Callable[..., Tuple[Any, Any]]:  # type: ignore
+        return libjax.value_and_grad(f, argnums=argnums)
+
     def jit(self, f: Callable[..., Any]) -> Any:
         return libjax.jit(f)
 
@@ -257,6 +269,22 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
 
         return wrapper
 
+    def value_and_grad(
+        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+    ) -> Callable[..., Tuple[Any, Any]]:
+        def wrapper(*args: Any, **kws: Any) -> Any:
+            with tf.GradientTape() as t:
+                t.watch(args)
+                y = f(*args, **kws)
+                if isinstance(argnums, int):
+                    x = args[argnums]
+                else:
+                    x = [args[i] for i in argnums]
+                g = t.gradient(y, x)
+            return y, g
+
+        return wrapper
+
     def jit(self, f: Callable[..., Any]) -> Any:
         return tf.function(f)
 
@@ -336,6 +364,31 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
             if len(gs) == 1:
                 gs = gs[0]
             return gs
+
+        return wrapper
+
+    def value_and_grad(
+        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+    ) -> Callable[..., Tuple[Any, Any]]:
+        def wrapper(*args: Any, **kws: Any) -> Any:
+            x = []
+            if isinstance(argnums, int):
+                argnumsl = [argnums]
+                # if you also call lhs as argnums, something weird may happen
+                # the reason is that python then take it as local vars
+            else:
+                argnumsl = argnums  # type: ignore
+            for i, arg in enumerate(args):
+                if i in argnumsl:
+                    x.append(arg.requires_grad_(True))
+                else:
+                    x.append(arg)
+            y = f(*x, **kws)
+            y.backward()
+            gs = [x[i].grad for i in argnumsl]
+            if len(gs) == 1:
+                gs = gs[0]
+            return y, gs
 
         return wrapper
 

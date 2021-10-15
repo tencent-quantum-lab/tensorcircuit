@@ -59,6 +59,12 @@ git clone git@github.com:yourgithub/tensorcircuit-dev.git
 export PYTHONPATH=/path/for/tensorcircuit/
 ```
 
+or a better approach for the last step
+
+```bash
+python setup.py develop
+```
+
 Now, you are ready to `import tensorcircuit` and enjoy coding.
 
 ### Docs

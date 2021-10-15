@@ -12,11 +12,6 @@ from .backends import backend  # type: ignore
 Gate = gates.Gate
 Tensor = Any
 
-g00 = Gate(np.array([[1, 0], [0, 0]], dtype=cons.npdtype))
-g01 = Gate(np.array([[0, 1], [0, 0]], dtype=cons.npdtype))
-g10 = Gate(np.array([[0, 0], [1, 0]], dtype=cons.npdtype))
-g11 = Gate(np.array([[0, 0], [0, 1]], dtype=cons.npdtype))
-
 
 def _sqrt(a: Tensor) -> Tensor:
     return backend.cast(backend.sqrt(a), dtype=cons.dtypestr)
@@ -35,6 +30,10 @@ def amplitudedampingchannel(gamma: float, p: float) -> Sequence[Gate]:
     # https://cirq.readthedocs.io/en/stable/docs/noise.html
     # https://github.com/quantumlib/Cirq/blob/master/cirq/ops/common_channels.py
     # amplitude damping corrspondings to p=1
+    g00 = Gate(np.array([[1, 0], [0, 0]], dtype=cons.npdtype))
+    g01 = Gate(np.array([[0, 1], [0, 0]], dtype=cons.npdtype))
+    g10 = Gate(np.array([[0, 0], [1, 0]], dtype=cons.npdtype))
+    g11 = Gate(np.array([[0, 0], [0, 1]], dtype=cons.npdtype))
     m0 = _sqrt(p) * (g00 + _sqrt(1 - gamma) * g11)
     m1 = _sqrt(p) * (_sqrt(gamma) * g01)
     m2 = _sqrt(1 - p) * (_sqrt(1 - gamma) * g00 + g11)
@@ -49,6 +48,8 @@ def resetchannel() -> Sequence[Gate]:
 
 
 def phasedampingchannel(gamma: float) -> Sequence[Gate]:
+    g00 = Gate(np.array([[1, 0], [0, 0]], dtype=cons.npdtype))
+    g11 = Gate(np.array([[0, 0], [0, 1]], dtype=cons.npdtype))
     m0 = g00 + _sqrt(1 - gamma) * g11
     m1 = _sqrt(gamma) * g11
     return [m0, m1]

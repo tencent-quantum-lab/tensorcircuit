@@ -1,5 +1,6 @@
 numpy
 scipy
+cirq
 tensorflow
 tensornetwork
 graphviz

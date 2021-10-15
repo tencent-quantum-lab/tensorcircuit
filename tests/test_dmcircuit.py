@@ -2,6 +2,7 @@ import sys
 import os
 import numpy as np
 import pytest
+from pytest_lazyfixture import lazy_fixture as lf
 import tensorflow as tf
 
 thisfile = os.path.abspath(__file__)
@@ -44,7 +45,7 @@ def test_gate_depolarizing():
     )
 
 
-@pytest.mark.parametrize("backend", [None, tfb])
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb")])
 def test_channel_identity(backend):
     cs = depolarizingchannel(0.1, 0.15, 0.2)
     tc.channels.single_qubit_kraus_identity_check(cs)
