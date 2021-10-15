@@ -73,7 +73,7 @@ autodoc_default_options = {
     "members": True,
     "special-members": "__init__",
     "undoc-members": True,
-    "private-members": True,
+    "private-members": False,
     "exclude-members": "__weakref__, _abc_cache, _abc_negative_cache, _abc_negative_cache_version,_abc_registry",
 }
 

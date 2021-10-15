@@ -1,5 +1,5 @@
 """
-quantum circuit class
+quantum circuit: state simulator
 """
 
 from functools import partial
@@ -210,10 +210,11 @@ class Circuit:
         cls, qcode: str
     ) -> "Circuit":  # forward reference, see https://github.com/python/mypy/issues/3661
         """
-        make circuit object from non universal simple assembly quantum language
+        [WIP], make circuit object from non universal simple assembly quantum language
 
         :param qcode:
-        :return:
+        :type qcode: str
+        :return: :py:class:`Circuit` object
         """
         lines = [s for s in qcode.split("\n") if s.strip()]
         nqubits = int(lines[0])
@@ -238,6 +239,12 @@ class Circuit:
         return c
 
     def to_qcode(self) -> str:
+        """
+        [WIP]
+
+        :return: qcode str of corresponding circuit
+        :rtype: str
+        """
         return self._qcode
 
     def apply_single_gate(self, gate: Gate, index: int) -> None:
@@ -277,6 +284,7 @@ class Circuit:
         gatef: Callable[[], Gate], name: Optional[str] = None
     ) -> Callable[..., None]:
         # nested function must be utilized, functools.partial doesn't work for method register on class
+        # see https://re-ra.xyz/Python-中实例方法动态绑定的几组最小对立/
         def apply(self: "Circuit", *index: int) -> None:
             gate = gatef()
             self.apply_general_gate(gate, *index, name=name)
@@ -387,6 +395,12 @@ class Circuit:
         return newnodes, newfront
 
     def wavefunction(self) -> tn.Node.tensor:
+        """
+        compute the output wavefunction from the circuit
+
+        :return: Tensor with shape [-1, 1]
+        :rtype: Tensor
+        """
         nodes, d_edges = self._copy()
         t = contractor(nodes, output_edge_order=d_edges)
         return backend.reshape(t.tensor, shape=[1, -1])
@@ -438,7 +452,6 @@ class Circuit:
         :param with_prob: if true, theoretical probability is also returned
         :return:
         """
-        # TODO: consideration on how to deal with measure in the middle of the circuit
         sample = ""
         p = 1.0
         for j in index:
@@ -487,6 +500,18 @@ class Circuit:
     def expectation(
         self, *ops: Tuple[tn.Node, List[int]], reuse: bool = True
     ) -> tn.Node.tensor:
+        """
+        compute expectation of corresponding operators
+
+
+        :param ops: operator and its position on the circuit, eg. ``(gates.Z(), [1]), (gates.X(), [2])`` is for operator :math:`Z_1X_2`
+        :type ops: Tuple[tn.Node, List[int]]
+        :param reuse: if True, then the wavefunction tensor is cached for further expectation evaluation, defaults to True
+        :type reuse: bool, optional
+        :raises ValueError: [description]
+        :return: Tensor with one element
+        :rtype: Tensor
+        """
         # if not reuse:
         #     nodes1, edge1 = self._copy()
         #     nodes2, edge2 = self._copy(conj=True)
@@ -577,6 +602,21 @@ def expectation(
     conj: bool = True,
     normalization: bool = False,
 ) -> Tensor:
+    """
+    compute :math:`\\langle bra\\vert ops \\vert ket\\rangle`
+
+    :param ket: [description]
+    :type ket: Tensor
+    :param bra: [description], defaults to None, which is the same as ``ket``
+    :type bra: Optional[Tensor], optional
+    :param conj: [description], defaults to True
+    :type conj: bool, optional
+    :param normalization: [description], defaults to False
+    :type normalization: bool, optional
+    :raises ValueError: [description]
+    :return: [description]
+    :rtype: Tensor
+    """
     if bra is None:
         bra = ket
     if conj is True:

@@ -1,5 +1,5 @@
 """
-Declarations of single qubit and two-qubit gates.
+declarations of single-qubit and two-qubit gates and their corresponding matrix
 """
 
 import sys
@@ -163,12 +163,17 @@ def matrix_for_gate(gate: Gate) -> Tensor:
 
 
 def bmatrix(a: np.array) -> str:
-    """Returns a LaTeX bmatrix
-    From https://stackoverflow.com/questions/17129290/numpy-2d-and-1d-array-to-latex-bmatrix/17131750
-
-    :a: numpy array
-    :returns: LaTeX bmatrix as a string
     """
+    Returns a LaTeX bmatrix
+
+    :param a: 2D numpy array
+    :type a: np.array
+    :raises ValueError: [description]
+    :return: latex str for bmatrix of array a
+    :rtype: str
+    """
+    #   Adopted from https://stackoverflow.com/questions/17129290/numpy-2d-and-1d-array-to-latex-bmatrix/17131750
+
     if len(a.shape) > 2:
         raise ValueError("bmatrix can at most display two dimensions")
     lines = str(a).replace("[", "").replace("]", "").splitlines()

@@ -1,5 +1,5 @@
 """
-some cons and sets.
+some constants and setups
 """
 
 from typing import Optional, Any, List
@@ -32,10 +32,10 @@ contractor = tn.contractors.auto
 
 def set_tensornetwork_backend(backend: Optional[str] = None) -> None:
     """
-    set the runtime backend of tensornetwork
+    set the runtime backend of tensorcircuit
 
-    :param backend: numpy, tensorflow, jax, pytorch
-    :return:
+    :param backend: "numpy", "tensorflow", "jax", "pytorch". defaults to None, which gives the same behavior as ``tensornetwork.backend_contextmanager.get_default_backend()``
+    :type backend: Optional[str], optional
     """
     if not backend:
         backend = get_default_backend()
@@ -53,6 +53,12 @@ set_tensornetwork_backend()
 
 
 def set_dtype(dtype: Optional[str] = None) -> None:
+    """
+    set the runtime numerical dtype of tensors
+
+    :param dtype: "complex64" or "complex128", defaults to None, which is equivalent to "complex64"
+    :type dtype: Optional[str], optional
+    """
     if not dtype:
         dtype = "complex64"
     npdtype = getattr(np, dtype)
@@ -78,6 +84,16 @@ def _multi_remove(elems: List[Any], indices: List[int]) -> List[Any]:
 def plain_contractor(
     nodes: List[Any], output_edge_order: Optional[List[Any]] = None
 ) -> Any:
+    """
+    naive statevector simulator contraction path
+
+    :param nodes: list of ``tn.Node``
+    :type nodes: List[Any]
+    :param output_edge_order: list of dangling node edges, defaults to None
+    :type output_edge_order: Optional[List[Any]], optional
+    :return: ``tn.Node`` after contraction
+    :rtype: tn.Node
+    """
     nodes = list(reversed(nodes))
     while len(nodes) > 1:
         new_node = tn.contract_between(nodes[-1], nodes[-2], allow_outer_product=True)
@@ -113,6 +129,7 @@ except AttributeError:
 
 
 def d2s(n: int, dl: List[Any]) -> List[Any]:
+    # dynamic to static list
     nums = [i for i in range(n)]
     i = n
     sl = []
@@ -173,6 +190,18 @@ def set_contractor(
     memory_limit: Optional[int] = None,
     **kws: Any
 ) -> None:
+    """
+    set runtim contractor of the tensornetwork for a better contraction path
+
+    :param method: "auto", "greedy", "branch", "plain", "tng", "custom", "custom_stateful". defaults to None ("auto")
+    :type method: Optional[str], optional
+    :param optimizer: valid for "custom" or "custom_stateful" as method, defaults to None
+    :type optimizer: Optional[Any], optional
+    :param memory_limit: not very useful, as ``memory_limit`` leads to ``branch`` contraction instead of ``greedy`` which is rather slow, defaults to None
+    :type memory_limit: Optional[int], optional
+    :raises Exception: tensornetwork version is too low to support some of the contractors
+    :raises ValueError: unknown method options
+    """
     if not method:
         method = "auto"
     if method == "plain":
