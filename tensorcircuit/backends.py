@@ -175,8 +175,8 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
 
     def value_and_grad(
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
-    ) -> Callable[..., Tuple[Any, Any]]:  # type: ignore
-        return libjax.value_and_grad(f, argnums=argnums)
+    ) -> Callable[..., Tuple[Any, Any]]:
+        return libjax.value_and_grad(f, argnums=argnums)  # type: ignore
 
     def jit(self, f: Callable[..., Any]) -> Any:
         return libjax.jit(f)
