@@ -40,7 +40,11 @@ print(g(theta))
 
 ### Guidelines
 
-Please open issues or PRs, DONT directly push to this repo!
+Please open issues or PRs.
+
+NEVER directly push to this repo!
+
+Keep the codebase private!
 
 ### Install
 

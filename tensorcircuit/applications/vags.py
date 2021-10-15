@@ -8,7 +8,6 @@ import operator
 from functools import lru_cache, partial
 import numpy as np
 import cirq
-from cirq.contrib.svg import SVGCircuit  # type: ignore
 
 import tensorflow as tf
 from typing import (
@@ -1497,6 +1496,7 @@ def color_svg(circuit: cirq.Circuit, *coords: Tuple[int, int]) -> Any:
     :return:
     """
     import xml
+    from cirq.contrib.svg import SVGCircuit  # type: ignore
 
     svg_str = SVGCircuit(circuit)._repr_svg_()
     DOMTree = xml.dom.minidom.parseString(svg_str)  # type: ignore
