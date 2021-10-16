@@ -1,6 +1,6 @@
 numpy
 scipy
-cirq
+cirq==0.12.0
 tensorflow==2.4.1
 tensorflow-quantum==0.5.1
 tensornetwork
