@@ -21,6 +21,7 @@ modules = [
     "tensorcircuit.backends",
     "tensorcircuit.densitymatrix",
     "tensorcircuit.channels",
+    "tensorcircuit.keras",
 ]
 
 dtypestr = "complex64"
@@ -61,10 +62,16 @@ def set_dtype(dtype: Optional[str] = None) -> None:
     """
     if not dtype:
         dtype = "complex64"
+    if dtype == "complex64":
+        rdtype = "float32"
+    else:
+        rdtype = "float64"
+
     npdtype = getattr(np, dtype)
     for module in modules:
         if module in sys.modules:
             setattr(sys.modules[module], "dtypestr", dtype)
+            setattr(sys.modules[module], "rdtypestr", rdtype)
             setattr(sys.modules[module], "npdtype", npdtype)
     from .gates import meta_gate
 
