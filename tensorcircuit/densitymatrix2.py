@@ -206,7 +206,7 @@ class DMCircuit2:
         # if len(index) == 1:
         #     index = [index[0] for _ in range(len(kraus))]
         super_op = kraus_to_super_gate(kraus)
-        nlegs = int(np.log2(backend.size(super_op)))
+        nlegs = 4 * len(index)
         super_op = backend.reshape(super_op, [2 for _ in range(nlegs)])
         super_op = Gate(super_op)
         o2i = int(nlegs / 2)

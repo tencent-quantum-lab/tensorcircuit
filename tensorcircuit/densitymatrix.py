@@ -203,7 +203,7 @@ class DMCircuit:
     def apply_general_kraus(
         self, kraus: Sequence[Gate], index: Sequence[Tuple[int]]
     ) -> None:
-        # TODO: quick way to apply layers of kraus: seems no simply way to do that?
+        # note the API difference for index arg between DM and DM2
         self.check_kraus(kraus)
         assert len(kraus) == len(index) or len(index) == 1
         if len(index) == 1:
