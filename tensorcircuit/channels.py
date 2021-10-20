@@ -61,3 +61,13 @@ def single_qubit_kraus_identity_check(kraus: Sequence[Gate]) -> None:
     for k in kraus:
         placeholder += backend.conj(backend.transpose(k.tensor, [1, 0])) @ k.tensor
     np.testing.assert_allclose(placeholder, np.eye(2), atol=1e-5)
+
+
+def kraus_to_super_gate(kraus_list: Sequence[Gate]) -> Tensor:
+    # only valid for single qubit kraus case
+    kraus_tensor_list = [k.tensor for k in kraus_list]
+    k = kraus_tensor_list[0]
+    u = backend.kron(k, backend.conj(k))
+    for k in kraus_tensor_list[1:]:
+        u += backend.kron(k, backend.conj(k))
+    return u

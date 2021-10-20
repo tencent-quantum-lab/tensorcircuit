@@ -21,6 +21,19 @@ class QuantumLayer(Layer):  # type: ignore
         constraint: Optional[Union[Text, Sequence[Text]]] = None,
         **kwargs: Any
     ) -> None:
+        """
+        `QuantumLayer` wraps the quantum function `f` as a `keras.Layer`,
+        so that tensorcircuit is better integrated with tensorflow
+
+        :param f: [description]
+        :type f: Callable[..., Any]
+        :param weights_shape: [description]
+        :type weights_shape: Sequence[Tuple[int, ...]]
+        :param initializer: [description], defaults to "glorot_uniform"
+        :type initializer: Union[Text, Sequence[Text]], optional
+        :param constraint: [description], defaults to None
+        :type constraint: Optional[Union[Text, Sequence[Text]]], optional
+        """
 
         super().__init__(**kwargs)
         if isinstance(weights_shape[0], int):
@@ -98,4 +111,14 @@ class QuantumLayer(Layer):  # type: ignore
 
 
 def output_loss(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
+    """
+    keras loss function that directly taking the model output at the loss
+
+    :param y_true: [description]
+    :type y_true: tf.Tensor
+    :param y_pred: [description]
+    :type y_pred: tf.Tensor
+    :return: [description]
+    :rtype: tf.Tensor
+    """
     return y_pred

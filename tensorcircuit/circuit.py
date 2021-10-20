@@ -291,8 +291,6 @@ class Circuit:
 
         return apply
 
-    applyd = apply_general_gate_delayed
-
     @staticmethod
     def apply_general_variable_gate_delayed(
         gatef: Callable[..., Gate],

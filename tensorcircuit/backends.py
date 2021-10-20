@@ -50,6 +50,15 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def cos(self, a: Tensor) -> Tensor:
         return np.cos(a)
 
+    def size(self, a: Tensor) -> Tensor:
+        return a.size
+
+    def kron(self, a: Tensor, b: Tensor) -> Tensor:
+        return np.kron(a, b)
+
+    def numpy(self, a: Tensor) -> Tensor:
+        return a
+
     def i(self, dtype: Any = None) -> Tensor:
         if not dtype:
             dtype = npdtype  # type: ignore
@@ -107,8 +116,8 @@ tensornetwork.backends.jax.jax_backend.JaxBackend.convert_to_tensor = (
 
 class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     # Jax doesn't support 64bit dtype, unless claim
-    # from jax.config import config
-    # config.update("jax_enable_x64", True)
+    # ``from jax.config import config```
+    # ``config.update("jax_enable_x64", True)``
     # at very beginning, i.e. before import tensorcircuit
     def __init__(self) -> None:
         global libjax  # Jax module
@@ -141,6 +150,15 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
 
     def cos(self, a: Tensor) -> Tensor:
         return jnp.cos(a)
+
+    def size(self, a: Tensor) -> Tensor:
+        return jnp.size(a)
+
+    def kron(self, a: Tensor, b: Tensor) -> Tensor:
+        return jnp.kron(a, b)
+
+    def numpy(self, a: Tensor) -> Tensor:
+        return np.array(a)
 
     def i(self, dtype: Any = None) -> Tensor:
         if not dtype:
@@ -229,6 +247,20 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
 
     def cos(self, a: Tensor) -> Tensor:
         return tf.math.cos(a)
+
+    def size(self, a: Tensor) -> Tensor:
+        return tf.size(a)
+
+    def kron(self, a: Tensor, b: Tensor) -> Tensor:
+        # array more than 2d consistency is not guranteed for different backends
+        return tf.reshape(
+            tf.reshape(a, [a.shape[0], 1, a.shape[1], 1])
+            * tf.reshape(b, [1, b.shape[0], 1, b.shape[1]]),
+            [a.shape[0] * b.shape[0], a.shape[1] * b.shape[1]],
+        )
+
+    def numpy(self, a: Tensor) -> Tensor:
+        return a.numpy()  # only valid in eager mode
 
     def i(self, dtype: Any = None) -> Tensor:
         if not dtype:
@@ -324,6 +356,15 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
 
     def cos(self, a: Tensor) -> Tensor:
         return torchlib.cos(a)
+
+    def size(self, a: Tensor) -> Tensor:
+        return a.size()
+
+    def kron(self, a: Tensor, b: Tensor) -> Tensor:
+        return torchlib.kron(a, b)
+
+    def numpy(self, a: Tensor) -> Tensor:
+        return a.numpy()
 
     def i(self, dtype: Any = None) -> Tensor:
         raise NotImplementedError(

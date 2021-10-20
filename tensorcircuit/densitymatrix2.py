@@ -1,5 +1,5 @@
 """
-quantum circuit class but with density matrix simulator
+quantum circuit class but with density matrix simulator: v2
 """
 
 from functools import partial, reduce
@@ -13,13 +13,13 @@ import graphviz
 from . import gates
 from .cons import dtypestr, npdtype, backend, contractor
 from .circuit import Circuit
+from .channels import kraus_to_super_gate
 
 Gate = gates.Gate
 Tensor = Any
 
-# TODO: Monte Carlo State Circuit Simulator
-# note not all channels but only deploarizing channel can be simulated in that Monte Carlo way with pure state simulators
-class DMCircuit:
+
+class DMCircuit2:
     def __init__(
         self, nqubits: int, empty: bool = False, inputs: Optional[Tensor] = None
     ) -> None:
@@ -147,9 +147,9 @@ class DMCircuit:
             newfront.append(edict[e])
         return newnodes, newfront
 
-    def _copy_DMCircuit(self) -> "DMCircuit":
+    def _copy_DMCircuit(self) -> "DMCircuit2":
         newnodes, newfront = self._copy(self._nodes, self._lfront + self._rfront)
-        newDMCircuit = DMCircuit(self._nqubits, empty=True)
+        newDMCircuit = DMCircuit2(self._nqubits, empty=True)
         newDMCircuit._nqubits = self._nqubits
         newDMCircuit._lfront = newfront[: self._nqubits]
         newDMCircuit._rfront = newfront[self._nqubits :]
@@ -179,7 +179,7 @@ class DMCircuit:
     def apply_general_gate_delayed(
         gatef: Callable[[], Gate], name: Optional[str] = None
     ) -> Callable[..., None]:
-        def apply(self: "DMCircuit", *index: int) -> None:
+        def apply(self: "DMCircuit2", *index: int) -> None:
             gate = gatef()
             self.apply_general_gate(gate, *index, name=name)
 
@@ -190,7 +190,7 @@ class DMCircuit:
         gatef: Callable[..., Gate],
         name: Optional[str] = None,
     ) -> Callable[..., None]:
-        def apply(self: "DMCircuit", *index: int, **vars: float) -> None:
+        def apply(self: "DMCircuit2", *index: int, **vars: float) -> None:
             gate = gatef(**vars)
             self.apply_general_gate(gate, *index, name=name)
 
@@ -200,31 +200,25 @@ class DMCircuit:
     def check_kraus(kraus: Sequence[Gate]) -> bool:  # TODO
         return True
 
-    def apply_general_kraus(
-        self, kraus: Sequence[Gate], index: Sequence[Tuple[int]]
-    ) -> None:
-        # TODO: quick way to apply layers of kraus: seems no simply way to do that?
+    def apply_general_kraus(self, kraus: Sequence[Gate], *index: int) -> None:
         self.check_kraus(kraus)
         assert len(kraus) == len(index) or len(index) == 1
-        if len(index) == 1:
-            index = [index[0] for _ in range(len(kraus))]
-        self._contract()
-        circuits = []
-        for k, i in zip(kraus, index):
-            dmc = self._copy_DMCircuit()
-            dmc.apply_general_gate(k, *i)
-            dd = dmc.densitymatrix()
-            circuits.append(dd)
-        tensor = reduce(add, circuits)
-        tensor = backend.reshape(tensor, [2 for _ in range(2 * self._nqubits)])
-        self._nodes = [Gate(tensor)]
-        dangling = [e for e in self._nodes[0]]
-        self._lfront = dangling[: self._nqubits]
-        self._rfront = dangling[self._nqubits :]
+        # if len(index) == 1:
+        #     index = [index[0] for _ in range(len(kraus))]
+        super_op = kraus_to_super_gate(kraus)
+        nlegs = int(np.log2(backend.size(super_op)))
+        super_op = backend.reshape(super_op, [2 for _ in range(nlegs)])
+        super_op = Gate(super_op)
+        o2i = int(nlegs / 2)
+        r2l = int(nlegs / 4)
+        for i, ind in enumerate(index):
+            super_op.get_edge(i + r2l + o2i) ^ self._lfront[ind]
+            self._lfront[ind] = super_op.get_edge(i + r2l)
+            super_op.get_edge(i + o2i) ^ self._rfront[ind]
+            self._rfront[ind] = super_op.get_edge(i)
+        self._nodes.append(super_op)
 
     def densitymatrix(self, check: bool = False) -> tn.Node.tensor:
-        if len(self._nodes) > 1:
-            self._contract()
         nodes, d_edges = self._copy(self._nodes, self._lfront + self._rfront)
         t = contractor(nodes, output_edge_order=d_edges)
         dm = backend.reshape(t.tensor, shape=[2 ** self._nqubits, 2 ** self._nqubits])
@@ -233,8 +227,6 @@ class DMCircuit:
         return dm
 
     def expectation(self, *ops: Tuple[tn.Node, List[int]]) -> tn.Node.tensor:
-        if len(self._nodes) > 1:
-            self._contract()
         newdm, newdang = self._copy(self._nodes, self._lfront + self._rfront)
         occupied = set()
         nodes = newdm
@@ -313,4 +305,4 @@ class DMCircuit:
         return graph
 
 
-DMCircuit._meta_apply()
+DMCircuit2._meta_apply()

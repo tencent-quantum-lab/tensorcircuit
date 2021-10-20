@@ -7,6 +7,6 @@ tensornetwork
 graphviz
 jax
 jaxlib
-torch
-torchvision
+# torch
+# torchvision
 networkx

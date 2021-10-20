@@ -21,6 +21,15 @@ tensorcircuit.circuit module
     :undoc-members:
     :show-inheritance:
 
+tensorcircuit.channels module
+-------------------------------------
+
+.. automodule:: tensorcircuit.channels
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 tensorcircuit.cons module
 -------------------------------------
 
@@ -29,10 +38,27 @@ tensorcircuit.cons module
     :undoc-members:
     :show-inheritance:
 
+tensorcircuit.densitymatrix module
+-------------------------------------
+
+.. automodule:: tensorcircuit.densitymatrix
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 tensorcircuit.gates module
 ---------------------------------
 
 .. automodule:: tensorcircuit.gates
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+tensorcircuit.keras module
+---------------------------------
+
+.. automodule:: tensorcircuit.keras
     :members:
     :undoc-members:
     :show-inheritance:

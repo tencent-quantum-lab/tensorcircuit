@@ -20,6 +20,7 @@ modules = [
     "tensorcircuit.circuit",
     "tensorcircuit.backends",
     "tensorcircuit.densitymatrix",
+    "tensorcircuit.densitymatrix2",
     "tensorcircuit.channels",
     "tensorcircuit.keras",
 ]
