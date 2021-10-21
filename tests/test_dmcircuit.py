@@ -22,7 +22,7 @@ def test_gate_dm():
     assert np.allclose(c.expectation((tc.gates.z(), [1])), -1.0)
 
 
-def test_dm_inputs():
+def test_state_inputs():
     w = np.zeros([8])
     w[1] = 1.0
     c = tc.DMCircuit(3, inputs=w)
@@ -45,6 +45,28 @@ def test_dm_inputs():
     c.Y(0)
     print(c.densitymatrix())
     assert np.allclose(c.densitymatrix(), answer)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("jaxb"), lf("tfb")])
+def test_dm_inputs(backend):
+    rho0 = np.array([[0, 0, 0, 0], [0, 0.5, 0, -0.5j], [0, 0, 0, 0], [0, 0.5j, 0, 0.5]])
+    b1 = np.array([[0, 1.0j], [0, 0]])
+    b2 = np.array([[0, 0], [1.0j, 0]])
+    ib1 = np.kron(np.eye(2), b1)
+    ib2 = np.kron(np.eye(2), b2)
+    rho1 = ib1 @ rho0 @ np.transpose(np.conj(ib1)) + ib2 @ rho0 @ np.transpose(
+        np.conj(ib2)
+    )
+    iy = np.kron(np.eye(2), np.array([[0, -1.0j], [1.0j, 0]]))
+    rho2 = iy @ rho1 @ np.transpose(np.conj(iy))
+    rho0 = rho0.astype(np.complex64)
+    b1 = b1.astype(np.complex64)
+    b2 = b2.astype(np.complex64)
+    c = tc.DMCircuit2(nqubits=2, dminputs=rho0)
+    c.apply_general_kraus([tc.gates.Gate(b1), tc.gates.Gate(b2)], 1)
+    assert np.allclose(c.densitymatrix(), rho1, atol=1e-4)
+    c.y(1)
+    assert np.allclose(c.densitymatrix(), rho2, atol=1e-4)
 
 
 def test_inputs_and_kraus():

@@ -22,7 +22,11 @@ Tensor = Any
 # note not all channels but only deploarizing channel can be simulated in that Monte Carlo way with pure state simulators
 class DMCircuit:
     def __init__(
-        self, nqubits: int, empty: bool = False, inputs: Optional[Tensor] = None
+        self,
+        nqubits: int,
+        empty: bool = False,
+        inputs: Optional[Tensor] = None,
+        dminputs: Optional[Tensor] = None,
     ) -> None:
         if not empty:
             _prefix = "qb-"
@@ -30,7 +34,7 @@ class DMCircuit:
                 raise ValueError(
                     f"Number of qubits must be greater than 2 but is {nqubits}."
                 )
-            if inputs is None:
+            if (inputs is None) and (dminputs is None):
                 # Get nodes on the interior
                 nodes = [
                     tn.Node(
@@ -86,7 +90,11 @@ class DMCircuit:
                     )  # something wrong here?
                     tn.connect(nodes[-1].get_edge(1), nodes[-2].get_edge(2))
                 self._rfront = [n.get_edge(0) for n in nodes]
-            else:
+
+                lnodes, self._lfront = self._copy(nodes, self._rfront, conj=True)
+                lnodes.extend(nodes)
+                self._nodes = lnodes
+            elif inputs is not None:
                 inputs = backend.reshape(inputs, [-1])
                 N = inputs.shape[0]
                 n = int(np.log(N) / np.log(2))
@@ -96,11 +104,18 @@ class DMCircuit:
                 nodes = [inputs]
                 self._rfront = [inputs.get_edge(i) for i in range(n)]
 
+                lnodes, self._lfront = self._copy(nodes, self._rfront, conj=True)
+                lnodes.extend(nodes)
+                self._nodes = lnodes
+            else:  # dminputs is not None
+                dminputs = backend.reshape(dminputs, [2 for _ in range(2 * nqubits)])
+                dminputs = Gate(dminputs)
+                nodes = [dminputs]
+                self._rfront = [dminputs.get_edge(i) for i in range(nqubits)]
+                self._lfront = [dminputs.get_edge(i + nqubits) for i in range(nqubits)]
+                self._nodes = nodes
+
             self._nqubits = nqubits
-            lnodes, self._lfront = self._copy(nodes, self._rfront, conj=True)
-            lnodes.extend(nodes)
-            self._nodes = lnodes
-            self._meta_apply()
 
     @classmethod
     def _meta_apply(cls) -> None:
