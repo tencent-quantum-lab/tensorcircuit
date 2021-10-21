@@ -179,6 +179,27 @@ class DMCircuit:
         newDMCircuit._nodes = newnodes
         return newDMCircuit
 
+    def _copy_dm_tensor(
+        self, conj: bool = False, reuse: bool = True
+    ) -> Tuple[List[tn.Node], List[tn.Edge]]:
+        if reuse:
+            t = getattr(self, "state_tensor", None)
+        else:
+            t = None
+        if t is None:
+            nodes, d_edges = self._copy(
+                self._nodes, self._rfront + self._lfront, conj=conj
+            )
+            t = contractor(nodes, output_edge_order=d_edges)
+            setattr(self, "state_tensor", t)
+        ndict, edict = tn.copy([t], conjugate=conj)
+        newnodes = []
+        newnodes.append(ndict[t])
+        newfront = []
+        for e in t.edges:
+            newfront.append(edict[e])
+        return newnodes, newfront
+
     def _contract(self) -> None:
         t = contractor(self._nodes, output_edge_order=self._rfront + self._lfront)
         self._nodes = [t]
@@ -197,6 +218,7 @@ class DMCircuit:
             self._lfront[ind] = lgate.get_edge(i)
         self._nodes.append(gate)
         self._nodes.append(lgate)
+        setattr(self, "state_tensor", None)
 
     @staticmethod
     def apply_general_gate_delayed(
@@ -244,6 +266,7 @@ class DMCircuit:
         dangling = [e for e in self._nodes[0]]
         self._rfront = dangling[: self._nqubits]
         self._lfront = dangling[self._nqubits :]
+        setattr(self, "state_tensor", None)
 
     @staticmethod
     def apply_general_kraus_delayed(
@@ -255,12 +278,12 @@ class DMCircuit:
 
         return apply
 
-    def densitymatrix(self, check: bool = False) -> tn.Node.tensor:
-        if len(self._nodes) > 1:
-            self._contract()
-        nodes, d_edges = self._copy(self._nodes, self._rfront + self._lfront)
-        t = contractor(nodes, output_edge_order=d_edges)
-        dm = backend.reshape(t.tensor, shape=[2 ** self._nqubits, 2 ** self._nqubits])
+    def densitymatrix(self, check: bool = False, reuse: bool = True) -> tn.Node.tensor:
+        nodes, d_edges = self._copy_dm_tensor(conj=False, reuse=reuse)
+        # t = contractor(nodes, output_edge_order=d_edges)
+        dm = backend.reshape(
+            nodes[0].tensor, shape=[2 ** self._nqubits, 2 ** self._nqubits]
+        )
         if check:
             self.check_density_matrix(dm)
         return dm
@@ -268,8 +291,6 @@ class DMCircuit:
     state = densitymatrix
 
     def expectation(self, *ops: Tuple[tn.Node, List[int]]) -> tn.Node.tensor:
-        if len(self._nodes) > 1:
-            self._contract()
         newdm, newdang = self._copy(self._nodes, self._rfront + self._lfront)
         occupied = set()
         nodes = newdm

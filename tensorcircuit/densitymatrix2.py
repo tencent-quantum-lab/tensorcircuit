@@ -49,6 +49,7 @@ class DMCircuit2(DMCircuit):
             super_op.get_edge(i + o2i) ^ self._rfront[ind]
             self._rfront[ind] = super_op.get_edge(i)
         self._nodes.append(super_op)
+        setattr(self, "state_tensor", None)
 
     @staticmethod
     def apply_general_kraus_delayed(
