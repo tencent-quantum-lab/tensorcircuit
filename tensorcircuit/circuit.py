@@ -32,14 +32,8 @@ class Circuit:
         :type nqubits: int
         :param inputs: If not None, the initial state of the circuit is taken as ``inputs`` instead of :math:`\\vert 0\\rangle^n` qubits, defaults to None
         :type inputs: Optional[Tensor], optional
-        :raises ValueError: nqubits is less than 2.
         """
-
         _prefix = "qb-"
-        if nqubits < 2:
-            raise ValueError(
-                f"Number of qubits must be greater than 2 but is {nqubits}."
-            )
         if inputs is not None:
             self.has_inputs = True
         else:
@@ -49,56 +43,13 @@ class Circuit:
             nodes = [
                 tn.Node(
                     np.array(
-                        [
-                            [[1.0]],
-                            [[0.0]],
-                        ],
+                        [1.0, 0.0],
                         dtype=npdtype,
                     ),
                     name=_prefix + str(x + 1),
                 )
-                for x in range(nqubits - 2)
+                for x in range(nqubits)
             ]
-
-            # Get nodes on the end
-            nodes.insert(
-                0,
-                tn.Node(
-                    np.array(
-                        [
-                            [1.0],
-                            [0.0],
-                        ],
-                        dtype=npdtype,
-                    ),
-                    name=_prefix + str(0),
-                ),
-            )
-            nodes.append(
-                tn.Node(
-                    np.array(
-                        [
-                            [1.0],
-                            [0.0],
-                        ],
-                        dtype=npdtype,
-                    ),
-                    name=_prefix + str(nqubits - 1),
-                )
-            )
-
-            # Connect edges between middle nodes
-            for i in range(1, nqubits - 2):
-                tn.connect(nodes[i].get_edge(2), nodes[i + 1].get_edge(1))
-
-            # Connect end nodes to the adjacent middle nodes
-            if nqubits < 3:
-                tn.connect(nodes[0].get_edge(1), nodes[1].get_edge(1))
-            else:
-                tn.connect(
-                    nodes[0].get_edge(1), nodes[1].get_edge(1)
-                )  # something wrong here?
-                tn.connect(nodes[-1].get_edge(1), nodes[-2].get_edge(2))
             self._front = [n.get_edge(0) for n in nodes]
         else:  # provide input function
             inputs = backend.reshape(inputs, [-1])

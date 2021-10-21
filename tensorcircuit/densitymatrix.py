@@ -30,65 +30,21 @@ class DMCircuit:
     ) -> None:
         if not empty:
             _prefix = "qb-"
-            if nqubits < 2:
-                raise ValueError(
-                    f"Number of qubits must be greater than 2 but is {nqubits}."
-                )
             if (inputs is None) and (dminputs is None):
                 # Get nodes on the interior
                 nodes = [
                     tn.Node(
                         np.array(
                             [
-                                [[1.0]],
-                                [[0.0]],
+                                1.0,
+                                0.0,
                             ],
                             dtype=npdtype,
                         ),
                         name=_prefix + str(x + 1),
                     )
-                    for x in range(nqubits - 2)
+                    for x in range(nqubits)
                 ]
-
-                # Get nodes on the end
-                nodes.insert(
-                    0,
-                    tn.Node(
-                        np.array(
-                            [
-                                [1.0],
-                                [0.0],
-                            ],
-                            dtype=npdtype,
-                        ),
-                        name=_prefix + str(0),
-                    ),
-                )
-                nodes.append(
-                    tn.Node(
-                        np.array(
-                            [
-                                [1.0],
-                                [0.0],
-                            ],
-                            dtype=npdtype,
-                        ),
-                        name=_prefix + str(nqubits - 1),
-                    )
-                )
-
-                # Connect edges between middle nodes
-                for i in range(1, nqubits - 2):
-                    tn.connect(nodes[i].get_edge(2), nodes[i + 1].get_edge(1))
-
-                # Connect end nodes to the adjacent middle nodes
-                if nqubits < 3:
-                    tn.connect(nodes[0].get_edge(1), nodes[1].get_edge(1))
-                else:
-                    tn.connect(
-                        nodes[0].get_edge(1), nodes[1].get_edge(1)
-                    )  # something wrong here?
-                    tn.connect(nodes[-1].get_edge(1), nodes[-2].get_edge(2))
                 self._rfront = [n.get_edge(0) for n in nodes]
 
                 lnodes, self._lfront = self._copy(nodes, self._rfront, conj=True)

@@ -102,6 +102,13 @@ def test_ad(backend):
     print(universal_ad())
 
 
+def test_single_qubit():
+    c = tc.Circuit(1)
+    c.H(0)
+    w = c.state()[0]
+    assert np.allclose(w, np.array([1, 1]) / np.sqrt(2), atol=1e-4)
+
+
 def test_expectation_between_two_states():
     zp = np.array([1.0, 0.0])
     zd = np.array([0.0, 1.0])
