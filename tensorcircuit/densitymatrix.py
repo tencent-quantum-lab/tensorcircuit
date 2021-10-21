@@ -11,6 +11,7 @@ import tensornetwork as tn
 import graphviz
 
 from . import gates
+from . import channels
 from .cons import dtypestr, npdtype, backend, contractor
 from .circuit import Circuit
 
@@ -123,6 +124,13 @@ class DMCircuit:
                 cls.apply_general_variable_gate_delayed(getattr(gates, g), name=g),
             )
 
+        for k in channels.channels:
+            setattr(
+                cls,
+                k,
+                cls.apply_general_kraus_delayed(getattr(channels, k + "channel")),
+            )
+
     def _copy(
         self,
         nodes: Sequence[tn.Node],
@@ -157,7 +165,7 @@ class DMCircuit:
         return newDMCircuit
 
     def _contract(self) -> None:
-        t = contractor(self._nodes, output_edge_order=self._lfront + self._rfront)
+        t = contractor(self._nodes, output_edge_order=self._rfront + self._lfront)
         self._nodes = [t]
 
     def apply_general_gate(
@@ -165,15 +173,15 @@ class DMCircuit:
     ) -> None:
         assert len(index) == len(set(index))
         noe = len(index)
-        rgated, _ = self._copy([gate], conj=True)
-        rgate = rgated[0]
+        lgated, _ = self._copy([gate], conj=True)
+        lgate = lgated[0]
         for i, ind in enumerate(index):
-            gate.get_edge(i + noe) ^ self._lfront[ind]
-            self._lfront[ind] = gate.get_edge(i)
-            rgate.get_edge(i + noe) ^ self._rfront[ind]
-            self._rfront[ind] = rgate.get_edge(i)
+            gate.get_edge(i + noe) ^ self._rfront[ind]
+            self._rfront[ind] = gate.get_edge(i)
+            lgate.get_edge(i + noe) ^ self._lfront[ind]
+            self._lfront[ind] = lgate.get_edge(i)
         self._nodes.append(gate)
-        self._nodes.append(rgate)
+        self._nodes.append(lgate)
 
     @staticmethod
     def apply_general_gate_delayed(
@@ -201,7 +209,7 @@ class DMCircuit:
         return True
 
     def apply_general_kraus(
-        self, kraus: Sequence[Gate], index: Sequence[Tuple[int]]
+        self, kraus: Sequence[Gate], index: Sequence[Tuple[int, ...]]
     ) -> None:
         # note the API difference for index arg between DM and DM2
         self.check_kraus(kraus)
@@ -219,23 +227,35 @@ class DMCircuit:
         tensor = backend.reshape(tensor, [2 for _ in range(2 * self._nqubits)])
         self._nodes = [Gate(tensor)]
         dangling = [e for e in self._nodes[0]]
-        self._lfront = dangling[: self._nqubits]
-        self._rfront = dangling[self._nqubits :]
+        self._rfront = dangling[: self._nqubits]
+        self._lfront = dangling[self._nqubits :]
+
+    @staticmethod
+    def apply_general_kraus_delayed(
+        krausf: Callable[..., Sequence[Gate]]
+    ) -> Callable[..., None]:
+        def apply(self: "DMCircuit", *index: int, **vars: float) -> None:
+            kraus = krausf(**vars)
+            self.apply_general_kraus(kraus, [index])
+
+        return apply
 
     def densitymatrix(self, check: bool = False) -> tn.Node.tensor:
         if len(self._nodes) > 1:
             self._contract()
-        nodes, d_edges = self._copy(self._nodes, self._lfront + self._rfront)
+        nodes, d_edges = self._copy(self._nodes, self._rfront + self._lfront)
         t = contractor(nodes, output_edge_order=d_edges)
         dm = backend.reshape(t.tensor, shape=[2 ** self._nqubits, 2 ** self._nqubits])
         if check:
             self.check_density_matrix(dm)
         return dm
 
+    state = densitymatrix
+
     def expectation(self, *ops: Tuple[tn.Node, List[int]]) -> tn.Node.tensor:
         if len(self._nodes) > 1:
             self._contract()
-        newdm, newdang = self._copy(self._nodes, self._lfront + self._rfront)
+        newdm, newdang = self._copy(self._nodes, self._rfront + self._lfront)
         occupied = set()
         nodes = newdm
         for op, index in ops:

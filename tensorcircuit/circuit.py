@@ -135,7 +135,7 @@ class Circuit:
     @classmethod
     def _meta_apply(cls) -> None:
 
-        for g in Circuit.sgates:
+        for g in cls.sgates:
             setattr(
                 cls, g, cls.apply_general_gate_delayed(gatef=getattr(gates, g), name=g)
             )
@@ -177,7 +177,7 @@ class Circuit:
                 getattr(cls, g).__doc__ = doc
                 getattr(cls, g.upper()).__doc__ = doc
 
-        for g in Circuit.vgates:
+        for g in cls.vgates:
             setattr(
                 cls,
                 g,

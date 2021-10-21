@@ -1,13 +1,15 @@
 """
 some common noise quantum channels
 """
-
+import sys
 import numpy as np
 from typing import Tuple, List, Callable, Union, Optional, Sequence, Any
 
 from . import gates
 from . import cons
 from .backends import backend  # type: ignore
+
+thismodule = sys.modules[__name__]
 
 Gate = gates.Gate
 Tensor = Any
@@ -18,7 +20,7 @@ def _sqrt(a: Tensor) -> Tensor:
 
 
 def depolarizingchannel(px: float, py: float, pz: float) -> Sequence[Gate]:
-    assert px + py + pz <= 1
+    # assert px + py + pz <= 1
     i = Gate(_sqrt(1 - px - py - pz) * gates.i().tensor)  # type: ignore
     x = Gate(_sqrt(px) * gates.x().tensor)  # type: ignore
     y = Gate(_sqrt(py) * gates.y().tensor)  # type: ignore
@@ -64,10 +66,22 @@ def single_qubit_kraus_identity_check(kraus: Sequence[Gate]) -> None:
 
 
 def kraus_to_super_gate(kraus_list: Sequence[Gate]) -> Tensor:
-    # only valid for single qubit kraus case
     kraus_tensor_list = [k.tensor for k in kraus_list]
     k = kraus_tensor_list[0]
     u = backend.kron(k, backend.conj(k))
     for k in kraus_tensor_list[1:]:
         u += backend.kron(k, backend.conj(k))
     return u
+
+
+def _collect_channels() -> Sequence[str]:
+    cs = []
+    for name in dir(thismodule):
+        if name.endswith("channel"):
+            n = name[:-7]
+            cs.append(n)
+    return cs
+
+
+channels = _collect_channels()
+# channels = ["depolarizing", "amplitudedamping", "reset", "phasedamping"]
