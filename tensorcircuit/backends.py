@@ -99,6 +99,13 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
         )
         return np.vectorize(f)
 
+    def vectorized_value_and_grad(
+        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+    ) -> Callable[..., Tuple[Any, Any]]:
+        raise NotImplementedError("numpy backend doesn't support AD")
+
+    vvag = vectorized_value_and_grad
+
 
 def _convert_to_tensor_jax(self: Any, tensor: Tensor) -> Tensor:
     if not isinstance(tensor, (np.ndarray, jnp.ndarray)) and not jnp.isscalar(tensor):
@@ -202,6 +209,40 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     def vmap(self, f: Callable[..., Any]) -> Any:
         return libjax.vmap(f)
         # since tf doesn't support in&out axes options, we don't support them in universal backend
+
+    def vectorized_value_and_grad(
+        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+    ) -> Callable[..., Tuple[Any, Any]]:
+        @libjax.jit  # type: ignore
+        def wrapper(
+            *args: Any, **kws: Any
+        ) -> Tuple[Tensor, Union[Tensor, Tuple[Tensor, ...]]]:
+            jf = self.value_and_grad(f, argnums=argnums)
+            jf = libjax.vmap(jf, (0, None), 0)
+            jf = self.jit(jf)
+            vs, gs = jf(*args, **kws)
+            if argnums == 0:
+                pass
+            else:
+                if isinstance(argnums, int):
+                    argnums_list = [argnums]
+                else:
+                    argnums_list = argnums  # type: ignore
+                gs = list(gs)
+                for i, (j, g) in enumerate(zip(argnums_list, gs)):
+                    if j != 0:
+                        gs[i] = jnp.sum(g, axis=0)
+                gs = tuple(gs)
+            return vs, gs
+
+        return wrapper  # type: ignore
+
+        # f = self.value_and_grad(f, argnums=argnums)
+        # f = libjax.vmap(f, (0, None), 0)
+        # f = self.jit(f)
+        # return f
+
+    vvag = vectorized_value_and_grad
 
 
 def _tensordot_tf(
@@ -331,6 +372,37 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
 
         return partial(own_vectorized_map, wrapper)
 
+    def vectorized_value_and_grad(
+        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+    ) -> Callable[..., Tuple[Any, Any]]:
+        # note how tf only works in this order, due to the bug reported as: https://github.com/google/TensorNetwork/issues/940
+        @tf.function  # type: ignore
+        def wrapper(
+            *args: Any, **kws: Any
+        ) -> Tuple[Tensor, Union[Tensor, Tuple[Tensor, ...]]]:
+            with tf.GradientTape() as tape:
+                if isinstance(argnums, int):
+                    x = args[argnums]
+                else:
+                    x = [args[i] for i in argnums]
+                tape.watch(x)
+
+                def pg(inp: Tensor) -> Tensor:
+                    return f(inp, *(args[1:]), **kws)
+
+                vs = tf.vectorized_map(pg, args[0])
+            grad = tape.gradient(vs, x)
+            return vs, grad
+
+        return wrapper  # type: ignore
+
+        # f = self.vmap(f)
+        # f = self.value_and_grad(f, argnums=argnums)
+        # f = self.jit(f)
+        # return f
+
+    vvag = vectorized_value_and_grad
+
 
 class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
     def __init__(self) -> None:
@@ -455,6 +527,16 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
     def jit(self, f: Callable[..., Any]) -> Any:
         return f  # do nothing here until I figure out what torch.jit is for and how does it work
         # see https://github.com/pytorch/pytorch/issues/36910
+
+    def vectorized_value_and_grad(
+        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+    ) -> Callable[..., Tuple[Any, Any]]:
+        f = self.value_and_grad(f, argnums=argnums)
+        f = self.vmap(f)
+        f = self.jit(f)
+        return f
+
+    vvag = vectorized_value_and_grad
 
 
 _BACKENDS = {
