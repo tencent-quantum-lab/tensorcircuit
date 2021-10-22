@@ -18,8 +18,8 @@ def test_gate_dm():
     c = tc.DMCircuit(3)
     c.H(0)
     c.rx(1, theta=tc.num_to_tensor(np.pi))
-    assert np.allclose(c.expectation((tc.gates.z(), [0])), 0.0)
-    assert np.allclose(c.expectation((tc.gates.z(), [1])), -1.0)
+    assert np.allclose(c.expectation((tc.gates.z(), [0])), 0.0, atol=1e-4)
+    assert np.allclose(c.expectation((tc.gates.z(), [1])), -1.0, atol=1e-4)
 
 
 def test_state_inputs():

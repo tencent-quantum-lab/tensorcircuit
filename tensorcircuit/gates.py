@@ -303,14 +303,14 @@ def random_two_qubit_gate() -> Gate:
     return Gate(deepcopy(unitary), name="R2Q")
 
 
-def any_gate(unitary: Tensor) -> Gate:
+def any_gate(unitary: Tensor, name: str = "any") -> Gate:
     """
     Note one should provide the gate with properly reshaped
 
     :param unitary: corresponding gate
     """
     # deepcopy roadblocks tf.function, pls take care of the unitary outside
-    return Gate(unitary, name="any")
+    return Gate(unitary, name=name)
 
 
 any = any_gate
@@ -329,3 +329,16 @@ def exponential_gate(unitary: Tensor, theta: float, name: str = "none") -> Gate:
 
 
 exp = exponential_gate
+
+
+def exponential_gate_unity(unitary: Tensor, theta: float, name: str = "none") -> Gate:
+    theta = num_to_tensor(theta)
+    n = len(unitary.shape)
+    i = np.eye(2 ** (int(n / 2)))
+    i = i.reshape([2 for _ in range(n)])
+    it = array_to_tensor(i)
+    mat = backend.cos(theta) * it - 1.0j * backend.sin(theta) * unitary
+    return Gate(mat, name="exp1-" + name)
+
+
+exp1 = exponential_gate_unity

@@ -56,6 +56,33 @@ def test_expectation():
     assert np.allclose(c.expectation((tc.gates.z(), [0])), 0, atol=1e-7)
 
 
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_exp1(backend):
+    @tc.backend.jit
+    def sf():
+        c = tc.Circuit(2)
+        xx = np.array(
+            [[0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0], [1, 0, 0, 0]], dtype=np.complex64
+        )
+        c.exp1(0, 1, unitary=xx.reshape([2, 2, 2, 2]), theta=tc.num_to_tensor(0.2))
+        s = c.state()
+        return s
+
+    @tc.backend.jit
+    def s1f():
+        c = tc.Circuit(2)
+        xx = np.array(
+            [[0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0], [1, 0, 0, 0]], dtype=np.complex64
+        )
+        c.exp(0, 1, unitary=xx, theta=tc.num_to_tensor(0.2))
+        s1 = c.state()
+        return s1
+
+    s = sf()
+    s1 = s1f()
+    assert np.allclose(s, s1, atol=1e-4)
+
+
 def test_complex128(highp):
     tc.set_backend("tensorflow")
     tc.set_dtype("complex128")

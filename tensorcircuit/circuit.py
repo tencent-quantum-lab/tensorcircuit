@@ -22,7 +22,7 @@ class Circuit:
         + ["cnot", "cz", "swap", "cy"]
         + ["toffoli"]
     )
-    vgates = ["r", "cr", "rx", "ry", "rz", "any", "exp"]
+    vgates = ["r", "cr", "rx", "ry", "rz", "any", "exp", "exp1"]
 
     def __init__(self, nqubits: int, inputs: Optional[Tensor] = None) -> None:
         """
