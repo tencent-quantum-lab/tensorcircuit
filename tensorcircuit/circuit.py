@@ -452,7 +452,6 @@ class Circuit:
         """
         compute expectation of corresponding operators
 
-
         :param ops: operator and its position on the circuit, eg. ``(gates.Z(), [1]), (gates.X(), [2])`` is for operator :math:`Z_1X_2`
         :type ops: Tuple[tn.Node, List[int]]
         :param reuse: if True, then the wavefunction tensor is cached for further expectation evaluation, defaults to True

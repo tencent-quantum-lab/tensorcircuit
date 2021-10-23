@@ -1,7 +1,7 @@
 """
 backend magic inherited from tensornetwork
 """
-
+import inspect
 from typing import Union, Text, Any, Optional, Callable, Sequence, Tuple
 from functools import partial
 from scipy.linalg import expm
@@ -16,7 +16,7 @@ from tensornetwork.backends.jax import jax_backend
 # from tensornetwork.backends.shell import shell_backend
 from tensornetwork.backends.pytorch import pytorch_backend
 
-try:
+try:  # old version
     from tensornetwork.backends import base_backend
 
     tnbackend = base_backend.BaseBackend
@@ -35,6 +35,86 @@ jnp: Any
 jsp: Any
 torchlib: Any
 tf: Any
+
+
+def _doc_string_for_backend(tnbackend: Any) -> None:
+    def expm(self: Any, a: Tensor) -> Tensor:
+        """
+        Return expm of `a`, matrix exponential.
+
+        :param a: tensor in matrix form
+        :type a: Tensor
+        :return: matrix exponential of matrix `a`
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `expm`.".format(self.name)
+        )
+
+    def sin(self: Any, a: Tensor) -> Tensor:
+        """
+        Return sin of `a`.
+
+        :param a: tensor in matrix form
+        :type a: Tensor
+        :return: sin of `a`
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `sin`.".format(self.name)
+        )
+
+    def cos(self: Any, a: Tensor) -> Tensor:
+        """
+        Return cos of `a`.
+
+        :param a: tensor in matrix form
+        :type a: Tensor
+        :return: cos of `a`
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `cos`.".format(self.name)
+        )
+
+    def abs(self: Any, a: Tensor) -> Tensor:
+        """
+        Return elementwise abs value of `a`.
+
+        :param a: tensor in matrix form
+        :type a: Tensor
+        :return: abs of `a`
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `abs`.".format(self.name)
+        )
+
+    # TODO(@refraction-ray): abs docstring doesn't get registered in the doc
+
+    def kron(self: Any, a: Tensor, b: Tensor) -> Tensor:
+        """
+        Return kronecker product of two matrix `a` and `b`.
+
+        :param a: tensor in matrix form
+        :type a: Tensor
+        :param b: tensor in matrix form
+        :type b: Tensor
+        :return: kronecker product of `a` and `b`
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `kron`.".format(self.name)
+        )
+
+    r = inspect.stack()
+    d = r[0].frame.f_locals
+    for k, v in d.items():
+        if k != "r":
+            setattr(tnbackend, k, v)
+
+
+_doc_string_for_backend(tnbackend)
 
 
 class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
