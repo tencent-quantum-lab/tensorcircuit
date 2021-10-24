@@ -34,6 +34,10 @@ class DMCircuit2(DMCircuit):
     def apply_general_kraus(self, kraus: Sequence[Gate], *index: int) -> None:  # type: ignore
         # incompatible API for now
         self.check_kraus(kraus)
+        if not isinstance(
+            index[0], int
+        ):  # try best to be compatible with DMCircuit interface
+            index = index[0][0]  # type: ignore
         # assert len(kraus) == len(index) or len(index) == 1
         # if len(index) == 1:
         #     index = [index[0] for _ in range(len(kraus))]

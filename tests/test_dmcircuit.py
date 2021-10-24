@@ -63,7 +63,7 @@ def test_dm_inputs(backend):
     b1 = b1.astype(np.complex64)
     b2 = b2.astype(np.complex64)
     c = tc.DMCircuit2(nqubits=2, dminputs=rho0)
-    c.apply_general_kraus([tc.gates.Gate(b1), tc.gates.Gate(b2)], 1)
+    c.apply_general_kraus([tc.gates.Gate(b1), tc.gates.Gate(b2)], [(1,)])
     assert np.allclose(c.densitymatrix(), rho1, atol=1e-4)
     c.y(1)
     assert np.allclose(c.densitymatrix(), rho2, atol=1e-4)
