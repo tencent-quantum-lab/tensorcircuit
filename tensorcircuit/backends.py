@@ -40,11 +40,11 @@ tf: Any
 def _doc_string_for_backend(tnbackend: Any) -> None:
     def expm(self: Any, a: Tensor) -> Tensor:
         """
-        Return expm of `a`, matrix exponential.
+        Return expm of ``a``, matrix exponential.
 
         :param a: tensor in matrix form
         :type a: Tensor
-        :return: matrix exponential of matrix `a`
+        :return: matrix exponential of matrix ``a``
         :rtype: Tensor
         """
         raise NotImplementedError(
@@ -53,11 +53,11 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
 
     def sin(self: Any, a: Tensor) -> Tensor:
         """
-        Return sin of `a`.
+        Return sin of ``a``.
 
         :param a: tensor in matrix form
         :type a: Tensor
-        :return: sin of `a`
+        :return: sin of ``a``
         :rtype: Tensor
         """
         raise NotImplementedError(
@@ -66,11 +66,11 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
 
     def cos(self: Any, a: Tensor) -> Tensor:
         """
-        Return cos of `a`.
+        Return cos of ``a``.
 
         :param a: tensor in matrix form
         :type a: Tensor
-        :return: cos of `a`
+        :return: cos of ``a``
         :rtype: Tensor
         """
         raise NotImplementedError(
@@ -79,11 +79,11 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
 
     def abs(self: Any, a: Tensor) -> Tensor:
         """
-        Return elementwise abs value of `a`.
+        Return elementwise abs value of ``a``.
 
         :param a: tensor in matrix form
         :type a: Tensor
-        :return: abs of `a`
+        :return: abs of ``a``
         :rtype: Tensor
         """
         raise NotImplementedError(
@@ -94,17 +94,220 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
 
     def kron(self: Any, a: Tensor, b: Tensor) -> Tensor:
         """
-        Return kronecker product of two matrix `a` and `b`.
+        Return kronecker product of two matrix ``a`` and ``b``.
 
         :param a: tensor in matrix form
         :type a: Tensor
         :param b: tensor in matrix form
         :type b: Tensor
-        :return: kronecker product of `a` and `b`
+        :return: kronecker product of ``a`` and ``b``
         :rtype: Tensor
         """
         raise NotImplementedError(
             "Backend '{}' has not implemented `kron`.".format(self.name)
+        )
+
+    def size(self: Any, a: Tensor) -> Tensor:
+        """
+        Return the total number of elements in ``a``.
+
+        :param a: tensor
+        :type a: Tensor
+        :return: the total number of elements in ``a``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `size`.".format(self.name)
+        )
+
+    def numpy(self: Any, a: Tensor) -> Tensor:
+        """
+        Return numpy array of tensor ``a``, may not work in jitted function.
+
+        :param a: tensor in matrix form
+        :type a: Tensor
+        :return: numpy array of ``a``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `numpy`.".format(self.name)
+        )
+
+    def real(self: Any, a: Tensor) -> Tensor:
+        """
+        Return elementwise real value of ``a``.
+
+        :param a: tensor
+        :type a: Tensor
+        :return: real value of ``a``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `real`.".format(self.name)
+        )
+
+    def i(self: Any, dtype: str) -> Tensor:
+        """
+        Return 1.j in as tensor comoatible with backend.
+
+        :param dtype: "complex64" or "complex128"
+        :type dtype: str
+        :return: 1.j tensor
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `i`.".format(self.name)
+        )
+
+    def is_tensor(self: Any, a: Tensor) -> bool:
+        """
+        Return boolean on whether ``a`` is a tensor in backend package.
+
+        :param a: a tensor to be determined
+        :type a: Tensor
+        :return: whether ``a`` is a tensor
+        :rtype: bool
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `is_tensor`.".format(self.name)
+        )
+
+    def cast(self: Any, a: Tensor, dtype: str) -> Tensor:
+        """
+        Cast the tensor dtype of a ``a``.
+
+        :param a: tensor
+        :type a: Tensor
+        :param dtype: "float32", "float64", "complex64", "complex128"
+        :type dtype: str
+        :return: ``a`` of new dtype
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `cast`.".format(self.name)
+        )
+
+    def grad(
+        self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+    ) -> Callable[..., Any]:
+        """
+        Return function which is the grad function of input ``f``
+
+        .. code-block:: python
+
+            f = lambda x,y: x**2+2*y
+            g = tc.backend.grad(f)
+            g(tc.num_to_tensor(1),tc.num_to_tensor(2)) # return 2
+            g = tc.backend.grad(f, argnums=(0,1))
+            g(tc.num_to_tensor(1),tc.num_to_tensor(2)) # return [2, 2]
+
+
+        :param f: function to be differentiated
+        :type f: Callable[..., Any]
+        :param argnums: the position of args in ``f`` that are to be differentiated, defaults to 0
+        :type argnums: Union[int, Sequence[int]], optional
+        :return: the grad fuction of ``f`` with the same set of arguments as ``f``
+        :rtype: Callable[..., Any]
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `grad`.".format(self.name)
+        )
+
+    def value_and_grad(
+        self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+    ) -> Callable[..., Tuple[Any, Any]]:
+        """
+        Return function which returns the value and grad of ``f``
+
+        .. code-block:: python
+
+            f = lambda x,y: x**2+2*y
+            g = tc.backend.value_and_grad(f)
+            g(tc.num_to_tensor(1),tc.num_to_tensor(2)) # return 5, 2
+            g = tc.backend.value_and_grad(f, argnums=(0,1))
+            g(tc.num_to_tensor(1),tc.num_to_tensor(2)) # return 5, [2, 2]
+
+
+        :param f: function to be differentiated
+        :type f: Callable[..., Any]
+        :param argnums: the position of args in ``f`` that are to be differentiated, defaults to 0
+        :type argnums: Union[int, Sequence[int]], optional
+        :return: the value and grad fuction of ``f`` with the same set of arguments as ``f``
+        :rtype: Callable[..., Tuple[Any, Any]]
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `value_and_grad`.".format(self.name)
+        )
+
+    def jit(self: Any, f: Callable[..., Any]) -> Callable[..., Any]:
+        """
+        Return jitted version function of ``f``
+
+        :param f: function to be jitted
+        :type f: Callable[..., Any]
+        :return: jitted ``f``
+        :rtype: Callable[..., Any]
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `jit`.".format(self.name)
+        )
+
+    def vmap(self: Any, f: Callable[..., Any]) -> Any:
+        """
+        Return vectorized map or batched version of ``f`` on the first extra axis,
+        the general interface only support ``f`` with one argument and broadcast in the fist dimension.
+
+        :param f: function to be broadcasted.
+        :type f: Callable[..., Any]
+        :return: vmap version of ``f``
+        :rtype: Any
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `vmap`.".format(self.name)
+        )
+
+    def vectorized_value_and_grad(
+        self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+    ) -> Callable[..., Tuple[Any, Any]]:
+        """
+        Return vvag function of ``f``. the inputs for ``f`` is (args[0], args[1], args[2], ...),
+        and the output of ``f`` is a scalar. Suppose vvag(f) is a function with inputs in the form
+        (vargs[0], args[1], args[2], ...), where vagrs[0] has one extra dimension than args[0] in the first axis
+        and consistent with args[0] in shape for remaining dimensions, i.e. shape(vargs[0]) = [batch] + shape(args[0]).
+        vvag(f) returns a tuple as a value tensor with shape [batch, 1] and a gradient tuple with shape:
+        ([batch]+shape(args[argnum]) for argnum in argnums). The gradient for argnums=k is defined as
+
+        .. math::
+
+            g^k = \\frac{\\partial \\sum_{i\\in batch} f(vargs[0][i], args[1], ...)}{\\partial args[k]}
+
+        Therefore, if argnums=0, the gradient is reduced to
+
+        .. math::
+
+            g^0_i = \\frac{\\partial f(vargs[0][i])}{\\partial vargs[0][i]}
+
+        , which is specifically suitable for batched VQE optimization, where args[0] is the circuit parameters.
+
+        And if argnums=1, the gradient is like
+
+        .. math::
+            g^1_i = \\frac{\\partial \sum_j f(vargs[0][j], args[1])}{\\partial args[1][i]}
+
+        , which is suitable for quantum machine learning scenarios, where ``f`` is the loss function,
+        args[0] corresponds the input data and args[1] corresponds to the weights in the QML model.
+
+        :param f: [description]
+        :type f: Callable[..., Any]
+        :param argnums: [description], defaults to 0
+        :type argnums: Union[int, Sequence[int]], optional
+        :return: [description]
+        :rtype: Callable[..., Tuple[Any, Any]]
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `vectorized_value_and_grad`.".format(
+                self.name
+            )
         )
 
     r = inspect.stack()
@@ -629,6 +832,15 @@ _BACKENDS = {
 
 
 def get_backend(backend: Union[Text, tnbackend]) -> Any:  # type: ignore
+    """
+    get the `tc.backend` object
+
+    :param backend: "numpy", "tensorflow", "jax", "pytorch"
+    :type backend: Union[Text, tnbackend]
+    :raises ValueError: Backend doesn't exist for `backend` argument
+    :return: the `tc.backend` object that with all registered universal functions
+    :rtype: Any
+    """
     if isinstance(backend, tnbackend):
         return backend
     if backend not in _BACKENDS:

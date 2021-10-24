@@ -29,6 +29,10 @@ jobs:
       - name: test scripts
         run: |
           pytest --cov=tensorcircuit -svv
+      - name: build docs
+        run: |
+          cd docs
+          make html
       - name: run example demos
         run: |
           cd examples
