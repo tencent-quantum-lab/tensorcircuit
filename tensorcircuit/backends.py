@@ -500,7 +500,8 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
             *args: Any, **kws: Any
         ) -> Tuple[Tensor, Union[Tensor, Tuple[Tensor, ...]]]:
             jf = self.value_and_grad(f, argnums=argnums)
-            jf = libjax.vmap(jf, (0, None), 0)
+            inaxes = [0] + [None for _ in range(len(args) - 1)]  # type: ignore
+            jf = libjax.vmap(jf, inaxes, 0)
             jf = self.jit(jf)
             vs, gs = jf(*args, **kws)
             if argnums == 0:
