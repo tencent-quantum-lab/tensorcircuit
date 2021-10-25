@@ -118,12 +118,7 @@ def num_to_tensor(*num: float, dtype: Optional[str] = None) -> Any:
     return l
 
 
-def array_to_tensor(*num: np.array) -> Any:
-    # TODO(@refraction-ray): dtype support? difference between num_to_tensor?
-    l = [backend.convert_to_tensor(n.astype(npdtype)) for n in num]
-    if len(l) == 1:
-        return l[0]
-    return l
+array_to_tensor = num_to_tensor
 
 
 def gate_wrapper(m: np.array, n: Optional[str] = None) -> Gate:
