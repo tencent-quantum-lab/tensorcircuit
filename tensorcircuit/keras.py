@@ -1,12 +1,14 @@
 """ 
 keras layer for tc quantum function
 """
+
+from typing import List, Optional, Text, Tuple, Callable, Any, Sequence, Union
+
+import numpy as np
+import tensornetwork as tn
 import tensorflow as tf
 from tensorflow.keras.layers import Layer
 from tensorflow.keras import activations, initializers, constraints
-from typing import List, Optional, Text, Tuple, Callable, Any, Sequence, Union
-import tensornetwork as tn
-import numpy as np
 
 
 # @tf.keras.utils.register_keras_serializable(

@@ -1,12 +1,14 @@
 """
 some common noise quantum channels
 """
+
 import sys
-import numpy as np
 from typing import Tuple, List, Callable, Union, Optional, Sequence, Any
 
-from . import gates
+import numpy as np
+
 from . import cons
+from . import gates
 from .backends import backend  # type: ignore
 
 thismodule = sys.modules[__name__]

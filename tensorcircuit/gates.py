@@ -4,15 +4,15 @@ declarations of single-qubit and two-qubit gates and their corresponding matrix
 
 import sys
 from copy import deepcopy
-from typing import Optional, Any, Union
 from functools import partial, reduce
+from typing import Optional, Any, Union
 from operator import mul
 
 import numpy as np
-from scipy.stats import unitary_group
 import tensornetwork as tn
+from scipy.stats import unitary_group
 
-from .cons import dtypestr, npdtype, backend
+from .cons import backend, dtypestr, npdtype
 
 thismodule = sys.modules[__name__]
 

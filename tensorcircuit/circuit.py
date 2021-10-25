@@ -5,15 +5,15 @@ quantum circuit: state simulator
 from functools import partial
 from typing import Tuple, List, Callable, Union, Optional, Any, Sequence
 
+import graphviz
 import numpy as np
 import tensornetwork as tn
-import graphviz
 
-from . import gates, cons
-from .cons import dtypestr, npdtype, backend, contractor
+from . import cons
+from . import gates
+from .cons import backend, contractor, dtypestr, npdtype
 
 Gate = gates.Gate
-Edge = Any
 Tensor = Any
 
 
@@ -43,7 +43,7 @@ class Circuit:
         self,
         nqubits: int,
         inputs: Optional[Tensor] = None,
-        mps_inputs: Optional[Tuple[Sequence[Gate], Sequence[Edge]]] = None,
+        mps_inputs: Optional[Tuple[Sequence[Gate], Sequence[tn.Edge]]] = None,
     ) -> None:
         """
         Circuit object based on state simulator.
@@ -117,7 +117,7 @@ class Circuit:
         self._nodes[0].tensor = inputs
 
     def replace_mps_inputs(
-        self, mps_inputs: Tuple[Sequence[Gate], Sequence[Edge]]
+        self, mps_inputs: Tuple[Sequence[Gate], Sequence[tn.Edge]]
     ) -> None:
         """
         Replace the input state in MPS representation while keep the circuit structure unchanged.
@@ -236,6 +236,7 @@ class Circuit:
         :type qcode: str
         :return: :py:class:`Circuit` object
         """
+        # TODO(@refraction-ray): change to OpenQASM IO
         lines = [s for s in qcode.split("\n") if s.strip()]
         nqubits = int(lines[0])
         c = cls(nqubits)
@@ -327,6 +328,15 @@ class Circuit:
         return apply
 
     def mid_measurement(self, index: int, keep: int = 0) -> None:
+        """
+        middle measurement in z basis on the circuit, note the wavefunction output is not normalized
+        with ``mid_measurement`` involved, one should normalized the state manually if needed.
+
+        :param index: the index of qubit that the Z direction postselection applied on
+        :type index: int
+        :param keep: 0 for spin up, 1 for spin down, defaults to 0
+        :type keep: int, optional
+        """
         # normalization not guaranteed
         assert keep in [0, 1]
         if keep == 0:
@@ -401,7 +411,10 @@ class Circuit:
         """
         copy all nodes and dangling edges correspondingly
 
-        :return:
+        :param conj: bool indicating whether the tensors for nodes should be conjugated
+        :type conj: bool
+        :return: new copy of nodes and dangling edges for the circuit
+        :rtype: Tuple[List[tn.Node], List[tn.Edge]]
         """
         ndict, edict = tn.copy(self._nodes, conjugate=conj)
         newnodes = []

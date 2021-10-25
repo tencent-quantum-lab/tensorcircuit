@@ -2,9 +2,9 @@
 some constants and setups
 """
 
-from typing import Optional, Any, List
 import sys
 from functools import partial
+from typing import Optional, Any, List
 
 import numpy as np
 import tensornetwork as tn

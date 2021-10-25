@@ -6,14 +6,14 @@ from functools import partial, reduce
 from operator import add
 from typing import Tuple, List, Callable, Union, Optional, Sequence, Any
 
+import graphviz
 import numpy as np
 import tensornetwork as tn
-import graphviz
 
 from . import gates
 from . import channels
-from .cons import dtypestr, npdtype, backend, contractor
 from .circuit import Circuit
+from .cons import backend, contractor, dtypestr, npdtype
 
 Gate = gates.Gate
 Tensor = Any

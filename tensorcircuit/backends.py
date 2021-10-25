@@ -1,19 +1,18 @@
 """
 backend magic inherited from tensornetwork
 """
-import inspect
-from typing import Union, Text, Any, Optional, Callable, Sequence, Tuple
-from functools import partial
-from scipy.linalg import expm
-import numpy as np
-import warnings
 
+import inspect
+import warnings
+from functools import partial
+from typing import Union, Text, Any, Optional, Callable, Sequence, Tuple
+
+import numpy as np
 import tensornetwork
+from scipy.linalg import expm
 from tensornetwork.backends.tensorflow import tensorflow_backend
 from tensornetwork.backends.numpy import numpy_backend
 from tensornetwork.backends.jax import jax_backend
-
-# from tensornetwork.backends.shell import shell_backend
 from tensornetwork.backends.pytorch import pytorch_backend
 
 try:  # old version
