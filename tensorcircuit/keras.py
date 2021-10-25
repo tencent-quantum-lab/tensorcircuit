@@ -2,7 +2,7 @@
 keras layer for tc quantum function
 """
 import tensorflow as tf
-from tensorflow.keras.layers import Layer  # type: ignore
+from tensorflow.keras.layers import Layer
 from tensorflow.keras import activations, initializers, constraints
 from typing import List, Optional, Text, Tuple, Callable, Any, Sequence, Union
 import tensornetwork as tn

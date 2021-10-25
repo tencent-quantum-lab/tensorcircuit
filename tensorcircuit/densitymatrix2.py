@@ -37,7 +37,7 @@ class DMCircuit2(DMCircuit):
         if not isinstance(
             index[0], int
         ):  # try best to be compatible with DMCircuit interface
-            index = index[0][0]  # type: ignore
+            index = index[0][0]
         # assert len(kraus) == len(index) or len(index) == 1
         # if len(index) == 1:
         #     index = [index[0] for _ in range(len(kraus))]

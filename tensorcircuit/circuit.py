@@ -3,7 +3,7 @@ quantum circuit: state simulator
 """
 
 from functools import partial
-from typing import Tuple, List, Callable, Union, Optional, Any
+from typing import Tuple, List, Callable, Union, Optional, Any, Sequence
 
 import numpy as np
 import tensornetwork as tn
@@ -13,10 +13,25 @@ from . import gates, cons
 from .cons import dtypestr, npdtype, backend, contractor
 
 Gate = gates.Gate
+Edge = Any
 Tensor = Any
 
 
 class Circuit:
+    """
+    ``Circuit`` class.
+    Simple usage demo below.
+
+    .. code-block:: python
+
+        c = tc.Circuit(3)
+        c.H(1)
+        c.CNOT(0, 1)
+        c.rx(2, theta=tc.num_to_tensor(1.))
+        c.expectation([tc.gates.z(), (2, )]) # 0.54
+
+    """
+
     sgates = (
         ["i", "x", "y", "z", "h", "t", "s", "rs", "wroot"]
         + ["cnot", "cz", "swap", "cy"]
@@ -24,7 +39,12 @@ class Circuit:
     )
     vgates = ["r", "cr", "rx", "ry", "rz", "any", "exp", "exp1"]
 
-    def __init__(self, nqubits: int, inputs: Optional[Tensor] = None) -> None:
+    def __init__(
+        self,
+        nqubits: int,
+        inputs: Optional[Tensor] = None,
+        mps_inputs: Optional[Tuple[Sequence[Gate], Sequence[Edge]]] = None,
+    ) -> None:
         """
         Circuit object based on state simulator.
 
@@ -32,6 +52,8 @@ class Circuit:
         :type nqubits: int
         :param inputs: If not None, the initial state of the circuit is taken as ``inputs`` instead of :math:`\\vert 0\\rangle^n` qubits, defaults to None
         :type inputs: Optional[Tensor], optional
+        :param mps_inputs: (Nodes, dangling Edges) for a MPS like initial wavefunction
+        :type inputs: Optional[Tuple[Sequence[Gate], Sequence[Edge]]], optional
         """
         _prefix = "qb-"
         if inputs is not None:
@@ -39,7 +61,7 @@ class Circuit:
         else:
             self.has_inputs = False
         # Get nodes on the interior
-        if inputs is None:
+        if (inputs is None) and (mps_inputs is None):
             nodes = [
                 tn.Node(
                     np.array(
@@ -51,7 +73,7 @@ class Circuit:
                 for x in range(nqubits)
             ]
             self._front = [n.get_edge(0) for n in nodes]
-        else:  # provide input function
+        elif inputs is not None:  # provide input function
             inputs = backend.reshape(inputs, [-1])
             N = inputs.shape[0]
             n = int(np.log(N) / np.log(2))
@@ -60,10 +82,21 @@ class Circuit:
             inputs = Gate(inputs)
             nodes = [inputs]
             self._front = [inputs.get_edge(i) for i in range(n)]
+        else:  # mps_inputs is not None
+            ndict, edict = tn.copy(mps_inputs[0])  # type: ignore
+            new_nodes = []
+            for n in mps_inputs[0]:  # type: ignore
+                new_nodes.append(ndict[n])
+            new_front = []
+            for e in mps_inputs[1]:  # type: ignore
+                new_front.append(edict[e])
+            nodes = new_nodes
+            self._front = new_front
 
         self._nqubits = nqubits
         self._nodes = nodes
-        self._start = nodes
+        self._start_index = len(nodes)
+        # self._start = nodes
         # self._meta_apply()
         self._qcode = ""
         self._qcode += str(self._nqubits) + "\n"
@@ -82,6 +115,42 @@ class Circuit:
         assert n == self._nqubits
         inputs = backend.reshape(inputs, [2 for _ in range(n)])
         self._nodes[0].tensor = inputs
+
+    def replace_mps_inputs(
+        self, mps_inputs: Tuple[Sequence[Gate], Sequence[Edge]]
+    ) -> None:
+        """
+        Replace the input state in MPS representation while keep the circuit structure unchanged.
+
+        :param mps_inputs: (Nodes, dangling Edges) for a MPS like initial wavefunction
+        :type mps_inputs: Tuple[Sequence[Gate], Sequence[Edge]]
+        """
+        ndict, edict = tn.copy(mps_inputs[0])
+        new_nodes = []
+        for n in mps_inputs[0]:
+            new_nodes.append(ndict[n])
+        new_front = []
+        for e in mps_inputs[1]:
+            new_front.append(edict[e])
+        old = set(id(n) for n in self._nodes[: self._start_index])
+        j = -1
+        for i, n in enumerate(self._nodes[: self._start_index]):
+            for e in n:
+                if e.is_dangling():
+                    j += 1
+                    self._front[j] = new_front[j]
+                else:
+                    if (id(e.node1) in old) and (id(e.node2) in old):
+                        pass
+                    else:
+                        j += 1
+                        if id(e.node2) == id(n):
+                            other = (e.node1, e.axis1)
+                        else:  # id(e.node1) == id(n):
+                            other = (e.node2, e.axis2)
+                        e.disconnect()
+                        new_front[j] ^ other[0][other[1]]
+        self._nodes = new_nodes + self._nodes[self._start_index :]
 
     @classmethod
     def _meta_apply(cls) -> None:

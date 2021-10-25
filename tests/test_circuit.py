@@ -211,3 +211,25 @@ def test_postselection(backend):
     c.mid_measurement(2, 1)
     s = c.wavefunction()[0]
     assert np.allclose(tc.backend.real(s[3]), 0.5)
+
+
+def test_unitary():
+    c = tc.Circuit(2, inputs=np.eye(4))
+    c.X(0)
+    c.Y(1)
+    answer = np.kron(tc.gates.x().tensor, tc.gates.y().tensor)
+    assert np.allclose(c.wavefunction().reshape([4, 4]), answer, atol=1e-4)
+
+
+def test_circuit_add_demo():
+    # to be refactored for better API
+    c = tc.Circuit(2)
+    c.x(0)
+    c2 = tc.Circuit(2, mps_inputs=[c._nodes, c._front])
+    c2.X(0)
+    answer = np.array([1.0, 0, 0, 0])
+    assert np.allclose(c2.wavefunction().reshape([-1]), answer, atol=1e-4)
+    c3 = tc.Circuit(2)
+    c3.X(0)
+    c3.replace_mps_inputs([c._nodes, c._front])
+    assert np.allclose(c3.wavefunction().reshape([-1]), answer, atol=1e-4)
