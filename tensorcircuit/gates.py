@@ -329,9 +329,12 @@ exp = exponential_gate
 
 def exponential_gate_unity(unitary: Tensor, theta: float, name: str = "none") -> Gate:
     theta = num_to_tensor(theta)
-    n = len(unitary.shape)
+    # n = len(unitary.shape)
+    size = int(reduce(mul, unitary.shape))
+    n = int(np.log2(size))
     i = np.eye(2 ** (int(n / 2)))
     i = i.reshape([2 for _ in range(n)])
+    unitary = backend.reshape(unitary, [2 for _ in range(n)])
     it = array_to_tensor(i)
     mat = backend.cos(theta) * it - 1.0j * backend.sin(theta) * unitary
     return Gate(mat, name="exp1-" + name)

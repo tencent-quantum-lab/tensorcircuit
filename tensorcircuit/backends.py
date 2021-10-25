@@ -629,12 +629,12 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     ) -> Callable[..., Tuple[Any, Any]]:
         def wrapper(*args: Any, **kws: Any) -> Any:
             with tf.GradientTape() as t:
-                t.watch(args)
-                y = f(*args, **kws)
                 if isinstance(argnums, int):
                     x = args[argnums]
                 else:
                     x = [args[i] for i in argnums]
+                t.watch(x)
+                y = f(*args, **kws)
                 g = t.gradient(y, x)
             return y, g
 

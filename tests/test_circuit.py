@@ -64,7 +64,7 @@ def test_exp1(backend):
         xx = np.array(
             [[0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0], [1, 0, 0, 0]], dtype=np.complex64
         )
-        c.exp1(0, 1, unitary=xx.reshape([2, 2, 2, 2]), theta=tc.num_to_tensor(0.2))
+        c.exp1(0, 1, unitary=xx, theta=tc.num_to_tensor(0.2))
         s = c.state()
         return s
 
