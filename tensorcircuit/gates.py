@@ -328,7 +328,7 @@ exp = exponential_gate
 
 
 def exponential_gate_unity(unitary: Tensor, theta: float, name: str = "none") -> Gate:
-    theta = num_to_tensor(theta)
+    theta, unitary = num_to_tensor(theta, unitary)
     # n = len(unitary.shape)
     size = int(reduce(mul, unitary.shape))
     n = int(np.log2(size))

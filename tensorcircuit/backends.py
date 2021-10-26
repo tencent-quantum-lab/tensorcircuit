@@ -369,7 +369,11 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     ) -> Callable[..., Tuple[Any, Any]]:
         raise NotImplementedError("numpy backend doesn't support AD")
 
-    def jit(self, f: Callable[..., Any]) -> Callable[..., Any]:
+    def jit(
+        self,
+        f: Callable[..., Any],
+        static_argnums: Optional[Union[int, Sequence[int]]] = None,
+    ) -> Callable[..., Any]:
         warnings.warn("numpy backend has no parallel as jit, just do nothing")
         return f
         # raise NotImplementedError("numpy backend doesn't support jit compiling")
@@ -485,8 +489,12 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     ) -> Callable[..., Tuple[Any, Any]]:
         return libjax.value_and_grad(f, argnums=argnums)  # type: ignore
 
-    def jit(self, f: Callable[..., Any]) -> Any:
-        return libjax.jit(f)
+    def jit(
+        self,
+        f: Callable[..., Any],
+        static_argnums: Optional[Union[int, Sequence[int]]] = None,
+    ) -> Any:
+        return libjax.jit(f, static_argnums=static_argnums)
 
     def vmap(self, f: Callable[..., Any]) -> Any:
         return libjax.vmap(f)
@@ -495,14 +503,14 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     def vectorized_value_and_grad(
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Callable[..., Tuple[Any, Any]]:
-        @libjax.jit  # type: ignore
+        # @libjax.jit  # type: ignore
         def wrapper(
             *args: Any, **kws: Any
         ) -> Tuple[Tensor, Union[Tensor, Tuple[Tensor, ...]]]:
             jf = self.value_and_grad(f, argnums=argnums)
             inaxes = [0] + [None for _ in range(len(args) - 1)]  # type: ignore
             jf = libjax.vmap(jf, inaxes, 0)
-            jf = self.jit(jf)
+            # jf = self.jit(jf)
             vs, gs = jf(*args, **kws)
             if argnums == 0:
                 pass
@@ -518,7 +526,7 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
                 gs = tuple(gs)
             return vs, gs
 
-        return wrapper  # type: ignore
+        return wrapper
 
         # f = self.value_and_grad(f, argnums=argnums)
         # f = libjax.vmap(f, (0, None), 0)
@@ -641,7 +649,13 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
 
         return wrapper
 
-    def jit(self, f: Callable[..., Any]) -> Any:
+    def jit(
+        self,
+        f: Callable[..., Any],
+        static_argnums: Optional[Union[int, Sequence[int]]] = None,
+    ) -> Any:
+        # static_argnums not supported in tf case, this is only for a consistent interface
+        # for more on static_argnums in tf.function, see issue: https://github.com/tensorflow/tensorflow/issues/52193
         return tf.function(f)
 
     def vmap(self, f: Callable[..., Any]) -> Any:
@@ -659,7 +673,7 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Callable[..., Tuple[Any, Any]]:
         # note how tf only works in this order, due to the bug reported as: https://github.com/google/TensorNetwork/issues/940
-        @tf.function  # type: ignore
+        # @tf.function  # type: ignore
         def wrapper(
             *args: Any, **kws: Any
         ) -> Tuple[Tensor, Union[Tensor, Tuple[Tensor, ...]]]:
@@ -677,7 +691,7 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
             grad = tape.gradient(vs, x)
             return vs, grad
 
-        return wrapper  # type: ignore
+        return wrapper
 
         # f = self.vmap(f)
         # f = self.value_and_grad(f, argnums=argnums)
@@ -807,13 +821,18 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         # There seems to be no map like architecture in pytorch for now
         # see https://discuss.pytorch.org/t/fast-way-to-use-map-in-pytorch/70814
 
-    def jit(self, f: Callable[..., Any]) -> Any:
+    def jit(
+        self,
+        f: Callable[..., Any],
+        static_argnums: Optional[Union[int, Sequence[int]]] = None,
+    ) -> Any:
         return f  # do nothing here until I figure out what torch.jit is for and how does it work
         # see https://github.com/pytorch/pytorch/issues/36910
 
     def vectorized_value_and_grad(
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Callable[..., Tuple[Any, Any]]:
+        # [WIP], not a consistent impl compared to tf and jax backend, but pytorch backend is not fully supported anyway
         f = self.value_and_grad(f, argnums=argnums)
         f = self.vmap(f)
         f = self.jit(f)
