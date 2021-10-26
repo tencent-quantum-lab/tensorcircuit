@@ -24,7 +24,7 @@ def universal_vmap():
     def sum_real(x, y):
         return tc.backend.real(x + y)
 
-    vop = tc.backend.vmap(sum_real)
+    vop = tc.backend.vmap(sum_real, vectorized_argnums=(0, 1))
     t = tc.gates.array_to_tensor(np.ones([20, 1]))
     return vop(t, 2.0 * t)
 

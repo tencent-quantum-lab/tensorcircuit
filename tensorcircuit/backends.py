@@ -238,12 +238,18 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `value_and_grad`.".format(self.name)
         )
 
-    def jit(self: Any, f: Callable[..., Any]) -> Callable[..., Any]:
+    def jit(
+        self: Any,
+        f: Callable[..., Any],
+        static_argnums: Optional[Union[int, Sequence[int]]] = None,
+    ) -> Callable[..., Any]:
         """
         Return jitted version function of ``f``
 
         :param f: function to be jitted
         :type f: Callable[..., Any]
+        :param static_argnums: index of args that doesn't regarded as tensor
+        :type static_argnums: Optional[Union[int, Sequence[int]]], defaults to None
         :return: jitted ``f``
         :rtype: Callable[..., Any]
         """
@@ -251,13 +257,19 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `jit`.".format(self.name)
         )
 
-    def vmap(self: Any, f: Callable[..., Any]) -> Any:
+    def vmap(
+        self: Any,
+        f: Callable[..., Any],
+        vectorized_argnums: Union[int, Sequence[int]] = 0,
+    ) -> Any:
         """
         Return vectorized map or batched version of ``f`` on the first extra axis,
-        the general interface only support ``f`` with one argument and broadcast in the fist dimension.
+        the general interface support ``f`` with multiple arguments and broadcast in the fist dimension.
 
         :param f: function to be broadcasted.
         :type f: Callable[..., Any]
+        :param vectorized_argnums: the args to be vectorized, these arguments should share the same batch shape in the fist dimension
+        :type vectorized_argnums: Union[int, Sequence[int]], defaults to 0
         :return: vmap version of ``f``
         :rtype: Any
         """
@@ -266,13 +278,17 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
         )
 
     def vectorized_value_and_grad(
-        self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self: Any,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        vectorized_argnums: Union[int, Sequence[int]] = 0,
     ) -> Callable[..., Tuple[Any, Any]]:
         """
         Return vvag function of ``f``. the inputs for ``f`` is (args[0], args[1], args[2], ...),
         and the output of ``f`` is a scalar. Suppose vvag(f) is a function with inputs in the form
         (vargs[0], args[1], args[2], ...), where vagrs[0] has one extra dimension than args[0] in the first axis
         and consistent with args[0] in shape for remaining dimensions, i.e. shape(vargs[0]) = [batch] + shape(args[0]).
+        (We only cover case where ``vectorized_argnums`` defaults to 0 here for demonstration).
         vvag(f) returns a tuple as a value tensor with shape [batch, 1] and a gradient tuple with shape:
         ([batch]+shape(args[argnum]) for argnum in argnums). The gradient for argnums=k is defined as
 
@@ -300,6 +316,8 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
         :type f: Callable[..., Any]
         :param argnums: [description], defaults to 0
         :type argnums: Union[int, Sequence[int]], optional
+        :param vectorized_argnums: the args to be vectorized, these arguments should share the same batch shape in the fist dimension
+        :type vectorized_argnums: Union[int, Sequence[int]], defaults to 0
         :return: [description]
         :rtype: Callable[..., Tuple[Any, Any]]
         """
@@ -378,15 +396,37 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
         return f
         # raise NotImplementedError("numpy backend doesn't support jit compiling")
 
-    def vmap(self, f: Callable[..., Any]) -> Any:
+    def vmap(
+        self, f: Callable[..., Any], vectorized_argnums: Union[int, Sequence[int]] = 0
+    ) -> Any:
         warnings.warn(
             "numpy backend has no intrinsic vmap like interface"
             ", use vectorize instead (plain for loop)"
         )
-        return np.vectorize(f)
+        if isinstance(vectorized_argnums, int):
+            vectorized_argnums = (vectorized_argnums,)
+
+        def wrapper(*args: Any, **kws: Any) -> Tensor:
+            results = []
+            for barg in zip(*[args[i] for i in vectorized_argnums]):  # type: ignore
+                narg = []
+                j = 0
+                for k in range(len(args)):
+                    if k in vectorized_argnums:  # type: ignore
+                        narg.append(barg[j])
+                        j += 1
+                    else:
+                        narg.append(args[k])
+                results.append(f(*narg, **kws))
+            return np.array(results)
+
+        return wrapper
 
     def vectorized_value_and_grad(
-        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        vectorized_argnums: Union[int, Sequence[int]] = 0,
     ) -> Callable[..., Tuple[Any, Any]]:
         raise NotImplementedError("numpy backend doesn't support AD")
 
@@ -496,20 +536,37 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     ) -> Any:
         return libjax.jit(f, static_argnums=static_argnums)
 
-    def vmap(self, f: Callable[..., Any]) -> Any:
-        return libjax.vmap(f)
-        # since tf doesn't support in&out axes options, we don't support them in universal backend
+    def vmap(
+        self, f: Callable[..., Any], vectorized_argnums: Union[int, Sequence[int]] = 0
+    ) -> Any:
+        if isinstance(vectorized_argnums, int):
+            vectorized_argnums = (vectorized_argnums,)
+        # if vectorized_argnums == (0,): # fast shortcuts
+        #     return libjax.vmap(f)
+
+        def wrapper(*args: Any, **kws: Any) -> Tensor:
+            in_axes = [0 if i in vectorized_argnums else None for i in range(len(args))]  # type: ignore
+            return libjax.vmap(f, in_axes, 0)(*args, **kws)
+
+        return wrapper
+
+        # since tf doesn't support general in&out axes options, we don't support them in universal backend
 
     def vectorized_value_and_grad(
-        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        vectorized_argnums: Union[int, Sequence[int]] = 0,
     ) -> Callable[..., Tuple[Any, Any]]:
-        # @libjax.jit  # type: ignore
+        if isinstance(vectorized_argnums, int):
+            vectorized_argnums = (vectorized_argnums,)
+
         def wrapper(
             *args: Any, **kws: Any
         ) -> Tuple[Tensor, Union[Tensor, Tuple[Tensor, ...]]]:
             jf = self.value_and_grad(f, argnums=argnums)
-            inaxes = [0] + [None for _ in range(len(args) - 1)]  # type: ignore
-            jf = libjax.vmap(jf, inaxes, 0)
+            in_axes = [0 if i in vectorized_argnums else None for i in range(len(args))]  # type: ignore
+            jf = libjax.vmap(jf, in_axes, 0)
             # jf = self.jit(jf)
             vs, gs = jf(*args, **kws)
             if argnums == 0:
@@ -620,6 +677,7 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     ) -> Callable[..., Any]:
         # experimental attempt
         # Note: tensorflow grad is gradient while jax grad is derivative, they are different with a conjugate!
+        # And we DONT make them consitent by mannually set conjugate of the returns.
         def wrapper(*args: Any, **kws: Any) -> Any:
             with tf.GradientTape() as t:
                 t.watch(args)
@@ -658,22 +716,78 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         # for more on static_argnums in tf.function, see issue: https://github.com/tensorflow/tensorflow/issues/52193
         return tf.function(f)
 
-    def vmap(self, f: Callable[..., Any]) -> Any:
-        def wrapper(f: Callable[..., Any], args: Sequence[Any]) -> Any:
-            return f(*args)
+    def vmap(
+        self, f: Callable[..., Any], vectorized_argnums: Union[int, Sequence[int]] = 0
+    ) -> Any:
+        if isinstance(vectorized_argnums, int):
+            vectorized_argnums = (vectorized_argnums,)
+        if vectorized_argnums == (0,):  # fast shortcut
 
-        wrapper = partial(wrapper, f)
+            def wrapper(*args: Any, **kws: Any) -> Tensor:
+                def pf(x: Tensor) -> Tensor:
+                    return f(x, *args[1:], **kws)
 
-        def own_vectorized_map(f: Callable[..., Any], *args: Any) -> Any:
-            return tf.vectorized_map(f, args)
+                return tf.vectorized_map(pf, args[0])
 
-        return partial(own_vectorized_map, wrapper)
+        else:
+
+            @tf.function  # type: ignore
+            def wrapper(*args: Any, **kws: Any) -> Tensor:
+                shapes = []
+                l = len(args)
+                seps = [0]
+                batch = args[vectorized_argnums[0]].shape[0]  # type: ignore
+                nargs = []
+                for i, arg in enumerate(args):
+                    if i in vectorized_argnums:  # type: ignore
+                        shapes.append(arg.shape[1:])
+                        assert (
+                            arg.shape[0] == batch
+                        ), "different tensors has different batch dimensions!"
+                        arg = tf.reshape(arg, [batch, -1])
+                        nargs.append(arg)
+                        seps.append(seps[-1] + arg.shape[-1])
+                sargs = tf.concat(nargs, 1)
+
+                def sf(sarg: Any) -> Any:
+                    vargs = []
+                    for i in range(len(shapes)):
+                        arg = sarg[seps[i] : seps[i + 1]]
+                        arg = tf.reshape(arg, shapes[i])
+                        vargs.append(arg)
+                    vvargs = []
+                    j = 0
+                    for i in range(l):
+                        if i in vectorized_argnums:  # type: ignore
+                            vvargs.append(vargs[j])
+                            j += 1
+                        else:
+                            vvargs.append(args[i])
+                    return f(*vvargs, **kws)
+
+                return tf.vectorized_map(sf, sargs)
+
+        return wrapper
+        # def wrapper(f: Callable[..., Any], args: Sequence[Any]) -> Any:
+        #     return f(*args)
+
+        # wrapper = partial(wrapper, f)
+
+        # def own_vectorized_map(f: Callable[..., Any], *args: Any) -> Any:
+        #     return tf.vectorized_map(f, args)
+
+        # return partial(own_vectorized_map, wrapper)
 
     def vectorized_value_and_grad(
-        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        vectorized_argnums: Union[int, Sequence[int]] = 0,
     ) -> Callable[..., Tuple[Any, Any]]:
         # note how tf only works in this order, due to the bug reported as: https://github.com/google/TensorNetwork/issues/940
         # @tf.function  # type: ignore
+        vf = self.vmap(f, vectorized_argnums=vectorized_argnums)
+
         def wrapper(
             *args: Any, **kws: Any
         ) -> Tuple[Tensor, Union[Tensor, Tuple[Tensor, ...]]]:
@@ -683,11 +797,7 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
                 else:
                     x = [args[i] for i in argnums]
                 tape.watch(x)
-
-                def pg(inp: Tensor) -> Tensor:
-                    return f(inp, *(args[1:]), **kws)
-
-                vs = tf.vectorized_map(pg, args[0])
+                vs = vf(*args, **kws)
             grad = tape.gradient(vs, x)
             return vs, grad
 
@@ -802,21 +912,45 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
 
         return wrapper
 
-    def vmap(self, f: Callable[..., Any]) -> Any:
+    def vmap(
+        self,
+        f: Callable[..., Any],
+        vectorized_argnums: Optional[Union[int, Sequence[int]]] = None,
+    ) -> Any:
         warnings.warn(
             "pytorch backend has no intrinsic vmap like interface"
             ", use plain for loop for compatibility"
         )
         # the vmap support is vey limited, f must return one tensor
         # nested list of tensor as return is not supported
-        def vmapf(*args: Tensor, **kws: Any) -> Tensor:
-            r = []
-            for i in range(args[0].shape[0]):
-                nargs = [arg[i] for arg in args]
-                r.append(f(*nargs, **kws))
-            return torchlib.stack(r)
+        if isinstance(vectorized_argnums, int):
+            vectorized_argnums = (vectorized_argnums,)
 
-        return vmapf
+        def wrapper(*args: Any, **kws: Any) -> Tensor:
+            results = []
+            for barg in zip(*[args[i] for i in vectorized_argnums]):  # type: ignore
+                narg = []
+                j = 0
+                for k in range(len(args)):
+                    if k in vectorized_argnums:  # type: ignore
+                        narg.append(barg[j])
+                        j += 1
+                    else:
+                        narg.append(args[k])
+                results.append(f(*narg, **kws))
+            return torchlib.stack(results)
+
+        return wrapper
+
+        # def vmapf(*args: Tensor, **kws: Any) -> Tensor:
+        #     r = []
+        #     for i in range(args[0].shape[0]):
+        #         nargs = [arg[i] for arg in args]
+        #         r.append(f(*nargs, **kws))
+        #     return torchlib.stack(r)
+
+        # return vmapf
+
         # raise NotImplementedError("pytorch backend doesn't support vmap")
         # There seems to be no map like architecture in pytorch for now
         # see https://discuss.pytorch.org/t/fast-way-to-use-map-in-pytorch/70814
@@ -830,12 +964,15 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         # see https://github.com/pytorch/pytorch/issues/36910
 
     def vectorized_value_and_grad(
-        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        vectorized_argnums: Union[int, Sequence[int]] = 0,
     ) -> Callable[..., Tuple[Any, Any]]:
         # [WIP], not a consistent impl compared to tf and jax backend, but pytorch backend is not fully supported anyway
         f = self.value_and_grad(f, argnums=argnums)
-        f = self.vmap(f)
-        f = self.jit(f)
+        f = self.vmap(f, vectorized_argnums=vectorized_argnums)
+        # f = self.jit(f)
         return f
 
     vvag = vectorized_value_and_grad

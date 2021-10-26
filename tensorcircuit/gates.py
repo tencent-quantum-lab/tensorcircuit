@@ -203,6 +203,7 @@ def rxgate(theta: float = 0) -> Gate:
     :return:
     """
     i, x = array_to_tensor(_i_matrix, _x_matrix)
+    theta = num_to_tensor(theta)
     unitary = backend.cos(theta / 2.0) * i - backend.i() * backend.sin(theta / 2.0) * x
     return Gate(unitary)
 
@@ -218,6 +219,7 @@ def rygate(theta: float = 0) -> Gate:
     :return:
     """
     i, y = array_to_tensor(_i_matrix, _y_matrix)
+    theta = num_to_tensor(theta)
     unitary = backend.cos(theta / 2.0) * i - backend.i() * backend.sin(theta / 2.0) * y
     return Gate(unitary)
 
@@ -232,8 +234,9 @@ def rzgate(theta: float = 0) -> Gate:
     :param theta:
     :return:
     """
-    i, x = array_to_tensor(_i_matrix, _z_matrix)
-    unitary = backend.cos(theta / 2.0) * i - backend.i() * backend.sin(theta / 2.0) * x
+    i, z = array_to_tensor(_i_matrix, _z_matrix)
+    theta = num_to_tensor(theta)
+    unitary = backend.cos(theta / 2.0) * i - backend.i() * backend.sin(theta / 2.0) * z
     return Gate(unitary)
 
 
