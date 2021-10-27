@@ -100,3 +100,17 @@ def test_vvag(backend):
     assert np.allclose(v1[0], v0, atol=1e-4)
     assert np.allclose(g10[0], g00, atol=1e-4)
     assert np.allclose(g11 / batch, g01, atol=1e-4)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_vvag_dict(backend):
+    def dict_plus(x, y):
+        a = x["a"]
+        return (a + y)[0]
+
+    dp_vvag = tc.backend.vvag(dict_plus, vectorized_argnums=1, argnums=0)
+    x = {"a": tc.backend.ones([1])}
+    y = tc.backend.ones([20, 1])
+    v, g = dp_vvag(x, y)
+    assert np.allclose(v.shape, [20])
+    assert np.allclose(g["a"], 20.0, atol=1e-4)

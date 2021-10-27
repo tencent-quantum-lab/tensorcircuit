@@ -158,6 +158,21 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `i`.".format(self.name)
         )
 
+    def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
+        """
+        Concatenates a sequence of tensors ``a`` along a new dimension ``axis``.
+
+        :param a: List of tensors in the same shape
+        :type a: Sequence[Tensor]
+        :param axis: the stack axis, defaults to 0
+        :type axis: int, optional
+        :return: concatenated tensor
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `stack`.".format(self.name)
+        )
+
     def is_tensor(self: Any, a: Tensor) -> bool:
         """
         Return boolean on whether ``a`` is a tensor in backend package.
@@ -366,6 +381,9 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
             dtype = getattr(np, dtype)
         return np.array(1j, dtype=dtype)
 
+    def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
+        return np.stack(a, axis=axis)
+
     def is_tensor(self, a: Any) -> bool:
         if isinstance(a, np.ndarray):
             return True
@@ -510,6 +528,9 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         return jsp.linalg.expm(a)
         # currently expm in jax doesn't support AD, it will raise an AssertError, see https://github.com/google/jax/issues/2645
 
+    def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
+        return jnp.stack(a, axis=axis)
+
     def is_tensor(self, a: Any) -> bool:
         if not isinstance(a, jnp.ndarray):
             return False
@@ -569,18 +590,21 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
             jf = libjax.vmap(jf, in_axes, 0)
             # jf = self.jit(jf)
             vs, gs = jf(*args, **kws)
-            if argnums == 0:
-                pass
+
+            if isinstance(argnums, int):
+                argnums_list = [argnums]
+                gs = [gs]
             else:
-                if isinstance(argnums, int):
-                    argnums_list = [argnums]
-                else:
-                    argnums_list = argnums  # type: ignore
+                argnums_list = argnums  # type: ignore
                 gs = list(gs)
-                for i, (j, g) in enumerate(zip(argnums_list, gs)):
-                    if j != 0:
-                        gs[i] = jnp.sum(g, axis=0)
+            for i, (j, g) in enumerate(zip(argnums_list, gs)):
+                if j not in vectorized_argnums:  # type: ignore
+                    gs[i] = libjax.tree_map(partial(jnp.sum, axis=0), g)
+            if isinstance(argnums, int):
+                gs = gs[0]
+            else:
                 gs = tuple(gs)
+
             return vs, gs
 
         return wrapper
@@ -657,6 +681,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         if isinstance(dtype, str):
             dtype = getattr(tf, dtype)
         return tf.constant(1j, dtype=dtype)
+
+    def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
+        return tf.stack(a, axis=axis)
 
     def is_tensor(self, a: Any) -> bool:
         if isinstance(a, tf.Tensor) or isinstance(a, tf.Variable):
@@ -785,7 +812,6 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         vectorized_argnums: Union[int, Sequence[int]] = 0,
     ) -> Callable[..., Tuple[Any, Any]]:
         # note how tf only works in this order, due to the bug reported as: https://github.com/google/TensorNetwork/issues/940
-        # @tf.function  # type: ignore
         vf = self.vmap(f, vectorized_argnums=vectorized_argnums)
 
         def wrapper(
@@ -853,6 +879,9 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
     def real(self, a: Tensor) -> Tensor:
         return a
         # hmm, in torch, everyone is real.
+
+    def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
+        return torchlib.stack(a, dim=axis)
 
     def is_tensor(self, a: Any) -> bool:
         if isinstance(a, torchlib.Tensor):
