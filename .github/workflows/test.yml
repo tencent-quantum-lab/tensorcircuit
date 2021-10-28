@@ -6,7 +6,7 @@ jobs:
     name: test
     strategy:
       matrix:
-        os: [ubuntu-18.04, macos-latest]
+        os: [ubuntu-18.04] # macos-latest disabled to save quota
         python-version: [3.6]
       fail-fast: false
     steps:

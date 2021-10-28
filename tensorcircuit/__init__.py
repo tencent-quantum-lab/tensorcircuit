@@ -12,5 +12,5 @@ from . import keras
 
 # from . import channels
 
-__version__ = "0.0.1"
+__version__ = "0.0.211027"
 __author__ = "refraction-ray"
