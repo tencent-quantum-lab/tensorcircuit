@@ -112,7 +112,7 @@ def num_to_tensor(*num: float, dtype: Optional[str] = None) -> Any:
         if not backend.is_tensor(n):
             l.append(backend.cast(backend.convert_to_tensor(n), dtype=dtype))
         else:
-            l.append(n)
+            l.append(backend.cast(n, dtype=dtype))
     if len(l) == 1:
         return l[0]
     return l

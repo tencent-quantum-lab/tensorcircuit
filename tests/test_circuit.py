@@ -221,6 +221,63 @@ def test_unitary():
     assert np.allclose(c.wavefunction().reshape([4, 4]), answer, atol=1e-4)
 
 
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_dqas_type_circuit(backend):
+    eye = tc.gates.i().tensor
+    x = tc.gates.x().tensor
+    y = tc.gates.y().tensor
+    z = tc.gates.z().tensor
+
+    def f(params, structures):
+        paramsc = tc.backend.cast(params, dtype="complex64")
+        # stcuturesc =  # TODO: softmax
+        structuresc = tc.backend.cast(structures, dtype="complex64")
+        c = tc.Circuit(5)
+        for i in range(5):
+            c.H(i)
+        for j in range(2):
+            for i in range(4):
+                c.cz(i, i + 1)
+            for i in range(5):
+                c.any(
+                    i,
+                    unitary=structuresc[i, j, 0]
+                    * (
+                        tc.backend.cos(paramsc[i, j, 0]) * eye
+                        + tc.backend.sin(paramsc[i, j, 0]) * x
+                    )
+                    + structuresc[i, j, 1]
+                    * (
+                        tc.backend.cos(paramsc[i, j, 1]) * eye
+                        + tc.backend.sin(paramsc[i, j, 1]) * y
+                    )
+                    + structuresc[i, j, 2]
+                    * (
+                        tc.backend.cos(paramsc[i, j, 2]) * eye
+                        + tc.backend.sin(paramsc[i, j, 2]) * z
+                    ),
+                )
+        return tc.backend.real(c.expectation([tc.gates.z(), (2,)]))
+
+    structures = tc.array_to_tensor(
+        np.random.normal(size=[16, 5, 2, 3]), dtype="float32"
+    )
+    params = tc.array_to_tensor(np.random.normal(size=[5, 2, 3]), dtype="float32")
+
+    vf = tc.backend.vmap(f, vectorized_argnums=(1,))
+
+    assert np.allclose(vf(params, structures).shape, [16])
+
+    vvag = tc.backend.vvag(f, argnums=0, vectorized_argnums=1)
+
+    vvag = tc.backend.jit(vvag)
+
+    value, grad = vvag(params, structures)
+
+    assert np.allclose(value.shape, [16])
+    assert np.allclose(grad.shape, [5, 2, 3])
+
+
 def test_circuit_add_demo():
     # to be refactored for better API
     c = tc.Circuit(2)
