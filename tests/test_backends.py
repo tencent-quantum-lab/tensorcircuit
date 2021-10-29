@@ -52,6 +52,16 @@ def test_vmap_torch(torchb):
     assert r.numpy()[0, 0] == 3.0
 
 
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_backend_methods(backend):
+    # TODO: add more methods
+    assert np.allclose(
+        tc.backend.softmax(tc.array_to_tensor(np.ones([3, 2]), dtype="float32")),
+        np.ones([3, 2]) / 6.0,
+        atol=1e-4,
+    )
+
+
 def vqe_energy(inputs, param, n, nlayers):
     c = tc.Circuit(n, inputs=inputs)
     paramc = tc.backend.cast(param, "complex64")

@@ -230,8 +230,8 @@ def test_dqas_type_circuit(backend):
 
     def f(params, structures):
         paramsc = tc.backend.cast(params, dtype="complex64")
-        # stcuturesc =  # TODO: softmax
-        structuresc = tc.backend.cast(structures, dtype="complex64")
+        structuresc = tc.backend.softmax(structures, axis=-1)
+        structuresc = tc.backend.cast(structuresc, dtype="complex64")
         c = tc.Circuit(5)
         for i in range(5):
             c.H(i)

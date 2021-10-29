@@ -10,6 +10,7 @@ from typing import Union, Text, Any, Optional, Callable, Sequence, Tuple
 import numpy as np
 import tensornetwork
 from scipy.linalg import expm
+from scipy.special import softmax
 from tensornetwork.backends.tensorflow import tensorflow_backend
 from tensornetwork.backends.numpy import numpy_backend
 from tensornetwork.backends.jax import jax_backend
@@ -171,6 +172,26 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
         """
         raise NotImplementedError(
             "Backend '{}' has not implemented `stack`.".format(self.name)
+        )
+
+    def softmax(self: Any, a: Sequence[Tensor], axis: Optional[int] = None) -> Tensor:
+        """
+        Softmax function.
+        Computes the function which rescales elements to the range [0,1] such that the elements along axis sum to 1.
+
+        .. math ::
+
+            \mathrm{softmax}(x) = \frac{\exp(x_i)}{\sum_j \exp(x_j)}
+
+        :param a: Tensor
+        :type a: Sequence[Tensor]
+        :param axis: A dimension along which Softmax will be computed , defaults to None for all axis sum.
+        :type axis: int, optional
+        :return: concatenated tensor
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `softmax`.".format(self.name)
         )
 
     def is_tensor(self: Any, a: Tensor) -> bool:
@@ -381,8 +402,11 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
             dtype = getattr(np, dtype)
         return np.array(1j, dtype=dtype)
 
-    def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
+    def stack(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return np.stack(a, axis=axis)
+
+    def softmax(self, a: Sequence[Tensor], axis: Optional[int] = None) -> Tensor:
+        return softmax(a, axis=axis)
 
     def is_tensor(self, a: Any) -> bool:
         if isinstance(a, np.ndarray):
@@ -530,6 +554,9 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
 
     def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return jnp.stack(a, axis=axis)
+
+    def softmax(self, a: Sequence[Tensor], axis: Optional[int] = None) -> Tensor:
+        return libjax.nn.softmax(a, axis=axis)
 
     def is_tensor(self, a: Any) -> bool:
         if not isinstance(a, jnp.ndarray):
@@ -684,6 +711,13 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
 
     def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return tf.stack(a, axis=axis)
+
+    def softmax(self, a: Sequence[Tensor], axis: Optional[int] = None) -> Tensor:
+        if axis is None:  # make the default behavior consistent
+            ashape = a.shape  # type: ignore
+            r = tf.keras.activations.softmax(tf.reshape(a, [1, -1]), axis=axis)
+            return tf.reshape(r, a.shape)  # type: ignore
+        return tf.keras.activations.softmax(a, axis=axis)
 
     def is_tensor(self, a: Any) -> bool:
         if isinstance(a, tf.Tensor) or isinstance(a, tf.Variable):
@@ -882,6 +916,9 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
 
     def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return torchlib.stack(a, dim=axis)
+
+    def softmax(self, a: Sequence[Tensor], axis: Optional[int] = None) -> Tensor:
+        return torchlib.nn.Softmax(a, dim=axis)
 
     def is_tensor(self, a: Any) -> bool:
         if isinstance(a, torchlib.Tensor):
