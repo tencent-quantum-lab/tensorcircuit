@@ -23,6 +23,7 @@ modules = [
     "tensorcircuit.densitymatrix2",
     "tensorcircuit.channels",
     "tensorcircuit.keras",
+    "tensorcircuit.quantum",
 ]
 
 dtypestr = "complex64"
@@ -90,7 +91,9 @@ def _multi_remove(elems: List[Any], indices: List[int]) -> List[Any]:
 
 
 def plain_contractor(
-    nodes: List[Any], output_edge_order: Optional[List[Any]] = None
+    nodes: List[Any],
+    output_edge_order: Optional[List[Any]] = None,
+    ignore_edge_order: bool = False,
 ) -> Any:
     """
     naive statevector simulator contraction path
@@ -102,7 +105,7 @@ def plain_contractor(
     :return: ``tn.Node`` after contraction
     :rtype: tn.Node
     """
-    nodes = list(reversed(nodes))
+    nodes = list(reversed(list(nodes)))
     while len(nodes) > 1:
         new_node = tn.contract_between(nodes[-1], nodes[-2], allow_outer_product=True)
         nodes = _multi_remove(nodes, [len(nodes) - 2, len(nodes) - 1])
@@ -151,8 +154,12 @@ def d2s(n: int, dl: List[Any]) -> List[Any]:
 
 # seems worse than plain contraction in most cases
 def tn_greedy_contractor(
-    nodes: List[Any], output_edge_order: Optional[List[Any]] = None, max_branch: int = 1
+    nodes: List[Any],
+    output_edge_order: Optional[List[Any]] = None,
+    ignore_edge_order: bool = False,
+    max_branch: int = 1,
 ) -> Any:
+    nodes = list(nodes)
     adj = nodes_to_adj(nodes)
     path = _ps.full_solve_complete(adj, max_branch=max_branch)[0]
     dl = []
@@ -211,7 +218,9 @@ def set_contractor(
     :raises ValueError: unknown method options
     """
     if not method:
-        method = "auto"
+        method = "greedy"
+        # auto for small size fallbacks to dp, which has bug for now
+        # see: https://github.com/dgasmith/opt_einsum/issues/172
     if method == "plain":
         cf = plain_contractor
     elif method == "tng":
