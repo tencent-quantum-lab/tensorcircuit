@@ -64,6 +64,9 @@ def construct_matrix(ham: List[List[float]]) -> Array:
     return h
 
 
+# replace with QuOperator tensor_product approach for Hamiltonian construction
+
+
 def construct_matrix_tf(ham: List[List[float]], dtype: Any = tf.complex128) -> Array:
     h = 0.0j
     for j, term in enumerate(ham):

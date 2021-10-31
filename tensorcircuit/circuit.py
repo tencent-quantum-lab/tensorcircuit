@@ -12,6 +12,7 @@ import tensornetwork as tn
 from . import cons
 from . import gates
 from .cons import backend, contractor, dtypestr, npdtype
+from .quantum import QuVector
 
 Gate = gates.Gate
 Tensor = Any
@@ -326,6 +327,10 @@ class Circuit:
             self._qcode = self._qcode[:-1] + "\n"
 
         return apply
+
+    def get_quvector(self):
+        _, edges = self._copy()
+        return QuVector(edges)
 
     def mid_measurement(self, index: int, keep: int = 0) -> None:
         """

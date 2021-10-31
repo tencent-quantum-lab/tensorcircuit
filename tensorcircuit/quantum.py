@@ -21,6 +21,7 @@ from tensornetwork.network_components import CopyNode
 from tensornetwork.network_operations import get_all_nodes, copy, reachable
 from tensornetwork.network_operations import get_subgraph_dangling, remove_node
 
+from .backends import backend
 from .cons import contractor
 
 Tensor = Any
@@ -30,6 +31,8 @@ Tensor = Any
 # For the reason of adoption instead of direct import: see https://github.com/google/TensorNetwork/issues/950
 
 # TODO(@refraction-ray): docstring to sphinx style in this file...
+
+# general conventions left (first) out, right (then) in
 
 
 def quantum_constructor(
@@ -63,7 +66,6 @@ def quantum_constructor(
 
 def identity(
     space: Sequence[int],
-    backend: Optional[Text] = None,
     dtype: Type[np.number] = np.float64,
 ) -> "QuOperator":
     """Construct a `QuOperator` representing the identity on a given space.
@@ -77,7 +79,7 @@ def identity(
     Returns:
       The desired identity operator.
     """
-    nodes = [CopyNode(2, d, backend=backend, dtype=dtype) for d in space]
+    nodes = [CopyNode(2, d, dtype=dtype) for d in space]
     out_edges = [n[0] for n in nodes]
     in_edges = [n[1] for n in nodes]
     return quantum_constructor(out_edges, in_edges)
@@ -137,7 +139,7 @@ def eliminate_identities(nodes: Collection[AbstractNode]) -> Tuple[dict, dict]: 
                 # Trace of identity, so replace with a scalar node!
                 d = n.get_dimension(0)
                 # NOTE: Assume CopyNodes have numpy dtypes.
-                nodes_dict[n] = Node(np.array(d, dtype=n.dtype), backend=n.backend)
+                nodes_dict[n] = Node(np.array(d, dtype=n.dtype))
         else:
             for e in n.get_all_dangling():
                 dangling_edges_dict[e] = e
@@ -199,9 +201,8 @@ class QuOperator:
     def from_tensor(
         cls,
         tensor: Tensor,
-        out_axes: Sequence[int],
-        in_axes: Sequence[int],
-        backend: Optional[Text] = None,
+        out_axes: Optional[Sequence[int]] = None,
+        in_axes: Optional[Sequence[int]] = None,
     ) -> "QuOperator":
         """Construct a `QuOperator` directly from a single tensor.
         This first wraps the tensor in a `Node`, then constructs the `QuOperator`
@@ -214,10 +215,49 @@ class QuOperator:
         Returns:
           The new operator.
         """
-        n = Node(tensor, backend=backend)
+        nlegs = len(tensor.shape)
+        if (out_axes is None) and (in_axes is None):
+            out_axes = [i for i in range(int(nlegs / 2))]
+            in_axes = [i for i in range(int(nlegs / 2), nlegs)]
+        elif out_axes is None:
+            out_axes = [i for i in range(nlegs) if i not in in_axes]
+        elif in_axes is None:
+            in_axes = [i for i in range(nlegs) if i not in out_axes]
+        n = Node(tensor)
         out_edges = [n[i] for i in out_axes]
         in_edges = [n[i] for i in in_axes]
-        return cls(out_edges, in_edges, set([n]))
+        return cls(out_edges, in_edges)
+
+    @classmethod
+    def from_local_tensor(
+        cls,
+        tensor: Tensor,
+        space: Sequence[int],
+        loc: Sequence[int],
+        out_axes: Optional[Sequence[int]] = None,
+        in_axes: Optional[Sequence[int]] = None,
+    ):
+        nlegs = len(tensor.shape)
+        if (out_axes is None) and (in_axes is None):
+            out_axes = [i for i in range(int(nlegs / 2))]
+            in_axes = [i for i in range(int(nlegs / 2), nlegs)]
+        elif out_axes is None:
+            out_axes = [i for i in range(nlegs) if i not in in_axes]
+        elif in_axes is None:
+            in_axes = [i for i in range(nlegs) if i not in out_axes]
+        localn = Node(tensor)
+        out_edges = [localn[i] for i in out_axes]
+        in_edges = [localn[i] for i in in_axes]
+        id_nodes = [
+            CopyNode(2, d, dtype=tensor.dtype)
+            for i, d in enumerate(space)
+            if i not in loc
+        ]
+        for n in id_nodes:
+            out_edges.append(n[0])
+            in_edges.append(n[1])
+
+        return cls(out_edges, in_edges)
 
     @property
     def nodes(self) -> Set[AbstractNode]:
@@ -365,7 +405,7 @@ class QuOperator:
             if isinstance(other, AbstractNode):
                 node = other
             else:
-                node = Node(other, backend=self.nodes.pop().backend)
+                node = Node(other)
             if node.shape:
                 raise ValueError(
                     "Cannot perform elementwise multiplication by a "
@@ -508,7 +548,6 @@ class QuVector(QuOperator):
         cls,
         tensor: Tensor,
         subsystem_axes: Optional[Sequence[int]] = None,
-        backend: Optional[Text] = None,
     ) -> "QuVector":
         """Construct a `QuVector` directly from a single tensor.
         This first wraps the tensor in a `Node`, then constructs the `QuVector`
@@ -522,7 +561,7 @@ class QuVector(QuOperator):
         Returns:
           The new operator.
         """
-        n = Node(tensor, backend=backend)
+        n = Node(tensor)
         if subsystem_axes is not None:
             subsystem_edges = [n[i] for i in subsystem_axes]
         else:
@@ -572,7 +611,6 @@ class QuAdjointVector(QuOperator):
         cls,
         tensor: Tensor,
         subsystem_axes: Optional[Sequence[int]] = None,
-        backend: Optional[Text] = None,
     ) -> "QuAdjointVector":
         """Construct a `QuAdjointVector` directly from a single tensor.
         This first wraps the tensor in a `Node`, then constructs the
@@ -586,7 +624,7 @@ class QuAdjointVector(QuOperator):
         Returns:
           The new operator.
         """
-        n = Node(tensor, backend=backend)
+        n = Node(tensor)
         if subsystem_axes is not None:
             subsystem_edges = [n[i] for i in subsystem_axes]
         else:
@@ -628,7 +666,7 @@ class QuScalar(QuOperator):
         super().__init__([], [], ref_nodes, ignore_edges)
 
     @classmethod
-    def from_tensor(cls, tensor: Tensor, backend: Optional[Text] = None) -> "QuScalar":  # type: ignore
+    def from_tensor(cls, tensor: Tensor) -> "QuScalar":  # type: ignore
         """Construct a `QuScalar` directly from a single tensor.
         This first wraps the tensor in a `Node`, then constructs the
         `QuScalar` from that `Node`.
@@ -638,8 +676,15 @@ class QuScalar(QuOperator):
         Returns:
           The new operator.
         """
-        n = Node(tensor, backend=backend)
+        n = Node(tensor)
         return cls(set([n]))
 
 
 ## some universal methods which is tensornetwork/array agnostic
+
+
+def reshape(a: Union[Tensor, QuOperator], shape: Sequence[int]):
+    if isinstance(a, QuOperator):
+        pass
+    else:
+        return backend.reshape(a, shape)
