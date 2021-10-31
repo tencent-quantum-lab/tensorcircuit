@@ -278,14 +278,17 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
         self: Any,
         f: Callable[..., Any],
         static_argnums: Optional[Union[int, Sequence[int]]] = None,
+        jit_compile: Optional[bool] = None,
     ) -> Callable[..., Any]:
         """
         Return jitted version function of ``f``
 
         :param f: function to be jitted
         :type f: Callable[..., Any]
-        :param static_argnums: index of args that doesn't regarded as tensor
+        :param static_argnums: index of args that doesn't regarded as tensor, only work for jax backend
         :type static_argnums: Optional[Union[int, Sequence[int]]], defaults to None
+        :param jit_compile: whether open XLA compliation, only works for tensorflow backend, defaults False since several ops has no XLA correspondence
+        :type jit_compile: bool
         :return: jitted ``f``
         :rtype: Callable[..., Any]
         """
@@ -433,6 +436,7 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
         self,
         f: Callable[..., Any],
         static_argnums: Optional[Union[int, Sequence[int]]] = None,
+        jit_compile: Optional[bool] = None,
     ) -> Callable[..., Any]:
         warnings.warn("numpy backend has no parallel as jit, just do nothing")
         return f
@@ -581,6 +585,7 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         self,
         f: Callable[..., Any],
         static_argnums: Optional[Union[int, Sequence[int]]] = None,
+        jit_compile: Optional[bool] = None,
     ) -> Any:
         return libjax.jit(f, static_argnums=static_argnums)
 
@@ -677,6 +682,7 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
                 "different backend or install Tensorflow."
             )
         tf = tensorflow
+        self.minor = int(tf.__version__.split(".")[1])
         self.name = "tensorflow"
 
     def expm(self, a: Tensor) -> Tensor:
@@ -772,10 +778,14 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         self,
         f: Callable[..., Any],
         static_argnums: Optional[Union[int, Sequence[int]]] = None,
+        jit_compile: Optional[bool] = None,
     ) -> Any:
         # static_argnums not supported in tf case, this is only for a consistent interface
         # for more on static_argnums in tf.function, see issue: https://github.com/tensorflow/tensorflow/issues/52193
-        return tf.function(f)
+        if self.minor < 5:
+            return tf.function(f, experimental_compile=jit_compile)
+        else:
+            return tf.function(f, jit_compile=jit_compile)
 
     def vmap(
         self, f: Callable[..., Any], vectorized_argnums: Union[int, Sequence[int]] = 0
@@ -792,7 +802,7 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
 
         else:
 
-            @tf.function  # type: ignore
+            @self.jit
             def wrapper(*args: Any, **kws: Any) -> Tensor:
                 shapes = []
                 l = len(args)
@@ -1025,6 +1035,7 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         self,
         f: Callable[..., Any],
         static_argnums: Optional[Union[int, Sequence[int]]] = None,
+        jit_compile: Optional[bool] = None,
     ) -> Any:
         return f  # do nothing here until I figure out what torch.jit is for and how does it work
         # see https://github.com/pytorch/pytorch/issues/36910
