@@ -1,5 +1,6 @@
 import sys
 import os
+from functools import partial
 import numpy as np
 import pytest
 from pytest_lazyfixture import lazy_fixture as lf
@@ -58,7 +59,7 @@ def test_expectation():
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_exp1(backend):
-    @tc.backend.jit
+    @partial(tc.backend.jit, jit_compile=True)
     def sf():
         c = tc.Circuit(2)
         xx = np.array(
