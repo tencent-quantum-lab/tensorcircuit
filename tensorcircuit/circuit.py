@@ -328,7 +328,7 @@ class Circuit:
 
         return apply
 
-    def get_quvector(self):
+    def get_quvector(self) -> QuVector:
         _, edges = self._copy()
         return QuVector(edges)
 

@@ -21,7 +21,6 @@ from tensornetwork.network_components import CopyNode
 from tensornetwork.network_operations import get_all_nodes, copy, reachable
 from tensornetwork.network_operations import get_subgraph_dangling, remove_node
 
-from .backends import backend
 from .cons import contractor
 
 Tensor = Any
@@ -220,12 +219,12 @@ class QuOperator:
             out_axes = [i for i in range(int(nlegs / 2))]
             in_axes = [i for i in range(int(nlegs / 2), nlegs)]
         elif out_axes is None:
-            out_axes = [i for i in range(nlegs) if i not in in_axes]
+            out_axes = [i for i in range(nlegs) if i not in in_axes]  # type: ignore
         elif in_axes is None:
             in_axes = [i for i in range(nlegs) if i not in out_axes]
         n = Node(tensor)
         out_edges = [n[i] for i in out_axes]
-        in_edges = [n[i] for i in in_axes]
+        in_edges = [n[i] for i in in_axes]  # type: ignore
         return cls(out_edges, in_edges)
 
     @classmethod
@@ -236,18 +235,18 @@ class QuOperator:
         loc: Sequence[int],
         out_axes: Optional[Sequence[int]] = None,
         in_axes: Optional[Sequence[int]] = None,
-    ):
+    ) -> "QuOperator":
         nlegs = len(tensor.shape)
         if (out_axes is None) and (in_axes is None):
             out_axes = [i for i in range(int(nlegs / 2))]
             in_axes = [i for i in range(int(nlegs / 2), nlegs)]
         elif out_axes is None:
-            out_axes = [i for i in range(nlegs) if i not in in_axes]
+            out_axes = [i for i in range(nlegs) if i not in in_axes]  # type: ignore
         elif in_axes is None:
             in_axes = [i for i in range(nlegs) if i not in out_axes]
         localn = Node(tensor)
         out_edges = [localn[i] for i in out_axes]
-        in_edges = [localn[i] for i in in_axes]
+        in_edges = [localn[i] for i in in_axes]  # type: ignore
         id_nodes = [
             CopyNode(2, d, dtype=tensor.dtype)
             for i, d in enumerate(space)
@@ -681,10 +680,3 @@ class QuScalar(QuOperator):
 
 
 ## some universal methods which is tensornetwork/array agnostic
-
-
-def reshape(a: Union[Tensor, QuOperator], shape: Sequence[int]):
-    if isinstance(a, QuOperator):
-        pass
-    else:
-        return backend.reshape(a, shape)
