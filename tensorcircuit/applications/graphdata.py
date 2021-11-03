@@ -263,7 +263,7 @@ def _generate_random_graph(x: int, p: float = 0.3, weights: bool = False) -> Gra
 
 
 def all_nodes_covered(g: Graph) -> bool:
-    for i, adj in g.adj.items():
+    for _, adj in g.adj.items():
         if len(set(adj)) == 0:
             return False
     return True

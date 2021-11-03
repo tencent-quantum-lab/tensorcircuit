@@ -22,14 +22,12 @@ import numpy as np
 import scipy as sp
 import tensorflow as tf
 
-# don't directly import backend, as it is supposed to change at runtime
-from .layers import *
-
 
 Array = Any  # np.array
 Opt = Any  # tf.keras.optimizer
 Model = Any  # tf.keras.Model
-
+Tensor = Any
+Graph = Any
 thismodule = sys.modules[__name__]
 
 
@@ -120,7 +118,7 @@ def get_weights_v2(nnp: Tensor, preset: Sequence[int]) -> Tensor:
     else:
         l = 1
         nnp = nnp[..., tf.newaxis]
-    p, c = nnp.shape[0], nnp.shape[1]
+    p, _ = nnp.shape[0], nnp.shape[1]
     weights = np.empty(dtype=np.float32, shape=[p, l])
     for i, j in enumerate(preset):
         weights[i, :] = nnp[i, j, :]
@@ -301,7 +299,7 @@ def DQAS_search(
             preset = preset_byprob(prob)
         else:
             preset = prethermal_preset
-        forwardv, gnnp = kernel_func(gdata, nnp, preset)
+        _, gnnp = kernel_func(gdata, nnp, preset)
         prethermal_opt.apply_gradients([(gnnp, nnp)])
 
     if verbose:
@@ -507,7 +505,7 @@ def qaoa_simple_train(
         search_func = DQAS_search
         kws.update({"stp_initial_value": stp_train})
 
-    stp, nnp, h = search_func(
+    _, nnp, h = search_func(
         vag_func,
         g=graph_g,
         p=p,
@@ -605,7 +603,7 @@ def evaluate_everyone(
 
     for preset in presets:
         loss = 0
-        for i, g in zip(range(batch), gdata):
+        for _, g in zip(range(batch), gdata):
             loss += vag_func(g, nnp, preset)[0]
         loss /= batch  # type: ignore
         losses.append((preset, loss.numpy()))  # type: ignore
@@ -767,7 +765,7 @@ def DQAS_search_pmb(
     if prethermal > 0:
         presets, glnprobs = sample_func(prob_model, prethermal)
     for i, gdata in zip(range(prethermal), g):  # prethermal for nn param
-        forwardv, gnnp = kernel_func(gdata, nnp, presets[i])
+        _, gnnp = kernel_func(gdata, nnp, presets[i])
         prethermal_opt.apply_gradients([(gnnp, nnp)])
 
     if verbose:

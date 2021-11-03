@@ -11,7 +11,6 @@ modulepath = os.path.dirname(os.path.dirname(thisfile))
 sys.path.insert(0, modulepath)
 import tensorcircuit as tc
 from tensorcircuit.channels import *
-from .conftest import tfb
 
 
 def test_gate_dm():
@@ -184,7 +183,7 @@ def test_mult_qubit_kraus(backend):
 
     theta = tc.num_to_tensor(0.2)
     vag = tc.backend.value_and_grad(forward)
-    v1, g1 = vag(theta)
+    _, g1 = vag(theta)
     assert np.allclose(tc.backend.numpy(g1), 0.199, atol=1e-2)
 
     def forward2(theta):
@@ -201,7 +200,7 @@ def test_mult_qubit_kraus(backend):
 
     theta = tc.num_to_tensor(0.2)
     vag2 = tc.backend.value_and_grad(forward2)
-    v2, g2 = vag2(theta)
+    _, g2 = vag2(theta)
     assert np.allclose(tc.backend.numpy(g2), 0.199, atol=1e-2)
 
 

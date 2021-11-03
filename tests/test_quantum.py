@@ -1,7 +1,7 @@
 import os
 import sys
-import pytest
 import numpy as np
+import pytest
 import tensornetwork as tn
 from pytest_lazyfixture import lazy_fixture as lf
 

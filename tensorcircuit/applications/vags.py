@@ -18,6 +18,7 @@ from typing import (
 )
 
 import cirq
+import networkx as nx
 import numpy as np
 import tensorflow as tf
 
@@ -26,7 +27,8 @@ from .. import cons
 from .. import gates as G
 from ..circuit import Circuit
 from ..densitymatrix import DMCircuit
-from .layers import *
+
+from .layers import generate_qubits
 from .dqas import get_op_pool
 
 try:
@@ -40,6 +42,9 @@ except ImportError as e:
 Array = Any  # np.array
 Opt = Any  # tf.keras.optimizer
 Model = Any  # tf.keras.Model
+Tensor = Any
+Graph = Any
+
 
 ## GHZ circuit application
 
@@ -124,7 +129,7 @@ def GHZ_vag_tfq(
 
     circuit = cirq.Circuit()
     cset = get_op_pool()
-    for i, j in enumerate(preset):
+    for j in preset:
         circuit.append(cset[j])
     input_circuits = [c + circuit for c in gdata]
     measurements = [
@@ -1009,7 +1014,8 @@ def quantum_mp_qaoa_vag(
         measurements_func = tfim_measurements
     assert len(nnp.shape) == 3  # p * c * l
     nnp = nnp.numpy()  # real
-    p, c, l = nnp.shape[0], nnp.shape[1], nnp.shape[2]
+    # p, c, l = nnp.shape[0], nnp.shape[1], nnp.shape[2]
+    p, l = nnp.shape[0], nnp.shape[2]
     pnnp = np.empty(dtype=np.float32, shape=[p, l])
     for i, j in enumerate(preset):
         pnnp[i, :] = nnp[i, j, :]
@@ -1379,7 +1385,7 @@ def entropy(rho: Tensor, eps: float = 1e-12) -> Tensor:
 def renyi_entropy(rho: Tensor, k: int = 2, eps: float = 1e-12) -> Tensor:
     # no matrix power in tf?
     rhok = rho
-    for i in range(k - 1):
+    for _ in range(k - 1):
         rhok = rhok @ rho
     return 1 / (1 - k) * tf.math.real(tf.linalg.trace(rhok))
 

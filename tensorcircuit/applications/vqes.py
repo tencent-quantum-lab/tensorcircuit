@@ -17,11 +17,14 @@ import tensorflow as tf
 
 from ..circuit import Circuit
 from .. import gates as G
-from .layers import *
-from .graphdata import *
-from .vags import *
 
+# from .graphdata import *
+# from .vags import *
+# TODO(@refraction-ray): ensure the remove of these two wildcard import is safe
 
+Tensor = Any
+Array = Any
+Model = Any
 dtype = np.complex128  # only guarantee compatible with float64
 x = np.array([[0, 1.0], [1.0, 0]], dtype=dtype)
 y = np.array([[0, -1j], [1j, 0]], dtype=dtype)
@@ -50,7 +53,7 @@ def paulistring(term: Tuple[int, ...]) -> Array:
 
 def construct_matrix(ham: List[List[float]]) -> Array:
     h = 0.0j
-    for j, term in enumerate(ham):
+    for term in ham:
         term = list(term)
         for i, t in enumerate(term):
             if i > 0:
@@ -64,7 +67,7 @@ def construct_matrix(ham: List[List[float]]) -> Array:
 
 def construct_matrix_tf(ham: List[List[float]], dtype: Any = tf.complex128) -> Array:
     h = 0.0j
-    for j, term in enumerate(ham):
+    for term in ham:
         term = list(term)
         for i, t in enumerate(term):
             if i > 0:

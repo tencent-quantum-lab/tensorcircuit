@@ -12,7 +12,6 @@ modulepath = os.path.dirname(os.path.dirname(thisfile))
 
 sys.path.insert(0, modulepath)
 import tensorcircuit as tc
-from .conftest import tfb
 
 
 def test_wavefunction():
