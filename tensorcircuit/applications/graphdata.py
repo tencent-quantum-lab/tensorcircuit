@@ -3,11 +3,13 @@ modules for graph instance data and more
 """
 
 import itertools
-import networkx as nx
-import numpy as np
-import cirq
 from functools import partial
 from typing import Any, Dict, Iterator, Sequence, Tuple, Optional
+
+import cirq
+import networkx as nx
+import numpy as np
+
 
 Graph = Any
 

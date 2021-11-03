@@ -4,13 +4,8 @@ modules for DQAS framework
 
 import sys
 import inspect
-from functools import lru_cache, partial
+from functools import partial
 from multiprocessing import Pool, get_context
-import functools
-import operator
-import numpy as np
-import scipy as sp
-import tensorflow as tf
 from typing import (
     List,
     Sequence,
@@ -20,25 +15,15 @@ from typing import (
     Iterator,
     Optional,
     Union,
-    Iterable,
     Dict,
 )
-import networkx as nx
-import cirq
 
-from ..gates import array_to_tensor, num_to_tensor
-from .. import cons
+import numpy as np
+import scipy as sp
+import tensorflow as tf
 
 # don't directly import backend, as it is supposed to change at runtime
-from ..circuit import Circuit
 from .layers import *
-
-try:
-    import sympy
-    import tensorflow_quantum as tfq
-
-except ImportError as e:
-    print(e)
 
 
 Array = Any  # np.array
@@ -236,8 +221,8 @@ def DQAS_search(
     :param g: data generator as dataset
     :param op_pool: list of operations as primitive operator pool
     :param p: the default layer number of the circuit ansatz
-    :param p_nnp: shape of circuit parameter pool, in general p_stp*l, where l is the max number of circuit parameters for
-            op in the operator pool
+    :param p_nnp: shape of circuit parameter pool, in general p_stp*l,
+        where l is the max number of circuit parameters for op in the operator pool
     :param p_stp: the same as p in the most times
     :param batch: batch size of one epoch
     :param prethermal: prethermal update times
@@ -247,7 +232,8 @@ def DQAS_search(
     :param vebose_func: function to output verbose information
     :param history_func: function return intermiediate result for final history list
     :param prob_clip: cutoff probability to avoid peak distribution
-    :param baseline_func: function accepting list of objective values and return the baseline value used in the next round
+    :param baseline_func: function accepting list of objective values and
+        return the baseline value used in the next round
     :param pertubation_func: return noise with the same shape as circuit parameter pool
     :param nnp_initial_value: initial values for circuit parameter pool
     :param stp_initial_value: initial values for probabilistic model parameters

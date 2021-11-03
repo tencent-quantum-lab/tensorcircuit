@@ -3,7 +3,7 @@ some common noise quantum channels
 """
 
 import sys
-from typing import Tuple, List, Callable, Union, Optional, Sequence, Any
+from typing import Sequence, Any
 
 import numpy as np
 

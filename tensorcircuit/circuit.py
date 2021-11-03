@@ -2,14 +2,12 @@
 quantum circuit: state simulator
 """
 
-from functools import partial
-from typing import Tuple, List, Callable, Union, Optional, Any, Sequence
+from typing import Tuple, List, Callable, Optional, Any, Sequence
 
 import graphviz
 import numpy as np
 import tensornetwork as tn
 
-from . import cons
 from . import gates
 from .cons import backend, contractor, dtypestr, npdtype
 from .quantum import QuVector
@@ -51,7 +49,8 @@ class Circuit:
 
         :param nqubits: The number of qubits in the circuit.
         :type nqubits: int
-        :param inputs: If not None, the initial state of the circuit is taken as ``inputs`` instead of :math:`\\vert 0\\rangle^n` qubits, defaults to None
+        :param inputs: If not None, the initial state of the circuit is taken as ``inputs``
+            instead of :math:`\\vert 0\\rangle^n` qubits, defaults to None
         :type inputs: Optional[Tensor], optional
         :param mps_inputs: (Nodes, dangling Edges) for a MPS like initial wavefunction
         :type inputs: Optional[Tuple[Sequence[Gate], Sequence[Edge]]], optional
@@ -135,7 +134,7 @@ class Circuit:
             new_front.append(edict[e])
         old = set(id(n) for n in self._nodes[: self._start_index])
         j = -1
-        for i, n in enumerate(self._nodes[: self._start_index]):
+        for n in self._nodes[: self._start_index]:
             for e in n:
                 if e.is_dangling():
                     j += 1
@@ -475,7 +474,7 @@ class Circuit:
                 ms.append(
                     tn.Node(np.array([1, 0], dtype=npdtype), name=str(i) + "-measure")
                 )
-        for i, n in enumerate(l):
+        for i, _ in enumerate(l):
             d_edges[i] ^ ms[i].get_edge(0)
 
         no.extend(ms)
@@ -488,6 +487,7 @@ class Circuit:
         :param with_prob: if true, theoretical probability is also returned
         :return:
         """
+        # not jit compatible due to random number generations!
         sample = ""
         p = 1.0
         for j in index:
@@ -539,9 +539,11 @@ class Circuit:
         """
         compute expectation of corresponding operators
 
-        :param ops: operator and its position on the circuit, eg. ``(gates.Z(), [1]), (gates.X(), [2])`` is for operator :math:`Z_1X_2`
+        :param ops: operator and its position on the circuit,
+            eg. ``(gates.Z(), [1]), (gates.X(), [2])`` is for operator :math:`Z_1X_2`
         :type ops: Tuple[tn.Node, List[int]]
-        :param reuse: if True, then the wavefunction tensor is cached for further expectation evaluation, defaults to True
+        :param reuse: if True, then the wavefunction tensor is cached for further expectation evaluation,
+            defaults to True
         :type reuse: bool, optional
         :raises ValueError: [description]
         :return: Tensor with one element

@@ -76,7 +76,7 @@ class MADE(tf.keras.Model):
         self.relu = []
         if activation is None:
             activation = tf.keras.layers.PReLU
-        for i in range(depth):
+        for _ in range(depth):
             self.relu.append(activation())
         self.nonmerge = nonmerge
         self.probamp = probamp
@@ -274,7 +274,7 @@ class PixelCNN(tf.keras.Model):
         )
 
         self.relu = tf.keras.layers.PReLU()
-        for i in range(1, depth):
+        for _ in range(1, depth):
             self.rb.append(
                 ResidualBlock(
                     [

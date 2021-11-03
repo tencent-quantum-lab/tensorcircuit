@@ -6,10 +6,6 @@ DQAS application kernels as vag functions
 import functools
 import operator
 from functools import lru_cache, partial
-import numpy as np
-import cirq
-
-import tensorflow as tf
 from typing import (
     List,
     Sequence,
@@ -19,9 +15,11 @@ from typing import (
     Iterator,
     Optional,
     Union,
-    Iterable,
-    Dict,
 )
+
+import cirq
+import numpy as np
+import tensorflow as tf
 
 from ..gates import array_to_tensor, num_to_tensor
 from .. import cons

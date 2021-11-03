@@ -4,10 +4,11 @@ module for functions adding layers of circuits
 
 import sys
 import itertools
+from typing import Sequence, Union, Any, Optional, Tuple, List
+
 import numpy as np
 import cirq
 import tensorflow as tf
-from typing import Sequence, Union, Callable, Any, Optional, Tuple, List
 
 from ..circuit import Circuit
 from ..densitymatrix import DMCircuit
@@ -427,7 +428,6 @@ def generate_cirq_any_gate_layer(gate: str) -> None:
     ) -> cirq.Circuit:
         if not qubits:
             qubits = generate_qubits(g)
-        l = len(qubits)
         rotation = getattr(cirq, gate)
         for i, q in enumerate(qubits):
             circuit.append(rotation(2.0 * symbol[i])(q))

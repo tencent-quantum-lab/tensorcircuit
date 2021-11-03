@@ -2,9 +2,9 @@
 quantum circuit class but with density matrix simulator
 """
 
-from functools import partial, reduce
+from functools import reduce
 from operator import add
-from typing import Tuple, List, Callable, Union, Optional, Sequence, Any
+from typing import Tuple, List, Callable, Optional, Sequence, Any
 
 import graphviz
 import numpy as np
@@ -13,13 +13,12 @@ import tensornetwork as tn
 from . import gates
 from . import channels
 from .circuit import Circuit
-from .cons import backend, contractor, dtypestr, npdtype
+from .cons import backend, contractor, npdtype
 
 Gate = gates.Gate
 Tensor = Any
 
-# TODO: Monte Carlo State Circuit Simulator
-# note not all channels but only deploarizing channel can be simulated in that Monte Carlo way with pure state simulators
+
 class DMCircuit:
     def __init__(
         self,
@@ -235,7 +234,7 @@ class DMCircuit:
         return apply
 
     def densitymatrix(self, check: bool = False, reuse: bool = True) -> tn.Node.tensor:
-        nodes, d_edges = self._copy_dm_tensor(conj=False, reuse=reuse)
+        nodes, _ = self._copy_dm_tensor(conj=False, reuse=reuse)
         # t = contractor(nodes, output_edge_order=d_edges)
         dm = backend.reshape(
             nodes[0].tensor, shape=[2 ** self._nqubits, 2 ** self._nqubits]

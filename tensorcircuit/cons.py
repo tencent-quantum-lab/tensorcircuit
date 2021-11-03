@@ -37,7 +37,8 @@ def set_tensornetwork_backend(backend: Optional[str] = None) -> None:
     """
     set the runtime backend of tensorcircuit
 
-    :param backend: "numpy", "tensorflow", "jax", "pytorch". defaults to None, which gives the same behavior as ``tensornetwork.backend_contextmanager.get_default_backend()``
+    :param backend: "numpy", "tensorflow", "jax", "pytorch". defaults to None,
+        which gives the same behavior as ``tensornetwork.backend_contextmanager.get_default_backend()``
     :type backend: Optional[str], optional
     """
     if not backend:
@@ -121,7 +122,7 @@ def plain_contractor(
 def nodes_to_adj(ns: List[Any]) -> Any:
     ind = {id(n): i for i, n in enumerate(ns)}
     adj = np.zeros([len(ns), len(ns)])
-    for i, node in enumerate(ns):
+    for node in ns:
         for e in node:
             if not e.is_dangling():
                 if id(e.node1) == id(node):
@@ -212,7 +213,8 @@ def set_contractor(
     :type method: Optional[str], optional
     :param optimizer: valid for "custom" or "custom_stateful" as method, defaults to None
     :type optimizer: Optional[Any], optional
-    :param memory_limit: not very useful, as ``memory_limit`` leads to ``branch`` contraction instead of ``greedy`` which is rather slow, defaults to None
+    :param memory_limit: not very useful, as ``memory_limit`` leads to ``branch`` contraction
+        instead of ``greedy`` which is rather slow, defaults to None
     :type memory_limit: Optional[int], optional
     :raises Exception: tensornetwork version is too low to support some of the contractors
     :raises ValueError: unknown method options

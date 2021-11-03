@@ -38,7 +38,7 @@ tf: Any
 
 
 def _doc_string_for_backend(tnbackend: Any) -> None:
-    def expm(self: Any, a: Tensor) -> Tensor:
+    def expm(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
         Return expm of ``a``, matrix exponential.
 
@@ -51,7 +51,7 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `expm`.".format(self.name)
         )
 
-    def sin(self: Any, a: Tensor) -> Tensor:
+    def sin(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
         Return sin of ``a``.
 
@@ -64,7 +64,7 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `sin`.".format(self.name)
         )
 
-    def cos(self: Any, a: Tensor) -> Tensor:
+    def cos(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
         Return cos of ``a``.
 
@@ -77,7 +77,7 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `cos`.".format(self.name)
         )
 
-    def abs(self: Any, a: Tensor) -> Tensor:
+    def abs(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
         Return elementwise abs value of ``a``.
 
@@ -92,7 +92,9 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
 
     # TODO(@refraction-ray): abs docstring doesn't get registered in the doc
 
-    def kron(self: Any, a: Tensor, b: Tensor) -> Tensor:
+    def kron(  # pylint: disable=unused-variable
+        self: Any, a: Tensor, b: Tensor
+    ) -> Tensor:
         """
         Return kronecker product of two matrix ``a`` and ``b``.
 
@@ -107,7 +109,7 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `kron`.".format(self.name)
         )
 
-    def size(self: Any, a: Tensor) -> Tensor:
+    def size(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
         Return the total number of elements in ``a``.
 
@@ -120,7 +122,7 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `size`.".format(self.name)
         )
 
-    def numpy(self: Any, a: Tensor) -> Tensor:
+    def numpy(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
         Return numpy array of tensor ``a``, may not work in jitted function.
 
@@ -133,7 +135,7 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `numpy`.".format(self.name)
         )
 
-    def real(self: Any, a: Tensor) -> Tensor:
+    def real(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
         Return elementwise real value of ``a``.
 
@@ -146,7 +148,7 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `real`.".format(self.name)
         )
 
-    def i(self: Any, dtype: str) -> Tensor:
+    def i(self: Any, dtype: str) -> Tensor:  # pylint: disable=unused-variable
         """
         Return 1.j in as tensor comoatible with backend.
 
@@ -159,7 +161,9 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `i`.".format(self.name)
         )
 
-    def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
+    def stack(  # pylint: disable=unused-variable
+        self: Any, a: Sequence[Tensor], axis: int = 0
+    ) -> Tensor:
         """
         Concatenates a sequence of tensors ``a`` along a new dimension ``axis``.
 
@@ -174,7 +178,9 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `stack`.".format(self.name)
         )
 
-    def softmax(self: Any, a: Sequence[Tensor], axis: Optional[int] = None) -> Tensor:
+    def softmax(  # pylint: disable=unused-variable
+        self: Any, a: Sequence[Tensor], axis: Optional[int] = None
+    ) -> Tensor:
         """
         Softmax function.
         Computes the function which rescales elements to the range [0,1] such that the elements along axis sum to 1.
@@ -194,7 +200,7 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `softmax`.".format(self.name)
         )
 
-    def is_tensor(self: Any, a: Tensor) -> bool:
+    def is_tensor(self: Any, a: Tensor) -> bool:  # pylint: disable=unused-variable
         """
         Return boolean on whether ``a`` is a tensor in backend package.
 
@@ -207,7 +213,9 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `is_tensor`.".format(self.name)
         )
 
-    def cast(self: Any, a: Tensor, dtype: str) -> Tensor:
+    def cast(  # pylint: disable=unused-variable
+        self: Any, a: Tensor, dtype: str
+    ) -> Tensor:
         """
         Cast the tensor dtype of a ``a``.
 
@@ -222,7 +230,7 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `cast`.".format(self.name)
         )
 
-    def grad(
+    def grad(  # pylint: disable=unused-variable
         self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Callable[..., Any]:
         """
@@ -248,7 +256,7 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `grad`.".format(self.name)
         )
 
-    def value_and_grad(
+    def value_and_grad(  # pylint: disable=unused-variable
         self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Callable[..., Tuple[Any, Any]]:
         """
@@ -274,7 +282,7 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `value_and_grad`.".format(self.name)
         )
 
-    def jit(
+    def jit(  # pylint: disable=unused-variable
         self: Any,
         f: Callable[..., Any],
         static_argnums: Optional[Union[int, Sequence[int]]] = None,
@@ -285,9 +293,11 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
 
         :param f: function to be jitted
         :type f: Callable[..., Any]
-        :param static_argnums: index of args that doesn't regarded as tensor, only work for jax backend
+        :param static_argnums: index of args that doesn't regarded as tensor,
+            only work for jax backend
         :type static_argnums: Optional[Union[int, Sequence[int]]], defaults to None
-        :param jit_compile: whether open XLA compliation, only works for tensorflow backend, defaults False since several ops has no XLA correspondence
+        :param jit_compile: whether open XLA compliation, only works for tensorflow backend,
+            defaults False since several ops has no XLA correspondence
         :type jit_compile: bool
         :return: jitted ``f``
         :rtype: Callable[..., Any]
@@ -296,7 +306,7 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `jit`.".format(self.name)
         )
 
-    def vmap(
+    def vmap(  # pylint: disable=unused-variable
         self: Any,
         f: Callable[..., Any],
         vectorized_argnums: Union[int, Sequence[int]] = 0,
@@ -307,7 +317,8 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
 
         :param f: function to be broadcasted.
         :type f: Callable[..., Any]
-        :param vectorized_argnums: the args to be vectorized, these arguments should share the same batch shape in the fist dimension
+        :param vectorized_argnums: the args to be vectorized,
+            these arguments should share the same batch shape in the fist dimension
         :type vectorized_argnums: Union[int, Sequence[int]], defaults to 0
         :return: vmap version of ``f``
         :rtype: Any
@@ -316,7 +327,7 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `vmap`.".format(self.name)
         )
 
-    def vectorized_value_and_grad(
+    def vectorized_value_and_grad(  # pylint: disable=unused-variable
         self: Any,
         f: Callable[..., Any],
         argnums: Union[int, Sequence[int]] = 0,
@@ -355,7 +366,8 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
         :type f: Callable[..., Any]
         :param argnums: [description], defaults to 0
         :type argnums: Union[int, Sequence[int]], optional
-        :param vectorized_argnums: the args to be vectorized, these arguments should share the same batch shape in the fist dimension
+        :param vectorized_argnums: the args to be vectorized, these arguments should share the same batch shape
+            in the fist dimension
         :type vectorized_argnums: Union[int, Sequence[int]], defaults to 0
         :return: [description]
         :rtype: Callable[..., Tuple[Any, Any]]
@@ -554,7 +566,8 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
 
     def expm(self, a: Tensor) -> Tensor:
         return jsp.linalg.expm(a)
-        # currently expm in jax doesn't support AD, it will raise an AssertError, see https://github.com/google/jax/issues/2645
+        # currently expm in jax doesn't support AD, it will raise an AssertError,
+        # see https://github.com/google/jax/issues/2645
 
     def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return jnp.stack(a, axis=axis)
@@ -659,7 +672,8 @@ def _outer_product_tf(self: Any, tensor1: Tensor, tensor2: Tensor) -> Tensor:
     return tf.tensordot(tensor1, tensor2, 0)
 
 
-# temporary hot replace until new version of tensorflow is released, see issue: https://github.com/google/TensorNetwork/issues/940
+# temporary hot replace until new version of tensorflow is released,
+# see issue: https://github.com/google/TensorNetwork/issues/940
 # avoid buggy tensordot2 in tensornetwork
 
 tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.tensordot = (
@@ -720,7 +734,6 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
 
     def softmax(self, a: Sequence[Tensor], axis: Optional[int] = None) -> Tensor:
         if axis is None:  # make the default behavior consistent
-            ashape = a.shape  # type: ignore
             r = tf.keras.activations.softmax(tf.reshape(a, [1, -1]), axis=axis)
             return tf.reshape(r, a.shape)  # type: ignore
         return tf.keras.activations.softmax(a, axis=axis)
@@ -855,7 +868,8 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         argnums: Union[int, Sequence[int]] = 0,
         vectorized_argnums: Union[int, Sequence[int]] = 0,
     ) -> Callable[..., Tuple[Any, Any]]:
-        # note how tf only works in this order, due to the bug reported as: https://github.com/google/TensorNetwork/issues/940
+        # note how tf only works in this order, due to the bug reported as:
+        # https://github.com/google/TensorNetwork/issues/940
         vf = self.vmap(f, vectorized_argnums=vectorized_argnums)
 
         def wrapper(
@@ -897,7 +911,8 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
 
     def expm(self, a: Tensor) -> Tensor:
         raise NotImplementedError("pytorch backend doesn't support expm")
-        # in 2020, torch has no expm, hmmm. but that's ok, it doesn't support complex numbers which is more severe issue.
+        # in 2020, torch has no expm, hmmm. but that's ok,
+        # it doesn't support complex numbers which is more severe issue.
         # see https://github.com/pytorch/pytorch/issues/9983
 
     def sin(self, a: Tensor) -> Tensor:

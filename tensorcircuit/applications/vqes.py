@@ -1,24 +1,19 @@
 """
 relevant classes for VQNHE
 """
-
-import numpy as np
-import scipy
-import tensorflow as tf
-from functools import partial, lru_cache
+from functools import lru_cache
 from itertools import product
 from typing import (
     List,
-    Sequence,
     Any,
     Tuple,
     Callable,
-    Iterator,
     Optional,
-    Union,
-    Iterable,
     Dict,
 )
+
+import numpy as np
+import tensorflow as tf
 
 from ..circuit import Circuit
 from .. import gates as G
@@ -342,8 +337,11 @@ class VQNHE:
         return circuit
 
     def create_hea_circuit(
-        self, epochs: int = 2, filled_qubit: List[int] = [0], **kws: Any
+        self, epochs: int = 2, filled_qubit: Optional[List[int]] = None, **kws: Any
     ) -> Callable[[Tensor], Tensor]:
+        if filled_qubit is None:
+            filled_qubit = [0]
+
         def circuit(a: Tensor) -> Tensor:
             c = Circuit(self.n)
             if filled_qubit:

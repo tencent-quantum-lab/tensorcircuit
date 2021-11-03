@@ -4,11 +4,9 @@ quantum state and operator class backend by tensornetwork
 from typing import (
     Any,
     Union,
-    Callable,
     Optional,
     Sequence,
     Collection,
-    Text,
     Tuple,
     Set,
     List,

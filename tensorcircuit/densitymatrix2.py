@@ -2,18 +2,10 @@
 quantum circuit class but with density matrix simulator: v2
 """
 
-from functools import partial, reduce
-from operator import add
-from typing import Tuple, List, Callable, Union, Optional, Sequence, Any
-
-import graphviz
-import numpy as np
-import tensornetwork as tn
+from typing import Callable, Sequence, Any
 
 from . import gates
-from . import channels
-from .cons import backend, contractor, dtypestr, npdtype
-from .circuit import Circuit
+from .cons import backend
 from .channels import kraus_to_super_gate
 from .densitymatrix import DMCircuit
 
