@@ -1,6 +1,8 @@
 """
 quantum state and operator class backend by tensornetwork
 """
+from functools import reduce
+from operator import or_, mul
 from typing import (
     Any,
     Union,
@@ -19,7 +21,7 @@ from tensornetwork.network_components import CopyNode
 from tensornetwork.network_operations import get_all_nodes, copy, reachable
 from tensornetwork.network_operations import get_subgraph_dangling, remove_node
 
-from .cons import contractor
+from .cons import backend, contractor
 
 Tensor = Any
 
@@ -457,6 +459,14 @@ class QuOperator:
 
         return quantum_constructor(out_edges, in_edges, ref_nodes, ignore_edges)
 
+    def __or__(self, other: "QuOperator") -> "QuOperator":
+        """
+        Tensor product of operators.
+        Given two operators `A` and `B`, `A | B` produces a new operator representing the
+        tensor product of `A` and `B`.
+        """
+        return self.tensor_product(other)
+
     def contract(
         self,
         final_edge_order: Optional[Sequence[Edge]] = None,
@@ -677,4 +687,104 @@ class QuScalar(QuOperator):
         return cls(set([n]))
 
 
-## some universal methods which is tensornetwork/array agnostic
+def generate_local_hamiltonian(
+    hlist: Sequence[Tensor], matrix_form: bool = True
+) -> Union[QuOperator, Tensor]:
+    """
+    Note: jit is recommended
+
+    :param hlist: [description]
+    :type hlist: Sequence[Tensor]
+    :param matrix_form: [description], defaults to True
+    :type matrix_form: bool, optional
+    :return: [description]
+    :rtype: [type]
+    """
+    size = reduce(mul, [reduce(mul, h.shape) for h in hlist])
+    size = int(size)
+    s = int(np.sqrt(size))
+    hop_list = [QuOperator.from_tensor(h) for h in hlist]
+    hop = reduce(or_, hop_list)
+    if matrix_form:
+        tensor = backend.reshape(hop.eval(), [s, s])
+        return tensor
+    return hop
+
+
+## some quantum quatities below
+
+
+def entropy(rho: Tensor, eps: float = 1e-12) -> Tensor:
+    """
+    compute entropy from given density matrix ``rho``
+
+    :param rho: [description]
+    :type rho: Tensor
+    :param eps: [description], defaults to 1e-12
+    :type eps: float, optional
+    :return: [description]
+    :rtype: Tensor
+    """
+    lbd = backend.real(backend.eigh(rho)[0])
+    lbd = backend.relu(lbd)
+    # we need the matrix anyway for AD.
+    entropy = -backend.sum(lbd * backend.log(lbd + eps))
+    return backend.real(entropy)
+
+
+def reduced_density_matrix(
+    state: Tensor, freedom: int, cut: Union[int, List[int]], p: Optional[Tensor] = None
+) -> Tensor:
+    if isinstance(cut, list) or isinstance(cut, tuple):
+        traceout = cut
+    else:
+        traceout = [i for i in range(cut)]
+    w = state / backend.norm(state)
+    perm = [i for i in range(freedom) if i not in traceout]
+    perm = perm + traceout
+    w = backend.reshape(w, [2 for _ in range(freedom)])
+    w = backend.transpose(w, perm=perm)
+    w = backend.reshape(w, [-1, 2 ** len(traceout)])
+    if p is None:
+        rho = w @ backend.adjoint(w)
+    else:
+        rho = w @ backend.diagflat(p) @ backend.adjoint(w)
+        rho /= backend.trace(rho)
+    return rho
+
+
+def free_energy(rho: Tensor, h: Tensor, beta: float = 1, eps: float = 1e-12) -> Tensor:
+    energy = backend.real(backend.trace(rho @ h))
+    s = entropy(rho, eps)
+    return backend.real(energy - s / beta)
+
+
+def renyi_free_energy(rho: Tensor, h: Tensor, beta: float = 1) -> Tensor:
+    energy = backend.real(backend.trace(rho @ h))
+    s = -backend.real(backend.log(backend.trace(rho @ rho)))
+    return backend.real(energy - s / beta)
+
+
+def trace_distance(rho: Tensor, rho0: Tensor, eps: float = 1e-12) -> Tensor:
+    d2 = rho - rho0
+    d2 = backend.conj(backend.transpose(d2)) @ d2
+    lbds = backend.real(backend.eigh(d2)[0])
+    return 0.5 * backend.sum(backend.sqrt(lbds + eps))
+
+
+def fidelity(rho: Tensor, rho0: Tensor) -> Tensor:
+    rhosqrt = backend.sqrtmh(rho)
+    return backend.real(backend.trace(backend.sqrtmh(rhosqrt @ rho0 @ rhosqrt)) ** 2)
+
+
+def gibbs_state(h: Tensor, beta: float = 1) -> Tensor:
+    rho = backend.expm(-beta * h)
+    rho /= backend.trace(rho)
+    return rho
+
+
+def double_state(h: Tensor, beta: float = 1) -> Tensor:
+    rho = backend.expm(-beta / 2 * h)
+    state = backend.reshape(rho, [-1])
+    norm = backend.norm(state)
+    return state / norm

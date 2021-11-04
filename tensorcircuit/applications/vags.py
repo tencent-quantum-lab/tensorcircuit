@@ -1373,6 +1373,9 @@ def validate_qml_vag(
 
 
 def entropy(rho: Tensor, eps: float = 1e-12) -> Tensor:
+    """
+    deprecated, current version in tc.quantum
+    """
     lbd = tf.math.real(tf.linalg.eigvals(rho))
     entropy = -tf.math.reduce_sum(lbd * tf.math.log(lbd + eps))
     return tf.math.real(entropy)
@@ -1393,6 +1396,9 @@ def renyi_entropy(rho: Tensor, k: int = 2, eps: float = 1e-12) -> Tensor:
 def reduced_density_matrix(
     state: Tensor, freedom: int, cut: Union[int, List[int]], p: Optional[Tensor] = None
 ) -> Tensor:
+    """
+    deprecated, current version in tc.quantum
+    """
     if isinstance(cut, list) or isinstance(cut, tuple):
         traceout = cut
     else:
@@ -1413,7 +1419,7 @@ def reduced_density_matrix(
 
 def entanglement_entropy(state: Tensor) -> Tensor:
     """
-    depracated as non tf and non flexible, use the combination of ``reduced_density_matrix`` and ``entropy`` instead.
+    deprecated as non tf and non flexible, use the combination of ``reduced_density_matrix`` and ``entropy`` instead.
     """
     state = state.reshape([-1])
     state = state / np.linalg.norm(state)

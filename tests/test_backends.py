@@ -54,12 +54,28 @@ def test_vmap_torch(torchb):
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_backend_methods(backend):
-    # TODO: add more methods
+    # TODO(@refraction-ray): add more methods
     assert np.allclose(
         tc.backend.softmax(tc.array_to_tensor(np.ones([3, 2]), dtype="float32")),
         np.ones([3, 2]) / 6.0,
         atol=1e-4,
     )
+    arr = np.random.normal(size=(6, 6))
+    assert np.allclose(
+        tc.backend.relu(tc.array_to_tensor(arr, dtype="float32")),
+        np.maximum(arr, 0),
+        atol=1e-4,
+    )
+    assert np.allclose(
+        tc.backend.adjoint(tc.array_to_tensor(arr + 1.0j * arr)),
+        arr.T - 1.0j * arr.T,
+        atol=1e-4,
+    )
+    ans = np.array([[1, 0.5j], [-0.5j, 1]])
+    ans2 = ans @ ans
+    ansp = tc.backend.sqrtmh(tc.array_to_tensor(ans2))
+    print(ansp @ ansp, ans @ ans)
+    assert np.allclose(ansp @ ansp, ans @ ans, atol=1e-4)
 
 
 def vqe_energy(inputs, param, n, nlayers):

@@ -51,6 +51,20 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `expm`.".format(self.name)
         )
 
+    def sqrtmh(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+        """
+        Return sqrtm of Hermitian matrix ``a``
+
+        :param a: tensor in matrix form
+        :type a: Tensor
+        :return: sqrtm of ``a``
+        :rtype: Tensor
+        """
+        # maybe friendly for AD and also cosidering that several backend has no support for native sqrtm
+        e, v = self.eigh(a)
+        e = self.sqrt(e)
+        return v @ self.diagflat(e) @ self.adjoint(v)
+
     def sin(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
         Return sin of ``a``.
@@ -148,6 +162,17 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `real`.".format(self.name)
         )
 
+    def adjoint(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+        """
+        conjugate and transpose of the tensor ``a``
+
+        :param a: Input tensor
+        :type a: Tensor
+        :return: adjoint tensor of ``a``
+        :rtype: Tensor
+        """
+        return self.conj(self.transpose(a))
+
     def i(self: Any, dtype: str) -> Tensor:  # pylint: disable=unused-variable
         """
         Return 1.j in as tensor comoatible with backend.
@@ -178,6 +203,25 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `stack`.".format(self.name)
         )
 
+    def relu(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+        """
+        Rectified linear unit activation function.
+        Computes the element-wise function:
+
+        .. math ::
+
+            \\mathrm{relu}(x)=\\max(x,0)
+
+
+        :param a: Input tensor
+        :type a: Tensor
+        :return: Tensor after relu
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `relu`.".format(self.name)
+        )
+
     def softmax(  # pylint: disable=unused-variable
         self: Any, a: Sequence[Tensor], axis: Optional[int] = None
     ) -> Tensor:
@@ -187,7 +231,8 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
 
         .. math ::
 
-            \mathrm{softmax}(x) = \frac{\exp(x_i)}{\sum_j \exp(x_j)}
+            \\mathrm{softmax}(x) = \\frac{\exp(x_i)}{\\sum_j \\exp(x_j)}
+
 
         :param a: Tensor
         :type a: Sequence[Tensor]
@@ -420,6 +465,11 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def stack(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return np.stack(a, axis=axis)
 
+    def relu(self, a: Tensor) -> Tensor:
+        return (abs(a) + a) / 2
+        # this impl seems to be the fastest
+        # see https://stackoverflow.com/questions/32109319/how-to-implement-the-relu-function-in-numpy
+
     def softmax(self, a: Sequence[Tensor], axis: Optional[int] = None) -> Tensor:
         return softmax(a, axis=axis)
 
@@ -571,6 +621,9 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
 
     def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return jnp.stack(a, axis=axis)
+
+    def relu(self, a: Tensor) -> Tensor:
+        return libjax.nn.relu(a)
 
     def softmax(self, a: Sequence[Tensor], axis: Optional[int] = None) -> Tensor:
         return libjax.nn.softmax(a, axis=axis)
@@ -731,6 +784,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
 
     def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return tf.stack(a, axis=axis)
+
+    def relu(self, a: Tensor) -> Tensor:
+        return tf.nn.relu(a)
 
     def softmax(self, a: Sequence[Tensor], axis: Optional[int] = None) -> Tensor:
         if axis is None:  # make the default behavior consistent
@@ -941,6 +997,9 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
 
     def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return torchlib.stack(a, dim=axis)
+
+    def relu(self, a: Tensor) -> Tensor:
+        return torchlib.nn.ReLU(a)
 
     def softmax(self, a: Sequence[Tensor], axis: Optional[int] = None) -> Tensor:
         return torchlib.nn.Softmax(a, dim=axis)
