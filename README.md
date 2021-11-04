@@ -80,10 +80,16 @@ make html
 pytest
 ```
 
-### Linter
+### Formatter
 
 ```bash
 black .
+```
+
+### Linter
+
+```bash
+pylint tensorcircuit tests
 ```
 
 ### Type checker

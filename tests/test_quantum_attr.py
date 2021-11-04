@@ -1,15 +1,14 @@
 import sys
 import os
+
 import numpy as np
-import pytest
 import tensorflow as tf
 
 thisfile = os.path.abspath(__file__)
 modulepath = os.path.dirname(os.path.dirname(thisfile))
 
 sys.path.insert(0, modulepath)
-import tensorcircuit as tc
-from tensorcircuit.applications.vags import *
+from tensorcircuit.applications.vags import double_state, reduced_density_matrix
 
 
 def test_double_state():

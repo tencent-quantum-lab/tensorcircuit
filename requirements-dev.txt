@@ -4,3 +4,4 @@ pytest-cov
 black==21.9b0
 sphinx>=4.0
 pytest-lazy-fixture
+pylint==2.11.1

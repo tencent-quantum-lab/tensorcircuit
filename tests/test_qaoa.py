@@ -6,11 +6,12 @@ modulepath = os.path.dirname(os.path.dirname(thisfile))
 
 sys.path.insert(0, modulepath)
 
-from tensorcircuit.applications.dqas import *
-from tensorcircuit.applications.graphdata import *
-from tensorcircuit.applications.layers import *
-from tensorcircuit.applications.vags import *
-from tensorcircuit.cons import set_backend
+import numpy as np
+
+from tensorcircuit.applications.dqas import set_op_pool
+from tensorcircuit.applications.graphdata import get_graph
+from tensorcircuit.applications.layers import Hlayer, rxlayer, zzlayer
+from tensorcircuit.applications.vags import evaluate_vag
 
 
 def test_vag(tfb):
@@ -22,4 +23,5 @@ def test_vag(tfb):
         lbd=0,
         overlap_threhold=11,
     )
+    print(expene, eneg, p)
     assert np.allclose(ene.numpy(), -7.01, rtol=1e-2)

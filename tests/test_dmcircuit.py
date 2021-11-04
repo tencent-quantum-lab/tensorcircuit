@@ -10,7 +10,13 @@ modulepath = os.path.dirname(os.path.dirname(thisfile))
 
 sys.path.insert(0, modulepath)
 import tensorcircuit as tc
-from tensorcircuit.channels import *
+from tensorcircuit.channels import (
+    depolarizingchannel,
+    amplitudedampingchannel,
+    phasedampingchannel,
+    resetchannel,
+    single_qubit_kraus_identity_check,
+)
 
 
 def test_gate_dm():

@@ -1,14 +1,17 @@
 import sys
 import os
+import itertools
 
 thisfile = os.path.abspath(__file__)
 modulepath = os.path.dirname(os.path.dirname(thisfile))
 
 sys.path.insert(0, modulepath)
 
-from tensorcircuit.applications.van import *
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
+
+
+from tensorcircuit.applications.van import MaskedLinear, ResidualBlock, MADE, PixelCNN
 
 
 def test_masklinear():
@@ -50,7 +53,6 @@ def test_made():
     import itertools
 
     m = MADE(2, 2, 6, 3, 3, nonmerge=False)
-    r = 0
     l = []
     for i in itertools.product(*[list(range(3)) for _ in range(2)]):
         l.append(list(i))
@@ -60,6 +62,7 @@ def test_made():
     assert np.allclose(ptot.numpy(), 1.0)
 
     s, logp = m.sample(10)
+    print(logp)
     assert s.shape == (10, 2, 3)
 
 
@@ -90,10 +93,7 @@ def test_made_fit_peak():
 
 
 def test_pixelcnn():
-    import itertools
-
     m = PixelCNN(3, 5, 8)
-    r = 0
     l = []
     for i in itertools.product(*[list(range(3)) for _ in range(4)]):
         l.append(list(i))

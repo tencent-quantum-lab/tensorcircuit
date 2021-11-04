@@ -1,4 +1,4 @@
-name: tests
+name: ci
 on: [push, pull_request]
 jobs:
   tests:
@@ -26,6 +26,9 @@ jobs:
       - name: mypy checker
         run: |
           mypy tensorcircuit
+      - name: pylint checker
+        run: |
+          pylint tensorcircuit tests
       - name: test scripts
         run: |
           pytest --cov=tensorcircuit -svv

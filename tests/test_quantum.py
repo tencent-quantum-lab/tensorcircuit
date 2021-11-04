@@ -9,7 +9,6 @@ thisfile = os.path.abspath(__file__)
 modulepath = os.path.dirname(os.path.dirname(thisfile))
 
 sys.path.insert(0, modulepath)
-import tensorcircuit as tc
 from tensorcircuit import quantum as qu
 
 # Note the first version of this file is adpated from source code of tensornetwork: (Apache2)
