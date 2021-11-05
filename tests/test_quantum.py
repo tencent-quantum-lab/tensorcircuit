@@ -1,14 +1,17 @@
+from functools import partial
 import os
 import sys
+
 import numpy as np
 import pytest
-import tensornetwork as tn
 from pytest_lazyfixture import lazy_fixture as lf
+import tensornetwork as tn
 
 thisfile = os.path.abspath(__file__)
 modulepath = os.path.dirname(os.path.dirname(thisfile))
 
 sys.path.insert(0, modulepath)
+import tensorcircuit as tc
 from tensorcircuit import quantum as qu
 
 # Note the first version of this file is adpated from source code of tensornetwork: (Apache2)
@@ -230,3 +233,39 @@ def test_expectation_local_tensor(backend):
     psi = qu.QuVector.from_tensor(state)
     psi_d = psi.adjoint()
     np.testing.assert_allclose((psi_d @ op @ psi).eval(), 1.0, atol=atol)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_rm_state_vs_mps(backend):
+    @partial(tc.backend.jit, jit_compile=True, static_argnums=(1, 2))
+    def entanglement1(param, n, nlayers):
+        c = tc.Circuit(n)
+        for i in range(n):
+            c.H(i)
+        for j in range(nlayers):
+            for i in range(n - 1):
+                c.exp1(i, i + 1, theta=param[2 * j, i], unitary=tc.gates._zz_matrix)
+            for i in range(n):
+                c.rx(i, theta=param[2 * j + 1, i])
+        w = c.wavefunction()[0]
+        rm = qu.reduced_density_matrix(w, int(n / 2))
+        return rm
+
+    @partial(tc.backend.jit, jit_compile=False, static_argnums=(1, 2))
+    def entanglement2(param, n, nlayers):
+        c = tc.Circuit(n)
+        for i in range(n):
+            c.H(i)
+        for j in range(nlayers):
+            for i in range(n - 1):
+                c.exp1(i, i + 1, theta=param[2 * j, i], unitary=tc.gates._zz_matrix)
+            for i in range(n):
+                c.rx(i, theta=param[2 * j + 1, i])
+        w = c.get_quvector()
+        rm = w.reduced_density([i for i in range(int(n / 2))])
+        return tc.backend.reshape(rm.eval(), [2 ** (int(n / 2)), 2 ** (int(n / 2))])
+
+    param = tc.backend.ones([6, 6])
+    rm1 = entanglement1(param, 6, 3)
+    rm2 = entanglement2(param, 6, 3)
+    np.testing.assert_allclose(rm1, rm2, atol=atol)

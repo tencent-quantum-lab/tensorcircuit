@@ -4,7 +4,8 @@ backend magic inherited from tensornetwork
 
 import inspect
 import warnings
-from functools import partial
+from functools import partial, reduce
+from operator import mul
 from typing import Union, Text, Any, Optional, Callable, Sequence, Tuple
 
 import numpy as np
@@ -16,7 +17,7 @@ from tensornetwork.backends.numpy import numpy_backend
 from tensornetwork.backends.jax import jax_backend
 from tensornetwork.backends.pytorch import pytorch_backend
 
-try:  # old version
+try:  # old version tn compatiblity
     from tensornetwork.backends import base_backend
 
     tnbackend = base_backend.BaseBackend
@@ -37,7 +38,11 @@ torchlib: Any
 tf: Any
 
 
-def _doc_string_for_backend(tnbackend: Any) -> None:
+def _more_methods_for_backend(tnbackend: Any) -> None:
+    """
+    Add tensorcircuit specific backend methods, especially with their docstrings
+    """
+
     def expm(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
         Return expm of ``a``, matrix exponential.
@@ -125,7 +130,7 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
 
     def size(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
-        Return the total number of elements in ``a``.
+        Return the total number of elements in ``a`` in tensor form.
 
         :param a: tensor
         :type a: Tensor
@@ -135,6 +140,17 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
         raise NotImplementedError(
             "Backend '{}' has not implemented `size`.".format(self.name)
         )
+
+    def sizen(self: Any, a: Tensor) -> int:  # pylint: disable=unused-variable
+        """
+        Return the total number of elements in ``a``, but in int form
+
+        :param a: tensor
+        :type a: Tensor
+        :return: [description]
+        :rtype: int
+        """
+        return reduce(mul, a.shape)  # type: ignore
 
     def numpy(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
@@ -430,7 +446,7 @@ def _doc_string_for_backend(tnbackend: Any) -> None:
             setattr(tnbackend, k, v)
 
 
-_doc_string_for_backend(tnbackend)
+_more_methods_for_backend(tnbackend)
 
 
 class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore

@@ -733,13 +733,27 @@ def entropy(rho: Tensor, eps: float = 1e-12) -> Tensor:
 
 
 def reduced_density_matrix(
-    state: Tensor, freedom: int, cut: Union[int, List[int]], p: Optional[Tensor] = None
+    state: Tensor, cut: Union[int, List[int]], p: Optional[Tensor] = None
 ) -> Tensor:
+    """
+    compute reduced density matrix from quantum state ``state``
+
+    :param state: [description]
+    :type state: Tensor
+    :param cut: [description]
+    :type cut: Union[int, List[int]]
+    :param p: [description], defaults to None
+    :type p: Optional[Tensor], optional
+    :return: [description]
+    :rtype: Tensor
+    """
     if isinstance(cut, list) or isinstance(cut, tuple):
         traceout = cut
     else:
         traceout = [i for i in range(cut)]
     w = state / backend.norm(state)
+    freedomexp = backend.sizen(state)
+    freedom = int(np.log(freedomexp) / np.log(2))
     perm = [i for i in range(freedom) if i not in traceout]
     perm = perm + traceout
     w = backend.reshape(w, [2 for _ in range(freedom)])
