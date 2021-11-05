@@ -2,7 +2,7 @@
 quantum state and operator class backend by tensornetwork
 """
 from functools import reduce
-from operator import or_, mul
+from operator import or_, mul, matmul
 from typing import (
     Any,
     Union,
@@ -25,7 +25,7 @@ from .cons import backend, contractor
 
 Tensor = Any
 
-# Note the first version of this file is adpated from source code of tensornetwork: (Apache2)
+# Note the first version of part of this file is adpated from source code of tensornetwork: (Apache2)
 # https://github.com/google/TensorNetwork/blob/master/tensornetwork/quantum/quantum.py
 # For the reason of adoption instead of direct import: see https://github.com/google/TensorNetwork/issues/950
 
@@ -360,7 +360,7 @@ class QuOperator:
 
         return quantum_constructor(out_edges, in_edges, ref_nodes, ignore_edges)
 
-    def __matmul__(self, other: "QuOperator") -> "QuOperator":
+    def __matmul__(self, other: Union["QuOperator", Tensor]) -> "QuOperator":
         """The action of this operator on another.
         Given `QuOperator`s `A` and `B`, produces a new `QuOperator` for `A @ B`,
         where `A @ B` means: "the action of A, as a linear operator, on B".
@@ -368,6 +368,8 @@ class QuOperator:
         and `B` and then connects the copies by hooking up the `in_edges` of
         `A.copy()` to the `out_edges` of `B.copy()`.
         """
+        if not isinstance(other, QuOperator):
+            other = self.from_tensor(other)
         check_spaces(self.in_edges, other.out_edges)
 
         # Copy all nodes involved in the two operators.
@@ -390,6 +392,9 @@ class QuOperator:
         ]
 
         return quantum_constructor(out_edges, in_edges, ref_nodes, ignore_edges)
+
+    def __rmatmul__(self, other: Union["QuOperator", Tensor]) -> "QuOperator":
+        return self.__matmul__(other)
 
     def __mul__(self, other: Union["QuOperator", AbstractNode, Tensor]) -> "QuOperator":
         """Scalar multiplication of operators.
@@ -526,6 +531,12 @@ class QuOperator:
                 "Node count '{}' > 1 after contraction!".format(len(nodes))
             )
         return list(nodes)[0].tensor
+
+    def eval_matrix(self, final_edge_order: Optional[Sequence[Edge]] = None) -> Tensor:
+        t = self.eval(final_edge_order)
+        shape1 = reduce(mul, [e.dimension for e in self.out_edges] + [1])
+        shape2 = reduce(mul, [e.dimension for e in self.in_edges] + [1])
+        return backend.reshape(t, [shape1, shape2])
 
 
 class QuVector(QuOperator):
@@ -691,7 +702,7 @@ def generate_local_hamiltonian(
     hlist: Sequence[Tensor], matrix_form: bool = True
 ) -> Union[QuOperator, Tensor]:
     """
-    Note: jit is recommended
+    Note: further jit is recommended
 
     :param hlist: [description]
     :type hlist: Sequence[Tensor]
@@ -714,17 +725,19 @@ def generate_local_hamiltonian(
 ## some quantum quatities below
 
 
-def entropy(rho: Tensor, eps: float = 1e-12) -> Tensor:
+def entropy(rho: Union[Tensor, QuOperator], eps: float = 1e-12) -> Tensor:
     """
     compute entropy from given density matrix ``rho``
 
     :param rho: [description]
-    :type rho: Tensor
+    :type rho: Union[Tensor, QuOperator]
     :param eps: [description], defaults to 1e-12
     :type eps: float, optional
     :return: [description]
     :rtype: Tensor
     """
+    if isinstance(rho, QuOperator):
+        rho = rho.eval_matrix()
     lbd = backend.real(backend.eigh(rho)[0])
     lbd = backend.relu(lbd)
     # we need the matrix anyway for AD.
@@ -732,9 +745,28 @@ def entropy(rho: Tensor, eps: float = 1e-12) -> Tensor:
     return backend.real(entropy)
 
 
+def trace_product(*o: Union[Tensor, QuOperator]) -> Tensor:
+    """
+    Compute the following with several input ``o`` as tensor or ``QuOperator``
+
+    .. math ::
+
+        \\mathrm{Tr}(\\prod_i O_i)
+
+    :return: a scalar
+    :rtype: Tensor
+    """
+    prod = reduce(matmul, o)
+    if isinstance(prod, QuOperator):
+        return prod.trace().eval_matrix()
+    return backend.trace(prod)
+
+
 def reduced_density_matrix(
-    state: Tensor, cut: Union[int, List[int]], p: Optional[Tensor] = None
-) -> Tensor:
+    state: Union[Tensor, QuOperator],
+    cut: Union[int, List[int]],
+    p: Optional[Tensor] = None,
+) -> Union[Tensor, QuOperator]:
     """
     compute reduced density matrix from quantum state ``state``
 
@@ -747,10 +779,18 @@ def reduced_density_matrix(
     :return: [description]
     :rtype: Tensor
     """
-    if isinstance(cut, list) or isinstance(cut, tuple):
-        traceout = cut
+
+    if isinstance(cut, list) or isinstance(cut, tuple) or isinstance(cut, set):
+        traceout = list(cut)
     else:
         traceout = [i for i in range(cut)]
+    if isinstance(state, QuOperator):
+        if p is not None:
+            raise NotImplementedError(
+                "p arguments is not supported when state is a `QuOperator`"
+            )
+        return state.partial_trace(traceout)
+
     w = state / backend.norm(state)
     freedomexp = backend.sizen(state)
     freedom = int(np.log(freedomexp) / np.log(2))
@@ -767,22 +807,33 @@ def reduced_density_matrix(
     return rho
 
 
-def free_energy(rho: Tensor, h: Tensor, beta: float = 1, eps: float = 1e-12) -> Tensor:
-    energy = backend.real(backend.trace(rho @ h))
+def free_energy(
+    rho: Union[Tensor, QuOperator],
+    h: Union[Tensor, QuOperator],
+    beta: float = 1,
+    eps: float = 1e-12,
+) -> Tensor:
+    energy = backend.real(trace_product(rho, h))
     s = entropy(rho, eps)
     return backend.real(energy - s / beta)
 
 
-def renyi_free_energy(rho: Tensor, h: Tensor, beta: float = 1) -> Tensor:
-    energy = backend.real(backend.trace(rho @ h))
-    s = -backend.real(backend.log(backend.trace(rho @ rho)))
+def renyi_free_energy(
+    rho: Union[Tensor, QuOperator],
+    h: Union[Tensor, QuOperator],
+    beta: float = 1,
+    k: int = 2,
+) -> Tensor:
+    energy = backend.real(trace_product(rho, h))
+    s = -backend.real(backend.log(trace_product(*[rho for _ in range(k)])))
     return backend.real(energy - s / beta)
 
 
 def trace_distance(rho: Tensor, rho0: Tensor, eps: float = 1e-12) -> Tensor:
     d2 = rho - rho0
-    d2 = backend.conj(backend.transpose(d2)) @ d2
+    d2 = backend.adjoint(d2) @ d2
     lbds = backend.real(backend.eigh(d2)[0])
+    lbds = backend.relu(lbds)
     return 0.5 * backend.sum(backend.sqrt(lbds + eps))
 
 

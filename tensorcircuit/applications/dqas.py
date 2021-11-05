@@ -1,6 +1,7 @@
 """
 modules for DQAS framework
 """
+# possibly deprecated, multiprocessing is not the recommended way to do DQAS task now, using vmap!
 
 import sys
 import inspect

@@ -62,3 +62,11 @@ tensorcircuit.keras module
     :members:
     :undoc-members:
     :show-inheritance:
+
+tensorcircuit.quantum module
+---------------------------------
+
+.. automodule:: tensorcircuit.quantum
+    :members:
+    :undoc-members:
+    :show-inheritance:

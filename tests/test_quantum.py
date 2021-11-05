@@ -269,3 +269,15 @@ def test_rm_state_vs_mps(backend):
     rm1 = entanglement1(param, 6, 3)
     rm2 = entanglement2(param, 6, 3)
     np.testing.assert_allclose(rm1, rm2, atol=atol)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_trace_product(backend):
+    o = np.ones([2, 2])
+    h = np.eye(2)
+    np.testing.assert_allclose(qu.trace_product(o, h), 2, atol=atol)
+    oq = qu.QuOperator.from_tensor(o)
+    hq = qu.QuOperator.from_tensor(h)
+    np.testing.assert_allclose(qu.trace_product(oq, hq), 2, atol=atol)
+    np.testing.assert_allclose(qu.trace_product(oq, h), 2, atol=atol)
+    np.testing.assert_allclose(qu.trace_product(o, hq), 2, atol=atol)
