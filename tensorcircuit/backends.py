@@ -449,6 +449,16 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 _more_methods_for_backend(tnbackend)
 
 
+def _sum_numpy(
+    self: Any, a: Tensor, axis: Optional[Sequence[int]] = None, keepdims: bool = False
+) -> Tensor:
+    return np.sum(a, axis=axis, keepdims=keepdims)
+    # see https://github.com/google/TensorNetwork/issues/952
+
+
+tensornetwork.backends.numpy.numpy_backend.NumPyBackend.sum = _sum_numpy
+
+
 class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def expm(self, a: Tensor) -> Tensor:
         return expm(a)

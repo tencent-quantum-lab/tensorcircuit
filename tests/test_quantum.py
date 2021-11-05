@@ -249,7 +249,7 @@ def test_rm_state_vs_mps(backend):
                 c.rx(i, theta=param[2 * j + 1, i])
         w = c.wavefunction()[0]
         rm = qu.reduced_density_matrix(w, int(n / 2))
-        return rm
+        return qu.entropy(rm)
 
     @partial(tc.backend.jit, jit_compile=False, static_argnums=(1, 2))
     def entanglement2(param, n, nlayers):
@@ -263,7 +263,7 @@ def test_rm_state_vs_mps(backend):
                 c.rx(i, theta=param[2 * j + 1, i])
         w = c.get_quvector()
         rm = w.reduced_density([i for i in range(int(n / 2))])
-        return tc.backend.reshape(rm.eval(), [2 ** (int(n / 2)), 2 ** (int(n / 2))])
+        return qu.entropy(rm)
 
     param = tc.backend.ones([6, 6])
     rm1 = entanglement1(param, 6, 3)
@@ -281,3 +281,13 @@ def test_trace_product(backend):
     np.testing.assert_allclose(qu.trace_product(oq, hq), 2, atol=atol)
     np.testing.assert_allclose(qu.trace_product(oq, h), 2, atol=atol)
     np.testing.assert_allclose(qu.trace_product(o, hq), 2, atol=atol)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_free_energy(backend):
+    rho = np.array([[1.0, 0], [0, 0]])
+    h = np.array([[-1.0, 0], [0, 1]])
+    np.testing.assert_allclose(qu.free_energy(rho, h, 0.5), -1, atol=atol)
+    np.testing.assert_allclose(qu.renyi_free_energy(rho, h, 0.5), -1, atol=atol)
+    hq = qu.QuOperator.from_tensor(h)
+    np.testing.assert_allclose(qu.free_energy(rho, hq, 0.5), -1, atol=atol)

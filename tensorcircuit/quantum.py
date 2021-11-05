@@ -1,10 +1,11 @@
 """
 quantum state and operator class backend by tensornetwork
 """
-from functools import reduce
+from functools import reduce, wraps
 from operator import or_, mul, matmul
 from typing import (
     Any,
+    Callable,
     Union,
     Optional,
     Sequence,
@@ -725,6 +726,26 @@ def generate_local_hamiltonian(
 ## some quantum quatities below
 
 
+def op2tensor(
+    fn: Callable[..., Any], op_argnums: Union[int, Sequence[int]] = 0
+) -> Callable[..., Any]:
+    if isinstance(op_argnums, int):
+        op_argnums = [op_argnums]
+
+    @wraps(fn)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        nargs = list(args)
+        for i in op_argnums:  # type: ignore
+            if isinstance(args[i], QuOperator):
+                nargs[i] = args[i].eval_matrix()
+        print(nargs)
+        out = fn(*nargs, **kwargs)
+        return out
+
+    return wrapper
+
+
+@op2tensor
 def entropy(rho: Union[Tensor, QuOperator], eps: float = 1e-12) -> Tensor:
     """
     compute entropy from given density matrix ``rho``
@@ -736,8 +757,6 @@ def entropy(rho: Union[Tensor, QuOperator], eps: float = 1e-12) -> Tensor:
     :return: [description]
     :rtype: Tensor
     """
-    if isinstance(rho, QuOperator):
-        rho = rho.eval_matrix()
     lbd = backend.real(backend.eigh(rho)[0])
     lbd = backend.relu(lbd)
     # we need the matrix anyway for AD.
