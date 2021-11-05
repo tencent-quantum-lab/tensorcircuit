@@ -261,6 +261,34 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `softmax`.".format(self.name)
         )
 
+    def onehot(  # pylint: disable=unused-variable
+        self: Any, a: Tensor, num: int
+    ) -> Tensor:
+        """
+        One-hot encodes the given ``a``.
+        Each index in the input ``a`` is encoded as a vector of zeros of length ``num``
+        with the element at index set to one:
+
+        :param a: input tensor
+        :type a: Tensor
+        :param num: number of features in onehot dimension
+        :type num: int
+        :return: onehot tensor with the last extra dimension
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `onehot`.".format(self.name)
+        )
+
+    # one_hot = onehot doesn't work
+    def one_hot(  # pylint: disable=unused-variable
+        self: Any, a: Tensor, num: int
+    ) -> Tensor:
+        """
+        See doc for :py:meth:`onehot`
+        """
+        return self.onehot(a, num)
+
     def is_tensor(self: Any, a: Tensor) -> bool:  # pylint: disable=unused-variable
         """
         Return boolean on whether ``a`` is a tensor in backend package.
@@ -499,6 +527,11 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def softmax(self, a: Sequence[Tensor], axis: Optional[int] = None) -> Tensor:
         return softmax(a, axis=axis)
 
+    def onehot(self, a: Tensor, num: int) -> Tensor:
+        res = np.eye(num)[a.reshape([-1])]
+        return res.reshape(list(a.shape) + [num])
+        # https://stackoverflow.com/questions/38592324/one-hot-encoding-using-numpy
+
     def is_tensor(self, a: Any) -> bool:
         if isinstance(a, np.ndarray):
             return True
@@ -653,6 +686,9 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
 
     def softmax(self, a: Sequence[Tensor], axis: Optional[int] = None) -> Tensor:
         return libjax.nn.softmax(a, axis=axis)
+
+    def onehot(self, a: Tensor, num: int) -> Tensor:
+        return libjax.nn.one_hot(a, num)
 
     def is_tensor(self, a: Any) -> bool:
         if not isinstance(a, jnp.ndarray):
@@ -813,6 +849,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
 
     def relu(self, a: Tensor) -> Tensor:
         return tf.nn.relu(a)
+
+    def onehot(self, a: Tensor, num: int) -> Tensor:
+        return tf.one_hot(a, num)
 
     def softmax(self, a: Sequence[Tensor], axis: Optional[int] = None) -> Tensor:
         if axis is None:  # make the default behavior consistent
@@ -1029,6 +1068,9 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
 
     def softmax(self, a: Sequence[Tensor], axis: Optional[int] = None) -> Tensor:
         return torchlib.nn.Softmax(a, dim=axis)
+
+    def onehot(self, a: Tensor, num: int) -> Tensor:
+        return torchlib.nn.functional.one_hot(a, num)
 
     def is_tensor(self, a: Any) -> bool:
         if isinstance(a, torchlib.Tensor):

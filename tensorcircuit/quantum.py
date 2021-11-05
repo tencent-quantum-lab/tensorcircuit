@@ -712,13 +712,10 @@ def generate_local_hamiltonian(
     :return: [description]
     :rtype: [type]
     """
-    size = reduce(mul, [reduce(mul, h.shape) for h in hlist])
-    size = int(size)
-    s = int(np.sqrt(size))
     hop_list = [QuOperator.from_tensor(h) for h in hlist]
     hop = reduce(or_, hop_list)
     if matrix_form:
-        tensor = backend.reshape(hop.eval(), [s, s])
+        tensor = hop.eval_matrix()
         return tensor
     return hop
 
@@ -872,3 +869,17 @@ def double_state(h: Tensor, beta: float = 1) -> Tensor:
     state = backend.reshape(rho, [-1])
     norm = backend.norm(state)
     return state / norm
+
+
+# @op2tensor
+# def purify(rho):
+#     """
+#     Take state rho and purify it into a wavefunction of squared dimension.
+#     """
+#     d = rho.shape[0]
+#     evals, vs = backend.eigh(rho)
+#     evals = backend.relu(evals)
+#     psi = np.zeros(shape=(d ** 2, 1), dtype=complex)
+#     for i, lbd in enumerate(lbd):
+#         psi += lbd * kron(vs[:, [i]], basis_vec(i, d))
+#     return psi

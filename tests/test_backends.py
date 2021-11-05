@@ -77,6 +77,9 @@ def test_backend_methods(backend):
     print(ansp @ ansp, ans @ ans)
     assert np.allclose(ansp @ ansp, ans @ ans, atol=1e-4)
     assert np.allclose(tc.backend.sum(tc.array_to_tensor(np.arange(4))), 6, atol=1e-4)
+    indices = np.array([[1, 2], [0, 1]])
+    ans = np.array([[[0, 1, 0], [0, 0, 1]], [[1, 0, 0], [0, 1, 0]]])
+    assert np.allclose(tc.backend.one_hot(indices, 3), ans, atol=1e-4)
 
 
 def vqe_energy(inputs, param, n, nlayers):

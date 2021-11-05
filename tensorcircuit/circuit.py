@@ -640,6 +640,7 @@ def expectation(
     normalization: bool = False,
 ) -> Tensor:
     """
+    [deprecated] direct manipulate on  ``QuOperator`` is suggested
     compute :math:`\\langle bra\\vert ops \\vert ket\\rangle`
 
     :param ket: [description]
