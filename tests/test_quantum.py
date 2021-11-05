@@ -237,7 +237,7 @@ def test_expectation_local_tensor(backend):
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_rm_state_vs_mps(backend):
-    @partial(tc.backend.jit, jit_compile=True, static_argnums=(1, 2))
+    @partial(tc.backend.jit, jit_compile=False, static_argnums=(1, 2))
     def entanglement1(param, n, nlayers):
         c = tc.Circuit(n)
         for i in range(n):
