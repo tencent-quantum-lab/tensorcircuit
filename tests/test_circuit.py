@@ -282,11 +282,11 @@ def test_circuit_add_demo():
     # to be refactored for better API
     c = tc.Circuit(2)
     c.x(0)
-    c2 = tc.Circuit(2, mps_inputs=[c._nodes, c._front])
+    c2 = tc.Circuit(2, mps_inputs=c.quvector())
     c2.X(0)
     answer = np.array([1.0, 0, 0, 0])
     assert np.allclose(c2.wavefunction().reshape([-1]), answer, atol=1e-4)
     c3 = tc.Circuit(2)
     c3.X(0)
-    c3.replace_mps_inputs([c._nodes, c._front])
+    c3.replace_mps_inputs(c.quvector())
     assert np.allclose(c3.wavefunction().reshape([-1]), answer, atol=1e-4)

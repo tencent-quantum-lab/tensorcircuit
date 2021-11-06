@@ -2,7 +2,7 @@
 quantum circuit: state simulator
 """
 
-from typing import Tuple, List, Callable, Optional, Any, Sequence
+from typing import Tuple, List, Callable, Optional, Any
 
 import graphviz
 import numpy as np
@@ -10,7 +10,7 @@ import tensornetwork as tn
 
 from . import gates
 from .cons import backend, contractor, dtypestr, npdtype
-from .quantum import QuVector
+from .quantum import QuVector, QuOperator
 
 Gate = gates.Gate
 Tensor = Any
@@ -42,7 +42,7 @@ class Circuit:
         self,
         nqubits: int,
         inputs: Optional[Tensor] = None,
-        mps_inputs: Optional[Tuple[Sequence[Gate], Sequence[tn.Edge]]] = None,
+        mps_inputs: Optional[QuOperator] = None,
     ) -> None:
         """
         Circuit object based on state simulator.
@@ -83,12 +83,14 @@ class Circuit:
             nodes = [inputs]
             self._front = [inputs.get_edge(i) for i in range(n)]
         else:  # mps_inputs is not None
-            ndict, edict = tn.copy(mps_inputs[0])  # type: ignore
+            mps_nodes = mps_inputs.nodes  # type: ignore
+            mps_edges = mps_inputs.out_edges + mps_inputs.in_edges  # type: ignore
+            ndict, edict = tn.copy(mps_nodes)
             new_nodes = []
-            for n in mps_inputs[0]:  # type: ignore
+            for n in mps_nodes:
                 new_nodes.append(ndict[n])
             new_front = []
-            for e in mps_inputs[1]:  # type: ignore
+            for e in mps_edges:
                 new_front.append(edict[e])
             nodes = new_nodes
             self._front = new_front
@@ -116,21 +118,21 @@ class Circuit:
         inputs = backend.reshape(inputs, [2 for _ in range(n)])
         self._nodes[0].tensor = inputs
 
-    def replace_mps_inputs(
-        self, mps_inputs: Tuple[Sequence[Gate], Sequence[tn.Edge]]
-    ) -> None:
+    def replace_mps_inputs(self, mps_inputs: QuOperator) -> None:
         """
         Replace the input state in MPS representation while keep the circuit structure unchanged.
 
         :param mps_inputs: (Nodes, dangling Edges) for a MPS like initial wavefunction
         :type mps_inputs: Tuple[Sequence[Gate], Sequence[Edge]]
         """
-        ndict, edict = tn.copy(mps_inputs[0])
+        mps_nodes = mps_inputs.nodes
+        mps_edges = mps_inputs.out_edges + mps_inputs.in_edges
+        ndict, edict = tn.copy(mps_nodes)
         new_nodes = []
-        for n in mps_inputs[0]:
+        for n in mps_nodes:
             new_nodes.append(ndict[n])
         new_front = []
-        for e in mps_inputs[1]:
+        for e in mps_edges:
             new_front.append(edict[e])
         old = set(id(n) for n in self._nodes[: self._start_index])
         j = -1
@@ -330,6 +332,8 @@ class Circuit:
     def get_quvector(self) -> QuVector:
         _, edges = self._copy()
         return QuVector(edges)
+
+    quvector = get_quvector
 
     def mid_measurement(self, index: int, keep: int = 0) -> None:
         """
