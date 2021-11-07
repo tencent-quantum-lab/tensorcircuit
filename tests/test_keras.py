@@ -88,3 +88,14 @@ def test_vqe_layer(tfb, highp):
     model.fit(np.zeros([2, 1]), np.zeros([2, 1]), batch_size=2, epochs=500)
 
     assert np.allclose(model.predict(np.zeros([1])), -7.27, atol=5e-2)
+
+
+def test_function_io(tfb, tmp_path, highp):
+    vqe_f_p = partial(vqe_f, inputs=tf.ones([1]))
+
+    vqe_f_p = tf.function(vqe_f_p)
+    vqe_f_p(weights=tf.ones([6, 6], dtype=tf.float64), nlayers=3, n=6)
+    tc.keras.save_func(vqe_f_p, str(tmp_path))
+    loaded = tc.keras.load_func(str(tmp_path), fallback=vqe_f_p)
+    print(loaded(weights=tf.ones([6, 6], dtype=tf.float64), nlayers=3, n=6))
+    print(loaded(weights=tf.ones([6, 6], dtype=tf.float64), nlayers=3, n=6))

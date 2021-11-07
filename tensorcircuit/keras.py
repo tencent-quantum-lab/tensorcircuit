@@ -125,3 +125,45 @@ def output_loss(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
     :rtype: tf.Tensor
     """
     return y_pred
+
+
+def save_func(f: Callable[..., Any], path: str) -> None:
+    """
+    save tf function in file (``tf.savedmodel`` format)
+
+    :param f: ``tf.function``ed function with graph building
+    :type f: Callable[..., Any]
+    :param path: the dir path to save the function
+    :type path: str
+    """
+    m = tf.Module()
+    m.f = f
+    tf.saved_model.save(m, path)
+
+
+def load_func(
+    *path: str, fallback: Optional[Callable[..., Any]] = None
+) -> Callable[..., Any]:
+    """
+    Load function from the files in ``tf.savedmodel`` format.
+    We can load several functions at the same time, as they can be the same function of different input shapes.
+
+    :param fallback: The fallback function when all functions loaded are failed, defaults to None
+    :type fallback: Optional[Callable[..., Any]], optional
+    :raises ValueError: When there is not legal loaded function of the input shape and no fallback callable.
+    :return: A function that tries all loaded function against the input until the first success one.
+    :rtype: Callable[..., Any]
+    """
+    ms = [tf.saved_model.load(p) for p in path]
+
+    def wrapper(*args: Any, **kws: Any) -> Any:
+        try:
+            for m in ms:
+                return m.f(*args, **kws)
+        except ValueError as e:
+            if fallback is not None:
+                return fallback(*args, **kws)
+            else:
+                raise e
+
+    return wrapper
