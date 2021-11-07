@@ -319,6 +319,43 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `cast`.".format(self.name)
         )
 
+    def tree_map(  # pylint: disable=unused-variable
+        self: Any, f: Callable[..., Any], *pytrees: Any
+    ) -> Any:
+        """
+        tree map with multiple arg function ``f`` through pytrees
+
+        :param f: The function
+        :type f: Callable[..., Any]
+        :param pytrees: inputs as any python structure
+        :type pytrees: Any
+        :raises NotImplementedError: raise when neither tensorflow or jax is installed
+        :return: [description]
+        :rtype: Any
+        """
+        global libjax
+        global tf
+        if libjax is None and tf is None:
+            try:
+                import jax
+
+                libjax = jax
+            except ImportError:
+                try:
+                    import tensorflow
+
+                    tf = tensorflow
+                except ImportError:
+                    pass
+        if libjax is not None:
+            r = libjax.tree_map(f, *pytrees)
+        elif tf is not None:
+            r = tf.nest.map_structure(f, *pytrees)
+        else:
+            raise NotImplementedError("Only tensorflow and jax support `tree_map`")
+
+        return r
+
     def grad(  # pylint: disable=unused-variable
         self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Callable[..., Any]:
@@ -921,6 +958,70 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         else:
             return tf.function(f, jit_compile=jit_compile)
 
+    # old vmap impl before I know pytrees support in tf
+    # def vmap(
+    #     self, f: Callable[..., Any], vectorized_argnums: Union[int, Sequence[int]] = 0
+    # ) -> Any:
+    #     if isinstance(vectorized_argnums, int):
+    #         vectorized_argnums = (vectorized_argnums,)
+    #     if vectorized_argnums == (0,):  # fast shortcut
+
+    #         def wrapper(*args: Any, **kws: Any) -> Tensor:
+    #             def pf(x: Tensor) -> Tensor:
+    #                 return f(x, *args[1:], **kws)
+
+    #             return tf.vectorized_map(pf, args[0])
+
+    #     else:
+
+    #         @self.jit
+    #         def wrapper(*args: Any, **kws: Any) -> Tensor:
+    #             shapes = []
+    #             l = len(args)
+    #             seps = [0]
+    #             batch = args[vectorized_argnums[0]].shape[0]  # type: ignore
+    #             nargs = []
+    #             for i, arg in enumerate(args):
+    #                 if i in vectorized_argnums:  # type: ignore
+    #                     shapes.append(arg.shape[1:])
+    #                     assert (
+    #                         arg.shape[0] == batch
+    #                     ), "different tensors has different batch dimensions!"
+    #                     arg = tf.reshape(arg, [batch, -1])
+    #                     nargs.append(arg)
+    #                     seps.append(seps[-1] + arg.shape[-1])
+    #             sargs = tf.concat(nargs, 1)
+
+    #             def sf(sarg: Any) -> Any:
+    #                 vargs = []
+    #                 for i in range(len(shapes)):
+    #                     arg = sarg[seps[i] : seps[i + 1]]
+    #                     arg = tf.reshape(arg, shapes[i])
+    #                     vargs.append(arg)
+    #                 vvargs = []
+    #                 j = 0
+    #                 for i in range(l):
+    #                     if i in vectorized_argnums:  # type: ignore
+    #                         vvargs.append(vargs[j])
+    #                         j += 1
+    #                     else:
+    #                         vvargs.append(args[i])
+    #                 return f(*vvargs, **kws)
+
+    #             return tf.vectorized_map(sf, sargs)
+
+    #     return wrapper
+
+    # def wrapper(f: Callable[..., Any], args: Sequence[Any]) -> Any:
+    #     return f(*args)
+
+    # wrapper = partial(wrapper, f)
+
+    # def own_vectorized_map(f: Callable[..., Any], *args: Any) -> Any:
+    #     return tf.vectorized_map(f, args)
+
+    # return partial(own_vectorized_map, wrapper)
+
     def vmap(
         self, f: Callable[..., Any], vectorized_argnums: Union[int, Sequence[int]] = 0
     ) -> Any:
@@ -936,52 +1037,25 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
 
         else:
 
-            @self.jit
+            @self.jit  # otherwise, vectorized_map claim on retracing
             def wrapper(*args: Any, **kws: Any) -> Tensor:
-                shapes = []
-                l = len(args)
-                seps = [0]
-                batch = args[vectorized_argnums[0]].shape[0]  # type: ignore
-                nargs = []
-                for i, arg in enumerate(args):
-                    if i in vectorized_argnums:  # type: ignore
-                        shapes.append(arg.shape[1:])
-                        assert (
-                            arg.shape[0] == batch
-                        ), "different tensors has different batch dimensions!"
-                        arg = tf.reshape(arg, [batch, -1])
-                        nargs.append(arg)
-                        seps.append(seps[-1] + arg.shape[-1])
-                sargs = tf.concat(nargs, 1)
-
                 def sf(sarg: Any) -> Any:
-                    vargs = []
-                    for i in range(len(shapes)):
-                        arg = sarg[seps[i] : seps[i + 1]]
-                        arg = tf.reshape(arg, shapes[i])
-                        vargs.append(arg)
                     vvargs = []
                     j = 0
-                    for i in range(l):
+                    for i in range(len(args)):
                         if i in vectorized_argnums:  # type: ignore
-                            vvargs.append(vargs[j])
+                            vvargs.append(sarg[j])
                             j += 1
                         else:
                             vvargs.append(args[i])
                     return f(*vvargs, **kws)
 
-                return tf.vectorized_map(sf, sargs)
+                sarg = []
+                for i in vectorized_argnums:  # type: ignore
+                    sarg.append(args[i])
+                return tf.vectorized_map(sf, sarg)
 
         return wrapper
-        # def wrapper(f: Callable[..., Any], args: Sequence[Any]) -> Any:
-        #     return f(*args)
-
-        # wrapper = partial(wrapper, f)
-
-        # def own_vectorized_map(f: Callable[..., Any], *args: Any) -> Any:
-        #     return tf.vectorized_map(f, args)
-
-        # return partial(own_vectorized_map, wrapper)
 
     def vectorized_value_and_grad(
         self,

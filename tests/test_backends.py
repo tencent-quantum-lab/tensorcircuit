@@ -82,6 +82,17 @@ def test_backend_methods(backend):
     assert np.allclose(tc.backend.one_hot(indices, 3), ans, atol=1e-4)
 
 
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_tree_map(backend):
+    def f(a, b):
+        return a + b
+
+    r = tc.backend.tree_map(
+        f, {"a": tc.backend.ones([2])}, {"a": 2 * tc.backend.ones([2])}
+    )
+    assert np.allclose(r["a"], 3 * np.ones([2]), atol=1e-4)
+
+
 def vqe_energy(inputs, param, n, nlayers):
     c = tc.Circuit(n, inputs=inputs)
     paramc = tc.backend.cast(param, "complex64")

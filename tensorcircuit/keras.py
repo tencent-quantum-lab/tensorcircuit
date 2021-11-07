@@ -9,6 +9,7 @@ import tensorflow as tf
 from tensorflow.keras.layers import Layer
 from tensorflow.keras import initializers, constraints
 
+from .cons import rdtypestr  # type: ignore
 
 # @tf.keras.utils.register_keras_serializable(
 #     package="tensorcircuit"
@@ -74,6 +75,7 @@ class QuantumLayer(Layer):  # type: ignore
                 )
             )
 
+    @tf.function  # type: ignore
     def call(
         self,
         inputs: tf.Tensor,
