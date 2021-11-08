@@ -98,6 +98,14 @@ pylint tensorcircuit tests
 mypy tensorcircuit
 ```
 
+### Integrated script
+
+For now, we introduce one for all checker for development:
+
+```bash
+./check_all.sh
+```
+
 ### CI
 
 We currently use GitHub Action for test CI, but it has limited quota for free private repo.

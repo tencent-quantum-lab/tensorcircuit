@@ -17,6 +17,7 @@ from .cons import backend, dtypestr, npdtype
 thismodule = sys.modules[__name__]
 
 Tensor = Any
+Array = Any
 
 # Common single qubit states as np.ndarray objects
 zero_state = np.array([1.0, 0.0], dtype=npdtype)
@@ -107,7 +108,7 @@ class Gate(tn.Node):  # type: ignore
     pass
 
 
-def num_to_tensor(*num: float, dtype: Optional[str] = None) -> Any:
+def num_to_tensor(*num: Union[float, Tensor], dtype: Optional[str] = None) -> Any:
     l = []
     if not dtype:
         dtype = dtypestr
@@ -124,7 +125,7 @@ def num_to_tensor(*num: float, dtype: Optional[str] = None) -> Any:
 array_to_tensor = num_to_tensor
 
 
-def gate_wrapper(m: np.array, n: Optional[str] = None) -> Gate:
+def gate_wrapper(m: Tensor, n: Optional[str] = None) -> Gate:
     if not n:
         n = "unknowngate"
     m = m.astype(npdtype)
@@ -161,7 +162,7 @@ def matrix_for_gate(gate: Gate) -> Tensor:
     return t
 
 
-def bmatrix(a: np.array) -> str:
+def bmatrix(a: Array) -> str:
     """
     Returns a LaTeX bmatrix
 
@@ -261,11 +262,10 @@ def random_single_qubit_gate() -> Gate:
     """
     Returns the random single qubit gate described in https://arxiv.org/abs/2002.07730.
     """
-
     # Get the random parameters
-    theta, alpha, phi = np.random.rand(3) * 2 * np.pi
+    theta, alpha, phi = np.random.rand(3) * 2 * np.pi  # type: ignore
 
-    return rgate(theta, alpha, phi)
+    return rgate(theta, alpha, phi)  # type: ignore
 
 
 rs = random_single_qubit_gate

@@ -1,9 +1,11 @@
 import sys
 import os
 from functools import partial
+
 import numpy as np
 import pytest
 from pytest_lazyfixture import lazy_fixture as lf
+import tensorflow as tf
 
 thisfile = os.path.abspath(__file__)
 modulepath = os.path.dirname(os.path.dirname(thisfile))
@@ -91,6 +93,27 @@ def test_tree_map(backend):
         f, {"a": tc.backend.ones([2])}, {"a": 2 * tc.backend.ones([2])}
     )
     assert np.allclose(r["a"], 3 * np.ones([2]), atol=1e-4)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_backend_randoms(backend):
+    @partial(tc.backend.jit, static_argnums=0)
+    def random_matrix(key):
+        tc.backend.set_random_state(key)
+        r1 = tc.backend.implicit_randn(shape=[2, 2], mean=0.5)
+        r2 = tc.backend.implicit_randn(shape=[2, 2], mean=0.5)
+        return r1, r2
+
+    key = 42
+    if tc.backend.name == "tensorflow":
+        key = tf.random.Generator.from_seed(42)
+    r11, r12 = random_matrix(key)
+    if tc.backend.name == "tensorflow":
+        key = tf.random.Generator.from_seed(42)
+    r21, r22 = random_matrix(key)
+    assert np.allclose(r11, r21, atol=1e-4)
+    assert np.allclose(r12, r22, atol=1e-4)
+    assert not np.allclose(r11, r12, atol=1e-4)
 
 
 def vqe_energy(inputs, param, n, nlayers):

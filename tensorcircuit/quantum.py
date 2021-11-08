@@ -13,7 +13,6 @@ from typing import (
     Tuple,
     Set,
     List,
-    Type,
 )
 
 import numpy as np
@@ -66,7 +65,7 @@ def quantum_constructor(
 
 def identity(
     space: Sequence[int],
-    dtype: Type[np.number] = np.float64,
+    dtype: Any = np.float64,
 ) -> "QuOperator":
     """Construct a `QuOperator` representing the identity on a given space.
     Internally, this is done by constructing `CopyNode`s for each edge, with
