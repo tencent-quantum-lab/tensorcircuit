@@ -291,3 +291,15 @@ def test_free_energy(backend):
     np.testing.assert_allclose(qu.renyi_free_energy(rho, h, 0.5), -1, atol=atol)
     hq = qu.QuOperator.from_tensor(h)
     np.testing.assert_allclose(qu.free_energy(rho, hq, 0.5), -1, atol=atol)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_measurement_counts(backend):
+    state = np.ones([4])
+    ct, cs = qu.measurement_counts(state)
+    np.testing.assert_allclose(ct.shape[0], 4, atol=atol)
+    np.testing.assert_allclose(tc.backend.sum(cs), 8192, atol=atol)
+    state = np.ones([2, 2])
+    ct, cs = qu.measurement_counts(state)
+    np.testing.assert_allclose(ct.shape[0], 2, atol=atol)
+    np.testing.assert_allclose(tc.backend.sum(cs), 8192, atol=atol)

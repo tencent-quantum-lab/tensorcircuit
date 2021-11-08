@@ -870,6 +870,38 @@ def double_state(h: Tensor, beta: float = 1) -> Tensor:
     return state / norm
 
 
+def measurement_counts(state: Tensor, counts: int = 8192) -> Tuple[Tensor, Tensor]:
+    """
+    Simulate measuring each qubit of ``p`` in the computational basis,
+    producing output like that of ``qiskit``.
+    Parameters
+    ----------
+    state : vector or operator
+        The quantum state, assumed to be normalized, as either a ket or density
+        operator.
+    C : int
+        The number of counts to perform.
+    phys_dim : int, optional
+        The assumed size of the subsystems of ``p``, defaults to 2 for qubits.
+    Returns
+    -------
+    results : Tuple[]
+        The counts for each bit string measured.
+    """
+    if len(state.shape) == 2:
+        state /= backend.trace(state)
+        pi = backend.real(backend.diagonal(state))
+    else:
+        state /= backend.norm(state)
+        pi = backend.real(backend.conj(state) * state)
+    pi = backend.reshape(pi, [-1])
+    d = int(pi.shape[0])
+    # raw counts in terms of integers
+    raw_counts = backend.implicit_randc(d, shape=counts, p=pi)
+    results = backend.unique_with_counts(raw_counts)
+    return results  # type: ignore
+
+
 # @op2tensor
 # def purify(rho):
 #     """

@@ -82,6 +82,8 @@ def test_backend_methods(backend):
     indices = np.array([[1, 2], [0, 1]])
     ans = np.array([[[0, 1, 0], [0, 0, 1]], [[1, 0, 0], [0, 1, 0]]])
     assert np.allclose(tc.backend.one_hot(indices, 3), ans, atol=1e-4)
+    a = tc.array_to_tensor(np.array([1, 1, 3, 2, 2, 1]), dtype="int32")
+    assert np.allclose(tc.backend.unique_with_counts(a)[0].shape[0], 3)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])

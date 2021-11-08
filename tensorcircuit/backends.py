@@ -220,6 +220,21 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `stack`.".format(self.name)
         )
 
+    def unique_with_counts(  # pylint: disable=unused-variable
+        self: Any, a: Tensor
+    ) -> Tuple[Tensor, Tensor]:
+        """
+        Find the unique elements and their corresponding counts of the given tensor ``a``.
+
+        :param a: [description]
+        :type a: Tensor
+        :return: Unique elements, corresponding counts
+        :rtype: Tuple[Tensor, Tensor]
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `unique_with_counts`.".format(self.name)
+        )
+
     def relu(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
         Rectified linear unit activation function.
@@ -736,6 +751,9 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def stack(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return np.stack(a, axis=axis)
 
+    def unique_with_counts(self, a: Tensor) -> Tuple[Tensor, Tensor]:
+        return np.unique(a, return_counts=True)  # type: ignore
+
     def relu(self, a: Tensor) -> Tensor:
         return (abs(a) + a) / 2
         # this impl seems to be the fastest
@@ -958,6 +976,9 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
 
     def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return jnp.stack(a, axis=axis)
+
+    def unique_with_counts(self, a: Tensor) -> Tuple[Tensor, Tensor]:
+        return jnp.unique(a, return_counts=True)  # type: ignore
 
     def relu(self, a: Tensor) -> Tensor:
         return libjax.nn.relu(a)
@@ -1267,6 +1288,10 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         if isinstance(dtype, str):
             dtype = getattr(tf, dtype)
         return tf.constant(1j, dtype=dtype)
+
+    def unique_with_counts(self, a: Tensor) -> Tuple[Tensor, Tensor]:
+        r = tf.unique_with_counts(a)
+        return r.y, r.count
 
     def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return tf.stack(a, axis=axis)
@@ -1583,6 +1608,9 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
 
     def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return torchlib.stack(a, dim=axis)
+
+    def unique_with_counts(self, a: Tensor) -> Tuple[Tensor, Tensor]:
+        return torchlib.unique(a, return_counts=True)  # type: ignore
 
     def relu(self, a: Tensor) -> Tensor:
         return torchlib.nn.ReLU(a)
