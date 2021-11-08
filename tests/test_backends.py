@@ -98,7 +98,7 @@ def test_tree_map(backend):
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_backend_randoms(backend):
     @partial(tc.backend.jit, static_argnums=0)
-    def random_matrix(key):
+    def random_matrixn(key):
         tc.backend.set_random_state(key)
         r1 = tc.backend.implicit_randn(shape=[2, 2], mean=0.5)
         r2 = tc.backend.implicit_randn(shape=[2, 2], mean=0.5)
@@ -107,13 +107,35 @@ def test_backend_randoms(backend):
     key = 42
     if tc.backend.name == "tensorflow":
         key = tf.random.Generator.from_seed(42)
-    r11, r12 = random_matrix(key)
+    r11, r12 = random_matrixn(key)
     if tc.backend.name == "tensorflow":
         key = tf.random.Generator.from_seed(42)
-    r21, r22 = random_matrix(key)
+    r21, r22 = random_matrixn(key)
     assert np.allclose(r11, r21, atol=1e-4)
     assert np.allclose(r12, r22, atol=1e-4)
     assert not np.allclose(r11, r12, atol=1e-4)
+
+    def random_matrixu(key):
+        tc.backend.set_random_state(key)
+        r1 = tc.backend.implicit_randu(shape=[2, 2], high=2)
+        r2 = tc.backend.implicit_randu(shape=[2, 2], high=1)
+        return r1, r2
+
+    key = 42
+    r31, r32 = random_matrixu(key)
+    assert np.allclose(r31.shape, [2, 2])
+    assert np.any(r32 > 0)
+    assert not np.allclose(r31, r32, atol=1e-4)
+
+    def random_matrixc(key):
+        tc.backend.set_random_state(key)
+        r1 = tc.backend.implicit_randc(a=[1, 2, 3], shape=(2, 2))
+        r2 = tc.backend.implicit_randc(a=[1, 2, 3], shape=(2, 2), p=[0.1, 0.4, 0.5])
+        return r1, r2
+
+    r41, r42 = random_matrixc(key)
+    assert np.allclose(r41.shape, [2, 2])
+    assert np.any((r42 > 0) & (r42 < 4))
 
 
 def vqe_energy(inputs, param, n, nlayers):

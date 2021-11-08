@@ -428,6 +428,114 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `stateful_randn`.".format(self.name)
         )
 
+    def implicit_randu(  # pylint: disable=unused-variable
+        self: Any,
+        shape: Union[int, Sequence[int]] = 1,
+        low: float = 0,
+        high: float = 1,
+        dtype: str = "32",
+    ) -> Tensor:
+        """
+        call random normal function with the random state management behind the scene
+
+        :param shape: [description], defaults to 1
+        :type shape: Union[int, Sequence[int]], optional
+        :param mean: [description], defaults to 0
+        :type mean: float, optional
+        :param stddev: [description], defaults to 1
+        :type stddev: float, optional
+        :param dtype: [description], defaults to "32"
+        :type dtype: str, optional
+        :return: [description]
+        :rtype: Tensor
+        """
+        g = getattr(self, "g", None)
+        if g is None:
+            self.set_random_state()
+            g = getattr(self, "g", None)
+        r = self.stateful_randu(g, shape, low, high, dtype)
+        return r
+
+    def stateful_randu(  # pylint: disable=unused-variable
+        self: Any,
+        g: Any,
+        shape: Union[int, Sequence[int]] = 1,
+        low: float = 0,
+        high: float = 1,
+        dtype: str = "32",
+    ) -> Tensor:
+        """
+        uniform random sampler for ``low`` to ``high``
+
+        :param g: stateful register for each package
+        :type g: Any
+        :param shape: shape of output sampling tensor, defaults to 1
+        :type shape: Union[int, Sequence[int]], optional
+        :param low: [description], defaults to 0
+        :type low: float, optional
+        :param high: [description], defaults to 1
+        :type high: float, optional
+        :param dtype: only real data type is supported, "32" or "64", defaults to "32"
+        :type dtype: str, optional
+        :return: [description]
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `stateful_randu`.".format(self.name)
+        )
+
+    def implicit_randc(  # pylint: disable=unused-variable
+        self: Any,
+        a: Union[int, Sequence[int], Tensor],
+        shape: Union[int, Sequence[int]],
+        p: Optional[Union[Sequence[float], Tensor]] = None,
+    ) -> Tensor:
+        """
+        [summary]
+
+        :param g: [description]
+        :type g: Any
+        :param a: The possible options
+        :type a: Union[int, Sequence[int], Tensor]
+        :param shape: Sampling output shape
+        :type shape: Union[int, Sequence[int]]
+        :param p: probability for each option in a, defaults to None, as equal probability distribution
+        :type p: Optional[Union[Sequence[float], Tensor]], optional
+        :return: [description]
+        :rtype: Tensor
+        """
+        g = getattr(self, "g", None)
+        if g is None:
+            self.set_random_state()
+            g = getattr(self, "g", None)
+        r = self.stateful_randc(g, a, shape, p)
+        return r
+
+    def stateful_randc(  # pylint: disable=unused-variable
+        self: Any,
+        g: Any,
+        a: Union[int, Sequence[int], Tensor],
+        shape: Union[int, Sequence[int]],
+        p: Optional[Union[Sequence[float], Tensor]] = None,
+    ) -> Tensor:
+        """
+        [summary]
+
+        :param g: [description]
+        :type g: Any
+        :param a: The possible options
+        :type a: Union[int, Sequence[int], Tensor]
+        :param shape: Sampling output shape
+        :type shape: Union[int, Sequence[int]]
+        :param p: probability for each option in a, defaults to None, as equal probability distribution
+        :type p: Optional[Union[Sequence[float], Tensor]], optional
+        :return: [description]
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `stateful_randc`.".format(self.name)
+        )
+
     def grad(  # pylint: disable=unused-variable
         self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Callable[..., Any]:
@@ -679,6 +787,40 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
             raise ValueError("unspported `dtype` %s" % dtype)
         return r
 
+    def stateful_randu(
+        self,
+        g: np.random.Generator,
+        shape: Union[int, Sequence[int]] = 1,
+        low: float = 0,
+        high: float = 1,
+        dtype: str = "32",
+    ) -> Tensor:
+        if isinstance(dtype, str):
+            dtype = dtype[-2:]
+        if isinstance(shape, int):
+            shape = (shape,)
+        r = g.uniform(low=low, high=high, size=shape)
+        if dtype == "32":
+            r = r.astype(np.float32)
+        elif dtype == "64":
+            r = r.astype(np.float64)
+        elif not isinstance(dtype, str):
+            r = r.astype(dtype)
+        else:
+            raise ValueError("unspported `dtype` %s" % dtype)
+        return r
+
+    def stateful_randc(
+        self,
+        g: np.random.Generator,
+        a: Union[int, Sequence[int], Tensor],
+        shape: Union[int, Sequence[int]],
+        p: Optional[Union[Sequence[float], Tensor]] = None,
+    ) -> Tensor:
+        if isinstance(shape, int):
+            shape = (shape,)
+        return g.choice(a, size=shape, replace=True, p=p)
+
     def grad(
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Callable[..., Any]:
@@ -856,6 +998,37 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         self.g = key
         return r
 
+    def implicit_randu(
+        self,
+        shape: Union[int, Sequence[int]] = 1,
+        low: float = 0,
+        high: float = 1,
+        dtype: str = "32",
+    ) -> Tensor:
+        g = getattr(self, "g", None)
+        if g is None:
+            self.set_random_state()
+            g = getattr(self, "g", None)
+        key, subkey = libjax.random.split(g)
+        r = self.stateful_randu(subkey, shape, low, high, dtype)
+        self.g = key
+        return r
+
+    def implicit_randc(
+        self,
+        a: Union[int, Sequence[int], Tensor],
+        shape: Union[int, Sequence[int]],
+        p: Optional[Union[Sequence[float], Tensor]] = None,
+    ) -> Tensor:
+        g = getattr(self, "g", None)
+        if g is None:
+            self.set_random_state()
+            g = getattr(self, "g", None)
+        key, subkey = libjax.random.split(g)
+        r = self.stateful_randc(subkey, a, shape, p)
+        self.g = key
+        return r
+
     def stateful_randn(
         self,
         g: PRNGKeyArray,
@@ -876,6 +1049,43 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
             dtyper = dtype
         r = libjax.random.normal(g, shape=shape, dtype=dtyper) * stddev + mean
         return r
+
+    def stateful_randu(
+        self,
+        g: PRNGKeyArray,
+        shape: Union[int, Sequence[int]] = 1,
+        low: float = 0,
+        high: float = 1,
+        dtype: str = "32",
+    ) -> Tensor:
+        if isinstance(dtype, str):
+            dtype = dtype[-2:]
+        if isinstance(shape, int):
+            shape = (shape,)
+        if dtype == "32":
+            dtyper = jnp.float32
+        elif dtype == "64":
+            dtyper = jnp.float64
+        elif not isinstance(dtype, str):
+            dtyper = dtype
+        r = libjax.random.uniform(g, shape=shape, dtype=dtyper, minval=low, maxval=high)
+        return r
+
+    def stateful_randc(
+        self,
+        g: PRNGKeyArray,
+        a: Union[int, Sequence[int], Tensor],
+        shape: Union[int, Sequence[int]],
+        p: Optional[Union[Sequence[float], Tensor]] = None,
+    ) -> Tensor:
+        if isinstance(shape, int):
+            shape = (shape,)
+        if not self.is_tensor(a):
+            a = jnp.array(a)
+        if p is not None:
+            if not self.is_tensor(p):
+                p = jnp.array(p)
+        return libjax.random.choice(g, a, shape=shape, replace=True, p=p)
 
     def grad(
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
@@ -975,9 +1185,12 @@ def _random_choice_tf(
     # only replace=True support, replace=False is not implemented
     # for stateless random module, tf has corresponding categorical function similar to choice
     # however, such utility is not implemented with ``tf.random.Generator``
+    # part of the code below is inspired by corresponding implementation in jax (Apache 2.0)
     if isinstance(a, int):
         assert a > 0
         a = tf.range(a)
+    if not (isinstance(a, tf.Tensor) or isinstance(a, tf.Variable)):
+        a = tf.constant(a)
     assert len(a.shape) == 1
     if isinstance(shape, int):
         shape = (shape,)
@@ -987,7 +1200,7 @@ def _random_choice_tf(
         p = tf.cast(p, dtype=dtype)
         p /= tf.reduce_sum(p)
     else:
-        if not isinstance(p, tf.Tensor):
+        if not (isinstance(p, tf.Tensor) or isinstance(p, tf.Variable)):
             p = tf.constant(p)
         dtype = p.dtype
     shape1 = reduce(mul, shape)
@@ -1112,6 +1325,35 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         elif not isinstance(dtype, str):
             dtyper = dtype
         return g.normal(shape, mean, stddev, dtype=dtyper)
+
+    def stateful_randu(
+        self,
+        g: RGenerator,
+        shape: Union[int, Sequence[int]] = 1,
+        low: float = 0,
+        high: float = 1,
+        dtype: str = "32",
+    ) -> Tensor:
+        if isinstance(dtype, str):
+            dtype = dtype[-2:]
+        if isinstance(shape, int):
+            shape = (shape,)
+        if dtype == "32":
+            dtyper = tf.float32
+        elif dtype == "64":
+            dtyper = tf.float64
+        elif not isinstance(dtype, str):
+            dtyper = dtype
+        return g.uniform(shape, minval=low, maxval=high, dtype=dtyper)
+
+    def stateful_randc(
+        self,
+        g: RGenerator,
+        a: Union[int, Sequence[int], Tensor],
+        shape: Union[int, Sequence[int]],
+        p: Optional[Union[Sequence[float], Tensor]] = None,
+    ) -> Tensor:
+        return _random_choice_tf(g, a, shape, p)
 
     def grad(
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
