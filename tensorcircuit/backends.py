@@ -997,10 +997,13 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
             return True
         return False
 
-    def set_random_state(self, seed: Optional[int] = None) -> None:
+    def set_random_state(self, seed: Optional[Union[int, PRNGKeyArray]] = None) -> None:
         if seed is None:
             seed = np.random.randint(42)
-        g = libjax.random.PRNGKey(seed)
+        if isinstance(seed, int):
+            g = libjax.random.PRNGKey(seed)
+        else:
+            g = seed
         self.g = g
 
     def implicit_randn(
@@ -1291,7 +1294,8 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
 
     def unique_with_counts(self, a: Tensor) -> Tuple[Tensor, Tensor]:
         r = tf.unique_with_counts(a)
-        return r.y, r.count
+        order = tf.argsort(r.y)
+        return tf.gather(r.y, order), tf.gather(r.count, order)
 
     def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return tf.stack(a, axis=axis)

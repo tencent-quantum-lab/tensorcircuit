@@ -382,12 +382,11 @@ class Circuit:
         status: Optional[float] = None,
     ) -> float:
         # px/y/z here not support differentiation for now
+        # not jit compatible
         assert px + py + pz < 1 and px >= 0 and py >= 0 and pz >= 0
         if status is None:
-            status = np.random.choice(a=[0, 1, 2, 3], p=[1 - px - py - pz, px, py, pz])
-        # status = cons.global_r.uniform([])  # type:ignore
-        ## not here the random generator is currently not backend ignostic
-        if status >= 0 and status < 1 - px - py - pz:
+            status = backend.implicit_randu()[0]
+        if status >= 0.0 and status < 1 - px - py - pz:
             self.I(index)  # type: ignore
             return 0.0
         elif status >= 1 - px - py - pz and status < 1 - py - pz:
@@ -486,7 +485,6 @@ class Circuit:
 
     def measure(self, *index: int, with_prob: bool = False) -> Tuple[str, float]:
         """
-
         :param index: measure on which quantum line
         :param with_prob: if true, theoretical probability is also returned
         :return:
@@ -524,6 +522,57 @@ class Circuit:
             else:
                 sample += "1"
                 p = p * (1 - pu)
+        if with_prob:
+            return sample, p
+        else:
+            return sample, -1.0
+
+    def measure_jit(
+        self, *index: int, with_prob: bool = False, key: Optional[Any] = None
+    ) -> Tuple[Tensor, Tensor]:
+        """
+
+        :param index: measure on which quantum line
+        :param with_prob: if true, theoretical probability is also returned
+        :return:
+        """
+        # finally jit compatible ! and much faster than unjit version ! (100x)
+        sample: List[Tensor] = []
+        p = 1.0
+        p = backend.convert_to_tensor(p)
+        if key is not None:
+            backend.set_random_state(key)
+        for k, j in enumerate(index):
+            nodes1, edge1 = self._copy()
+            nodes2, edge2 = self._copy(conj=True)
+            for i, e in enumerate(edge1):
+                if i != j:
+                    e ^ edge2[i]
+            for i in range(k):
+                m = (1 - sample[i]) * gates.array_to_tensor(np.array([1, 0])) + sample[
+                    i
+                ] * gates.array_to_tensor(np.array([0, 1]))
+                nodes1.append(Gate(m))
+                nodes1[-1].get_edge(0) ^ edge1[index[i]]
+                nodes2.append(tn.Node(m))
+                nodes2[-1].get_edge(0) ^ edge2[index[i]]
+            nodes1.extend(nodes2)
+            rho = (
+                1
+                / backend.cast(p, dtypestr)
+                * contractor(nodes1, output_edge_order=[edge1[j], edge2[j]]).tensor
+            )
+            pu = backend.real(rho[0, 0])
+            r = backend.implicit_randu()[0]
+            r = backend.real(backend.cast(r, dtypestr))
+            sign = backend.sign(r - pu) / 2 + 0.5
+            sign = backend.convert_to_tensor(sign)
+            sign_complex = backend.cast(sign, dtypestr)
+            sample.append(sign_complex)
+            p = p * (pu * (-1) ** sign + sign)
+
+        sample = backend.stack(sample)
+        sample = backend.real(sample)
         if with_prob:
             return sample, p
         else:
