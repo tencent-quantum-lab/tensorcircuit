@@ -569,6 +569,29 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `stateful_randc`.".format(self.name)
         )
 
+    def cond(  # pylint: disable=unused-variable
+        self: Any,
+        pred: bool,
+        true_fun: Callable[[], Tensor],
+        false_fun: Callable[[], Tensor],
+    ) -> Tensor:
+        """
+        the native cond for XLA compiling, wrapper for ``tf.cond`` and limited functionality of ``jax.lax.cond``
+
+        :param pred: [description]
+        :type pred: bool
+        :param true_fun: [description]
+        :type true_fun: Callable[[], Tensor]
+        :param false_fun: [description]
+        :type false_fun: Callable[[], Tensor]
+        :return: [description]
+        :rtype: Tensor
+        """
+        # possibly the most weird thing introduced in the backend :(
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `cond`.".format(self.name)
+        )
+
     def grad(  # pylint: disable=unused-variable
         self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Callable[..., Any]:
@@ -860,6 +883,16 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
             shape = (shape,)
         return g.choice(a, size=shape, replace=True, p=p)
 
+    def cond(
+        self,
+        pred: bool,
+        true_fun: Callable[[], Tensor],
+        false_fun: Callable[[], Tensor],
+    ) -> Tensor:
+        if pred:
+            return true_fun()
+        return false_fun()
+
     def grad(
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Callable[..., Any]:
@@ -1134,6 +1167,14 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
             if not self.is_tensor(p):
                 p = jnp.array(p)
         return libjax.random.choice(g, a, shape=shape, replace=True, p=p)
+
+    def cond(
+        self,
+        pred: bool,
+        true_fun: Callable[[], Tensor],
+        false_fun: Callable[[], Tensor],
+    ) -> Tensor:
+        return libjax.lax.cond(pred, lambda _: true_fun(), lambda _: false_fun(), None)
 
     def grad(
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
@@ -1415,6 +1456,14 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     ) -> Tensor:
         return _random_choice_tf(g, a, shape, p)
 
+    def cond(
+        self,
+        pred: bool,
+        true_fun: Callable[[], Tensor],
+        false_fun: Callable[[], Tensor],
+    ) -> Tensor:
+        return tf.cond(pred, true_fun, false_fun)
+
     def grad(
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Callable[..., Any]:
@@ -1670,6 +1719,16 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
 
     def cast(self, a: Tensor, dtype: str) -> Tensor:
         return a.type(getattr(torchlib, dtype))
+
+    def cond(
+        self,
+        pred: bool,
+        true_fun: Callable[[], Tensor],
+        false_fun: Callable[[], Tensor],
+    ) -> Tensor:
+        if pred:
+            return true_fun()
+        return false_fun()
 
     def grad(
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0

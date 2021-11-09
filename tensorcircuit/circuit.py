@@ -374,6 +374,35 @@ class Circuit:
         self._nodes.append(mg1)
         self._nodes.append(mg2)
 
+    def depolarizing2(
+        self,
+        index: int,
+        *,
+        px: float,
+        py: float,
+        pz: float,
+        status: Optional[float] = None,
+    ) -> float:
+        if status is None:
+            status = backend.implicit_randu()[0]
+        g = backend.cond(
+            status < px,
+            lambda: gates.x().tensor,  # type: ignore
+            lambda: backend.cond(
+                status < px + py,
+                lambda: gates.y().tensor,  # type: ignore
+                lambda: backend.cond(
+                    status < px + py + pz,
+                    lambda: gates.z().tensor,  # type: ignore
+                    lambda: gates.i().tensor,  # type: ignore
+                ),
+            ),
+        )
+        self.any(index, unitary=g)  # type: ignore
+        return 0.0
+        # roughly benchmark shows that performance of two depolarizing in terms of
+        # building time and running time are similar
+
     def depolarizing(
         self,
         index: int,
