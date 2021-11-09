@@ -592,6 +592,23 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `cond`.".format(self.name)
         )
 
+    def switch(  # pylint: disable=unused-variable
+        self: Any, index: Tensor, branches: Sequence[Callable[[], Tensor]]
+    ) -> Tensor:
+        """
+        ``branches[index]()``
+
+        :param index: [description]
+        :type index: Tensor
+        :param branches: [description]
+        :type branches: Sequence[Callable[[], Tensor]]
+        :return: [description]
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `switch`.".format(self.name)
+        )
+
     def grad(  # pylint: disable=unused-variable
         self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Callable[..., Any]:
@@ -893,6 +910,9 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
             return true_fun()
         return false_fun()
 
+    def switch(self, index: Tensor, branches: Sequence[Callable[[], Tensor]]) -> Tensor:
+        return branches[index]()
+
     def grad(
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Callable[..., Any]:
@@ -1175,6 +1195,12 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         false_fun: Callable[[], Tensor],
     ) -> Tensor:
         return libjax.lax.cond(pred, lambda _: true_fun(), lambda _: false_fun(), None)
+
+    def switch(self, index: Tensor, branches: Sequence[Callable[[], Tensor]]) -> Tensor:
+        # branches_null = [lambda _: b() for b in branches]
+        # see https://stackoverflow.com/a/34021333 for weird behavior of lambda with list comprehension
+        branches_null = [lambda _, f=b: f() for b in branches]
+        return libjax.lax.switch(index, branches_null, None)
 
     def grad(
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
@@ -1464,6 +1490,11 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     ) -> Tensor:
         return tf.cond(pred, true_fun, false_fun)
 
+    def switch(
+        self: Any, index: Tensor, branches: Sequence[Callable[[], Tensor]]
+    ) -> Tensor:
+        return tf.switch_case(index, branches)
+
     def grad(
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Callable[..., Any]:
@@ -1729,6 +1760,9 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         if pred:
             return true_fun()
         return false_fun()
+
+    def switch(self, index: Tensor, branches: Sequence[Callable[[], Tensor]]) -> Tensor:
+        return branches[index]()
 
     def grad(
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0

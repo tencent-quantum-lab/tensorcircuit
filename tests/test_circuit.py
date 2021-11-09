@@ -160,7 +160,26 @@ def test_jittable_depolarizing(backend):
             c.X(i)
         return c.wavefunction()
 
-    for f in [f1, f2, f3]:
+    @tc.backend.jit
+    def f5(key):
+        n = 5
+        if key is not None:
+            tc.backend.set_random_state(key)
+        c = tc.Circuit(n)
+        for i in range(n):
+            c.H(i)
+        for i in range(n):
+            c.cnot(i, (i + 1) % n)
+        for i in range(n):
+            c.unitary_kraus2(
+                tc.channels.depolarizingchannel(0.2, 0.2, 0.2),
+                i,
+            )
+        for i in range(n):
+            c.X(i)
+        return c.wavefunction()
+
+    for f in [f1, f2, f3, f4, f5]:
         if tc.backend.name == "tensorflow":
             import tensorflow as tf
 

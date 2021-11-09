@@ -440,6 +440,23 @@ class Circuit:
         self.any(index, unitary=g)  # type: ignore
         return 0.0
 
+    def unitary_kraus2(
+        self,
+        kraus: Sequence[Gate],
+        *index: int,
+        prob: Optional[Sequence[float]] = None,
+        status: Optional[float] = None,
+    ) -> float:
+        # general impl from Monte Carlo trajectory depolarizing above
+        # still jittable
+        def index2gate2(r: Tensor, kraus: Sequence[Tensor]) -> Tensor:
+            # r is int type Tensor of shape []
+            return backend.switch(r, [lambda _=k: _ for k in kraus])
+
+        return self._unitary_kraus_template(
+            kraus, *index, prob=prob, status=status, get_gate_from_index=index2gate2
+        )
+
     def unitary_kraus(
         self,
         kraus: Sequence[Gate],
@@ -449,6 +466,28 @@ class Circuit:
     ) -> float:
         # general impl from Monte Carlo trajectory depolarizing above
         # still jittable
+
+        def index2gate(r: Tensor, kraus: Sequence[Tensor]) -> Tensor:
+            # r is int type Tensor of shape []
+            l = len(kraus)
+            r = backend.onehot(r, l)
+            r = backend.cast(r, dtype=dtypestr)
+            return reduce(add, [r[i] * kraus[i] for i in range(l)])
+
+        return self._unitary_kraus_template(
+            kraus, *index, prob=prob, status=status, get_gate_from_index=index2gate
+        )
+
+    def _unitary_kraus_template(
+        self,
+        kraus: Sequence[Gate],
+        *index: int,
+        prob: Optional[Sequence[float]] = None,
+        status: Optional[float] = None,
+        get_gate_from_index: Optional[
+            Callable[[Tensor, Sequence[Tensor]], Tensor]
+        ] = None,
+    ) -> float:  # DRY
         sites = len(index)
         if isinstance(kraus[0], tn.Node):
             kraus = [k.tensor for k in kraus]
@@ -471,15 +510,14 @@ class Circuit:
             )
             r = backend.cast(r / 2.0 + (l - 1) / 2.0, dtype="int32")
             # [0: kraus[0], 1: kraus[1]...]
-            r = backend.onehot(r, l)
-            r = backend.cast(r, dtype=dtypestr)
             return r
 
         if status is None:
             status = backend.implicit_randu()[0]
         r = step_function(status)
-
-        g = reduce(add, [r[i] * kraus[i] for i in range(l)])
+        if get_gate_from_index is None:
+            raise ValueError("no `get_gate_from_index` implementation is provided")
+        g = get_gate_from_index(r, kraus)
         g = backend.reshape(g, [2 for _ in range(sites * 2)])
         self.any(*index, unitary=g)  # type: ignore
         return 0.0
