@@ -54,6 +54,8 @@ def test_measure():
 def test_jittable_measure(backend):
     @partial(tc.backend.jit, static_argnums=(2, 3))
     def f(param, key, n=6, nlayers=3):
+        if key is not None:
+            tc.backend.set_random_state(key)
         c = tc.Circuit(n)
         for i in range(n):
             c.H(i)
@@ -62,11 +64,15 @@ def test_jittable_measure(backend):
                 c.exp1(i, i + 1, theta=param[2 * j, i], unitary=tc.gates._zz_matrix)
             for i in range(n):
                 c.rx(i, theta=param[2 * j + 1, i])
-        return c.measure_jit(0, 1, 2, with_prob=True, key=key)
+        return c.measure_jit(0, 1, 2, with_prob=True)
 
     if tc.backend.name == "tensorflow":
+        import tensorflow as tf
+
         print(f(tc.backend.ones([6, 6]), None))
         print(f(tc.backend.ones([6, 6]), None))
+        print(f(tc.backend.ones([6, 6]), tf.random.Generator.from_seed(23)))
+        print(f(tc.backend.ones([6, 6]), tf.random.Generator.from_seed(24)))
     elif tc.backend.name == "jax":
         import jax
 

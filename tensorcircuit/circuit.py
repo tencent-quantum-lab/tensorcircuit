@@ -382,22 +382,32 @@ class Circuit:
         status: Optional[float] = None,
     ) -> float:
         # px/y/z here not support differentiation for now
-        # not jit compatible
+        # jit compatible for now
         assert px + py + pz < 1 and px >= 0 and py >= 0 and pz >= 0
+
+        def step_function(x: Tensor) -> Tensor:
+            r = (
+                backend.sign(x - px)
+                + backend.sign(x - px - py)
+                + backend.sign(x - px - py - pz)
+            )
+            r = backend.cast(r / 2 + 1.5, dtype="int32")
+            # [0: x, 1: y, 2: z, 3: I]
+            r = backend.onehot(r, 4)
+            r = backend.cast(r, dtype=dtypestr)
+            return r
+
         if status is None:
             status = backend.implicit_randu()[0]
-        if status >= 0.0 and status < 1 - px - py - pz:
-            self.I(index)  # type: ignore
-            return 0.0
-        elif status >= 1 - px - py - pz and status < 1 - py - pz:
-            self.X(index)  # type: ignore
-            return 0.0
-        elif status >= 1 - py - pz and status < 1 - pz:
-            self.Y(index)  # type: ignore
-            return 0.0
-        else:
-            self.Z(index)  # type: ignore
-            return 0.0
+        r = step_function(status)
+        g = (
+            r[0] * gates._x_matrix
+            + r[1] * gates._y_matrix
+            + r[2] * gates._z_matrix
+            + r[3] * gates._i_matrix
+        )
+        self.any(index, unitary=g)  # type: ignore
+        return 0.0
 
     def is_valid(self) -> bool:
         """
@@ -528,7 +538,7 @@ class Circuit:
             return sample, -1.0
 
     def measure_jit(
-        self, *index: int, with_prob: bool = False, key: Optional[Any] = None
+        self, *index: int, with_prob: bool = False
     ) -> Tuple[Tensor, Tensor]:
         """
 
@@ -540,8 +550,6 @@ class Circuit:
         sample: List[Tensor] = []
         p = 1.0
         p = backend.convert_to_tensor(p)
-        if key is not None:
-            backend.set_random_state(key)
         for k, j in enumerate(index):
             nodes1, edge1 = self._copy()
             nodes2, edge2 = self._copy(conj=True)
