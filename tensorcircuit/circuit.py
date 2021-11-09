@@ -2,7 +2,9 @@
 quantum circuit: state simulator
 """
 
-from typing import Tuple, List, Callable, Optional, Any
+from typing import Tuple, List, Callable, Optional, Any, Sequence
+from functools import reduce
+from operator import add
 
 import graphviz
 import numpy as np
@@ -407,6 +409,50 @@ class Circuit:
             + r[3] * gates._i_matrix
         )
         self.any(index, unitary=g)  # type: ignore
+        return 0.0
+
+    def unitary_kraus(
+        self,
+        kraus: Sequence[Gate],
+        *index: int,
+        prob: Optional[Sequence[float]] = None,
+        status: Optional[float] = None,
+    ) -> float:
+        # general impl from Monte Carlo trajectory depolarizing above
+        # still jittable
+        sites = len(index)
+        if isinstance(kraus[0], tn.Node):
+            kraus = [k.tensor for k in kraus]
+        if prob is None:
+            prob = [
+                backend.real(backend.trace(backend.adjoint(k) @ k) / k.shape[0])
+                for k in kraus
+            ]
+            kraus = [
+                k / backend.cast(backend.sqrt(p), dtypestr) for k, p in zip(kraus, prob)
+            ]
+        if not backend.is_tensor(prob):
+            prob = backend.convert_to_tensor(prob)
+        prob_cumsum = backend.cumsum(prob)
+        l = int(prob.shape[0])  # type: ignore
+
+        def step_function(x: Tensor) -> Tensor:
+            r = backend.sum(
+                backend.stack([backend.sign(x - prob_cumsum[i]) for i in range(l - 1)])
+            )
+            r = backend.cast(r / 2.0 + (l - 1) / 2.0, dtype="int32")
+            # [0: kraus[0], 1: kraus[1]...]
+            r = backend.onehot(r, l)
+            r = backend.cast(r, dtype=dtypestr)
+            return r
+
+        if status is None:
+            status = backend.implicit_randu()[0]
+        r = step_function(status)
+
+        g = reduce(add, [r[i] * kraus[i] for i in range(l)])
+        g = backend.reshape(g, [2 for _ in range(sites * 2)])
+        self.any(*index, unitary=g)  # type: ignore
         return 0.0
 
     def is_valid(self) -> bool:

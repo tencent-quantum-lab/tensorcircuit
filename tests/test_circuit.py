@@ -82,6 +82,91 @@ def test_jittable_measure(backend):
     # As seen here, though I have tried the best, the random API is still not that consistent under jit
 
 
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_jittable_depolarizing(backend):
+    @tc.backend.jit
+    def f1(key):
+        n = 5
+        if key is not None:
+            tc.backend.set_random_state(key)
+        c = tc.Circuit(n)
+        for i in range(n):
+            c.H(i)
+        for i in range(n):
+            c.cnot(i, (i + 1) % n)
+        for i in range(n):
+            c.unitary_kraus(
+                [
+                    tc.gates._x_matrix,
+                    tc.gates._y_matrix,
+                    tc.gates._z_matrix,
+                    tc.gates._i_matrix,
+                ],
+                i,
+                prob=[0.2, 0.2, 0.2, 0.4],
+            )
+        for i in range(n):
+            c.cz(i, (i + 1) % n)
+        return c.wavefunction()
+
+    @tc.backend.jit
+    def f2(key):
+        n = 5
+        if key is not None:
+            tc.backend.set_random_state(key)
+        c = tc.Circuit(n)
+        for i in range(n):
+            c.H(i)
+        for i in range(n):
+            c.cnot(i, (i + 1) % n)
+        for i in range(n):
+            c.unitary_kraus(
+                tc.channels.depolarizingchannel(0.2, 0.2, 0.2),
+                i,
+            )
+        for i in range(n):
+            c.X(i)
+        return c.wavefunction()
+
+    @tc.backend.jit
+    def f3(key):
+        n = 5
+        if key is not None:
+            tc.backend.set_random_state(key)
+        c = tc.Circuit(n)
+        for i in range(n):
+            c.H(i)
+        for i in range(n):
+            c.cnot(i, (i + 1) % n)
+        for i in range(n):
+            c.depolarizing(i, px=0.2, py=0.2, pz=0.2)
+        for i in range(n):
+            c.X(i)
+        return c.wavefunction()
+
+    for f in [f1, f2, f3]:
+        if tc.backend.name == "tensorflow":
+            import tensorflow as tf
+
+            assert np.allclose(tc.backend.norm(f(None)), 1.0, atol=1e-4)
+            assert np.allclose(
+                tc.backend.norm(f(tf.random.Generator.from_seed(23))), 1.0, atol=1e-4
+            )
+            assert np.allclose(
+                tc.backend.norm(f(tf.random.Generator.from_seed(24))), 1.0, atol=1e-4
+            )
+
+        elif tc.backend.name == "jax":
+            import jax
+
+            assert np.allclose(
+                tc.backend.norm(f(jax.random.PRNGKey(23))), 1.0, atol=1e-4
+            )
+            assert np.allclose(
+                tc.backend.norm(f(jax.random.PRNGKey(24))), 1.0, atol=1e-4
+            )
+
+
 def test_expectation():
     c = tc.Circuit(2)
     c.H(0)

@@ -305,6 +305,24 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         """
         return self.onehot(a, num)
 
+    def cumsum(  # pylint: disable=unused-variable
+        self: Any, a: Tensor, axis: Optional[int] = None
+    ) -> Tensor:
+        """
+        Return the cumulative sum of the elements along a given axis.
+
+        :param a: [description]
+        :type a: Tensor
+        :param axis: The default behavior is the same as numpy, different from tf/torch
+            as cumsum of the flattern 1D array, defaults to None
+        :type axis: Optional[int], optional
+        :return: [description]
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `cumsum`.".format(self.name)
+        )
+
     def is_tensor(self: Any, a: Tensor) -> bool:  # pylint: disable=unused-variable
         """
         Return boolean on whether ``a`` is a tensor in backend package.
@@ -767,6 +785,9 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
         return res.reshape(list(a.shape) + [num])
         # https://stackoverflow.com/questions/38592324/one-hot-encoding-using-numpy
 
+    def cumsum(self, a: Tensor, axis: Optional[int] = None) -> Tensor:
+        return np.cumsum(a, axis)
+
     def is_tensor(self, a: Any) -> bool:
         if isinstance(a, np.ndarray):
             return True
@@ -988,6 +1009,9 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
 
     def onehot(self, a: Tensor, num: int) -> Tensor:
         return libjax.nn.one_hot(a, num)
+
+    def cumsum(self, a: Tensor, axis: Optional[int] = None) -> Tensor:
+        return jnp.cumsum(a, axis)
 
     def is_tensor(self, a: Any) -> bool:
         if not isinstance(a, jnp.ndarray):
@@ -1312,6 +1336,13 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
             return tf.reshape(r, a.shape)  # type: ignore
         return tf.keras.activations.softmax(a, axis=axis)
 
+    def cumsum(self, a: Tensor, axis: Optional[int] = None) -> Tensor:
+        if axis is None:
+            a = tf.reshape(a, [-1])
+            return tf.cumsum(a)
+        else:
+            return tf.cumsum(a, axis)
+
     def is_tensor(self, a: Any) -> bool:
         if isinstance(a, tf.Tensor) or isinstance(a, tf.Variable):
             return True
@@ -1624,6 +1655,13 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
 
     def onehot(self, a: Tensor, num: int) -> Tensor:
         return torchlib.nn.functional.one_hot(a, num)
+
+    def cumsum(self, a: Tensor, axis: Optional[int] = None) -> Tensor:
+        if axis is None:
+            a = self.reshape(a, [-1])
+            return torchlib.cumsum(a, dim=0)
+        else:
+            return torchlib.cumsum(a, dim=axis)
 
     def is_tensor(self, a: Any) -> bool:
         if isinstance(a, torchlib.Tensor):
