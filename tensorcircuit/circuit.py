@@ -398,6 +398,11 @@ class Circuit:
                 ),
             ),
         )
+        # after implementing this, I realized that plain if is enough here for jit
+        # the failure for previous implementation is because we use self.X(i) inside ``if``,
+        # which has list append and incur bug in tensorflow jit
+        # in terms of jax jit, the only choice is jax.lax.cond, since ``if tensor``` paradigm
+        # is not supported in jax jit at all. (``Concrete Tensor Error``)
         self.any(index, unitary=g)  # type: ignore
         return 0.0
         # roughly benchmark shows that performance of two depolarizing in terms of
