@@ -454,6 +454,7 @@ class Circuit:
     ) -> float:
         # general impl from Monte Carlo trajectory depolarizing above
         # still jittable
+        # speed is similar to ``unitary_kraus``
         def index2gate2(r: Tensor, kraus: Sequence[Tensor]) -> Tensor:
             # r is int type Tensor of shape []
             return backend.switch(r, [lambda _=k: _ for k in kraus])
@@ -525,6 +526,120 @@ class Circuit:
         g = get_gate_from_index(r, kraus)
         g = backend.reshape(g, [2 for _ in range(sites * 2)])
         self.any(*index, unitary=g)  # type: ignore
+        return 0.0
+
+    def _general_kraus_tf(
+        self,
+        kraus: Sequence[Gate],
+        *index: int,
+        status: Optional[float] = None,
+    ) -> float:
+        # the graph building time is frustratingly slow, several minutes
+        # though running time is in terms of ms
+        sites = len(index)
+        kraus_tensor = [k.tensor for k in kraus]
+        kraus_tensor_f = [lambda _=k: _ for k in kraus_tensor]
+        # must return tensor instead of ``tn.Node`` for switch`
+
+        def calculate_kraus_p(i: Tensor) -> Tensor:
+            # i: Tensor as int of shape []
+            newnodes, newfront = self._copy()  # TODO(@refraction-ray): support reuse
+            # simply reuse=True is wrong, as the circuit is contracting at building
+            # self._copy seems slower than self._copy_state, but anyway the building time is unacceptable
+            lnewnodes, lnewfront = self._copy(conj=True)
+            kraus_i = backend.switch(i, kraus_tensor_f)
+            k = gates.Gate(kraus_i)
+            kc = gates.Gate(backend.conj(kraus_i))
+            # begin connect
+            for ind, j in enumerate(index):
+                newfront[j] ^ k[ind + sites]
+                k[ind] ^ kc[ind]
+                kc[ind + sites] ^ lnewfront[j]
+            for j in range(self._nqubits):
+                if j not in index:
+                    newfront[j] ^ lnewfront[j]
+            norm_square = contractor(newnodes + lnewnodes + [k, kc]).tensor
+            return backend.real(norm_square)
+
+        if status is None:
+            status = backend.implicit_randu()[0]
+        import tensorflow as tf
+
+        weight = 1.0
+        fallback_weight = 0.0
+        fallback_weight_i = 0
+        len_kraus = len(kraus)
+        for i in tf.range(len_kraus):  # breaks backend agnostic
+            # nested for and if, if tensor inner must come with for in tensor outter, s.t. autograph works
+            weight = calculate_kraus_p(i)
+            if weight > fallback_weight:
+                fallback_weight_i = i
+                fallback_weight = weight
+            status -= weight
+            if status < 0:
+                # concern here, correctness not sure in tf jit, fail anyway in jax jit
+                break
+        # placing a Tensor-dependent break, continue or return inside a Python loop
+        # https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/autograph/g3doc/reference/common_errors.md
+
+        if (
+            status >= 0 or weight == 0
+        ):  # the same concern, but this simple if is easy to convert to ``backend.cond``
+            # Floating point error resulted in a malformed sample.
+            # Fall back to the most likely case.
+            # inspired from cirq implementation (Apcache 2).
+            weight = fallback_weight
+            i = fallback_weight_i
+        kraus_i = backend.switch(i, kraus_tensor_f)
+        newgate = kraus_i / backend.cast(backend.sqrt(weight), dtypestr)
+        self.any(*index, unitary=newgate)  # type: ignore
+        return 0.0
+
+    def _general_kraus_2(
+        self,
+        kraus: Sequence[Gate],
+        *index: int,
+        status: Optional[float] = None,
+    ) -> float:
+        # the graph building time is frustratingly slow, several minutes
+        # though running time is in terms of ms
+        # raw running in terms of s
+        sites = len(index)
+        kraus_tensor = [k.tensor for k in kraus]
+
+        # tn with hole
+        newnodes, newfront = self._copy()
+        lnewnodes, lnewfront = self._copy(conj=True)
+        des = [newfront[j] for j in index] + [lnewfront[j] for j in index]
+        for j in range(self._nqubits):
+            if j not in index:
+                newfront[j] ^ lnewfront[j]
+        ns = contractor(newnodes + lnewnodes, output_edge_order=des)
+        ntensor = ns.tensor
+        # ns, des
+
+        def calculate_kraus_p(i: int) -> Tensor:
+            # i: Tensor as int of shape []
+            # kraus_i = backend.switch(i, kraus_tensor_f)
+            kraus_i = kraus_tensor[i]
+            dm = gates.Gate(ntensor)
+            k = gates.Gate(kraus_i)
+            kc = gates.Gate(backend.conj(kraus_i))
+            # begin connect
+            for ind in range(sites):
+                dm[ind] ^ k[ind + sites]
+                k[ind] ^ kc[ind]
+                kc[ind + sites] ^ dm[ind + sites]
+            norm_square = contractor([dm, k, kc]).tensor
+            return backend.real(norm_square)
+
+        prob = [calculate_kraus_p(i) for i in range(len(kraus))]
+        new_kraus = [
+            k / backend.cast(backend.sqrt(w), dtypestr)
+            for w, k in zip(prob, kraus_tensor)
+        ]
+
+        self.unitary_kraus2(new_kraus, *index, prob=prob, status=status)
         return 0.0
 
     def is_valid(self) -> bool:
