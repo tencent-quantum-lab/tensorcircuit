@@ -563,7 +563,8 @@ class Circuit:
 
         if status is None:
             status = backend.implicit_randu()[0]
-        import tensorflow as tf
+
+        import tensorflow as tf  # tf only implementation
 
         weight = 1.0
         fallback_weight = 0.0
@@ -603,7 +604,11 @@ class Circuit:
     ) -> float:
         # the graph building time is frustratingly slow, several minutes
         # though running time is in terms of ms
-        # raw running in terms of s
+        # raw running time in terms of s
+        # note jax gpu building time is fast, in the order of 10s.!!
+        # the typical scenario we are talking: 10 qubits, 3 layers of entangle gates and 3 layers of noise
+        # building for jax+GPU ~100s 12 qubit * 5 layers
+        # 370s 14 qubit * 7 layers, 0.35s running on vT4
         sites = len(index)
         kraus_tensor = [k.tensor for k in kraus]
 
@@ -641,6 +646,33 @@ class Circuit:
 
         self.unitary_kraus2(new_kraus, *index, prob=prob, status=status)
         return 0.0
+
+    def general_kraus(
+        self,
+        kraus: Sequence[Gate],
+        *index: int,
+        status: Optional[float] = None,
+    ) -> float:
+        """
+        Monte Carlo trajectory simulation of general Kraus channel whose Kraus operators cannot be
+        amplified to unitary operators. For unitary operators composed Kraus channel, :py:meth:`unitary_kraus`
+        is much faster.
+
+        This function is jittable in theory. But only jax+GPU combination is recommended for jit,
+        since the graph building time is too long for other backend options, though the running
+        time of the function is very fast for every case.
+
+        :param kraus: list of ``tn.Node`` for Kraus operators
+        :type kraus: Sequence[Gate]
+        :param index: the qubits index that Kraus channel is applied on
+        :type index: int
+        :param status: random tensor between 0 or 1, defaults to None,
+            the random number will generated automatically
+        :type status: Optional[float], optional
+        """
+        return self._general_kraus_2(kraus, *index, status=status)
+
+    apply_general_kraus = general_kraus
 
     def is_valid(self) -> bool:
         """
