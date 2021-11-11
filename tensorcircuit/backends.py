@@ -859,7 +859,9 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
         return np.real(a)
 
     def cast(self, a: Tensor, dtype: str) -> Tensor:
-        return a.astype(getattr(np, dtype))
+        if isinstance(dtype, str):
+            return a.astype(getattr(np, dtype))
+        return a.astype(dtype)
 
     def set_random_state(self, seed: Optional[int] = None) -> None:
         g = np.random.default_rng(seed)  # None auto supported
@@ -1068,7 +1070,9 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         return jnp.real(a)
 
     def cast(self, a: Tensor, dtype: str) -> Tensor:
-        return a.astype(getattr(jnp, dtype))
+        if isinstance(dtype, str):
+            return a.astype(getattr(jnp, dtype))
+        return a.astype(dtype)
 
     def expm(self, a: Tensor) -> Tensor:
         return jsp.linalg.expm(a)
@@ -1458,7 +1462,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         return tf.math.real(a)
 
     def cast(self, a: Tensor, dtype: str) -> Tensor:
-        return tf.cast(a, dtype=getattr(tf, dtype))
+        if isinstance(dtype, str):
+            return tf.cast(a, dtype=getattr(tf, dtype))
+        return tf.cast(a, dtype=dtype)
 
     def set_random_state(self, seed: Optional[Union[int, RGenerator]] = None) -> None:
         if seed is None:
@@ -1789,7 +1795,9 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         return False
 
     def cast(self, a: Tensor, dtype: str) -> Tensor:
-        return a.type(getattr(torchlib, dtype))
+        if isinstance(dtype, str):
+            return a.type(getattr(torchlib, dtype))
+        return a.type(dtype)
 
     def cond(
         self,

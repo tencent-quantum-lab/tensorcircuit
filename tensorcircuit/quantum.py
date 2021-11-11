@@ -147,9 +147,6 @@ def eliminate_identities(nodes: Collection[AbstractNode]) -> Tuple[dict, dict]: 
     return nodes_dict, dangling_edges_dict
 
 
-# TODO(@refraction-ray): Add copy method for QuOperator, and use copy in ``op2tensor`` decorator
-
-
 class QuOperator:
     """Represents a linear operator via a tensor network.
     To interpret a tensor network as a linear operator, some of the dangling
@@ -317,6 +314,14 @@ class QuOperator:
         nodes_dict, edge_dict = copy(self.nodes, True)
         out_edges = [edge_dict[e] for e in self.in_edges]
         in_edges = [edge_dict[e] for e in self.out_edges]
+        ref_nodes = [nodes_dict[n] for n in self.ref_nodes]
+        ignore_edges = [edge_dict[e] for e in self.ignore_edges]
+        return quantum_constructor(out_edges, in_edges, ref_nodes, ignore_edges)
+
+    def copy(self) -> "QuOperator":
+        nodes_dict, edge_dict = copy(self.nodes, False)
+        out_edges = [edge_dict[e] for e in self.out_edges]
+        in_edges = [edge_dict[e] for e in self.in_edges]
         ref_nodes = [nodes_dict[n] for n in self.ref_nodes]
         ignore_edges = [edge_dict[e] for e in self.ignore_edges]
         return quantum_constructor(out_edges, in_edges, ref_nodes, ignore_edges)
@@ -736,7 +741,7 @@ def op2tensor(
         nargs = list(args)
         for i in op_argnums:  # type: ignore
             if isinstance(args[i], QuOperator):
-                nargs[i] = args[i].eval_matrix()
+                nargs[i] = args[i].copy().eval_matrix()
         print(nargs)
         out = fn(*nargs, **kwargs)
         return out
@@ -908,7 +913,12 @@ def measurement_counts(
     results = backend.unique_with_counts(raw_counts)
     if sparse:
         return results  # type: ignore
-    return results  # TODO(@refraction) unsparse solution with scatter
+    dense_results = backend.scatter(
+        backend.cast(backend.zeros([d]), results[1].dtype),
+        backend.reshape(results[0], [-1, 1]),
+        results[1],
+    )
+    return dense_results
 
 
 # @op2tensor

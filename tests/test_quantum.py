@@ -303,3 +303,5 @@ def test_measurement_counts(backend):
     ct, cs = qu.measurement_counts(state)
     np.testing.assert_allclose(ct.shape[0], 2, atol=atol)
     np.testing.assert_allclose(tc.backend.sum(cs), 8192, atol=atol)
+    state = np.array([1.0, 1.0, 0, 0])
+    print(qu.measurement_counts(state, sparse=False))

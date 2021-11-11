@@ -543,7 +543,7 @@ class Circuit:
 
         def calculate_kraus_p(i: Tensor) -> Tensor:
             # i: Tensor as int of shape []
-            newnodes, newfront = self._copy()  # TODO(@refraction-ray): support reuse
+            newnodes, newfront = self._copy()  # TODO(@refraction-ray): support reuse?
             # simply reuse=True is wrong, as the circuit is contracting at building
             # self._copy seems slower than self._copy_state, but anyway the building time is unacceptable
             lnewnodes, lnewfront = self._copy(conj=True)
