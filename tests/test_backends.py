@@ -55,6 +55,39 @@ def test_vmap_torch(torchb):
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_backend_scatter(backend):
+    assert np.allclose(
+        tc.backend.scatter(
+            tc.array_to_tensor(np.arange(8), dtype="int32"),
+            tc.array_to_tensor(np.array([[1], [4]]), dtype="int32"),
+            tc.array_to_tensor(np.array([0, 0]), dtype="int32"),
+        ),
+        np.array([0, 0, 2, 3, 0, 5, 6, 7]),
+        atol=1e-4,
+    )
+    assert np.allclose(
+        tc.backend.scatter(
+            tc.array_to_tensor(np.arange(8).reshape([2, 4]), dtype="int32"),
+            tc.array_to_tensor(np.array([[0, 2], [1, 2], [1, 3]]), dtype="int32"),
+            tc.array_to_tensor(np.array([0, 99, 0]), dtype="int32"),
+        ),
+        np.array([[0, 1, 0, 3], [4, 5, 99, 0]]),
+        atol=1e-4,
+    )
+    answer = np.arange(8).reshape([2, 2, 2])
+    answer[0, 1, 0] = 99
+    assert np.allclose(
+        tc.backend.scatter(
+            tc.array_to_tensor(np.arange(8).reshape([2, 2, 2]), dtype="int32"),
+            tc.array_to_tensor(np.array([[0, 1, 0]]), dtype="int32"),
+            tc.array_to_tensor(np.array([99]), dtype="int32"),
+        ),
+        answer,
+        atol=1e-4,
+    )
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_backend_methods(backend):
     # TODO(@refraction-ray): add more methods
     assert np.allclose(

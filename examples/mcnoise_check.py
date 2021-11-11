@@ -1,6 +1,7 @@
 import os
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+# cpu is fast for small scale circuit simulation
 
 from tqdm import tqdm
 import tensorcircuit as tc
@@ -57,12 +58,10 @@ rho = 0.0
 
 for i in tqdm(range(mctries)):
     key, subkey = jax.random.split(key)
-    psi = f(subkey)  # [2**n,1]
+    psi = f(subkey)  # [1, 2**n]
     rho += 1 / mctries * tc.backend.transpose(psi) @ tc.backend.conj(psi)
 
 print(rho)
-print(tc.backend.trace(rho0))
-print(tc.backend.trace(rho))
 print("difference\n", tc.backend.abs(rho - rho0))
 print("difference in total\n", tc.backend.sum(tc.backend.abs(rho - rho0)))
 print("fidelity", tc.quantum.fidelity(rho, rho0))

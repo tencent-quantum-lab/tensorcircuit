@@ -1,7 +1,7 @@
 """
 quantum state and operator class backend by tensornetwork
 """
-from functools import reduce, wraps
+from functools import reduce, wraps, partial
 from operator import or_, mul, matmul
 from typing import (
     Any,
@@ -145,6 +145,9 @@ def eliminate_identities(nodes: Collection[AbstractNode]) -> Tuple[dict, dict]: 
             nodes_dict[n] = n
 
     return nodes_dict, dangling_edges_dict
+
+
+# TODO(@refraction-ray): Add copy method for QuOperator, and use copy in ``op2tensor`` decorator
 
 
 class QuOperator:
@@ -844,6 +847,7 @@ def renyi_free_energy(
     return backend.real(energy - s / beta)
 
 
+@partial(op2tensor, op_argnums=(0, 1))
 def trace_distance(rho: Tensor, rho0: Tensor, eps: float = 1e-12) -> Tensor:
     d2 = rho - rho0
     d2 = backend.adjoint(d2) @ d2
@@ -852,6 +856,7 @@ def trace_distance(rho: Tensor, rho0: Tensor, eps: float = 1e-12) -> Tensor:
     return 0.5 * backend.sum(backend.sqrt(lbds + eps))
 
 
+@partial(op2tensor, op_argnums=(0, 1))
 def fidelity(rho: Tensor, rho0: Tensor) -> Tensor:
     rhosqrt = backend.sqrtmh(rho)
     return backend.real(backend.trace(backend.sqrtmh(rhosqrt @ rho0 @ rhosqrt)) ** 2)
@@ -870,7 +875,9 @@ def double_state(h: Tensor, beta: float = 1) -> Tensor:
     return state / norm
 
 
-def measurement_counts(state: Tensor, counts: int = 8192) -> Tuple[Tensor, Tensor]:
+def measurement_counts(
+    state: Tensor, counts: int = 8192, sparse: bool = True
+) -> Union[Tuple[Tensor, Tensor], Tensor]:
     """
     Simulate measuring each qubit of ``p`` in the computational basis,
     producing output like that of ``qiskit``.
@@ -899,7 +906,9 @@ def measurement_counts(state: Tensor, counts: int = 8192) -> Tuple[Tensor, Tenso
     # raw counts in terms of integers
     raw_counts = backend.implicit_randc(d, shape=counts, p=pi)
     results = backend.unique_with_counts(raw_counts)
-    return results  # type: ignore
+    if sparse:
+        return results  # type: ignore
+    return results  # TODO(@refraction) unsparse solution with scatter
 
 
 # @op2tensor

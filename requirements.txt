@@ -1,7 +1,7 @@
 numpy
 scipy
 cirq==0.11
-tensorflow==2.6
+tensorflow
 # tensorflow-quantum==0.5.1
 tensornetwork
 graphviz

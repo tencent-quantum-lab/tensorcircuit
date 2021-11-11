@@ -569,6 +569,28 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `stateful_randc`.".format(self.name)
         )
 
+    def scatter(  # pylint: disable=unused-variable
+        self: Any, operand: Tensor, indices: Tensor, updates: Tensor
+    ) -> Tensor:
+        """
+        Roughly equivalent to operand[indices] = updates, indices only support shape with rank 2 for now
+
+        :param operand: [description]
+        :type operand: Tensor
+        :param indices: [description]
+        :type indices: Tensor
+        :param updates: [description]
+        :type updates: Tensor
+        :return: [description]
+        :rtype: Tensor
+        """
+        # only tested on scalar update for now, as the general XLA scatter syntax is too complicated
+        # https://www.tensorflow.org/xla/operation_semantics?hl=en#scatter
+        # TODO(@refraction-ray): implement more general and consistent scatter syntax for different backends.
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `scatter`.".format(self.name)
+        )
+
     def cond(  # pylint: disable=unused-variable
         self: Any,
         pred: bool,
@@ -900,6 +922,11 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
             shape = (shape,)
         return g.choice(a, size=shape, replace=True, p=p)
 
+    def scatter(self, operand: Tensor, indices: Tensor, updates: Tensor) -> Tensor:
+        operand_new = np.copy(operand)
+        operand_new[[indices[:, i] for i in range(indices.shape[1])]] = updates
+        return operand_new
+
     def cond(
         self,
         pred: bool,
@@ -1202,10 +1229,19 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         branches_null = [lambda _, f=b: f() for b in branches]
         return libjax.lax.switch(index, branches_null, None)
 
+    def scatter(self, operand: Tensor, indices: Tensor, updates: Tensor) -> Tensor:
+        rank = len(operand.shape)
+        dnums = libjax.lax.ScatterDimensionNumbers(
+            update_window_dims=(),
+            inserted_window_dims=tuple([i for i in range(rank)]),
+            scatter_dims_to_operand_dims=tuple([i for i in range(rank)]),
+        )
+        r = libjax.lax.scatter(operand, indices, updates, dnums)
+        return r
+
     def grad(
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Any:
-        # TODO
         return libjax.grad(f, argnums=argnums)
 
     def value_and_grad(
@@ -1482,6 +1518,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     ) -> Tensor:
         return _random_choice_tf(g, a, shape, p)
 
+    def scatter(self, operand: Tensor, indices: Tensor, updates: Tensor) -> Tensor:
+        return tf.tensor_scatter_nd_update(operand, indices, updates)
+
     def cond(
         self,
         pred: bool,
@@ -1676,6 +1715,7 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
 
 
 # TODO(@refraction-ray): lack stateful random methods implementation for now
+# TODO(@refraction-ray): lack scatter impl for now
 # To be added once pytorch backend is ready
 class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
     def __init__(self) -> None:
