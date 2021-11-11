@@ -220,6 +220,23 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `stack`.".format(self.name)
         )
 
+    def tile(  # pylint: disable=unused-variable
+        self: Any, a: Tensor, rep: Tensor
+    ) -> Tensor:
+        """
+        Constructs a tensor by tiling a given tensor.
+
+        :param a: [description]
+        :type a: Tensor
+        :param rep: 1d tensor with length the same as the rank of ``a``
+        :type rep: Tensor
+        :return: [description]
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `tile`.".format(self.name)
+        )
+
     def unique_with_counts(  # pylint: disable=unused-variable
         self: Any, a: Tensor
     ) -> Tuple[Tensor, Tensor]:
@@ -831,6 +848,9 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def stack(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return np.stack(a, axis=axis)
 
+    def tile(self, a: Tensor, rep: Tensor) -> Tensor:
+        return np.tile(a, rep)
+
     def unique_with_counts(self, a: Tensor) -> Tuple[Tensor, Tensor]:
         return np.unique(a, return_counts=True)  # type: ignore
 
@@ -1081,6 +1101,9 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
 
     def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return jnp.stack(a, axis=axis)
+
+    def tile(self: Any, a: Tensor, rep: Tensor) -> Tensor:
+        return jnp.tile(a, rep)
 
     def unique_with_counts(self, a: Tensor) -> Tuple[Tensor, Tensor]:
         return jnp.unique(a, return_counts=True)  # type: ignore
@@ -1428,8 +1451,11 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         order = tf.argsort(r.y)
         return tf.gather(r.y, order), tf.gather(r.count, order)
 
-    def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
+    def stack(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return tf.stack(a, axis=axis)
+
+    def tile(self, a: Tensor, rep: Tensor) -> Tensor:
+        return tf.tile(a, rep)
 
     def relu(self, a: Tensor) -> Tensor:
         return tf.nn.relu(a)
@@ -1769,6 +1795,9 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
 
     def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return torchlib.stack(a, dim=axis)
+
+    def tile(self, a: Tensor, rep: Tensor) -> Tensor:
+        return torchlib.tile(a, rep)
 
     def unique_with_counts(self, a: Tensor) -> Tuple[Tensor, Tensor]:
         return torchlib.unique(a, return_counts=True)  # type: ignore

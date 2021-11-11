@@ -921,6 +921,26 @@ def measurement_counts(
     return dense_results
 
 
+def spin_by_basis(n: int, m: int, elements: Tuple[int, int] = (1, -1)) -> Tensor:
+    s = backend.tile(
+        backend.cast(
+            backend.convert_to_tensor(np.array([[elements[0]], [elements[1]]])), "int32"
+        ),
+        [2 ** m, int(2 ** (n - m - 1))],
+    )
+    return backend.reshape(s, [-1])
+
+
+def extract_correlation_from_measuremet_counts(
+    index: Sequence[int], results: Tensor
+) -> Tensor:
+    results = backend.reshape(results, [-1])
+    n = int(np.log(results.shape[0]) / np.log(2))
+    for i in index:
+        results = results * backend.cast(spin_by_basis(n, i), results.dtype)
+    return backend.sum(results)
+
+
 # @op2tensor
 # def purify(rho):
 #     """

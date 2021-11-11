@@ -305,3 +305,17 @@ def test_measurement_counts(backend):
     np.testing.assert_allclose(tc.backend.sum(cs), 8192, atol=atol)
     state = np.array([1.0, 1.0, 0, 0])
     print(qu.measurement_counts(state, sparse=False))
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_extract_from_measure(backend):
+    np.testing.assert_allclose(
+        qu.spin_by_basis(2, 1), np.array([1, -1, 1, -1]), atol=atol
+    )
+    state = tc.array_to_tensor(np.array([0.6, 0.4, 0, 0]))
+    np.testing.assert_allclose(
+        qu.extract_correlation_from_measuremet_counts([0, 1], state), 0.2, atol=atol
+    )
+    np.testing.assert_allclose(
+        qu.extract_correlation_from_measuremet_counts([1], state), 0.2, atol=atol
+    )

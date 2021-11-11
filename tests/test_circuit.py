@@ -13,6 +13,8 @@ modulepath = os.path.dirname(os.path.dirname(thisfile))
 sys.path.insert(0, modulepath)
 import tensorcircuit as tc
 
+# TODO(@refraction-ray):replace all assert np.allclose with np.testing.assert_all_close !
+
 
 def test_wavefunction():
     qc = tc.Circuit(2)
