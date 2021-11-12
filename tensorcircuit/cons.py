@@ -190,12 +190,13 @@ base = tn.contractors.opt_einsum_paths.path_contractors.base
 def custom_stateful(
     nodes: List[Any],
     optimizer: Any,
+    memory_limit: Optional[int] = None,
     output_edge_order: Optional[List[Any]] = None,
     ignore_edge_order: bool = False,
     **kws: Any
 ) -> Any:
     opt = optimizer(**kws)
-    alg = opt
+    alg = partial(opt, memory_limit=memory_limit)
     # alg = partial(tn.contractors.custom, optimizer)
     return base(nodes, alg, output_edge_order, ignore_edge_order)
 

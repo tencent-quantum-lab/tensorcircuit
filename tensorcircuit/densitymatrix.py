@@ -197,7 +197,7 @@ class DMCircuit:
         return apply
 
     @staticmethod
-    def check_kraus(kraus: Sequence[Gate]) -> bool:  # TODO
+    def check_kraus(kraus: Sequence[Gate]) -> bool:  # TODO(@refraction-ray)
         return True
 
     def apply_general_kraus(

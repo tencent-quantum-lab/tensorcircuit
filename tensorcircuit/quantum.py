@@ -867,12 +867,14 @@ def fidelity(rho: Tensor, rho0: Tensor) -> Tensor:
     return backend.real(backend.trace(backend.sqrtmh(rhosqrt @ rho0 @ rhosqrt)) ** 2)
 
 
+@op2tensor
 def gibbs_state(h: Tensor, beta: float = 1) -> Tensor:
     rho = backend.expm(-beta * h)
     rho /= backend.trace(rho)
     return rho
 
 
+@op2tensor
 def double_state(h: Tensor, beta: float = 1) -> Tensor:
     rho = backend.expm(-beta / 2 * h)
     state = backend.reshape(rho, [-1])

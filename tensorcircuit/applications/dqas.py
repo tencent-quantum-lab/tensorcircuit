@@ -426,7 +426,7 @@ def DQAS_search(
             cand_preset = get_preset(stp).numpy()
             cand_preset_repr = [repr_op(op_pool[f]) for f in cand_preset]
             print("best candidates so far:", cand_preset_repr)
-            # TODO, more general repr
+            # TODO: more general repr
             if nnp.shape == stp.shape and verbose:
                 cand_weight = get_weights(nnp, stp).numpy()
                 print(
@@ -463,7 +463,8 @@ def qaoa_simple_train(
     kws: Optional[Dict[Any, Any]] = None,
 ) -> Tuple[Array, float]:
     sp.random.seed()
-    # TODO: the best practice combine multiprocessing and random generator still needs further investigation
+    # TODO(@refraction-ray): the best practice combine multiprocessing and random generator still
+    # needs further investigation
     p = len(preset)
     c = len(get_op_pool())
     stp_train = np.zeros([p, c])

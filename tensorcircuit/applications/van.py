@@ -5,6 +5,8 @@ one-hot variational autoregressive models for multiple categorical choices beyon
 import tensorflow as tf
 import numpy as np
 
+# TODO(@refraction-ray): Add type annotation in this module some time.
+
 
 class MaskedLinear(tf.keras.layers.Layer):
     def __init__(self, input_space, output_space, spin_channel, mask=None, dtype=None):
