@@ -3,8 +3,9 @@ some constants and setups
 """
 
 import sys
-from functools import partial
-from typing import Optional, Any, List
+from functools import partial, reduce
+from operator import mul
+from typing import Optional, Any, List, Sequence
 
 import numpy as np
 import tensornetwork as tn
@@ -91,6 +92,85 @@ def _multi_remove(elems: List[Any], indices: List[int]) -> List[Any]:
     return [i for j, i in enumerate(elems) if j not in indices]
 
 
+def experimental_contractor(
+    nodes: List[Any],
+    output_edge_order: Optional[List[Any]] = None,
+    ignore_edge_order: bool = False,
+    local_steps: int = 3,
+) -> Any:
+    sizen = lambda t: reduce(mul, t.tensor.shape + (1,))
+    total_size = sum([sizen(t) for t in nodes])
+    # nodes = list(reversed(list(nodes)))
+    nodes = list(nodes)
+    # merge single qubit gate
+    queue = [n for n in nodes if len(n.tensor.shape) <= 2]
+    if len(nodes) > 5:
+        while queue:
+            n0 = queue[0]
+            if n0[0].is_dangling():
+                e0 = n0[1]
+            else:
+                e0 = n0[0]
+            njs = [
+                i for i, n in enumerate(nodes) if id(n) in [id(e0.node1), id(e0.node2)]
+            ]
+            qjs = [
+                i for i, n in enumerate(queue) if id(n) in [id(e0.node1), id(e0.node2)]
+            ]
+
+            new_node = tn.contract(e0)
+            total_size += sizen(new_node)
+
+            print(
+                sizen(new_node),
+                np.log(sizen(new_node)) / np.log(2),
+            )
+            queue = _multi_remove(queue, qjs)
+            nodes[njs[1]] = new_node
+            nodes = _multi_remove(nodes, [njs[0]])
+            if len(new_node.tensor.shape) <= 2:
+                queue.append(new_node)
+
+    # further fusion
+    if len(nodes) > 15:
+        for r in range(local_steps):
+            if len(nodes) < 10:
+                break
+            i = 0
+            while len(nodes) > i + 1:
+                new_node = tn.contract_between(
+                    nodes[i], nodes[i + 1], allow_outer_product=True
+                )
+                total_size += sizen(new_node)
+
+                print(
+                    r,
+                    sizen(new_node),
+                    np.log(sizen(new_node)) / np.log(2),
+                )
+                nodes[i] = new_node
+                nodes = _multi_remove(nodes, [i + 1])
+                i += 1
+
+    print("length of remaining nodes: ", len(nodes))
+    nodes = list(reversed(nodes))
+
+    while len(nodes) > 1:
+        new_node = tn.contract_between(nodes[-1], nodes[-2], allow_outer_product=True)
+        nodes = _multi_remove(nodes, [len(nodes) - 2, len(nodes) - 1])
+        nodes.append(new_node)
+        print(sizen(new_node), np.log(sizen(new_node)) / np.log(2))
+        total_size += sizen(new_node)
+    print("-------------\n", np.log2(total_size))
+
+    # if the final node has more than one edge,
+    # output_edge_order has to be specified
+    final_node = nodes[0]
+    if output_edge_order is not None:
+        final_node.reorder_edges(output_edge_order)
+    return final_node
+
+
 def plain_contractor(
     nodes: List[Any],
     output_edge_order: Optional[List[Any]] = None,
@@ -106,11 +186,20 @@ def plain_contractor(
     :return: ``tn.Node`` after contraction
     :rtype: tn.Node
     """
-    nodes = list(reversed(list(nodes)))
+    sizen = lambda t: reduce(mul, t.tensor.shape + (1,))
+    total_size = sum([sizen(t) for t in nodes])
+    # nodes = list(reversed(list(nodes)))
+    nodes = list(nodes)
+    nodes = list(reversed(nodes))
+
     while len(nodes) > 1:
         new_node = tn.contract_between(nodes[-1], nodes[-2], allow_outer_product=True)
         nodes = _multi_remove(nodes, [len(nodes) - 2, len(nodes) - 1])
         nodes.append(new_node)
+        print(sizen(new_node), np.log(sizen(new_node)) / np.log(2))
+        total_size += sizen(new_node)
+    print("-------------\n", np.log2(total_size))
+
     # if the final node has more than one edge,
     # output_edge_order has to be specified
     final_node = nodes[0]
@@ -181,10 +270,97 @@ def tn_greedy_contractor(
 
 
 base = tn.contractors.opt_einsum_paths.path_contractors.base
-
+utils = tn.contractors.opt_einsum_paths.utils
 # designed for cotengra.HyperOptimizer
 # usage ``opt = ctg.HyperOptimizer``
 # ``tc.set_contractor("custom_stateful", optimizer=opt, parallel=False)``
+
+
+def _base(
+    nodes: List[tn.Node],
+    algorithm: Any,
+    output_edge_order: Optional[Sequence[tn.Edge]] = None,
+    ignore_edge_order: bool = False,
+) -> tn.Node:
+    """Base method for all `opt_einsum` contractors.
+
+    Args:
+      nodes: A collection of connected nodes.
+      algorithm: `opt_einsum` contraction method to use.
+      output_edge_order: An optional list of edges. Edges of the
+        final node in `nodes_set`
+        are reordered into `output_edge_order`;
+        if final node has more than one edge,
+        `output_edge_order` must be provided.
+      ignore_edge_order: An option to ignore the output edge
+        order.
+
+    Returns:
+      Final node after full contraction.
+    """
+    nodes_set = set(nodes)
+    edges = tn.get_all_edges(nodes_set)
+    # output edge order has to be determinded before any contraction
+    # (edges are refreshed after contractions)
+
+    if not ignore_edge_order:
+        if output_edge_order is None:
+            output_edge_order = list(tn.get_subgraph_dangling(nodes))
+            if len(output_edge_order) > 1:
+                raise ValueError(
+                    "The final node after contraction has more than "
+                    "one remaining edge. In this case `output_edge_order` "
+                    "has to be provided."
+                )
+
+        if set(output_edge_order) != tn.get_subgraph_dangling(nodes):
+            raise ValueError(
+                "output edges are not equal to the remaining "
+                "non-contracted edges of the final node."
+            )
+
+    for edge in edges:
+        if not edge.is_disabled:  # if its disabled we already contracted it
+            if edge.is_trace():
+                nodes_set.remove(edge.node1)
+                nodes_set.add(tn.contract_parallel(edge))
+
+    if len(nodes_set) == 1:
+        # There's nothing to contract.
+        if ignore_edge_order:
+            return list(nodes_set)[0]
+        return list(nodes_set)[0].reorder_edges(output_edge_order)
+
+    # Then apply `opt_einsum`'s algorithm
+    if isinstance(algorithm, list):
+        nodes = list(nodes)
+        path = algorithm
+    else:
+        path, nodes = utils.get_path(nodes_set, algorithm)
+    from functools import reduce
+    from operator import mul
+
+    sizen = lambda t: reduce(mul, t.tensor.shape + (1,))
+    total_size = sum([sizen(t) for t in nodes])
+    for a, b in path:
+        new_node = tn.contract_between(nodes[a], nodes[b], allow_outer_product=True)
+        nodes.append(new_node)
+        nodes[a] = backend.zeros([1])
+        nodes[b] = backend.zeros([1])
+        nodes = _multi_remove(nodes, [a, b])
+
+        print(
+            new_node.tensor.shape, sizen(new_node), np.log(sizen(new_node)) / np.log(2)
+        )
+        total_size += sizen(new_node)
+    print("-------------\n", np.log2(total_size))
+
+    # if the final node has more than one edge,
+    # output_edge_order has to be specified
+    final_node = nodes[0]  # nodes were connected, we checked this
+    if not ignore_edge_order:
+        final_node.reorder_edges(output_edge_order)
+    return final_node
 
 
 def custom_stateful(
@@ -208,7 +384,7 @@ def set_contractor(
     **kws: Any
 ) -> None:
     """
-    set runtim contractor of the tensornetwork for a better contraction path
+    set runtime contractor of the tensornetwork for a better contraction path
 
     :param method: "auto", "greedy", "branch", "plain", "tng", "custom", "custom_stateful". defaults to None ("auto")
     :type method: Optional[str], optional
@@ -226,6 +402,8 @@ def set_contractor(
         # see: https://github.com/dgasmith/opt_einsum/issues/172
     if method == "plain":
         cf = plain_contractor
+    elif method == "plain-experimental":
+        cf = partial(experimental_contractor, local_steps=kws.get("local_steps", 3))
     elif method == "tng":
         if has_ps:
             cf = tn_greedy_contractor

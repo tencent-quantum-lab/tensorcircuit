@@ -75,6 +75,7 @@ class Circuit:
                 for x in range(nqubits)
             ]
             self._front = [n.get_edge(0) for n in nodes]
+            self._topology = [(i,) for i in range(nqubits)]
         elif inputs is not None:  # provide input function
             inputs = backend.reshape(inputs, [-1])
             N = inputs.shape[0]
@@ -84,6 +85,8 @@ class Circuit:
             inputs = Gate(inputs)
             nodes = [inputs]
             self._front = [inputs.get_edge(i) for i in range(n)]
+            self._topology = [(i for i in range(nqubits))]  # type: ignore
+            # TODO(@refraction-ray): _topology unused for now
         else:  # mps_inputs is not None
             mps_nodes = mps_inputs.nodes  # type: ignore
             mps_edges = mps_inputs.out_edges + mps_inputs.in_edges  # type: ignore
@@ -96,6 +99,7 @@ class Circuit:
                 new_front.append(edict[e])
             nodes = new_nodes
             self._front = new_front
+            self._topology = []
 
         self._nqubits = nqubits
         self._nodes = nodes
@@ -276,6 +280,7 @@ class Circuit:
         gate.get_edge(1) ^ self._front[index]  # pay attention on the rank index here
         self._front[index] = gate.get_edge(0)
         self._nodes.append(gate)
+        self._topology.append((index,))
 
     def apply_double_gate(self, gate: Gate, index1: int, index2: int) -> None:
         assert index1 != index2
@@ -284,6 +289,7 @@ class Circuit:
         self._front[index1] = gate.get_edge(0)
         self._front[index2] = gate.get_edge(1)
         self._nodes.append(gate)
+        self._topology.append((index1, index2))  # type: ignore
 
     def apply_general_gate(
         self, gate: Gate, *index: int, name: Optional[str] = None
@@ -294,6 +300,8 @@ class Circuit:
             gate.get_edge(i + noe) ^ self._front[ind]
             self._front[ind] = gate.get_edge(i)
         self._nodes.append(gate)
+        self._topology.append(tuple(index))  # type: ignore
+
         if (
             name
         ):  # if no name is specified, then the corresponding op wont be recorded in qcode
@@ -882,6 +890,8 @@ class Circuit:
         # else:  # reuse
         nodes1, edge1 = self._copy_state_tensor(reuse=reuse)
         nodes2, edge2 = self._copy_state_tensor(conj=True, reuse=reuse)
+        nodes1.extend(nodes2)  # left right op order for plain contractor
+
         occupied = set()
         for op, index in ops:
             noe = len(index)
@@ -895,7 +905,6 @@ class Circuit:
         for j in range(self._nqubits):
             if j not in occupied:  # edge1[j].is_dangling invalid here!
                 edge1[j] ^ edge2[j]
-        nodes1.extend(nodes2)
         # self._nodes = nodes1
         return contractor(nodes1).tensor
 
