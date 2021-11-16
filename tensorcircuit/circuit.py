@@ -732,18 +732,18 @@ class Circuit:
     ) -> Tuple[List[tn.Node], List[tn.Edge]]:
         if reuse:
             t = getattr(self, "state_tensor", None)
+            if t is None:
+                nodes, d_edges = self._copy()
+                t = contractor(nodes, output_edge_order=d_edges)
+                setattr(self, "state_tensor", t)
+            ndict, edict = tn.copy([t], conjugate=conj)
+            newnodes = []
+            newnodes.append(ndict[t])
+            newfront = []
+            for e in t.edges:
+                newfront.append(edict[e])
         else:
-            t = None
-        if t is None:
-            nodes, d_edges = self._copy()
-            t = contractor(nodes, output_edge_order=d_edges)
-            setattr(self, "state_tensor", t)
-        ndict, edict = tn.copy([t], conjugate=conj)
-        newnodes = []
-        newnodes.append(ndict[t])
-        newfront = []
-        for e in t.edges:
-            newfront.append(edict[e])
+            return self._copy(conj)
         return newnodes, newfront
 
     state = wavefunction

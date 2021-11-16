@@ -96,7 +96,7 @@ def experimental_contractor(
     nodes: List[Any],
     output_edge_order: Optional[List[Any]] = None,
     ignore_edge_order: bool = False,
-    local_steps: int = 3,
+    local_steps: int = 2,
 ) -> Any:
     sizen = lambda t: reduce(mul, t.tensor.shape + (1,))
     total_size = sum([sizen(t) for t in nodes])
@@ -371,6 +371,10 @@ def custom_stateful(
     ignore_edge_order: bool = False,
     **kws: Any
 ) -> Any:
+    if len(nodes) < 5:
+        return tn.contractors.optimal(
+            nodes, output_edge_order, memory_limit, ignore_edge_order
+        )
     opt = optimizer(**kws)
     alg = partial(opt, memory_limit=memory_limit)
     # alg = partial(tn.contractors.custom, optimizer)
@@ -403,7 +407,7 @@ def set_contractor(
     if method == "plain":
         cf = plain_contractor
     elif method == "plain-experimental":
-        cf = partial(experimental_contractor, local_steps=kws.get("local_steps", 3))
+        cf = partial(experimental_contractor, local_steps=kws.get("local_steps", 2))
     elif method == "tng":
         if has_ps:
             cf = tn_greedy_contractor
