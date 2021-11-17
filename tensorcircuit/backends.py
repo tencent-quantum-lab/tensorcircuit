@@ -899,7 +899,7 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
             dtype = dtype[-2:]
         if isinstance(shape, int):
             shape = (shape,)
-        r = g.normal(loc=mean, scale=stddev, size=shape)  # type: ignore
+        r = g.normal(loc=mean, scale=stddev, size=shape)
         if dtype == "32":
             r = r.astype(np.float32)
         elif dtype == "64":
