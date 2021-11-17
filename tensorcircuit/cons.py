@@ -28,6 +28,7 @@ modules = [
     "tensorcircuit.channels",
     "tensorcircuit.keras",
     "tensorcircuit.quantum",
+    "tensorcircuit.simplify",
 ]
 
 dtypestr = "complex64"
