@@ -420,6 +420,23 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `set_random_state`.".format(self.name)
         )
 
+    def einsum(  # pylint: disable=unused-variable
+        self: Any,
+        equation: str,
+        operands: Sequence[Tensor],
+    ) -> Tensor:
+        """
+        sums the product of the elements of the input operands along dimensions specified using a notation based on the Einstein summation convention.
+
+        :param equation: The subscripts for the Einstein summation
+        :type equation: str
+        :param operands: The tensors to compute the Einstein summation of
+        :type operands: List[Tensor]
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `einsum`.".format(self.name)
+        )
+
     def implicit_randn(  # pylint: disable=unused-variable
         self: Any,
         shape: Union[int, Sequence[int]] = 1,
@@ -887,6 +904,9 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
         g = np.random.default_rng(seed)  # None auto supported
         self.g = g
 
+    def einsum(self, equation: str, operands: Sequence[Tensor]) -> Tensor:
+        return np.einsum(equation, *operands, optimize=True)
+
     def stateful_randn(
         self,
         g: np.random.Generator,
@@ -1136,6 +1156,9 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         else:
             g = seed
         self.g = g
+
+    def einsum(self, equation: str, operands: Sequence[Tensor]) -> Tensor:
+        return jnp.einsum(equation, *operands, optimize=True)
 
     def implicit_randn(
         self,
@@ -1501,6 +1524,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
             g = seed
         self.g = g
 
+    def einsum(self, equation: str, operands: Sequence[Tensor]) -> Tensor:
+        return tf.einsum(equation, *operands, optimize=True)
+
     def stateful_randn(
         self,
         g: RGenerator,
@@ -1827,6 +1853,9 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         if isinstance(dtype, str):
             return a.type(getattr(torchlib, dtype))
         return a.type(dtype)
+
+    def einsum(self, equation: str, operands: Sequence[Tensor]) -> Tensor:
+        return torchlib.einsum(equation, *operands)
 
     def cond(
         self,
