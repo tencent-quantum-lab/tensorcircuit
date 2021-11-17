@@ -377,7 +377,7 @@ def exp_forward(
             layer, graph = cset[j]
             layer(ci, theta[i], graph)
 
-    state = ci.wavefunction()[0]
+    state = ci.wavefunction()
     losses = ave_func(state, g, *fs)
     return losses
 

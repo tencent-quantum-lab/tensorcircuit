@@ -103,9 +103,8 @@ class MADE(tf.keras.Model):
                     assert (
                         hidden_space % (input_space - 1) == 0
                     ), "hidden space must be multiple of input space -1 when you set evenly as True"
-                    m = np.arange(
-                        1, input_space
-                    )  # TODO: whether 0 is ok need further scrunity, this is a bit away from original MADE idea
+                    m = np.arange(1, input_space)
+                    # TODO: whether 0 is ok need further scrunity, this is a bit away from original MADE idea
                     self._m.append(
                         np.hstack([m for _ in range(hidden_space // (input_space - 1))])
                     )
@@ -177,9 +176,8 @@ class MADE(tf.keras.Model):
         if self.probamp is not None:
             inputs = self.probamp + inputs
         if self.nonmerge:
-            inputs = (
-                nonmerge_block + inputs
-            )  # TODO: to be investigated whether the nonmerge block can affect on unity of probability
+            inputs = nonmerge_block + inputs
+            # TODO: to be investigated whether the nonmerge block can affect on unity of probability
         outputs = tf.keras.layers.Softmax()(inputs)
         return outputs
 

@@ -52,7 +52,9 @@ def test_vqe_layer2(tfb, highp):
         e = vqe_layer(inputs)
     print(e, tape.gradient(e, vqe_layer.variables))
     model = tf.keras.Sequential([vqe_layer])
-    model.compile(loss=tc.keras.output_loss, optimizer=tf.keras.optimizers.Adam(0.01))
+    model.compile(
+        loss=tc.keras.output_asis_loss, optimizer=tf.keras.optimizers.Adam(0.01)
+    )
     model.fit(np.zeros([1, 1]), np.zeros([1]), batch_size=1, epochs=300)
 
 
@@ -83,7 +85,9 @@ def test_vqe_layer(tfb, highp):
     inputs = tf.constant(inputs)
     model = tf.keras.Sequential([vqe_layer])
 
-    model.compile(loss=tc.keras.output_loss, optimizer=tf.keras.optimizers.Adam(0.01))
+    model.compile(
+        loss=tc.keras.output_asis_loss, optimizer=tf.keras.optimizers.Adam(0.01)
+    )
 
     model.fit(np.zeros([2, 1]), np.zeros([2, 1]), batch_size=2, epochs=500)
 

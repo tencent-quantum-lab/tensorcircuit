@@ -6,7 +6,6 @@ import itertools
 from functools import partial
 from typing import Any, Dict, Iterator, Sequence, Tuple, Optional
 
-import cirq
 import networkx as nx
 import numpy as np
 
@@ -468,6 +467,9 @@ def Triangle2D(m: int, n: int) -> Graph:
 
 
 def dress_graph_with_cirq_qubit(g: Graph) -> Graph:
+    # deprecated cirq related utilities
+    import cirq
+
     for i in range(len(g.nodes)):
         g.nodes[i]["qubit"] = cirq.GridQubit(i, 0)
     return g

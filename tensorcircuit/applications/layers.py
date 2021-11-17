@@ -166,6 +166,7 @@ def generate_double_gate_layer(gates: str) -> None:
 
 
 def generate_double_gate_layer_bitflip(gates: str) -> None:
+    # deprecated, as API are consistent now for DMCircuit and Circuit
     def f(
         circuit: DMCircuit, symbol: Union[Tensor, float], g: Graph, *params: float
     ) -> DMCircuit:
@@ -259,7 +260,7 @@ def generate_double_layer_block(gates: Tuple[str]) -> None:
 def anyswaplayer(circuit: Circuit, symbol: Tensor, g: Graph) -> Circuit:
     for i, e in enumerate(g.edges):
         qubit1, qubit2 = e
-        circuit.exp(  # type: ignore
+        circuit.exp1(  # type: ignore
             qubit1,
             qubit2,
             unitary=array_to_tensor(_swap_matrix),
@@ -274,7 +275,7 @@ def anyswaplayer_bitflip_mc(
 ) -> Circuit:
     for i, e in enumerate(g.edges):
         qubit1, qubit2 = e
-        circuit.exp(  # type: ignore
+        circuit.exp1(  # type: ignore
             qubit1,
             qubit2,
             unitary=array_to_tensor(_swap_matrix),
@@ -322,7 +323,8 @@ def bitfliplayer_mc(ci: Circuit, g: Graph, px: float, py: float, pz: float) -> N
 
 
 ## below is similar layer but in cirq API instead of tensrocircuit native API
-## special notes to the API, the arguments order are different due to historical reason
+## special notes to the API, the arguments order are different due to historical reason compared to tc layers API
+## and we have no attention to further maintain the cirq codebase below, availability is not guaranteend
 
 basis_rotation = {
     "x": (cirq.H, cirq.H),
