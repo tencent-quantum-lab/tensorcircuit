@@ -1,11 +1,9 @@
 """
 DQAS application kernels as vag functions
 """
-
-
-import functools
+from functools import lru_cache, partial, reduce
+import logging
 import operator
-from functools import lru_cache, partial
 from typing import (
     List,
     Sequence,
@@ -17,12 +15,10 @@ from typing import (
     Union,
 )
 
-import cirq
-import networkx as nx
 import numpy as np
 import tensorflow as tf
 
-from ..gates import array_to_tensor, num_to_tensor
+from ..gates import array_to_tensor
 from .. import cons
 from .. import gates as G
 from ..circuit import Circuit
@@ -31,12 +27,17 @@ from ..densitymatrix import DMCircuit
 from .layers import generate_qubits
 from .dqas import get_op_pool
 
+logger = logging.getLogger(__name__)
+
 try:
+    import cirq
+    import networkx as nx
     import sympy
     import tensorflow_quantum as tfq
 
 except ImportError as e:
-    print(e)
+    logger.warning(e)
+    logger.warning("Therefore some functionality in %s may not work" % __name__)
 
 
 Array = Any  # np.array
@@ -722,9 +723,6 @@ def qaoa_noise_vag(
     return loss, gmatrix
 
 
-## depracated qaoa train
-
-
 def qaoa_train(
     preset: Sequence[int],
     g: Union[Graph, Iterator[Graph]],
@@ -751,6 +749,8 @@ def qaoa_train(
     :param verbose:
     :return:
     """
+    ## depracated qaoa train
+
     if initial_param is None:
         initial_param = np.random.normal(loc=0.3, scale=0.05, size=[len(preset)])
     theta = tf.Variable(initial_value=initial_param, dtype=tf.float32)
@@ -870,6 +870,7 @@ def gatewise_vqe_vag(
 
 
 ## functions for quantum Hamiltonian QAOA with tensorflow quantum backend
+## deprecated tfq related vags
 
 
 v = sympy.symbols("v_{0:64}")
@@ -906,7 +907,7 @@ def tfim_measurements(
         for i in range(len(g.nodes)):
             measurements.append(hz * cirq.Z(qubits[i]))
     if one:
-        measurements = functools.reduce(operator.add, measurements)
+        measurements = reduce(operator.add, measurements)
     return measurements
 
 
@@ -937,7 +938,7 @@ def heisenberg_measurements(
             hyy * g[e[0]][e[1]]["weight"] * cirq.Y(qubits[e[0]]) * cirq.Y(qubits[e[1]])
         )
     if one:
-        measurements = functools.reduce(operator.add, measurements)
+        measurements = reduce(operator.add, measurements)
     return measurements
 
 
@@ -1052,324 +1053,9 @@ def quantum_mp_qaoa_vag(
     return loss[0], gmatrix
 
 
-## explore on enseble qml examples
-
-# mnist data preprocessing
-
-
-def amplitude_encoding(
-    fig: Tensor,
-    qubits: int,
-    index: Optional[Sequence[int]] = None,
-    index_func: Optional[Callable[[int, int], Sequence[int]]] = None,
-) -> Tensor:
-    if fig.shape[-1] == 1:
-        fig = tf.reshape(fig, shape=fig.shape[:-1])
-    if len(fig.shape) == 2:
-        fig = fig[tf.newaxis, ...]
-    fig = tf.reshape(fig, shape=(fig.shape[0], fig.shape[1] * fig.shape[2]))
-    norm = tf.linalg.norm(fig, axis=1)
-    norm = norm[..., tf.newaxis]
-    fig = fig / norm
-    if fig.shape[1] < 2 ** qubits:
-        fig = tf.concat(
-            [
-                fig,
-                tf.zeros([fig.shape[0], 2 ** qubits - fig.shape[1]], dtype=tf.float64),
-            ],
-            axis=1,
-        )
-    if index is None and index_func is not None:
-        index = []
-        for i in range(32):
-            for j in range(32):
-                l = index_func(i, j)
-                r = 0
-                for p, q in enumerate(l):
-                    r += q * 2 ** (9 - p)
-                index.append(r)
-    if index is not None:
-        fig = tf.constant(fig.numpy()[:, index], dtype=fig.dtype)
-    return fig
-
-
-def recursive_index(x: int, y: int) -> Sequence[int]:
-    rl = []
-    for k in range(5):
-        rl.append((x // (2 ** (4 - k))) % 2)
-        rl.append((y // (2 ** (4 - k))) % 2)
-    return rl
-
-
-def mnist_amplitude_data(
-    a: int,
-    b: int,
-    binarize: bool = False,
-    index: Optional[Sequence[int]] = None,
-    index_func: Optional[Callable[[int, int], Sequence[int]]] = None,
-    loader: Any = None,
-) -> Tensor:
-    def filter_pair(x: Tensor, y: Tensor, a: int, b: int) -> Tuple[Tensor, Tensor]:
-        keep = (y == a) | (y == b)
-        x, y = x[keep], y[keep]
-        y = y == a
-        return x, y
-
-    if loader is None:
-        loader = tf.keras.datasets.mnist
-    (x_train, y_train), (x_test, y_test) = loader.load_data()
-    x_train, x_test = x_train[..., np.newaxis] / 255.0, x_test[..., np.newaxis] / 255.0
-
-    if binarize:
-        x_train[x_train > 0.4] = 1.0
-        x_train[x_train <= 0.4] = 0.0
-        x_test[x_test > 0.4] = 1.0
-        x_test[x_test <= 0.4] = 0.0
-    x_train, y_train = filter_pair(x_train, y_train, a, b)
-    x_test, y_test = filter_pair(x_test, y_test, a, b)
-    x_train = tf.image.pad_to_bounding_box(x_train, 2, 2, 32, 32)
-    x_test = tf.image.pad_to_bounding_box(x_test, 2, 2, 32, 32)
-    x_train_q = amplitude_encoding(x_train, 10, index=index, index_func=index_func)
-    x_test_q = amplitude_encoding(x_test, 10, index=index, index_func=index_func)
-    return (x_train_q, y_train), (x_test_q, y_test)
-
-
-def mnist_generator(
-    x_train: Tensor, y_train: Tensor, batch: int = 1, random: bool = True
-) -> Iterator[Any]:
-    if isinstance(x_train, tf.Tensor):
-        x_train = x_train.numpy()
-    if isinstance(y_train, tf.Tensor):
-        y_train = y_train.numpy()
-    i = np.array(list(range(batch)))
-    while True:
-        if random:
-            i = np.random.randint(low=0, high=x_train.shape[0], size=batch)
-        else:
-            i += batch
-            i = i % x_train.shape[0]
-        yield tf.constant(x_train[i]), tf.constant(y_train[i])
-
-
-def generate_random_circuit(
-    inputs: Tensor, nqubits: int = 10, epochs: int = 3, layouts: Tensor = None
-) -> Circuit:
-    inputs = tf.cast(inputs, dtype=tf.complex64)
-    c = Circuit(nqubits, inputs=inputs)
-    if layouts is None:
-        layouts = np.random.choice([0, 1, 2], size=[epochs, nqubits])
-    layouts = tf.reshape(layouts, shape=[epochs, nqubits])
-    for epoch in range(epochs):
-        for i in range(nqubits):
-            flg = layouts[epoch, i]
-            if flg == 0:
-                c.rx(i, theta=num_to_tensor(np.pi / 2))  # type: ignore
-            elif flg == 1:
-                c.ry(i, theta=num_to_tensor(np.pi / 2))  # type: ignore
-            else:
-                c.wroot(i)  # type: ignore
-        for i in range(nqubits):  # entangling layer
-            c.swap(i, (i + 1) % nqubits)  # type: ignore
-    return c
-
-
-def naive_qml_vag(
-    gdata: Graph,
-    nnp: Tensor,
-    preset: Sequence[int],
-    nqubits: int = 10,
-    epochs: int = 3,
-    target: int = 0,
-) -> Tuple[Tensor, Tensor]:
-    xs, ys = gdata
-    loss = 0.0
-    for x, y in zip(xs, ys):
-        circuit = generate_random_circuit(
-            x, nqubits=nqubits, epochs=epochs, layouts=preset
-        )
-        value = circuit.expectation(
-            (
-                G.z(),  # type: ignore
-                [
-                    target,
-                ],
-            )
-        )
-        y = tf.cast(y, dtype=tf.complex64)
-        y = 2 * y - 1
-        loss += (value - y) ** 2
-    return tf.constant(tf.cast(loss, dtype=tf.float32)), tf.zeros_like(nnp)  # MSE loss
-
-
-def train_qml_vag(
-    gdata: Graph,
-    nnp: Tensor,
-    preset: Optional[Sequence[int]] = None,
-    nqubits: int = 10,
-    epochs: int = 3,
-    batch: int = 64,
-    validation: bool = False,
-) -> Any:
-    xs, ys = gdata
-    with tf.GradientTape() as tape:
-        tape.watch(nnp)
-        cnnp = tf.cast(nnp, dtype=tf.complex64)
-        c = Circuit(nqubits, inputs=np.ones([1024], dtype=np.complex64) / 2 ** 5)
-        for epoch in range(epochs):
-            for i in range(nqubits):
-                c.rz(i, theta=cnnp[3 * epoch, i])  # type: ignore
-            for i in range(nqubits):
-                c.ry(i, theta=cnnp[3 * epoch + 1, i])  # type: ignore
-            for i in range(0, nqubits, 2):
-                # c.swap(i, (i + 1) % 10)  # type: ignore
-                c.exp(  # type: ignore
-                    i,
-                    (i + 1) % 10,
-                    unitary=array_to_tensor(G._swap_matrix),
-                    theta=cnnp[3 * epoch + 2, i],
-                )
-            for i in range(1, nqubits, 2):
-                # c.swap(i, (i + 1) % 10)  # type: ignore
-                c.exp(  # type: ignore
-                    i,
-                    (i + 1) % 10,
-                    unitary=array_to_tensor(G._swap_matrix),
-                    theta=cnnp[3 * epoch + 2, i],
-                )
-        for i in range(nqubits):
-            c.rx(i, theta=cnnp[3 * epochs, i])  # type: ignore
-        count = 0
-        loss = 0
-        for x, y in zip(xs, ys):
-            y = tf.cast(y, dtype=tf.float32)  # [1, 0] binary
-            c.replace_inputs(tf.cast(x, dtype=tf.complex64))
-            flg = False
-            yp = 0.0
-
-            for i in range(nqubits):
-                yp += cnnp[3 * epochs + 1, i] * c.expectation(
-                    (
-                        G.z(),  # type: ignore
-                        [
-                            i,
-                        ],
-                    ),
-                    reuse=flg,
-                )
-
-                flg = True
-
-            yp = tf.cast(yp, dtype=tf.float32)
-            yp = tf.math.sigmoid(
-                (yp + tf.math.real(cnnp[3 * epochs + 2, 0])) * 15
-            )  ## [0,1] intepreted as probability
-            if tf.math.abs(yp - y) < 0.5:
-                count += 1
-            loss += (yp - y) ** 2
-        # print("accuracy:", count / batch)
-        gr = tape.gradient(loss, cnnp)
-        if not validation:
-            return tf.constant(count / batch, dtype=tf.float32), gr
-        else:
-            return count / batch  # evaluate as validation kernel
-
-
-def validate_qml_vag(
-    gdata: Graph,
-    nnp: Tensor,
-    preset: Optional[Sequence[int]] = None,
-    nqubits: int = 10,
-    epochs: int = 3,
-    batch: int = 64,
-) -> Any:
-    xs, ys = gdata
-    cnnp = tf.cast(nnp, dtype=tf.complex64)
-    c = Circuit(nqubits, inputs=np.ones([1024], dtype=np.complex64) / 2 ** 5)
-    for epoch in range(epochs):
-        for i in range(nqubits):
-            c.rz(i, theta=cnnp[3 * epoch, i])  # type: ignore
-        for i in range(nqubits):
-            c.ry(i, theta=cnnp[3 * epoch + 1, i])  # type: ignore
-        for i in range(0, nqubits, 2):
-            # c.swap(i, (i + 1) % 10)  # type: ignore
-            c.exp(  # type: ignore
-                i,
-                (i + 1) % 10,
-                unitary=array_to_tensor(G._swap_matrix),
-                theta=cnnp[3 * epoch + 2, i],
-            )
-        for i in range(1, nqubits, 2):
-            # c.swap(i, (i + 1) % 10)  # type: ignore
-            c.exp(  # type: ignore
-                i,
-                (i + 1) % 10,
-                unitary=array_to_tensor(G._swap_matrix),
-                theta=cnnp[3 * epoch + 2, i],
-            )
-    for i in range(nqubits):
-        c.rx(i, theta=cnnp[3 * epochs, i])  # type: ignore
-    count = 0
-    loss = 0
-    for x, y in zip(xs, ys):
-        y = tf.cast(y, dtype=tf.float32)  # [1, 0] binary
-        c.replace_inputs(tf.cast(x, dtype=tf.complex64))
-        flg = False
-        yp = 0.0
-
-        for i in range(nqubits):
-            yp += cnnp[3 * epochs + 1, i] * c.expectation(
-                (
-                    G.z(),  # type: ignore
-                    [
-                        i,
-                    ],
-                ),
-                reuse=flg,
-            )
-
-            flg = True
-
-        # yp += (
-        #     cnnp[3 * epochs + 1, i]
-        #     * (
-        #         c.expectation(
-        #             (
-        #                 G.y(),  # type: ignore
-        #                 [
-        #                     i,
-        #                 ],
-        #             ),
-        #             reuse=flg,
-        #         )
-        #     )
-        # )
-
-        # yp += cnnp[3 * epochs + 2, i] * (
-        #     c.expectation(
-        #         (
-        #             G.x(),  # type: ignore
-        #             [
-        #                 i,
-        #             ],
-        #         ),
-        #         reuse=flg,
-        #     )
-        # )
-        yp = tf.cast(yp, dtype=tf.float32)
-        yp = tf.math.sigmoid(
-            (yp + tf.math.real(cnnp[3 * epochs + 2, 0])) * 15
-        )  ## [0,1] intepreted as probability
-        if tf.math.abs(yp - y) < 0.5:
-            count += 1
-        loss += (yp - y) ** 2
-
-    return {
-        "val_loss": loss / batch,
-        "val_accuracy": count / batch,
-    }  # evaluate as validation kernel
-
-
-## some quantum quantities
+## some quantum quantities using tf ops
+## deprecated, see new functions implemented in backend agnostic way
+## in ``tc.quantum`` module
 
 
 def entropy(rho: Tensor, eps: float = 1e-12) -> Tensor:
@@ -1492,54 +1178,3 @@ def double_state(h: Tensor, beta: float = 1) -> Tensor:
 
 def correlation(m: Tensor, rho: Tensor) -> Tensor:
     return tf.math.real(tf.linalg.trace(rho @ m))
-
-
-## some utils
-
-
-def color_svg(circuit: cirq.Circuit, *coords: Tuple[int, int]) -> Any:
-    """
-    color cirq circuit SVG for given gates
-
-    :param circuit:
-    :param coords: integer coordinate which gate is colored
-    :return:
-    """
-    import xml
-    from cirq.contrib.svg import SVGCircuit  # type: ignore
-
-    svg_str = SVGCircuit(circuit)._repr_svg_()
-    DOMTree = xml.dom.minidom.parseString(svg_str)  # type: ignore
-    xpos = []
-    ypos = []
-    for r in DOMTree.getElementsByTagName("rect"):  # [0].setAttribute("fill", "gray")
-
-        xpos.append(int(float(r.getAttribute("x"))))
-        ypos.append(int(float(r.getAttribute("y"))))
-    xpos = sorted(list(set(xpos)))
-    ypos = sorted(list(set(ypos)))
-    # xpos_dict = dict(zip(range(len(xpos)), xpos))
-    # ypos_dict = dict(zip(range(len(ypos)), ypos))
-    i_xpos_dict = dict(zip(xpos, range(len(xpos))))
-    i_ypos_dict = dict(zip(ypos, range(len(ypos))))
-    for r in DOMTree.getElementsByTagName("rect"):
-        x, y = int(float(r.getAttribute("x"))), int(float(r.getAttribute("y")))
-        if (i_xpos_dict[x], i_ypos_dict[y]) in coords:
-            r.setAttribute("fill", "gray")
-    return DOMTree.toxml()
-
-
-def repr2array(inputs: str) -> Array:
-    """
-    transform repr form of an array to real numpy array
-
-    :param inputs:
-    :return:
-    """
-    inputs = inputs.split("]")  # type: ignore
-    inputs = [l.strip().strip("[") for l in inputs if l.strip()]  # type: ignore
-    outputs = []
-    for l in inputs:
-        o = [float(c.strip()) for c in l.split(" ") if c.strip()]
-        outputs.append(o)
-    return np.array(outputs)

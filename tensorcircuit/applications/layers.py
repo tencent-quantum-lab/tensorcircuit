@@ -1,13 +1,12 @@
 """
 module for functions adding layers of circuits
 """
-
-import sys
 import itertools
+import logging
+import sys
 from typing import Sequence, Union, Any, Optional, Tuple, List
 
 import numpy as np
-import cirq
 import tensorflow as tf
 
 from ..circuit import Circuit
@@ -15,10 +14,15 @@ from ..densitymatrix import DMCircuit
 from ..gates import num_to_tensor, array_to_tensor, _swap_matrix
 from ..channels import depolarizingchannel
 
+logger = logging.getLogger(__name__)
+
 try:
     import networkx as nx
+    import cirq
 except ImportError as e:
-    print(e)
+    logger.warning(e)
+    logger.warning("Therefore some functionality in %s may not work" % __name__)
+
 
 thismodule = sys.modules[__name__]
 
