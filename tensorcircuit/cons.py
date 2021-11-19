@@ -474,3 +474,5 @@ def set_contractor(
 
 
 set_contractor()
+
+# TODO(@refraction-ray): contractor at Circuit and instruction level setup

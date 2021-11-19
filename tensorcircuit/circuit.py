@@ -2,7 +2,7 @@
 quantum circuit: state simulator
 """
 
-from typing import Tuple, List, Callable, Optional, Any, Sequence
+from typing import Tuple, List, Callable, Optional, Any, Sequence, Dict
 from functools import reduce
 from operator import add
 
@@ -13,6 +13,7 @@ import tensornetwork as tn
 from . import gates
 from .cons import backend, contractor, dtypestr, npdtype
 from .quantum import QuVector, QuOperator
+from .simplify import _split_two_qubit_gate
 
 Gate = gates.Gate
 Tensor = Any
@@ -45,6 +46,7 @@ class Circuit:
         nqubits: int,
         inputs: Optional[Tensor] = None,
         mps_inputs: Optional[QuOperator] = None,
+        split: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Circuit object based on state simulator.
@@ -56,13 +58,17 @@ class Circuit:
         :type inputs: Optional[Tensor], optional
         :param mps_inputs: (Nodes, dangling Edges) for a MPS like initial wavefunction
         :type inputs: Optional[Tuple[Sequence[Gate], Sequence[Edge]]], optional
+        :param split: dict if two qubit gate is ready for split, including parameters for at least one of
+            ``max_singular_values`` and ``max_truncation_err``.
+        :type split: Optional[Dict[str, Any]]
         """
         _prefix = "qb-"
         if inputs is not None:
             self.has_inputs = True
         else:
             self.has_inputs = False
-        # Get nodes on the interior
+        self.split = split
+        # TODO(@refraction-ray): split settings at global and gate level
         if (inputs is None) and (mps_inputs is None):
             nodes = [
                 tn.Node(
@@ -291,20 +297,49 @@ class Circuit:
         self._nodes.append(gate)
         self._topology.append((index1, index2))  # type: ignore
 
+        # actually apply single and double gate never directly used in the Circuit class
+
     def apply_general_gate(
         self, gate: Gate, *index: int, name: Optional[str] = None
     ) -> None:
         assert len(index) == len(set(index))
         noe = len(index)
-        for i, ind in enumerate(index):
-            gate.get_edge(i + noe) ^ self._front[ind]
-            self._front[ind] = gate.get_edge(i)
-        self._nodes.append(gate)
-        self._topology.append(tuple(index))  # type: ignore
+        applied = False
+        if self.split and noe == 2:
+            results = _split_two_qubit_gate(gate, **self.split)
+            # max_err cannot be jax jitted
+            if results is not None:
+                n1, n2, is_swap = results
 
-        if (
-            name
-        ):  # if no name is specified, then the corresponding op wont be recorded in qcode
+                if is_swap is False:
+                    n1[1] ^ self._front[index[0]]
+                    n2[2] ^ self._front[index[1]]
+                    self._nodes.append(n1)
+                    self._nodes.append(n2)
+                    self._front[index[0]] = n1[0]
+                    self._front[index[1]] = n2[1]
+                    self._topology.append((index[0],))
+                    self._topology.append((index[1],))
+                else:
+                    n2[2] ^ self._front[index[0]]
+                    n1[1] ^ self._front[index[1]]
+                    self._nodes.append(n1)
+                    self._nodes.append(n2)
+                    self._front[index[0]] = n1[0]
+                    self._front[index[1]] = n2[1]
+                    self._topology.append((index[0],))
+                    self._topology.append((index[1],))
+                applied = True
+
+        if applied is False:
+            for i, ind in enumerate(index):
+                gate.get_edge(i + noe) ^ self._front[ind]
+                self._front[ind] = gate.get_edge(i)
+            self._nodes.append(gate)
+            self._topology.append(tuple(index))  # type: ignore
+
+        if name:
+            # if no name is specified, then the corresponding op wont be recorded in qcode
             self._qcode += name + " "
             for i in index:
                 self._qcode += str(i) + " "
@@ -881,7 +916,7 @@ class Circuit:
         compute expectation of corresponding operators
 
         :param ops: operator and its position on the circuit,
-            eg. ``(gates.Z(), [1]), (gates.X(), [2])`` is for operator :math:`Z_1X_2`
+            eg. ``(tc.gates.z(), [1, ]), (tc.gates.x(), [2, ])`` is for operator :math:`Z_1X_2`
         :type ops: Tuple[tn.Node, List[int]]
         :param reuse: if True, then the wavefunction tensor is cached for further expectation evaluation,
             defaults to True
