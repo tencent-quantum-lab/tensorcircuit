@@ -280,7 +280,15 @@ def tn_greedy_contractor(
 
 
 # base = tn.contractors.opt_einsum_paths.path_contractors.base
-utils = tn.contractors.opt_einsum_paths.utils
+# utils = tn.contractors.opt_einsum_paths.utils
+def _get_path(nodes: List[tn.Node], algorithm: Any) -> List[Tuple[int, int]]:
+    nodes = list(nodes)
+    input_sets = [set([id(e) for e in node.edges]) for node in nodes]
+    output_set = set([id(e) for e in tn.get_subgraph_dangling(nodes)])
+    size_dict = {id(edge): edge.dimension for edge in tn.get_all_edges(nodes)}
+
+    return algorithm(input_sets, output_set, size_dict)  # type: ignore
+
 
 # some contractor setup usages
 """
@@ -362,12 +370,13 @@ def _base(
             return list(nodes_set)[0]
         return list(nodes_set)[0].reorder_edges(output_edge_order)
 
+    nodes = list(nodes_set)
+
     # Then apply `opt_einsum`'s algorithm
     if isinstance(algorithm, list):
-        nodes = list(nodes)
         path = algorithm
     else:
-        path, nodes = utils.get_path(nodes_set, algorithm)
+        path = _get_path(nodes, algorithm)
     if total_size is None:
         total_size = sum([_sizen(t) for t in nodes])
     for a, b in path:
@@ -377,7 +386,7 @@ def _base(
         # nodes[b] = backend.zeros([1])
         nodes = _multi_remove(nodes, [a, b])
 
-        logger.info(_sizen(new_node, is_log=True))
+        logger.debug(_sizen(new_node, is_log=True))
         total_size += _sizen(new_node)  # type: ignore
     logger.info("----- WRITE: %s --------\n" % np.log2(total_size))
 

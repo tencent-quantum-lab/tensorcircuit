@@ -15,6 +15,7 @@ from typing import (
     Union,
 )
 
+import networkx as nx
 import numpy as np
 import tensorflow as tf
 
@@ -31,7 +32,6 @@ logger = logging.getLogger(__name__)
 
 try:
     import cirq
-    import networkx as nx
     import sympy
     import tensorflow_quantum as tfq
 
@@ -99,199 +99,6 @@ def GHZ_vag(
         gmatrix[i, j] = gr[i]
     gmatrix = tf.constant(gmatrix)
     return loss, gmatrix
-
-
-def double_qubits_initial() -> Iterator[Sequence[Any]]:
-    while True:
-        yield [
-            cirq.Circuit(
-                [cirq.rx(0.0)(cirq.GridQubit(0, 0)), cirq.rx(0.0)(cirq.GridQubit(1, 0))]
-            ),  # 00 +xx +zz
-            cirq.Circuit(
-                [cirq.X(cirq.GridQubit(1, 0)), cirq.rx(0.0)(cirq.GridQubit(0, 0))]
-            ),  # 01 +xx -zz
-            cirq.Circuit(
-                [cirq.X(cirq.GridQubit(0, 0)), cirq.rx(0.0)(cirq.GridQubit(1, 0))]
-            ),  # 10 -xx +zz
-            cirq.Circuit(
-                [cirq.X(cirq.GridQubit(0, 0)), cirq.X(cirq.GridQubit(1, 0))]
-            ),  # 11 -xx -zz
-        ]
-
-
-def GHZ_vag_tfq(
-    gdata: Any,
-    nnp: Tensor,
-    preset: Sequence[int],
-    verbose: bool = False,
-    index: Tuple[int, int, int, int, int, int, int, int] = (1, 1, 1, 0, 0, 1, 0, 0),
-) -> Tuple[Tensor, Tensor]:
-    # gdata = quantum_circuit
-
-    circuit = cirq.Circuit()
-    cset = get_op_pool()
-    for j in preset:
-        circuit.append(cset[j])
-    input_circuits = [c + circuit for c in gdata]
-    measurements = [
-        cirq.Z(cirq.GridQubit(0, 0)) * cirq.Z(cirq.GridQubit(1, 0)),
-        cirq.X(cirq.GridQubit(0, 0)) * cirq.X(cirq.GridQubit(1, 0)),
-    ]
-    expl = tfq.layers.Expectation()
-    res = expl(input_circuits, operators=measurements)
-    if verbose:
-        print(res.numpy())
-    loss = (
-        (-1.0) ** index[0] * res[0, 0]
-        + (-1.0) ** index[1] * res[0, 1]
-        + (-1.0) ** index[2] * res[1, 0]
-        + (-1.0) ** index[3] * res[1, 1]
-        + (-1.0) ** index[4] * res[2, 0]
-        + (-1.0) ** index[5] * res[2, 1]
-        + (-1.0) ** index[6] * res[3, 0]
-        + (-1.0) ** index[7] * res[3, 1]
-    )
-    #     loss = -tf.reduce_sum(tf.abs(res)) # for more general case
-    return loss, tf.zeros_like(nnp)
-
-
-## QFT QEM application
-
-
-def q(i: int) -> cirq.LineQubit:
-    """
-    short cut for ``cirq.LineQubit(i)``
-
-    :param i:
-    :return:
-    """
-    return cirq.LineQubit(i)
-
-
-@lru_cache()
-def qft_circuit(n: int) -> cirq.Circuit:
-
-    circuit = cirq.Circuit()
-    for i in reversed(range(n)):
-        circuit.append(cirq.H(q(i)))
-        for d, j in enumerate(reversed(range(i))):
-            circuit.append(
-                cirq.ControlledGate(cirq.Z ** (1 / 2 ** (d + 1)))(q(j), q(i))
-            )
-
-    return circuit
-
-
-def gapfilling(circuit: cirq.Circuit, placeholder: Sequence[Any]) -> cirq.Circuit:
-    """
-    Fill single qubit gates according to placeholder on circuit
-
-    :param circuit:
-    :param placeholder:
-    :return:
-    """
-    n_circuit = cirq.Circuit()
-    all_qubits = sorted(circuit.all_qubits())
-    i = 0
-    for m in circuit.moments:
-        n_circuit.append(m)
-        occupied_qubits = set()
-        for g in m:
-            for q in g.qubits:
-                occupied_qubits.add(q)
-        for q in all_qubits:
-            if q not in occupied_qubits:
-                if placeholder[i] != cirq.I:
-                    n_circuit.append(placeholder[i](q))
-                i += 1
-    return n_circuit
-
-
-def noisyfy(
-    circuit: cirq.Circuit,
-    error_model: str = "bit_flip",
-    p_idle: float = 0.2,
-    p_sep: float = 0.02,
-) -> cirq.Circuit:
-    noise_circuit = cirq.Circuit()
-    error = getattr(cirq, error_model)
-    all_qubits = circuit.all_qubits()
-    for m in circuit.moments:
-        noise_circuit.append(m)
-        occupied_qubits = set()
-        for g in m:
-            for q in g.qubits:
-                occupied_qubits.add(q)
-        for q in all_qubits:
-            if q not in occupied_qubits:
-                noise_circuit.append(error(p_idle)(q))
-        noise_circuit.append(error(p_sep).on_each(*all_qubits))
-    return noise_circuit
-
-
-def unitary_design_block(circuit: cirq.Circuit, n: int) -> cirq.Circuit:
-    """
-    random Haar measure approximation
-
-    :param circuit: cirq.Circuit, empty circuit
-    :param n: # of qubit
-    :return:
-    """
-    for i in range(n):
-        theta = np.random.choice([0, 2 / 3, 4 / 3])
-        circuit.append(cirq.ZPowGate(exponent=theta)(q(i)))
-    for i in range(n - 1):
-        for j in range(i + 1, n):
-            if np.random.choice([0, 1]) < 0.5:
-                circuit.append(cirq.CZ(q(i), q(j)))
-    for i in range(n):
-        circuit.append(cirq.H(q(i)))
-    return circuit
-
-
-def unitary_design(n: int, l: int = 3) -> cirq.Circuit:
-    """
-    generate random wavefunction from approximately Haar measure,
-    reference:  https://doi.org/10.1063/1.4983266
-
-    :param n: number of qubits
-    :param l: repetition of the blocks
-    :return:
-    """
-    circuit = cirq.Circuit()
-    for i in range(n):
-        circuit.append(cirq.H(q(i)))  # the first block only final H layer has effect
-    for _ in range(l):
-        unitary_design_block(circuit, n)
-    return circuit
-
-
-def qft_qem_vag(
-    gdata: Any,
-    nnp: Tensor,
-    preset: Sequence[int],
-    n: int = 3,
-    p_idle: float = 0.2,
-    p_sep: float = 0.02,
-) -> Tuple[Tensor, Tensor]:
-    # gdata = None
-    if gdata is None:
-        prepend = unitary_design(n)
-    else:
-        prepend = gdata
-    s = cirq.DensityMatrixSimulator()
-    cset = get_op_pool()
-    placeholder = [cset[j] for j in preset]
-    qftc = qft_circuit(n)
-
-    ideal = prepend + qftc
-    pdm = s.simulate(ideal).final_density_matrix
-    ncq = gapfilling(qftc, placeholder)
-    ncq = noisyfy(ncq, p_idle=p_idle, p_sep=p_sep)
-    ncq = prepend + ncq
-    ndm = s.simulate(ncq).final_density_matrix
-    loss = -cirq.fidelity(pdm, ndm)
-    return tf.constant(loss, dtype=tf.float32), tf.zeros_like(nnp)
 
 
 ## QAOA application
@@ -872,186 +679,385 @@ def gatewise_vqe_vag(
 ## functions for quantum Hamiltonian QAOA with tensorflow quantum backend
 ## deprecated tfq related vags
 
+try:
+    v = sympy.symbols("v_{0:64}")
+    vv = sympy.symbols(["v_" + str(i) + "_0:32" for i in range(32)])
+    # symbol pool
+    def double_qubits_initial() -> Iterator[Sequence[Any]]:
+        while True:
+            yield [
+                cirq.Circuit(
+                    [
+                        cirq.rx(0.0)(cirq.GridQubit(0, 0)),
+                        cirq.rx(0.0)(cirq.GridQubit(1, 0)),
+                    ]
+                ),  # 00 +xx +zz
+                cirq.Circuit(
+                    [cirq.X(cirq.GridQubit(1, 0)), cirq.rx(0.0)(cirq.GridQubit(0, 0))]
+                ),  # 01 +xx -zz
+                cirq.Circuit(
+                    [cirq.X(cirq.GridQubit(0, 0)), cirq.rx(0.0)(cirq.GridQubit(1, 0))]
+                ),  # 10 -xx +zz
+                cirq.Circuit(
+                    [cirq.X(cirq.GridQubit(0, 0)), cirq.X(cirq.GridQubit(1, 0))]
+                ),  # 11 -xx -zz
+            ]
 
-v = sympy.symbols("v_{0:64}")
-vv = sympy.symbols(["v_" + str(i) + "_0:32" for i in range(32)])
-# symbol pool
+    def GHZ_vag_tfq(
+        gdata: Any,
+        nnp: Tensor,
+        preset: Sequence[int],
+        verbose: bool = False,
+        index: Tuple[int, int, int, int, int, int, int, int] = (1, 1, 1, 0, 0, 1, 0, 0),
+    ) -> Tuple[Tensor, Tensor]:
+        # gdata = quantum_circuit
 
-
-@lru_cache()
-def tfim_measurements(
-    g: Graph, hzz: float = 1, hx: float = 0, hz: float = 0, one: bool = True
-) -> Any:
-    """
-    Hamiltonian for tfim on lattice defined by graph g
-
-    :param g:
-    :param hzz:
-    :param hx:
-    :param hz:
-    :param one:
-    :return: cirq.PauliSum as operators for tfq expectation layer
-    """
-    # one=True and False seems give no speed difference
-    measurements = []
-    qubits = generate_qubits(g)
-    for e in g.edges:
-        measurements.append(
-            hzz * g[e[0]][e[1]]["weight"] * cirq.Z(qubits[e[0]]) * cirq.Z(qubits[e[1]])
+        circuit = cirq.Circuit()
+        cset = get_op_pool()
+        for j in preset:
+            circuit.append(cset[j])
+        input_circuits = [c + circuit for c in gdata]
+        measurements = [
+            cirq.Z(cirq.GridQubit(0, 0)) * cirq.Z(cirq.GridQubit(1, 0)),
+            cirq.X(cirq.GridQubit(0, 0)) * cirq.X(cirq.GridQubit(1, 0)),
+        ]
+        expl = tfq.layers.Expectation()
+        res = expl(input_circuits, operators=measurements)
+        if verbose:
+            print(res.numpy())
+        loss = (
+            (-1.0) ** index[0] * res[0, 0]
+            + (-1.0) ** index[1] * res[0, 1]
+            + (-1.0) ** index[2] * res[1, 0]
+            + (-1.0) ** index[3] * res[1, 1]
+            + (-1.0) ** index[4] * res[2, 0]
+            + (-1.0) ** index[5] * res[2, 1]
+            + (-1.0) ** index[6] * res[3, 0]
+            + (-1.0) ** index[7] * res[3, 1]
         )
+        #     loss = -tf.reduce_sum(tf.abs(res)) # for more general case
+        return loss, tf.zeros_like(nnp)
 
-    if hx != 0:
-        for i in range(len(g.nodes)):
-            measurements.append(hx * cirq.X(qubits[i]))
-    if hz != 0:
-        for i in range(len(g.nodes)):
-            measurements.append(hz * cirq.Z(qubits[i]))
-    if one:
-        measurements = reduce(operator.add, measurements)
-    return measurements
+    ## QFT QEM application
 
+    def q(i: int) -> cirq.LineQubit:
+        """
+        short cut for ``cirq.LineQubit(i)``
 
-@lru_cache()
-def heisenberg_measurements(
-    g: Graph, hxx: float = 1.0, hyy: float = 1.0, hzz: float = 1.0, one: bool = True
-) -> Any:
-    """
-    Hamiltonian measurements for Heisenberg model on graph lattice g
+        :param i:
+        :return:
+        """
+        return cirq.LineQubit(i)
 
-    :param g:
-    :param hxx:
-    :param hyy:
-    :param hzz:
-    :param one:
-    :return:
-    """
-    measurements = []
-    qubits = generate_qubits(g)
-    for e in g.edges:
-        measurements.append(
-            hzz * g[e[0]][e[1]]["weight"] * cirq.Z(qubits[e[0]]) * cirq.Z(qubits[e[1]])
-        )
-        measurements.append(
-            hxx * g[e[0]][e[1]]["weight"] * cirq.X(qubits[e[0]]) * cirq.X(qubits[e[1]])
-        )
-        measurements.append(
-            hyy * g[e[0]][e[1]]["weight"] * cirq.Y(qubits[e[0]]) * cirq.Y(qubits[e[1]])
-        )
-    if one:
-        measurements = reduce(operator.add, measurements)
-    return measurements
+    @lru_cache()
+    def qft_circuit(n: int) -> cirq.Circuit:
 
+        circuit = cirq.Circuit()
+        for i in reversed(range(n)):
+            circuit.append(cirq.H(q(i)))
+            for d, j in enumerate(reversed(range(i))):
+                circuit.append(
+                    cirq.ControlledGate(cirq.Z ** (1 / 2 ** (d + 1)))(q(j), q(i))
+                )
 
-def quantum_qaoa_vag(
-    gdata: Graph,
-    nnp: Tensor,
-    preset: Sequence[int],
-    measurements_func: Optional[Callable[..., Any]] = None,
-    **kws: Any,
-) -> Tuple[Tensor, Tensor]:
-    """
-    tensorflow quantum backend compare to qaoa_vag which is tensorcircuit backend
+        return circuit
 
-    :param gdata:
-    :param nnp:
-    :param preset:
-    :param measurements_func:
-    :param kws: kw arguments for measurements_func
-    :return:
-    """
-    if measurements_func is None:
-        measurements_func = tfim_measurements
-    ep = tfq.layers.Expectation()
-    nnp = nnp.numpy()  # real
-    pnnp = [nnp[i, j] for i, j in enumerate(preset)]
-    pnnp = array_to_tensor(np.array(pnnp))  # complex
-    ci = cirq.Circuit()
-    cset = get_op_pool()
-    for i, j in enumerate(preset):
-        if callable(cset[j]):
-            cset[j](ci, gdata, v[i])
-        else:  # op is a tuple with graph info as (op, g)
-            cset[j][0](ci, cset[j][1], v[i])
+    def gapfilling(circuit: cirq.Circuit, placeholder: Sequence[Any]) -> cirq.Circuit:
+        """
+        Fill single qubit gates according to placeholder on circuit
 
-    with tf.GradientTape() as t:
-        t.watch(pnnp)
-        loss = ep(
-            inputs=[ci],
-            symbol_names=v[: len(preset)],
-            symbol_values=[pnnp],
-            operators=measurements_func(gdata, **kws),
-        )[0]
+        :param circuit:
+        :param placeholder:
+        :return:
+        """
+        n_circuit = cirq.Circuit()
+        all_qubits = sorted(circuit.all_qubits())
+        i = 0
+        for m in circuit.moments:
+            n_circuit.append(m)
+            occupied_qubits = set()
+            for g in m:
+                for q in g.qubits:
+                    occupied_qubits.add(q)
+            for q in all_qubits:
+                if q not in occupied_qubits:
+                    if placeholder[i] != cirq.I:
+                        n_circuit.append(placeholder[i](q))
+                    i += 1
+        return n_circuit
+
+    def noisyfy(
+        circuit: cirq.Circuit,
+        error_model: str = "bit_flip",
+        p_idle: float = 0.2,
+        p_sep: float = 0.02,
+    ) -> cirq.Circuit:
+        noise_circuit = cirq.Circuit()
+        error = getattr(cirq, error_model)
+        all_qubits = circuit.all_qubits()
+        for m in circuit.moments:
+            noise_circuit.append(m)
+            occupied_qubits = set()
+            for g in m:
+                for q in g.qubits:
+                    occupied_qubits.add(q)
+            for q in all_qubits:
+                if q not in occupied_qubits:
+                    noise_circuit.append(error(p_idle)(q))
+            noise_circuit.append(error(p_sep).on_each(*all_qubits))
+        return noise_circuit
+
+    def unitary_design_block(circuit: cirq.Circuit, n: int) -> cirq.Circuit:
+        """
+        random Haar measure approximation
+
+        :param circuit: cirq.Circuit, empty circuit
+        :param n: # of qubit
+        :return:
+        """
+        for i in range(n):
+            theta = np.random.choice([0, 2 / 3, 4 / 3])
+            circuit.append(cirq.ZPowGate(exponent=theta)(q(i)))
+        for i in range(n - 1):
+            for j in range(i + 1, n):
+                if np.random.choice([0, 1]) < 0.5:
+                    circuit.append(cirq.CZ(q(i), q(j)))
+        for i in range(n):
+            circuit.append(cirq.H(q(i)))
+        return circuit
+
+    def unitary_design(n: int, l: int = 3) -> cirq.Circuit:
+        """
+        generate random wavefunction from approximately Haar measure,
+        reference:  https://doi.org/10.1063/1.4983266
+
+        :param n: number of qubits
+        :param l: repetition of the blocks
+        :return:
+        """
+        circuit = cirq.Circuit()
+        for i in range(n):
+            circuit.append(
+                cirq.H(q(i))
+            )  # the first block only final H layer has effect
+        for _ in range(l):
+            unitary_design_block(circuit, n)
+        return circuit
+
+    def qft_qem_vag(
+        gdata: Any,
+        nnp: Tensor,
+        preset: Sequence[int],
+        n: int = 3,
+        p_idle: float = 0.2,
+        p_sep: float = 0.02,
+    ) -> Tuple[Tensor, Tensor]:
+        # gdata = None
+        if gdata is None:
+            prepend = unitary_design(n)
+        else:
+            prepend = gdata
+        s = cirq.DensityMatrixSimulator()
+        cset = get_op_pool()
+        placeholder = [cset[j] for j in preset]
+        qftc = qft_circuit(n)
+
+        ideal = prepend + qftc
+        pdm = s.simulate(ideal).final_density_matrix
+        ncq = gapfilling(qftc, placeholder)
+        ncq = noisyfy(ncq, p_idle=p_idle, p_sep=p_sep)
+        ncq = prepend + ncq
+        ndm = s.simulate(ncq).final_density_matrix
+        loss = -cirq.fidelity(pdm, ndm)
+        return tf.constant(loss, dtype=tf.float32), tf.zeros_like(nnp)
+
+    @lru_cache()
+    def tfim_measurements(
+        g: Graph, hzz: float = 1, hx: float = 0, hz: float = 0, one: bool = True
+    ) -> Any:
+        """
+        Hamiltonian for tfim on lattice defined by graph g
+
+        :param g:
+        :param hzz:
+        :param hx:
+        :param hz:
+        :param one:
+        :return: cirq.PauliSum as operators for tfq expectation layer
+        """
+        # one=True and False seems give no speed difference
+        measurements = []
+        qubits = generate_qubits(g)
+        for e in g.edges:
+            measurements.append(
+                hzz
+                * g[e[0]][e[1]]["weight"]
+                * cirq.Z(qubits[e[0]])
+                * cirq.Z(qubits[e[1]])
+            )
+
+        if hx != 0:
+            for i in range(len(g.nodes)):
+                measurements.append(hx * cirq.X(qubits[i]))
+        if hz != 0:
+            for i in range(len(g.nodes)):
+                measurements.append(hz * cirq.Z(qubits[i]))
+        if one:
+            measurements = reduce(operator.add, measurements)
+        return measurements
+
+    @lru_cache()
+    def heisenberg_measurements(
+        g: Graph, hxx: float = 1.0, hyy: float = 1.0, hzz: float = 1.0, one: bool = True
+    ) -> Any:
+        """
+        Hamiltonian measurements for Heisenberg model on graph lattice g
+
+        :param g:
+        :param hxx:
+        :param hyy:
+        :param hzz:
+        :param one:
+        :return:
+        """
+        measurements = []
+        qubits = generate_qubits(g)
+        for e in g.edges:
+            measurements.append(
+                hzz
+                * g[e[0]][e[1]]["weight"]
+                * cirq.Z(qubits[e[0]])
+                * cirq.Z(qubits[e[1]])
+            )
+            measurements.append(
+                hxx
+                * g[e[0]][e[1]]["weight"]
+                * cirq.X(qubits[e[0]])
+                * cirq.X(qubits[e[1]])
+            )
+            measurements.append(
+                hyy
+                * g[e[0]][e[1]]["weight"]
+                * cirq.Y(qubits[e[0]])
+                * cirq.Y(qubits[e[1]])
+            )
+        if one:
+            measurements = reduce(operator.add, measurements)
+        return measurements
+
+    def quantum_qaoa_vag(
+        gdata: Graph,
+        nnp: Tensor,
+        preset: Sequence[int],
+        measurements_func: Optional[Callable[..., Any]] = None,
+        **kws: Any,
+    ) -> Tuple[Tensor, Tensor]:
+        """
+        tensorflow quantum backend compare to qaoa_vag which is tensorcircuit backend
+
+        :param gdata:
+        :param nnp:
+        :param preset:
+        :param measurements_func:
+        :param kws: kw arguments for measurements_func
+        :return:
+        """
+        if measurements_func is None:
+            measurements_func = tfim_measurements
+        ep = tfq.layers.Expectation()
+        nnp = nnp.numpy()  # real
+        pnnp = [nnp[i, j] for i, j in enumerate(preset)]
+        pnnp = array_to_tensor(np.array(pnnp))  # complex
+        ci = cirq.Circuit()
+        cset = get_op_pool()
+        for i, j in enumerate(preset):
+            if callable(cset[j]):
+                cset[j](ci, gdata, v[i])
+            else:  # op is a tuple with graph info as (op, g)
+                cset[j][0](ci, cset[j][1], v[i])
+
+        with tf.GradientTape() as t:
+            t.watch(pnnp)
+            loss = ep(
+                inputs=[ci],
+                symbol_names=v[: len(preset)],
+                symbol_values=[pnnp],
+                operators=measurements_func(gdata, **kws),
+            )[0]
+            gr = t.gradient(loss, pnnp)
+        if gr is None:
+            # if all gates in preset are not trainable, then gr returns None instead of 0s
+            gr = tf.zeros_like(pnnp)
+        gr = cons.backend.real(gr)
+        gr = tf.where(tf.math.is_nan(gr), 0.0, gr)
+        gmatrix = np.zeros_like(nnp)
+        for i, j in enumerate(preset):
+            gmatrix[i, j] = gr[i]
+        gmatrix = tf.constant(gmatrix)
+        return loss[0], gmatrix
+
+    def quantum_mp_qaoa_vag(
+        gdata: Graph,
+        nnp: Tensor,
+        preset: Sequence[int],
+        measurements_func: Optional[Callable[..., Any]] = None,
+        **kws: Any,
+    ) -> Tuple[Tensor, Tensor]:
+        """
+        multi parameter for one layer
+
+        :param gdata:
+        :param nnp:
+        :param preset:
+        :param measurements_func:
+        :param kws: kw arguments for measurements_func
+        :return: loss function, gradient of nnp
+        """
+        if measurements_func is None:
+            measurements_func = tfim_measurements
+        assert len(nnp.shape) == 3  # p * c * l
+        nnp = nnp.numpy()  # real
+        # p, c, l = nnp.shape[0], nnp.shape[1], nnp.shape[2]
+        p, l = nnp.shape[0], nnp.shape[2]
+        pnnp = np.empty(dtype=np.float32, shape=[p, l])
+        for i, j in enumerate(preset):
+            pnnp[i, :] = nnp[i, j, :]
+        pnnp = array_to_tensor(np.array(pnnp))  # complex
+        ci = cirq.Circuit()
+        cset = get_op_pool()
+        for i, j in enumerate(preset):
+            if callable(cset[j]):
+                cset[j](ci, gdata, vv[i][:l])
+            else:  # op is a tuple with graph info as (op, g)
+                cset[j][0](ci, cset[j][1], vv[i][:l])
+        ep = tfq.layers.Expectation()
+        symbol_names = []
+        for i in range(len(preset)):
+            symbol_names.extend(vv[i][:l])
+        with tf.GradientTape() as t:
+            t.watch(pnnp)
+            loss = ep(
+                inputs=[ci],
+                symbol_names=symbol_names,
+                symbol_values=[tf.reshape(pnnp, [-1])],
+                operators=measurements_func(gdata, **kws),
+            )[0]
         gr = t.gradient(loss, pnnp)
-    if gr is None:
-        # if all gates in preset are not trainable, then gr returns None instead of 0s
-        gr = tf.zeros_like(pnnp)
-    gr = cons.backend.real(gr)
-    gr = tf.where(tf.math.is_nan(gr), 0.0, gr)
-    gmatrix = np.zeros_like(nnp)
-    for i, j in enumerate(preset):
-        gmatrix[i, j] = gr[i]
-    gmatrix = tf.constant(gmatrix)
-    return loss[0], gmatrix
+        if gr is None:
+            # if all gates in preset are not trainable, then gr returns None instead of 0s
+            gr = tf.zeros_like(pnnp)
+        gr = cons.backend.real(gr)
+        gr = tf.where(tf.math.is_nan(gr), 0.0, gr)
+        gmatrix = np.zeros_like(nnp)
+        for i, j in enumerate(preset):
+            gmatrix[i, j, :] = gr[i, :]
+        gmatrix = tf.constant(gmatrix)
+        return loss[0], gmatrix
 
 
-def quantum_mp_qaoa_vag(
-    gdata: Graph,
-    nnp: Tensor,
-    preset: Sequence[int],
-    measurements_func: Optional[Callable[..., Any]] = None,
-    **kws: Any,
-) -> Tuple[Tensor, Tensor]:
-    """
-    multi parameter for one layer
-
-    :param gdata:
-    :param nnp:
-    :param preset:
-    :param measurements_func:
-    :param kws: kw arguments for measurements_func
-    :return: loss function, gradient of nnp
-    """
-    if measurements_func is None:
-        measurements_func = tfim_measurements
-    assert len(nnp.shape) == 3  # p * c * l
-    nnp = nnp.numpy()  # real
-    # p, c, l = nnp.shape[0], nnp.shape[1], nnp.shape[2]
-    p, l = nnp.shape[0], nnp.shape[2]
-    pnnp = np.empty(dtype=np.float32, shape=[p, l])
-    for i, j in enumerate(preset):
-        pnnp[i, :] = nnp[i, j, :]
-    pnnp = array_to_tensor(np.array(pnnp))  # complex
-    ci = cirq.Circuit()
-    cset = get_op_pool()
-    for i, j in enumerate(preset):
-        if callable(cset[j]):
-            cset[j](ci, gdata, vv[i][:l])
-        else:  # op is a tuple with graph info as (op, g)
-            cset[j][0](ci, cset[j][1], vv[i][:l])
-    ep = tfq.layers.Expectation()
-    symbol_names = []
-    for i in range(len(preset)):
-        symbol_names.extend(vv[i][:l])
-    with tf.GradientTape() as t:
-        t.watch(pnnp)
-        loss = ep(
-            inputs=[ci],
-            symbol_names=symbol_names,
-            symbol_values=[tf.reshape(pnnp, [-1])],
-            operators=measurements_func(gdata, **kws),
-        )[0]
-    gr = t.gradient(loss, pnnp)
-    if gr is None:
-        # if all gates in preset are not trainable, then gr returns None instead of 0s
-        gr = tf.zeros_like(pnnp)
-    gr = cons.backend.real(gr)
-    gr = tf.where(tf.math.is_nan(gr), 0.0, gr)
-    gmatrix = np.zeros_like(nnp)
-    for i, j in enumerate(preset):
-        gmatrix[i, j, :] = gr[i, :]
-    gmatrix = tf.constant(gmatrix)
-    return loss[0], gmatrix
-
+except NameError as e:
+    logger.warning(e)
+    logger.warning("tfq related vags disabled due to missing packages")
 
 ## some quantum quantities using tf ops
 ## deprecated, see new functions implemented in backend agnostic way

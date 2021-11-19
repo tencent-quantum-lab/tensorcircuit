@@ -511,5 +511,7 @@ def test_circuit_split(backend):
     # TODO(@refraction-ray): nan on jax backend?
     # i see, complex value SVD is not supported on jax for now :)
     # I shall further customize complex SVD, finally has applications
+
+    # tf 2.6.2 also doesn't support complex valued SVD AD, weird...
     if tc.backend.name == "tensorflow":
         np.testing.assert_allclose(g1, g3, atol=1e-5)

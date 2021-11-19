@@ -305,7 +305,7 @@ class Circuit:
         assert len(index) == len(set(index))
         noe = len(index)
         applied = False
-        if self.split and noe == 2:
+        if (self.split is not None) and noe == 2:
             results = _split_two_qubit_gate(gate, **self.split)
             # max_err cannot be jax jitted
             if results is not None:
