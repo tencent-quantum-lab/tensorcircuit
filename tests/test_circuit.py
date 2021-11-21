@@ -444,3 +444,123 @@ def test_circuit_add_demo():
     c3.X(0)
     c3.replace_mps_inputs(c.quvector())
     assert np.allclose(c3.wavefunction(), answer, atol=1e-4)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_circuit_split(backend):
+    n = 4
+
+    def f(param, max_singular_values=None, max_truncation_err=None, fixed_choice=None):
+        if (max_singular_values is None) and (max_truncation_err is None):
+            split = None
+        else:
+            split = {
+                "max_singular_values": max_singular_values,
+                "max_truncation_err": max_truncation_err,
+                "fixed_choice": fixed_choice,
+            }
+        c = tc.Circuit(
+            n,
+            split=split,
+        )
+        for i in range(n):
+            c.H(i)
+        for j in range(2):
+            for i in range(n - 1):
+                c.exp1(i, i + 1, theta=param[2 * j, i], unitary=tc.gates._zz_matrix)
+            for i in range(n):
+                c.rx(i, theta=param[2 * j + 1, i])
+        loss = c.expectation(
+            (
+                tc.gates.z(),
+                [1],
+            ),
+            (
+                tc.gates.z(),
+                [2],
+            ),
+        )
+        return tc.backend.real(loss)
+
+    s1 = f(tc.backend.ones([4, n]))
+    s2 = f(tc.backend.ones([4, n]), max_truncation_err=1e-5)
+    s3 = f(tc.backend.ones([4, n]), max_singular_values=2, fixed_choice=1)
+
+    np.testing.assert_allclose(s1, s2, atol=1e-5)
+    np.testing.assert_allclose(s1, s3, atol=1e-5)
+
+    f_jit = tc.backend.jit(f, static_argnums=(1, 2, 3))
+
+    s1 = f_jit(tc.backend.ones([4, n]))
+    # s2 = f_jit(tc.backend.ones([4, n]), max_truncation_err=1e-5) # doesn't work now
+    s3 = f_jit(tc.backend.ones([4, n]), max_singular_values=2, fixed_choice=1)
+
+    # np.testing.assert_allclose(s1, s2, atol=1e-5)
+    np.testing.assert_allclose(s1, s3, atol=1e-5)
+
+    f_vag = tc.backend.jit(
+        tc.backend.value_and_grad(f, argnums=0), static_argnums=(1, 2, 3)
+    )
+
+    s1, g1 = f_vag(tc.backend.ones([4, n]))
+    s3, g3 = f_vag(tc.backend.ones([4, n]), max_singular_values=2, fixed_choice=1)
+
+    np.testing.assert_allclose(s1, s3, atol=1e-5)
+    print(g1[:, :])
+    print(g3[:, :])
+    # TODO(@refraction-ray): nan on jax backend?
+    # i see, complex value SVD is not supported on jax for now :)
+    # I shall further customize complex SVD, finally has applications
+
+    # tf 2.6.2 also doesn't support complex valued SVD AD, weird...
+    if tc.backend.name == "tensorflow":
+        np.testing.assert_allclose(g1, g3, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_gate_split(backend):
+    n = 4
+
+    def f(param, max_singular_values=None, max_truncation_err=None, fixed_choice=None):
+        if (max_singular_values is None) and (max_truncation_err is None):
+            split = None
+        else:
+            split = {
+                "max_singular_values": max_singular_values,
+                "max_truncation_err": max_truncation_err,
+                "fixed_choice": fixed_choice,
+            }
+        c = tc.Circuit(
+            n,
+        )
+        for i in range(n):
+            c.H(i)
+        for j in range(2):
+            for i in range(n - 1):
+                c.exp1(
+                    i,
+                    i + 1,
+                    theta=param[2 * j, i],
+                    unitary=tc.gates._zz_matrix,
+                    split=split,
+                )
+            for i in range(n):
+                c.rx(i, theta=param[2 * j + 1, i])
+        loss = c.expectation(
+            (
+                tc.gates.z(),
+                [1],
+            ),
+            (
+                tc.gates.z(),
+                [2],
+            ),
+        )
+        return tc.backend.real(loss)
+
+    s1 = f(tc.backend.ones([4, n]))
+    s2 = f(tc.backend.ones([4, n]), max_truncation_err=1e-5)
+    s3 = f(tc.backend.ones([4, n]), max_singular_values=2, fixed_choice=1)
+
+    np.testing.assert_allclose(s1, s2, atol=1e-5)
+    np.testing.assert_allclose(s1, s3, atol=1e-5)

@@ -24,6 +24,15 @@ Array = Any
 Tensor = Any
 Graph = Any
 
+
+class FakeModule:
+    def __getattr__(self, name: str) -> str:
+        return name
+
+
+fake_module = FakeModule()
+
+
 ##############
 ## qml related functions to be refactored
 ##############

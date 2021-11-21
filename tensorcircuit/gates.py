@@ -5,7 +5,7 @@ declarations of single-qubit and two-qubit gates and their corresponding matrix
 import sys
 from copy import deepcopy
 from functools import partial, reduce
-from typing import Optional, Any, Union
+from typing import Any, Optional, Union
 from operator import mul
 
 import numpy as np

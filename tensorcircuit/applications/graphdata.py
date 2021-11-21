@@ -9,7 +9,6 @@ from typing import Any, Dict, Iterator, Sequence, Tuple, Optional
 import networkx as nx
 import numpy as np
 
-
 Graph = Any
 
 graph_instances = {

@@ -130,6 +130,19 @@ def test_backend_methods(backend):
         atol=1e-4,
     )
 
+    assert np.allclose(tc.backend.max(tc.backend.ones([2, 2])), 1.0, atol=1e-4)
+    assert np.allclose(
+        tc.backend.min(
+            tc.backend.cast(
+                tc.backend.convert_to_tensor(np.array([[1.0, 2.0], [2.0, 3.0]])),
+                "float64",
+            ),
+            axis=1,
+        ),
+        np.array([1.0, 2.0]),
+        atol=1e-4,
+    )  # by default no keepdim
+
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_tree_map(backend):

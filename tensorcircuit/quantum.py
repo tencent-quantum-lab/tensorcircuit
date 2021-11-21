@@ -6,13 +6,13 @@ from operator import or_, mul, matmul
 from typing import (
     Any,
     Callable,
-    Union,
+    Collection,
+    List,
     Optional,
     Sequence,
-    Collection,
-    Tuple,
     Set,
-    List,
+    Tuple,
+    Union,
 )
 
 import numpy as np

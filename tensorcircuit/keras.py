@@ -2,7 +2,7 @@
 keras layer for tc quantum function
 """
 
-from typing import List, Optional, Text, Tuple, Callable, Any, Sequence, Union
+from typing import Any, Callable, List, Optional, Sequence, Text, Tuple, Union
 
 import numpy as np
 import tensorflow as tf

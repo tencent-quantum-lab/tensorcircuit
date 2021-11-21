@@ -5,7 +5,7 @@ import logging
 import sys
 from functools import partial, reduce
 from operator import mul
-from typing import Optional, Any, List, Sequence, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 import opt_einsum
@@ -88,7 +88,8 @@ def set_dtype(dtype: Optional[str] = None) -> None:
 
 set_dtype()
 
-## here below comes other contractors (just works, but correctness has not been extensively tested)
+## here below comes other contractors (just works,
+## but correctness has not been extensively tested for some of them)
 
 
 def _multi_remove(elems: List[Any], indices: List[int]) -> List[Any]:
@@ -128,7 +129,8 @@ def _merge_single_gates(
         nodes[njs[1]] = new_node
         nodes = _multi_remove(nodes, [njs[0]])
         if len(new_node.tensor.shape) <= 2:
-            queue.append(new_node)
+            # queue.append(new_node)
+            queue.insert(0, new_node)
     return nodes, total_size  # type: ignore
 
 
@@ -280,7 +282,45 @@ def tn_greedy_contractor(
 
 
 # base = tn.contractors.opt_einsum_paths.path_contractors.base
-utils = tn.contractors.opt_einsum_paths.utils
+# utils = tn.contractors.opt_einsum_paths.utils
+
+
+def _get_path(
+    nodes: List[tn.Node], algorithm: Any
+) -> Tuple[List[Tuple[int, int]], List[tn.Node]]:
+    nodes = list(nodes)
+    input_sets = [set([id(e) for e in node.edges]) for node in nodes]
+    output_set = set([id(e) for e in tn.get_subgraph_dangling(nodes)])
+    size_dict = {id(edge): edge.dimension for edge in tn.get_all_edges(nodes)}
+
+    return algorithm(input_sets, output_set, size_dict), nodes  # type: ignore
+
+
+def _get_path_cache_friendly(
+    nodes: List[tn.Node], algorithm: Any
+) -> Tuple[List[Tuple[int, int]], List[tn.Node]]:
+    nodes = list(nodes)
+    mapping_dict = {}
+    i = 0
+    for n in nodes:
+        for e in n:
+            if id(e) not in mapping_dict:
+                mapping_dict[id(e)] = i
+                i += 1
+    input_sets = [set([mapping_dict[id(e)] for e in node.edges]) for node in nodes]
+    order = np.argsort(list(map(sorted, input_sets)) + [[1e10]])[:-1]  # type: ignore
+    # TODO(@refraction-ray): more stable and unwarning arg sorting here
+    nodes_new = [nodes[i] for i in order]
+    input_sets = [set([mapping_dict[id(e)] for e in node.edges]) for node in nodes_new]
+    output_set = set([mapping_dict[id(e)] for e in tn.get_subgraph_dangling(nodes_new)])
+    size_dict = {
+        mapping_dict[id(edge)]: edge.dimension for edge in tn.get_all_edges(nodes_new)
+    }
+    logger.debug("input_sets: %s" % input_sets)
+    logger.debug("output_set: %s" % output_set)
+    logger.debug("path finder algorithm: %s" % algorithm)
+    return algorithm(input_sets, output_set, size_dict), nodes_new  # type: ignore
+
 
 # some contractor setup usages
 """
@@ -289,17 +329,15 @@ import opt_einsum as oem
 
 sys.setrecursionlimit(10000) # for successfullt ctg parallel
 
-opt = ctg.HyperOptimizer
-tc.set_contractor(
-    "custom_stateful",
-    optimizer=opt,
+opt = ctg.ReusableHyperOptimizer(
     methods=["greedy", "kahypar"],
     parallel=True,
     minimize="write",
-    max_time=180,
+    max_time=30,
     max_repeats=4096,
     progbar=True,
 )
+tc.set_contractor("custom", optimizer=opt, preprocessing=True)
 tc.set_contractor("custom_stateful", optimizer=oem.RandomGreedy, max_time=60, max_repeats=128, minimize="size")
 tc.set_contractor("plain-experimental", local_steps=3)
 """
@@ -353,31 +391,39 @@ def _base(
     for edge in edges:
         if not edge.is_disabled:  # if its disabled we already contracted it
             if edge.is_trace():
-                nodes_set.remove(edge.node1)
-                nodes_set.add(tn.contract_parallel(edge))
+                idx = [i for i, n in enumerate(nodes) if id(n) == id(edge.node1)]
+                nodes = _multi_remove(nodes, idx)
+                nodes.append(tn.contract_parallel(edge))
+                # nodes_set.remove(edge.node1)
+                # nodes_set.add(tn.contract_parallel(edge))
 
-    if len(nodes_set) == 1:
+    if len(nodes) == 1:
         # There's nothing to contract.
         if ignore_edge_order:
-            return list(nodes_set)[0]
-        return list(nodes_set)[0].reorder_edges(output_edge_order)
+            return list(nodes)[0]
+        return list(nodes)[0].reorder_edges(output_edge_order)
+
+    # nodes = list(nodes_set)
 
     # Then apply `opt_einsum`'s algorithm
     if isinstance(algorithm, list):
-        nodes = list(nodes)
         path = algorithm
     else:
-        path, nodes = utils.get_path(nodes_set, algorithm)
+        path, nodes = _get_path_cache_friendly(nodes, algorithm)
     if total_size is None:
         total_size = sum([_sizen(t) for t in nodes])
-    for a, b in path:
+    for ab in path:
+        if len(ab) < 2:
+            logger.warning("single element tuple in contraction path!")
+            continue
+        a, b = ab
         new_node = tn.contract_between(nodes[a], nodes[b], allow_outer_product=True)
         nodes.append(new_node)
         # nodes[a] = backend.zeros([1])
         # nodes[b] = backend.zeros([1])
         nodes = _multi_remove(nodes, [a, b])
 
-        logger.info(_sizen(new_node, is_log=True))
+        logger.debug(_sizen(new_node, is_log=True))
         total_size += _sizen(new_node)  # type: ignore
     logger.info("----- WRITE: %s --------\n" % np.log2(total_size))
 
@@ -395,29 +441,41 @@ def custom(
     memory_limit: Optional[int] = None,
     output_edge_order: Optional[List[Any]] = None,
     ignore_edge_order: bool = False,
-) -> Any:
-    alg = partial(optimizer, memory_limit=memory_limit)
-    return _base(nodes, alg, output_edge_order, ignore_edge_order)
-
-
-def custom_stateful(
-    nodes: List[Any],
-    optimizer: Any,
-    memory_limit: Optional[int] = None,
-    output_edge_order: Optional[List[Any]] = None,
-    ignore_edge_order: bool = False,
     **kws: Any
 ) -> Any:
     if len(nodes) < 5:
-        alg = opt_einsum.paths.dynamic_programming
+        alg = opt_einsum.paths.optimal
         # not good at minimize WRITE actually...
         return _base(nodes, alg, output_edge_order, ignore_edge_order)
 
     total_size = None
     if kws.get("preprocessing", None):
         nodes, total_size = _merge_single_gates(nodes)
-        del kws["preprocessing"]
-    opt = optimizer(**kws)  # reinitiate the optimizer each time
+    alg = partial(optimizer, memory_limit=memory_limit)
+    return _base(nodes, alg, output_edge_order, ignore_edge_order, total_size)
+
+
+def custom_stateful(
+    nodes: List[Any],
+    optimizer: Any,
+    memory_limit: Optional[int] = None,
+    opt_conf: Optional[Dict[str, Any]] = None,
+    output_edge_order: Optional[List[Any]] = None,
+    ignore_edge_order: bool = False,
+    **kws: Any
+) -> Any:
+    if len(nodes) < 5:
+        alg = opt_einsum.paths.optimal
+        # dynamic_programming has a potential bug for outer product
+        # not good at minimize WRITE actually...
+        return _base(nodes, alg, output_edge_order, ignore_edge_order)
+
+    total_size = None
+    if kws.get("preprocessing", None):
+        nodes, total_size = _merge_single_gates(nodes)
+    if opt_conf is None:
+        opt_conf = {}
+    opt = optimizer(**opt_conf)  # reinitiate the optimizer each time
     alg = partial(opt, memory_limit=memory_limit)
     return _base(nodes, alg, output_edge_order, ignore_edge_order, total_size)
 
@@ -426,8 +484,10 @@ def set_contractor(
     method: Optional[str] = None,
     optimizer: Optional[Any] = None,
     memory_limit: Optional[int] = None,
+    opt_conf: Optional[Dict[str, Any]] = None,
+    set_global: bool = True,
     **kws: Any
-) -> None:
+) -> Callable[..., Any]:
     """
     set runtime contractor of the tensornetwork for a better contraction path
 
@@ -458,19 +518,26 @@ def set_contractor(
             )
     elif method == "custom_stateful":
         cf = custom_stateful  # type: ignore
-        cf = partial(cf, optimizer=optimizer, **kws)
+        cf = partial(cf, optimizer=optimizer, opt_conf=opt_conf, **kws)
+
     else:
         # cf = getattr(tn.contractors, method, None)
         # if not cf:
         # raise ValueError("Unknown contractor type: %s" % method)
         if method == "custom":
-            cf = partial(custom, optimizer=optimizer)
+            cf = partial(custom, optimizer=optimizer, **kws)
         else:
             cf = partial(custom, optimizer=getattr(opt_einsum.paths, method))
         cf = partial(cf, memory_limit=memory_limit)
-    for module in modules:
-        if module in sys.modules:
-            setattr(sys.modules[module], "contractor", cf)
+    if set_global:
+        for module in modules:
+            if module in sys.modules:
+                setattr(sys.modules[module], "contractor", cf)
+    return cf
 
 
 set_contractor()
+
+get_contractor = partial(set_contractor, set_global=False)
+
+# TODO(@refraction-ray): contractor at Circuit and instruction level setup
