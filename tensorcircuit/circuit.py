@@ -300,13 +300,22 @@ class Circuit:
         # actually apply single and double gate never directly used in the Circuit class
 
     def apply_general_gate(
-        self, gate: Gate, *index: int, name: Optional[str] = None
+        self,
+        gate: Gate,
+        *index: int,
+        name: Optional[str] = None,
+        split: Optional[Dict[str, Any]] = None,
     ) -> None:
         assert len(index) == len(set(index))
         noe = len(index)
         applied = False
-        if (self.split is not None) and noe == 2:
-            results = _split_two_qubit_gate(gate, **self.split)
+        split_conf = None
+        if split is not None:
+            split_conf = split
+        elif self.split is not None:
+            split_conf = self.split
+        if (split_conf is not None) and noe == 2:
+            results = _split_two_qubit_gate(gate, **split_conf)
             # max_err cannot be jax jitted
             if results is not None:
                 n1, n2, is_swap = results
@@ -349,13 +358,19 @@ class Circuit:
 
     @staticmethod
     def apply_general_gate_delayed(
-        gatef: Callable[[], Gate], name: Optional[str] = None
+        gatef: Callable[[], Gate],
+        name: Optional[str] = None,
     ) -> Callable[..., None]:
         # nested function must be utilized, functools.partial doesn't work for method register on class
         # see https://re-ra.xyz/Python-中实例方法动态绑定的几组最小对立/
-        def apply(self: "Circuit", *index: int) -> None:
+        def apply(
+            self: "Circuit",
+            *index: int,
+            split: Optional[Dict[str, Any]] = None,
+        ) -> None:
+            split = None
             gate = gatef()
-            self.apply_general_gate(gate, *index, name=name)
+            self.apply_general_gate(gate, *index, name=name, split=split)
 
         return apply
 
@@ -365,8 +380,12 @@ class Circuit:
         name: Optional[str] = None,
     ) -> Callable[..., None]:
         def apply(self: "Circuit", *index: int, **vars: float) -> None:
+            split = None
+            if "split" in vars:
+                split = vars["split"]
+                del vars["split"]
             gate = gatef(**vars)
-            self.apply_general_gate(gate, *index, name=name)
+            self.apply_general_gate(gate, *index, name=name, split=split)  # type: ignore
             self._qcode = self._qcode[:-1] + " "  # rip off the final "\n"
             for k, v in vars.items():
                 self._qcode += k + " " + str(v) + " "
