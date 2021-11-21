@@ -2,6 +2,9 @@ import os
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 # cpu is fast for small scale circuit simulation
+import sys
+
+sys.path.insert(0, "../")
 
 from tqdm import tqdm
 import tensorcircuit as tc
@@ -11,7 +14,7 @@ tc.set_backend("jax")
 
 n = 5
 nlayer = 3
-mctries = 100000
+mctries = 100  # 100000
 
 print(jax.devices())
 
@@ -59,7 +62,12 @@ rho = 0.0
 for i in tqdm(range(mctries)):
     key, subkey = jax.random.split(key)
     psi = f(subkey)  # [1, 2**n]
-    rho += 1 / mctries * tc.backend.transpose(psi) @ tc.backend.conj(psi)
+    rho += (
+        1
+        / mctries
+        * tc.backend.reshape(psi, [-1, 1])
+        @ tc.backend.conj(tc.backend.reshape(psi, [1, -1]))
+    )
 
 print(rho)
 print("difference\n", tc.backend.abs(rho - rho0))

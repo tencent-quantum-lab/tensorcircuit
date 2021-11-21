@@ -1,30 +1,14 @@
-import cirq
 import numpy as np
-import scipy
-import sympy as sy
-import networkx as nx
-import tensorflow_quantum as tfq
-import tensorflow as tf
-from functools import partial
-from functools import lru_cache
-import tensornetwork as tn
-from itertools import product
-import json
 import sys
 
 sys.path.insert(0, "../")
 import tensorcircuit as tc
-from tensorcircuit.applications.layers import *
-from tensorcircuit.applications.van import *
-from tensorcircuit.applications.graphdata import *
-from tensorcircuit.applications.dqas import *
-from tensorcircuit.applications.vags import *
-from tensorcircuit.applications.vqes import *
+from tensorcircuit.applications.vqes import VQNHE, JointSchedule
 
 tc.set_backend("tensorflow")
 tc.set_dtype("complex128")
 
-h6h = np.load("/PATH")  # reported in 0.99 A
+h6h = np.load("./H6_hamiltonian.npy")  # reported in 0.99 A
 
 vqeinstance = VQNHE(
     10,
@@ -41,14 +25,13 @@ def learn_q():
 
 
 def learn_c():
-    #     return 0.
     lr = np.random.choice([0.004, 0.006, 0.008, 0.1])
     return JointSchedule(200, 0.0006, 10000, lr, 5000)
 
 
 rs = vqeinstance.multi_training(
-    tries=10,
-    maxiter=15000,  # 10000
+    tries=2,  # 10
+    maxiter=500,  # 10000
     threshold=0.5e-8,
     learn_q=learn_q,
     learn_c=learn_c,

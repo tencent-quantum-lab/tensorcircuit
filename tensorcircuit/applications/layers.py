@@ -1,13 +1,12 @@
 """
 module for functions adding layers of circuits
 """
-
-import sys
 import itertools
+import logging
+import sys
 from typing import Sequence, Union, Any, Optional, Tuple, List
 
 import numpy as np
-import cirq
 import tensorflow as tf
 
 from ..circuit import Circuit
@@ -15,10 +14,15 @@ from ..densitymatrix import DMCircuit
 from ..gates import num_to_tensor, array_to_tensor, _swap_matrix
 from ..channels import depolarizingchannel
 
+logger = logging.getLogger(__name__)
+
 try:
     import networkx as nx
+    import cirq
 except ImportError as e:
-    print(e)
+    logger.warning(e)
+    logger.warning("Therefore some functionality in %s may not work" % __name__)
+
 
 thismodule = sys.modules[__name__]
 
@@ -166,6 +170,7 @@ def generate_double_gate_layer(gates: str) -> None:
 
 
 def generate_double_gate_layer_bitflip(gates: str) -> None:
+    # deprecated, as API are consistent now for DMCircuit and Circuit
     def f(
         circuit: DMCircuit, symbol: Union[Tensor, float], g: Graph, *params: float
     ) -> DMCircuit:
@@ -259,7 +264,7 @@ def generate_double_layer_block(gates: Tuple[str]) -> None:
 def anyswaplayer(circuit: Circuit, symbol: Tensor, g: Graph) -> Circuit:
     for i, e in enumerate(g.edges):
         qubit1, qubit2 = e
-        circuit.exp(  # type: ignore
+        circuit.exp1(  # type: ignore
             qubit1,
             qubit2,
             unitary=array_to_tensor(_swap_matrix),
@@ -274,7 +279,7 @@ def anyswaplayer_bitflip_mc(
 ) -> Circuit:
     for i, e in enumerate(g.edges):
         qubit1, qubit2 = e
-        circuit.exp(  # type: ignore
+        circuit.exp1(  # type: ignore
             qubit1,
             qubit2,
             unitary=array_to_tensor(_swap_matrix),
@@ -322,7 +327,8 @@ def bitfliplayer_mc(ci: Circuit, g: Graph, px: float, py: float, pz: float) -> N
 
 
 ## below is similar layer but in cirq API instead of tensrocircuit native API
-## special notes to the API, the arguments order are different due to historical reason
+## special notes to the API, the arguments order are different due to historical reason compared to tc layers API
+## and we have no attention to further maintain the cirq codebase below, availability is not guaranteend
 
 basis_rotation = {
     "x": (cirq.H, cirq.H),

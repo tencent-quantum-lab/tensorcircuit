@@ -716,7 +716,7 @@ class Circuit:
             newfront.append(edict[e])
         return newnodes, newfront
 
-    def wavefunction(self) -> tn.Node.tensor:
+    def wavefunction(self, form: str = "default") -> tn.Node.tensor:
         """
         compute the output wavefunction from the circuit
 
@@ -725,7 +725,13 @@ class Circuit:
         """
         nodes, d_edges = self._copy()
         t = contractor(nodes, output_edge_order=d_edges)
-        return backend.reshape(t.tensor, shape=[1, -1])
+        if form == "default":
+            shape = [-1]
+        elif form == "ket":
+            shape = [-1, 1]
+        elif form == "bra":  # no conj here
+            shape = [1, -1]
+        return backend.reshape(t.tensor, shape=shape)
 
     def _copy_state_tensor(
         self, conj: bool = False, reuse: bool = True

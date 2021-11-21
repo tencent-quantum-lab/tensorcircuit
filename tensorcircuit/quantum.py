@@ -707,7 +707,7 @@ class QuScalar(QuOperator):
 
 
 def generate_local_hamiltonian(
-    hlist: Sequence[Tensor], matrix_form: bool = True
+    *hlist: Sequence[Tensor], matrix_form: bool = True
 ) -> Union[QuOperator, Tensor]:
     """
     Note: further jit is recommended
@@ -719,6 +719,7 @@ def generate_local_hamiltonian(
     :return: [description]
     :rtype: [type]
     """
+    hlist = [backend.cast(h, dtype=dtypestr) for h in hlist]  # type: ignore
     hop_list = [QuOperator.from_tensor(h) for h in hlist]
     hop = reduce(or_, hop_list)
     if matrix_form:

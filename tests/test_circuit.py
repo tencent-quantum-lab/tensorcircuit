@@ -21,19 +21,19 @@ def test_wavefunction():
     qc.apply_double_gate(
         tc.gates.Gate(np.arange(16).reshape(2, 2, 2, 2).astype(np.complex64)), 0, 1
     )
-    assert np.real(qc.wavefunction()[0][2]) == 8
+    assert np.real(qc.wavefunction()[2]) == 8
     qc = tc.Circuit(2)
     qc.apply_double_gate(
         tc.gates.Gate(np.arange(16).reshape(2, 2, 2, 2).astype(np.complex64)), 1, 0
     )
     qc.wavefunction()
-    assert np.real(qc.wavefunction()[0][2]) == 4
+    assert np.real(qc.wavefunction()[2]) == 4
     qc = tc.Circuit(2)
     qc.apply_single_gate(
         tc.gates.Gate(np.arange(4).reshape(2, 2).astype(np.complex64)), 0
     )
     qc.wavefunction()
-    assert np.real(qc.wavefunction()[0][2]) == 2
+    assert np.real(qc.wavefunction()[2]) == 2
 
 
 def test_basics():
@@ -363,7 +363,7 @@ def test_postselection(backend):
     c.H(2)
     c.mid_measurement(1, 1)
     c.mid_measurement(2, 1)
-    s = c.wavefunction()[0]
+    s = c.wavefunction()
     assert np.allclose(tc.backend.real(s[3]), 0.5)
 
 
@@ -439,8 +439,8 @@ def test_circuit_add_demo():
     c2 = tc.Circuit(2, mps_inputs=c.quvector())
     c2.X(0)
     answer = np.array([1.0, 0, 0, 0])
-    assert np.allclose(c2.wavefunction().reshape([-1]), answer, atol=1e-4)
+    assert np.allclose(c2.wavefunction(), answer, atol=1e-4)
     c3 = tc.Circuit(2)
     c3.X(0)
     c3.replace_mps_inputs(c.quvector())
-    assert np.allclose(c3.wavefunction().reshape([-1]), answer, atol=1e-4)
+    assert np.allclose(c3.wavefunction(), answer, atol=1e-4)

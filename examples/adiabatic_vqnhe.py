@@ -1,25 +1,13 @@
-import cirq
-import numpy as np
-import scipy
-import sympy as sy
-import networkx as nx
-import tensorflow_quantum as tfq
-import tensorflow as tf
 from functools import partial
-from functools import lru_cache
-import tensornetwork as tn
-from itertools import product
-import json
 import sys
 
 sys.path.insert(0, "../")
+
+import numpy as np
+import tensorflow as tf
+
 import tensorcircuit as tc
-from tensorcircuit.applications.layers import *
-from tensorcircuit.applications.van import *
-from tensorcircuit.applications.graphdata import *
-from tensorcircuit.applications.dqas import *
-from tensorcircuit.applications.vags import *
-from tensorcircuit.applications.vqes import *
+from tensorcircuit.applications.vqes import VQNHE, JointSchedule
 
 tc.set_backend("tensorflow")
 tc.set_dtype("complex128")
@@ -34,8 +22,8 @@ def initial_param(t, last=None, lastlast=None):
             qw.numpy() + np.random.uniform(low=-0.1, high=0.1, size=qw.numpy().shape)
         )
         cw = last[-2]
-        for i, t in enumerate(cw):
-            cw[i] = t + np.random.uniform(low=-0.1, high=0.1, size=t.shape)
+        for i, b in enumerate(cw):
+            cw[i] = b + np.random.uniform(low=-0.1, high=0.1, size=t.shape)
         return {"c": cw, "q": qw}
 
     return {}
@@ -106,7 +94,7 @@ def adiabatic_range(hm, history):
 if __name__ == "__main__":
     history = []
     lihh = np.load("data_file")
-    for i, h in enumerate(lihh[3:6]):
+    for h in lihh[3:6]:
         history.append(adiabatic_range(h.tolist(), history))
     print(history)
     # vqeinstance = VQNHE(

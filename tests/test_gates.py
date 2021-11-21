@@ -10,11 +10,9 @@ import tensorcircuit as tc
 
 
 def test_rgate(highp):
-    # tc.set_dtype("complex128")
     np.testing.assert_almost_equal(
         tc.gates.rgate(1, 2, 3).tensor, tc.gates.rgate_theoretical(1, 2, 3).tensor
     )
-    # tc.set_dtype("complex64")
 
 
 def test_exp_gate():
@@ -27,7 +25,7 @@ def test_exp_gate():
         ),
         theta=tc.gates.num_to_tensor(np.pi / 2),
     )
-    assert np.allclose(c.wavefunction()[0, 0], -1j)
+    assert np.allclose(c.wavefunction()[0], -1j)
 
 
 def test_any_gate():

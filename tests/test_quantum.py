@@ -247,7 +247,7 @@ def test_rm_state_vs_mps(backend):
                 c.exp1(i, i + 1, theta=param[2 * j, i], unitary=tc.gates._zz_matrix)
             for i in range(n):
                 c.rx(i, theta=param[2 * j + 1, i])
-        w = c.wavefunction()[0]
+        w = c.wavefunction()
         rm = qu.reduced_density_matrix(w, int(n / 2))
         return qu.entropy(rm)
 

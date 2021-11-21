@@ -14,8 +14,10 @@ from typing import (
 
 import numpy as np
 import tensorflow as tf
+from tqdm import tqdm
 
 from ..circuit import Circuit
+from ..quantum import generate_local_hamiltonian
 from .. import gates as G
 
 # from .graphdata import *
@@ -25,7 +27,10 @@ from .. import gates as G
 Tensor = Any
 Array = Any
 Model = Any
-dtype = np.complex128  # only guarantee compatible with float64
+dtype = np.complex128
+# only guarantee compatible with float64 mode
+# only support tf backend
+
 x = np.array([[0, 1.0], [1.0, 0]], dtype=dtype)
 y = np.array([[0, -1j], [1j, 0]], dtype=dtype)
 z = np.array([[1, 0], [0, -1]], dtype=dtype)
@@ -34,12 +39,7 @@ yy = np.array([[0, 0, 0, -1], [0, 0, 1, 0], [0, 1, 0, 0], [-1, 0, 0, 0]], dtype=
 zz = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]], dtype=dtype)
 swap = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]], dtype=dtype)
 
-pauli = [
-    np.eye(2),
-    np.array([[0, 1.0], [1.0, 0]]),
-    np.array([[0, -1j], [1j, 0]]),
-    np.array([[1.0, 0], [0, -1.0]]),
-]
+pauli = [np.eye(2), x, y, z]
 
 
 @lru_cache()
@@ -52,6 +52,7 @@ def paulistring(term: Tuple[int, ...]) -> Array:
 
 
 def construct_matrix(ham: List[List[float]]) -> Array:
+    # only suitable for matrix of small Hilbert dimensions, say <14 qubits
     h = 0.0j
     for term in ham:
         term = list(term)
@@ -63,9 +64,11 @@ def construct_matrix(ham: List[List[float]]) -> Array:
 
 
 # replace with QuOperator tensor_product approach for Hamiltonian construction
+# i.e. using ``construct_matrix_v2``
 
 
-def construct_matrix_tf(ham: List[List[float]], dtype: Any = tf.complex128) -> Array:
+def construct_matrix_tf(ham: List[List[float]], dtype: Any = tf.complex128) -> Tensor:
+    # deprecated
     h = 0.0j
     for term in ham:
         term = list(term)
@@ -74,6 +77,24 @@ def construct_matrix_tf(ham: List[List[float]], dtype: Any = tf.complex128) -> A
                 term[i] = int(t)
         h += tf.cast(term[0], dtype=dtype) * tf.constant(
             paulistring(tuple(term[1:])), dtype=dtype
+        )
+    return h
+
+
+_generate_local_hamiltonian = tf.function(generate_local_hamiltonian)
+
+
+def construct_matrix_v2(ham: List[List[float]], dtype: Any = tf.complex128) -> Tensor:
+    s = len(ham[0]) - 1
+    h = tf.zeros([2 ** s, 2 ** s], dtype=dtype)
+    for term in tqdm(ham, desc="Hamiltonian building"):
+        term = list(term)
+        for i, t in enumerate(term):
+            if i > 0:
+                term[i] = int(t)
+        local_matrix_list = [tf.constant(pauli[t], dtype=dtype) for t in term[1:]]
+        h += tf.cast(term[0], dtype=dtype) * tf.cast(
+            _generate_local_hamiltonian(*local_matrix_list), dtype=dtype
         )
     return h
 
@@ -98,14 +119,16 @@ def vqe_energy(c: Circuit, h: List[List[float]], reuse: bool = True) -> Tensor:
 
 
 def vqe_energy_shortcut(c: Circuit, h: Tensor) -> Tensor:
-    # n = c._nqubits
-    # return c.expectation([h, [i for i in range(n)]])
     w = c.wavefunction()
-    e = (tf.math.conj(w) @ h @ tf.reshape(w, [-1, 1]))[0, 0]
+    e = (tf.math.conj(tf.reshape(w, [1, -1])) @ h @ tf.reshape(w, [-1, 1]))[0, 0]
     return e
 
 
 class Linear(tf.keras.layers.Layer):  # type: ignore
+    """
+    Dense layer but with complex weights, used for building complex RBM
+    """
+
     def __init__(self, units: int, input_dim: int, stddev: float = 0.1) -> None:
         super().__init__()
         self.wr = tf.Variable(
@@ -153,6 +176,7 @@ class JointSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):  # type
         pre_decay: int = 400,
         post_rate: float = 0.001,
         post_decay: int = 4000,
+        dtype: Any = tf.float64,
     ) -> None:
         super().__init__()
         self.steps = steps
@@ -160,15 +184,16 @@ class JointSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):  # type
         self.pre_decay = pre_decay
         self.post_rate = post_rate
         self.post_decay = post_decay
+        self.dtype = dtype
 
     def __call__(self, step: Tensor) -> Tensor:
         if step < self.steps:
-            return tf.constant(self.pre_rate, dtype=tf.float64) * (1 / 2.0) ** (
-                (tf.cast(step, dtype=tf.float64)) / self.pre_decay
+            return tf.constant(self.pre_rate, dtype=self.dtype) * (1 / 2.0) ** (
+                (tf.cast(step, dtype=self.dtype)) / self.pre_decay
             )
         else:
-            return tf.constant(self.post_rate, dtype=tf.float64) * (1 / 2.0) ** (
-                (tf.cast(step, dtype=tf.float64) - self.steps) / self.post_decay
+            return tf.constant(self.post_rate, dtype=self.dtype) * (1 / 2.0) ** (
+                (tf.cast(step, dtype=self.dtype) - self.steps) / self.post_decay
             )
 
 
@@ -204,8 +229,9 @@ class VQNHE:
         self.hamiltonian = hamiltonian
         self.shortcut = shortcut
         if shortcut:
-            hmatrix = construct_matrix(self.hamiltonian)
-            self.hop = tf.constant(hmatrix, dtype=tf.complex128)
+            hmatrix = construct_matrix_v2(self.hamiltonian)
+            self.hop = hmatrix
+            # self.hop = tf.constant(hmatrix, dtype=tf.complex128)
             # self.hop = G.any(hmatrix.copy().reshape([2 for _ in range(2 * n)]))
 
     def assign(
@@ -214,7 +240,7 @@ class VQNHE:
         if c:
             self.model.set_weights(c)
         if q:
-            self.circuit_variable = q
+            self.circuit_variable.assign(q)
 
     def create_model(self, choose: str = "real", **kws: Any) -> Model:
         if choose == "real":
@@ -363,6 +389,14 @@ class VQNHE:
 
     @tf.function  # type: ignore
     def evaluation(self, cv: Tensor) -> Tuple[Tensor, Tensor, Tensor]:
+        """
+        VQNHE
+
+        :param cv: [description]
+        :type cv: Tensor
+        :return: [description]
+        :rtype: Tuple[Tensor, Tensor, Tensor]
+        """
         with tf.GradientTape() as tape:
             tape.watch(cv)
             w = self.circuit(cv).wavefunction()
@@ -387,6 +421,14 @@ class VQNHE:
 
     @tf.function  # type: ignore
     def plain_evaluation(self, cv: Tensor) -> Tensor:
+        """
+        VQE
+
+        :param cv: [description]
+        :type cv: Tensor
+        :return: [description]
+        :rtype: Tensor
+        """
         with tf.GradientTape() as tape:
 
             c = self.circuit(cv)
@@ -428,7 +470,8 @@ class VQNHE:
             else:
                 loss, grad, nm = self.evaluation(self.circuit_variable)
             if not tf.math.is_finite(loss):
-                print("failed optimization since nan")
+                print("failed optimization since nan in %s tries" % j)
+                # in case numerical instability
                 break
             if np.abs(loss - loss_prev) < threshold:  # 0.3e-7
                 ccount += 1
@@ -448,7 +491,7 @@ class VQNHE:
                         if bk:
                             break
                     quantume, _ = self.plain_evaluation(self.circuit_variable)
-                    print("quantum part: ", quantume.numpy())
+                    print("quantum part energy: ", quantume.numpy())
             loss_prev = loss
             if j < onlyq:
                 gradofc = [grad]
@@ -458,7 +501,14 @@ class VQNHE:
             if j >= onlyq:
                 optc.apply_gradients(zip(grad[1], self.model.variables))
         quantume, _ = self.plain_evaluation(self.circuit_variable)
-        print(loss.numpy(), quantume.numpy(), self.model.variables[-1].numpy())
+        print(
+            "vqnhe prediction: ",
+            loss.numpy(),
+            "quantum part energy: ",
+            quantume.numpy(),
+            "classical model scale: ",
+            self.model.variables[-1].numpy(),
+        )
         print("----------END TRAINING------------")
         return loss.numpy(), np.real(nm.numpy()), quantume.numpy(), j
 
@@ -474,8 +524,9 @@ class VQNHE:
         tries: int = 10,
         initialization_func: Optional[Callable[[int], Dict[str, Any]]] = None,
     ) -> List[Dict[str, Any]]:
+        # TODO(@refraction-ray): old multiple training implementation, we can use vmap infra for batched training
         rs = []
-        for t in range(tries):
+        for t in tqdm(range(tries), desc="multiple round of training"):
             if initialization_func is not None:
                 weights = initialization_func(t)
             else:
