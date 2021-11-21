@@ -5,7 +5,7 @@ import logging
 import sys
 from functools import partial, reduce
 from operator import mul
-from typing import Optional, Any, List, Sequence, Tuple, Dict
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 import opt_einsum
@@ -485,8 +485,9 @@ def set_contractor(
     optimizer: Optional[Any] = None,
     memory_limit: Optional[int] = None,
     opt_conf: Optional[Dict[str, Any]] = None,
+    set_global: bool = True,
     **kws: Any
-) -> None:
+) -> Callable[..., Any]:
     """
     set runtime contractor of the tensornetwork for a better contraction path
 
@@ -528,11 +529,15 @@ def set_contractor(
         else:
             cf = partial(custom, optimizer=getattr(opt_einsum.paths, method))
         cf = partial(cf, memory_limit=memory_limit)
-    for module in modules:
-        if module in sys.modules:
-            setattr(sys.modules[module], "contractor", cf)
+    if set_global:
+        for module in modules:
+            if module in sys.modules:
+                setattr(sys.modules[module], "contractor", cf)
+    return cf
 
 
 set_contractor()
+
+get_contractor = partial(set_contractor, set_global=False)
 
 # TODO(@refraction-ray): contractor at Circuit and instruction level setup

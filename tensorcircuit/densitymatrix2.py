@@ -2,7 +2,7 @@
 quantum circuit class but with density matrix simulator: v2
 """
 
-from typing import Callable, Sequence, Any
+from typing import Any, Callable, Sequence
 
 from . import gates
 from .cons import backend

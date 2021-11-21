@@ -4,7 +4,7 @@ quantum circuit class but with density matrix simulator
 
 from functools import reduce
 from operator import add
-from typing import Tuple, List, Callable, Optional, Sequence, Any
+from typing import Any, Callable, List, Optional, Sequence, Tuple
 
 import graphviz
 import numpy as np

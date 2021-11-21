@@ -8,7 +8,7 @@ tensornetwork simplification
 # and consider less on general tensornetwork topology.
 # Note we have no direct hyperedge support in tensornetwork package
 
-from typing import Tuple, List, Any, Optional
+from typing import Any, List, Optional, Tuple
 
 import numpy as np
 import tensornetwork as tn

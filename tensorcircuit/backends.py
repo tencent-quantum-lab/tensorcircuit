@@ -6,7 +6,7 @@ import inspect
 import warnings
 from functools import partial, reduce
 from operator import mul
-from typing import Union, Text, Any, Optional, Callable, Sequence, Tuple
+from typing import Any, Callable, Optional, Sequence, Text, Tuple, Union
 
 import numpy as np
 import tensornetwork

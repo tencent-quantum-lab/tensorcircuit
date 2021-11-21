@@ -2,7 +2,7 @@
 quantum circuit: state simulator
 """
 
-from typing import Tuple, List, Callable, Optional, Any, Sequence, Dict
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 from functools import reduce
 from operator import add
 
