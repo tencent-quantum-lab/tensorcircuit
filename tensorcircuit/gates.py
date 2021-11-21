@@ -39,6 +39,7 @@ _wroot_matrix = (
     * np.array([[1, -1 / np.sqrt(2) * (1 + 1.0j)], [1 / np.sqrt(2) * (1 - 1.0j), 1]])
 )
 
+_ii_matrix = np.kron(_i_matrix, _i_matrix)
 _xx_matrix = np.kron(_x_matrix, _x_matrix)
 _yy_matrix = np.kron(_y_matrix, _y_matrix)
 _zz_matrix = np.kron(_z_matrix, _z_matrix)
@@ -300,7 +301,7 @@ def random_two_qubit_gate() -> Gate:
     """
     Returns a random two-qubit gate.
     """
-    unitary = unitary_group.rvs(dim=4)
+    unitary = unitary_group.rvs(dim=4).astype(npdtype) # the default is np.complex128 without astype
     unitary = np.reshape(unitary, newshape=(2, 2, 2, 2))
     return Gate(deepcopy(unitary), name="R2Q")
 
