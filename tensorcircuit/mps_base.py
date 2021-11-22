@@ -2,7 +2,7 @@ import tensornetwork as tn
 import tensornetwork.ncon_interface as ncon
 from typing import Any, List, Optional, Text, Type, Union, Dict, Sequence
 Tensor = Any
-class MyFiniteMPS(tn.FiniteMPS):
+class FiniteMPS(tn.FiniteMPS):
     #TODO: Maybe more functions can be put here to disentangle with circuits
     def apply_two_site_gate(self,
                             gate: Tensor,

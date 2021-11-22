@@ -6,7 +6,7 @@ from typing import Tuple, List, Callable, Optional, Any, Sequence
 from functools import reduce
 
 import numpy as np
-from .mps_base import MyFiniteMPS
+from .mps_base import FiniteMPS
 
 from . import gates
 from .cons import backend, contractor, dtypestr, npdtype # have to be imported even if not used!
@@ -94,7 +94,7 @@ class MPSCircuit:
         else:
             assert len(tensors) == nqubits
 
-        self._mps = MyFiniteMPS(tensors, canonicalize=True, center_position=center_position)
+        self._mps = FiniteMPS(tensors, canonicalize=True, center_position=center_position)
         self._nqubits = nqubits
         self._fidelity = 1.0
         self.set_truncation_rule()
