@@ -9,7 +9,7 @@ import numpy as np
 from .mps_base import MyFiniteMPS
 
 from . import gates
-from .cons import backend, dtypestr, npdtype
+from .cons import backend, contractor, dtypestr, npdtype # have to be imported even if not used!
 
 Gate = gates.Gate
 Tensor = Any
@@ -223,7 +223,6 @@ class MPSCircuit:
         """
         Apply a double qubit gate on adjacent qubits of MPS, truncation rule is speficied by `set_truncation_rule`
         """
-        # There is currently an issue of setting`center_position` in the source code of google/tensornetwork, waiting them to update, currently using my own version
         # The center position of MPS must be either `index1` for `index2` before applying a double gate
         # Choose the one closer to the current center
         assert index2 - index1 == 1
