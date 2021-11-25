@@ -74,6 +74,10 @@ def set_dtype(dtype: Optional[str] = None) -> None:
         rdtype = "float32"
     else:
         rdtype = "float64"
+    if backend.name == "jax" and dtype == "complex128":
+        from jax.config import config  # type: ignore
+
+        config.update("jax_enable_x64", True)
 
     npdtype = getattr(np, dtype)
     for module in modules:

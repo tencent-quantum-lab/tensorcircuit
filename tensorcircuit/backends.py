@@ -1068,9 +1068,62 @@ def _convert_to_tensor_jax(self: Any, tensor: Tensor) -> Tensor:
     return result
 
 
+def _svd_jax(
+    self: Any,
+    tensor: Tensor,
+    pivot_axis: int = -1,
+    max_singular_values: Optional[int] = None,
+    max_truncation_error: Optional[float] = None,
+    relative: Optional[bool] = False,
+) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
+    from .ops import adaware_svd
+
+    left_dims = tensor.shape[:pivot_axis]
+    right_dims = tensor.shape[pivot_axis:]
+
+    tensor = jnp.reshape(tensor, [np.prod(left_dims), np.prod(right_dims)])
+    u, s, vh = adaware_svd(tensor)
+
+    if max_singular_values is None:
+        max_singular_values = jnp.size(s)
+
+    if max_truncation_error is not None:
+        # Cumulative norms of singular values in ascending order.
+        trunc_errs = jnp.sqrt(jnp.cumsum(jnp.square(s[::-1])))
+        # If relative is true, rescale max_truncation error with the largest
+        # singular value to yield the absolute maximal truncation error.
+        if relative:
+            abs_max_truncation_error = max_truncation_error * s[0]
+        else:
+            abs_max_truncation_error = max_truncation_error
+        # We must keep at least this many singular values to ensure the
+        # truncation error is <= abs_max_truncation_error.
+        num_sing_vals_err = jnp.count_nonzero(
+            (trunc_errs > abs_max_truncation_error).astype(jnp.int32)
+        )
+    else:
+        num_sing_vals_err = max_singular_values
+
+    num_sing_vals_keep = min(max_singular_values, num_sing_vals_err)
+
+    s = s.astype(tensor.dtype)
+
+    s_rest = s[num_sing_vals_keep:]
+    s = s[:num_sing_vals_keep]
+    u = u[:, :num_sing_vals_keep]
+    vh = vh[:num_sing_vals_keep, :]
+
+    dim_s = s.shape[0]
+    u = jnp.reshape(u, list(left_dims) + [dim_s])
+    vh = jnp.reshape(vh, [dim_s] + list(right_dims))
+
+    return u, s, vh, s_rest
+
+
 tensornetwork.backends.jax.jax_backend.JaxBackend.convert_to_tensor = (
     _convert_to_tensor_jax
 )
+tensornetwork.backends.jax.jax_backend.JaxBackend.svd = _svd_jax
 
 
 class JaxBackend(jax_backend.JaxBackend):  # type: ignore

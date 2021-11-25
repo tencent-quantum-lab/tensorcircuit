@@ -508,13 +508,13 @@ def test_circuit_split(backend):
     np.testing.assert_allclose(s1, s3, atol=1e-5)
     print(g1[:, :])
     print(g3[:, :])
-    # TODO(@refraction-ray): nan on jax backend?
+    # DONE(@refraction-ray): nan on jax backend?
     # i see, complex value SVD is not supported on jax for now :)
-    # I shall further customize complex SVD, finally has applications
+    # I shall further customize complex SVD, finally it has applications
 
     # tf 2.6.2 also doesn't support complex valued SVD AD, weird...
-    if tc.backend.name == "tensorflow":
-        np.testing.assert_allclose(g1, g3, atol=1e-5)
+    # if tc.backend.name == "tensorflow":
+    np.testing.assert_allclose(g1, g3, atol=1e-5)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])

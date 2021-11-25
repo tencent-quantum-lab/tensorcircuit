@@ -260,3 +260,33 @@ def test_vvag_dict(backend):
     v, g = dp_vvag(x, y)
     assert np.allclose(v.shape, [20])
     assert np.allclose(g["a"], 20.0, atol=1e-4)
+
+
+def test_jax_svd(jaxb, highp):
+    def l(A):
+        u, _, v, _ = tc.backend.svd(A)
+        return tc.backend.real(u[0, 0] * v[0, 0])
+
+    def numericald(A):
+        eps = 1e-6
+        DA = np.zeros_like(A)
+        for i in range(A.shape[0]):
+            for j in range(A.shape[1]):
+                dA = np.zeros_like(A)
+                dA[i, j] = 1
+                DA[i, j] = (l(A + eps * dA) - l(A)) / eps - 1.0j * (
+                    l(A + eps * 1.0j * dA) - l(A)
+                ) / eps
+        return DA
+
+    def analyticald(A):
+        A = tc.backend.convert_to_tensor(A)
+        g = tc.backend.grad(l)
+        return g(A)
+
+    for shape in [(2, 2), (3, 3), (2, 3), (4, 2)]:
+        m = np.random.normal(size=shape).astype(
+            np.complex128
+        ) + 1.0j * np.random.normal(size=shape).astype(np.complex128)
+        print(m)
+        np.testing.assert_allclose(numericald(m), analyticald(m), atol=1e-3)
