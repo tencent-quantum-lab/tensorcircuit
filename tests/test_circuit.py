@@ -432,6 +432,65 @@ def test_dqas_type_circuit(backend):
     assert np.allclose(grad.shape, [5, 2, 3])
 
 
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_mixed_measurement_circuit(backend):
+    n = 4
+
+    def f(params, structures):
+        structuresc = tc.backend.softmax(structures, axis=-1)
+        structuresc = tc.backend.cast(structuresc, dtype="complex64")
+        c = tc.Circuit(n)
+        for i in range(n):
+            c.H(i)
+        for j in range(2):
+            for i in range(n):
+                c.cnot(i, (i + 1) % n)
+            for i in range(n):
+                c.rz(i, theta=params[j, i])
+        obs = []
+        for i in range(n):
+            obs.append(
+                [
+                    tc.gates.Gate(
+                        sum(
+                            [
+                                structuresc[i, k] * g.tensor
+                                for k, g in enumerate(tc.gates.pauli_gates)
+                            ]
+                        )
+                    ),
+                    (i,),
+                ]
+            )
+        loss = c.expectation(*obs, reuse=False)
+        return tc.backend.real(loss)
+
+    # measure X0 to X3
+
+    structures = tc.backend.cast(tc.backend.eye(n), "int32")
+    structures = tc.backend.onehot(structures, num=4)
+
+    f_vvag = tc.backend.jit(tc.backend.vvag(f, vectorized_argnums=1, argnums=0))
+    v, g = f_vvag(tc.backend.ones([2, n]), structures)
+    np.testing.assert_allclose(
+        v,
+        np.array(
+            [
+                0.015747,
+                0.026107,
+                0.019598,
+                0.025447,
+            ]
+        ),
+        atol=1e-5,
+    )
+    np.testing.assert_allclose(
+        g[0],
+        np.array([-0.038279, 0.065810, -0.0018669, 0.035806]),
+        atol=1e-5,
+    )
+
+
 def test_circuit_add_demo():
     # to be refactored for better API
     c = tc.Circuit(2)

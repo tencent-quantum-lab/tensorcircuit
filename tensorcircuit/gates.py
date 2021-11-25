@@ -154,6 +154,8 @@ def meta_gate() -> None:
 
 meta_gate()
 
+pauli_gates = [i(), x(), y(), z()]  # type: ignore
+
 
 def matrix_for_gate(gate: Gate) -> Tensor:
     t = gate.tensor
