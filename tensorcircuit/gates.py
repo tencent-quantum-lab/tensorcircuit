@@ -301,7 +301,9 @@ def random_two_qubit_gate() -> Gate:
     """
     Returns a random two-qubit gate.
     """
-    unitary = unitary_group.rvs(dim=4).astype(npdtype) # the default is np.complex128 without astype
+    unitary = unitary_group.rvs(dim=4).astype(
+        npdtype
+    )  # the default is np.complex128 without astype
     unitary = np.reshape(unitary, newshape=(2, 2, 2, 2))
     return Gate(deepcopy(unitary), name="R2Q")
 

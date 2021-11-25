@@ -12,11 +12,11 @@ modulepath = os.path.dirname(os.path.dirname(thisfile))
 sys.path.insert(0, modulepath)
 import tensorcircuit as tc
 
-#TODO: make everything compatible to different backends
+# TODO: make everything compatible to different backends
 
 
 def reproducible_unitary(n):
-    A = np.arange(n**2).reshape((n, n))
+    A = np.arange(n ** 2).reshape((n, n))
     A = A + np.sin(A) * 1j
     A = A - A.conj().T
     return scipy.linalg.expm(A).astype(tc.dtypestr)
@@ -102,18 +102,24 @@ def test_expectation():
 
 
 # create a fixed wavefunction and create the corresponding MPS
-w_external = np.abs(np.sin(np.arange(2**N) % np.exp(1))).astype(tc.dtypestr)  # Just want to find a function that is so strange that the correlation is strong enough
+w_external = np.abs(np.sin(np.arange(2 ** N) % np.exp(1))).astype(
+    tc.dtypestr
+)  # Just want to find a function that is so strange that the correlation is strong enough
 w_external /= np.linalg.norm(w_external)
 mps_external = tc.MPSCircuit.from_wavefunction(w_external, max_singular_values=D)
 mps_external_exact = tc.MPSCircuit.from_wavefunction(w_external)
 
 
 def test_fromwavefunction():
-    assert np.allclose(mps_external_exact.wavefunction().flatten(), w_external, atol=1e-7)
+    assert np.allclose(
+        mps_external_exact.wavefunction().flatten(), w_external, atol=1e-7
+    )
     # compare fidelity of truncation with theoretical limit obtained by SVD
-    real_fedility = np.abs(mps_external.wavefunction().conj().flatten().dot(w_external)) ** 2
-    s = np.linalg.svd(w_external.reshape((2**(N // 2), 2**(N // 2))))[1]
-    theoretical_upper_limit = np.sum(s[0:D]**2)
+    real_fedility = (
+        np.abs(mps_external.wavefunction().conj().flatten().dot(w_external)) ** 2
+    )
+    s = np.linalg.svd(w_external.reshape((2 ** (N // 2), 2 ** (N // 2))))[1]
+    theoretical_upper_limit = np.sum(s[0:D] ** 2)
     relative_err = np.log((1 - real_fedility) / (1 - theoretical_upper_limit))
     assert np.isclose(relative_err, 0.11, atol=1e-2)
 
