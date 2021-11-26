@@ -18,7 +18,6 @@ import tensorcircuit as tc
 from tensorcircuit import interfaces
 
 
-
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_torch_interface(backend):
     n = 4
