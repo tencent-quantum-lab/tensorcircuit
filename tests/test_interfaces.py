@@ -8,14 +8,15 @@ modulepath = os.path.dirname(os.path.dirname(thisfile))
 
 sys.path.insert(0, modulepath)
 
-import numpy as np
-import tensorcircuit as tc
-from tensorcircuit import interfaces
-
 try:
     import torch
 except ImportError:
     pytest.skip("torch not available", allow_module_level=True)
+
+import numpy as np
+import tensorcircuit as tc
+from tensorcircuit import interfaces
+
 
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
