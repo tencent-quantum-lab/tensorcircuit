@@ -118,3 +118,6 @@ def _full_rank_simplify(nodes: List[Any]) -> List[Any]:
     while is_changed:
         nodes, is_changed = _rank_simplify(nodes)
     return nodes
+
+
+# TODO(@refraction-ray): utilize more simplification method in contractor preprocessing

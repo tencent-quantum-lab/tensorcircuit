@@ -82,7 +82,7 @@ def is_sequence(x: Any) -> bool:
 
 
 def torch_interface(fun: Callable[..., Any]) -> Callable[..., Any]:
-    class F(torch.autograd.Function):
+    class F(torch.autograd.Function):  # type: ignore
         @staticmethod
         def forward(ctx: Any, *x: Any) -> Any:  # type: ignore
             ctx.xdtype = [xi.dtype for xi in x]
