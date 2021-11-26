@@ -262,6 +262,26 @@ def test_vvag_dict(backend):
     assert np.allclose(g["a"], 20.0, atol=1e-4)
 
 
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])
+def test_vjp(backend):
+    def f(x):
+        return x ** 2
+
+    inputs = tc.backend.ones([2, 2])
+    v, g = tc.backend.vjp(f, inputs, inputs)
+    np.testing.assert_allclose(v, inputs, atol=1e-5)
+    np.testing.assert_allclose(g, 2 * inputs, atol=1e-5)
+
+    def f2(x, y):
+        return x + y, x - y
+
+    inputs = [tc.backend.ones([2]), tc.backend.ones([2])]
+    v = [2.0 * t for t in inputs]
+    v, g = tc.backend.vjp(f2, inputs, v)
+    np.testing.assert_allclose(v[1], np.zeros([2]), atol=1e-5)
+    np.testing.assert_allclose(g[0], 4 * np.ones([2]), atol=1e-5)
+
+
 def test_jax_svd(jaxb, highp):
     def l(A):
         u, _, v, _ = tc.backend.svd(A)

@@ -734,6 +734,32 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `value_and_grad`.".format(self.name)
         )
 
+    def vjp(  # pylint: disable=unused-variable
+        self: Any,
+        f: Callable[..., Any],
+        inputs: Union[Tensor, Sequence[Tensor]],
+        v: Union[Tensor, Sequence[Tensor]],
+    ) -> Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]:
+        """
+        Function that computes the dot product between a vector v and the Jacobian
+        of the given function at the point given by the inputs. (reverse mode AD relevant)
+        Strictly speaking, this function is value_and_vjp.
+
+
+        :param f: The function to carry out vjp calculation
+        :type f: Callable[..., Any]
+        :param inputs: input for ``f``
+        :type inputs: Union[Tensor, Sequence[Tensor]]
+        :param v: value vector or gradient from downstream in reserse mode AD
+            the same shape as return of function ``f``
+        :type v: Union[Tensor, Sequence[Tensor]]
+        :return: (``f(*inputs)``, vjp_tensor), where vjp_tensor is the same shape as inputs
+        :rtype: Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `vjp`.".format(self.name)
+        )
+
     def jit(  # pylint: disable=unused-variable
         self: Any,
         f: Callable[..., Any],
@@ -1058,6 +1084,14 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
 
     vvag = vectorized_value_and_grad
 
+    def vjp(
+        self,
+        f: Callable[..., Any],
+        inputs: Union[Tensor, Sequence[Tensor]],
+        v: Union[Tensor, Sequence[Tensor]],
+    ) -> Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]:
+        raise NotImplementedError("numpy backend doesn't support AD")
+
 
 def _convert_to_tensor_jax(self: Any, tensor: Tensor) -> Tensor:
     if not isinstance(tensor, (np.ndarray, jnp.ndarray)) and not jnp.isscalar(tensor):
@@ -1374,6 +1408,26 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Callable[..., Tuple[Any, Any]]:
         return libjax.value_and_grad(f, argnums=argnums)  # type: ignore
+
+    def vjp(
+        self,
+        f: Callable[..., Any],
+        inputs: Union[Tensor, Sequence[Tensor]],
+        v: Union[Tensor, Sequence[Tensor]],
+    ) -> Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]:
+        if not (isinstance(inputs, list) or isinstance(inputs, tuple)):
+            # one input tensor
+            inputs = [inputs]
+            one_input = True
+        else:
+            one_input = False
+        value, vjpf = libjax.vjp(f, *inputs)
+        if isinstance(v, list):
+            v = tuple(v)
+        vjpv = vjpf(v)
+        if one_input:
+            vjpv = vjpv[0]
+        return value, vjpv
 
     def jit(
         self,
@@ -1706,6 +1760,26 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
 
         return wrapper
 
+    def vjp(
+        self,
+        f: Callable[..., Any],
+        inputs: Union[Tensor, Sequence[Tensor]],
+        v: Union[Tensor, Sequence[Tensor]],
+    ) -> Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]:
+        if not (isinstance(inputs, list) or isinstance(inputs, tuple)):
+            # one input tensor
+            one_input = True
+            inputs = [inputs]
+        else:
+            one_input = False
+        with tf.GradientTape() as t:
+            t.watch(inputs)
+            y = f(*inputs)
+        g = t.gradient(y, inputs, v)
+        if one_input:
+            g = g[0]
+        return y, g
+
     def jit(
         self,
         f: Callable[..., Any],
@@ -2005,6 +2079,18 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
             return y, gs
 
         return wrapper
+
+    def vjp(
+        self,
+        f: Callable[..., Any],
+        inputs: Union[Tensor, Sequence[Tensor]],
+        v: Union[Tensor, Sequence[Tensor]],
+    ) -> Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]:
+        if isinstance(inputs, list):
+            inputs = tuple(inputs)
+        if isinstance(v, list):
+            v = tuple(v)
+        return torchlib.autograd.functional.vjp(f, inputs, v)  # type: ignore
 
     def vmap(
         self,
