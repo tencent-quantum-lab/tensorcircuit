@@ -29,6 +29,7 @@ modules = [
     "tensorcircuit.keras",
     "tensorcircuit.quantum",
     "tensorcircuit.simplify",
+    "tensorcircuit.interfaces",
 ]
 
 dtypestr = "complex64"
@@ -548,3 +549,4 @@ set_contractor()
 get_contractor = partial(set_contractor, set_global=False)
 
 # TODO(@refraction-ray): contractor at Circuit and instruction level setup
+# TODO(@refraction-ray): function level backend and dtype?
