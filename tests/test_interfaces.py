@@ -10,6 +10,7 @@ sys.path.insert(0, modulepath)
 
 import numpy as np
 import tensorcircuit as tc
+from tensorcircuit import interfaces
 
 try:
     import torch
@@ -42,7 +43,7 @@ def test_torch_interface(backend):
 
     f_jit = tc.backend.jit(f)
 
-    f_jit_torch = tc.interfaces.torch_interface(f_jit)
+    f_jit_torch = interfaces.torch_interface(f_jit)
 
     param = torch.ones([4, n], requires_grad=True)
     l = f_jit_torch(param)
@@ -80,7 +81,7 @@ def test_torch_interface(backend):
         )
         return tc.backend.real(loss1), tc.backend.real(loss2)
 
-    f2_torch = tc.interfaces.torch_interface(f2)
+    f2_torch = interfaces.torch_interface(f2)
 
     paramzz = torch.ones([2, n], requires_grad=True)
     paramx = torch.ones([2, n], requires_grad=True)
@@ -96,7 +97,7 @@ def test_torch_interface(backend):
     def f3(x):
         return tc.backend.real(x ** 2)
 
-    f3_torch = tc.interfaces.torch_interface(f3)
+    f3_torch = interfaces.torch_interface(f3)
     param3 = torch.ones([2], dtype=torch.complex64, requires_grad=True)
     l3 = f3_torch(param3)
     l3 = torch.sum(l3)
