@@ -1,3 +1,4 @@
+# pylint: disable=W0612
 import sys
 import os
 import numpy as np
@@ -76,22 +77,7 @@ def get_test_circuits(full):
     return [c, w_c, mps, w_mps, mps_exact, w_mps_exact]
 
 
-@pytest.fixture
-def get_test_circuits_1():
-    tc.set_dtype("complex128")
-    yield get_test_circuits(False)
-    tc.set_dtype("complex64")
-
-
-@pytest.fixture
-def get_test_circuits_2():
-    tc.set_dtype("complex128")
-    yield get_test_circuits(True)
-    tc.set_dtype("complex64")
-
-
-@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
-def test_wavefunction(get_test_circuits_1):
+def do_test_wavefunction(test_circucits):
     (
         c,
         w_c,
@@ -99,13 +85,13 @@ def test_wavefunction(get_test_circuits_1):
         w_mps,
         mps_exact,
         w_mps_exact,
-    ) = get_test_circuits_1  # pylint: disable=W0612
+    ) = test_circucits
     print(type(w_c))
     # the wavefuntion is exact if there's no truncation
     assert np.allclose(w_mps_exact, w_c)
 
 
-def test_truncation_1(get_test_circuits_1):
+def do_test_truncation(test_circucits, real_fedility_ref, estimated_fedility_ref):
     (
         c,
         w_c,
@@ -113,15 +99,19 @@ def test_truncation_1(get_test_circuits_1):
         w_mps,
         mps_exact,
         w_mps_exact,
-    ) = get_test_circuits_1  # pylint: disable=W0612
+    ) = test_circucits
     # compare with a precalculated value
-    real_fedility = np.abs(tc.backend.numpy(w_mps).conj().dot(tc.backend.numpy(w_c))) ** 2
-    assert np.isclose(real_fedility, 0.9998648317622654)
+    real_fedility = (
+        np.abs(tc.backend.numpy(w_mps).conj().dot(tc.backend.numpy(w_c))) ** 2
+    )
+    assert np.isclose(real_fedility, real_fedility_ref)
+    # assert np.isclose(real_fedility, 0.9998648317622654)
     estimated_fedility = mps._fidelity
-    assert np.isclose(estimated_fedility, 0.9999264292512574)
+    assert np.isclose(estimated_fedility, estimated_fedility_ref)
+    # assert np.isclose(estimated_fedility, 0.9999264292512574)
 
 
-def test_truncation_2(get_test_circuits_2):
+def do_test_amplitude(test_circucits):
     (
         c,
         w_c,
@@ -129,23 +119,7 @@ def test_truncation_2(get_test_circuits_2):
         w_mps,
         mps_exact,
         w_mps_exact,
-    ) = get_test_circuits_2  # pylint: disable=W0612
-    # compare with a precalculated value
-    real_fedility = np.abs(tc.backend.numpy(w_mps).conj().dot(tc.backend.numpy(w_c))) ** 2
-    assert np.isclose(real_fedility, 0.9705050538783289)
-    estimated_fedility = mps._fidelity
-    assert np.isclose(estimated_fedility, 0.984959108658121)
-
-
-def test_amplitude(get_test_circuits_1):
-    (
-        c,
-        w_c,
-        mps,
-        w_mps,
-        mps_exact,
-        w_mps_exact,
-    ) = get_test_circuits_1  # pylint: disable=W0612
+    ) = test_circucits
     # compare with wavefunction
     s = "01" * (N // 2)
     sint = int(s, 2)  # binary to decimal
@@ -153,7 +127,7 @@ def test_amplitude(get_test_circuits_1):
     assert np.isclose(err_amplitude, 0, atol=1e-12)
 
 
-def test_expectation(get_test_circuits_1):
+def do_test_expectation(test_circucits):
     (
         c,
         w_c,
@@ -161,7 +135,7 @@ def test_expectation(get_test_circuits_1):
         w_mps,
         mps_exact,
         w_mps_exact,
-    ) = get_test_circuits_1  # pylint: disable=W0612
+    ) = test_circucits
     for site in range(N):
         exp_mps = mps_exact.expectation_single_gate(tc.gates.z(), site)
         exp_mps_general = mps_exact.general_expectation([tc.gates.z(), [site]])
@@ -172,7 +146,6 @@ def test_expectation(get_test_circuits_1):
         assert np.isclose(exp_mps_general, exp_c, atol=1e-7)
 
 
-@pytest.fixture
 def external_wavefunction():
     # create a fixed wavefunction and create the corresponding MPS
     w_external = np.abs(np.sin(np.arange(2 ** N) % np.exp(1))).astype(
@@ -185,23 +158,26 @@ def external_wavefunction():
     return w_external, mps_external, mps_external_exact
 
 
-def test_fromwavefunction(external_wavefunction):
+def do_test_fromwavefunction(external_wavefunction):
     (
         w_external,
         mps_external,
         mps_external_exact,
-    ) = external_wavefunction  # pylint: disable=W0612
+    ) = external_wavefunction
     assert np.allclose(mps_external_exact.wavefunction(), w_external, atol=1e-7)
     # compare fidelity of truncation with theoretical limit obtained by SVD
     w_external = tc.backend.numpy(w_external)
-    real_fedility = np.abs(tc.backend.numpy(mps_external.wavefunction()).conj().dot(w_external)) ** 2
+    real_fedility = (
+        np.abs(tc.backend.numpy(mps_external.wavefunction()).conj().dot(w_external))
+        ** 2
+    )
     s = np.linalg.svd(w_external.reshape((2 ** (N // 2), 2 ** (N // 2))))[1]
     theoretical_upper_limit = np.sum(s[0:D] ** 2)
     relative_err = np.log((1 - real_fedility) / (1 - theoretical_upper_limit))
     assert np.isclose(relative_err, 0.11, atol=1e-2)
 
 
-def test_proj(get_test_circuits_1, external_wavefunction):
+def do_test_proj(test_circucits, external_wavefunction):
     (
         c,
         w_c,
@@ -209,13 +185,38 @@ def test_proj(get_test_circuits_1, external_wavefunction):
         w_mps,
         mps_exact,
         w_mps_exact,
-    ) = get_test_circuits_1  # pylint: disable=W0612
+    ) = test_circucits
     (
-        w_external,  # pylint: disable=W0612
-        mps_external,  # pylint: disable=W0612
-        mps_external_exact,  # pylint: disable=W0612
-    ) = external_wavefunction  # pylint: disable=W0612
+        w_external,
+        mps_external,
+        mps_external_exact,
+    ) = external_wavefunction
     # compare projection value with wavefunction calculated results
     proj = mps.proj_with_mps(mps_external)
-    proj_ref = tc.backend.numpy(mps_external.wavefunction()).conj().dot(tc.backend.numpy(w_mps))
+    proj_ref = (
+        tc.backend.numpy(mps_external.wavefunction())
+        .conj()
+        .dot(tc.backend.numpy(w_mps))
+    )
     np.isclose(proj, proj_ref, atol=1e-12)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_circuits_1(backend):
+    tc.set_dtype("complex128")
+    circuits = get_test_circuits(False)
+    do_test_wavefunction(circuits)
+    do_test_truncation(circuits, 0.9998648317622654, 0.9999264292512574)
+    do_test_amplitude(circuits)
+    do_test_expectation(circuits)
+    external = external_wavefunction()
+    do_test_fromwavefunction(external)
+    do_test_proj(circuits, external)
+    tc.set_dtype("complex64")
+
+
+def test_circuits_2():
+    tc.set_dtype("complex128")
+    circuits = get_test_circuits(True)
+    do_test_truncation(circuits, 0.9705050538783289, 0.984959108658121)
+    tc.set_dtype("complex64")
