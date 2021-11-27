@@ -1,4 +1,4 @@
-# pylint: disable=W0612
+# pylint: disable=unused-variable
 import sys
 import os
 import numpy as np
@@ -201,9 +201,10 @@ def do_test_proj(test_circucits, external_wavefunction):
     np.isclose(proj, proj_ref, atol=1e-12)
 
 
-@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
-def test_circuits_1(backend):
-    tc.set_dtype("complex128")
+@pytest.mark.parametrize(
+    "backend, dtype", [(lf("tfb"), lf("highp")), (lf("jaxb"), lf("highp"))]
+)
+def test_circuits_1(backend, dtype):
     circuits = get_test_circuits(False)
     do_test_wavefunction(circuits)
     do_test_truncation(circuits, 0.9998648317622654, 0.9999264292512574)
@@ -212,11 +213,8 @@ def test_circuits_1(backend):
     external = external_wavefunction()
     do_test_fromwavefunction(external)
     do_test_proj(circuits, external)
-    tc.set_dtype("complex64")
 
 
-def test_circuits_2():
-    tc.set_dtype("complex128")
+def test_circuits_2(highp):
     circuits = get_test_circuits(True)
     do_test_truncation(circuits, 0.9705050538783289, 0.984959108658121)
-    tc.set_dtype("complex64")

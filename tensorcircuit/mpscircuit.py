@@ -3,7 +3,7 @@ quantum circuit: MPS state simulator
 """
 
 from functools import reduce
-from typing import Tuple, List, Callable, Optional, Any, Sequence, cast
+from typing import Tuple, List, Callable, Optional, Any, Sequence
 import numpy as np
 from .mps_base import FiniteMPS
 from . import gates
@@ -239,8 +239,8 @@ class MPSCircuit:
         # The center position of MPS must be either `index1` for `index2` before applying a double gate
         # Choose the one closer to the current center
         assert index2 - index1 == 1
-        diff1 = abs(index1 - cast(int, self._mps.center_position))
-        diff2 = abs(index2 - cast(int, self._mps.center_position))
+        diff1 = abs(index1 - self._mps.center_position)  # type: ignore
+        diff2 = abs(index2 - self._mps.center_position)  # type: ignore
         if diff1 < diff2:
             self.position(index1)
         else:
@@ -272,33 +272,33 @@ class MPSCircuit:
         :type index2: int
         """
         # Equivalent to apply N SWPA gates, the required gate, N SWAP gates sequentially on adjacent gates
-        diff1 = abs(index1 - cast(int, self._mps.center_position))
-        diff2 = abs(index2 - cast(int, self._mps.center_position))
+        diff1 = abs(index1 - self._mps.center_position)  # type: ignore
+        diff2 = abs(index2 - self._mps.center_position)  # type: ignore
         if diff1 < diff2:
             self.position(index1)
             for index in np.arange(index1, index2 - 1):
                 self.apply_adjacent_double_gate(
-                    gates.swap(), index, index + 1, center_position=index + 1
+                    gates.swap(), index, index + 1, center_position=index + 1  # type: ignore
                 )
             self.apply_adjacent_double_gate(
                 gate, index2 - 1, index2, center_position=index2 - 1
             )
             for index in np.arange(index1, index2 - 1)[::-1]:
                 self.apply_adjacent_double_gate(
-                    gates.swap(), index, index + 1, center_position=index
+                    gates.swap(), index, index + 1, center_position=index  # type: ignore
                 )
         else:
             self.position(index2)
             for index in np.arange(index1 + 1, index2)[::-1]:
                 self.apply_adjacent_double_gate(
-                    gates.swap(), index, index + 1, center_position=index
+                    gates.swap(), index, index + 1, center_position=index  # type: ignore
                 )
             self.apply_adjacent_double_gate(
                 gate, index1, index1 + 1, center_position=index1 + 1
             )
             for index in np.arange(index1 + 1, index2):
                 self.apply_adjacent_double_gate(
-                    gates.swap(), index, index + 1, center_position=index + 1
+                    gates.swap(), index, index + 1, center_position=index + 1  # type: ignore
                 )
 
     def apply_general_gate(self, gate: Gate, *index: int) -> None:

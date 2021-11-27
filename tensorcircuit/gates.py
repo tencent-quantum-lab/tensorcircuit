@@ -110,10 +110,6 @@ class Gate(tn.Node):  # type: ignore
     pass
 
 
-h: Gate
-swap: Gate
-
-
 def num_to_tensor(*num: Union[float, Tensor], dtype: Optional[str] = None) -> Any:
     l = []
     if not dtype:

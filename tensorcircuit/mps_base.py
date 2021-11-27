@@ -1,6 +1,6 @@
 from typing import Any, Optional
-import tensornetwork as tn  # type: ignore
-import tensornetwork.ncon_interface as ncon  # type: ignore
+import tensornetwork as tn
+import tensornetwork.ncon_interface as ncon
 from .cons import backend
 
 Tensor = Any

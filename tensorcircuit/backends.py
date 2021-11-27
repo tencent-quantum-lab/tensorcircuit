@@ -46,6 +46,19 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
     Add tensorcircuit specific backend methods, especially with their docstrings
     """
 
+    def copy(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+        """
+        Return expm of ``a``, matrix exponential.
+
+        :param a: tensor in matrix form
+        :type a: Tensor
+        :return: matrix exponential of matrix ``a``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `copy`.".format(self.name)
+        )
+
     def expm(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
         Return expm of ``a``, matrix exponential.
