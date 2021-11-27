@@ -22,6 +22,7 @@ modules = [
     "tensorcircuit.cons",
     "tensorcircuit.gates",
     "tensorcircuit.circuit",
+    "tensorcircuit.mps_base",
     "tensorcircuit.mpscircuit",
     "tensorcircuit.backends",
     "tensorcircuit.densitymatrix",

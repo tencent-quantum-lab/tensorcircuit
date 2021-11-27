@@ -843,7 +843,7 @@ _more_methods_for_backend(tnbackend)
 def _sum_numpy(
     self: Any, a: Tensor, axis: Optional[Sequence[int]] = None, keepdims: bool = False
 ) -> Tensor:
-    return np.sum(a, axis=axis, keepdims=keepdims)
+    return np.sum(a, axis=axis, keepdims=keepdims)  # type: ignore
     # see https://github.com/google/TensorNetwork/issues/952
 
 

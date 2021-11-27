@@ -39,6 +39,7 @@ _wroot_matrix = (
     * np.array([[1, -1 / np.sqrt(2) * (1 + 1.0j)], [1 / np.sqrt(2) * (1 - 1.0j), 1]])
 )
 
+
 _ii_matrix = np.kron(_i_matrix, _i_matrix)
 _xx_matrix = np.kron(_x_matrix, _x_matrix)
 _yy_matrix = np.kron(_y_matrix, _y_matrix)
@@ -107,6 +108,10 @@ class Gate(tn.Node):  # type: ignore
     """
 
     pass
+
+
+h: Gate
+swap: Gate
 
 
 def num_to_tensor(*num: Union[float, Tensor], dtype: Optional[str] = None) -> Any:

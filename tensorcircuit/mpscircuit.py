@@ -3,11 +3,11 @@ quantum circuit: MPS state simulator
 """
 
 from functools import reduce
-from typing import Tuple, List, Callable, Optional, Any, Sequence
+from typing import Tuple, List, Callable, Optional, Any, Sequence, cast
 import numpy as np
 from .mps_base import FiniteMPS
 from . import gates
-from .cons import backend, contractor, dtypestr, npdtype
+from .cons import backend, npdtype
 
 Gate = gates.Gate
 Tensor = Any
@@ -15,10 +15,10 @@ Tensor = Any
 
 def split_tensor(
     tensor: Tensor,
-    left=True,
-    max_singular_values=None,
-    max_truncation_err=None,
-    relative=True,
+    left: bool = True,
+    max_singular_values: Optional[int] = None,
+    max_truncation_err: Optional[float] = None,
+    relative: bool = True,
 ) -> Tuple[Tensor, Tensor]:
     """
     Split the tensor by SVD or QR depends on whether a truncation is required
@@ -34,6 +34,7 @@ def split_tensor(
     :param relative: Multiply `max_truncation_err` with the largest singular value.
     :type relative: bool, optional
     """
+    # The behavior is a little bit different from tn.split_node because it explicitly requires a center
     svd = (max_truncation_err is not None) or (max_singular_values is not None)
     if svd:
         U, S, VH, _ = backend.svd(
@@ -48,9 +49,9 @@ def split_tensor(
             return U, backend.matmul(backend.diagflat(S), VH)
     else:
         if left:
-            return backend.rq(tensor)
+            return backend.rq(tensor)  # type: ignore
         else:
-            return backend.qr(tensor)
+            return backend.qr(tensor)  # type: ignore
 
 
 class MPSCircuit:
@@ -110,7 +111,9 @@ class MPSCircuit:
         self._fidelity = 1.0
         self.set_truncation_rule()
 
-    # `MPSCircuit` does not has `replace_inputs` like `Circuit` because the gates are immediately absorted into the MPS when applied, so it is impossible to remember the initial structure
+    # `MPSCircuit` does not has `replace_inputs` like `Circuit`
+    # because the gates are immediately absorted into the MPS when applied,
+    # so it is impossible to remember the initial structure
 
     def set_truncation_rule(
         self,
@@ -133,11 +136,6 @@ class MPSCircuit:
         self.max_singular_values = max_singular_values
         self.max_truncation_err = max_truncation_err
         self.relative = relative
-        self.double_gate_compression_options = {
-            "max_singular_values": max_singular_values,
-            "max_truncation_err": max_truncation_err,
-            "relative": relative,
-        }
         self.do_truncation = (self.max_truncation_err is not None) or (
             self.max_truncation_err is not None
         )
@@ -241,8 +239,8 @@ class MPSCircuit:
         # The center position of MPS must be either `index1` for `index2` before applying a double gate
         # Choose the one closer to the current center
         assert index2 - index1 == 1
-        diff1 = abs(index1 - self._mps.center_position)
-        diff2 = abs(index2 - self._mps.center_position)
+        diff1 = abs(index1 - cast(int, self._mps.center_position))
+        diff2 = abs(index2 - cast(int, self._mps.center_position))
         if diff1 < diff2:
             self.position(index1)
         else:
@@ -252,7 +250,9 @@ class MPSCircuit:
             index1,
             index2,
             center_position=center_position,
-            **self.double_gate_compression_options
+            max_singular_values=self.max_singular_values,
+            max_truncation_err=self.max_truncation_err,
+            relative=self.relative,
         )
         self._fidelity *= 1 - backend.real(backend.sum(err ** 2))
 
@@ -272,8 +272,8 @@ class MPSCircuit:
         :type index2: int
         """
         # Equivalent to apply N SWPA gates, the required gate, N SWAP gates sequentially on adjacent gates
-        diff1 = abs(index1 - self._mps.center_position)
-        diff2 = abs(index2 - self._mps.center_position)
+        diff1 = abs(index1 - cast(int, self._mps.center_position))
+        diff2 = abs(index2 - cast(int, self._mps.center_position))
         if diff1 < diff2:
             self.position(index1)
             for index in np.arange(index1, index2 - 1):
@@ -360,26 +360,23 @@ class MPSCircuit:
 
         :return:
         """
-        try:
-            mps = self._mps
-            if len(mps) != self._nqubits:
-                return False
-            for i in range(self._nqubits):
-                if len(mps.tensors[i].shape) != 3:
-                    return False
-            for i in range(self._nqubits - 1):
-                if mps.tensors[i].shape[-1] != mps.tensors[i + 1].shape[0]:
-                    return False
-            return True
-        except BaseException:
+        mps = self._mps
+        if len(mps) != self._nqubits:
             return False
+        for i in range(self._nqubits):
+            if len(mps.tensors[i].shape) != 3:
+                return False
+        for i in range(self._nqubits - 1):
+            if mps.tensors[i].shape[-1] != mps.tensors[i + 1].shape[0]:
+                return False
+        return True
 
     @staticmethod
     def from_wavefunction(
         wavefunction: Tensor,
-        max_singular_values=None,
-        max_truncation_err=None,
-        relative=True,
+        max_singular_values: Optional[int] = None,
+        max_truncation_err: Optional[float] = None,
+        relative: bool = True,
     ) -> "MPSCircuit":
         """
         Construct the MPS from a given wavefunction
@@ -412,22 +409,42 @@ class MPSCircuit:
                 break
         return MPSCircuit(len(tensors), tensors=tensors)
 
-    def wavefunction(self) -> Tensor:
+    def wavefunction(self, form: str = "default") -> Tensor:
         """
         compute the output wavefunction from the circuit
 
         :return: Tensor with shape [1, -1]
         :rtype: Tensor
         """
-        # TODO@(SUSYUSTC): make compatible with the shape in Circuit
         result = backend.ones((1, 1, 1), dtype=npdtype)
         for tensor in self._mps.tensors:
             result = backend.einsum("iaj,jbk->iabk", result, tensor)
             ni, na, nb, nk = result.shape
             result = backend.reshape(result, (ni, na * nb, nk))
-        return backend.reshape(result, [1, -1])
+        if form == "default":
+            shape = [-1]
+        elif form == "ket":
+            shape = [-1, 1]
+        elif form == "bra":  # no conj here
+            shape = [1, -1]
+        return backend.reshape(result, shape)
 
     state = wavefunction
+
+    def copy_without_tensor(self) -> "MPSCircuit":
+        """
+        Copy the current MPS without the tensors
+
+        :return: The contructed MPS
+        :rtype: MPSCircuit
+        """
+        result: "MPSCircuit" = MPSCircuit.__new__(MPSCircuit)
+        info = vars(self)
+        for key in vars(self):
+            if key == "_mps":
+                continue
+            setattr(result, key, info[key])
+        return result
 
     def copy(self) -> "MPSCircuit":
         """
@@ -436,15 +453,8 @@ class MPSCircuit:
         :return: The contructed MPS
         :rtype: MPSCircuit
         """
-        tensor = [t.copy() for t in self._mps.tensors]
-        result = MPSCircuit(
-            self._nqubits, tensor, center_position=self._mps.center_position
-        )
-        result.set_truncation_rule(
-            max_singular_values=self.max_singular_values,
-            max_truncation_err=self.max_truncation_err,
-            relative=self.relative,
-        )
+        result = self.copy_without_tensor()
+        result._mps = self._mps.copy()
         return result
 
     def conj(self) -> "MPSCircuit":
@@ -454,18 +464,11 @@ class MPSCircuit:
         :return: The contructed MPS
         :rtype: MPSCircuit
         """
-        tensor = [t.conj() for t in self._mps.tensors]
-        result = MPSCircuit(
-            self._nqubits, tensor, center_position=self._mps.center_position
-        )
-        result.set_truncation_rule(
-            max_singular_values=self.max_singular_values,
-            max_truncation_err=self.max_truncation_err,
-            relative=self.relative,
-        )
+        result = self.copy_without_tensor()
+        result._mps = self._mps.conj()
         return result
 
-    def get_norm(self) -> float:
+    def get_norm(self) -> Tensor:
         return self._mps.norm(self._mps.center_position)
 
     def normalize(self) -> None:
@@ -507,7 +510,7 @@ class MPSCircuit:
             # TODO@(SUSYUSTC): normalize the tensor to avoid error accumulation
             probs /= backend.sum(probs)
             pu = probs[0]
-            r = backend.random_uniform([])
+            r = backend.implicit_randu([])
             if r < pu:
                 choice = 0
             else:
@@ -532,6 +535,7 @@ class MPSCircuit:
         ket = self.copy()
         assert bra._nqubits == ket._nqubits
         n = bra._nqubits
+
         while n > 1:
             # --bA---bB
             #   |    |

@@ -1,11 +1,12 @@
-from typing import Any, List, Optional, Text, Type, Union, Dict, Sequence
-import tensornetwork as tn
-import tensornetwork.ncon_interface as ncon
+from typing import Any, Optional
+import tensornetwork as tn  # type: ignore
+import tensornetwork.ncon_interface as ncon  # type: ignore
 
 Tensor = Any
 
 
-class FiniteMPS(tn.FiniteMPS):
+class FiniteMPS(tn.FiniteMPS):  # type: ignore
+    center_position: Optional[int]
     # TODO(@SUSYUSTC): Maybe more functions can be put here to disentangle with circuits
     def apply_two_site_gate(
         self,
@@ -91,7 +92,7 @@ class FiniteMPS(tn.FiniteMPS):
             backend=self.backend,
         )
 
-        def set_center_position(site):
+        def set_center_position(site: int) -> None:
             if self.center_position is not None:
                 if self.center_position in (site1, site2):
                     assert site in (site1, site2)
@@ -144,3 +145,15 @@ class FiniteMPS(tn.FiniteMPS):
         self.tensors[site1] = left_tensor
         self.tensors[site2] = right_tensor
         return tw
+
+    def copy(self) -> "FiniteMPS":
+        tensors = [item.copy() for item in self.tensors]
+        result = FiniteMPS(tensors, backend=self.backend, canonicalize=False)
+        result.center_position = self.center_position
+        return result
+
+    def conj(self) -> "FiniteMPS":
+        tensors = [item.conj().copy() for item in self.tensors]
+        result = FiniteMPS(tensors, backend=self.backend, canonicalize=False)
+        result.center_position = self.center_position
+        return result

@@ -185,11 +185,11 @@ class Circuit:
 
             :param index: Qubit number than the gate applies on.
                 The matrix for the gate is
-                
+
                 .. math::
 
                       %s
-                
+
             :type index: int.
             """ % (
                 g,
@@ -774,7 +774,7 @@ class Circuit:
         """
         compute the output wavefunction from the circuit
 
-        :return: Tensor with shape [-1, 1]
+        :return: Tensor with the corresponding shape
         :rtype: Tensor
         """
         nodes, d_edges = self._copy()
