@@ -2,12 +2,10 @@
 interfaces bridging different backends
 """
 
-from typing import Any, Callable
+from typing import Any, Callable, Tuple
 
 import numpy as np
-from jax import numpy as jnp
 import torch
-import tensorflow as tf
 
 from .cons import backend
 from .backends import get_backend
@@ -19,6 +17,9 @@ Array = Any
 
 
 def tensor_to_numpy(t: Tensor) -> Array:
+    from jax import numpy as jnp
+    import tensorflow as tf
+
     if isinstance(t, torch.Tensor):
         return t.numpy()
     if isinstance(t, tf.Tensor) or isinstance(t, tf.Variable):
@@ -28,7 +29,7 @@ def tensor_to_numpy(t: Tensor) -> Array:
     return t
 
 
-def general_args_to_numpy(args: Any, same_pytree: bool = False) -> Any:
+def general_args_to_numpy(args: Any, same_pytree: bool = True) -> Any:
     res = []
     alone = False
     if not (isinstance(args, tuple) or isinstance(args, list)):
@@ -46,7 +47,7 @@ def general_args_to_numpy(args: Any, same_pytree: bool = False) -> Any:
 
 
 def numpy_args_to_backend(
-    args: Any, same_pytree: bool = False, dtype: Any = None, target_backend: Any = None
+    args: Any, same_pytree: bool = True, dtype: Any = None, target_backend: Any = None
 ) -> Any:
     # TODO(@refraction-ray): switch same_pytree default to True
     if target_backend is None:
@@ -82,13 +83,20 @@ def is_sequence(x: Any) -> bool:
     return False
 
 
-def torch_interface(fun: Callable[..., Any]) -> Callable[..., Any]:
+def torch_interface(fun: Callable[..., Any], jit: bool = False) -> Callable[..., Any]:
+    def vjp_fun(x: Tensor, v: Tensor) -> Tuple[Tensor, Tensor]:
+        return backend.vjp(fun, x, v)  # type: ignore
+
+    if jit is True:
+        fun = backend.jit(fun)
+        vjp_fun = backend.jit(vjp_fun)
+
     class F(torch.autograd.Function):  # type: ignore
         @staticmethod
         def forward(ctx: Any, *x: Any) -> Any:  # type: ignore
             ctx.xdtype = [xi.dtype for xi in x]
-            x = general_args_to_numpy(x, same_pytree=True)
-            x = numpy_args_to_backend(x, same_pytree=True)
+            x = general_args_to_numpy(x)
+            x = numpy_args_to_backend(x)
             y = fun(*x)
             if not is_sequence(y):
                 ctx.ydtype = [y.dtype]
@@ -99,25 +107,23 @@ def torch_interface(fun: Callable[..., Any]) -> Callable[..., Any]:
             else:
                 ctx.x = x
             y = numpy_args_to_backend(
-                general_args_to_numpy(y, same_pytree=True),
-                same_pytree=True,
+                general_args_to_numpy(y),
                 target_backend="pytorch",
             )
             return y
 
         @staticmethod
         def backward(ctx: Any, *grad_y: Any) -> Any:
-            grad_y = general_args_to_numpy(grad_y, same_pytree=True)
+            grad_y = general_args_to_numpy(grad_y)
             grad_y = numpy_args_to_backend(
-                grad_y, dtype=[d for d in ctx.ydtype], same_pytree=True
+                grad_y, dtype=[d for d in ctx.ydtype]
             )  # backend.dtype
             if len(grad_y) == 1:
                 grad_y = grad_y[0]
-            _, g = backend.vjp(fun, ctx.x, grad_y)
+            _, g = vjp_fun(ctx.x, grad_y)
             # a redundency due to current vjp API
             r = numpy_args_to_backend(
-                general_args_to_numpy(g, same_pytree=True),
-                same_pytree=True,
+                general_args_to_numpy(g),
                 dtype=[d for d in ctx.xdtype],  # torchdtype
                 target_backend="pytorch",
             )

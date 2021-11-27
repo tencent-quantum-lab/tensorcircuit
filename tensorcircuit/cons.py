@@ -319,7 +319,7 @@ def _get_path_cache_friendly(
                 mapping_dict[id(e)] = i
                 i += 1
     input_sets = [set([mapping_dict[id(e)] for e in node.edges]) for node in nodes]
-    order = np.argsort(list(map(sorted, input_sets)) + [[1e10]])[:-1]  # type: ignore
+    order = np.argsort(np.array(list(map(sorted, input_sets)) + [[1e10]], dtype=object))[:-1]  # type: ignore
     # TODO(@refraction-ray): more stable and unwarning arg sorting here
     nodes_new = [nodes[i] for i in order]
     input_sets = [set([mapping_dict[id(e)] for e in node.edges]) for node in nodes_new]

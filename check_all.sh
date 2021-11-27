@@ -7,7 +7,7 @@ mypy tensorcircuit
 echo "pylint check"
 pylint tensorcircuit tests
 echo "pytest check"
-pytest --cov=tensorcircuit -vv
+pytest --cov=tensorcircuit -vv -W ignore::DeprecationWarning
 echo "sphinx check"
 cd docs && make html
-echo "all checks passed, congratulates!"
+echo "all checks passed, congratulates! 💐"

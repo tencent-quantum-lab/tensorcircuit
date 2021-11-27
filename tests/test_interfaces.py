@@ -81,7 +81,7 @@ def test_torch_interface(backend):
         )
         return tc.backend.real(loss1), tc.backend.real(loss2)
 
-    f2_torch = interfaces.torch_interface(f2)
+    f2_torch = interfaces.torch_interface(f2, jit=True)
 
     paramzz = torch.ones([2, n], requires_grad=True)
     paramx = torch.ones([2, n], requires_grad=True)

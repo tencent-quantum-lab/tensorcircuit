@@ -35,6 +35,8 @@ def split_tensor(
     :type max_truncation_err: float, optional
     :param relative: Multiply `max_truncation_err` with the largest singular value.
     :type relative: bool, optional
+    :return: two tensors after splitting
+    :rtype: Tuple[Tensor, Tensor]
     """
     # The behavior is a little bit different from tn.split_node because it explicitly requires a center
     svd = (max_truncation_err is not None) or (max_singular_values is not None)
@@ -398,7 +400,7 @@ class MPSCircuit:
         """
         wavefunction = backend.reshape(wavefunction, (-1, 1))
         tensors: List[Tensor] = []
-        while True:
+        while True:  # not jittable
             nright = wavefunction.shape[1]
             wavefunction = backend.reshape(wavefunction, (-1, nright * 2))
             wavefunction, Q = split_tensor(
@@ -599,10 +601,10 @@ class MPSCircuit:
         :type gate1: Gate
         :param gate2: second gate to be applied
         :type gate2: Gate
-        :param site: qubit index of the first gate
-        :type site: int
-        :param site: qubit index of the second gate
-        :type site: int
+        :param site1: qubit index of the first gate
+        :type site1: int
+        :param site2: qubit index of the second gate
+        :type site2: int
         """
         value = self._mps.measure_two_body_correlator(
             gate1.tensor, gate2.tensor, site1, [site2]

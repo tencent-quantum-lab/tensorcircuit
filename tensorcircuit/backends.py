@@ -329,7 +329,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
         .. math ::
 
-            \\mathrm{softmax}(x) = \\frac{\exp(x_i)}{\\sum_j \\exp(x_j)}
+            \\mathrm{softmax}(x) = \\frac{\\exp(x_i)}{\\sum_j \\exp(x_j)}
 
 
         :param a: Tensor
@@ -850,7 +850,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         And if argnums=1, the gradient is like
 
         .. math::
-            g^1_i = \\frac{\\partial \sum_j f(vargs[0][j], args[1])}{\\partial args[1][i]}
+            g^1_i = \\frac{\\partial \\sum_j f(vargs[0][j], args[1])}{\\partial args[1][i]}
 
         , which is suitable for quantum machine learning scenarios, where ``f`` is the loss function,
         args[0] corresponds the input data and args[1] corresponds to the weights in the QML model.
