@@ -68,7 +68,7 @@ class Circuit:
         else:
             self.has_inputs = False
         self.split = split
-        # TODO(@refraction-ray): split settings at global and gate level
+        # TODO(@refraction-ray): split settings at global level?
         if (inputs is None) and (mps_inputs is None):
             nodes = [
                 tn.Node(

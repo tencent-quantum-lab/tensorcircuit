@@ -552,6 +552,7 @@ def test_circuit_split(backend):
 
     s1 = f_jit(tc.backend.ones([4, n]))
     # s2 = f_jit(tc.backend.ones([4, n]), max_truncation_err=1e-5) # doesn't work now
+    # this cannot be done anyway, since variable size tensor network will fail opt einsum
     s3 = f_jit(tc.backend.ones([4, n]), max_singular_values=2, fixed_choice=1)
 
     # np.testing.assert_allclose(s1, s2, atol=1e-5)

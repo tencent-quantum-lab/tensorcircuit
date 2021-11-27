@@ -13,18 +13,18 @@ tensorcircuit.backends module
     :undoc-members:
     :show-inheritance:
 
-tensorcircuit.circuit module
--------------------------------------
-
-.. automodule:: tensorcircuit.circuit
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 tensorcircuit.channels module
 -------------------------------------
 
 .. automodule:: tensorcircuit.channels
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+tensorcircuit.circuit module
+-------------------------------------
+
+.. automodule:: tensorcircuit.circuit
     :members:
     :undoc-members:
     :show-inheritance:
@@ -46,6 +46,13 @@ tensorcircuit.densitymatrix module
     :undoc-members:
     :show-inheritance:
 
+tensorcircuit.densitymatrix2 module
+-------------------------------------
+
+.. automodule:: tensorcircuit.densitymatrix2
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 tensorcircuit.gates module
 ---------------------------------
@@ -55,10 +62,26 @@ tensorcircuit.gates module
     :undoc-members:
     :show-inheritance:
 
+tensorcircuit.interfaces module
+---------------------------------
+
+.. automodule:: tensorcircuit.interfaces
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 tensorcircuit.keras module
 ---------------------------------
 
 .. automodule:: tensorcircuit.keras
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+tensorcircuit.mpscircuit module
+---------------------------------
+
+.. automodule:: tensorcircuit.mpscircuit
     :members:
     :undoc-members:
     :show-inheritance:

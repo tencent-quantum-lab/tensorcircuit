@@ -39,6 +39,7 @@ torchlib: Any
 tf: Any
 
 # TODO(@refraction-ray): refactor backends as a dir
+# TODO(@refraction-ray): refactor ones, zeros and eye methods for dtype setup
 
 
 def _more_methods_for_backend(tnbackend: Any) -> None:
