@@ -1,6 +1,7 @@
 from typing import Any, Optional
 import tensornetwork as tn  # type: ignore
 import tensornetwork.ncon_interface as ncon  # type: ignore
+from .cons import backend, npdtype
 
 Tensor = Any
 
@@ -147,13 +148,13 @@ class FiniteMPS(tn.FiniteMPS):  # type: ignore
         return tw
 
     def copy(self) -> "FiniteMPS":
-        tensors = [item.copy() for item in self.tensors]
+        tensors = [backend.copy(item) for item in self.tensors]
         result = FiniteMPS(tensors, backend=self.backend, canonicalize=False)
         result.center_position = self.center_position
         return result
 
     def conj(self) -> "FiniteMPS":
-        tensors = [item.conj().copy() for item in self.tensors]
+        tensors = [backend.copy(backend.conj(item)) for item in self.tensors]
         result = FiniteMPS(tensors, backend=self.backend, canonicalize=False)
         result.center_position = self.center_position
         return result

@@ -879,6 +879,9 @@ tensornetwork.backends.numpy.numpy_backend.NumPyBackend.sum = _sum_numpy
 
 
 class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
+    def copy(self, a: Tensor) -> Tensor:
+        return a.copy()
+
     def expm(self, a: Tensor) -> Tensor:
         return expm(a)
 
@@ -1185,6 +1188,9 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         self.name = "jax"
 
     # it is already child of numpy backend, and self.np = self.jax.np
+
+    def copy(self, tensor: Tensor) -> Tensor:
+        return jnp.array(tensor, copy=True)
 
     def convert_to_tensor(self, tensor: Tensor) -> Tensor:
         result = jnp.asarray(tensor)
@@ -1571,6 +1577,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         self.minor = int(tf.__version__.split(".")[1])
         self.name = "tensorflow"
 
+    def copy(self, a: Tensor) -> Tensor:
+        return tf.identity(a)
+
     def expm(self, a: Tensor) -> Tensor:
         return tf.linalg.expm(a)
 
@@ -1943,6 +1952,9 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
             )
         torchlib = torch
         self.name = "pytorch"
+
+    def copy(self, a: Tensor) -> Tensor:
+        return a.clone()
 
     def expm(self, a: Tensor) -> Tensor:
         raise NotImplementedError("pytorch backend doesn't support expm")

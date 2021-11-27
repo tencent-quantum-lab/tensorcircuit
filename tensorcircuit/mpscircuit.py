@@ -392,11 +392,11 @@ class MPSCircuit:
         :return: The contructed MPS
         :rtype: MPSCircuit
         """
-        wavefunction = wavefunction.reshape((-1, 1))
+        wavefunction = backend.reshape(wavefunction, (-1, 1))
         tensors: List[Tensor] = []
         while True:
             nright = wavefunction.shape[1]
-            wavefunction = wavefunction.reshape((-1, nright * 2))
+            wavefunction = backend.reshape(wavefunction, (-1, nright * 2))
             wavefunction, Q = split_tensor(
                 wavefunction,
                 left=True,
@@ -404,7 +404,7 @@ class MPSCircuit:
                 max_truncation_err=max_truncation_err,
                 relative=relative,
             )
-            tensors.insert(0, Q.reshape((-1, 2, nright)))
+            tensors.insert(0, backend.reshape(Q, (-1, 2, nright)))
             if wavefunction.shape == (1, 1):
                 break
         return MPSCircuit(len(tensors), tensors=tensors)
