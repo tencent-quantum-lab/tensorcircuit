@@ -3,11 +3,13 @@ quantum circuit: MPS state simulator
 """
 
 from functools import reduce
-from typing import Tuple, List, Callable, Optional, Any, Sequence
+from typing import Any, Callable, List, Optional, Sequence, Tuple
+
 import numpy as np
-from .mps_base import FiniteMPS
+
 from . import gates
 from .cons import backend, npdtype
+from .mps_base import FiniteMPS
 
 Gate = gates.Gate
 Tensor = Any
@@ -139,6 +141,8 @@ class MPSCircuit:
         self.do_truncation = (self.max_truncation_err is not None) or (
             self.max_truncation_err is not None
         )
+
+    # TODO(@refraction-ray): unified split truncation API between Circuit and MPSCircuit
 
     def position(self, site: int) -> None:
         """

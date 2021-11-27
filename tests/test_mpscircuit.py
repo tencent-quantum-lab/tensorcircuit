@@ -13,7 +13,7 @@ modulepath = os.path.dirname(os.path.dirname(thisfile))
 sys.path.insert(0, modulepath)
 import tensorcircuit as tc
 
-# TODO: make everything compatible to different tc.backends
+# TODO(@refraction-ray): mps circuit test: grad & jit, differentiable, jittable
 
 N = 16
 D = 100

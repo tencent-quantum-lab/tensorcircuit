@@ -1,6 +1,7 @@
 """
 some constants and setups
 """
+
 import logging
 import sys
 from functools import partial, reduce
