@@ -1,4 +1,4 @@
-__version__ = "0.0.211117"
+__version__ = "0.0.211127"
 __author__ = "refraction-ray"
 
 from .cons import (
@@ -12,4 +12,3 @@ from .mpscircuit import MPSCircuit
 from .densitymatrix import DMCircuit
 from .densitymatrix2 import DMCircuit2
 from .gates import num_to_tensor, array_to_tensor
-from . import keras

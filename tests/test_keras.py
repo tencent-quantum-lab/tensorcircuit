@@ -1,7 +1,16 @@
+import os
+import sys
 from functools import partial
+
+thisfile = os.path.abspath(__file__)
+modulepath = os.path.dirname(os.path.dirname(thisfile))
+
+sys.path.insert(0, modulepath)
+
 import numpy as np
 import tensorflow as tf
 import tensorcircuit as tc
+from tensorcircuit import keras as K
 
 
 dtype = np.complex128
@@ -46,15 +55,13 @@ def vqe_f2(inputs, xweights, zzweights, nlayers, n):
 
 def test_vqe_layer2(tfb, highp):
     vqe_fp = partial(vqe_f2, nlayers=3, n=6)
-    vqe_layer = tc.keras.QuantumLayer(vqe_fp, [(3, 6), (3, 6)])
+    vqe_layer = K.QuantumLayer(vqe_fp, [(3, 6), (3, 6)])
     inputs = np.zeros([1])
     with tf.GradientTape() as tape:
         e = vqe_layer(inputs)
     print(e, tape.gradient(e, vqe_layer.variables))
     model = tf.keras.Sequential([vqe_layer])
-    model.compile(
-        loss=tc.keras.output_asis_loss, optimizer=tf.keras.optimizers.Adam(0.01)
-    )
+    model.compile(loss=K.output_asis_loss, optimizer=tf.keras.optimizers.Adam(0.01))
     model.fit(np.zeros([1, 1]), np.zeros([1]), batch_size=1, epochs=300)
 
 
@@ -80,14 +87,12 @@ def vqe_f(inputs, weights, nlayers, n):
 
 def test_vqe_layer(tfb, highp):
     vqe_fp = partial(vqe_f, nlayers=6, n=6)
-    vqe_layer = tc.keras.QuantumLayer(vqe_fp, (6 * 2, 6))
+    vqe_layer = K.QuantumLayer(vqe_fp, (6 * 2, 6))
     inputs = np.zeros([1])
     inputs = tf.constant(inputs)
     model = tf.keras.Sequential([vqe_layer])
 
-    model.compile(
-        loss=tc.keras.output_asis_loss, optimizer=tf.keras.optimizers.Adam(0.01)
-    )
+    model.compile(loss=K.output_asis_loss, optimizer=tf.keras.optimizers.Adam(0.01))
 
     model.fit(np.zeros([2, 1]), np.zeros([2, 1]), batch_size=2, epochs=500)
 
@@ -99,7 +104,7 @@ def test_function_io(tfb, tmp_path, highp):
 
     vqe_f_p = tf.function(vqe_f_p)
     vqe_f_p(weights=tf.ones([6, 6], dtype=tf.float64), nlayers=3, n=6)
-    tc.keras.save_func(vqe_f_p, str(tmp_path))
-    loaded = tc.keras.load_func(str(tmp_path), fallback=vqe_f_p)
+    K.save_func(vqe_f_p, str(tmp_path))
+    loaded = K.load_func(str(tmp_path), fallback=vqe_f_p)
     print(loaded(weights=tf.ones([6, 6], dtype=tf.float64), nlayers=3, n=6))
     print(loaded(weights=tf.ones([6, 6], dtype=tf.float64), nlayers=3, n=6))
