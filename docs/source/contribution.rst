@@ -83,7 +83,7 @@ The scripts include the following components:
 
 * pylint
 
-* pytest
+* pytest: For pytest, one can speed up the test by ``pip install pytest-xdist``, and then run parallelly as ``pytest -v -n [number of processes]``.
 
 * sphinx doc builds
 
