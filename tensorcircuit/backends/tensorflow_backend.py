@@ -19,7 +19,7 @@ except ImportError:
 
     tnbackend = abstract_backend.AbstractBackend
 
-
+dtypestr: str
 Tensor = Any
 RGenerator = Any  # tf.random.Generator
 
@@ -97,6 +97,26 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         tf = tensorflow
         self.minor = int(tf.__version__.split(".")[1])
         self.name = "tensorflow"
+
+    def eye(
+        self, N: int, dtype: Optional[str] = None, M: Optional[int] = None
+    ) -> Tensor:
+        if dtype is None:
+            dtype = dtypestr
+        r = tf.eye(num_rows=N, num_columns=M)
+        return self.cast(r, dtype)
+
+    def ones(self, shape: Tuple[int, ...], dtype: Optional[str] = None) -> Tensor:
+        if dtype is None:
+            dtype = dtypestr
+        r = tf.ones(shape=shape)
+        return self.cast(r, dtype)
+
+    def zeros(self, shape: Tuple[int, ...], dtype: Optional[str] = None) -> Tensor:
+        if dtype is None:
+            dtype = dtypestr
+        r = tf.zeros(shape=shape)
+        return self.cast(r, dtype)
 
     def copy(self, a: Tensor) -> Tensor:
         return tf.identity(a)

@@ -32,6 +32,7 @@ modules = [
     "tensorcircuit.quantum",
     "tensorcircuit.simplify",
     "tensorcircuit.interfaces",
+    "tensorcircuit.backends",
     "tensorcircuit.backends.abstract_backend",
     "tensorcircuit.backends.backend_factory",
     "tensorcircuit.backends.jax_backend",

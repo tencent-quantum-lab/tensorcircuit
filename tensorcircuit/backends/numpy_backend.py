@@ -21,9 +21,10 @@ except ImportError:
 
     tnbackend = abstract_backend.AbstractBackend
 
+
 logger = logging.getLogger(__name__)
 
-
+dtypestr: str
 Tensor = Any
 
 
@@ -38,6 +39,26 @@ tensornetwork.backends.numpy.numpy_backend.NumPyBackend.sum = _sum_numpy
 
 
 class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
+    def eye(
+        self, N: int, dtype: Optional[str] = None, M: Optional[int] = None
+    ) -> Tensor:
+        if dtype is None:
+            dtype = dtypestr
+        r = np.eye(N, M=M)
+        return self.cast(r, dtype)
+
+    def ones(self, shape: Tuple[int, ...], dtype: Optional[str] = None) -> Tensor:
+        if dtype is None:
+            dtype = dtypestr
+        r = np.ones(shape)
+        return self.cast(r, dtype)
+
+    def zeros(self, shape: Tuple[int, ...], dtype: Optional[str] = None) -> Tensor:
+        if dtype is None:
+            dtype = dtypestr
+        r = np.zeros(shape)
+        return self.cast(r, dtype)
+
     def copy(self, a: Tensor) -> Tensor:
         return a.copy()
 
@@ -176,7 +197,7 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
 
     def scatter(self, operand: Tensor, indices: Tensor, updates: Tensor) -> Tensor:
         operand_new = np.copy(operand)
-        operand_new[[indices[:, i] for i in range(indices.shape[1])]] = updates
+        operand_new[tuple([indices[:, i] for i in range(indices.shape[1])])] = updates
         return operand_new
 
     def cond(

@@ -17,7 +17,7 @@ except ImportError:
 
     tnbackend = abstract_backend.AbstractBackend
 
-
+dtypestr: str
 Tensor = Any
 
 torchlib: Any
@@ -40,6 +40,28 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
             )
         torchlib = torch
         self.name = "pytorch"
+
+    def eye(
+        self, N: int, dtype: Optional[str] = None, M: Optional[int] = None
+    ) -> Tensor:
+        if dtype is None:
+            dtype = dtypestr
+        if not M:
+            M = N
+        r = torchlib.eye(n=N, m=M)
+        return self.cast(r, dtype)
+
+    def ones(self, shape: Tuple[int, ...], dtype: Optional[str] = None) -> Tensor:
+        if dtype is None:
+            dtype = dtypestr
+        r = torchlib.ones(shape)
+        return self.cast(r, dtype)
+
+    def zeros(self, shape: Tuple[int, ...], dtype: Optional[str] = None) -> Tensor:
+        if dtype is None:
+            dtype = dtypestr
+        r = torchlib.zeros(shape)
+        return self.cast(r, dtype)
 
     def copy(self, a: Tensor) -> Tensor:
         return a.clone()

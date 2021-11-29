@@ -471,7 +471,7 @@ def test_mixed_measurement_circuit(backend):
     structures = tc.backend.onehot(structures, num=4)
 
     f_vvag = tc.backend.jit(tc.backend.vvag(f, vectorized_argnums=1, argnums=0))
-    v, g = f_vvag(tc.backend.ones([2, n]), structures)
+    v, g = f_vvag(tc.backend.ones([2, n], dtype="float32"), structures)
     np.testing.assert_allclose(
         v,
         np.array(

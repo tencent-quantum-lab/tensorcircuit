@@ -130,7 +130,9 @@ def test_backend_methods(backend):
         atol=1e-4,
     )
 
-    assert np.allclose(tc.backend.max(tc.backend.ones([2, 2])), 1.0, atol=1e-4)
+    assert np.allclose(
+        tc.backend.max(tc.backend.ones([2, 2], "float32")), 1.0, atol=1e-4
+    )
     assert np.allclose(
         tc.backend.min(
             tc.backend.cast(
@@ -252,7 +254,7 @@ def test_vvag(backend):
 def test_vvag_dict(backend):
     def dict_plus(x, y):
         a = x["a"]
-        return (a + y)[0]
+        return tc.backend.real((a + y)[0])
 
     dp_vvag = tc.backend.vvag(dict_plus, vectorized_argnums=1, argnums=0)
     x = {"a": tc.backend.ones([1])}

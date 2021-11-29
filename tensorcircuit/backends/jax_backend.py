@@ -19,7 +19,7 @@ except ImportError:
 
     tnbackend = abstract_backend.AbstractBackend
 
-
+dtypestr: str
 Tensor = Any
 PRNGKeyArray = Any  # libjax.random.PRNGKeyArray
 
@@ -118,6 +118,25 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         self.name = "jax"
 
     # it is already child of numpy backend, and self.np = self.jax.np
+    def eye(
+        self, N: int, dtype: Optional[str] = None, M: Optional[int] = None
+    ) -> Tensor:
+        if dtype is None:
+            dtype = dtypestr
+        r = jnp.eye(N, M=M)
+        return self.cast(r, dtype)
+
+    def ones(self, shape: Tuple[int, ...], dtype: Optional[str] = None) -> Tensor:
+        if dtype is None:
+            dtype = dtypestr
+        r = jnp.ones(shape)
+        return self.cast(r, dtype)
+
+    def zeros(self, shape: Tuple[int, ...], dtype: Optional[str] = None) -> Tensor:
+        if dtype is None:
+            dtype = dtypestr
+        r = jnp.zeros(shape)
+        return self.cast(r, dtype)
 
     def copy(self, tensor: Tensor) -> Tensor:
         return jnp.array(tensor, copy=True)
