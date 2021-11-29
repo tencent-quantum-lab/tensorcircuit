@@ -8,8 +8,8 @@ from typing import Any, Sequence
 import numpy as np
 
 from . import cons
+from .cons import backend
 from . import gates
-from .backends import backend  # type: ignore
 
 thismodule = sys.modules[__name__]
 

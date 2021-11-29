@@ -13,6 +13,46 @@ tensorcircuit.backends module
     :undoc-members:
     :show-inheritance:
 
+tensorcircuit.backends.backend_factory module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: tensorcircuit.backends.backend_factory
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+tensorcircuit.backends.jax_backend module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: tensorcircuit.backends.jax_backend
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+tensorcircuit.backends.numpy_backend module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: tensorcircuit.backends.numpy_backend
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+tensorcircuit.backends.pytorch_backend module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: tensorcircuit.backends.pytorch_backend
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+tensorcircuit.backends.tensorflow_backend module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: tensorcircuit.backends.tensorflow_backend
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 tensorcircuit.channels module
 -------------------------------------
 

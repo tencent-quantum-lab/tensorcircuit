@@ -8,7 +8,7 @@ import numpy as np
 import torch
 
 from .cons import backend
-from .backends import get_backend
+from .backends import get_backend  # type: ignore
 
 Tensor = Any
 Array = Any

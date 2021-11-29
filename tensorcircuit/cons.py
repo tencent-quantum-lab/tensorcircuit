@@ -13,7 +13,7 @@ import opt_einsum
 import tensornetwork as tn
 from tensornetwork.backend_contextmanager import get_default_backend
 
-from .backends import get_backend
+from .backends import get_backend  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,6 @@ modules = [
     "tensorcircuit.circuit",
     "tensorcircuit.mps_base",
     "tensorcircuit.mpscircuit",
-    "tensorcircuit.backends",
     "tensorcircuit.densitymatrix",
     "tensorcircuit.densitymatrix2",
     "tensorcircuit.channels",
@@ -33,6 +32,12 @@ modules = [
     "tensorcircuit.quantum",
     "tensorcircuit.simplify",
     "tensorcircuit.interfaces",
+    "tensorcircuit.backends.abstract_backend",
+    "tensorcircuit.backends.backend_factory",
+    "tensorcircuit.backends.jax_backend",
+    "tensorcircuit.backends.numpy_backend",
+    "tensorcircuit.backends.pytorch_backend",
+    "tensorcircuit.backends.tensorflow_backend",
 ]
 
 dtypestr = "complex64"
