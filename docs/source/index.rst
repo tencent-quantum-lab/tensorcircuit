@@ -1,4 +1,3 @@
-
 Guide to tensorcircuit
 ==================================
 
@@ -6,6 +5,7 @@ Guide to tensorcircuit
    :maxdepth: 2
 
    quickstart.rst
+   contribution.rst
    modules.rst
 
 
