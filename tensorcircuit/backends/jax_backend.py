@@ -45,7 +45,7 @@ def _svd_jax(
     max_truncation_error: Optional[float] = None,
     relative: Optional[bool] = False,
 ) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
-    from .ops import adaware_svd
+    from .ops import adaware_svd_jit as adaware_svd
 
     left_dims = tensor.shape[:pivot_axis]
     right_dims = tensor.shape[pivot_axis:]

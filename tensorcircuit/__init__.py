@@ -12,3 +12,4 @@ from .mpscircuit import MPSCircuit
 from .densitymatrix import DMCircuit
 from .densitymatrix2 import DMCircuit2
 from .gates import num_to_tensor, array_to_tensor
+from . import templates

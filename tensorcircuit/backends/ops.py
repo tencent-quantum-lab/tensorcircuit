@@ -67,3 +67,5 @@ def jaxsvd_bwd(r: Sequence[Array], tangents: Sequence[Array]) -> Tuple[Array]:
 
 
 adaware_svd.defvjp(jaxsvd_fwd, jaxsvd_bwd)
+
+adaware_svd_jit = jax.jit(adaware_svd)

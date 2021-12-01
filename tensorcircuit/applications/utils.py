@@ -386,3 +386,20 @@ def repr2array(inputs: str) -> Array:
         o = [float(c.strip()) for c in l.split(" ") if c.strip()]
         outputs.append(o)
     return np.array(outputs)
+
+
+def TFIM1Denergy(
+    L: int, Jzz: float = 1.0, Jx: float = 1.0, Pauli: bool = True
+) -> float:
+    # PBC
+    # nice tutorial: https://arxiv.org/pdf/2009.09208.pdf
+    # further investigation on 1 TFIM solution structure is required
+    # will fail on AFM phase Jzz>Jx and Jzz>0 and odd sites (frustration in boundary)
+    e = 0
+    if Pauli:
+        Jx *= 2
+        Jzz *= 4
+    for i in range(L):
+        q = np.pi * (2 * i - (1 + (-1) ** L) / 2) / L
+        e -= np.abs(Jx) / 2 * np.sqrt(1 + Jzz ** 2 / 4 / Jx ** 2 - Jzz / Jx * np.cos(q))
+    return e

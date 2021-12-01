@@ -141,6 +141,10 @@ def save_func(f: Callable[..., Any], path: str) -> None:
     tf.saved_model.save(m, path)
 
 
+# TODO(@refraction-ray): sometimes, save_func complains about ``return tuple(tensor.shape.as_list())``
+# ``ValueError: as_list() is not defined on an unknown TensorShape.``
+
+
 def load_func(
     *path: str, fallback: Optional[Callable[..., Any]] = None
 ) -> Callable[..., Any]:

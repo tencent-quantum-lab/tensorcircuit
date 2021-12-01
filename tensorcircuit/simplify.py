@@ -78,7 +78,7 @@ def _split_two_qubit_gate(
     if (s1 >= 4) and (s2 >= 4):
         # jax jit unspport split_node with trun_err anyway
         # tf function doesn't work either, though I believe it may work on tf side
-        # TODO(@refraction-ray): tf.function version with trun_err set
+        # CANNOT DONE(@refraction-ray): tf.function version with trun_err set
         return None
     if s1 <= s2:  # equal is necessary for max values to pick on unswap one
         return n1, n2, False  # no swap
