@@ -1,6 +1,8 @@
 mypy==0.782
 pytest==6.2.4
 pytest-cov
+pytest-benchmark
+pytest-xdist
 black==21.9b0
 sphinx>=4.0
 pytest-lazy-fixture

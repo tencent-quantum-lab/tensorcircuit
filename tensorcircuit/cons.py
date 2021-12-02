@@ -124,6 +124,7 @@ def _sizen(node: tn.Node, is_log: bool = False) -> int:
 def _merge_single_gates(
     nodes: List[Any], total_size: Optional[int] = None
 ) -> Tuple[List[Any], int]:
+    # TODO(@refraction-ray): ivestigate whether too much copy here so that staging is slow for large circuit
     if total_size is None:
         total_size = sum([_sizen(t) for t in nodes])
     queue = [n for n in nodes if len(n.tensor.shape) <= 2]

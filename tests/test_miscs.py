@@ -8,11 +8,12 @@ modulepath = os.path.dirname(os.path.dirname(thisfile))
 
 sys.path.insert(0, modulepath)
 import tensorcircuit as tc
-from tensorcircuit.applications.utils import (
+from tensorcircuit.quantum import (
     PauliString2COO,
     PauliStringSum2COO,
     densify,
 )
+from tensorcircuit.applications.vqes import construct_matrix_v2
 
 i, x, y, z = [t.tensor for t in tc.gates.pauli_gates]
 
@@ -44,3 +45,23 @@ def test_pss2coo():
     r1 = PauliStringSum2COO(tf.constant(l, dtype=tf.int64), weight=[0.5, 1])
     a = check_pairs[4][1] * 0.5 + check_pairs[5][1] * 1.0
     np.testing.assert_allclose(densify(r1), a, atol=1e-5)
+
+
+def test_sparse(benchmark, tfb):
+    def sparse(h):
+        return PauliStringSum2COO(h)
+
+    h = [[1 for _ in range(12)], [2 for _ in range(12)]]
+    h = tf.constant(h, dtype=tf.int64)
+    sparse(h)
+    benchmark(sparse, h)
+
+
+def test_dense(benchmark, tfb):
+    def dense(h):
+        return construct_matrix_v2(h, dtype=tf.complex64)
+
+    h = [[1 for _ in range(12)], [2 for _ in range(12)]]
+    h = [[1.0] + hi for hi in h]
+    dense(h)
+    benchmark(dense, h)

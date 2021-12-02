@@ -3,6 +3,7 @@ quantum state and operator class backend by tensornetwork
 """
 
 from functools import reduce, wraps, partial
+import logging
 from operator import or_, mul, matmul
 from typing import (
     Any,
@@ -22,9 +23,16 @@ from tensornetwork.network_components import CopyNode
 from tensornetwork.network_operations import get_all_nodes, copy, reachable
 from tensornetwork.network_operations import get_subgraph_dangling, remove_node
 
-from .cons import backend, contractor
+try:
+    import tensorflow as tf
+except ImportError:
+    pass
+
+from .cons import backend, contractor, dtypestr
 
 Tensor = Any
+
+logger = logging.getLogger(__name__)
 
 # Note the first version of part of this file is adpated from source code of tensornetwork: (Apache2)
 # https://github.com/google/TensorNetwork/blob/master/tensornetwork/quantum/quantum.py
@@ -711,7 +719,8 @@ def generate_local_hamiltonian(
     *hlist: Sequence[Tensor], matrix_form: bool = True
 ) -> Union[QuOperator, Tensor]:
     """
-    Note: further jit is recommended
+    Note: further jit is recommended,
+    for large Hilbert space, sparse Hamiltonian is recommended
 
     :param hlist: [description]
     :type hlist: Sequence[Tensor]
@@ -728,6 +737,94 @@ def generate_local_hamiltonian(
         return tensor
     return hop
 
+
+try:
+
+    def compiled_jit(f: Callable[..., Any]) -> Callable[..., Any]:
+        # jit compile tf function is not only fast in this case
+        # non jit compiled code doesn't support some sparse ops at all
+        try:
+            f_jit = tf.function(f, jit_compile=True)
+        except TypeError:
+            f_jit = tf.function(f, experimental_compile=True)
+        return f_jit  # type: ignore
+
+    def PauliStringSum2COO(
+        ls: Sequence[Sequence[int]], weight: Optional[Sequence[float]] = None
+    ) -> Tensor:
+        nterms = len(ls)
+        n = len(ls[0])
+        s = 0b1 << n
+        if weight is None:
+            weight = [1.0 for _ in range(nterms)]
+        if not (isinstance(weight, tf.Tensor) or isinstance(weight, tf.Variable)):
+            weight = tf.constant(weight, dtype=tf.complex64)
+        rsparse = tf.SparseTensor(
+            indices=tf.constant([[0, 0]], dtype=tf.int64),
+            values=tf.constant([0.0], dtype=weight.dtype),  # type: ignore
+            dense_shape=(s, s),
+        )
+        for w, l in zip(weight, ls):  # type: ignore
+            rsparse = tf.sparse.add(rsparse, PauliString2COO(l, w))  # type: ignore
+        return rsparse
+
+    @compiled_jit
+    def PauliString2COO(l: Sequence[int], weight: Optional[float] = None) -> Tensor:
+        n = len(l)
+        one = tf.constant(0b1, dtype=tf.int64)
+        idx_x = tf.constant(0b0, dtype=tf.int64)
+        idx_y = tf.constant(0b0, dtype=tf.int64)
+        idx_z = tf.constant(0b0, dtype=tf.int64)
+        i = tf.constant(0, dtype=tf.int64)
+        for j in l:
+            # i, j from enumerate is python, non jittable when cond using tensor
+            if j == 1:  # xi
+                idx_x += tf.bitwise.left_shift(one, n - i - 1)
+            elif j == 2:  # yi
+                idx_y += tf.bitwise.left_shift(one, n - i - 1)
+            elif j == 3:  # zi
+                idx_z += tf.bitwise.left_shift(one, n - i - 1)
+            i += 1
+
+        if weight is None:
+            weight = tf.constant(1.0, dtype=tf.complex64)
+        return ps2coo_core(idx_x, idx_y, idx_z, weight, n)
+
+    @compiled_jit
+    def ps2coo_core(
+        idx_x: Tensor, idx_y: Tensor, idx_z: Tensor, weight: Tensor, nqubits: int
+    ) -> Tuple[Tensor, Tensor]:
+        dtype = weight.dtype
+        s = 0b1 << nqubits
+        idx1 = tf.cast(tf.range(s), dtype=tf.int64)
+        idx2 = (idx1 ^ idx_x) ^ (idx_y)
+        indices = tf.transpose(tf.stack([idx1, idx2]))
+        tmp = idx1 & (idx_y | idx_z)
+        e = idx1 * 0
+        ny = 0
+        for i in range(nqubits):
+            # if tmp[i] is power of 2 (non zero), then e[i] = 1
+            e ^= tf.bitwise.right_shift(tmp, i) & 0b1
+            # how many 1 contained in idx_y
+            ny += tf.bitwise.right_shift(idx_y, i) & 0b1
+        ny = tf.math.mod(ny, 4)
+        values = (
+            tf.cast((1 - 2 * e), dtype)
+            * tf.math.pow(tf.constant(-1.0j, dtype=dtype), tf.cast(ny, dtype))
+            * weight
+        )
+        return tf.SparseTensor(indices=indices, values=values, dense_shape=(s, s))  # type: ignore
+
+    @compiled_jit
+    def densify(x: Tensor) -> Tensor:
+        return tf.sparse.to_dense(x)
+
+
+except NameError:
+    logger.warning(
+        "tensorflow is not installed, and sparse Hamiltonian generation utilities are disabled"
+    )
+    # TODO(@refraction-ray): backend agnostic sparse matrix generation?
 
 ## some quantum quatities below
 
