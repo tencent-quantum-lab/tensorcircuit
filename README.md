@@ -1,6 +1,8 @@
 # TENSORCIRCUIT
 
-Build on top of [TensorNetwork](https://github.com/google/TensorNetwork), differentiable quantum circuit simulator gains benefits from swift implementation to auto differentiation infrastructure.
+TensorCircuit is the next generation of quantum circuit simulator with support for automatic differentiation, just-in-time compiling, hardware acceleration, and vectorized parallelism.
+
+TensorCircuit is built on top of modern machine learning frameworks, and has the beautiful backend agnostic feature. It is specifically suitable for simulations of quantum-classical hybrid paradigm and variational quantum algorithms.
 
 ## Basic Usage
 
@@ -36,6 +38,8 @@ theta = tc.gates.num_to_tensor(1.0)
 print(g(theta))
 ```
 
+For tutorials on tensorcircuit, please refer to examples in this repo and separate tensorcircuit-tutorial repo for jupyter examples. Docstrings (imcomplete for now) and test cases in tests are also helpful and informative.
+
 ## Contributing
 
 ### Guidelines
@@ -50,22 +54,7 @@ Keep the codebase private!
 
 For development workflow, we suggest to first configure a good conda environment. The versions of dependecy package may vary in terms of development requirements. The minimum requirement is the [TensorNetwork](https://github.com/google/TensorNetwork) package (pip install suggested).
 
-Secondly, fork this repo to your GitHub account (make sure keeping the repo **private**!), and [setup](https://docs.github.com/en/authentication/connecting-to-github-with-ssh) the SSH access to your GitHub account.
-
-Lastly
-
-```bash
-git clone git@github.com:yourgithub/tensorcircuit-dev.git
-export PYTHONPATH=/path/for/tensorcircuit/
-```
-
-or a better approach for the last step
-
-```bash
-python setup.py develop
-```
-
-Now, you are ready to `import tensorcircuit` and enjoy coding.
+For git workflow of contribution, see [CONTRIBUTING](/CONTRIBUTING.md).
 
 ### Docs
 

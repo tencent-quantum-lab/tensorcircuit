@@ -10,7 +10,7 @@ setuptools.setup(
     name="tensorcircuit",
     version=__version__,
     author=__author__,
-    author_email="refraction-ray@protonmail.com",
+    author_email="shixinzhang@tencent.com",
     description="Quantum circuits on top of tensor network",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -21,7 +21,7 @@ setuptools.setup(
     tests_require=["pytest"],
     classifiers=(
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: Apache",
         "Operating System :: OS Independent",
     ),
 )
