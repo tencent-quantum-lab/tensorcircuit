@@ -142,7 +142,13 @@ def save_func(f: Callable[..., Any], path: str) -> None:
 
 
 # TODO(@refraction-ray): sometimes, save_func complains about ``return tuple(tensor.shape.as_list())``
-# ``ValueError: as_list() is not defined on an unknown TensorShape.``
+# ``ValueError: as_list() is not defined on an unknown TensorShape.`` when with vmap
+# solved by fix the batch dimension by providing signature of tf.function, i.e.
+# batch = 20
+# tf.function(
+#    tc.backend.vectorized_value_and_grad(vqe_forward, argnums=1, vectorized_argnums=0),
+#    input_signature=[tf.TensorSpec([batch, nwires, 4], tf.float32),tf.TensorSpec([2 * nlayers, nwires], tf.float32) ],
+# )
 
 
 def load_func(
