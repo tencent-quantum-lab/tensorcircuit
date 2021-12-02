@@ -312,3 +312,27 @@ def test_jax_svd(jaxb, highp):
         ) + 1.0j * np.random.normal(size=shape).astype(np.complex128)
         print(m)
         np.testing.assert_allclose(numericald(m), analyticald(m), atol=1e-3)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_sparse_methods(backend):
+    values = tc.backend.convert_to_tensor(np.array([1.0, 2.0]))
+    values = tc.backend.cast(values, "complex64")
+    indices = tc.backend.convert_to_tensor(np.array([[0, 0], [1, 1]]))
+    indices = tc.backend.cast(indices, "int64")
+    spa = tc.backend.coo_sparse_matrix(indices, values, shape=[4, 4])
+    vec = tc.backend.ones([4, 1])
+    assert tc.backend.is_sparse(spa) is True
+    assert tc.backend.is_sparse(vec) is False
+    np.testing.assert_allclose(
+        tc.backend.to_dense(spa),
+        np.array(
+            [[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], dtype=np.complex64
+        ),
+        atol=1e-5,
+    )
+    np.testing.assert_allclose(
+        tc.backend.sparse_dense_matmul(spa, vec),
+        np.array([[1], [2], [0], [0]], dtype=np.complex64),
+        atol=1e-5,
+    )

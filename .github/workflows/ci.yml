@@ -31,7 +31,7 @@ jobs:
           pylint tensorcircuit tests
       - name: test scripts
         run: |
-          pytest --cov=tensorcircuit -svv
+          pytest --cov=tensorcircuit -svv --benchmark-skip
       - name: build docs
         run: |
           cd docs

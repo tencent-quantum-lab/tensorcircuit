@@ -8,11 +8,7 @@ modulepath = os.path.dirname(os.path.dirname(thisfile))
 
 sys.path.insert(0, modulepath)
 import tensorcircuit as tc
-from tensorcircuit.quantum import (
-    PauliString2COO,
-    PauliStringSum2COO,
-    densify,
-)
+from tensorcircuit.quantum import PauliString2COO, PauliStringSum2COO
 from tensorcircuit.applications.vqes import construct_matrix_v2
 
 i, x, y, z = [t.tensor for t in tc.gates.pauli_gates]
@@ -29,22 +25,22 @@ check_pairs = [
 ]
 
 
-def test_ps2coo():
+def test_ps2coo(tfb):
     for l, a in check_pairs:
         r1 = PauliString2COO(tf.constant(l, dtype=tf.int64))
-        np.testing.assert_allclose(densify(r1), a, atol=1e-5)
+        np.testing.assert_allclose(tc.backend.to_dense(r1), a, atol=1e-5)
 
 
-def test_pss2coo():
+def test_pss2coo(tfb):
     l = [t[0] for t in check_pairs[:4]]
     a = sum([t[1] for t in check_pairs[:4]])
     r1 = PauliStringSum2COO(tf.constant(l, dtype=tf.int64))
-    np.testing.assert_allclose(densify(r1), a, atol=1e-5)
+    np.testing.assert_allclose(tc.backend.to_dense(r1), a, atol=1e-5)
     l = [t[0] for t in check_pairs[4:]]
     a = sum([t[1] for t in check_pairs[4:]])
     r1 = PauliStringSum2COO(tf.constant(l, dtype=tf.int64), weight=[0.5, 1])
     a = check_pairs[4][1] * 0.5 + check_pairs[5][1] * 1.0
-    np.testing.assert_allclose(densify(r1), a, atol=1e-5)
+    np.testing.assert_allclose(tc.backend.to_dense(r1), a, atol=1e-5)
 
 
 def test_sparse(benchmark, tfb):

@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 # TODO(@refraction-ray): lack stateful random methods implementation for now
 # TODO(@refraction-ray): lack scatter impl for now
+# TODO(@refraction-ray): lack sparse relevant methods for now
 # To be added once pytorch backend is ready
 class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
     def __init__(self) -> None:

@@ -9,6 +9,7 @@ import numpy as np
 import tensornetwork
 from scipy.linalg import expm
 from scipy.special import softmax
+from scipy.sparse import coo_matrix, issparse
 from tensornetwork.backends.numpy import numpy_backend
 
 try:  # old version tn compatiblity
@@ -199,6 +200,24 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
         operand_new = np.copy(operand)
         operand_new[tuple([indices[:, i] for i in range(indices.shape[1])])] = updates
         return operand_new
+
+    def coo_sparse_matrix(
+        self, indices: Tensor, values: Tensor, shape: Tensor
+    ) -> Tensor:
+        return coo_matrix((values, (indices[:, 0], indices[:, 1])), shape=shape)
+
+    def sparse_dense_matmul(
+        self,
+        sp_a: Tensor,
+        b: Tensor,
+    ) -> Tensor:
+        return sp_a @ b
+
+    def to_dense(self, sp_a: Tensor) -> Tensor:
+        return sp_a.todense()
+
+    def is_sparse(self, a: Tensor) -> bool:
+        return issparse(a)  # type: ignore
 
     def cond(
         self,

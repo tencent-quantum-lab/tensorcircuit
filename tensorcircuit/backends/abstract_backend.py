@@ -632,6 +632,71 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `scatter`.".format(self.name)
         )
 
+    def coo_sparse_matrix(  # pylint: disable=unused-variable
+        self: Any, indices: Tensor, values: Tensor, shape: Tensor
+    ) -> Tensor:
+        """
+        generate coo format sparse matrix from indices and values,
+        the only sparse format supported in different ML backends
+
+        :param indices: shape [n, 2] for n non zero values in the returned matrix
+        :type indices: Tensor
+        :param values: shape [n]
+        :type values: Tensor
+        :param shape: Tuple[int, ...]
+        :type shape: Tensor
+        :return: [description]
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `coo`.".format(self.name)
+        )
+
+    def sparse_dense_matmul(  # pylint: disable=unused-variable
+        self: Any,
+        sp_a: Tensor,
+        b: Tensor,
+    ) -> Tensor:
+        """
+        sparse matrix times dense matrix
+
+        :param sp_a: [description]
+        :type sp_a: Tensor
+        :param b: [description]
+        :type b: Tensor
+        :return: dense matrix
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `sparse_dense_matmul`.".format(self.name)
+        )
+
+    def to_dense(self: Any, sp_a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+        """
+        convert sparse matrix to dense tensor
+
+        :param sp_a: [description]
+        :type sp_a: Tensor
+        :return: [description]
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `to_dense`.".format(self.name)
+        )
+
+    def is_sparse(self: Any, a: Tensor) -> bool:  # pylint: disable=unused-variable
+        """
+        determine whether the type of input ``a`` is of sparse type
+
+        :param a: [description]
+        :type a: Tensor
+        :return: [description]
+        :rtype: bool
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `is_sparse`.".format(self.name)
+        )
+
     def cond(  # pylint: disable=unused-variable
         self: Any,
         pred: bool,

@@ -2,7 +2,7 @@
 backend magic inherited from tensornetwork: tensorflow backend
 """
 
-from functools import reduce
+from functools import reduce, partial
 from operator import mul
 from typing import Any, Callable, Optional, Sequence, Tuple, Union
 
@@ -263,6 +263,36 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
 
     def scatter(self, operand: Tensor, indices: Tensor, updates: Tensor) -> Tensor:
         return tf.tensor_scatter_nd_update(operand, indices, updates)
+
+    def coo_sparse_matrix(
+        self, indices: Tensor, values: Tensor, shape: Tensor
+    ) -> Tensor:
+        return tf.SparseTensor(indices=indices, values=values, dense_shape=shape)
+
+    def sparse_dense_matmul(
+        self,
+        sp_a: Tensor,
+        b: Tensor,
+    ) -> Tensor:
+        return tf.sparse.sparse_dense_matmul(sp_a, b)
+
+    def _densify(self) -> Tensor:
+        @partial(self.jit, jit_compile=True)
+        def densify(sp_a: Tensor) -> Tensor:
+            return tf.sparse.to_dense(sp_a)
+
+        return densify
+
+    def to_dense(self, sp_a: Tensor) -> Tensor:
+        return self._densify()(sp_a)
+
+    # very weirdly, at least for cpu, tf.sparse.to_dense only works within tf.function(jit_compile=True)
+    # and will fail with tf.function or bare function
+    # on the contrary, tf.sparse.sparse_dense_matmul only fails within tf.function(jit_compile=True)
+    # and works well with tf.function or bare function...
+
+    def is_sparse(self, a: Tensor) -> bool:
+        return isinstance(a, tf.SparseTensor)
 
     def cond(
         self,

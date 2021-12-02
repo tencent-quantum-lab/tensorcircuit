@@ -104,6 +104,7 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         global libjax  # Jax module
         global jnp  # jax.numpy module
         global jsp  # jax.scipy module
+        global sparse  # jax.experimental.sparse
         super(JaxBackend, self).__init__()
         try:
             import jax
@@ -112,9 +113,12 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
                 "Jax not installed, please switch to a different "
                 "backend or install Jax."
             )
+        from jax.experimental import sparse
+
         libjax = jax
         jnp = libjax.numpy
         jsp = libjax.scipy
+
         self.name = "jax"
 
     # it is already child of numpy backend, and self.np = self.jax.np
@@ -357,6 +361,24 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         )
         r = libjax.lax.scatter(operand, indices, updates, dnums)
         return r
+
+    def coo_sparse_matrix(
+        self, indices: Tensor, values: Tensor, shape: Tensor
+    ) -> Tensor:
+        return sparse.BCOO((values, indices), shape=shape)  # type: ignore
+
+    def sparse_dense_matmul(
+        self,
+        sp_a: Tensor,
+        b: Tensor,
+    ) -> Tensor:
+        return sp_a @ b
+
+    def to_dense(self, sp_a: Tensor) -> Tensor:
+        return sp_a.todense()
+
+    def is_sparse(self, a: Tensor) -> bool:
+        return isinstance(a, sparse.BCOO)  # type: ignore
 
     def grad(
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0

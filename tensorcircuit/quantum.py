@@ -29,6 +29,7 @@ except ImportError:
     pass
 
 from .cons import backend, contractor, dtypestr
+from .backends import get_backend  # type: ignore
 
 Tensor = Any
 
@@ -739,15 +740,7 @@ def generate_local_hamiltonian(
 
 
 try:
-
-    def compiled_jit(f: Callable[..., Any]) -> Callable[..., Any]:
-        # jit compile tf function is not only fast in this case
-        # non jit compiled code doesn't support some sparse ops at all
-        try:
-            f_jit = tf.function(f, jit_compile=True)
-        except TypeError:
-            f_jit = tf.function(f, experimental_compile=True)
-        return f_jit  # type: ignore
+    compiled_jit = partial(get_backend("tensorflow").jit, jit_compile=True)
 
     def PauliStringSum2COO(
         ls: Sequence[Sequence[int]], weight: Optional[Sequence[float]] = None
@@ -814,10 +807,6 @@ try:
             * weight
         )
         return tf.SparseTensor(indices=indices, values=values, dense_shape=(s, s))  # type: ignore
-
-    @compiled_jit
-    def densify(x: Tensor) -> Tensor:
-        return tf.sparse.to_dense(x)
 
 
 except NameError:
