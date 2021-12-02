@@ -326,6 +326,8 @@ def bitfliplayer_mc(ci: Circuit, g: Graph, px: float, py: float, pz: float) -> N
     bitfliplayer.__trainable__ = True  # type: ignore
 
 
+# TODO(@refraction-ray): should move and refactor the above functions to templates/layers.
+
 ## below is similar layer but in cirq API instead of tensrocircuit native API
 ## special notes to the API, the arguments order are different due to historical reason compared to tc layers API
 ## and we have no attention to further maintain the cirq codebase below, availability is not guaranteend

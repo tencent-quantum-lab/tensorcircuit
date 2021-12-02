@@ -51,3 +51,20 @@ def any_measurements(c: Circuit, structures: Tensor, onehot: bool = False) -> Te
     loss = c.expectation(*obs, reuse=False)  # type: ignore
     # TODO(@refraction-ray): is reuse=True in this setup has user case?
     return backend.real(loss)
+
+
+def sparse_expectation(c: Circuit, hamiltonian: Tensor) -> Tensor:
+    """
+    [summary]
+
+    :param c: [description]
+    :type c: Circuit
+    :param hamiltonian: COO_sparse_matrix
+    :type hamiltonian: Tensor
+    :return: a real and scalar tensor of shape []
+    :rtype: Tensor
+    """
+    state = c.wavefunction(form="ket")
+    tmp = backend.sparse_dense_matmul(hamiltonian, state)
+    expt = backend.adjoint(state) @ tmp
+    return backend.real(expt)[0, 0]

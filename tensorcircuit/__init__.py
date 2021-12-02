@@ -1,4 +1,4 @@
-__version__ = "0.0.211127"
+__version__ = "0.0.211202"
 __author__ = "refraction-ray"
 
 from .cons import (

@@ -39,6 +39,8 @@ modules = [
     "tensorcircuit.backends.numpy_backend",
     "tensorcircuit.backends.pytorch_backend",
     "tensorcircuit.backends.tensorflow_backend",
+    "tensorcircuit.templates",
+    "tensorcircuit.templates.measurements",
 ]
 
 dtypestr = "complex64"
