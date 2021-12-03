@@ -434,4 +434,7 @@ def Heisenberg1Denergy(L: int, Pauli: bool = True, maxiters: int = 1000) -> floa
         raise ValueError(
             "the maxiters %s is too small for bethe ansatz to converge" % maxiters
         )
-    return -np.sum(1 - np.cos(k)) + L / 4  # type: ignore
+    e = -np.sum(1 - np.cos(k)) + L / 4
+    if Pauli is True:
+        e *= 4
+    return e  # type: ignore

@@ -52,6 +52,13 @@ def test_measure():
     assert c.measure(2)[0] in ["0", "1"]
 
 
+def test_gates_in_circuit():
+    c = tc.Circuit(2, inputs=np.eye(2 ** 2))
+    c.iswap(0, 1)
+    ans = tc.gates.iswapgate().tensor.reshape([4, 4])
+    np.testing.assert_allclose(c.state().reshape([4, 4]), ans, atol=1e-5)
+
+
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_jittable_measure(backend):
     @partial(tc.backend.jit, static_argnums=(2, 3))

@@ -32,3 +32,11 @@ def test_any_gate():
     c = tc.Circuit(2)
     c.any(0, unitary=np.eye(2))
     assert np.allclose(c.expectation((tc.gates.z(), [0])), 1.0)
+
+
+def test_iswap_gate():
+    t = tc.gates.iswapgate().tensor
+    ans = np.array([[1.0, 0, 0, 0], [0, 0, 1j, 0], [0, 1j, 0, 0], [0, 0, 0, 1.0]])
+    np.testing.assert_allclose(t, ans.reshape([2, 2, 2, 2]), atol=1e-5)
+    t = tc.gates.iswapgate(theta=0).tensor
+    np.testing.assert_allclose(t, np.eye(4).reshape([2, 2, 2, 2]), atol=1e-5)

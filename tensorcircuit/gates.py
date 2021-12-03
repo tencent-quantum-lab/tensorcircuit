@@ -272,7 +272,25 @@ def random_single_qubit_gate() -> Gate:
     return rgate(theta, alpha, phi)  # type: ignore
 
 
-rs = random_single_qubit_gate
+rs = random_single_qubit_gate  # deprecated
+
+
+def iswapgate(theta: float = 1.0) -> Gate:
+    d1 = np.array([[1.0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1.0]])
+    d2 = np.array([[0, 0, 0, 0], [0, 1.0, 0, 0], [0, 0, 1.0, 0], [0, 0, 0, 0]])
+    od = np.array([[0, 0, 0, 0], [0, 0, 1.0, 0], [0, 1.0, 0, 0], [0, 0, 0, 0]])
+    d1, d2, od = array_to_tensor(d1, d2, od)
+    theta = num_to_tensor(theta)
+    unitary = (
+        d1
+        + backend.cos(theta * np.pi / 2) * d2
+        + 1.0j * backend.sin(theta * np.pi / 2) * od
+    )
+    unitary = backend.reshape(unitary, [2, 2, 2, 2])
+    return Gate(unitary)
+
+
+iswap = iswapgate
 
 
 def crgate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
