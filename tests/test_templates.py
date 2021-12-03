@@ -38,3 +38,12 @@ def test_sparse_expectation(backend):
     fvag = tc.backend.jit(tc.backend.value_and_grad(f))
     param = tc.backend.zeros([1])
     print(fvag(param))
+
+
+def test_bell_block():
+    c = tc.Circuit(4)
+    c = tc.templates.blocks.Bell_pair_block(c)
+    for _ in range(10):
+        s = c.perfect_sampling()[0]
+        assert s[0] != s[1]
+        assert s[2] != s[3]
