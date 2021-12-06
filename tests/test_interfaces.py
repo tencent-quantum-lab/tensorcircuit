@@ -24,13 +24,7 @@ def test_torch_interface(backend):
 
     def f(param):
         c = tc.Circuit(n)
-        for i in range(n):
-            c.H(i)
-        for j in range(2):
-            for i in range(n - 1):
-                c.exp1(i, i + 1, unitary=tc.gates._zz_matrix, theta=param[2 * j, i])
-            for i in range(n):
-                c.rx(i, theta=param[2 * j + 1, i])
+        c = tc.templates.blocks.example_block(c, param)
         loss = c.expectation(
             [
                 tc.gates.x(),

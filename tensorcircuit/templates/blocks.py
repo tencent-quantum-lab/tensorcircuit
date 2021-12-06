@@ -63,3 +63,16 @@ def QAOA_block(
             c.rx(n, theta=paramx[i])
             i += 1
     return c
+
+
+def example_block(c: Circuit, param: Tensor, nlayers: int = 2) -> Circuit:
+    # used for test and demonstrations
+    n = c._nqubits
+    for i in range(n):
+        c.H(i)
+    for j in range(nlayers):
+        for i in range(n - 1):
+            c.exp1(i, i + 1, unitary=G._zz_matrix, theta=param[2 * j, i])
+        for i in range(n):
+            c.rx(i, theta=param[2 * j + 1, i])
+    return c
