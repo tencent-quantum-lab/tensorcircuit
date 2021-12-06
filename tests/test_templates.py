@@ -47,3 +47,9 @@ def test_bell_block():
         s = c.perfect_sampling()[0]
         assert s[0] != s[1]
         assert s[2] != s[3]
+
+
+def test_grid_coord():
+    cd = tc.templates.graphs.Grid2DCoord(3, 2)
+    assert cd.all_cols() == [(0, 3), (1, 4), (2, 5)]
+    assert cd.all_rows() == [(0, 1), (1, 2), (3, 4), (4, 5)]
