@@ -53,3 +53,30 @@ def test_grid_coord():
     cd = tc.templates.graphs.Grid2DCoord(3, 2)
     assert cd.all_cols() == [(0, 3), (1, 4), (2, 5)]
     assert cd.all_rows() == [(0, 1), (1, 2), (3, 4), (4, 5)]
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_qaoa_template(backend):
+    g = tc.templates.graphs.Grid2D(3, 2, pbc=False)
+
+    def forward(paramzz, paramx):
+        c = tc.Circuit(6)
+        for i in range(6):
+            c.H(i)
+        c = tc.templates.blocks.QAOA_block(c, g, paramzz, paramx)
+        return tc.templates.measurements.spin_glass_measurements(c, g)
+
+    fvag = tc.backend.jit(tc.backend.value_and_grad(forward, argnums=(0, 1)))
+    paramzz = tc.backend.real(tc.backend.ones([1]))
+    paramx = tc.backend.real(tc.backend.ones([1]))
+    _, gr = fvag(paramzz, paramx)
+    np.testing.assert_allclose(gr[1].shape, [1])
+    paramzz = tc.backend.real(tc.backend.ones([7]))
+    paramx = tc.backend.real(tc.backend.ones([1]))
+    _, gr = fvag(paramzz, paramx)
+    np.testing.assert_allclose(gr[0].shape, [7])
+    paramzz = tc.backend.real(tc.backend.ones([1]))
+    paramx = tc.backend.real(tc.backend.ones([6]))
+    _, gr = fvag(paramzz, paramx)
+    np.testing.assert_allclose(gr[0].shape, [1])
+    np.testing.assert_allclose(gr[1].shape, [6])

@@ -110,3 +110,14 @@ def heisenberg_measurements(
         for i in range(len(g.nodes)):
             loss += hz * c.expectation((G.z(), [i]), reuse=reuse)  # type: ignore
     return loss
+
+
+def spin_glass_measurements(c: Circuit, g: Graph, reuse: bool = True) -> Tensor:
+    loss = 0
+    for e1, e2 in g.edges:
+        loss += g[e1][e2].get("weight", 1.0) * c.expectation(
+            (G.z(), [e1]), (G.z(), [e2]), reuse=reuse  # type: ignore
+        )
+    for n in g.nodes:
+        loss += g.nodes[n].get("weight", 0.0) * c.expectation((G.z(), [n]), reuse=reuse)  # type: ignore
+    return backend.real(loss)

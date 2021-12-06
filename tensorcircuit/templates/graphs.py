@@ -10,14 +10,17 @@ import networkx as nx
 Graph = Any
 
 
-def Line1D(n: int, weight: Optional[Sequence[float]] = None, pbc: bool = True) -> Graph:
+def Line1D(
+    n: int,
+    node_weight: Optional[Sequence[float]] = None,
+    edge_weight: Optional[Sequence[float]] = None,
+    pbc: bool = True,
+) -> Graph:
     """
     1D chain with ``n`` sites
 
     :param n: [description]
     :type n: int
-    :param weight: [description], defaults to None
-    :type weight: Optional[Sequence[float]], optional
     :param pbc: [description], defaults to True
     :type pbc: bool, optional
     :return: [description]
@@ -25,23 +28,27 @@ def Line1D(n: int, weight: Optional[Sequence[float]] = None, pbc: bool = True) -
     """
 
     g = nx.Graph()
-    if weight is None:
-        weight = 1.0  # type: ignore
-    if not isinstance(weight, list):
-        weight = [weight for _ in range(n)]  # type: ignore
+    if edge_weight is None:
+        edge_weight = 1.0  # type: ignore
+    if not isinstance(edge_weight, list):
+        edge_weight = [edge_weight for _ in range(n)]  # type: ignore
+    if node_weight is None:
+        node_weight = 0.0  # type: ignore
+    if not isinstance(node_weight, list):
+        node_weight = [node_weight for _ in range(n)]  # type: ignore
     for i in range(n):
-        g.add_node(i)
+        g.add_node(i, weight=node_weight[i])
     for i in range(n - 1):
-        g.add_edge(i, i + 1, weight=weight[i])
+        g.add_edge(i, i + 1, weight=edge_weight[i])
     if pbc is True:
-        g.add_edge(n - 1, 0, weight=weight[i])
+        g.add_edge(n - 1, 0, weight=edge_weight[i])
     return g
 
 
 def Even1D(n: int, s: int = 0) -> Graph:
     g = nx.Graph()
     for i in range(n):
-        g.add_node(i)
+        g.add_node(i, weight=1.0)
     for i in range(s, n, 2):
         g.add_edge(i, (i + 1) % n, weight=1.0)
     return g
@@ -95,7 +102,7 @@ def Grid2D(m: int, n: int, pbc: bool = True) -> Graph:
 
     g = nx.Graph()
     for i in range(m * n):
-        g.add_node(i)
+        g.add_node(i, weight=0)
     for i in range(m * n):
         x, y = one2two(i)
         if pbc is False and x - 1 < 0:
@@ -120,7 +127,7 @@ def Triangle2D(m: int, n: int) -> Graph:
 
     g = nx.Graph()
     for i in range(m * n):
-        g.add_node(i)
+        g.add_node(i, weight=0)
     for i in range(m * n):
         x, y = one2two(i)
         g.add_edge(i, two2one((x + 1) % m, y), weight=1)
