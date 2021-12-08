@@ -35,9 +35,17 @@ def get_test_circuits(full):
     c.H(0)
 
     if full:
-        rangei = lambda j, N: range(0, N - 1)
+
+        def rangei(j, N):
+            return range(0, N - 1)
+
+        # rangei = lambda j, N: range(0, N - 1)
     else:
-        rangei = lambda j, N: range(j, N - 1 - j)
+
+        def rangei(j, N):
+            return range(j, N - 1 - j)
+
+        # rangei = lambda j, N: range(j, N - 1 - j)
 
     # create as much correlation as possible
     for j in range(N // 2):

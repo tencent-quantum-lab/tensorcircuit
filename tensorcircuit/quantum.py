@@ -815,7 +815,7 @@ except NameError:
     )
     # TODO(@refraction-ray): backend agnostic sparse matrix generation?
 
-## some quantum quatities below
+# some quantum quatities below
 
 
 def op2tensor(

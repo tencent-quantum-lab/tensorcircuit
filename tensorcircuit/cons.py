@@ -107,8 +107,8 @@ def set_dtype(dtype: Optional[str] = None) -> None:
 
 set_dtype()
 
-## here below comes other contractors (just works,
-## but correctness has not been extensively tested for some of them)
+# here below comes other contractors (just works,
+# but correctness has not been extensively tested for some of them)
 
 
 def _multi_remove(elems: List[Any], indices: List[int]) -> List[Any]:
