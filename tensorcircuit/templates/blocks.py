@@ -2,6 +2,7 @@
 shortcuts for measurement patterns on circuit
 """
 # circuit in, circuit out
+# pylint: disable=invalid-name
 
 from typing import Any, Optional, Sequence, Tuple
 

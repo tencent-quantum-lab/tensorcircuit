@@ -1,10 +1,12 @@
 """
 backend magic inherited from tensornetwork: pytorch backend
 """
+# pylint: disable=invalid-name
 
 import logging
 from typing import Any, Callable, Optional, Sequence, Tuple, Union
 
+import tensornetwork
 from tensornetwork.backends.pytorch import pytorch_backend
 
 try:  # old version tn compatiblity
@@ -28,6 +30,22 @@ logger = logging.getLogger(__name__)
 # TODO(@refraction-ray): lack scatter impl for now
 # TODO(@refraction-ray): lack sparse relevant methods for now
 # To be added once pytorch backend is ready
+
+
+def _sum_torch(
+    self: Any,
+    tensor: Tensor,
+    axis: Optional[Sequence[int]] = None,
+    keepdims: bool = False,
+) -> Tensor:
+    if axis is None:
+        axis = tuple([i for i in range(len(tensor.shape))])
+    return torchlib.sum(tensor, dim=axis, keepdim=keepdims)
+
+
+tensornetwork.backends.pytorch.pytorch_backend.PyTorchBackend.sum = _sum_torch
+
+
 class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
     def __init__(self) -> None:
         super(PyTorchBackend, self).__init__()
@@ -153,32 +171,38 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         return false_fun()
 
     def switch(self, index: Tensor, branches: Sequence[Callable[[], Tensor]]) -> Tensor:
-        return branches[index]()
+        return branches[index.numpy()]()
 
     def grad(
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Callable[..., Any]:
         def wrapper(*args: Any, **kws: Any) -> Any:
-            x = []
-            if isinstance(argnums, int):
-                argnumsl = [argnums]
-                # if you also call lhs as argnums, something weird may happen
-                # the reason is that python then take it as local vars
-            else:
-                argnumsl = argnums  # type: ignore
-            for i, arg in enumerate(args):
-                if i in argnumsl:
-                    x.append(arg.requires_grad_(True))
-                else:
-                    x.append(arg)
-            y = f(*x, **kws)
-            y.backward()
-            gs = [x[i].grad for i in argnumsl]
-            if len(gs) == 1:
-                gs = gs[0]
-            return gs
+            _, gr = self.value_and_grad(f, argnums)(*args, **kws)
+            return gr
 
         return wrapper
+
+        # def wrapper(*args: Any, **kws: Any) -> Any:
+        #     x = []
+        #     if isinstance(argnums, int):
+        #         argnumsl = [argnums]
+        #         # if you also call lhs as argnums, something weird may happen
+        #         # the reason is that python then take it as local vars
+        #     else:
+        #         argnumsl = argnums  # type: ignore
+        #     for i, arg in enumerate(args):
+        #         if i in argnumsl:
+        #             x.append(arg.requires_grad_(True))
+        #         else:
+        #             x.append(arg)
+        #     y = f(*x, **kws)
+        #     y.backward()
+        #     gs = [x[i].grad for i in argnumsl]
+        #     if len(gs) == 1:
+        #         gs = gs[0]
+        #     return gs
+
+        # return wrapper
 
     def value_and_grad(
         self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0

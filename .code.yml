@@ -1,0 +1,8 @@
+source:
+  # internal usage to filter code scan
+  test_source:
+    filepath_regex: [".*/examples/.*"]
+  auto_generate_source:
+    filepath_regex: [".*/setup.py"]
+  third_party_source:
+    filepath_regex: [".*/tensorcircuit/applications/.*", ".*/docs/.*"]

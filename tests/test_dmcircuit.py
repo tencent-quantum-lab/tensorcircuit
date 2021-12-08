@@ -109,55 +109,25 @@ def test_inputs_and_kraus():
 
 
 def test_gate_depolarizing():
-    c = tc.DMCircuit(2)
-    c.H(0)
-    c.apply_general_kraus(depolarizingchannel(0.1, 0.1, 0.1), [(1,)])
-    np.testing.assert_allclose(
-        c.densitymatrix(check=True),
-        np.array(
-            [[0.4, 0, 0.4, 0], [0, 0.1, 0, 0.1], [0.4, 0, 0.4, 0], [0, 0.1, 0, 0.1]]
-        ),
-        atol=1e-5,
+    ans = np.array(
+        [[0.4, 0, 0.4, 0], [0, 0.1, 0, 0.1], [0.4, 0, 0.4, 0], [0, 0.1, 0, 0.1]]
     )
 
-    c = tc.DMCircuit(2)
-    c.H(0)
-    kraus = depolarizingchannel(0.1, 0.1, 0.1)
-    # kraus = [k.tensor for k in kraus]
-    c.depolarizing(1, px=0.1, py=0.1, pz=0.1)
-    np.testing.assert_allclose(
-        c.densitymatrix(check=True),
-        np.array(
-            [[0.4, 0, 0.4, 0], [0, 0.1, 0, 0.1], [0.4, 0, 0.4, 0], [0, 0.1, 0, 0.1]]
-        ),
-        atol=1e-5,
-    )
+    def check_template(c, api="v1"):
+        c.H(0)
+        if api == "v1":
+            kraus = depolarizingchannel(0.1, 0.1, 0.1)
+            c.apply_general_kraus(kraus, [(1,)])
+        else:
+            c.depolarizing(1, px=0.1, py=0.1, pz=0.1)
+        np.testing.assert_allclose(
+            c.densitymatrix(check=True),
+            ans,
+            atol=1e-5,
+        )
 
-    c = tc.DMCircuit2(2)
-    c.H(0)
-    kraus = depolarizingchannel(0.1, 0.1, 0.1)
-    # kraus = [k.tensor for k in kraus]
-    c.apply_general_kraus(kraus, 1)
-    np.testing.assert_allclose(
-        c.densitymatrix(check=True),
-        np.array(
-            [[0.4, 0, 0.4, 0], [0, 0.1, 0, 0.1], [0.4, 0, 0.4, 0], [0, 0.1, 0, 0.1]]
-        ),
-        atol=1e-5,
-    )
-
-    c = tc.DMCircuit2(2)
-    c.H(0)
-    kraus = depolarizingchannel(0.1, 0.1, 0.1)
-    # kraus = [k.tensor for k in kraus]
-    c.depolarizing(1, px=0.1, py=0.1, pz=0.1)
-    np.testing.assert_allclose(
-        c.densitymatrix(check=True),
-        np.array(
-            [[0.4, 0, 0.4, 0], [0, 0.1, 0, 0.1], [0.4, 0, 0.4, 0], [0, 0.1, 0, 0.1]]
-        ),
-        atol=1e-5,
-    )
+    for c, v in zip([tc.DMCircuit(2), tc.DMCircuit2(2)], ["v1", "v2"]):
+        check_template(c, v)
 
 
 @pytest.mark.parametrize("backend", [lf("jaxb"), lf("tfb")])

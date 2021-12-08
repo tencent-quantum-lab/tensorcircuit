@@ -55,3 +55,7 @@ max-module-lines=2000
 # "BaseException, Exception".
 overgeneral-exceptions=BaseException,
                        Exception
+
+# Note how codecc doesn't accept goddnames in pylintrc, and how we use pylint disable invalid name per file instead
+# it is not neat at all, but this is codecc's badness :(
+# stupid to check variable name convention when you are a scientist dealing with lots of N, Pauli or QAOA

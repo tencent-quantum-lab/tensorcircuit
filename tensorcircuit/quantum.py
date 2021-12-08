@@ -1,6 +1,7 @@
 """
 quantum state and operator class backend by tensornetwork
 """
+# pylint: disable=invalid-name
 
 from functools import reduce, wraps, partial
 import logging
@@ -815,7 +816,7 @@ except NameError:
     )
     # TODO(@refraction-ray): backend agnostic sparse matrix generation?
 
-## some quantum quatities below
+# some quantum quatities below
 
 
 def op2tensor(
@@ -1021,9 +1022,7 @@ def spin_by_basis(n: int, m: int, elements: Tuple[int, int] = (1, -1)) -> Tensor
     return backend.reshape(s, [-1])
 
 
-def extract_correlation_from_measuremet_counts(
-    index: Sequence[int], results: Tensor
-) -> Tensor:
+def correlation_from_counts(index: Sequence[int], results: Tensor) -> Tensor:
     results = backend.reshape(results, [-1])
     n = int(np.log(results.shape[0]) / np.log(2))
     for i in index:

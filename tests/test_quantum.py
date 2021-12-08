@@ -1,3 +1,5 @@
+# pylint: disable=invalid-name
+
 from functools import partial
 import os
 import sys
@@ -240,13 +242,7 @@ def test_rm_state_vs_mps(backend):
     @partial(tc.backend.jit, jit_compile=False, static_argnums=(1, 2))
     def entanglement1(param, n, nlayers):
         c = tc.Circuit(n)
-        for i in range(n):
-            c.H(i)
-        for j in range(nlayers):
-            for i in range(n - 1):
-                c.exp1(i, i + 1, theta=param[2 * j, i], unitary=tc.gates._zz_matrix)
-            for i in range(n):
-                c.rx(i, theta=param[2 * j + 1, i])
+        c = tc.templates.blocks.example_block(c, param, nlayers)
         w = c.wavefunction()
         rm = qu.reduced_density_matrix(w, int(n / 2))
         return qu.entropy(rm)
@@ -254,13 +250,7 @@ def test_rm_state_vs_mps(backend):
     @partial(tc.backend.jit, jit_compile=False, static_argnums=(1, 2))
     def entanglement2(param, n, nlayers):
         c = tc.Circuit(n)
-        for i in range(n):
-            c.H(i)
-        for j in range(nlayers):
-            for i in range(n - 1):
-                c.exp1(i, i + 1, theta=param[2 * j, i], unitary=tc.gates._zz_matrix)
-            for i in range(n):
-                c.rx(i, theta=param[2 * j + 1, i])
+        c = tc.templates.blocks.example_block(c, param, nlayers)
         w = c.get_quvector()
         rm = w.reduced_density([i for i in range(int(n / 2))])
         return qu.entropy(rm)
@@ -314,8 +304,6 @@ def test_extract_from_measure(backend):
     )
     state = tc.array_to_tensor(np.array([0.6, 0.4, 0, 0]))
     np.testing.assert_allclose(
-        qu.extract_correlation_from_measuremet_counts([0, 1], state), 0.2, atol=atol
+        qu.correlation_from_counts([0, 1], state), 0.2, atol=atol
     )
-    np.testing.assert_allclose(
-        qu.extract_correlation_from_measuremet_counts([1], state), 0.2, atol=atol
-    )
+    np.testing.assert_allclose(qu.correlation_from_counts([1], state), 0.2, atol=atol)

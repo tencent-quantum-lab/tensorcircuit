@@ -1,6 +1,7 @@
 """
 quantum circuit: state simulator
 """
+# pylint: disable=invalid-name
 
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 from functools import reduce
@@ -968,64 +969,60 @@ class Circuit:
         # self._nodes = nodes1
         return contractor(nodes1).tensor
 
-    def to_graphviz(
-        self,
-        graph: graphviz.Graph = None,
-        include_all_names: bool = False,
-        engine: str = "neato",
-    ) -> graphviz.Graph:
-        """
-        Not an ideal visualization for quantum circuit, but reserve here as a general approch to show tensornetwork
-
-        :param graph:
-        :param include_all_names:
-        :param engine:
-        :return:
-        """
-        # Modified from tensornetwork codebase
-        nodes = self._nodes
-        if graph is None:
-            # pylint: disable=no-member
-            graph = graphviz.Graph("G", engine=engine)
-        for node in nodes:
-            if not node.name.startswith("__") or include_all_names:
-                label = node.name
-            else:
-                label = ""
-            graph.node(str(id(node)), label=label)
-        seen_edges = set()
-        for node in nodes:
-            for i, edge in enumerate(node.edges):
-                if edge in seen_edges:
-                    continue
-                seen_edges.add(edge)
-                if not edge.name.startswith("__") or include_all_names:
-                    edge_label = edge.name + ": " + str(edge.dimension)
-                else:
-                    edge_label = ""
-                if edge.is_dangling():
-                    # We need to create an invisible node for the dangling edge
-                    # to connect to.
-                    graph.node(
-                        "{}_{}".format(str(id(node)), i),
-                        label="",
-                        _attributes={"style": "invis"},
-                    )
-                    graph.edge(
-                        "{}_{}".format(str(id(node)), i),
-                        str(id(node)),
-                        label=edge_label,
-                    )
-                else:
-                    graph.edge(
-                        str(id(edge.node1)),
-                        str(id(edge.node2)),
-                        label=edge_label,
-                    )
-        return graph
-
 
 Circuit._meta_apply()
+
+
+def to_graphviz(
+    c: Circuit,
+    graph: graphviz.Graph = None,
+    include_all_names: bool = False,
+    engine: str = "neato",
+) -> graphviz.Graph:
+    """
+    Not an ideal visualization for quantum circuit, but reserve here as a general approch to show tensornetwork
+    """
+    # Modified from tensornetwork codebase
+    nodes = c._nodes
+    if graph is None:
+        # pylint: disable=no-member
+        graph = graphviz.Graph("G", engine=engine)
+    for node in nodes:
+        if not node.name.startswith("__") or include_all_names:
+            label = node.name
+        else:
+            label = ""
+        graph.node(str(id(node)), label=label)
+    seen_edges = set()
+    for node in nodes:
+        for i, edge in enumerate(node.edges):
+            if edge in seen_edges:
+                continue
+            seen_edges.add(edge)
+            if not edge.name.startswith("__") or include_all_names:
+                edge_label = edge.name + ": " + str(edge.dimension)
+            else:
+                edge_label = ""
+            if edge.is_dangling():
+                # We need to create an invisible node for the dangling edge
+                # to connect to.
+                graph.node(
+                    "{}_{}".format(str(id(node)), i),
+                    label="",
+                    _attributes={"style": "invis"},
+                )
+                graph.edge(
+                    "{}_{}".format(str(id(node)), i),
+                    str(id(node)),
+                    label=edge_label,
+                )
+            else:
+                graph.edge(
+                    str(id(edge.node1)),
+                    str(id(edge.node2)),
+                    label=edge_label,
+                )
+    return graph
 
 
 def expectation(
