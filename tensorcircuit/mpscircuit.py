@@ -141,7 +141,7 @@ class MPSCircuit:
         self.max_singular_values = max_singular_values
         self.max_truncation_err = max_truncation_err
         self.relative = relative
-        self.do_truncation = (self.max_truncation_err is not None) or (
+        self.do_truncation = (self.max_singular_values is not None) or (
             self.max_truncation_err is not None
         )
 

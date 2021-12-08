@@ -415,16 +415,20 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         """
         try:
             import jax as libjax
+
+            has_jax = True
         except ImportError:
-            libjax = None  # type: ignore
+            has_jax = False
             try:
                 import tensorflow as tf
-            except ImportError:
-                tf = None  # type: ignore
 
-        if libjax is not None:
+                has_tf = True
+            except ImportError:
+                has_tf = False
+
+        if has_jax:
             r = libjax.tree_map(f, *pytrees)
-        elif tf is not None:
+        elif has_tf:
             r = tf.nest.map_structure(f, *pytrees)
         else:
             raise NotImplementedError("Only tensorflow and jax support `tree_map`")
