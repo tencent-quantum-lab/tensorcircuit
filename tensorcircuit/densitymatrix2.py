@@ -1,6 +1,7 @@
 """
 quantum circuit class but with density matrix simulator: v2
 """
+# pylint: disable=invalid-name
 
 from typing import Any, Callable, Sequence
 

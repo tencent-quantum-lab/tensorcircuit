@@ -1,6 +1,7 @@
 """
 Some common graphs and lattices
 """
+# pylint: disable=invalid-name
 
 from functools import partial
 from typing import Any, Optional, Sequence, Tuple
