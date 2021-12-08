@@ -1,6 +1,7 @@
 """
 quantum circuit class but with density matrix simulator
 """
+# pylint: disable=invalid-name
 
 from functools import reduce
 from operator import add
