@@ -14,6 +14,8 @@ from .cons import rdtypestr  # type: ignore
 # @tf.keras.utils.register_keras_serializable(
 #     package="tensorcircuit"
 # )
+
+
 class QuantumLayer(Layer):  # type: ignore
     def __init__(
         self,

@@ -55,3 +55,25 @@ max-module-lines=2000
 # "BaseException, Exception".
 overgeneral-exceptions=BaseException,
                        Exception
+
+
+[BASIC]
+
+good-names=Bell_pair_block,
+           QAOA_block,
+           Grid2D_block,
+           dtypestr,
+           libjax,
+           jnp,
+           jsp,
+           torchlib,
+           N,
+           M,
+           U,
+           S,
+           V,
+           R,
+           Q,
+           A,
+           E,
+           P
