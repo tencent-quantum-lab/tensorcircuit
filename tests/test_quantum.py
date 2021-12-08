@@ -304,8 +304,6 @@ def test_extract_from_measure(backend):
     )
     state = tc.array_to_tensor(np.array([0.6, 0.4, 0, 0]))
     np.testing.assert_allclose(
-        qu.extract_correlation_from_measuremet_counts([0, 1], state), 0.2, atol=atol
+        qu.correlation_from_counts([0, 1], state), 0.2, atol=atol
     )
-    np.testing.assert_allclose(
-        qu.extract_correlation_from_measuremet_counts([1], state), 0.2, atol=atol
-    )
+    np.testing.assert_allclose(qu.correlation_from_counts([1], state), 0.2, atol=atol)
