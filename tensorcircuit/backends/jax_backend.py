@@ -1,6 +1,7 @@
 """
 backend magic inherited from tensornetwork: jax backend
 """
+# pylint: disable=invalid-name
 
 from functools import partial
 from typing import Any, Callable, Optional, Sequence, Tuple, Union

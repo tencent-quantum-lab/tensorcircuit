@@ -1,6 +1,7 @@
 """
 backend magic inherited from tensornetwork: numpy backend
 """
+# pylint: disable=invalid-name
 
 import logging
 from typing import Any, Callable, Optional, Sequence, Tuple, Union

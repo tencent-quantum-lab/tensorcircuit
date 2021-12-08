@@ -91,7 +91,7 @@ def torch_interface(fun: Callable[..., Any], jit: bool = False) -> Callable[...,
         fun = backend.jit(fun)
         vjp_fun = backend.jit(vjp_fun)
 
-    class F(torch.autograd.Function):  # type: ignore
+    class Fun(torch.autograd.Function):  # type: ignore
         @staticmethod
         def forward(ctx: Any, *x: Any) -> Any:  # type: ignore
             ctx.xdtype = [xi.dtype for xi in x]
@@ -132,4 +132,4 @@ def torch_interface(fun: Callable[..., Any], jit: bool = False) -> Callable[...,
             return r
 
     # currently, memory transparent dlpack in these ML framework has broken support on complex dtypes
-    return F.apply  # type: ignore
+    return Fun.apply  # type: ignore

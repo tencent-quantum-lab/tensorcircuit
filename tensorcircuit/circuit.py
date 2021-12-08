@@ -1,6 +1,7 @@
 """
 quantum circuit: state simulator
 """
+# pylint: disable=invalid-name
 
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 from functools import reduce

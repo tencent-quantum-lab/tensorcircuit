@@ -1,6 +1,7 @@
 """
 backend magic inherited from tensornetwork: tensorflow backend
 """
+# pylint: disable=invalid-name
 
 from functools import reduce, partial
 from operator import mul
