@@ -1,3 +1,5 @@
+# pylint: disable=invalid-name
+
 from functools import partial
 import os
 import sys

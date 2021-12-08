@@ -1,4 +1,6 @@
 # pylint: disable=unused-variable
+# pylint: disable=invalid-name
+
 import sys
 import os
 import numpy as np

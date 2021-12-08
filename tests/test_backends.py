@@ -1,3 +1,5 @@
+# pylint: disable=invalid-name
+
 import sys
 import os
 from functools import partial
@@ -52,6 +54,16 @@ def test_vmap_tf(tfb):
 def test_vmap_torch(torchb):
     r = universal_vmap()
     assert r.numpy()[0, 0] == 3.0
+
+
+def test_grad_torch(torchb):
+    a = tc.backend.ones([2], dtype="float32")
+
+    @tc.backend.grad
+    def f(x):
+        return tc.backend.sum(x)
+
+    np.testing.assert_allclose(f(a), np.ones([2]), atol=1e-5)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])

@@ -573,8 +573,6 @@ def test_circuit_split(backend):
     s3, g3 = f_vag(tc.backend.ones([4, n]), max_singular_values=2, fixed_choice=1)
 
     np.testing.assert_allclose(s1, s3, atol=1e-5)
-    print(g1[:, :])
-    print(g3[:, :])
     # DONE(@refraction-ray): nan on jax backend?
     # i see, complex value SVD is not supported on jax for now :)
     # I shall further customize complex SVD, finally it has applications
@@ -615,12 +613,8 @@ def test_gate_split(backend):
                 c.rx(i, theta=param[2 * j + 1, i])
         loss = c.expectation(
             (
-                tc.gates.z(),
+                tc.gates.x(),
                 [1],
-            ),
-            (
-                tc.gates.z(),
-                [2],
             ),
         )
         return tc.backend.real(loss)
