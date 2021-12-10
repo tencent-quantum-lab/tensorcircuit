@@ -57,7 +57,8 @@ def test_grid_coord():
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_qaoa_template(backend):
-    g = tc.templates.graphs.Grid2D(3, 2, pbc=False)
+    cd = tc.templates.graphs.Grid2DCoord(3, 2)
+    g = cd.lattice_graph(pbc=False)
 
     def forward(paramzz, paramx):
         c = tc.Circuit(6)
