@@ -316,12 +316,12 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         # And we DONT make them consitent by mannually set conjugate of the returns.
         def wrapper(*args: Any, **kws: Any) -> Any:
             with tf.GradientTape() as t:
-                t.watch(args)
-                y = f(*args, **kws)
                 if isinstance(argnums, int):
                     x = args[argnums]
                 else:
                     x = [args[i] for i in argnums]
+                t.watch(x)
+                y = f(*args, **kws)
                 g = t.gradient(y, x)
             return g
 

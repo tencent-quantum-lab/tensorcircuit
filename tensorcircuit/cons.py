@@ -42,6 +42,8 @@ modules = [
     "tensorcircuit.backends.tensorflow_backend",
     "tensorcircuit.templates",
     "tensorcircuit.templates.measurements",
+    "tensorcircuit.templates.blocks",
+    "tensorcircuit.templates.graphs",
 ]
 
 dtypestr = "complex64"
@@ -127,14 +129,18 @@ def _sizen(node: tn.Node, is_log: bool = False) -> int:
 def _merge_single_gates(
     nodes: List[Any], total_size: Optional[int] = None
 ) -> Tuple[List[Any], int]:
-    # TODO(@refraction-ray): ivestigate whether too much copy here so that staging is slow for large circuit
+    # TODO(@refraction-ray): investigate whether too much copy here so that staging is slow for large circuit
     if total_size is None:
         total_size = sum([_sizen(t) for t in nodes])
     queue = [n for n in nodes if len(n.tensor.shape) <= 2]
     while queue:
         n0 = queue[0]
         if n0[0].is_dangling():
-            e0 = n0[1]
+            try:
+                e0 = n0[1]
+            except IndexError:
+                queue = _multi_remove(queue, [0])
+                continue
         else:
             e0 = n0[0]
         njs = [i for i, n in enumerate(nodes) if id(n) in [id(e0.node1), id(e0.node2)]]
@@ -328,8 +334,15 @@ def _get_path_cache_friendly(
             if id(e) not in mapping_dict:
                 mapping_dict[id(e)] = i
                 i += 1
+    # TODO(@refraction-ray): may be not that cache friendly, since the edge id correspondence is not that fixed?
     input_sets = [set([mapping_dict[id(e)] for e in node.edges]) for node in nodes]
-    order = np.argsort(np.array(list(map(sorted, input_sets)) + [[1e10]], dtype=object))[:-1]  # type: ignore
+    placeholder = [1e10]
+    for s in input_sets:
+        if len(s) > 1:
+            break
+    else:
+        placeholder = [1e10, 1e10]
+    order = np.argsort(np.array(list(map(sorted, input_sets)) + [placeholder], dtype=object))[:-1]  # type: ignore
     # TODO(@refraction-ray): more stable and unwarning arg sorting here
     nodes_new = [nodes[i] for i in order]
     input_sets = [set([mapping_dict[id(e)] for e in node.edges]) for node in nodes_new]

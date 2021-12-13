@@ -673,6 +673,7 @@ class Circuit:
         # building for jax+GPU ~100s 12 qubit * 5 layers
         # 370s 14 qubit * 7 layers, 0.35s running on vT4
         # vmap, grad, vvag are all fine for this function
+        # layerwise jit technique can greatly boost the staging time
         sites = len(index)
         kraus_tensor = [k.tensor for k in kraus]
 

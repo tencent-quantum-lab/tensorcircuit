@@ -90,3 +90,5 @@ The scripts include the following components:
 Make sure the scripts check are successful by 💐.
 
 The similar tests and checks are also available via GitHub action as CI infrastructures.
+
+Please also include corresponding changes for CHANGELOG.md and docs for the PR.
