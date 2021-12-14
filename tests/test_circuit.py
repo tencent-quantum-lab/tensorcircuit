@@ -625,3 +625,22 @@ def test_gate_split(backend):
 
     np.testing.assert_allclose(s1, s2, atol=1e-5)
     np.testing.assert_allclose(s1, s3, atol=1e-5)
+
+
+def test_toqir():
+    split = {
+        "max_singular_values": 2,
+        "fixed_choice": 1,
+    }
+    c = tc.Circuit(3)
+    c.H(0)
+    c.rx(1, theta=tc.array_to_tensor(0.7))
+    c.exp1(
+        0, 1, unitary=tc.gates._zz_matrix, theta=tc.array_to_tensor(-0.2), split=split
+    )
+    z1 = c.expectation((tc.gates.z(), [1]))
+    qirs = c.to_qir()
+
+    c = tc.Circuit.from_qir(qirs, circuit_params={"nqubits": 3})
+    z2 = c.expectation((tc.gates.z(), [1]))
+    np.testing.assert_allclose(z1, z2, atol=1e-5)

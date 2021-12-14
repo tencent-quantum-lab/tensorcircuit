@@ -82,7 +82,6 @@ class Circuit:
                 for x in range(nqubits)
             ]
             self._front = [n.get_edge(0) for n in nodes]
-            self._topology = [(i,) for i in range(nqubits)]
         elif inputs is not None:  # provide input function
             inputs = backend.reshape(inputs, [-1])
             N = inputs.shape[0]
@@ -92,7 +91,6 @@ class Circuit:
             inputs = Gate(inputs)
             nodes = [inputs]
             self._front = [inputs.get_edge(i) for i in range(n)]
-            self._topology = [(i for i in range(nqubits))]  # type: ignore
             # TODO(@refraction-ray): _topology unused for now
         else:  # mps_inputs is not None
             mps_nodes = mps_inputs.nodes  # type: ignore
@@ -106,15 +104,15 @@ class Circuit:
                 new_front.append(edict[e])
             nodes = new_nodes
             self._front = new_front
-            self._topology = []
 
         self._nqubits = nqubits
         self._nodes = nodes
         self._start_index = len(nodes)
         # self._start = nodes
         # self._meta_apply()
-        self._qcode = ""
+        self._qcode = ""  # deprecated
         self._qcode += str(self._nqubits) + "\n"
+        self._qir: List[Dict[str, Any]] = []
 
     def replace_inputs(self, inputs: Tensor) -> None:
         """
@@ -287,7 +285,6 @@ class Circuit:
         gate.get_edge(1) ^ self._front[index]  # pay attention on the rank index here
         self._front[index] = gate.get_edge(0)
         self._nodes.append(gate)
-        self._topology.append((index,))
 
     def apply_double_gate(self, gate: Gate, index1: int, index2: int) -> None:
         assert index1 != index2
@@ -296,7 +293,6 @@ class Circuit:
         self._front[index1] = gate.get_edge(0)
         self._front[index2] = gate.get_edge(1)
         self._nodes.append(gate)
-        self._topology.append((index1, index2))  # type: ignore
 
         # actually apply single and double gate never directly used in the Circuit class
 
@@ -328,8 +324,6 @@ class Circuit:
                     self._nodes.append(n2)
                     self._front[index[0]] = n1[0]
                     self._front[index[1]] = n2[1]
-                    self._topology.append((index[0],))
-                    self._topology.append((index[1],))
                 else:
                     n2[2] ^ self._front[index[0]]
                     n1[1] ^ self._front[index[1]]
@@ -337,8 +331,6 @@ class Circuit:
                     self._nodes.append(n2)
                     self._front[index[0]] = n1[0]
                     self._front[index[1]] = n2[1]
-                    self._topology.append((index[0],))
-                    self._topology.append((index[1],))
                 applied = True
 
         if applied is False:
@@ -346,7 +338,6 @@ class Circuit:
                 gate.get_edge(i + noe) ^ self._front[ind]
                 self._front[ind] = gate.get_edge(i)
             self._nodes.append(gate)
-            self._topology.append(tuple(index))  # type: ignore
 
         if name:
             # if no name is specified, then the corresponding op wont be recorded in qcode
@@ -369,6 +360,13 @@ class Circuit:
             *index: int,
             split: Optional[Dict[str, Any]] = None,
         ) -> None:
+            gate_dict = {
+                "gate": gatef,
+                "index": index,
+                "name": name,
+                "split": split,
+            }
+            self._qir.append(gate_dict)
             split = None
             gate = gatef()
             self.apply_general_gate(gate, *index, name=name, split=split)
@@ -385,6 +383,14 @@ class Circuit:
             if "split" in vars:
                 split = vars["split"]
                 del vars["split"]
+            gate_dict = {
+                "gate": gatef,
+                "index": index,
+                "name": name,
+                "split": split,
+                "parameters": vars,
+            }
+            self._qir.append(gate_dict)
             gate = gatef(**vars)
             self.apply_general_gate(gate, *index, name=name, split=split)  # type: ignore
             self._qcode = self._qcode[:-1] + " "  # rip off the final "\n"
@@ -399,6 +405,39 @@ class Circuit:
         return QuVector(edges)
 
     quvector = get_quvector
+
+    def to_qir(self) -> List[Dict[str, Any]]:
+        return self._qir
+
+    # TODO(@refraction-ray): derive visualization and serialization from the consistent qir
+    # TODO(@refraction-ray): add noise support in IR
+    # TODO(@refraction-ray): IR for density matrix simulator?
+
+    @classmethod
+    def from_qir(
+        cls, qir: str, circuit_params: Optional[Dict[str, Any]] = None
+    ) -> "Circuit":
+        if circuit_params is None:
+            circuit_params = {}
+        if "nqubits" not in circuit_params:
+            nqubits = 0
+            for d in qir:
+                if max(d["index"]) > nqubits:  # type: ignore
+                    nqubits = max(d["index"])  # type: ignore
+            nqubits += 1
+            circuit_params["nqubits"] = nqubits
+
+        c = cls(**circuit_params)
+        for d in qir:
+            if "parameters" not in d:
+                c.apply_general_gate_delayed(d["gate"], d["name"])(  # type: ignore
+                    c, *d["index"], split=d["split"]  # type: ignore
+                )
+            else:
+                c.apply_general_variable_gate_delayed(d["gate"], d["name"])(  # type: ignore
+                    c, *d["index"], **d["parameters"], split=d["split"]  # type: ignore
+                )
+        return c
 
     def mid_measurement(self, index: int, keep: int = 0) -> None:
         """

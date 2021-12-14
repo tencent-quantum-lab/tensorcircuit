@@ -6,6 +6,8 @@
 
 - add `get_random_state` and `random_split` methods to backends
 
+- add qir representation of circuit, `c.to_qir()` and `Circuit.from_qir()` methods
+
 ### Fixed
 
 - avoid error on watch non `tf.Tensor` in tensorflow backend grad method
