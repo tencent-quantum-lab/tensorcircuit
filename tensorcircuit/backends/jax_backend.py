@@ -247,12 +247,18 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         dtype: str = "32",
     ) -> Tensor:
         g = getattr(self, "g", None)
-        if g is None or getattr(g, "_trace", None) is not None:
+        if g is None:  # or getattr(g, "_trace", None) is not None:
             # avoid random state is set in a jitted function
             # which call outside jitted regime lead to UnexpectedTracerError
+            # set with _trace is bad, since the function can itself in jit env
             self.set_random_state()
             g = getattr(self, "g", None)
-        key, subkey = libjax.random.split(g)
+        try:
+            key, subkey = libjax.random.split(g)
+        except libjax._src.errors.UnexpectedTracerError:
+            self.set_random_state()
+            g = getattr(self, "g", None)
+            key, subkey = libjax.random.split(g)
         r = self.stateful_randn(subkey, shape, mean, stddev, dtype)
         self.g = key
         return r
@@ -265,10 +271,16 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         dtype: str = "32",
     ) -> Tensor:
         g = getattr(self, "g", None)
-        if g is None or getattr(g, "_trace", None) is not None:
+        if g is None:
+            # set with _trace is bad, since the function can itself in jit env
             self.set_random_state()
             g = getattr(self, "g", None)
-        key, subkey = libjax.random.split(g)
+        try:
+            key, subkey = libjax.random.split(g)
+        except libjax._src.errors.UnexpectedTracerError:
+            self.set_random_state()
+            g = getattr(self, "g", None)
+            key, subkey = libjax.random.split(g)
         r = self.stateful_randu(subkey, shape, low, high, dtype)
         self.g = key
         return r
@@ -280,10 +292,15 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         p: Optional[Union[Sequence[float], Tensor]] = None,
     ) -> Tensor:
         g = getattr(self, "g", None)
-        if g is None or getattr(g, "_trace", None) is not None:
+        if g is None:
             self.set_random_state()
             g = getattr(self, "g", None)
-        key, subkey = libjax.random.split(g)
+        try:
+            key, subkey = libjax.random.split(g)
+        except libjax._src.errors.UnexpectedTracerError:
+            self.set_random_state()
+            g = getattr(self, "g", None)
+            key, subkey = libjax.random.split(g)
         r = self.stateful_randc(subkey, a, shape, p)
         self.g = key
         return r

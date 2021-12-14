@@ -11,3 +11,5 @@
 - avoid error on watch non `tf.Tensor` in tensorflow backend grad method
 
 - circuit preprocessing simplification with only single qubit gates
+
+- avoid the bug when random from jax backend with jitted function

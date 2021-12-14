@@ -362,3 +362,37 @@ def test_backend_randoms_v2(backend):
         key, subkey = tc.backend.random_split(key)
         r.append(tc.backend.stateful_randc(subkey, 3, [5]))
     assert tuple(r[0]) != tuple(r[1])
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_backend_randoms_v3(backend):
+    tc.backend.set_random_state(42)
+    for _ in range(2):
+        r1 = tc.backend.implicit_randu()
+    key = tc.backend.get_random_state(42)
+    for _ in range(2):
+        key, subkey = tc.backend.random_split(key)
+        r2 = tc.backend.stateful_randu(subkey)
+    np.testing.assert_allclose(r1, r2, atol=1e-5)
+
+    @tc.backend.jit
+    def f(key):
+        tc.backend.set_random_state(key)
+        r = []
+        for _ in range(3):
+            r.append(tc.backend.implicit_randu()[0])
+        return r
+
+    @tc.backend.jit
+    def f2(key):
+        r = []
+        for _ in range(3):
+            key, subkey = tc.backend.random_split(key)
+            r.append(tc.backend.stateful_randu(subkey)[0])
+        return r
+
+    key = tc.backend.get_random_state(43)
+    r = f(key)
+    key = tc.backend.get_random_state(43)
+    r1 = f2(key)
+    np.testing.assert_allclose(r[-1], r1[-1], atol=1e-5)

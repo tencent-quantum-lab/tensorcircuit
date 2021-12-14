@@ -4,18 +4,15 @@ boosting the monte carlo noise simulation on general error with circuit layerwis
 
 from functools import partial
 import time
-import jax
-
 
 import tensorcircuit as tc
 
 tc.set_backend("jax")
 
-n = 10
-nlayer = 4
+n = 3  # 10
+nlayer = 2  # 4
 
 
-@partial(tc.backend.jit, static_argnums=(2, 3))
 def f1(key, param, n, nlayer):
     if key is not None:
         tc.backend.set_random_state(key)
@@ -32,14 +29,12 @@ def f1(key, param, n, nlayer):
     return tc.backend.real(c.expectation((tc.gates.z(), [int(n / 2)])))
 
 
-@partial(tc.backend.jit, static_argnums=(2))
 def templatecnot(s, param, i):
     c = tc.Circuit(n, inputs=s)
     c.cnot(i, i + 1)
     return c.state()
 
 
-@partial(tc.backend.jit, static_argnums=(3))
 def templatenoise(key, s, param, i):
     c = tc.Circuit(n, inputs=s)
     status = tc.backend.stateful_randu(key)[0]
@@ -47,7 +42,6 @@ def templatenoise(key, s, param, i):
     return c.state()
 
 
-@partial(tc.backend.jit, static_argnums=(2))
 def templaterz(s, param, j):
     c = tc.Circuit(n, inputs=s)
     for i in range(n):
@@ -55,7 +49,6 @@ def templaterz(s, param, j):
     return c.state()
 
 
-@partial(tc.backend.jit, static_argnums=(2, 3))
 def f2(key, param, n, nlayer):
     c = tc.Circuit(n)
     for i in range(n):
@@ -73,7 +66,6 @@ def f2(key, param, n, nlayer):
 
 
 vagf1 = tc.backend.jit(tc.backend.value_and_grad(f1, argnums=1), static_argnums=(2, 3))
-
 vagf2 = tc.backend.jit(tc.backend.value_and_grad(f2, argnums=1), static_argnums=(2, 3))
 
 param = tc.backend.ones([nlayer, n])
@@ -101,4 +93,4 @@ print("=============================")
 print("with layerwise slicing jit")
 benchmark(vagf2)
 
-# 235/0.36 vs. 26/0.04
+# 10*4: jax*T4: 235/0.36 vs. 26/0.04
