@@ -136,9 +136,13 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
             return a.astype(getattr(np, dtype))
         return a.astype(dtype)
 
-    def set_random_state(self, seed: Optional[int] = None) -> None:
+    def set_random_state(
+        self, seed: Optional[int] = None, get_only: bool = False
+    ) -> Any:
         g = np.random.default_rng(seed)  # None auto supported
-        self.g = g
+        if get_only is False:
+            self.g = g
+        return g
 
     def stateful_randn(
         self,

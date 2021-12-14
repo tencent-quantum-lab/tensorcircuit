@@ -223,14 +223,21 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
             return True
         return False
 
-    def set_random_state(self, seed: Optional[Union[int, PRNGKeyArray]] = None) -> None:
+    def set_random_state(
+        self, seed: Optional[Union[int, PRNGKeyArray]] = None, get_only: bool = False
+    ) -> Any:
         if seed is None:
             seed = np.random.randint(42)
         if isinstance(seed, int):
             g = libjax.random.PRNGKey(seed)
         else:
             g = seed
-        self.g = g
+        if get_only is False:
+            self.g = g
+        return g
+
+    def random_split(self, key: Any) -> Tuple[Any, Any]:
+        return libjax.random.split(key)  # type: ignore
 
     def implicit_randn(
         self,

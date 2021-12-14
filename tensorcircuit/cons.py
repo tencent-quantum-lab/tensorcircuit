@@ -336,14 +336,8 @@ def _get_path_cache_friendly(
                 i += 1
     # TODO(@refraction-ray): may be not that cache friendly, since the edge id correspondence is not that fixed?
     input_sets = [set([mapping_dict[id(e)] for e in node.edges]) for node in nodes]
-    placeholder = [1e10]
-    for s in input_sets:
-        if len(s) > 1:
-            break
-    else:
-        placeholder = [1e10, 1e10]
-    order = np.argsort(np.array(list(map(sorted, input_sets)) + [placeholder], dtype=object))[:-1]  # type: ignore
-    # TODO(@refraction-ray): more stable and unwarning arg sorting here
+    placeholder = [[1e20 for _ in range(100)]]
+    order = np.argsort(np.array(list(map(sorted, input_sets)) + placeholder, dtype=object))[:-1]  # type: ignore
     nodes_new = [nodes[i] for i in order]
     input_sets = [set([mapping_dict[id(e)] for e in node.edges]) for node in nodes_new]
     output_set = set([mapping_dict[id(e)] for e in tn.get_subgraph_dangling(nodes_new)])

@@ -436,17 +436,49 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         return r
 
     def set_random_state(  # pylint: disable=unused-variable
-        self: Any, seed: Optional[int] = None
-    ) -> None:
+        self: Any, seed: Optional[int] = None, get_only: bool = False
+    ) -> Any:
         """
         set random state attached in the backend
 
         :param seed: int, defaults to None
         :type seed: Optional[int], optional
+        :param get_only:
+        :type get_only: bool
         """
         raise NotImplementedError(
             "Backend '{}' has not implemented `set_random_state`.".format(self.name)
         )
+
+    def get_random_state(  # pylint: disable=unused-variable
+        self: Any, seed: Optional[int] = None
+    ) -> Any:
+        """
+        get backend specific random state object
+
+        :param seed: [description], defaults to None
+        :type seed: Optional[int], optional
+        :return: [description]
+        :rtype: Any
+        """
+        return self.set_random_state(seed, True)
+
+    def random_split(  # pylint: disable=unused-variable
+        self: Any, key: Any
+    ) -> Tuple[Any, Any]:
+        """
+        a jax like split API, but does't split the key generator for other backends.
+        just for a consistent interface of random code, be careful that you know what the function actually does.
+
+        :param key: [description]
+        :type key: Any
+        :return: [description]
+        :rtype: Tuple[Any, Any]
+        """
+        return key, key
+
+    # Though try hard, the current random API abstraction may not be perfect when with nested jit or vmap
+    # so keep every random function a direct status parameters in case.
 
     def implicit_randn(  # pylint: disable=unused-variable
         self: Any,

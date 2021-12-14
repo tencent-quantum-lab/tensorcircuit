@@ -204,14 +204,18 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
             return tf.cast(a, dtype=getattr(tf, dtype))
         return tf.cast(a, dtype=dtype)
 
-    def set_random_state(self, seed: Optional[Union[int, RGenerator]] = None) -> None:
+    def set_random_state(
+        self, seed: Optional[Union[int, RGenerator]] = None, get_only: bool = False
+    ) -> Any:
         if seed is None:
             g = tf.random.Generator.from_non_deterministic_state()
         elif isinstance(seed, int):
             g = tf.random.Generator.from_seed(seed)
         else:
             g = seed
-        self.g = g
+        if get_only is False:
+            self.g = g
+        return g
 
     def stateful_randn(
         self,

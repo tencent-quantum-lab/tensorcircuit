@@ -348,3 +348,17 @@ def test_sparse_methods(backend):
         np.array([[1], [2], [0], [0]], dtype=np.complex64),
         atol=1e-5,
     )
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_backend_randoms_v2(backend):
+    g = tc.backend.get_random_state(42)
+    for t in tc.backend.stateful_randc(g, 3, [3]):
+        assert t >= 0
+        assert t < 3
+    key = tc.backend.get_random_state(42)
+    r = []
+    for _ in range(2):
+        key, subkey = tc.backend.random_split(key)
+        r.append(tc.backend.stateful_randc(subkey, 3, [5]))
+    assert tuple(r[0]) != tuple(r[1])
