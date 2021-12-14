@@ -4,7 +4,9 @@ boosting the monte carlo noise simulation on general error with circuit layerwis
 
 from functools import partial
 import time
+import sys
 
+sys.path.insert(0, "../")
 import tensorcircuit as tc
 
 tc.set_backend("jax")
