@@ -4,8 +4,8 @@ declarations of single-qubit and two-qubit gates and their corresponding matrix
 
 import sys
 from copy import deepcopy
-from functools import partial, reduce
-from typing import Any, Optional, Union
+from functools import reduce
+from typing import Any, Callable, Optional, Union
 from operator import mul
 
 import numpy as np
@@ -134,6 +134,39 @@ def gate_wrapper(m: Tensor, n: Optional[str] = None) -> Gate:
     return Gate(deepcopy(m), name=n)
 
 
+class GateF:
+    def __init__(self, m: Tensor, n: Optional[str] = None):
+        if not n:
+            n = "unknowngate"
+        self.m = m
+        self.n = n
+
+    def __call__(self, *args: Any, **kws: Any) -> Gate:
+        m = self.m.astype(npdtype)
+        return Gate(deepcopy(m), name=self.n)
+
+    def adjoint(self, *args: Any, **kws: Any) -> Gate:
+        m = self.__call__(*args, **kws)
+        m.tensor = backend.adjoint(m.tensor)
+        return m
+
+    def __str__(self) -> str:
+        return self.n
+
+    __repr__ = __str__
+
+
+class GateVF(GateF):
+    def __init__(self, f: Callable[..., Gate], n: Optional[str] = None):
+        if not n:
+            n = "unknowngate"
+        self.f = f
+        self.n = n
+
+    def __call__(self, *args: Any, **kws: Any) -> Gate:
+        return self.f(*args, **kws)
+
+
 def meta_gate() -> None:
     """
     Inner helper function to generate gate functions, such as ``z()`` from ``_z_matrix``
@@ -146,10 +179,11 @@ def meta_gate() -> None:
                 m = np.reshape(m, newshape=(2, 2, 2, 2))
             if m.shape[0] == 8:
                 m = np.reshape(m, newshape=(2, 2, 2, 2, 2, 2))
-            m = m.astype(
-                npdtype
-            )  # not enough for new mechanism: register method on class instead of instance
-            temp = partial(gate_wrapper, m, n)
+            m = m.astype(npdtype)
+            # not enough for new mechanism: register method on class instead of instance
+            # temp = partial(gate_wrapper, m, n)
+            # temp.__name__ = n
+            temp = GateF(m, n)
             setattr(thismodule, n + "gate", temp)
             setattr(thismodule, n, temp)
 
@@ -188,7 +222,7 @@ def bmatrix(a: Array) -> str:
     return "".join(rv)
 
 
-def rgate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
+def r_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
     theta, phi, alpha = num_to_tensor(theta, phi, alpha)
     i, x, y, z = array_to_tensor(_i_matrix, _x_matrix, _y_matrix, _z_matrix)
     unitary = (
@@ -200,10 +234,10 @@ def rgate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
     return Gate(unitary)
 
 
-r = rgate
+# r = r_gate
 
 
-def rxgate(theta: float = 0) -> Gate:
+def rx_gate(theta: float = 0) -> Gate:
     """
     e^{-\theta/2 i X}
 
@@ -216,10 +250,10 @@ def rxgate(theta: float = 0) -> Gate:
     return Gate(unitary)
 
 
-rx = rxgate
+# rx = rx_gate
 
 
-def rygate(theta: float = 0) -> Gate:
+def ry_gate(theta: float = 0) -> Gate:
     """
     e^{-\theta/2 i Y}
 
@@ -232,10 +266,10 @@ def rygate(theta: float = 0) -> Gate:
     return Gate(unitary)
 
 
-ry = rygate
+# ry = ry_gate
 
 
-def rzgate(theta: float = 0) -> Gate:
+def rz_gate(theta: float = 0) -> Gate:
     """
     e^{-\theta/2 i Z}
 
@@ -248,7 +282,7 @@ def rzgate(theta: float = 0) -> Gate:
     return Gate(unitary)
 
 
-rz = rzgate
+# rz = rz_gate
 
 
 def rgate_theoretical(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
@@ -269,13 +303,13 @@ def random_single_qubit_gate() -> Gate:
     # Get the random parameters
     theta, alpha, phi = np.random.rand(3) * 2 * np.pi  # type: ignore
 
-    return rgate(theta, alpha, phi)  # type: ignore
+    return r_gate(theta, alpha, phi)  # type: ignore
 
 
-rs = random_single_qubit_gate  # deprecated
+# rs = random_single_qubit_gate  # deprecated
 
 
-def iswapgate(theta: float = 1.0) -> Gate:
+def iswap_gate(theta: float = 1.0) -> Gate:
     d1 = np.array([[1.0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1.0]])
     d2 = np.array([[0, 0, 0, 0], [0, 1.0, 0, 0], [0, 0, 1.0, 0], [0, 0, 0, 0]])
     od = np.array([[0, 0, 0, 0], [0, 0, 1.0, 0], [0, 1.0, 0, 0], [0, 0, 0, 0]])
@@ -290,10 +324,10 @@ def iswapgate(theta: float = 1.0) -> Gate:
     return Gate(unitary)
 
 
-iswap = iswapgate
+# iswap = iswap_gate
 
 
-def crgate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
+def cr_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
     theta, phi, alpha = num_to_tensor(theta, phi, alpha)
     u = np.array([[1.0, 0.0], [0.0, 0.0]])
     d = np.array([[0.0, 0.0], [0.0, 1.0]])
@@ -315,7 +349,7 @@ def crgate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
     return Gate(unitary)
 
 
-cr = crgate
+# cr = cr_gate
 
 
 def random_two_qubit_gate() -> Gate:
@@ -339,7 +373,7 @@ def any_gate(unitary: Tensor, name: str = "any") -> Gate:
     return Gate(unitary, name=name)
 
 
-any = any_gate
+# any = any_gate
 
 
 def exponential_gate(unitary: Tensor, theta: float, name: str = "none") -> Gate:
@@ -354,7 +388,8 @@ def exponential_gate(unitary: Tensor, theta: float, name: str = "none") -> Gate:
     return Gate(mat, name="exp-" + name)
 
 
-exp = exponential_gate
+exp_gate = exponential_gate
+# exp = exponential_gate
 
 
 def exponential_gate_unity(unitary: Tensor, theta: float, name: str = "none") -> Gate:
@@ -370,4 +405,13 @@ def exponential_gate_unity(unitary: Tensor, theta: float, name: str = "none") ->
     return Gate(mat, name="exp1-" + name)
 
 
-exp1 = exponential_gate_unity
+exp1_gate = exponential_gate_unity
+# exp1 = exponential_gate_unity
+
+
+def meta_vgate() -> None:
+    for f in ["r", "rx", "ry", "rz", "iswap", "any", "exp", "exp1", "cr"]:
+        setattr(thismodule, f, GateVF(getattr(thismodule, f + "_gate"), f))
+
+
+meta_vgate()

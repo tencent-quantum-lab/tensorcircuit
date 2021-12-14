@@ -1,5 +1,7 @@
 .idea/
+develop
 .coverage*
+*.result
 .vscode/
 .pytest_cache/
 .DS_Store

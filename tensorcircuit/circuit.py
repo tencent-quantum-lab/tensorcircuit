@@ -36,7 +36,7 @@ class Circuit:
     """
 
     sgates = (
-        ["i", "x", "y", "z", "h", "t", "s", "rs", "wroot"]
+        ["i", "x", "y", "z", "h", "t", "s", "wroot"]
         + ["cnot", "cz", "swap", "cy", "iswap"]
         + ["toffoli"]
     )
@@ -413,6 +413,19 @@ class Circuit:
     # TODO(@refraction-ray): add noise support in IR
     # TODO(@refraction-ray): IR for density matrix simulator?
 
+    @staticmethod
+    def _apply_qir(c: "Circuit", qir: str) -> "Circuit":
+        for d in qir:
+            if "parameters" not in d:
+                c.apply_general_gate_delayed(d["gate"], d["name"])(  # type: ignore
+                    c, *d["index"], split=d["split"]  # type: ignore
+                )
+            else:
+                c.apply_general_variable_gate_delayed(d["gate"], d["name"])(  # type: ignore
+                    c, *d["index"], **d["parameters"], split=d["split"]  # type: ignore
+                )
+        return c
+
     @classmethod
     def from_qir(
         cls, qir: str, circuit_params: Optional[Dict[str, Any]] = None
@@ -428,16 +441,11 @@ class Circuit:
             circuit_params["nqubits"] = nqubits
 
         c = cls(**circuit_params)
-        for d in qir:
-            if "parameters" not in d:
-                c.apply_general_gate_delayed(d["gate"], d["name"])(  # type: ignore
-                    c, *d["index"], split=d["split"]  # type: ignore
-                )
-            else:
-                c.apply_general_variable_gate_delayed(d["gate"], d["name"])(  # type: ignore
-                    c, *d["index"], **d["parameters"], split=d["split"]  # type: ignore
-                )
+        c = cls._apply_qir(c, qir)
         return c
+
+    def append_from_qir(self, qir: str) -> None:
+        self._apply_qir(self, qir)
 
     def mid_measurement(self, index: int, keep: int = 0) -> None:
         """

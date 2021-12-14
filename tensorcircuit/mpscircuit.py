@@ -74,7 +74,7 @@ class MPSCircuit:
 
     """
 
-    sgates = ["i", "x", "y", "z", "h", "t", "s", "rs", "wroot"] + [
+    sgates = ["i", "x", "y", "z", "h", "t", "s", "wroot"] + [
         "cnot",
         "cz",
         "swap",

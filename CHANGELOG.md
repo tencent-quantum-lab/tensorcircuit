@@ -15,3 +15,7 @@
 - circuit preprocessing simplification with only single qubit gates
 
 - avoid the bug when random from jax backend with jitted function
+
+### Changed
+
+- refactor `tc.gates` (breaking API on `rgate` -> `r_gate`, `iswapgate` -> `iswap_gate`)

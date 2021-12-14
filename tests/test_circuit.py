@@ -55,7 +55,7 @@ def test_measure():
 def test_gates_in_circuit():
     c = tc.Circuit(2, inputs=np.eye(2 ** 2))
     c.iswap(0, 1)
-    ans = tc.gates.iswapgate().tensor.reshape([4, 4])
+    ans = tc.gates.iswap_gate().tensor.reshape([4, 4])
     np.testing.assert_allclose(c.state().reshape([4, 4]), ans, atol=1e-5)
 
 
@@ -244,9 +244,7 @@ def test_exp1(backend):
     assert np.allclose(s, s1, atol=1e-4)
 
 
-def test_complex128(highp):
-    tc.set_backend("tensorflow")
-    tc.set_dtype("complex128")
+def test_complex128(highp, tfb):
     c = tc.Circuit(2)
     c.H(1)
     c.rx(0, theta=tc.gates.num_to_tensor(1j))
@@ -640,7 +638,11 @@ def test_toqir():
     )
     z1 = c.expectation((tc.gates.z(), [1]))
     qirs = c.to_qir()
-
     c = tc.Circuit.from_qir(qirs, circuit_params={"nqubits": 3})
-    z2 = c.expectation((tc.gates.z(), [1]))
+    assert len(c._nodes) == 7
+    z2 = c.expectation((tc.gates.z(), [1]), reuse=False)
     np.testing.assert_allclose(z1, z2, atol=1e-5)
+    c.append_from_qir(qirs)
+    z3 = c.expectation((tc.gates.z(), [1]), reuse=False)
+    assert len(c._nodes) == 11
+    print(z1, z2, z3)
