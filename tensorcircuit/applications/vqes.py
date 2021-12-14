@@ -103,7 +103,7 @@ def construct_matrix_v3(ham: List[List[float]], dtype: Any = tf.complex128) -> T
     from ..quantum import PauliStringSum2COO
     from ..cons import backend
 
-    sparsem = PauliStringSum2COO([h[1:] for h in ham], [h[0] for h in ham])
+    sparsem = PauliStringSum2COO([h[1:] for h in ham], [h[0] for h in ham])  # type: ignore
     densem = backend.to_dense(sparsem)
     return tf.cast(densem, dtype)
 
