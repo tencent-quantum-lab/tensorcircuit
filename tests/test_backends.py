@@ -396,3 +396,35 @@ def test_backend_randoms_v3(backend):
     key = tc.backend.get_random_state(43)
     r1 = f2(key)
     np.testing.assert_allclose(r[-1], r1[-1], atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_function_level_set(backend):
+    def f(x):
+        return tc.backend.ones([x])
+
+    f_jax_128 = tc.set_function_backend("jax")(tc.set_function_dtype("complex128")(f))
+    # note the order to enable complex 128 in jax backend
+
+    assert f_jax_128(3).dtype.__str__() == "complex128"
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_function_level_set_contractor(backend):
+    @tc.set_function_contractor("branch")
+    def f():
+        return tc.contractor
+
+    print(f())
+    print(tc.contractor)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_with_level_set(backend):
+    with tc.runtime_backend("jax"):
+        with tc.runtime_dtype("complex128"):
+            with tc.runtime_contractor("branch"):
+                assert tc.backend.ones([2]).dtype.__str__() == "complex128"
+                print(tc.contractor)
+    print(tc.contractor)
+    print(tc.backend.name)

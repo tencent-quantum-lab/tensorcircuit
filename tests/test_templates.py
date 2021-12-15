@@ -81,3 +81,13 @@ def test_qaoa_template(backend):
     _, gr = fvag(paramzz, paramx)
     np.testing.assert_allclose(gr[0].shape, [1])
     np.testing.assert_allclose(gr[1].shape, [6])
+
+
+def test_state_wrapper():
+    Bell_pair_block_state = tc.templates.blocks.state_centric(
+        tc.templates.blocks.Bell_pair_block
+    )
+    s = Bell_pair_block_state(np.array([1.0, 0, 0, 0]))
+    np.testing.assert_allclose(
+        s, np.array([0.0, 0.70710677 + 0.0j, -0.70710677 + 0.0j, 0]), atol=1e-5
+    )

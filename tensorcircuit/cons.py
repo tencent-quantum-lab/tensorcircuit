@@ -5,9 +5,10 @@ some constants and setups
 
 import logging
 import sys
-from functools import partial, reduce
+from contextlib import contextmanager
+from functools import partial, reduce, wraps
 from operator import mul
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Tuple
 
 import numpy as np
 import opt_einsum
@@ -46,6 +47,7 @@ modules = [
     "tensorcircuit.templates.graphs",
 ]
 
+thismodule = sys.modules[__name__]
 dtypestr = "complex64"
 npdtype = np.complex64
 backend = get_backend("numpy")
@@ -74,6 +76,29 @@ set_backend = set_tensornetwork_backend
 
 
 set_tensornetwork_backend()
+
+
+def set_function_backend(backend: Optional[str] = None) -> Callable[..., Any]:
+    def wrapper(f: Callable[..., Any]) -> Callable[..., Any]:
+        @wraps(f)
+        def newf(*args: Any, **kws: Any) -> Any:
+            old_backend = getattr(thismodule, "backend").name
+            set_backend(backend)
+            r = f(*args, **kws)
+            set_backend(old_backend)
+            return r
+
+        return newf
+
+    return wrapper
+
+
+@contextmanager
+def runtime_backend(backend: Optional[str] = None) -> Iterator[None]:
+    old_backend = getattr(thismodule, "backend").name
+    set_backend(backend)
+    yield
+    set_backend(old_backend)
 
 
 def set_dtype(dtype: Optional[str] = None) -> None:
@@ -109,6 +134,30 @@ def set_dtype(dtype: Optional[str] = None) -> None:
 
 
 set_dtype()
+
+
+def set_function_dtype(dtype: Optional[str] = None) -> Callable[..., Any]:
+    def wrapper(f: Callable[..., Any]) -> Callable[..., Any]:
+        @wraps(f)
+        def newf(*args: Any, **kws: Any) -> Any:
+            old_dtype = getattr(thismodule, "dtypestr")
+            set_dtype(dtype)
+            r = f(*args, **kws)
+            set_dtype(old_dtype)
+            return r
+
+        return newf
+
+    return wrapper
+
+
+@contextmanager
+def runtime_dtype(dtype: Optional[str] = None) -> Iterator[None]:
+    old_dtype = getattr(thismodule, "dtypestr")
+    set_dtype(dtype)
+    yield
+    set_dtype(old_dtype)
+
 
 # here below comes other contractors (just works,
 # but correctness has not been extensively tested for some of them)
@@ -568,5 +617,29 @@ set_contractor()
 
 get_contractor = partial(set_contractor, set_global=False)
 
-# TODO(@refraction-ray): contractor at Circuit and instruction level setup
-# TODO(@refraction-ray): function level backend and dtype?
+
+def set_function_contractor(*confargs: Any, **confkws: Any) -> Callable[..., Any]:
+    def wrapper(f: Callable[..., Any]) -> Callable[..., Any]:
+        @wraps(f)
+        def newf(*args: Any, **kws: Any) -> Any:
+            old_contractor = getattr(thismodule, "contractor")
+            set_contractor(*confargs, **confkws)
+            r = f(*args, **kws)
+            for module in modules:
+                if module in sys.modules:
+                    setattr(sys.modules[module], "contractor", old_contractor)
+            return r
+
+        return newf
+
+    return wrapper
+
+
+@contextmanager
+def runtime_contractor(*confargs: Any, **confkws: Any) -> Iterator[None]:
+    old_contractor = getattr(thismodule, "contractor")
+    set_contractor(*confargs, **confkws)
+    yield
+    for module in modules:
+        if module in sys.modules:
+            setattr(sys.modules[module], "contractor", old_contractor)

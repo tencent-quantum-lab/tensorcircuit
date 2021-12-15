@@ -150,6 +150,8 @@ class GateF:
         m.tensor = backend.adjoint(m.tensor)
         return m
 
+    # TODO(@refraction-ray): controlled
+
     def __str__(self) -> str:
         return self.n
 

@@ -640,9 +640,9 @@ def test_toqir():
     qirs = c.to_qir()
     c = tc.Circuit.from_qir(qirs, circuit_params={"nqubits": 3})
     assert len(c._nodes) == 7
-    z2 = c.expectation((tc.gates.z(), [1]), reuse=False)
+    z2 = c.expectation((tc.gates.z(), [1]))
     np.testing.assert_allclose(z1, z2, atol=1e-5)
     c.append_from_qir(qirs)
-    z3 = c.expectation((tc.gates.z(), [1]), reuse=False)
+    z3 = c.expectation((tc.gates.z(), [1]))
     assert len(c._nodes) == 11
-    print(z1, z2, z3)
+    np.testing.assert_allclose(z3, 0.202728, atol=1e-5)

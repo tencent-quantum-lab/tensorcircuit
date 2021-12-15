@@ -91,7 +91,6 @@ class Circuit:
             inputs = Gate(inputs)
             nodes = [inputs]
             self._front = [inputs.get_edge(i) for i in range(n)]
-            # TODO(@refraction-ray): _topology unused for now
         else:  # mps_inputs is not None
             mps_nodes = mps_inputs.nodes  # type: ignore
             mps_edges = mps_inputs.out_edges + mps_inputs.in_edges  # type: ignore
@@ -339,6 +338,7 @@ class Circuit:
                 self._front[ind] = gate.get_edge(i)
             self._nodes.append(gate)
 
+        self.state_tensor = None  # refresh the state cache
         if name:
             # if no name is specified, then the corresponding op wont be recorded in qcode
             self._qcode += name + " "

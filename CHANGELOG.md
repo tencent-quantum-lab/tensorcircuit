@@ -8,6 +8,10 @@
 
 - add qir representation of circuit, `c.to_qir()` and `Circuit.from_qir()` methods
 
+- fine-grained control on backend, dtype and contractor setup: `tc.set_function_backend()` for function level decorator and `tc.runtime_backend()` as with context manager
+
+- add `state_centric` decorator in `tc.templates.blocks` to transform circuit-to-circuit funtion to state-to-state function
+
 ### Fixed
 
 - avoid error on watch non `tf.Tensor` in tensorflow backend grad method
@@ -15,6 +19,8 @@
 - circuit preprocessing simplification with only single qubit gates
 
 - avoid the bug when random from jax backend with jitted function
+
+- refresh the state cache in Circuit when new gate is applied
 
 ### Changed
 
