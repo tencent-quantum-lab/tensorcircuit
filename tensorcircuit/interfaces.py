@@ -5,7 +5,6 @@ interfaces bridging different backends
 from typing import Any, Callable, Tuple, Optional
 
 import numpy as np
-import torch
 
 from .cons import backend, dtypestr
 from .backends import get_backend  # type: ignore
@@ -78,6 +77,8 @@ def is_sequence(x: Any) -> bool:
 
 
 def torch_interface(fun: Callable[..., Any], jit: bool = False) -> Callable[..., Any]:
+    import torch
+
     def vjp_fun(x: Tensor, v: Tensor) -> Tuple[Tensor, Tensor]:
         return backend.vjp(fun, x, v)  # type: ignore
 
