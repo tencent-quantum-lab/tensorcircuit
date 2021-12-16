@@ -6,6 +6,8 @@
 
 - add `quantum.heisenberg_hamiltonian` for hamiltonian generation shortcut
 
+- add `has_aux` parameter in backend methods `grad` and `value_and_grad`, the semantic syntax is the same as jax
+
 ## 0.0.211216
 
 ### Added

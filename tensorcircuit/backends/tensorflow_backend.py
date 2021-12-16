@@ -313,7 +313,10 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         return tf.switch_case(index, branches)
 
     def grad(
-        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Any]:
         # experimental attempt
         # Note: tensorflow grad is gradient while jax grad is derivative, they are different with a conjugate!
@@ -326,13 +329,21 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
                     x = [args[i] for i in argnums]
                 t.watch(x)
                 y = f(*args, **kws)
-                g = t.gradient(y, x)
+                if has_aux:
+                    g = t.gradient(y[0], x)
+                else:
+                    g = t.gradient(y, x)
+            if has_aux:
+                return (g, y[1:])
             return g
 
         return wrapper
 
     def value_and_grad(
-        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
         def wrapper(*args: Any, **kws: Any) -> Any:
             with tf.GradientTape() as t:
@@ -342,7 +353,10 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
                     x = [args[i] for i in argnums]
                 t.watch(x)
                 y = f(*args, **kws)
-                g = t.gradient(y, x)
+                if has_aux:
+                    g = t.gradient(y[0], x)
+                else:
+                    g = t.gradient(y, x)
             return y, g
 
         return wrapper

@@ -174,10 +174,15 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         return branches[index.numpy()]()
 
     def grad(
-        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Any]:
         def wrapper(*args: Any, **kws: Any) -> Any:
-            _, gr = self.value_and_grad(f, argnums)(*args, **kws)
+            y, gr = self.value_and_grad(f, argnums, has_aux)(*args, **kws)
+            if has_aux:
+                return gr, y[1:]
             return gr
 
         return wrapper
@@ -205,7 +210,10 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         # return wrapper
 
     def value_and_grad(
-        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
         def wrapper(*args: Any, **kws: Any) -> Any:
             x = []
@@ -221,7 +229,10 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
                 else:
                     x.append(arg)
             y = f(*x, **kws)
-            y.backward()
+            if has_aux:
+                y[0].backward()
+            else:
+                y.backward()
             gs = [x[i].grad for i in argnumsl]
             if len(gs) == 1:
                 gs = gs[0]

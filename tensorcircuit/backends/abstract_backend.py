@@ -774,7 +774,10 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         )
 
     def grad(  # pylint: disable=unused-variable
-        self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self: Any,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Any]:
         """
         Return function which is the grad function of input ``f``
@@ -800,7 +803,10 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         )
 
     def value_and_grad(  # pylint: disable=unused-variable
-        self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self: Any,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        hax_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
         """
         Return function which returns the value and grad of ``f``

@@ -406,14 +406,20 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         return isinstance(a, sparse.BCOO)  # type: ignore
 
     def grad(
-        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Any:
-        return libjax.grad(f, argnums=argnums)
+        return libjax.grad(f, argnums=argnums, has_aux=has_aux)
 
     def value_and_grad(
-        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
-        return libjax.value_and_grad(f, argnums=argnums)  # type: ignore
+        return libjax.value_and_grad(f, argnums=argnums, has_aux=has_aux)  # type: ignore
 
     def vjp(
         self,

@@ -428,3 +428,21 @@ def test_with_level_set(backend):
                 print(tc.contractor)
     print(tc.contractor)
     print(tc.backend.name)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])
+def test_grad_has_aux(backend):
+    def f(x):
+        return tc.backend.real(x ** 2), x ** 3
+
+    vag = tc.backend.value_and_grad(f, has_aux=True)
+
+    np.testing.assert_allclose(
+        vag(tc.backend.ones([]))[1], 2 * tc.backend.ones([]), atol=1e-5
+    )
+
+    def f2(x):
+        return tc.backend.real(x ** 2), (x ** 3, tc.backend.ones([3]))
+
+    gs = tc.backend.grad(f2, has_aux=True)
+    np.testing.assert_allclose(gs(tc.backend.ones([]))[0], 2.0, atol=1e-5)
