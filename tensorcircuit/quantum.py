@@ -33,6 +33,7 @@ from .cons import backend, contractor, dtypestr
 from .backends import get_backend  # type: ignore
 
 Tensor = Any
+Graph = Any
 
 logger = logging.getLogger(__name__)
 
@@ -743,6 +744,107 @@ def generate_local_hamiltonian(
 try:
     compiled_jit = partial(get_backend("tensorflow").jit, jit_compile=True)
 
+    def heisenberg_hamiltonian(
+        g: Graph,
+        hzz: float = 1.0,
+        hxx: float = 1.0,
+        hyy: float = 1.0,
+        hz: float = 0.0,
+        hx: float = 0.0,
+        hy: float = 0.0,
+        sparse: bool = True,
+    ) -> Tensor:
+        n = len(g.nodes)
+        ls = []
+        weight = []
+        for e in g.edges:
+            if hzz != 0:
+                r = [0 for _ in range(n)]
+                r[e[0]] = 3
+                r[e[1]] = 3
+                ls.append(r)
+                weight.append(hzz)
+            if hxx != 0:
+                r = [0 for _ in range(n)]
+                r[e[0]] = 1
+                r[e[1]] = 1
+                ls.append(r)
+                weight.append(hxx)
+            if hyy != 0:
+                r = [0 for _ in range(n)]
+                r[e[0]] = 2
+                r[e[1]] = 2
+                ls.append(r)
+                weight.append(hyy)
+        for node in g.nodes:
+            if hz != 0:
+                r = [0 for _ in range(n)]
+                r[node] = 3
+                ls.append(r)
+                weight.append(hz)
+            if hx != 0:
+                r = [0 for _ in range(n)]
+                r[node] = 1
+                ls.append(r)
+                weight.append(hx)
+            if hy != 0:
+                r = [0 for _ in range(n)]
+                r[node] = 2
+                ls.append(r)
+                weight.append(hy)
+        ls = tf.constant(ls)
+        weight = tf.constant(weight)
+        ls = get_backend("tensorflow").cast(ls, dtypestr)
+        weight = get_backend("tensorflow").cast(weight, dtypestr)
+        if sparse:
+            r = PauliStringSum2COO_numpy(ls, weight)
+            return _numpy2tf_sparse(r)
+        return PauliStringSum2Dense(ls, weight)
+
+    def PauliStringSum2Dense(
+        ls: Sequence[Sequence[int]], weight: Optional[Sequence[float]] = None
+    ) -> Tensor:
+        sparsem = PauliStringSum2COO_numpy(ls, weight)
+        sparsem = _numpy2tf_sparse(sparsem)
+        densem = get_backend("tensorflow").to_dense(sparsem)
+        return densem
+
+    def _tf2numpy_sparse(a: Tensor) -> Tensor:
+        return get_backend("numpy").coo_sparse_matrix(
+            indices=a.indices,
+            values=a.values,
+            shape=a.get_shape(),
+        )
+
+    def _numpy2tf_sparse(a: Tensor) -> Tensor:
+        return get_backend("tensorflow").coo_sparse_matrix(
+            indices=np.array([a.row, a.col]).T,
+            values=a.data,
+            shape=a.shape,
+        )
+
+    def PauliStringSum2COO_numpy(
+        ls: Sequence[Sequence[int]], weight: Optional[Sequence[float]] = None
+    ) -> Tensor:
+        # numpy version is 3* faster!
+
+        nterms = len(ls)
+        n = len(ls[0])
+        s = 0b1 << n
+        if weight is None:
+            weight = [1.0 for _ in range(nterms)]
+        if not (isinstance(weight, tf.Tensor) or isinstance(weight, tf.Variable)):
+            weight = tf.constant(weight, dtype=tf.complex64)
+        rsparse = get_backend("numpy").coo_sparse_matrix(
+            indices=tf.constant([[0, 0]], dtype=tf.int64),
+            values=tf.constant([0.0], dtype=weight.dtype),  # type: ignore
+            shape=(s, s),
+        )
+        for i in range(nterms):
+            rsparse += _tf2numpy_sparse(PauliString2COO(ls[i], weight[i]))  # type: ignore
+            # auto transformed into csr format!!
+        return rsparse.tocoo()
+
     def PauliStringSum2COO(
         ls: Sequence[Sequence[int]], weight: Optional[Sequence[float]] = None
     ) -> Tensor:
@@ -758,8 +860,9 @@ try:
             values=tf.constant([0.0], dtype=weight.dtype),  # type: ignore
             dense_shape=(s, s),
         )
-        for w, l in zip(weight, ls):  # type: ignore
-            rsparse = tf.sparse.add(rsparse, PauliString2COO(l, w))  # type: ignore
+        for i in range(nterms):
+            rsparse = tf.sparse.add(rsparse, PauliString2COO(ls[i], weight[i]))  # type: ignore
+            # TODO(@refraction-ray): very slow sparse.add?
         return rsparse
 
     @compiled_jit
@@ -831,7 +934,6 @@ def op2tensor(
         for i in op_argnums:  # type: ignore
             if isinstance(args[i], QuOperator):
                 nargs[i] = args[i].copy().eval_matrix()
-        print(nargs)
         out = fn(*nargs, **kwargs)
         return out
 

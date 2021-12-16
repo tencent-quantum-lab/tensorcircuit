@@ -16,7 +16,7 @@ sys.path.insert(0, modulepath)
 import tensorcircuit as tc
 from tensorcircuit import quantum as qu
 
-# Note the first version of this file is adpated from source code of tensornetwork: (Apache2)
+# Note that the first version of this file is adpated from source code of tensornetwork: (Apache2)
 # https://github.com/google/TensorNetwork/blob/master/tensornetwork/quantum/quantum_test.py
 
 # tc.set_contractor("greedy")
@@ -307,3 +307,10 @@ def test_extract_from_measure(backend):
         qu.correlation_from_counts([0, 1], state), 0.2, atol=atol
     )
     np.testing.assert_allclose(qu.correlation_from_counts([1], state), 0.2, atol=atol)
+
+
+def test_heisenberg_ham(tfb):
+    g = tc.templates.graphs.Line1D(6)
+    h = tc.quantum.heisenberg_hamiltonian(g, sparse=False)
+    e, _ = tc.backend.eigh(h)
+    np.testing.assert_allclose(e[0], -11.2111, atol=1e-4)
