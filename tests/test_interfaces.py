@@ -2,6 +2,7 @@ import os
 import sys
 import pytest
 from pytest_lazyfixture import lazy_fixture as lf
+from scipy import optimize
 
 thisfile = os.path.abspath(__file__)
 modulepath = os.path.dirname(os.path.dirname(thisfile))
@@ -98,3 +99,29 @@ def test_torch_interface(backend):
     l3.backward()
     pg = param3.grad
     np.testing.assert_allclose(pg, 2 * np.ones([2]).astype(np.complex64), atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_scipy_interface(backend):
+    n = 3
+
+    def f(param):
+        c = tc.Circuit(n)
+        for i in range(n):
+            c.rx(i, theta=param[0, i])
+            c.rz(i, theta=param[1, i])
+        loss = c.expectation(
+            [
+                tc.gates.y(),
+                [
+                    0,
+                ],
+            ]
+        )
+        return tc.backend.real(loss)
+
+    f_scipy = interfaces.scipy_optimize_interface(f, shape=[2, n])
+    r = optimize.minimize(f_scipy, np.zeros([2 * n]), method="L-BFGS-B", jac=True)
+    # L-BFGS-B may has issue with float32
+    # see: https://github.com/scipy/scipy/issues/5832
+    np.testing.assert_allclose(r["fun"], -1.0, atol=1e-5)

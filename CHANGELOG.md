@@ -12,6 +12,8 @@
 
 - add `state_centric` decorator in `tc.templates.blocks` to transform circuit-to-circuit funtion to state-to-state function
 
+- add `interfaces.scipy_optimize_interface` to transform quantum function into `scipy.optimize.minimize` campatible form
+
 ### Fixed
 
 - avoid error on watch non `tf.Tensor` in tensorflow backend grad method

@@ -2,12 +2,12 @@
 interfaces bridging different backends
 """
 
-from typing import Any, Callable, Tuple
+from typing import Any, Callable, Tuple, Optional
 
 import numpy as np
 import torch
 
-from .cons import backend
+from .cons import backend, dtypestr
 from .backends import get_backend  # type: ignore
 
 Tensor = Any
@@ -17,16 +17,10 @@ Array = Any
 
 
 def tensor_to_numpy(t: Tensor) -> Array:
-    from jax import numpy as jnp
-    import tensorflow as tf
-
-    if isinstance(t, torch.Tensor):
+    try:
         return t.numpy()
-    if isinstance(t, tf.Tensor) or isinstance(t, tf.Variable):
-        return t.numpy()
-    if isinstance(t, jnp.ndarray):
+    except AttributeError:
         return np.array(t)
-    return t
 
 
 def general_args_to_numpy(args: Any, same_pytree: bool = True) -> Any:
@@ -133,3 +127,27 @@ def torch_interface(fun: Callable[..., Any], jit: bool = False) -> Callable[...,
 
     # currently, memory transparent dlpack in these ML framework has broken support on complex dtypes
     return Fun.apply  # type: ignore
+
+
+def scipy_optimize_interface(
+    fun: Callable[..., Any], shape: Optional[Tuple[int, ...]] = None, jit: bool = True
+) -> Callable[..., Any]:
+    vag = backend.value_and_grad(fun, argnums=0)
+    if jit:
+        vag = backend.jit(vag)
+
+    def scipy_vag(*args: Any, **kws: Any) -> Tuple[Tensor, Tensor]:
+        scipy_args = numpy_args_to_backend(args, dtype=dtypestr)
+        if shape is not None:
+            scipy_args = list(scipy_args)
+            scipy_args[0] = backend.reshape(scipy_args[0], shape)
+            scipy_args = tuple(scipy_args)
+        vs, gs = vag(*scipy_args, **kws)
+        scipy_vs = general_args_to_numpy(vs)
+        gs = backend.reshape(gs, [-1])
+        scipy_gs = general_args_to_numpy(gs)
+        scipy_vs = scipy_vs.astype(np.float64)
+        scipy_gs = scipy_gs.astype(np.float64)
+        return scipy_vs, scipy_gs
+
+    return scipy_vag
