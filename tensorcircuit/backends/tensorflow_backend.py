@@ -23,8 +23,32 @@ except ImportError:
 dtypestr: str
 Tensor = Any
 RGenerator = Any  # tf.random.Generator
+pytree = Any
 
 tf: Any
+
+
+class keras_optimizer:
+    def __init__(self, optimizer: Any) -> None:
+        self.optimizer = optimizer
+        self.is_variable = True
+
+    def _c2v(self, v: Tensor) -> Tensor:
+        if not isinstance(v, tf.Variable):
+            v = tf.Variable(v)
+            self.is_variable = False
+        return v
+
+    def _apply_gradients(self, grads: Tensor, params: Tensor) -> None:
+        self.optimizer.apply_gradients([(grads, params)])
+
+    def update(self, grads: pytree, params: pytree) -> pytree:
+        params = TensorFlowBackend.tree_map(None, self._c2v, params)
+        # don't do the () initialization since cache is in upper level of backend_factory
+        TensorFlowBackend.tree_map(None, self._apply_gradients, grads, params)
+        if not self.is_variable:
+            return TensorFlowBackend.tree_map(None, tf.convert_to_tensor, params)
+        return params
 
 
 def _tensordot_tf(
@@ -524,3 +548,5 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         # return f
 
     vvag = vectorized_value_and_grad
+
+    optimizer = keras_optimizer

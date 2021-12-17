@@ -4,6 +4,7 @@ backend magic inherited from tensornetwork: jax backend
 # pylint: disable=invalid-name
 
 from functools import partial
+import logging
 from typing import Any, Callable, Optional, Sequence, Tuple, Union
 
 import numpy as np
@@ -20,13 +21,32 @@ except ImportError:
 
     tnbackend = abstract_backend.AbstractBackend
 
+logger = logging.getLogger(__name__)
+
+
 dtypestr: str
 Tensor = Any
 PRNGKeyArray = Any  # libjax.random.PRNGKeyArray
+pytree = Any
 
 libjax: Any
 jnp: Any
 jsp: Any
+optax: Any
+
+
+class optax_optimizer:
+    # the behavior of this optimizer abstraction with jit is not guranteed
+    def __init__(self, optimizer: Any) -> None:
+        self.optimizer = optimizer
+        self.state = None
+
+    def update(self, grads: pytree, params: pytree) -> pytree:
+        if self.state is None:
+            self.state = self.optimizer.init(params)
+        updates, self.state = self.optimizer.update(grads, self.state)
+        params = optax.apply_updates(params, updates)
+        return params
 
 
 def _convert_to_tensor_jax(self: Any, tensor: Tensor) -> Tensor:
@@ -106,6 +126,7 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         global jnp  # jax.numpy module
         global jsp  # jax.scipy module
         global sparse  # jax.experimental.sparse
+        global optax  # optax
         super(JaxBackend, self).__init__()
         try:
             import jax
@@ -116,6 +137,13 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
             )
         from jax.experimental import sparse
 
+        try:
+            import optax
+
+        except ImportError:
+            logger.warning(
+                "optax not installed, `optimizer` from jax backend cannot work"
+            )
         libjax = jax
         jnp = libjax.numpy
         jsp = libjax.scipy
@@ -507,3 +535,5 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         # return f
 
     vvag = vectorized_value_and_grad
+
+    optimizer = optax_optimizer

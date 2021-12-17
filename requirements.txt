@@ -10,3 +10,4 @@ jaxlib
 # torch
 # torchvision
 networkx
+optax

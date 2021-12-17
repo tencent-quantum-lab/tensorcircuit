@@ -446,3 +446,64 @@ def test_grad_has_aux(backend):
 
     gs = tc.backend.grad(f2, has_aux=True)
     np.testing.assert_allclose(gs(tc.backend.ones([]))[0], 2.0, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_optimizers(backend):
+    if tc.backend.name == "jax":
+        try:
+            import optax
+        except ImportError:
+            pytest.skip("optax is not installed")
+
+    def f(params, n):
+        c = tc.Circuit(n)
+        c = tc.templates.blocks.example_block(c, params["a"])
+        c = tc.templates.blocks.example_block(c, params["b"])
+        return tc.backend.real(c.expectation([tc.gates.x(), [n // 2]]))
+
+    vags = tc.backend.jit(tc.backend.value_and_grad(f, argnums=0), static_argnums=1)
+
+    def get_opt():
+        if tc.backend.name == "tensorflow":
+            optimizer1 = tf.keras.optimizers.Adam(5e-2)
+            opt = tc.backend.optimizer(optimizer1)
+        elif tc.backend.name == "jax":
+            optimizer2 = optax.adam(5e-2)
+            opt = tc.backend.optimizer(optimizer2)
+        else:
+            raise ValueError("%s doesn't support optimizer interface" % tc.backend.name)
+        return opt
+
+    n = 3
+    opt = get_opt()
+
+    params = {
+        "a": tc.backend.implicit_randn([4, n]),
+        "b": tc.backend.implicit_randn([4, n]),
+    }
+
+    for _ in range(20):
+        loss, grads = vags(params, n)
+        params = opt.update(grads, params)
+        print(loss)
+
+    assert loss < -0.9
+
+    def f2(params, n):
+        c = tc.Circuit(n)
+        c = tc.templates.blocks.example_block(c, params)
+        return tc.backend.real(c.expectation([tc.gates.x(), [n // 2]]))
+
+    vags2 = tc.backend.jit(tc.backend.value_and_grad(f2, argnums=0), static_argnums=1)
+
+    params = tc.backend.implicit_randn([4, n])
+    opt = get_opt()
+
+    for _ in range(20):
+        loss, grads = vags2(params, n)
+        print(grads, params)
+        params = opt.update(grads, params)
+        print(loss)
+
+    assert loss < -0.9
