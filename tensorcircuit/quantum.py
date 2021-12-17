@@ -834,7 +834,7 @@ try:
         if weight is None:
             weight = [1.0 for _ in range(nterms)]
         if not (isinstance(weight, tf.Tensor) or isinstance(weight, tf.Variable)):
-            weight = tf.constant(weight, dtype=tf.complex64)
+            weight = tf.constant(weight, dtype=getattr(tf, dtypestr))
         rsparse = get_backend("numpy").coo_sparse_matrix(
             indices=tf.constant([[0, 0]], dtype=tf.int64),
             values=tf.constant([0.0], dtype=weight.dtype),  # type: ignore
