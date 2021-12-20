@@ -314,3 +314,37 @@ def test_heisenberg_ham(tfb):
     h = tc.quantum.heisenberg_hamiltonian(g, sparse=False)
     e, _ = tc.backend.eigh(h)
     np.testing.assert_allclose(e[0], -11.2111, atol=1e-4)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_reduced_density_from_density(backend):
+    n = 6
+    w = np.random.normal(size=[2 ** n]) + 1.0j * np.random.normal(size=[2 ** n])
+    w /= np.linalg.norm(w)
+    rho = np.reshape(w, [-1, 1]) @ np.reshape(np.conj(w), [1, -1])
+    dm1 = tc.quantum.reduced_density_matrix(w, cut=[0, 2])
+    dm2 = tc.quantum.reduced_density_matrix(rho, cut=[0, 2])
+    np.testing.assert_allclose(dm1, dm2, atol=1e-5)
+
+    # with p
+    n = 5
+    w = np.random.normal(size=[2 ** n]) + 1.0j * np.random.normal(size=[2 ** n])
+    w /= np.linalg.norm(w)
+    p = np.random.normal(size=[2 ** 3])
+    p = tc.backend.softmax(p)
+    p = tc.backend.cast(p, "complex128")
+    rho = np.reshape(w, [-1, 1]) @ np.reshape(np.conj(w), [1, -1])
+    dm1 = tc.quantum.reduced_density_matrix(w, cut=[1, 2, 3], p=p)
+    dm2 = tc.quantum.reduced_density_matrix(rho, cut=[1, 2, 3], p=p)
+    np.testing.assert_allclose(dm1, dm2, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_mutual_information(backend):
+    n = 5
+    w = np.random.normal(size=[2 ** n]) + 1.0j * np.random.normal(size=[2 ** n])
+    w /= np.linalg.norm(w)
+    rho = np.reshape(w, [-1, 1]) @ np.reshape(np.conj(w), [1, -1])
+    dm1 = tc.quantum.mutual_information(w, cut=[1, 2, 3])
+    dm2 = tc.quantum.mutual_information(rho, cut=[1, 2, 3])
+    np.testing.assert_allclose(dm1, dm2, atol=1e-5)

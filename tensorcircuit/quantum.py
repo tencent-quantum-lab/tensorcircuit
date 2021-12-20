@@ -854,7 +854,7 @@ try:
         if weight is None:
             weight = [1.0 for _ in range(nterms)]
         if not (isinstance(weight, tf.Tensor) or isinstance(weight, tf.Variable)):
-            weight = tf.constant(weight, dtype=tf.complex64)
+            weight = tf.constant(weight, dtype=getattr(tf, dtypestr))
         rsparse = tf.SparseTensor(
             indices=tf.constant([[0, 0]], dtype=tf.int64),
             values=tf.constant([0.0], dtype=weight.dtype),  # type: ignore
@@ -1004,20 +1004,57 @@ def reduced_density_matrix(
                 "p arguments is not supported when state is a `QuOperator`"
             )
         return state.partial_trace(traceout)
+    if len(state.shape) == 2 and state.shape[0] == state.shape[1]:
+        # density operator
+        freedomexp = backend.sizen(state)
+        # traceout = sorted(traceout)[::-1]
+        freedom = int(np.log2(freedomexp) / 2)
+        # traceout2 = [i + freedom for i in traceout]
+        left = traceout + [i for i in range(freedom) if i not in traceout]
+        right = [i + freedom for i in left]
+        rho = backend.reshape(state, [2 for _ in range(2 * freedom)])
+        rho = backend.transpose(rho, perm=left + right)
+        rho = backend.reshape(
+            rho,
+            [
+                2 ** len(traceout),
+                2 ** (freedom - len(traceout)),
+                2 ** len(traceout),
+                2 ** (freedom - len(traceout)),
+            ],
+        )
+        if p is None:
+            # for i, (tr, tr2) in enumerate(zip(traceout, traceout2)):
+            #     rho = backend.trace(rho, axis1=tr, axis2=tr2 - i)
+            # correct but tf trace fail to support so much dimension with tf.einsum
 
-    w = state / backend.norm(state)
-    freedomexp = backend.sizen(state)
-    freedom = int(np.log(freedomexp) / np.log(2))
-    perm = [i for i in range(freedom) if i not in traceout]
-    perm = perm + traceout
-    w = backend.reshape(w, [2 for _ in range(freedom)])
-    w = backend.transpose(w, perm=perm)
-    w = backend.reshape(w, [-1, 2 ** len(traceout)])
-    if p is None:
-        rho = w @ backend.adjoint(w)
-    else:
-        rho = w @ backend.diagflat(p) @ backend.adjoint(w)
+            rho = backend.trace(rho, axis1=0, axis2=2)
+        else:
+            p = backend.reshape(p, [-1])
+            rho = backend.einsum("a,aiaj->ij", p, rho)
+            # raise NotImplementedError(
+            #     "p arguments is not supported when state is a density matrix"
+            # )
+            # TODO(@refraction-ray): implement this
+        rho = backend.reshape(
+            rho, [2 ** (freedom - len(traceout)), 2 ** (freedom - len(traceout))]
+        )
         rho /= backend.trace(rho)
+
+    else:
+        w = state / backend.norm(state)
+        freedomexp = backend.sizen(state)
+        freedom = int(np.log(freedomexp) / np.log(2))
+        perm = [i for i in range(freedom) if i not in traceout]
+        perm = perm + traceout
+        w = backend.reshape(w, [2 for _ in range(freedom)])
+        w = backend.transpose(w, perm=perm)
+        w = backend.reshape(w, [-1, 2 ** len(traceout)])
+        if p is None:
+            rho = w @ backend.adjoint(w)
+        else:
+            rho = w @ backend.diagflat(p) @ backend.adjoint(w)
+            rho /= backend.trace(rho)
     return rho
 
 
@@ -1071,6 +1108,36 @@ def double_state(h: Tensor, beta: float = 1) -> Tensor:
     state = backend.reshape(rho, [-1])
     norm = backend.norm(state)
     return state / norm
+
+
+@op2tensor
+def mutual_information(s: Tensor, cut: Union[int, List[int]]) -> Tensor:
+    if isinstance(cut, list) or isinstance(cut, tuple) or isinstance(cut, set):
+        traceout = list(cut)
+    else:
+        traceout = [i for i in range(cut)]
+
+    if len(s.shape) == 2 and s.shape[0] == s.shape[1]:
+        # mixed state
+        n = int(np.log2(backend.sizen(s)) / 2)
+        hab = entropy(s)
+
+        # subsystem a
+        rhoa = reduced_density_matrix(s, traceout)
+        ha = entropy(rhoa)
+
+        # need subsystem b as well
+        other = tuple(i for i in range(n) if i not in traceout)
+        rhob = reduced_density_matrix(s, other)  # type: ignore
+        hb = entropy(rhob)
+
+    # pure system
+    else:
+        hab = 0.0
+        rhoa = reduced_density_matrix(s, traceout)
+        ha = hb = entropy(rhoa)
+
+    return ha + hb - hab
 
 
 def measurement_counts(

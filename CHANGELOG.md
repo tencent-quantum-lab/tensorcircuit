@@ -10,6 +10,8 @@
 
 - add `optimizer` class on tensorflow and jax backend, so that a minimal and unified backend agnostic optimizer interface is provided
 
+- add `quantum.mutual_information`, add support on mixed state for `quantum.reduced_density_matrix`
+
 ## 0.0.211216
 
 ### Added
