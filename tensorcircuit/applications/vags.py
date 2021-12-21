@@ -635,7 +635,6 @@ def compose_tc_circuit_with_multiple_pools(
             getattr(ci, gate)(*index)
         else:
             getattr(ci, gate)(*index, theta=theta[i])
-    print(ci._qcode)
     return ci
 
 

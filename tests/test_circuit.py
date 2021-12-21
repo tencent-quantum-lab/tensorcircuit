@@ -252,16 +252,16 @@ def test_complex128(highp, tfb):
     assert np.allclose(c.expectation((tc.gates.z(), [1])), 0)
 
 
-def test_qcode():
-    qcode = """
-4
-x 0
-cnot 0 1
-r 2 theta 1.0 alpha 1.57
-"""
-    c = tc.Circuit.from_qcode(qcode)
-    assert c.measure(1)[0] == "1"
-    assert c.to_qcode() == qcode[1:]
+# def test_qcode():
+#     qcode = """
+# 4
+# x 0
+# cnot 0 1
+# r 2 theta 1.0 alpha 1.57
+# """
+#     c = tc.Circuit.from_qcode(qcode)
+#     assert c.measure(1)[0] == "1"
+#     assert c.to_qcode() == qcode[1:]
 
 
 def universal_ad():

@@ -109,8 +109,9 @@ class Circuit:
         self._start_index = len(nodes)
         # self._start = nodes
         # self._meta_apply()
-        self._qcode = ""  # deprecated
-        self._qcode += str(self._nqubits) + "\n"
+
+        # self._qcode = ""  # deprecated
+        # self._qcode += str(self._nqubits) + "\n"
         self._qir: List[Dict[str, Any]] = []
 
     def replace_inputs(self, inputs: Tensor) -> None:
@@ -237,48 +238,48 @@ class Circuit:
             getattr(cls, g).__doc__ = doc
             getattr(cls, g.upper()).__doc__ = doc
 
-    @classmethod
-    def from_qcode(
-        cls, qcode: str
-    ) -> "Circuit":  # forward reference, see https://github.com/python/mypy/issues/3661
-        """
-        [WIP], make circuit object from non universal simple assembly quantum language
+    # @classmethod
+    # def from_qcode(
+    #     cls, qcode: str
+    # ) -> "Circuit":  # forward reference, see https://github.com/python/mypy/issues/3661
+    #     """
+    #     [WIP], make circuit object from non universal simple assembly quantum language
 
-        :param qcode:
-        :type qcode: str
-        :return: :py:class:`Circuit` object
-        """
-        # TODO(@refraction-ray): change to OpenQASM IO
-        lines = [s for s in qcode.split("\n") if s.strip()]
-        nqubits = int(lines[0])
-        c = cls(nqubits)
-        for l in lines[1:]:
-            ls = [s for s in l.split(" ") if s.strip()]
-            g = ls[0]
-            index = []
-            errloc = 0
-            for i, s in enumerate(ls[1:]):
-                try:
-                    si = int(s)
-                    index.append(si)
-                except ValueError:
-                    errloc = i + 1
-                    break
-            kwdict = {}
-            if errloc > 0:
-                for j, s in enumerate(ls[errloc::2]):
-                    kwdict[s] = float(ls[2 * j + 1 + errloc])
-            getattr(c, g)(*index, **kwdict)
-        return c
+    #     :param qcode:
+    #     :type qcode: str
+    #     :return: :py:class:`Circuit` object
+    #     """
+    #     # TODO(@refraction-ray): change to OpenQASM IO
+    #     lines = [s for s in qcode.split("\n") if s.strip()]
+    #     nqubits = int(lines[0])
+    #     c = cls(nqubits)
+    #     for l in lines[1:]:
+    #         ls = [s for s in l.split(" ") if s.strip()]
+    #         g = ls[0]
+    #         index = []
+    #         errloc = 0
+    #         for i, s in enumerate(ls[1:]):
+    #             try:
+    #                 si = int(s)
+    #                 index.append(si)
+    #             except ValueError:
+    #                 errloc = i + 1
+    #                 break
+    #         kwdict = {}
+    #         if errloc > 0:
+    #             for j, s in enumerate(ls[errloc::2]):
+    #                 kwdict[s] = float(ls[2 * j + 1 + errloc])
+    #         getattr(c, g)(*index, **kwdict)
+    #     return c
 
-    def to_qcode(self) -> str:
-        """
-        [WIP]
+    # def to_qcode(self) -> str:
+    #     """
+    #     [WIP]
 
-        :return: qcode str of corresponding circuit
-        :rtype: str
-        """
-        return self._qcode
+    #     :return: qcode str of corresponding circuit
+    #     :rtype: str
+    #     """
+    #     return self._qcode
 
     def apply_single_gate(self, gate: Gate, index: int) -> None:
         gate.get_edge(1) ^ self._front[index]  # pay attention on the rank index here
@@ -339,12 +340,12 @@ class Circuit:
             self._nodes.append(gate)
 
         self.state_tensor = None  # refresh the state cache
-        if name:
-            # if no name is specified, then the corresponding op wont be recorded in qcode
-            self._qcode += name + " "
-            for i in index:
-                self._qcode += str(i) + " "
-            self._qcode = self._qcode[:-1] + "\n"
+        # if name:
+        #     # if no name is specified, then the corresponding op wont be recorded in qcode
+        #     self._qcode += name + " "
+        #     for i in index:
+        #         self._qcode += str(i) + " "
+        #     self._qcode = self._qcode[:-1] + "\n"
 
     apply = apply_general_gate
 
@@ -393,10 +394,10 @@ class Circuit:
             self._qir.append(gate_dict)
             gate = gatef(**vars)
             self.apply_general_gate(gate, *index, name=name, split=split)  # type: ignore
-            self._qcode = self._qcode[:-1] + " "  # rip off the final "\n"
-            for k, v in vars.items():
-                self._qcode += k + " " + str(v) + " "
-            self._qcode = self._qcode[:-1] + "\n"
+            # self._qcode = self._qcode[:-1] + " "  # rip off the final "\n"
+            # for k, v in vars.items():
+            #     self._qcode += k + " " + str(v) + " "
+            # self._qcode = self._qcode[:-1] + "\n"
 
         return apply
 

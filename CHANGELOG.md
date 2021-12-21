@@ -12,6 +12,10 @@
 
 - add `quantum.mutual_information`, add support on mixed state for `quantum.reduced_density_matrix`
 
+### Changed
+
+- delete `qcode` IR for `Circuit`, use `qir` instead (breaking changes)
+
 ## 0.0.211216
 
 ### Added
