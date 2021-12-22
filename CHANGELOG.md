@@ -14,6 +14,8 @@
 
 - add `jvp` methods for tensorflow, jax, torch backends, and ensure pytree support in `jvp` and `vjp` interfaces for tensorflow and jax backends; also ensure complex support for `jvp` and `vjp`
 
+- add `jacfwd` for backend methods
+
 ### Changed
 
 - delete `qcode` IR for `Circuit`, use `qir` instead (breaking changes)

@@ -3,7 +3,7 @@ backend magic inherited from tensornetwork: abstract backend
 """
 
 import inspect
-from functools import reduce
+from functools import reduce, partial
 from operator import mul
 from typing import Any, Callable, Optional, Sequence, Tuple, Union
 
@@ -17,6 +17,7 @@ except ImportError:
 
     tnbackend = abstract_backend.AbstractBackend
 
+from ..utils import return_partial
 
 Tensor = Any
 
@@ -879,6 +880,66 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         raise NotImplementedError(
             "Backend '{}' has not implemented `vjp`.".format(self.name)
         )
+
+    def jacfwd(  # pylint: disable=unused-variable
+        self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+    ) -> Tensor:
+        """
+        compute the jacobian of ``f`` using forward mode AD
+
+        :param self: [description]
+        :type self: Any
+        :param f: [description]
+        :type f: Callable[..., Any]
+        :param argnums: [description], defaults to 0
+        :type argnums: Union[int, Sequence[int]], optional
+        :return: outer tuple for input args, inner tuple for outputs
+        :rtype: Tensor
+        """
+        # TODO(@refraction-ray): support pytree for input and output
+        jvp1 = return_partial(self.jvp, return_argnums=1)
+        if isinstance(argnums, int):
+            argnums = (argnums,)
+
+        def wrapper(*args: Any, **kws: Any) -> Any:
+            pf = partial(f, **kws)
+
+            jjs = []
+            for argnum in argnums:  # type: ignore
+                jj = self.vmap(jvp1, vectorized_argnums=2)(
+                    pf,
+                    args,
+                    tuple(
+                        [
+                            self.eye(int(arg.shape[0]))
+                            if i == argnum
+                            else self.zeros([int(arg.shape[0]), int(arg.shape[0])])
+                            for i, arg in enumerate(args)
+                        ]
+                    ),
+                    # tuple(
+                    #     [
+                    #         self.tree_map(lambda _: self.eye(int(_.shape[0])), arg)
+                    #         if i == argnum
+                    #         else self.tree_map(
+                    #             lambda _: self.zeros(
+                    #                 [int(_.shape[0]), int(_.shape[0])]
+                    #             ),
+                    #             arg,
+                    #         )
+                    #         for i, arg in enumerate(args)
+                    #     ]
+                    # ),
+                )
+                jj = self.tree_map(self.transpose, jj)
+                jjs.append(jj)
+            if len(jjs) == 1:
+                return jjs[0]
+            return tuple(jjs)
+
+        return wrapper
+
+    # TODO(@refraction): implement jacrev from vjp and benchmark the efficiency for tf and jax backend
 
     def jit(  # pylint: disable=unused-variable
         self: Any,
