@@ -903,7 +903,6 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
         def wrapper(*args: Any, **kws: Any) -> Any:
             pf = partial(f, **kws)
-
             jjs = []
             for argnum in argnums:  # type: ignore
                 jj = self.vmap(jvp1, vectorized_argnums=2)(
@@ -940,6 +939,58 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         return wrapper
 
     # TODO(@refraction): implement jacrev from vjp and benchmark the efficiency for tf and jax backend
+    def jacrev(  # pylint: disable=unused-variable
+        self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+    ) -> Tensor:
+        """
+        compute the jacobian of ``f`` using reverse mode AD
+
+        :param self: [description]
+        :type self: Any
+        :param f: [description]
+        :type f: Callable[..., Any]
+        :param argnums: [description], defaults to 0
+        :type argnums: Union[int, Sequence[int]], optional
+        :return: outer tuple for output, inner tuple for input args
+        :rtype: Tensor
+        """
+        # not that stable API
+        vjp1 = return_partial(self.vjp, return_argnums=1)
+        if isinstance(argnums, int):
+            argnums = (argnums,)
+
+        def wrapper(*args: Any, **kws: Any) -> Any:
+            pf = partial(f, **kws)
+            values = f(*args, **kws)  # TODO(@refraction-ray): any way to save this?
+            collect = tuple
+            if isinstance(values, list):
+                values = tuple(values)
+                collect = list  # type: ignore
+            elif not isinstance(values, tuple):
+                values = tuple([values])
+                collect = lambda x: x[0]  # type: ignore
+            jjs = []
+            for k in range(len(values)):  # type: ignore
+                jj = self.vmap(vjp1, vectorized_argnums=2)(
+                    pf,
+                    args,
+                    collect(
+                        [
+                            self.eye(int(v.shape[0]))
+                            if i == k
+                            else self.zeros([int(v.shape[0]), int(v.shape[0])])
+                            for i, v in enumerate(values)
+                        ]
+                    ),
+                )
+                if len(jj) == 1:
+                    jj = jj[0]
+                jjs.append(jj)
+            if len(jjs) == 1:
+                return jjs[0]
+            return tuple(jjs)
+
+        return wrapper
 
     def jit(  # pylint: disable=unused-variable
         self: Any,

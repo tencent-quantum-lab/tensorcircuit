@@ -387,37 +387,45 @@ def test_jvp_pytree(backend):
 
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
-def test_jacfwd(backend):
+@pytest.mark.parametrize("mode", ["jacfwd", "jacrev"])
+def test_jac(backend, mode):
+    backend_jac = getattr(tc.backend, mode)
+
     def f(x):
         return x ** 2
 
     x = tc.backend.ones([3])
-    jacf = tc.backend.jacfwd(f)
+    jacf = backend_jac(f)
     np.testing.assert_allclose(jacf(x), 2 * np.eye(3), atol=1e-5)
 
     def f2(x):
         return x ** 2, x
 
-    jacf2 = tc.backend.jacfwd(f2)
+    jacf2 = backend_jac(f2)
     np.testing.assert_allclose(jacf2(x)[1], np.eye(3), atol=1e-5)
     np.testing.assert_allclose(jacf2(x)[0], 2 * np.eye(3), atol=1e-5)
 
     def f3(x, y):
         return x + y ** 2
 
-    jacf3 = tc.backend.jacfwd(f3, argnums=(0, 1))
+    jacf3 = backend_jac(f3, argnums=(0, 1))
     np.testing.assert_allclose(jacf3(x, x)[1], 2 * np.eye(3), atol=1e-5)
 
     def f4(x, y):
         return x ** 2, y
 
-    jacf4 = tc.backend.jacfwd(f4, argnums=(0, 1))
+    # note the subtle difference of two tuples order in jacrev and jacfwd for current API
+    # the value happen to be the same here, though
+    jacf4 = backend_jac(f4, argnums=(0, 1))
     np.testing.assert_allclose(jacf4(x, x)[1][1], np.eye(3), atol=1e-5)
     np.testing.assert_allclose(jacf4(x, x)[0][1], np.zeros([3, 3]), atol=1e-5)
 
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
-def test_jacfwd_tall(backend):
+@pytest.mark.parametrize("mode", ["jacfwd", "jacrev"])
+def test_jac_tall(backend, mode):
+    backend_jac = getattr(tc.backend, mode)
+
     h = tc.backend.ones([5, 3])
 
     def f(x):
@@ -425,7 +433,7 @@ def test_jacfwd_tall(backend):
         return tc.backend.reshape(h @ x, [-1])
 
     x = tc.backend.ones([3])
-    jacf = tc.backend.jacfwd(f)
+    jacf = backend_jac(f)
     np.testing.assert_allclose(jacf(x), np.ones([5, 3]), atol=1e-5)
 
 

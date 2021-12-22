@@ -14,7 +14,7 @@
 
 - add `jvp` methods for tensorflow, jax, torch backends, and ensure pytree support in `jvp` and `vjp` interfaces for tensorflow and jax backends; also ensure complex support for `jvp` and `vjp`
 
-- add `jacfwd` for backend methods
+- add `jacfwd` and `jacrev` for backend methods (experimental API, may have bugs and subject to changes)
 
 ### Changed
 
