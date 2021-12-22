@@ -306,3 +306,11 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
         v: Union[Tensor, Sequence[Tensor]],
     ) -> Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]:
         raise NotImplementedError("numpy backend doesn't support AD")
+
+    def jvp(
+        self,
+        f: Callable[..., Any],
+        inputs: Union[Tensor, Sequence[Tensor]],
+        v: Union[Tensor, Sequence[Tensor]],
+    ) -> Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]:
+        raise NotImplementedError("numpy backend doesn't support AD")

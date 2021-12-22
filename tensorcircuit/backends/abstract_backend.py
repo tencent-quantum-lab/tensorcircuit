@@ -831,6 +831,29 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `value_and_grad`.".format(self.name)
         )
 
+    def jvp(  # pylint: disable=unused-variable
+        self: Any,
+        f: Callable[..., Any],
+        inputs: Union[Tensor, Sequence[Tensor]],
+        v: Union[Tensor, Sequence[Tensor]],
+    ) -> Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]:
+        """
+        Function that computes a (forward-mode) Jacobian-vector product of ``f``.
+        Strictly speaking, this function is value_and_jvp
+
+        :param f: The function to compute jvp
+        :type f: Callable[..., Any]
+        :param inputs: primals
+        :type inputs: Union[Tensor, Sequence[Tensor]]
+        :param v: tangents
+        :type v: Union[Tensor, Sequence[Tensor]]
+        :return: (``f(*inputs)``, jvp_tensor), where jvp_tensor is the same shape as output of ``f``
+        :rtype: Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `jvp`.".format(self.name)
+        )
+
     def vjp(  # pylint: disable=unused-variable
         self: Any,
         f: Callable[..., Any],

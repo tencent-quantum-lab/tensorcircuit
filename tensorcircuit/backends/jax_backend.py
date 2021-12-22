@@ -449,6 +449,19 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     ) -> Callable[..., Tuple[Any, Any]]:
         return libjax.value_and_grad(f, argnums=argnums, has_aux=has_aux)  # type: ignore
 
+    def jvp(
+        self,
+        f: Callable[..., Any],
+        inputs: Union[Tensor, Sequence[Tensor]],
+        v: Union[Tensor, Sequence[Tensor]],
+    ) -> Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]:
+        if not isinstance(inputs, (tuple, list)):
+            inputs = (inputs,)
+        if not isinstance(v, (tuple, list)):
+            v = (v,)
+        value, jvpv = libjax.jvp(f, inputs, v)
+        return value, jvpv
+
     def vjp(
         self,
         f: Callable[..., Any],

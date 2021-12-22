@@ -296,6 +296,96 @@ def test_vjp(backend):
     np.testing.assert_allclose(g[0], 4 * np.ones([2]), atol=1e-5)
 
 
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])
+def test_vjp_complex(backend):
+    def f(x):
+        return tc.backend.conj(x)
+
+    inputs = tc.backend.ones([1]) + 1.0j * tc.backend.ones([1])
+    v = tc.backend.ones([1], dtype="complex64")
+    v, g = tc.backend.vjp(f, inputs, v)
+    np.testing.assert_allclose(tc.backend.numpy(g), np.ones([1]), atol=1e-5)
+
+    def f2(x):
+        return x ** 2
+
+    inputs = tc.backend.ones([1]) + 1.0j * tc.backend.ones([1])
+    v = tc.backend.ones([1], dtype="complex64")  # + 1.0j * tc.backend.ones([1])
+    v, g = tc.backend.vjp(f2, inputs, v)
+    # note how vjp definition on complex function is different in jax backend
+    if tc.backend.name == "jax":
+        np.testing.assert_allclose(tc.backend.numpy(g), 2 + 2j, atol=1e-5)
+    else:
+        np.testing.assert_allclose(tc.backend.numpy(g), 2 - 2j, atol=1e-5)
+
+
+# TODO(@refraction-ray): consistent and unified pytree utils for pytorch backend?
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_vjp_pytree(backend):
+    def f3(d):
+        return d["a"] + d["b"], d["a"]
+
+    inputs = {"a": tc.backend.ones([2]), "b": tc.backend.ones([1])}
+    v = (tc.backend.ones([2]), tc.backend.zeros([2]))
+    v, g = tc.backend.vjp(f3, inputs, v)
+    np.testing.assert_allclose(v[0], 2 * np.ones([2]), atol=1e-5)
+    np.testing.assert_allclose(g["a"], np.ones([2]), atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])
+def test_jvp(backend):
+    def f(x):
+        return x ** 2
+
+    inputs = tc.backend.ones([2, 2])
+    v, g = tc.backend.jvp(f, inputs, inputs)
+    np.testing.assert_allclose(v, inputs, atol=1e-5)
+    np.testing.assert_allclose(g, 2 * inputs, atol=1e-5)
+
+    def f2(x, y):
+        return x + y, x - y
+
+    inputs = [tc.backend.ones([2]), tc.backend.ones([2])]
+    v = [2.0 * t for t in inputs]
+    v, g = tc.backend.jvp(f2, inputs, v)
+    np.testing.assert_allclose(v[1], np.zeros([2]), atol=1e-5)
+    np.testing.assert_allclose(g[0], 4 * np.ones([2]), atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])
+def test_jvp_complex(backend):
+    def f(x):
+        return tc.backend.conj(x)
+
+    inputs = tc.backend.ones([1]) + 1.0j * tc.backend.ones([1])
+    v = tc.backend.ones([1], dtype="complex64")
+    v, g = tc.backend.jvp(f, inputs, v)
+    # numpy auto numpy doesn't work for torch conjugate tensor
+    np.testing.assert_allclose(tc.backend.numpy(g), np.ones([1]), atol=1e-5)
+
+    def f2(x):
+        return x ** 2
+
+    inputs = tc.backend.ones([1]) + 1.0j * tc.backend.ones([1])
+    v = tc.backend.ones([1]) + 1.0j * tc.backend.ones([1])
+    v, g = tc.backend.jvp(f2, inputs, v)
+    np.testing.assert_allclose(tc.backend.numpy(g), 4.0j, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_jvp_pytree(backend):
+    def f3(d):
+        return d["a"] + d["b"], d["a"]
+
+    inputs = {"a": tc.backend.ones([2]), "b": tc.backend.ones([1])}
+    v = (tc.backend.ones([2]), tc.backend.zeros([2]))
+    v, g = tc.backend.vjp(f3, inputs, v)
+    np.testing.assert_allclose(v[0], 2 * np.ones([2]), atol=1e-5)
+    np.testing.assert_allclose(g["a"], np.ones([2]), atol=1e-5)
+
+
 def test_jax_svd(jaxb, highp):
     def l(A):
         u, _, v, _ = tc.backend.svd(A)
@@ -488,7 +578,7 @@ def test_optimizers(backend):
         params = opt.update(grads, params)
         print(loss)
 
-    assert loss < -0.9
+    assert loss < -0.8
 
     def f2(params, n):
         c = tc.Circuit(n)
@@ -506,4 +596,4 @@ def test_optimizers(backend):
         params = opt.update(grads, params)
         print(loss)
 
-    assert loss < -0.9
+    assert loss < -0.8

@@ -12,9 +12,13 @@
 
 - add `quantum.mutual_information`, add support on mixed state for `quantum.reduced_density_matrix`
 
+- add `jvp` methods for tensorflow, jax, torch backends, and ensure pytree support in `jvp` and `vjp` interfaces for tensorflow and jax backends; also ensure complex support for `jvp` and `vjp`
+
 ### Changed
 
 - delete `qcode` IR for `Circuit`, use `qir` instead (breaking changes)
+
+- basic circuit running is ok on pytorch backend with some complex support fixing
 
 ## 0.0.211216
 

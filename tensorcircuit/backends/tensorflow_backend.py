@@ -385,6 +385,22 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
 
         return wrapper
 
+    def jvp(
+        self,
+        f: Callable[..., Any],
+        inputs: Union[Tensor, Sequence[Tensor]],
+        v: Union[Tensor, Sequence[Tensor]],
+    ) -> Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]:
+        if not (isinstance(inputs, list) or isinstance(inputs, tuple)):
+            # one input tensor
+            inputs = [inputs]
+        if not (isinstance(v, list) or isinstance(v, tuple)):
+            v = [v]
+        with tf.autodiff.ForwardAccumulator(inputs, v) as t:
+            y = f(*inputs)
+        g = t.jvp(y)
+        return y, g
+
     def vjp(
         self,
         f: Callable[..., Any],

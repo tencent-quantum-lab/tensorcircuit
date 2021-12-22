@@ -32,6 +32,11 @@ logger = logging.getLogger(__name__)
 # To be added once pytorch backend is ready
 
 
+def _conj_torch(self: Any, tensor: Tensor) -> Tensor:
+    t = torchlib.conj(tensor)
+    return t.resolve_conj()  # any side effect?
+
+
 def _sum_torch(
     self: Any,
     tensor: Tensor,
@@ -44,6 +49,7 @@ def _sum_torch(
 
 
 tensornetwork.backends.pytorch.pytorch_backend.PyTorchBackend.sum = _sum_torch
+tensornetwork.backends.pytorch.pytorch_backend.PyTorchBackend.conj = _conj_torch
 
 
 class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
@@ -104,12 +110,16 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         return torchlib.kron(a, b)
 
     def numpy(self, a: Tensor) -> Tensor:
+        if a.is_conj():
+            return a.resolve_conj().numpy()
         return a.numpy()
 
     def i(self, dtype: Any = None) -> Tensor:
-        raise NotImplementedError(
-            "pytorch backend doesn't support imaginary numbers at all!"
-        )
+        if not dtype:
+            dtype = getattr(torchlib, dtypestr)  # type: ignore
+        if isinstance(dtype, str):
+            dtype = getattr(torchlib, dtype)
+        return torchlib.tensor(1j, dtype=dtype)
 
     def real(self, a: Tensor) -> Tensor:
         return a
@@ -251,6 +261,22 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         if isinstance(v, list):
             v = tuple(v)
         return torchlib.autograd.functional.vjp(f, inputs, v)  # type: ignore
+
+    def jvp(
+        self,
+        f: Callable[..., Any],
+        inputs: Union[Tensor, Sequence[Tensor]],
+        v: Union[Tensor, Sequence[Tensor]],
+    ) -> Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]:
+        if isinstance(inputs, list):
+            inputs = tuple(inputs)
+        if isinstance(v, list):
+            v = tuple(v)
+        # for both tf and torch
+        # behind the scene: https://j-towns.github.io/2017/06/12/A-new-trick.html
+        # to be investigate whether the overhead issue remains as in
+        # https://github.com/renmengye/tensorflow-forward-ad/issues/2
+        return torchlib.autograd.functional.jvp(f, inputs, v)  # type: ignore
 
     def vmap(
         self,
