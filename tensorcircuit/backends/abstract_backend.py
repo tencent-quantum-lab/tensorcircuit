@@ -5,7 +5,7 @@ backend magic inherited from tensornetwork: abstract backend
 import inspect
 from functools import reduce, partial
 from operator import mul
-from typing import Any, Callable, Optional, Sequence, Tuple, Union
+from typing import Any, Callable, List, Optional, Sequence, Tuple, Union
 
 try:  # old version tn compatiblity
     from tensornetwork.backends import base_backend
@@ -901,6 +901,13 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         if isinstance(argnums, int):
             argnums = (argnums,)
 
+        def _transform(t: Tensor, input_shape: List[int]) -> Tensor:
+            output_shape = list(self.shape_tuple(t))[1:]
+            t = self.reshape(t, [t.shape[0], -1])
+            t = self.transpose(t)
+            t = self.reshape(t, output_shape + input_shape)
+            return t
+
         def wrapper(*args: Any, **kws: Any) -> Any:
             pf = partial(f, **kws)
             jjs = []
@@ -910,27 +917,25 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
                     args,
                     tuple(
                         [
-                            self.eye(int(arg.shape[0]))
+                            self.reshape(
+                                self.eye(self.sizen(arg)),
+                                [-1] + list(self.shape_tuple(arg)),
+                            )
                             if i == argnum
-                            else self.zeros([int(arg.shape[0]), int(arg.shape[0])])
+                            else self.reshape(
+                                self.zeros([self.sizen(arg), self.sizen(arg)]),
+                                [-1] + list(self.shape_tuple(arg)),
+                            )
                             for i, arg in enumerate(args)
                         ]
                     ),
-                    # tuple(
-                    #     [
-                    #         self.tree_map(lambda _: self.eye(int(_.shape[0])), arg)
-                    #         if i == argnum
-                    #         else self.tree_map(
-                    #             lambda _: self.zeros(
-                    #                 [int(_.shape[0]), int(_.shape[0])]
-                    #             ),
-                    #             arg,
-                    #         )
-                    #         for i, arg in enumerate(args)
-                    #     ]
-                    # ),
                 )
-                jj = self.tree_map(self.transpose, jj)
+                jj = self.tree_map(
+                    partial(
+                        _transform, input_shape=list(self.shape_tuple(args[argnum]))
+                    ),
+                    jj,
+                )
                 jjs.append(jj)
             if len(jjs) == 1:
                 return jjs[0]
@@ -938,7 +943,6 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
         return wrapper
 
-    # TODO(@refraction): implement jacrev from vjp and benchmark the efficiency for tf and jax backend
     def jacrev(  # pylint: disable=unused-variable
         self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Tensor:
@@ -976,12 +980,26 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
                     args,
                     collect(
                         [
-                            self.eye(int(v.shape[0]))
+                            self.reshape(
+                                self.eye(self.sizen(v)),
+                                [-1] + list(self.shape_tuple(v)),
+                            )
                             if i == k
-                            else self.zeros([int(v.shape[0]), int(v.shape[0])])
+                            else self.reshape(
+                                self.zeros([self.sizen(v), self.sizen(v)]),
+                                [-1] + list(self.shape_tuple(v)),
+                            )
                             for i, v in enumerate(values)
                         ]
                     ),
+                )
+                jj = self.tree_map(
+                    lambda _: self.reshape(
+                        _,
+                        list(self.shape_tuple(values[k]))
+                        + list(self.shape_tuple(_))[1:],
+                    ),
+                    jj,
                 )
                 if len(jj) == 1:
                     jj = jj[0]
@@ -991,6 +1009,8 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             return tuple(jjs)
 
         return wrapper
+
+    jacbwd = jacrev  # pylint: disable=unused-variable
 
     def jit(  # pylint: disable=unused-variable
         self: Any,

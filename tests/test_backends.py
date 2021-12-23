@@ -389,6 +389,7 @@ def test_jvp_pytree(backend):
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 @pytest.mark.parametrize("mode", ["jacfwd", "jacrev"])
 def test_jac(backend, mode):
+    # make no sense for torch backend when you have no real vmap interface
     backend_jac = getattr(tc.backend, mode)
 
     def f(x):
@@ -423,6 +424,26 @@ def test_jac(backend, mode):
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 @pytest.mark.parametrize("mode", ["jacfwd", "jacrev"])
+def test_jac_md_input(backend, mode):
+    backend_jac = getattr(tc.backend, mode)
+
+    def f(x):
+        return x ** 2
+
+    x = tc.backend.ones([2, 3])
+    jacf = backend_jac(f)
+    np.testing.assert_allclose(jacf(x).shape, [2, 3, 2, 3], atol=1e-5)
+
+    def f2(x):
+        return tc.backend.sum(x, axis=0)
+
+    x = tc.backend.ones([2, 3])
+    jacf2 = backend_jac(f2)
+    np.testing.assert_allclose(jacf2(x).shape, [3, 2, 3], atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+@pytest.mark.parametrize("mode", ["jacfwd", "jacrev"])
 def test_jac_tall(backend, mode):
     backend_jac = getattr(tc.backend, mode)
 
@@ -435,9 +456,6 @@ def test_jac_tall(backend, mode):
     x = tc.backend.ones([3])
     jacf = backend_jac(f)
     np.testing.assert_allclose(jacf(x), np.ones([5, 3]), atol=1e-5)
-
-
-# TODO(@refraction-ray): add jac tests for high dimensional inputs
 
 
 def test_jax_svd(jaxb, highp):
