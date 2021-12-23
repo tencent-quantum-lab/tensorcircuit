@@ -437,6 +437,9 @@ def test_jac_tall(backend, mode):
     np.testing.assert_allclose(jacf(x), np.ones([5, 3]), atol=1e-5)
 
 
+# TODO(@refraction-ray): add jac tests for high dimensional inputs
+
+
 def test_jax_svd(jaxb, highp):
     def l(A):
         u, _, v, _ = tc.backend.svd(A)

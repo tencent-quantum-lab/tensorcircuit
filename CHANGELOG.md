@@ -16,6 +16,10 @@
 
 - add `jacfwd` and `jacrev` for backend methods (experimental API, may have bugs and subject to changes)
 
+### Fixed
+
+- fix `matmul` bug on tensornetwork tensorflow backend
+
 ### Changed
 
 - delete `qcode` IR for `Circuit`, use `qir` instead (breaking changes)

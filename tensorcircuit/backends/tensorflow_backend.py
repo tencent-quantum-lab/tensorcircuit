@@ -61,6 +61,13 @@ def _outer_product_tf(self: Any, tensor1: Tensor, tensor2: Tensor) -> Tensor:
     return tf.tensordot(tensor1, tensor2, 0)
 
 
+def _matmul_tf(self: Any, tensor1: Tensor, tensor2: Tensor) -> Tensor:
+    if (len(tensor1.shape) <= 1) or (len(tensor2.shape) <= 1):
+        raise ValueError("inputs to `matmul` have to be a tensors of order > 1,")
+
+    return tf.matmul(tensor1, tensor2)
+
+
 def _random_choice_tf(
     g: RGenerator,
     a: Union[int, Sequence[int], Tensor],
@@ -105,6 +112,9 @@ tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.tensordot
 )
 tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.outer_product = (
     _outer_product_tf
+)
+tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.matmul = (
+    _matmul_tf
 )
 
 
