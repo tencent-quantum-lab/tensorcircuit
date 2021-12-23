@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.0.211223
+
 ### Added
 
 - add `quantum.heisenberg_hamiltonian` for hamiltonian generation shortcut
