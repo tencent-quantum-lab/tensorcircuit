@@ -8,7 +8,7 @@ from typing import Any, Callable, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import tensornetwork
-from scipy.linalg import expm
+from scipy.linalg import expm, solve
 from scipy.special import softmax
 from scipy.sparse import coo_matrix, issparse
 from tensornetwork.backends.numpy import numpy_backend
@@ -135,6 +135,11 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
         if isinstance(dtype, str):
             return a.astype(getattr(np, dtype))
         return a.astype(dtype)
+
+    def solve(self, A: Tensor, b: Tensor, assume_a: str = "gen") -> Tensor:
+        # gen, sym, her, pos
+        # https://stackoverflow.com/questions/44672029/difference-between-numpy-linalg-solve-and-numpy-linalg-lu-solve/44710451
+        return solve(A, b, assume_a)
 
     def set_random_state(
         self, seed: Optional[int] = None, get_only: bool = False

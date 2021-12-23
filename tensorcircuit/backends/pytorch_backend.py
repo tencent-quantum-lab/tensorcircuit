@@ -170,6 +170,9 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
             return a.type(getattr(torchlib, dtype))
         return a.type(dtype)
 
+    def solve(self, A: Tensor, b: Tensor, **kws: Any) -> Tensor:
+        return torchlib.linalg.solve(A, b)
+
     def cond(
         self,
         pred: bool,

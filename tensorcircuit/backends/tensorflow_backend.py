@@ -238,6 +238,17 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
             return tf.cast(a, dtype=getattr(tf, dtype))
         return tf.cast(a, dtype=dtype)
 
+    def solve(self, A: Tensor, b: Tensor, **kws: Any) -> Tensor:
+        if b.shape[-1] == A.shape[-1]:
+            b = b[..., tf.newaxis]
+            vector = True
+        else:
+            vector = False
+        x = tf.linalg.solve(A, b)
+        if vector:
+            return self.reshape(x, x.shape[:-1])
+        return x
+
     def set_random_state(
         self, seed: Optional[Union[int, RGenerator]] = None, get_only: bool = False
     ) -> Any:

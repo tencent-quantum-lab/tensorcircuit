@@ -43,6 +43,7 @@ jobs:
           python vqnhe_h6.py
           python qaoa_dqas.py
           python mcnoise_boost.py
+          python quantumng.py
       #   python GHZ_DQAS.py
       #   python QEM_DQAS.py
       - name: setup build

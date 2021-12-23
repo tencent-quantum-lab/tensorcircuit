@@ -251,6 +251,9 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
             return True
         return False
 
+    def solve(self, A: Tensor, b: Tensor, assume_a: str = "gen") -> Tensor:
+        return jsp.linalg.solve(A, b, assume_a)
+
     def set_random_state(
         self, seed: Optional[Union[int, PRNGKeyArray]] = None, get_only: bool = False
     ) -> Any:

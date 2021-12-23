@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- add `solve` method on backends to solve linear equations
+
 ## 0.0.211223
 
 ### Added

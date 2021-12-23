@@ -610,6 +610,18 @@ def test_grad_has_aux(backend):
     np.testing.assert_allclose(gs(tc.backend.ones([]))[0], 2.0, atol=1e-5)
 
 
+@pytest.mark.parametrize("backend", [lf("npb"), lf("jaxb"), lf("tfb")])
+def test_solve(backend):
+    A = np.array([[2, 1, 0], [1, 2, 0], [0, 0, 1]], dtype=np.float32)
+    A = tc.backend.convert_to_tensor(A)
+    x = np.ones([3, 1], dtype=np.float32)
+    x = tc.backend.convert_to_tensor(x)
+    b = (A @ x)[:, 0]
+    print(A.shape, b.shape)
+    xp = tc.backend.solve(A, b, assume_a="her")
+    np.testing.assert_allclose(xp, x[:, 0], atol=1e-5)
+
+
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_optimizers(backend):
     if tc.backend.name == "jax":

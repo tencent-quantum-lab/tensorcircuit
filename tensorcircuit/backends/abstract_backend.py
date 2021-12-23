@@ -400,6 +400,23 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `cast`.".format(self.name)
         )
 
+    def solve(  # pylint: disable=unused-variable
+        self: Any, A: Tensor, b: Tensor, **kws: Any
+    ) -> Tensor:
+        """
+        Solve linear system Ax=b and return x
+
+        :param A: [description]
+        :type A: Tensor
+        :param b: [description]
+        :type b: Tensor
+        :return: [description]
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `solve`.".format(self.name)
+        )
+
     def tree_map(  # pylint: disable=unused-variable
         self: Any, f: Callable[..., Any], *pytrees: Any
     ) -> Any:
@@ -918,12 +935,14 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
                     tuple(
                         [
                             self.reshape(
-                                self.eye(self.sizen(arg)),
+                                self.eye(self.sizen(arg), dtype=arg.dtype),
                                 [-1] + list(self.shape_tuple(arg)),
                             )
                             if i == argnum
                             else self.reshape(
-                                self.zeros([self.sizen(arg), self.sizen(arg)]),
+                                self.zeros(
+                                    [self.sizen(arg), self.sizen(arg)], dtype=arg.dtype
+                                ),
                                 [-1] + list(self.shape_tuple(arg)),
                             )
                             for i, arg in enumerate(args)
@@ -981,12 +1000,14 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
                     collect(
                         [
                             self.reshape(
-                                self.eye(self.sizen(v)),
+                                self.eye(self.sizen(v), dtype=v.dtype),
                                 [-1] + list(self.shape_tuple(v)),
                             )
                             if i == k
                             else self.reshape(
-                                self.zeros([self.sizen(v), self.sizen(v)]),
+                                self.zeros(
+                                    [self.sizen(v), self.sizen(v)], dtype=v.dtype
+                                ),
                                 [-1] + list(self.shape_tuple(v)),
                             )
                             for i, v in enumerate(values)
