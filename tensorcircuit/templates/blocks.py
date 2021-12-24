@@ -83,14 +83,25 @@ def QAOA_block(
     return c
 
 
-def example_block(c: Circuit, param: Tensor, nlayers: int = 2) -> Circuit:
+def example_block(
+    c: Circuit, param: Tensor, nlayers: int = 2, is_split: bool = False
+) -> Circuit:
     # used for test and demonstrations
+    if is_split:
+        split_conf = {
+            "max_singular_values": 2,
+            "fixed_choice": 1,
+        }
+    else:
+        split_conf = None  # type: ignore
     n = c._nqubits
     for i in range(n):
         c.H(i)
     for j in range(nlayers):
         for i in range(n - 1):
-            c.exp1(i, i + 1, unitary=G._zz_matrix, theta=param[2 * j, i])
+            c.exp1(
+                i, i + 1, unitary=G._zz_matrix, theta=param[2 * j, i], split=split_conf
+            )
         for i in range(n):
             c.rx(i, theta=param[2 * j + 1, i])
     return c

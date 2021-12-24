@@ -13,20 +13,16 @@ n, nlayers = 8, 3
 g = tc.templates.graphs.Line1D(n)
 
 
-def get_circuit(params):
+def state(params):
     params = tc.backend.reshape(params, [2 * nlayers, n])
     c = tc.Circuit(n)
     c = tc.templates.blocks.example_block(c, params, nlayers=nlayers)
-    return c
-
-
-def state(params):
-    c = get_circuit(params)
     return c.state()
 
 
 def energy(params):
-    c = get_circuit(params)
+    s = state(params)
+    c = tc.Circuit(n, inputs=s)
     loss = tc.templates.measurements.heisenberg_measurements(
         c, g, hzz=1, hxx=0, hyy=0, hx=-1
     )
