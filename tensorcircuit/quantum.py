@@ -1080,6 +1080,28 @@ def renyi_free_energy(
     return backend.real(energy - s / beta)
 
 
+def taylorlnm(x: Tensor, k: int) -> Tensor:
+    dtype = x.dtype
+    s = x.shape[-1]
+    y = 1 / k * (-1) ** (k + 1) * backend.eye(s, dtype=dtype)
+    for i in reversed(range(k)):
+        y = y @ x
+        if i > 0:
+            y += 1 / (i) * (-1) ** (i + 1) * backend.eye(s, dtype=dtype)
+    return y
+
+
+def truncated_free_energy(
+    rho: Tensor, h: Tensor, beta: float = 1, k: int = 2
+) -> Tensor:
+    dtype = rho.dtype
+    s = rho.shape[-1]
+    tyexpand = rho @ taylorlnm(rho - backend.eye(s, dtype=dtype), k - 1)
+    renyi = -backend.real(backend.trace(tyexpand))
+    energy = backend.real(trace_product(rho, h))
+    return energy - renyi / beta
+
+
 @partial(op2tensor, op_argnums=(0, 1))
 def trace_distance(rho: Tensor, rho0: Tensor, eps: float = 1e-12) -> Tensor:
     d2 = rho - rho0
