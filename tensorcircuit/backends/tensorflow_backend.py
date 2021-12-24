@@ -568,6 +568,7 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         f: Callable[..., Any],
         argnums: Union[int, Sequence[int]] = 0,
         vectorized_argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
         # note how tf only works in this order, due to the bug reported as:
         # https://github.com/google/TensorNetwork/issues/940
@@ -583,7 +584,10 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
                     x = [args[i] for i in argnums]
                 tape.watch(x)
                 vs = vf(*args, **kws)
-            grad = tape.gradient(vs, x)
+            if has_aux:
+                grad = tape.gradient(vs[0], x)
+            else:
+                grad = tape.gradient(vs, x)
             return vs, grad
 
         return wrapper

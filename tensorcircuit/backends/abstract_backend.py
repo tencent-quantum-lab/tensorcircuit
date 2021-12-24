@@ -1113,6 +1113,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         f: Callable[..., Any],
         argnums: Union[int, Sequence[int]] = 0,
         vectorized_argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
         """
         Return vvag function of ``f``. the inputs for ``f`` is (args[0], args[1], args[2], ...),

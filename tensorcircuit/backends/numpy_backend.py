@@ -305,6 +305,7 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
         f: Callable[..., Any],
         argnums: Union[int, Sequence[int]] = 0,
         vectorized_argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
         raise NotImplementedError("numpy backend doesn't support AD")
 

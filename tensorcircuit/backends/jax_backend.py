@@ -520,6 +520,7 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         f: Callable[..., Any],
         argnums: Union[int, Sequence[int]] = 0,
         vectorized_argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
         if isinstance(vectorized_argnums, int):
             vectorized_argnums = (vectorized_argnums,)
@@ -527,7 +528,7 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         def wrapper(
             *args: Any, **kws: Any
         ) -> Tuple[Tensor, Union[Tensor, Tuple[Tensor, ...]]]:
-            jf = self.value_and_grad(f, argnums=argnums)
+            jf = self.value_and_grad(f, argnums=argnums, has_aux=has_aux)
             in_axes = [0 if i in vectorized_argnums else None for i in range(len(args))]  # type: ignore
             jf = libjax.vmap(jf, in_axes, 0)
             # jf = self.jit(jf)

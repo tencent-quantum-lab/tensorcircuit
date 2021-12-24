@@ -344,9 +344,10 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         f: Callable[..., Any],
         argnums: Union[int, Sequence[int]] = 0,
         vectorized_argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
         # [WIP], not a consistent impl compared to tf and jax backend, but pytorch backend is not fully supported anyway
-        f = self.value_and_grad(f, argnums=argnums)
+        f = self.value_and_grad(f, argnums=argnums, has_aux=has_aux)
         f = self.vmap(f, vectorized_argnums=vectorized_argnums)
         # f = self.jit(f)
         return f

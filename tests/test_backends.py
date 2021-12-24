@@ -464,6 +464,17 @@ def test_jac_tall(backend, mode):
     np.testing.assert_allclose(jacf(x), np.ones([5, 3]), atol=1e-5)
 
 
+@pytest.mark.parametrize("backend", [lf("jaxb"), lf("tfb")])
+def test_vvag_has_aux(backend):
+    def f(x):
+        y = tc.backend.sum(x)
+        return tc.backend.real(y ** 2), y
+
+    fvvag = tc.backend.vvag(f, has_aux=True)
+    (v0, v1), g0 = fvvag(tc.backend.ones([10, 2]))
+    np.testing.assert_allclose(v1, 2 * tc.backend.ones([10]))
+
+
 def test_jax_svd(jaxb, highp):
     def l(A):
         u, _, v, _ = tc.backend.svd(A)
