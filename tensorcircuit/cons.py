@@ -57,7 +57,9 @@ contractor = tn.contractors.auto
 # these above lines are just for mypy, it is not very good at evaluating runtime object
 
 
-def set_tensornetwork_backend(backend: Optional[str] = None) -> None:
+def set_tensornetwork_backend(
+    backend: Optional[str] = None, set_global: bool = True
+) -> Any:
     """
     set the runtime backend of tensorcircuit
 
@@ -68,14 +70,15 @@ def set_tensornetwork_backend(backend: Optional[str] = None) -> None:
     if not backend:
         backend = get_default_backend()
     backend_obj = get_backend(backend)
-    for module in modules:
-        if module in sys.modules:
-            setattr(sys.modules[module], "backend", backend_obj)
-    tn.set_default_backend(backend)
+    if set_global:
+        for module in modules:
+            if module in sys.modules:
+                setattr(sys.modules[module], "backend", backend_obj)
+        tn.set_default_backend(backend)
+    return backend_obj
 
 
 set_backend = set_tensornetwork_backend
-
 
 set_tensornetwork_backend()
 
@@ -96,14 +99,14 @@ def set_function_backend(backend: Optional[str] = None) -> Callable[..., Any]:
 
 
 @contextmanager
-def runtime_backend(backend: Optional[str] = None) -> Iterator[None]:
+def runtime_backend(backend: Optional[str] = None) -> Iterator[Any]:
     old_backend = getattr(thismodule, "backend").name
-    set_backend(backend)
-    yield
+    K = set_backend(backend)
+    yield K
     set_backend(old_backend)
 
 
-def set_dtype(dtype: Optional[str] = None) -> None:
+def set_dtype(dtype: Optional[str] = None, set_global: bool = True) -> Tuple[str, str]:
     """
     set the runtime numerical dtype of tensors
 
@@ -123,17 +126,21 @@ def set_dtype(dtype: Optional[str] = None) -> None:
             config.update("jax_enable_x64", True)
         elif dtype == "complex64":
             config.update("jax_enable_x64", False)
+    if set_global:
+        npdtype = getattr(np, dtype)
+        for module in modules:
+            if module in sys.modules:
+                setattr(sys.modules[module], "dtypestr", dtype)
+                setattr(sys.modules[module], "rdtypestr", rdtype)
+                setattr(sys.modules[module], "npdtype", npdtype)
 
-    npdtype = getattr(np, dtype)
-    for module in modules:
-        if module in sys.modules:
-            setattr(sys.modules[module], "dtypestr", dtype)
-            setattr(sys.modules[module], "rdtypestr", rdtype)
-            setattr(sys.modules[module], "npdtype", npdtype)
-    from .gates import meta_gate
+        from .gates import meta_gate
 
-    meta_gate()
+        meta_gate()
+    return dtype, rdtype
 
+
+get_dtype = partial(set_dtype, set_global=False)
 
 set_dtype()
 
@@ -154,10 +161,10 @@ def set_function_dtype(dtype: Optional[str] = None) -> Callable[..., Any]:
 
 
 @contextmanager
-def runtime_dtype(dtype: Optional[str] = None) -> Iterator[None]:
+def runtime_dtype(dtype: Optional[str] = None) -> Iterator[Tuple[str, str]]:
     old_dtype = getattr(thismodule, "dtypestr")
-    set_dtype(dtype)
-    yield
+    dtuple = set_dtype(dtype)
+    yield dtuple
     set_dtype(old_dtype)
 
 
@@ -638,10 +645,10 @@ def set_function_contractor(*confargs: Any, **confkws: Any) -> Callable[..., Any
 
 
 @contextmanager
-def runtime_contractor(*confargs: Any, **confkws: Any) -> Iterator[None]:
+def runtime_contractor(*confargs: Any, **confkws: Any) -> Iterator[Any]:
     old_contractor = getattr(thismodule, "contractor")
-    set_contractor(*confargs, **confkws)
-    yield
+    nc = set_contractor(*confargs, **confkws)
+    yield nc
     for module in modules:
         if module in sys.modules:
             setattr(sys.modules[module], "contractor", old_contractor)

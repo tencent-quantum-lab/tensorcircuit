@@ -12,6 +12,10 @@
 
 - add `stop_gradient` method to backends
 
+### Changed
+
+- contractor, dtype and backend set are default to return objects, `with tc.runtime_backend("jax") as K` or `K = tc.set_backend("jax")` could work
+
 ## 0.0.211223
 
 ### Added

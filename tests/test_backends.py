@@ -598,6 +598,12 @@ def test_with_level_set(backend):
     print(tc.backend.name)
 
 
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_with_level_set_return(backend):
+    with tc.runtime_backend("jax") as K:
+        assert K.name == "jax"
+
+
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])
 def test_grad_has_aux(backend):
     def f(x):
