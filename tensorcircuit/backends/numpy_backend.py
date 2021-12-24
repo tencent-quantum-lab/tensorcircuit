@@ -95,6 +95,9 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def stack(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return np.stack(a, axis=axis)
 
+    def concat(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
+        return np.concatenate(a, axis=axis)
+
     def tile(self, a: Tensor, rep: Tensor) -> Tensor:
         return np.tile(a, rep)
 

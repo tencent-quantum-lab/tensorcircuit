@@ -216,6 +216,21 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `stack`.".format(self.name)
         )
 
+    def concat(  # pylint: disable=unused-variable
+        self: Any, a: Sequence[Tensor], axis: int = 0
+    ) -> Tensor:
+        """
+        Join a sequence of arrays along an existing axis.
+
+        :param a: [description]
+        :type a: Sequence[Tensor]
+        :param axis: [description], defaults to 0
+        :type axis: int, optional
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `concat`.".format(self.name)
+        )
+
     def tile(  # pylint: disable=unused-variable
         self: Any, a: Tensor, rep: Tensor
     ) -> Tensor:

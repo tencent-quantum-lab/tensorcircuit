@@ -157,6 +157,12 @@ def test_backend_methods(backend):
         atol=1e-4,
     )  # by default no keepdim
 
+    assert np.allclose(
+        tc.backend.concat([tc.backend.ones([2, 2]), tc.backend.ones([1, 2])]),
+        tc.backend.ones([3, 2]),
+        atol=1e-5,
+    )
+
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_tree_map(backend):

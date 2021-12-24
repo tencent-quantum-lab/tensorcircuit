@@ -216,10 +216,13 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         # currently expm in jax doesn't support AD, it will raise an AssertError,
         # see https://github.com/google/jax/issues/2645
 
-    def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
+    def stack(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return jnp.stack(a, axis=axis)
 
-    def tile(self: Any, a: Tensor, rep: Tensor) -> Tensor:
+    def concat(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
+        return jnp.concatenate(a, axis=axis)
+
+    def tile(self, a: Tensor, rep: Tensor) -> Tensor:
         return jnp.tile(a, rep)
 
     def min(self, a: Tensor, axis: Optional[int] = None) -> Tensor:

@@ -125,8 +125,11 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         return a
         # hmm, in torch, everyone is real.
 
-    def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
+    def stack(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return torchlib.stack(a, dim=axis)
+
+    def concat(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
+        return torchlib.cat(a, dim=axis)
 
     def tile(self, a: Tensor, rep: Tensor) -> Tensor:
         return torchlib.tile(a, rep)

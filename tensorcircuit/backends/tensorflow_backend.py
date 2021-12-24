@@ -200,6 +200,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     def stack(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return tf.stack(a, axis=axis)
 
+    def concat(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
+        return tf.concat(a, axis=axis)
+
     def tile(self, a: Tensor, rep: Tensor) -> Tensor:
         return tf.tile(a, rep)
 
@@ -450,6 +453,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     ) -> Any:
         # static_argnums not supported in tf case, this is only for a consistent interface
         # for more on static_argnums in tf.function, see issue: https://github.com/tensorflow/tensorflow/issues/52193
+        # tf.function works with dict pytree but fails at list pytree, hmm...
+        # no full jittable pytree support in tf
+        # another difference from jax.jit
         if self.minor < 5:
             return tf.function(f, experimental_compile=jit_compile)
         else:

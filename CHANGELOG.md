@@ -6,6 +6,10 @@
 
 - add `solve` method on backends to solve linear equations
 
+- add full quantum natural gradient examples and `qng` method in experimental module
+
+- add `concat` method to backends
+
 ## 0.0.211223
 
 ### Added
