@@ -471,7 +471,7 @@ def test_vvag_has_aux(backend):
         return tc.backend.real(y ** 2), y
 
     fvvag = tc.backend.vvag(f, has_aux=True)
-    (v0, v1), g0 = fvvag(tc.backend.ones([10, 2]))
+    (_, v1), _ = fvvag(tc.backend.ones([10, 2]))
     np.testing.assert_allclose(v1, 2 * tc.backend.ones([10]))
 
 
