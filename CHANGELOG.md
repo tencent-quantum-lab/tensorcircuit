@@ -10,6 +10,8 @@
 
 - add `concat` method to backends
 
+- add `stop_gradient` method to backends
+
 ## 0.0.211223
 
 ### Added

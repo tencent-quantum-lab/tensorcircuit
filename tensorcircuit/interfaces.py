@@ -42,7 +42,6 @@ def general_args_to_numpy(args: Any, same_pytree: bool = True) -> Any:
 def numpy_args_to_backend(
     args: Any, same_pytree: bool = True, dtype: Any = None, target_backend: Any = None
 ) -> Any:
-    # TODO(@refraction-ray): switch same_pytree default to True
     if target_backend is None:
         target_backend = backend
     else:

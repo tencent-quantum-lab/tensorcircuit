@@ -245,6 +245,9 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def switch(self, index: Tensor, branches: Sequence[Callable[[], Tensor]]) -> Tensor:
         return branches[index]()
 
+    def stop_gradient(self, a: Tensor) -> Tensor:
+        raise NotImplementedError("numpy backend doesn't support AD")
+
     def grad(
         self,
         f: Callable[..., Any],

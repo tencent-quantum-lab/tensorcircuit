@@ -189,6 +189,9 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
     def switch(self, index: Tensor, branches: Sequence[Callable[[], Tensor]]) -> Tensor:
         return branches[index.numpy()]()
 
+    def stop_gradient(self, a: Tensor) -> Tensor:
+        return a.detach()
+
     def grad(
         self,
         f: Callable[..., Any],

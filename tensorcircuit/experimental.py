@@ -2,6 +2,7 @@
 experimental features
 """
 
+from functools import partial
 from typing import Any, Callable, Optional, Sequence, Union
 
 from .cons import backend
@@ -66,7 +67,7 @@ def adaptive_vmap(
 
 
 def qng(
-    f: Callable[..., Tensor], eps: float = 1e-4, real_only: bool = True
+    f: Callable[..., Tensor], kernel: str = "qng", postprocess: Optional[str] = "qng"
 ) -> Callable[..., Tensor]:
     def wrapper(params: Tensor, **kws: Any) -> Tensor:
         @backend.jit  # type: ignore
@@ -76,9 +77,15 @@ def qng(
         psi = f(params)
         jac = backend.jacfwd(f)(params)
         jac = backend.transpose(jac)
+        if kernel == "qng":
 
-        def ij(i: Tensor, j: Tensor) -> Tensor:
-            return vdot(i, j) - vdot(i, psi) * vdot(psi, j)
+            def ij(i: Tensor, j: Tensor) -> Tensor:
+                return vdot(i, j) - vdot(i, psi) * vdot(psi, j)
+
+        elif kernel == "dynamics":
+
+            def ij(i: Tensor, j: Tensor) -> Tensor:
+                return vdot(i, j)
 
         vij = backend.vmap(ij, vectorized_argnums=0)
         vvij = backend.vmap(vij, vectorized_argnums=1)
@@ -86,8 +93,43 @@ def qng(
         fim = vvij(jac, jac)
         # TODO(@refraction-ray): investigate more on
         # suitable hyperparameters and methods for regularization?
-        fim += eps * backend.eye(fim.shape[0])
-        fim = backend.real(fim)
+        if isinstance(postprocess, str):
+            if postprocess == "qng":
+
+                def _post_process(t: Tensor) -> Tensor:
+                    eps = 1e-4
+                    t += eps * backend.eye(t.shape[0])
+                    t = backend.real(t)
+                    return t
+
+        elif postprocess is None:
+            _post_process = lambda _: _
+        else:
+            _post_process = postprocess  # callable
+        fim = _post_process(fim)
         return fim
+
+    return wrapper
+
+
+dynamics_matrix = partial(qng, kernel="dynamics", postprocess=None)
+
+
+def dynamics_rhs(f: Callable[..., Any], h: Tensor) -> Callable[..., Any]:
+    def wrapper(params: Tensor, **kws: Any) -> Tensor:
+        def energy(params: Tensor) -> Tensor:
+            w = f(params, **kws)
+            wr = backend.stop_gradient(w)
+            wl = backend.conj(w)
+            wl = backend.reshape(wl, [1, -1])
+            wr = backend.reshape(wr, [-1, 1])
+            if not backend.is_sparse(h):
+                e = wl @ h @ wr
+            else:
+                tmp = backend.sparse_dense_matmul(h, wr)
+                e = wl @ tmp
+            return backend.real(e)[0, 0]
+
+        return backend.grad(energy)(params)
 
     return wrapper

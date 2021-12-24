@@ -439,6 +439,9 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     def is_sparse(self, a: Tensor) -> bool:
         return isinstance(a, sparse.BCOO)  # type: ignore
 
+    def stop_gradient(self, a: Tensor) -> Tensor:
+        return libjax.lax.stop_gradient(a)
+
     def grad(
         self,
         f: Callable[..., Any],

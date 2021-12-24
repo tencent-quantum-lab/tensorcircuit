@@ -806,6 +806,21 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `switch`.".format(self.name)
         )
 
+    def stop_gradient(  # pylint: disable=unused-variable
+        self: Any, a: Tensor
+    ) -> Tensor:
+        """
+        stop backpropagation from a
+
+        :param a: [description]
+        :type a: Tensor
+        :return: [description]
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `stop_gradient`.".format(self.name)
+        )
+
     def grad(  # pylint: disable=unused-variable
         self: Any,
         f: Callable[..., Any],

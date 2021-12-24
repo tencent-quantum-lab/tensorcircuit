@@ -360,6 +360,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     ) -> Tensor:
         return tf.switch_case(index, branches)
 
+    def stop_gradient(self, a: Tensor) -> Tensor:
+        return tf.stop_gradient(a)
+
     def grad(
         self,
         f: Callable[..., Any],
