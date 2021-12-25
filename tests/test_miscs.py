@@ -138,3 +138,23 @@ def test_dynamic_rhs(backend):
 
     rhsf = experimental.dynamics_rhs(f, h2)
     np.testing.assert_allclose(rhsf(tc.backend.ones([])), -np.sin(1.0) / 2, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", ["tensorflow", "jax"])
+def test_two_qng_approaches(backend):
+    n = 6
+    nlayers = 2
+    with tc.runtime_backend(backend) as K:
+        with tc.runtime_dtype("complex128"):
+
+            def state(params):
+                params = K.reshape(params, [2 * nlayers, n])
+                c = tc.Circuit(n)
+                c = tc.templates.blocks.example_block(c, params, nlayers=nlayers)
+                return c.state()
+
+            params = K.ones([2 * nlayers * n])
+            params = K.cast(params, "float32")
+            n1 = experimental.qng(state)(params)
+            n2 = experimental.qng2(state)(params)
+            np.testing.assert_allclose(n1, n2, atol=1e-7)

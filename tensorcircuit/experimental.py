@@ -5,7 +5,7 @@ experimental features
 from functools import partial
 from typing import Any, Callable, Optional, Sequence, Union
 
-from .cons import backend
+from .cons import backend, dtypestr
 
 Tensor = Any
 
@@ -66,26 +66,40 @@ def adaptive_vmap(
     return wrapper
 
 
+def _qng_post_process(t: Tensor, eps: float = 1e-4) -> Tensor:
+    t += eps * backend.eye(t.shape[0], dtype=t.dtype)
+    t = backend.real(t)
+    return t
+
+
+def _vdot(i: Tensor, j: Tensor) -> Tensor:
+    return backend.tensordot(backend.conj(i), j, 1)
+
+
 def qng(
-    f: Callable[..., Tensor], kernel: str = "qng", postprocess: Optional[str] = "qng"
+    f: Callable[..., Tensor],
+    kernel: str = "qng",
+    postprocess: Optional[str] = "qng",
+    mode: str = "fwd",
 ) -> Callable[..., Tensor]:
     def wrapper(params: Tensor, **kws: Any) -> Tensor:
-        @backend.jit  # type: ignore
-        def vdot(i: Tensor, j: Tensor) -> Tensor:
-            return backend.tensordot(backend.conj(i), j, 1)
-
         psi = f(params)
-        jac = backend.jacfwd(f)(params)
+        if mode == "fwd":
+            jac = backend.jacfwd(f)(params)
+        else:  # "rev"
+            jac = backend.jacrev(f)(params)
+            jac = backend.cast(jac, dtypestr)  # incase input is real
+            # TODO(@refraction-ray): sth is wrong here in rev mode
         jac = backend.transpose(jac)
         if kernel == "qng":
 
             def ij(i: Tensor, j: Tensor) -> Tensor:
-                return vdot(i, j) - vdot(i, psi) * vdot(psi, j)
+                return _vdot(i, j) - _vdot(i, psi) * _vdot(psi, j)
 
         elif kernel == "dynamics":
 
             def ij(i: Tensor, j: Tensor) -> Tensor:
-                return vdot(i, j)
+                return _vdot(i, j)
 
         vij = backend.vmap(ij, vectorized_argnums=0)
         vvij = backend.vmap(vij, vectorized_argnums=1)
@@ -95,15 +109,10 @@ def qng(
         # suitable hyperparameters and methods for regularization?
         if isinstance(postprocess, str):
             if postprocess == "qng":
-
-                def _post_process(t: Tensor) -> Tensor:
-                    eps = 1e-4
-                    t += eps * backend.eye(t.shape[0])
-                    t = backend.real(t)
-                    return t
+                _post_process = _qng_post_process
 
         elif postprocess is None:
-            _post_process = lambda _: _
+            _post_process = lambda _: _  # type: ignore
         else:
             _post_process = postprocess  # callable
         fim = _post_process(fim)
@@ -113,6 +122,54 @@ def qng(
 
 
 dynamics_matrix = partial(qng, kernel="dynamics", postprocess=None)
+
+
+def qng2(
+    f: Callable[..., Tensor],
+    kernel: str = "qng",
+    postprocess: Optional[str] = "qng",
+    mode: str = "rev",
+) -> Callable[..., Tensor]:
+    # reverse mode has a slightly better running time
+    def wrapper(params: Tensor, **kws: Any) -> Tensor:
+        params2 = backend.copy(params)
+        params2 = backend.stop_gradient(params2)
+
+        def outer_loop(params2: Tensor) -> Tensor:
+            def inner_product(params: Tensor, params2: Tensor) -> Tensor:
+                s = f(params)
+                s2 = f(params2)
+                fid = _vdot(s2, s)
+                if kernel == "qng":
+                    fid -= _vdot(s2, backend.stop_gradient(s)) * _vdot(
+                        backend.stop_gradient(s2), s
+                    )
+                return fid
+
+            _, grad = backend.vjp(
+                partial(inner_product, params2=params2), params, backend.ones([])
+            )
+            return grad
+
+        if mode == "fwd":
+            fim = backend.jacfwd(outer_loop)(params2)
+        else:
+            fim = backend.jacrev(outer_loop)(params2)
+        # directly real if params is real, then where is the imiginary part?
+        if isinstance(postprocess, str):
+            if postprocess == "qng":
+                _post_process = _qng_post_process
+
+        elif postprocess is None:
+            _post_process = lambda _: _  # type: ignore
+        else:
+            _post_process = postprocess  # callable
+        fim = _post_process(fim)
+        return fim
+
+    # on jax backend, qng and qng2 output is different by a conj
+    # on tf backend, the outputs are the same
+    return wrapper
 
 
 def dynamics_rhs(f: Callable[..., Any], h: Tensor) -> Callable[..., Any]:
