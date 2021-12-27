@@ -20,6 +20,8 @@
 
 - contractor, dtype and backend set are default to return objects, `with tc.runtime_backend("jax") as K` or `K = tc.set_backend("jax")` could work
 
+- change `perfect_sampling` to use `measure_jit` behind the scene
+
 ### Fixed
 
 - make four algorithms for quantum natural gradient consistent and correct

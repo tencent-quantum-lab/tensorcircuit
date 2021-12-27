@@ -976,7 +976,7 @@ class Circuit:
 
         :return: sampled bit string and the corresponding theoretical probability
         """
-        return self.measure(*[i for i in range(self._nqubits)], with_prob=True)
+        return self.measure_jit(*[i for i in range(self._nqubits)], with_prob=True)
 
     def expectation(
         self, *ops: Tuple[tn.Node, List[int]], reuse: bool = True
