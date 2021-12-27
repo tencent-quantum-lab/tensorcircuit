@@ -22,6 +22,8 @@
 
 - change `perfect_sampling` to use `measure_jit` behind the scene
 
+- `anygate` automatically reshape the unitary input to 2-d leg for users' good
+
 ### Fixed
 
 - make four algorithms for quantum natural gradient consistent and correct
