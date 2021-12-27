@@ -238,6 +238,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     def real(self, a: Tensor) -> Tensor:
         return tf.math.real(a)
 
+    def imag(self, a: Tensor) -> Tensor:
+        return tf.math.imag(a)
+
     def cast(self, a: Tensor, dtype: str) -> Tensor:
         if isinstance(dtype, str):
             return tf.cast(a, dtype=getattr(tf, dtype))

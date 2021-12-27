@@ -175,6 +175,19 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `real`.".format(self.name)
         )
 
+    def imag(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+        """
+        Return elementwise imaginary value of ``a``.
+
+        :param a: tensor
+        :type a: Tensor
+        :return: imaginary value of ``a``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `imag`.".format(self.name)
+        )
+
     def adjoint(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
         conjugate and transpose of the tensor ``a``

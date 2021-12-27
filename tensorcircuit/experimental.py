@@ -82,7 +82,9 @@ def qng(
     postprocess: Optional[str] = "qng",
     mode: str = "fwd",
 ) -> Callable[..., Tensor]:
+    # for both qng and qng2 calculation, we highly recommended complex-dtype but real valued inputs
     def wrapper(params: Tensor, **kws: Any) -> Tensor:
+        params = backend.cast(params, dtype=dtypestr)  # R->C protection
         psi = f(params)
         if mode == "fwd":
             jac = backend.jacfwd(f)(params)
@@ -90,6 +92,7 @@ def qng(
             jac = backend.jacrev(f)(params)
             jac = backend.cast(jac, dtypestr)  # incase input is real
             # TODO(@refraction-ray): sth is wrong here in rev mode
+            # may have R->C issue for rev mode, which we obtain a real Jacobian
         jac = backend.transpose(jac)
         if kernel == "qng":
 
@@ -155,7 +158,7 @@ def qng2(
             fim = backend.jacfwd(outer_loop)(params2)
         else:
             fim = backend.jacrev(outer_loop)(params2)
-        # directly real if params is real, then where is the imiginary part?
+        # directly real if params is real, then where is the imaginary part?
         if isinstance(postprocess, str):
             if postprocess == "qng":
                 _post_process = _qng_post_process

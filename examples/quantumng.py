@@ -9,10 +9,11 @@ import time
 
 tc.set_backend("jax")  # tf, jax are both ok
 
-n, nlayers = 8, 3
+n, nlayers = 7, 2
 g = tc.templates.graphs.Line1D(n)
 
 
+@tc.backend.jit
 def state(params):
     params = tc.backend.reshape(params, [2 * nlayers, n])
     c = tc.Circuit(n)
@@ -37,11 +38,14 @@ else:
     oopt = tf.keras.optimizers.SGD(lr)
 opt = tc.backend.optimizer(oopt)
 
-qng = tc.backend.jit(experimental.qng(state))
+qng = tc.backend.jit(experimental.qng(state, mode="fwd"))
+qngr = tc.backend.jit(experimental.qng(state, mode="rev"))
+qng2 = tc.backend.jit(experimental.qng2(state, mode="fwd"))
+qng2r = tc.backend.jit(experimental.qng2(state, mode="rev"))
 
 
-def train_loop(params, i):
-    qmetric = qng(params)
+def train_loop(params, i, qngf):
+    qmetric = qngf(params)
     value, grad = vags(params)
     ngrad = tc.backend.solve(qmetric, grad, assume_a="sym")
     params = opt.update(ngrad, params)
@@ -58,22 +62,28 @@ def plain_train_loop(params, i):
     return params
 
 
-def prof(f):
+def benchmark(f, *args):
     # params = tc.backend.implicit_randn([2 * nlayers * n])
     params = 0.1 * tc.backend.ones([2 * nlayers * n])
     params = tc.backend.cast(params, "float32")
     time0 = time.time()
-    params = f(params, 0)
+    params = f(params, 0, *args)
     time1 = time.time()
     for i in range(100):
-        params = f(params, i + 1)
+        params = f(params, i + 1, *args)
     time2 = time.time()
 
     print("staging time: ", time1 - time0, "running time: ", (time2 - time1) / 100)
 
 
 if __name__ == "__main__":
-    print("quantum natural gradient descent")
-    prof(train_loop)
-    print("gradient descent")
-    prof(plain_train_loop)
+    print("quantum natural gradient descent 1+f")
+    benchmark(train_loop, qng)
+    print("quantum natural gradient descent 1+r")
+    benchmark(train_loop, qngr)
+    print("quantum natural gradient descent 2+f")
+    benchmark(train_loop, qng2)
+    print("quantum natural gradient descent 2+r")
+    benchmark(train_loop, qng2r)
+    print("plain gradient descent")
+    benchmark(plain_train_loop)

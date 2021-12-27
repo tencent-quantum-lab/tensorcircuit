@@ -122,8 +122,18 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         return torchlib.tensor(1j, dtype=dtype)
 
     def real(self, a: Tensor) -> Tensor:
+        try:
+            a = torchlib.real(a)
+        except RuntimeError:
+            pass
         return a
-        # hmm, in torch, everyone is real.
+
+    def imag(self, a: Tensor) -> Tensor:
+        try:
+            a = torchlib.imag(a)
+        except RuntimeError:
+            pass
+        return a
 
     def stack(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return torchlib.stack(a, dim=axis)

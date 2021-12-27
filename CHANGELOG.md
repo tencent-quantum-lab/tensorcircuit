@@ -14,9 +14,17 @@
 
 - add `has_aux` arg on `vvag` method
 
+- add `imag` method on backends
+
 ### Changed
 
 - contractor, dtype and backend set are default to return objects, `with tc.runtime_backend("jax") as K` or `K = tc.set_backend("jax")` could work
+
+### Fixed
+
+- make four algorithms for quantum natural gradient consistent and correct
+
+- torch `real` is now a real
 
 ## 0.0.211223
 

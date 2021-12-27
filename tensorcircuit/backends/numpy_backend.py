@@ -134,6 +134,9 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def real(self, a: Tensor) -> Tensor:
         return np.real(a)
 
+    def imag(self, a: Tensor) -> Tensor:
+        return np.imag(a)
+
     def cast(self, a: Tensor, dtype: str) -> Tensor:
         if isinstance(dtype, str):
             return a.astype(getattr(np, dtype))
