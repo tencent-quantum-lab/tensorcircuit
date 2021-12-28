@@ -41,6 +41,11 @@ tensornetwork.backends.numpy.numpy_backend.NumPyBackend.sum = _sum_numpy
 
 
 class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
+    """
+    see the original backend API at `numpy backend
+    <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/numpy/numpy_backend.py>`_
+    """
+
     def eye(
         self, N: int, dtype: Optional[str] = None, M: Optional[int] = None
     ) -> Tensor:

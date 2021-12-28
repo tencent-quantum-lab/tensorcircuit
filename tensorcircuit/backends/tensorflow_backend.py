@@ -121,6 +121,11 @@ tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.matmul = 
 
 
 class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
+    """
+    see the original backend API at `tensorflow backend
+    <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/tensorflow/tensorflow_backend.py>`_
+    """
+
     def __init__(self) -> None:
         global tf
         super(TensorFlowBackend, self).__init__()

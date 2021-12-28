@@ -133,7 +133,7 @@ def save_func(f: Callable[..., Any], path: str) -> None:
     """
     save tf function in file (``tf.savedmodel`` format)
 
-    :param f: ``tf.function``ed function with graph building
+    :param f: ``tf.function`` ed function with graph building
     :type f: Callable[..., Any]
     :param path: the dir path to save the function
     :type path: str

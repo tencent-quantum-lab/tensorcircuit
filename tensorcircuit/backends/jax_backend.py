@@ -117,6 +117,11 @@ tensornetwork.backends.jax.jax_backend.JaxBackend.svd = _svd_jax
 
 
 class JaxBackend(jax_backend.JaxBackend):  # type: ignore
+    """
+    see the original backend API at `jax backend
+    <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/jax/jax_backend.py>`_
+    """
+
     # Jax doesn't support 64bit dtype, unless claim
     # ``from jax.config import config```
     # ``config.update("jax_enable_x64", True)``
