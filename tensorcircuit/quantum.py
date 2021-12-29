@@ -1069,6 +1069,11 @@ def free_energy(
     return backend.real(energy - s / beta)
 
 
+def renyi_entropy(rho: Union[Tensor, QuOperator], k: int = 2) -> Tensor:
+    s = 1 / (1 - k) * backend.real(backend.log(trace_product(*[rho for _ in range(k)])))
+    return s
+
+
 def renyi_free_energy(
     rho: Union[Tensor, QuOperator],
     h: Union[Tensor, QuOperator],
@@ -1076,7 +1081,7 @@ def renyi_free_energy(
     k: int = 2,
 ) -> Tensor:
     energy = backend.real(trace_product(rho, h))
-    s = -backend.real(backend.log(trace_product(*[rho for _ in range(k)])))
+    s = renyi_entropy(rho, k)
     return backend.real(energy - s / beta)
 
 

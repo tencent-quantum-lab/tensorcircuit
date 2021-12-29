@@ -24,6 +24,8 @@
 
 - `anygate` automatically reshape the unitary input to 2-d leg for users' good
 
+- `quantum.renyi_entropy` computation with correct prefactor
+
 ### Fixed
 
 - make four algorithms for quantum natural gradient consistent and correct

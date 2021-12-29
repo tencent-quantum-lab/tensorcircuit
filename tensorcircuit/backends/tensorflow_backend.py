@@ -51,6 +51,7 @@ class keras_optimizer:
         return params
 
     # TODO(@refraction-ray): complex compatible for opt interface
+    # (better not use complex variables though)
 
 
 def _tensordot_tf(
