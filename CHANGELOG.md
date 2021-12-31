@@ -26,6 +26,8 @@
 
 - `quantum.renyi_entropy` computation with correct prefactor
 
+- `Circuit` gate can provided other names by name attr
+
 ### Fixed
 
 - make four algorithms for quantum natural gradient consistent and correct

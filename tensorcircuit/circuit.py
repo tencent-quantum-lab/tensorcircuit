@@ -381,19 +381,23 @@ class Circuit:
     ) -> Callable[..., None]:
         def apply(self: "Circuit", *index: int, **vars: float) -> None:
             split = None
+            localname = name
+            if "name" in vars:
+                localname = vars["name"]  # type: ignore
+                del vars["name"]
             if "split" in vars:
                 split = vars["split"]
                 del vars["split"]
             gate_dict = {
                 "gate": gatef,
                 "index": index,
-                "name": name,
+                "name": localname,
                 "split": split,
                 "parameters": vars,
             }
             self._qir.append(gate_dict)
             gate = gatef(**vars)
-            self.apply_general_gate(gate, *index, name=name, split=split)  # type: ignore
+            self.apply_general_gate(gate, *index, name=localname, split=split)  # type: ignore
             # self._qcode = self._qcode[:-1] + " "  # rip off the final "\n"
             # for k, v in vars.items():
             #     self._qcode += k + " " + str(v) + " "
