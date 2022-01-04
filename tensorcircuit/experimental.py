@@ -117,6 +117,8 @@ def qng(
         if isinstance(postprocess, str):
             if postprocess == "qng":
                 _post_process = _qng_post_process
+            else:
+                raise ValueError("Unsupported postprocess option")
 
         elif postprocess is None:
             _post_process = _id  # type: ignore
@@ -166,6 +168,8 @@ def qng2(
         if isinstance(postprocess, str):
             if postprocess == "qng":
                 _post_process = _qng_post_process
+            else:
+                raise ValueError("Unsupported postprocess option")
 
         elif postprocess is None:
             _post_process = _id  # type: ignore
