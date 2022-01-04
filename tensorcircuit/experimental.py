@@ -72,6 +72,10 @@ def _qng_post_process(t: Tensor, eps: float = 1e-4) -> Tensor:
     return t
 
 
+def _id(a: Any) -> Any:
+    return a
+
+
 def _vdot(i: Tensor, j: Tensor) -> Tensor:
     return backend.tensordot(backend.conj(i), j, 1)
 
@@ -115,7 +119,7 @@ def qng(
                 _post_process = _qng_post_process
 
         elif postprocess is None:
-            _post_process = lambda _: _  # type: ignore
+            _post_process = _id  # type: ignore
         else:
             _post_process = postprocess  # callable
         fim = _post_process(fim)
@@ -164,7 +168,7 @@ def qng2(
                 _post_process = _qng_post_process
 
         elif postprocess is None:
-            _post_process = lambda _: _  # type: ignore
+            _post_process = _id  # type: ignore
         else:
             _post_process = postprocess  # callable
         fim = _post_process(fim)

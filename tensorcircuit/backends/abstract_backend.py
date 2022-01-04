@@ -1,6 +1,7 @@
 """
 backend magic inherited from tensornetwork: abstract backend
 """
+# pylint: disable=invalid-name
 
 import inspect
 from functools import reduce, partial
@@ -1034,7 +1035,11 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
                 collect = list  # type: ignore
             elif not isinstance(values, tuple):
                 values = tuple([values])
-                collect = lambda x: x[0]  # type: ignore
+
+                def _first(x: Sequence[Any]) -> Any:
+                    return x[0]
+
+                collect = _first  # type: ignore
             jjs = []
             for k in range(len(values)):  # type: ignore
                 jj = self.vmap(vjp1, vectorized_argnums=2)(
