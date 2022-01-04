@@ -15,6 +15,7 @@ from . import gates
 from .cons import backend, contractor, dtypestr, npdtype
 from .quantum import QuVector, QuOperator
 from .simplify import _split_two_qubit_gate
+from .vis import qir2tex
 
 Gate = gates.Gate
 Tensor = Any
@@ -1022,6 +1023,9 @@ class Circuit:
         # self._nodes = nodes1
         return contractor(nodes1).tensor
 
+    def vis_tex(self, **kws: Any) -> str:
+        return qir2tex(self._qir, self._nqubits, **kws)  # type: ignore
+
 
 Circuit._meta_apply()
 
@@ -1034,6 +1038,7 @@ def to_graphviz(
 ) -> graphviz.Graph:
     """
     Not an ideal visualization for quantum circuit, but reserve here as a general approch to show tensornetwork
+    [Deperacted, use ``qir2tex instead``]
     """
     # Modified from tensornetwork codebase
     nodes = c._nodes

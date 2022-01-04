@@ -646,3 +646,19 @@ def test_toqir():
     z3 = c.expectation((tc.gates.z(), [1]))
     assert len(c._nodes) == 11
     np.testing.assert_allclose(z3, 0.202728, atol=1e-5)
+
+
+def test_vis_tex():
+    c = tc.Circuit(3)
+    for i in range(3):
+        c.H(i)
+    for i in range(3):
+        c.any(i, (i + 1) % 3, unitary=tc.backend.ones([4, 4]), name="hihi")
+    c.any(2, unitary=tc.backend.ones([2, 2]), name="invisible")
+    c.cz(1, 2)
+    c.any(1, 0, 2, unitary=tc.backend.ones([8, 8]), name="ccha")
+    c.z(2)
+    c.cnot(0, 1)
+    c.cz(2, 1)
+
+    print(c.vis_tex(init=["0", "1", ""], measure=["x", "y", "z"]))

@@ -18,6 +18,7 @@ from .mpscircuit import MPSCircuit
 from .densitymatrix import DMCircuit
 from .densitymatrix2 import DMCircuit2
 from .gates import num_to_tensor, array_to_tensor
+from .vis import qir2tex
 from . import interfaces
 from . import templates
 from . import quantum
