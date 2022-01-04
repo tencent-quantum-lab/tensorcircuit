@@ -3,9 +3,9 @@ backend magic inherited from tensornetwork: abstract backend
 """
 
 import inspect
-from functools import reduce
+from functools import reduce, partial
 from operator import mul
-from typing import Any, Callable, Optional, Sequence, Tuple, Union
+from typing import Any, Callable, List, Optional, Sequence, Tuple, Union
 
 try:  # old version tn compatiblity
     from tensornetwork.backends import base_backend
@@ -17,6 +17,7 @@ except ImportError:
 
     tnbackend = abstract_backend.AbstractBackend
 
+from ..utils import return_partial
 
 Tensor = Any
 
@@ -174,6 +175,19 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `real`.".format(self.name)
         )
 
+    def imag(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+        """
+        Return elementwise imaginary value of ``a``.
+
+        :param a: tensor
+        :type a: Tensor
+        :return: imaginary value of ``a``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `imag`.".format(self.name)
+        )
+
     def adjoint(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
         conjugate and transpose of the tensor ``a``
@@ -213,6 +227,21 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         """
         raise NotImplementedError(
             "Backend '{}' has not implemented `stack`.".format(self.name)
+        )
+
+    def concat(  # pylint: disable=unused-variable
+        self: Any, a: Sequence[Tensor], axis: int = 0
+    ) -> Tensor:
+        """
+        Join a sequence of arrays along an existing axis.
+
+        :param a: [description]
+        :type a: Sequence[Tensor]
+        :param axis: [description], defaults to 0
+        :type axis: int, optional
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `concat`.".format(self.name)
         )
 
     def tile(  # pylint: disable=unused-variable
@@ -399,6 +428,23 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `cast`.".format(self.name)
         )
 
+    def solve(  # pylint: disable=unused-variable
+        self: Any, A: Tensor, b: Tensor, **kws: Any
+    ) -> Tensor:
+        """
+        Solve linear system Ax=b and return x
+
+        :param A: [description]
+        :type A: Tensor
+        :param b: [description]
+        :type b: Tensor
+        :return: [description]
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `solve`.".format(self.name)
+        )
+
     def tree_map(  # pylint: disable=unused-variable
         self: Any, f: Callable[..., Any], *pytrees: Any
     ) -> Any:
@@ -436,17 +482,49 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         return r
 
     def set_random_state(  # pylint: disable=unused-variable
-        self: Any, seed: Optional[int] = None
-    ) -> None:
+        self: Any, seed: Optional[int] = None, get_only: bool = False
+    ) -> Any:
         """
         set random state attached in the backend
 
         :param seed: int, defaults to None
         :type seed: Optional[int], optional
+        :param get_only:
+        :type get_only: bool
         """
         raise NotImplementedError(
             "Backend '{}' has not implemented `set_random_state`.".format(self.name)
         )
+
+    def get_random_state(  # pylint: disable=unused-variable
+        self: Any, seed: Optional[int] = None
+    ) -> Any:
+        """
+        get backend specific random state object
+
+        :param seed: [description], defaults to None
+        :type seed: Optional[int], optional
+        :return: [description]
+        :rtype: Any
+        """
+        return self.set_random_state(seed, True)
+
+    def random_split(  # pylint: disable=unused-variable
+        self: Any, key: Any
+    ) -> Tuple[Any, Any]:
+        """
+        a jax like split API, but does't split the key generator for other backends.
+        just for a consistent interface of random code, be careful that you know what the function actually does.
+
+        :param key: [description]
+        :type key: Any
+        :return: [description]
+        :rtype: Tuple[Any, Any]
+        """
+        return key, key
+
+    # Though try hard, the current random API abstraction may not be perfect when with nested jit or vmap
+    # so keep every random function a direct status parameters in case.
 
     def implicit_randn(  # pylint: disable=unused-variable
         self: Any,
@@ -741,8 +819,26 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `switch`.".format(self.name)
         )
 
+    def stop_gradient(  # pylint: disable=unused-variable
+        self: Any, a: Tensor
+    ) -> Tensor:
+        """
+        stop backpropagation from a
+
+        :param a: [description]
+        :type a: Tensor
+        :return: [description]
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `stop_gradient`.".format(self.name)
+        )
+
     def grad(  # pylint: disable=unused-variable
-        self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self: Any,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Any]:
         """
         Return function which is the grad function of input ``f``
@@ -768,7 +864,10 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         )
 
     def value_and_grad(  # pylint: disable=unused-variable
-        self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self: Any,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        hax_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
         """
         Return function which returns the value and grad of ``f``
@@ -791,6 +890,29 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         """
         raise NotImplementedError(
             "Backend '{}' has not implemented `value_and_grad`.".format(self.name)
+        )
+
+    def jvp(  # pylint: disable=unused-variable
+        self: Any,
+        f: Callable[..., Any],
+        inputs: Union[Tensor, Sequence[Tensor]],
+        v: Union[Tensor, Sequence[Tensor]],
+    ) -> Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]:
+        """
+        Function that computes a (forward-mode) Jacobian-vector product of ``f``.
+        Strictly speaking, this function is value_and_jvp
+
+        :param f: The function to compute jvp
+        :type f: Callable[..., Any]
+        :param inputs: primals
+        :type inputs: Union[Tensor, Sequence[Tensor]]
+        :param v: tangents
+        :type v: Union[Tensor, Sequence[Tensor]]
+        :return: (``f(*inputs)``, jvp_tensor), where jvp_tensor is the same shape as output of ``f``
+        :rtype: Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `jvp`.".format(self.name)
         )
 
     def vjp(  # pylint: disable=unused-variable
@@ -818,6 +940,141 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         raise NotImplementedError(
             "Backend '{}' has not implemented `vjp`.".format(self.name)
         )
+
+    def jacfwd(  # pylint: disable=unused-variable
+        self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+    ) -> Tensor:
+        """
+        compute the jacobian of ``f`` using forward mode AD
+
+        :param self: [description]
+        :type self: Any
+        :param f: [description]
+        :type f: Callable[..., Any]
+        :param argnums: [description], defaults to 0
+        :type argnums: Union[int, Sequence[int]], optional
+        :return: outer tuple for input args, inner tuple for outputs
+        :rtype: Tensor
+        """
+        # TODO(@refraction-ray): support pytree for input and output
+        jvp1 = return_partial(self.jvp, return_argnums=1)
+        if isinstance(argnums, int):
+            argnums = (argnums,)
+
+        def _transform(t: Tensor, input_shape: List[int]) -> Tensor:
+            output_shape = list(self.shape_tuple(t))[1:]
+            t = self.reshape(t, [t.shape[0], -1])
+            t = self.transpose(t)
+            t = self.reshape(t, output_shape + input_shape)
+            return t
+
+        def wrapper(*args: Any, **kws: Any) -> Any:
+            pf = partial(f, **kws)
+            jjs = []
+            for argnum in argnums:  # type: ignore
+                jj = self.vmap(jvp1, vectorized_argnums=2)(
+                    pf,
+                    args,
+                    tuple(
+                        [
+                            self.reshape(
+                                self.eye(self.sizen(arg), dtype=arg.dtype),
+                                [-1] + list(self.shape_tuple(arg)),
+                            )
+                            if i == argnum
+                            else self.reshape(
+                                self.zeros(
+                                    [self.sizen(arg), self.sizen(arg)], dtype=arg.dtype
+                                ),
+                                [-1] + list(self.shape_tuple(arg)),
+                            )
+                            for i, arg in enumerate(args)
+                        ]
+                    ),
+                )
+                jj = self.tree_map(
+                    partial(
+                        _transform, input_shape=list(self.shape_tuple(args[argnum]))
+                    ),
+                    jj,
+                )
+                jjs.append(jj)
+            if len(jjs) == 1:
+                return jjs[0]
+            return tuple(jjs)
+
+        return wrapper
+
+    def jacrev(  # pylint: disable=unused-variable
+        self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+    ) -> Tensor:
+        """
+        compute the jacobian of ``f`` using reverse mode AD
+
+        :param self: [description]
+        :type self: Any
+        :param f: [description]
+        :type f: Callable[..., Any]
+        :param argnums: [description], defaults to 0
+        :type argnums: Union[int, Sequence[int]], optional
+        :return: outer tuple for output, inner tuple for input args
+        :rtype: Tensor
+        """
+        # not that stable API
+        vjp1 = return_partial(self.vjp, return_argnums=1)
+        if isinstance(argnums, int):
+            argnums = (argnums,)
+
+        def wrapper(*args: Any, **kws: Any) -> Any:
+            pf = partial(f, **kws)
+            values = f(*args, **kws)  # TODO(@refraction-ray): any way to save this?
+            collect = tuple
+            if isinstance(values, list):
+                values = tuple(values)
+                collect = list  # type: ignore
+            elif not isinstance(values, tuple):
+                values = tuple([values])
+                collect = lambda x: x[0]  # type: ignore
+            jjs = []
+            for k in range(len(values)):  # type: ignore
+                jj = self.vmap(vjp1, vectorized_argnums=2)(
+                    pf,
+                    args,
+                    collect(
+                        [
+                            self.reshape(
+                                self.eye(self.sizen(v), dtype=v.dtype),
+                                [-1] + list(self.shape_tuple(v)),
+                            )
+                            if i == k
+                            else self.reshape(
+                                self.zeros(
+                                    [self.sizen(v), self.sizen(v)], dtype=v.dtype
+                                ),
+                                [-1] + list(self.shape_tuple(v)),
+                            )
+                            for i, v in enumerate(values)
+                        ]
+                    ),
+                )
+                jj = self.tree_map(
+                    lambda _: self.reshape(
+                        _,
+                        list(self.shape_tuple(values[k]))
+                        + list(self.shape_tuple(_))[1:],
+                    ),
+                    jj,
+                )
+                if len(jj) == 1:
+                    jj = jj[0]
+                jjs.append(jj)
+            if len(jjs) == 1:
+                return jjs[0]
+            return tuple(jjs)
+
+        return wrapper
+
+    jacbwd = jacrev  # pylint: disable=unused-variable
 
     def jit(  # pylint: disable=unused-variable
         self: Any,
@@ -869,6 +1126,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         f: Callable[..., Any],
         argnums: Union[int, Sequence[int]] = 0,
         vectorized_argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
         """
         Return vvag function of ``f``. the inputs for ``f`` is (args[0], args[1], args[2], ...),

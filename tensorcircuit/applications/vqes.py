@@ -99,6 +99,15 @@ def construct_matrix_v2(ham: List[List[float]], dtype: Any = tf.complex128) -> T
     return h
 
 
+def construct_matrix_v3(ham: List[List[float]], dtype: Any = tf.complex128) -> Tensor:
+    from ..quantum import PauliStringSum2COO
+    from ..cons import backend
+
+    sparsem = PauliStringSum2COO([h[1:] for h in ham], [h[0] for h in ham])  # type: ignore
+    densem = backend.to_dense(sparsem)
+    return tf.cast(densem, dtype)
+
+
 def vqe_energy(c: Circuit, h: List[List[float]], reuse: bool = True) -> Tensor:
     loss = 0.0
     for term in h:
@@ -229,7 +238,7 @@ class VQNHE:
         self.hamiltonian = hamiltonian
         self.shortcut = shortcut
         if shortcut:
-            hmatrix = construct_matrix_v2(self.hamiltonian)
+            hmatrix = construct_matrix_v3(self.hamiltonian)
             self.hop = hmatrix
             # self.hop = tf.constant(hmatrix, dtype=tf.complex128)
             # self.hop = G.any(hmatrix.copy().reshape([2 for _ in range(2 * n)]))

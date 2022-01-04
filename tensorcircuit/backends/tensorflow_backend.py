@@ -23,8 +23,35 @@ except ImportError:
 dtypestr: str
 Tensor = Any
 RGenerator = Any  # tf.random.Generator
+pytree = Any
 
 tf: Any
+
+
+class keras_optimizer:
+    def __init__(self, optimizer: Any) -> None:
+        self.optimizer = optimizer
+        self.is_variable = True
+
+    def _c2v(self, v: Tensor) -> Tensor:
+        if not isinstance(v, tf.Variable):
+            v = tf.Variable(v)
+            self.is_variable = False
+        return v
+
+    def _apply_gradients(self, grads: Tensor, params: Tensor) -> None:
+        self.optimizer.apply_gradients([(grads, params)])
+
+    def update(self, grads: pytree, params: pytree) -> pytree:
+        params = TensorFlowBackend.tree_map(None, self._c2v, params)
+        # don't do the () initialization since cache is in upper level of backend_factory
+        TensorFlowBackend.tree_map(None, self._apply_gradients, grads, params)
+        if not self.is_variable:
+            return TensorFlowBackend.tree_map(None, tf.convert_to_tensor, params)
+        return params
+
+    # TODO(@refraction-ray): complex compatible for opt interface
+    # (better not use complex variables though)
 
 
 def _tensordot_tf(
@@ -35,6 +62,13 @@ def _tensordot_tf(
 
 def _outer_product_tf(self: Any, tensor1: Tensor, tensor2: Tensor) -> Tensor:
     return tf.tensordot(tensor1, tensor2, 0)
+
+
+def _matmul_tf(self: Any, tensor1: Tensor, tensor2: Tensor) -> Tensor:
+    if (len(tensor1.shape) <= 1) or (len(tensor2.shape) <= 1):
+        raise ValueError("inputs to `matmul` have to be a tensors of order > 1,")
+
+    return tf.matmul(tensor1, tensor2)
 
 
 def _random_choice_tf(
@@ -82,9 +116,17 @@ tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.tensordot
 tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.outer_product = (
     _outer_product_tf
 )
+tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.matmul = (
+    _matmul_tf
+)
 
 
 class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
+    """
+    see the original backend API at `tensorflow backend
+    <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/tensorflow/tensorflow_backend.py>`_
+    """
+
     def __init__(self) -> None:
         global tf
         super(TensorFlowBackend, self).__init__()
@@ -166,6 +208,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     def stack(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return tf.stack(a, axis=axis)
 
+    def concat(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
+        return tf.concat(a, axis=axis)
+
     def tile(self, a: Tensor, rep: Tensor) -> Tensor:
         return tf.tile(a, rep)
 
@@ -199,19 +244,37 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     def real(self, a: Tensor) -> Tensor:
         return tf.math.real(a)
 
+    def imag(self, a: Tensor) -> Tensor:
+        return tf.math.imag(a)
+
     def cast(self, a: Tensor, dtype: str) -> Tensor:
         if isinstance(dtype, str):
             return tf.cast(a, dtype=getattr(tf, dtype))
         return tf.cast(a, dtype=dtype)
 
-    def set_random_state(self, seed: Optional[Union[int, RGenerator]] = None) -> None:
+    def solve(self, A: Tensor, b: Tensor, **kws: Any) -> Tensor:
+        if b.shape[-1] == A.shape[-1]:
+            b = b[..., tf.newaxis]
+            vector = True
+        else:
+            vector = False
+        x = tf.linalg.solve(A, b)
+        if vector:
+            return self.reshape(x, x.shape[:-1])
+        return x
+
+    def set_random_state(
+        self, seed: Optional[Union[int, RGenerator]] = None, get_only: bool = False
+    ) -> Any:
         if seed is None:
             g = tf.random.Generator.from_non_deterministic_state()
         elif isinstance(seed, int):
             g = tf.random.Generator.from_seed(seed)
         else:
             g = seed
-        self.g = g
+        if get_only is False:
+            self.g = g
+        return g
 
     def stateful_randn(
         self,
@@ -308,27 +371,41 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     ) -> Tensor:
         return tf.switch_case(index, branches)
 
+    def stop_gradient(self, a: Tensor) -> Tensor:
+        return tf.stop_gradient(a)
+
     def grad(
-        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Any]:
         # experimental attempt
         # Note: tensorflow grad is gradient while jax grad is derivative, they are different with a conjugate!
         # And we DONT make them consitent by mannually set conjugate of the returns.
         def wrapper(*args: Any, **kws: Any) -> Any:
             with tf.GradientTape() as t:
-                t.watch(args)
-                y = f(*args, **kws)
                 if isinstance(argnums, int):
                     x = args[argnums]
                 else:
                     x = [args[i] for i in argnums]
-                g = t.gradient(y, x)
+                t.watch(x)
+                y = f(*args, **kws)
+                if has_aux:
+                    g = t.gradient(y[0], x)
+                else:
+                    g = t.gradient(y, x)
+            if has_aux:
+                return (g, y[1:])
             return g
 
         return wrapper
 
     def value_and_grad(
-        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
         def wrapper(*args: Any, **kws: Any) -> Any:
             with tf.GradientTape() as t:
@@ -338,10 +415,29 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
                     x = [args[i] for i in argnums]
                 t.watch(x)
                 y = f(*args, **kws)
-                g = t.gradient(y, x)
+                if has_aux:
+                    g = t.gradient(y[0], x)
+                else:
+                    g = t.gradient(y, x)
             return y, g
 
         return wrapper
+
+    def jvp(
+        self,
+        f: Callable[..., Any],
+        inputs: Union[Tensor, Sequence[Tensor]],
+        v: Union[Tensor, Sequence[Tensor]],
+    ) -> Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]:
+        if not (isinstance(inputs, list) or isinstance(inputs, tuple)):
+            # one input tensor
+            inputs = [inputs]
+        if not (isinstance(v, list) or isinstance(v, tuple)):
+            v = [v]
+        with tf.autodiff.ForwardAccumulator(inputs, v) as t:
+            y = f(*inputs)
+        g = t.jvp(y)
+        return y, g
 
     def vjp(
         self,
@@ -371,6 +467,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     ) -> Any:
         # static_argnums not supported in tf case, this is only for a consistent interface
         # for more on static_argnums in tf.function, see issue: https://github.com/tensorflow/tensorflow/issues/52193
+        # tf.function works with dict pytree but fails at list pytree, hmm...
+        # no full jittable pytree support in tf
+        # another difference from jax.jit
         if self.minor < 5:
             return tf.function(f, experimental_compile=jit_compile)
         else:
@@ -480,6 +579,7 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         f: Callable[..., Any],
         argnums: Union[int, Sequence[int]] = 0,
         vectorized_argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
         # note how tf only works in this order, due to the bug reported as:
         # https://github.com/google/TensorNetwork/issues/940
@@ -495,7 +595,10 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
                     x = [args[i] for i in argnums]
                 tape.watch(x)
                 vs = vf(*args, **kws)
-            grad = tape.gradient(vs, x)
+            if has_aux:
+                grad = tape.gradient(vs[0], x)
+            else:
+                grad = tape.gradient(vs, x)
             return vs, grad
 
         return wrapper
@@ -506,3 +609,5 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         # return f
 
     vvag = vectorized_value_and_grad
+
+    optimizer = keras_optimizer

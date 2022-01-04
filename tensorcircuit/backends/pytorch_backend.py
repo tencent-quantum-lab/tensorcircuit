@@ -32,6 +32,11 @@ logger = logging.getLogger(__name__)
 # To be added once pytorch backend is ready
 
 
+def _conj_torch(self: Any, tensor: Tensor) -> Tensor:
+    t = torchlib.conj(tensor)
+    return t.resolve_conj()  # any side effect?
+
+
 def _sum_torch(
     self: Any,
     tensor: Tensor,
@@ -44,9 +49,18 @@ def _sum_torch(
 
 
 tensornetwork.backends.pytorch.pytorch_backend.PyTorchBackend.sum = _sum_torch
+tensornetwork.backends.pytorch.pytorch_backend.PyTorchBackend.conj = _conj_torch
 
 
 class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
+    """
+    see the original backend API at `pytorch backend
+    <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/pytorch/pytorch_backend.py>`_
+
+    Note the functionality provided by pytorch backend is incomplete,
+    it currenly lacks native efficicent jit and vmap support.
+    """
+
     def __init__(self) -> None:
         super(PyTorchBackend, self).__init__()
         global torchlib
@@ -104,19 +118,36 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         return torchlib.kron(a, b)
 
     def numpy(self, a: Tensor) -> Tensor:
+        if a.is_conj():
+            return a.resolve_conj().numpy()
         return a.numpy()
 
     def i(self, dtype: Any = None) -> Tensor:
-        raise NotImplementedError(
-            "pytorch backend doesn't support imaginary numbers at all!"
-        )
+        if not dtype:
+            dtype = getattr(torchlib, dtypestr)  # type: ignore
+        if isinstance(dtype, str):
+            dtype = getattr(torchlib, dtype)
+        return torchlib.tensor(1j, dtype=dtype)
 
     def real(self, a: Tensor) -> Tensor:
+        try:
+            a = torchlib.real(a)
+        except RuntimeError:
+            pass
         return a
-        # hmm, in torch, everyone is real.
 
-    def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
+    def imag(self, a: Tensor) -> Tensor:
+        try:
+            a = torchlib.imag(a)
+        except RuntimeError:
+            pass
+        return a
+
+    def stack(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return torchlib.stack(a, dim=axis)
+
+    def concat(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
+        return torchlib.cat(a, dim=axis)
 
     def tile(self, a: Tensor, rep: Tensor) -> Tensor:
         return torchlib.tile(a, rep)
@@ -160,6 +191,9 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
             return a.type(getattr(torchlib, dtype))
         return a.type(dtype)
 
+    def solve(self, A: Tensor, b: Tensor, **kws: Any) -> Tensor:
+        return torchlib.linalg.solve(A, b)
+
     def cond(
         self,
         pred: bool,
@@ -173,11 +207,19 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
     def switch(self, index: Tensor, branches: Sequence[Callable[[], Tensor]]) -> Tensor:
         return branches[index.numpy()]()
 
+    def stop_gradient(self, a: Tensor) -> Tensor:
+        return a.detach()
+
     def grad(
-        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Any]:
         def wrapper(*args: Any, **kws: Any) -> Any:
-            _, gr = self.value_and_grad(f, argnums)(*args, **kws)
+            y, gr = self.value_and_grad(f, argnums, has_aux)(*args, **kws)
+            if has_aux:
+                return gr, y[1:]
             return gr
 
         return wrapper
@@ -205,7 +247,10 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         # return wrapper
 
     def value_and_grad(
-        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
         def wrapper(*args: Any, **kws: Any) -> Any:
             x = []
@@ -221,7 +266,10 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
                 else:
                     x.append(arg)
             y = f(*x, **kws)
-            y.backward()
+            if has_aux:
+                y[0].backward()
+            else:
+                y.backward()
             gs = [x[i].grad for i in argnumsl]
             if len(gs) == 1:
                 gs = gs[0]
@@ -240,6 +288,22 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         if isinstance(v, list):
             v = tuple(v)
         return torchlib.autograd.functional.vjp(f, inputs, v)  # type: ignore
+
+    def jvp(
+        self,
+        f: Callable[..., Any],
+        inputs: Union[Tensor, Sequence[Tensor]],
+        v: Union[Tensor, Sequence[Tensor]],
+    ) -> Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]:
+        if isinstance(inputs, list):
+            inputs = tuple(inputs)
+        if isinstance(v, list):
+            v = tuple(v)
+        # for both tf and torch
+        # behind the scene: https://j-towns.github.io/2017/06/12/A-new-trick.html
+        # to be investigate whether the overhead issue remains as in
+        # https://github.com/renmengye/tensorflow-forward-ad/issues/2
+        return torchlib.autograd.functional.jvp(f, inputs, v)  # type: ignore
 
     def vmap(
         self,
@@ -298,9 +362,10 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         f: Callable[..., Any],
         argnums: Union[int, Sequence[int]] = 0,
         vectorized_argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
         # [WIP], not a consistent impl compared to tf and jax backend, but pytorch backend is not fully supported anyway
-        f = self.value_and_grad(f, argnums=argnums)
+        f = self.value_and_grad(f, argnums=argnums, has_aux=has_aux)
         f = self.vmap(f, vectorized_argnums=vectorized_argnums)
         # f = self.jit(f)
         return f

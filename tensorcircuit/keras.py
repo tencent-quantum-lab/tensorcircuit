@@ -133,7 +133,7 @@ def save_func(f: Callable[..., Any], path: str) -> None:
     """
     save tf function in file (``tf.savedmodel`` format)
 
-    :param f: ``tf.function``ed function with graph building
+    :param f: ``tf.function`` ed function with graph building
     :type f: Callable[..., Any]
     :param path: the dir path to save the function
     :type path: str
@@ -143,7 +143,7 @@ def save_func(f: Callable[..., Any], path: str) -> None:
     tf.saved_model.save(m, path)
 
 
-# TODO(@refraction-ray): sometimes, save_func complains about ``return tuple(tensor.shape.as_list())``
+# sometimes, save_func complains about ``return tuple(tensor.shape.as_list())``
 # ``ValueError: as_list() is not defined on an unknown TensorShape.`` when with vmap
 # solved by fix the batch dimension by providing signature of tf.function, i.e.
 # batch = 20

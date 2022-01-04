@@ -4,6 +4,7 @@ backend magic inherited from tensornetwork: jax backend
 # pylint: disable=invalid-name
 
 from functools import partial
+import logging
 from typing import Any, Callable, Optional, Sequence, Tuple, Union
 
 import numpy as np
@@ -20,13 +21,32 @@ except ImportError:
 
     tnbackend = abstract_backend.AbstractBackend
 
+logger = logging.getLogger(__name__)
+
+
 dtypestr: str
 Tensor = Any
 PRNGKeyArray = Any  # libjax.random.PRNGKeyArray
+pytree = Any
 
 libjax: Any
 jnp: Any
 jsp: Any
+optax: Any
+
+
+class optax_optimizer:
+    # the behavior of this optimizer abstraction with jit is not guranteed
+    def __init__(self, optimizer: Any) -> None:
+        self.optimizer = optimizer
+        self.state = None
+
+    def update(self, grads: pytree, params: pytree) -> pytree:
+        if self.state is None:
+            self.state = self.optimizer.init(params)
+        updates, self.state = self.optimizer.update(grads, self.state)
+        params = optax.apply_updates(params, updates)
+        return params
 
 
 def _convert_to_tensor_jax(self: Any, tensor: Tensor) -> Tensor:
@@ -97,6 +117,11 @@ tensornetwork.backends.jax.jax_backend.JaxBackend.svd = _svd_jax
 
 
 class JaxBackend(jax_backend.JaxBackend):  # type: ignore
+    """
+    see the original backend API at `jax backend
+    <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/jax/jax_backend.py>`_
+    """
+
     # Jax doesn't support 64bit dtype, unless claim
     # ``from jax.config import config```
     # ``config.update("jax_enable_x64", True)``
@@ -106,6 +131,7 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         global jnp  # jax.numpy module
         global jsp  # jax.scipy module
         global sparse  # jax.experimental.sparse
+        global optax  # optax
         super(JaxBackend, self).__init__()
         try:
             import jax
@@ -116,6 +142,13 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
             )
         from jax.experimental import sparse
 
+        try:
+            import optax
+
+        except ImportError:
+            logger.warning(
+                "optax not installed, `optimizer` from jax backend cannot work"
+            )
         libjax = jax
         jnp = libjax.numpy
         jsp = libjax.scipy
@@ -178,6 +211,9 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     def real(self, a: Tensor) -> Tensor:
         return jnp.real(a)
 
+    def imag(self, a: Tensor) -> Tensor:
+        return jnp.imag(a)
+
     def cast(self, a: Tensor, dtype: str) -> Tensor:
         if isinstance(dtype, str):
             return a.astype(getattr(jnp, dtype))
@@ -188,10 +224,13 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         # currently expm in jax doesn't support AD, it will raise an AssertError,
         # see https://github.com/google/jax/issues/2645
 
-    def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
+    def stack(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return jnp.stack(a, axis=axis)
 
-    def tile(self: Any, a: Tensor, rep: Tensor) -> Tensor:
+    def concat(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
+        return jnp.concatenate(a, axis=axis)
+
+    def tile(self, a: Tensor, rep: Tensor) -> Tensor:
         return jnp.tile(a, rep)
 
     def min(self, a: Tensor, axis: Optional[int] = None) -> Tensor:
@@ -223,14 +262,24 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
             return True
         return False
 
-    def set_random_state(self, seed: Optional[Union[int, PRNGKeyArray]] = None) -> None:
+    def solve(self, A: Tensor, b: Tensor, assume_a: str = "gen") -> Tensor:
+        return jsp.linalg.solve(A, b, assume_a)
+
+    def set_random_state(
+        self, seed: Optional[Union[int, PRNGKeyArray]] = None, get_only: bool = False
+    ) -> Any:
         if seed is None:
             seed = np.random.randint(42)
         if isinstance(seed, int):
             g = libjax.random.PRNGKey(seed)
         else:
             g = seed
-        self.g = g
+        if get_only is False:
+            self.g = g
+        return g
+
+    def random_split(self, key: Any) -> Tuple[Any, Any]:
+        return libjax.random.split(key)  # type: ignore
 
     def implicit_randn(
         self,
@@ -240,12 +289,18 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         dtype: str = "32",
     ) -> Tensor:
         g = getattr(self, "g", None)
-        if g is None or getattr(g, "_trace", None) is not None:
+        if g is None:  # or getattr(g, "_trace", None) is not None:
             # avoid random state is set in a jitted function
             # which call outside jitted regime lead to UnexpectedTracerError
+            # set with _trace is bad, since the function can itself in jit env
             self.set_random_state()
             g = getattr(self, "g", None)
-        key, subkey = libjax.random.split(g)
+        try:
+            key, subkey = libjax.random.split(g)
+        except libjax._src.errors.UnexpectedTracerError:
+            self.set_random_state()
+            g = getattr(self, "g", None)
+            key, subkey = libjax.random.split(g)
         r = self.stateful_randn(subkey, shape, mean, stddev, dtype)
         self.g = key
         return r
@@ -258,10 +313,16 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         dtype: str = "32",
     ) -> Tensor:
         g = getattr(self, "g", None)
-        if g is None or getattr(g, "_trace", None) is not None:
+        if g is None:
+            # set with _trace is bad, since the function can itself in jit env
             self.set_random_state()
             g = getattr(self, "g", None)
-        key, subkey = libjax.random.split(g)
+        try:
+            key, subkey = libjax.random.split(g)
+        except libjax._src.errors.UnexpectedTracerError:
+            self.set_random_state()
+            g = getattr(self, "g", None)
+            key, subkey = libjax.random.split(g)
         r = self.stateful_randu(subkey, shape, low, high, dtype)
         self.g = key
         return r
@@ -273,10 +334,15 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         p: Optional[Union[Sequence[float], Tensor]] = None,
     ) -> Tensor:
         g = getattr(self, "g", None)
-        if g is None or getattr(g, "_trace", None) is not None:
+        if g is None:
             self.set_random_state()
             g = getattr(self, "g", None)
-        key, subkey = libjax.random.split(g)
+        try:
+            key, subkey = libjax.random.split(g)
+        except libjax._src.errors.UnexpectedTracerError:
+            self.set_random_state()
+            g = getattr(self, "g", None)
+            key, subkey = libjax.random.split(g)
         r = self.stateful_randc(subkey, a, shape, p)
         self.g = key
         return r
@@ -381,15 +447,37 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     def is_sparse(self, a: Tensor) -> bool:
         return isinstance(a, sparse.BCOO)  # type: ignore
 
+    def stop_gradient(self, a: Tensor) -> Tensor:
+        return libjax.lax.stop_gradient(a)
+
     def grad(
-        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Any:
-        return libjax.grad(f, argnums=argnums)
+        return libjax.grad(f, argnums=argnums, has_aux=has_aux)
 
     def value_and_grad(
-        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
-        return libjax.value_and_grad(f, argnums=argnums)  # type: ignore
+        return libjax.value_and_grad(f, argnums=argnums, has_aux=has_aux)  # type: ignore
+
+    def jvp(
+        self,
+        f: Callable[..., Any],
+        inputs: Union[Tensor, Sequence[Tensor]],
+        v: Union[Tensor, Sequence[Tensor]],
+    ) -> Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]:
+        if not isinstance(inputs, (tuple, list)):
+            inputs = (inputs,)
+        if not isinstance(v, (tuple, list)):
+            v = (v,)
+        value, jvpv = libjax.jvp(f, inputs, v)
+        return value, jvpv
 
     def vjp(
         self,
@@ -440,6 +528,7 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         f: Callable[..., Any],
         argnums: Union[int, Sequence[int]] = 0,
         vectorized_argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
         if isinstance(vectorized_argnums, int):
             vectorized_argnums = (vectorized_argnums,)
@@ -447,7 +536,7 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         def wrapper(
             *args: Any, **kws: Any
         ) -> Tuple[Tensor, Union[Tensor, Tuple[Tensor, ...]]]:
-            jf = self.value_and_grad(f, argnums=argnums)
+            jf = self.value_and_grad(f, argnums=argnums, has_aux=has_aux)
             in_axes = [0 if i in vectorized_argnums else None for i in range(len(args))]  # type: ignore
             jf = libjax.vmap(jf, in_axes, 0)
             # jf = self.jit(jf)
@@ -477,3 +566,5 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         # return f
 
     vvag = vectorized_value_and_grad
+
+    optimizer = optax_optimizer

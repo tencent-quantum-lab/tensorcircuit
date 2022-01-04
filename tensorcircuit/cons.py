@@ -5,9 +5,10 @@ some constants and setups
 
 import logging
 import sys
-from functools import partial, reduce
+from contextlib import contextmanager
+from functools import partial, reduce, wraps
 from operator import mul
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Tuple
 
 import numpy as np
 import opt_einsum
@@ -33,6 +34,8 @@ modules = [
     "tensorcircuit.quantum",
     "tensorcircuit.simplify",
     "tensorcircuit.interfaces",
+    "tensorcircuit.experimental",
+    "tensorcircuit.utils",
     "tensorcircuit.backends",
     "tensorcircuit.backends.abstract_backend",
     "tensorcircuit.backends.backend_factory",
@@ -42,8 +45,11 @@ modules = [
     "tensorcircuit.backends.tensorflow_backend",
     "tensorcircuit.templates",
     "tensorcircuit.templates.measurements",
+    "tensorcircuit.templates.blocks",
+    "tensorcircuit.templates.graphs",
 ]
 
+thismodule = sys.modules[__name__]
 dtypestr = "complex64"
 npdtype = np.complex64
 backend = get_backend("numpy")
@@ -51,7 +57,9 @@ contractor = tn.contractors.auto
 # these above lines are just for mypy, it is not very good at evaluating runtime object
 
 
-def set_tensornetwork_backend(backend: Optional[str] = None) -> None:
+def set_tensornetwork_backend(
+    backend: Optional[str] = None, set_global: bool = True
+) -> Any:
     """
     set the runtime backend of tensorcircuit
 
@@ -62,19 +70,43 @@ def set_tensornetwork_backend(backend: Optional[str] = None) -> None:
     if not backend:
         backend = get_default_backend()
     backend_obj = get_backend(backend)
-    for module in modules:
-        if module in sys.modules:
-            setattr(sys.modules[module], "backend", backend_obj)
-    tn.set_default_backend(backend)
+    if set_global:
+        for module in modules:
+            if module in sys.modules:
+                setattr(sys.modules[module], "backend", backend_obj)
+        tn.set_default_backend(backend)
+    return backend_obj
 
 
 set_backend = set_tensornetwork_backend
 
-
 set_tensornetwork_backend()
 
 
-def set_dtype(dtype: Optional[str] = None) -> None:
+def set_function_backend(backend: Optional[str] = None) -> Callable[..., Any]:
+    def wrapper(f: Callable[..., Any]) -> Callable[..., Any]:
+        @wraps(f)
+        def newf(*args: Any, **kws: Any) -> Any:
+            old_backend = getattr(thismodule, "backend").name
+            set_backend(backend)
+            r = f(*args, **kws)
+            set_backend(old_backend)
+            return r
+
+        return newf
+
+    return wrapper
+
+
+@contextmanager
+def runtime_backend(backend: Optional[str] = None) -> Iterator[Any]:
+    old_backend = getattr(thismodule, "backend").name
+    K = set_backend(backend)
+    yield K
+    set_backend(old_backend)
+
+
+def set_dtype(dtype: Optional[str] = None, set_global: bool = True) -> Tuple[str, str]:
     """
     set the runtime numerical dtype of tensors
 
@@ -94,19 +126,47 @@ def set_dtype(dtype: Optional[str] = None) -> None:
             config.update("jax_enable_x64", True)
         elif dtype == "complex64":
             config.update("jax_enable_x64", False)
+    if set_global:
+        npdtype = getattr(np, dtype)
+        for module in modules:
+            if module in sys.modules:
+                setattr(sys.modules[module], "dtypestr", dtype)
+                setattr(sys.modules[module], "rdtypestr", rdtype)
+                setattr(sys.modules[module], "npdtype", npdtype)
 
-    npdtype = getattr(np, dtype)
-    for module in modules:
-        if module in sys.modules:
-            setattr(sys.modules[module], "dtypestr", dtype)
-            setattr(sys.modules[module], "rdtypestr", rdtype)
-            setattr(sys.modules[module], "npdtype", npdtype)
-    from .gates import meta_gate
+        from .gates import meta_gate
 
-    meta_gate()
+        meta_gate()
+    return dtype, rdtype
 
+
+get_dtype = partial(set_dtype, set_global=False)
 
 set_dtype()
+
+
+def set_function_dtype(dtype: Optional[str] = None) -> Callable[..., Any]:
+    def wrapper(f: Callable[..., Any]) -> Callable[..., Any]:
+        @wraps(f)
+        def newf(*args: Any, **kws: Any) -> Any:
+            old_dtype = getattr(thismodule, "dtypestr")
+            set_dtype(dtype)
+            r = f(*args, **kws)
+            set_dtype(old_dtype)
+            return r
+
+        return newf
+
+    return wrapper
+
+
+@contextmanager
+def runtime_dtype(dtype: Optional[str] = None) -> Iterator[Tuple[str, str]]:
+    old_dtype = getattr(thismodule, "dtypestr")
+    dtuple = set_dtype(dtype)
+    yield dtuple
+    set_dtype(old_dtype)
+
 
 # here below comes other contractors (just works,
 # but correctness has not been extensively tested for some of them)
@@ -127,14 +187,18 @@ def _sizen(node: tn.Node, is_log: bool = False) -> int:
 def _merge_single_gates(
     nodes: List[Any], total_size: Optional[int] = None
 ) -> Tuple[List[Any], int]:
-    # TODO(@refraction-ray): ivestigate whether too much copy here so that staging is slow for large circuit
+    # TODO(@refraction-ray): investigate whether too much copy here so that staging is slow for large circuit
     if total_size is None:
         total_size = sum([_sizen(t) for t in nodes])
     queue = [n for n in nodes if len(n.tensor.shape) <= 2]
     while queue:
         n0 = queue[0]
         if n0[0].is_dangling():
-            e0 = n0[1]
+            try:
+                e0 = n0[1]
+            except IndexError:
+                queue = _multi_remove(queue, [0])
+                continue
         else:
             e0 = n0[0]
         njs = [i for i, n in enumerate(nodes) if id(n) in [id(e0.node1), id(e0.node2)]]
@@ -328,9 +392,10 @@ def _get_path_cache_friendly(
             if id(e) not in mapping_dict:
                 mapping_dict[id(e)] = i
                 i += 1
+    # TODO(@refraction-ray): may be not that cache friendly, since the edge id correspondence is not that fixed?
     input_sets = [set([mapping_dict[id(e)] for e in node.edges]) for node in nodes]
-    order = np.argsort(np.array(list(map(sorted, input_sets)) + [[1e10]], dtype=object))[:-1]  # type: ignore
-    # TODO(@refraction-ray): more stable and unwarning arg sorting here
+    placeholder = [[1e20 for _ in range(100)]]
+    order = np.argsort(np.array(list(map(sorted, input_sets)) + placeholder, dtype=object))[:-1]  # type: ignore
     nodes_new = [nodes[i] for i in order]
     input_sets = [set([mapping_dict[id(e)] for e in node.edges]) for node in nodes_new]
     output_set = set([mapping_dict[id(e)] for e in tn.get_subgraph_dangling(nodes_new)])
@@ -561,5 +626,29 @@ set_contractor()
 
 get_contractor = partial(set_contractor, set_global=False)
 
-# TODO(@refraction-ray): contractor at Circuit and instruction level setup
-# TODO(@refraction-ray): function level backend and dtype?
+
+def set_function_contractor(*confargs: Any, **confkws: Any) -> Callable[..., Any]:
+    def wrapper(f: Callable[..., Any]) -> Callable[..., Any]:
+        @wraps(f)
+        def newf(*args: Any, **kws: Any) -> Any:
+            old_contractor = getattr(thismodule, "contractor")
+            set_contractor(*confargs, **confkws)
+            r = f(*args, **kws)
+            for module in modules:
+                if module in sys.modules:
+                    setattr(sys.modules[module], "contractor", old_contractor)
+            return r
+
+        return newf
+
+    return wrapper
+
+
+@contextmanager
+def runtime_contractor(*confargs: Any, **confkws: Any) -> Iterator[Any]:
+    old_contractor = getattr(thismodule, "contractor")
+    nc = set_contractor(*confargs, **confkws)
+    yield nc
+    for module in modules:
+        if module in sys.modules:
+            setattr(sys.modules[module], "contractor", old_contractor)

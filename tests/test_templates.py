@@ -57,7 +57,8 @@ def test_grid_coord():
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_qaoa_template(backend):
-    g = tc.templates.graphs.Grid2D(3, 2, pbc=False)
+    cd = tc.templates.graphs.Grid2DCoord(3, 2)
+    g = cd.lattice_graph(pbc=False)
 
     def forward(paramzz, paramx):
         c = tc.Circuit(6)
@@ -80,3 +81,13 @@ def test_qaoa_template(backend):
     _, gr = fvag(paramzz, paramx)
     np.testing.assert_allclose(gr[0].shape, [1])
     np.testing.assert_allclose(gr[1].shape, [6])
+
+
+def test_state_wrapper():
+    Bell_pair_block_state = tc.templates.blocks.state_centric(
+        tc.templates.blocks.Bell_pair_block
+    )
+    s = Bell_pair_block_state(np.array([1.0, 0, 0, 0]))
+    np.testing.assert_allclose(
+        s, np.array([0.0, 0.70710677 + 0.0j, -0.70710677 + 0.0j, 0]), atol=1e-5
+    )

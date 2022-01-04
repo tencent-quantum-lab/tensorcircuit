@@ -55,7 +55,7 @@ def test_measure():
 def test_gates_in_circuit():
     c = tc.Circuit(2, inputs=np.eye(2 ** 2))
     c.iswap(0, 1)
-    ans = tc.gates.iswapgate().tensor.reshape([4, 4])
+    ans = tc.gates.iswap_gate().tensor.reshape([4, 4])
     np.testing.assert_allclose(c.state().reshape([4, 4]), ans, atol=1e-5)
 
 
@@ -244,9 +244,7 @@ def test_exp1(backend):
     assert np.allclose(s, s1, atol=1e-4)
 
 
-def test_complex128(highp):
-    tc.set_backend("tensorflow")
-    tc.set_dtype("complex128")
+def test_complex128(highp, tfb):
     c = tc.Circuit(2)
     c.H(1)
     c.rx(0, theta=tc.gates.num_to_tensor(1j))
@@ -254,16 +252,16 @@ def test_complex128(highp):
     assert np.allclose(c.expectation((tc.gates.z(), [1])), 0)
 
 
-def test_qcode():
-    qcode = """
-4
-x 0
-cnot 0 1
-r 2 theta 1.0 alpha 1.57
-"""
-    c = tc.Circuit.from_qcode(qcode)
-    assert c.measure(1)[0] == "1"
-    assert c.to_qcode() == qcode[1:]
+# def test_qcode():
+#     qcode = """
+# 4
+# x 0
+# cnot 0 1
+# r 2 theta 1.0 alpha 1.57
+# """
+#     c = tc.Circuit.from_qcode(qcode)
+#     assert c.measure(1)[0] == "1"
+#     assert c.to_qcode() == qcode[1:]
 
 
 def universal_ad():
@@ -625,3 +623,42 @@ def test_gate_split(backend):
 
     np.testing.assert_allclose(s1, s2, atol=1e-5)
     np.testing.assert_allclose(s1, s3, atol=1e-5)
+
+
+def test_toqir():
+    split = {
+        "max_singular_values": 2,
+        "fixed_choice": 1,
+    }
+    c = tc.Circuit(3)
+    c.H(0)
+    c.rx(1, theta=tc.array_to_tensor(0.7))
+    c.exp1(
+        0, 1, unitary=tc.gates._zz_matrix, theta=tc.array_to_tensor(-0.2), split=split
+    )
+    z1 = c.expectation((tc.gates.z(), [1]))
+    qirs = c.to_qir()
+    c = tc.Circuit.from_qir(qirs, circuit_params={"nqubits": 3})
+    assert len(c._nodes) == 7
+    z2 = c.expectation((tc.gates.z(), [1]))
+    np.testing.assert_allclose(z1, z2, atol=1e-5)
+    c.append_from_qir(qirs)
+    z3 = c.expectation((tc.gates.z(), [1]))
+    assert len(c._nodes) == 11
+    np.testing.assert_allclose(z3, 0.202728, atol=1e-5)
+
+
+def test_vis_tex():
+    c = tc.Circuit(3)
+    for i in range(3):
+        c.H(i)
+    for i in range(3):
+        c.any(i, (i + 1) % 3, unitary=tc.backend.ones([4, 4]), name="hihi")
+    c.any(2, unitary=tc.backend.ones([2, 2]), name="invisible")
+    c.cz(1, 2)
+    c.any(1, 0, 2, unitary=tc.backend.ones([8, 8]), name="ccha")
+    c.z(2)
+    c.cnot(0, 1)
+    c.cz(2, 1)
+
+    print(c.vis_tex(init=["0", "1", ""], measure=["x", "y", "z"]))

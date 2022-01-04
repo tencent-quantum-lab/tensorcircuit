@@ -11,7 +11,7 @@ import tensorcircuit as tc
 
 def test_rgate(highp):
     np.testing.assert_almost_equal(
-        tc.gates.rgate(1, 2, 3).tensor, tc.gates.rgate_theoretical(1, 2, 3).tensor
+        tc.gates.r_gate(1, 2, 3).tensor, tc.gates.rgate_theoretical(1, 2, 3).tensor
     )
 
 
@@ -35,8 +35,8 @@ def test_any_gate():
 
 
 def test_iswap_gate():
-    t = tc.gates.iswapgate().tensor
+    t = tc.gates.iswap_gate().tensor
     ans = np.array([[1.0, 0, 0, 0], [0, 0, 1j, 0], [0, 1j, 0, 0], [0, 0, 0, 1.0]])
     np.testing.assert_allclose(t, ans.reshape([2, 2, 2, 2]), atol=1e-5)
-    t = tc.gates.iswapgate(theta=0).tensor
+    t = tc.gates.iswap_gate(theta=0).tensor
     np.testing.assert_allclose(t, np.eye(4).reshape([2, 2, 2, 2]), atol=1e-5)

@@ -4,15 +4,32 @@ shortcuts for measurement patterns on circuit
 # circuit in, circuit out
 # pylint: disable=invalid-name
 
-from typing import Any, Optional, Sequence, Tuple
+from functools import wraps
+from typing import Any, Callable, Optional, Sequence, Tuple
+
+import numpy as np
 
 from .graphs import Grid2DCoord
 from .. import gates as G
+from ..circuit import Circuit as Circ
 from ..cons import backend
 
 Circuit = Any  # we don't use the real circuit class as too many mypy complains emerge
 Tensor = Any
 Graph = Any
+
+
+def state_centric(f: Callable[..., Circuit]) -> Callable[..., Tensor]:
+    @wraps(f)
+    def wrapper(s: Tensor, *args: Any, **kws: Any) -> Tensor:
+        n = backend.sizen(s)
+        n = int(np.log2(n))
+        c = Circ(n, inputs=s)
+        c = f(c, *args, **kws)
+        s = c.state()
+        return s
+
+    return wrapper
 
 
 def Bell_pair_block(
@@ -66,14 +83,25 @@ def QAOA_block(
     return c
 
 
-def example_block(c: Circuit, param: Tensor, nlayers: int = 2) -> Circuit:
+def example_block(
+    c: Circuit, param: Tensor, nlayers: int = 2, is_split: bool = False
+) -> Circuit:
     # used for test and demonstrations
+    if is_split:
+        split_conf = {
+            "max_singular_values": 2,
+            "fixed_choice": 1,
+        }
+    else:
+        split_conf = None  # type: ignore
     n = c._nqubits
     for i in range(n):
         c.H(i)
     for j in range(nlayers):
         for i in range(n - 1):
-            c.exp1(i, i + 1, unitary=G._zz_matrix, theta=param[2 * j, i])
+            c.exp1(
+                i, i + 1, unitary=G._zz_matrix, theta=param[2 * j, i], split=split_conf
+            )
         for i in range(n):
             c.rx(i, theta=param[2 * j + 1, i])
     return c

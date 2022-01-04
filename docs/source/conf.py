@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.abspath("../../"))
 # -- Project information -----------------------------------------------------
 
 project = "tensorcircuit"
-copyright = "2020, refraction-ray"
+copyright = "2020, The TensorCircuit Authors"
 author = "refraction-ray"
 
 # The short X.Y version
@@ -86,13 +86,14 @@ pygments_style = "sphinx"
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "alabaster"
+html_theme = "nature"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
 # html_theme_options = {}
+# currently nature theme doesn't support these github related options (refraction-ray)
 html_theme_options = {
     "github_user": "refraction-ray",
     "github_repo": "tensorcircuit",

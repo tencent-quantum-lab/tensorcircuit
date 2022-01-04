@@ -8,7 +8,7 @@ from typing import Any, Callable, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import tensornetwork
-from scipy.linalg import expm
+from scipy.linalg import expm, solve
 from scipy.special import softmax
 from scipy.sparse import coo_matrix, issparse
 from tensornetwork.backends.numpy import numpy_backend
@@ -41,6 +41,11 @@ tensornetwork.backends.numpy.numpy_backend.NumPyBackend.sum = _sum_numpy
 
 
 class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
+    """
+    see the original backend API at `numpy backend
+    <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/numpy/numpy_backend.py>`_
+    """
+
     def eye(
         self, N: int, dtype: Optional[str] = None, M: Optional[int] = None
     ) -> Tensor:
@@ -95,6 +100,9 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def stack(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return np.stack(a, axis=axis)
 
+    def concat(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
+        return np.concatenate(a, axis=axis)
+
     def tile(self, a: Tensor, rep: Tensor) -> Tensor:
         return np.tile(a, rep)
 
@@ -131,14 +139,26 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def real(self, a: Tensor) -> Tensor:
         return np.real(a)
 
+    def imag(self, a: Tensor) -> Tensor:
+        return np.imag(a)
+
     def cast(self, a: Tensor, dtype: str) -> Tensor:
         if isinstance(dtype, str):
             return a.astype(getattr(np, dtype))
         return a.astype(dtype)
 
-    def set_random_state(self, seed: Optional[int] = None) -> None:
+    def solve(self, A: Tensor, b: Tensor, assume_a: str = "gen") -> Tensor:
+        # gen, sym, her, pos
+        # https://stackoverflow.com/questions/44672029/difference-between-numpy-linalg-solve-and-numpy-linalg-lu-solve/44710451
+        return solve(A, b, assume_a)
+
+    def set_random_state(
+        self, seed: Optional[int] = None, get_only: bool = False
+    ) -> Any:
         g = np.random.default_rng(seed)  # None auto supported
-        self.g = g
+        if get_only is False:
+            self.g = g
+        return g
 
     def stateful_randn(
         self,
@@ -233,13 +253,22 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def switch(self, index: Tensor, branches: Sequence[Callable[[], Tensor]]) -> Tensor:
         return branches[index]()
 
+    def stop_gradient(self, a: Tensor) -> Tensor:
+        raise NotImplementedError("numpy backend doesn't support AD")
+
     def grad(
-        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Any]:
         raise NotImplementedError("numpy backend doesn't support AD")
 
     def value_and_grad(
-        self, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+        self,
+        f: Callable[..., Any],
+        argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
         raise NotImplementedError("numpy backend doesn't support AD")
 
@@ -284,12 +313,21 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
         f: Callable[..., Any],
         argnums: Union[int, Sequence[int]] = 0,
         vectorized_argnums: Union[int, Sequence[int]] = 0,
+        has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
         raise NotImplementedError("numpy backend doesn't support AD")
 
     vvag = vectorized_value_and_grad
 
     def vjp(
+        self,
+        f: Callable[..., Any],
+        inputs: Union[Tensor, Sequence[Tensor]],
+        v: Union[Tensor, Sequence[Tensor]],
+    ) -> Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]:
+        raise NotImplementedError("numpy backend doesn't support AD")
+
+    def jvp(
         self,
         f: Callable[..., Any],
         inputs: Union[Tensor, Sequence[Tensor]],

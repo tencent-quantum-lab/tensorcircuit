@@ -26,7 +26,7 @@ The following git workflow is recommended to contribute by PR:
 
 * Fork the tensorcircuit GitHub repository by clicking the Fork button from GitHub. This will create a fork version of the code repository in your own GitHub account.
 
-* Configure the python enviroment locally for development. ``pip install -r requirements.txt`` and ``pip install -r requirements-dev.txt`` are recommended. Extra packages may be required for specific development tasks.
+* Configure the python environment locally for development. ``pip install -r requirements.txt`` and ``pip install -r requirements-dev.txt`` are recommended. Extra packages may be required for specific development tasks.
 
 * Clone your fork repository locally and setup upstreams to the official tensorcircuit repository. And configure your git user and email so that they match your GitHub account if you haven't.
 
@@ -90,3 +90,5 @@ The scripts include the following components:
 Make sure the scripts check are successful by 💐.
 
 The similar tests and checks are also available via GitHub action as CI infrastructures.
+
+Please also include corresponding changes for CHANGELOG.md and docs for the PR.
