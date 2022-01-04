@@ -16,6 +16,8 @@
 
 - add `imag` method on backends
 
+- add `Circuit.vis_tex` interface that returns the quantikz circuit latex
+
 ### Changed
 
 - contractor, dtype and backend set are default to return objects, `with tc.runtime_backend("jax") as K` or `K = tc.set_backend("jax")` could work
