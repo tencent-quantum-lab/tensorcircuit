@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.0.220106
+
 ### Added
 
 - add `solve` method on backends to solve linear equations
@@ -29,6 +31,8 @@
 - `quantum.renyi_entropy` computation with correct prefactor
 
 - `Circuit` gate can provided other names by name attr
+
+- `example_block` support param auto reshape for users' good
 
 ### Fixed
 

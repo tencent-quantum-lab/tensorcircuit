@@ -95,6 +95,7 @@ def example_block(
     else:
         split_conf = None  # type: ignore
     n = c._nqubits
+    param = backend.reshape(param, [2 * nlayers, n])
     for i in range(n):
         c.H(i)
     for j in range(nlayers):
