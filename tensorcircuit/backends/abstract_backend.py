@@ -148,7 +148,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         :return: [description]
         :rtype: int
         """
-        return reduce(mul, a.shape)  # type: ignore
+        return reduce(mul, list(a.shape) + [1])  # type: ignore
 
     def numpy(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
@@ -1080,6 +1080,15 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         return wrapper
 
     jacbwd = jacrev  # pylint: disable=unused-variable
+
+    def hessian(  # pylint: disable=unused-variable
+        self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
+    ) -> Tensor:
+        # different by conjugate for tf and jax backend
+        # tensorflow native hessian use naive for loop
+        # idealy fwd over rev is the best choice, but this combination fails on tensorflow backend
+        # TODO(@refraction-ray): with complains like: AttributeError: 'IndexedSlices' object has no attribute '_id'
+        return self.jacrev(self.jacrev(f, argnums=argnums), argnums=argnums)
 
     def jit(  # pylint: disable=unused-variable
         self: Any,

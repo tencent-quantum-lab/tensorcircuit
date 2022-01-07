@@ -53,6 +53,12 @@ def get_zz(params, n, nlayers, inputs=None):
     )  # one can also add serveral correlations together as energy estimation
 
 
+# hessian matrix
+
+h_func = K.hessian(partial(get_zz, n=10, nlayers=5))
+# suggect jax backend for hessian and directly use `jax.hessian` may be better
+print(h_func(params))
+
 # optimization, suppose the energy we want to minimize is just z1z2 as above
 
 vag_func = K.jit(K.value_and_grad(get_zz), static_argnums=(1, 2))

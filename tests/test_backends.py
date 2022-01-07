@@ -704,3 +704,28 @@ def test_optimizers(backend):
         print(loss)
 
     assert loss < -0.8
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_hessian(backend):
+    # hessian support is now very fragile and especially has potential issues on tf backend
+    def f(param):
+        return tc.backend.sum(param ** 2)
+
+    hf = tc.backend.hessian(f)
+    param = tc.backend.ones([2])
+    np.testing.assert_allclose(hf(param), 2 * tc.backend.eye(2), atol=1e-5)
+
+    param = tc.backend.ones([2, 2])
+    assert list(hf(param).shape) == [2, 2, 2, 2]  # possible tf retracing?
+
+    g = tc.templates.graphs.Line1D(5)
+
+    def circuit_f(param):
+        c = tc.Circuit(5)
+        c = tc.templates.blocks.example_block(c, param, nlayers=1)
+        return tc.templates.measurements.heisenberg_measurements(c, g)
+
+    param = tc.backend.ones([10])
+    hf = tc.backend.hessian(circuit_f)
+    print(hf(param))  # still upto a conjugate for jax and tf backend.

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Added
+
+- add `hessian` method on backends
+
+### Fixed
+
+- `sizen` correctly returns 1 for tensor of no shape
+
 ## 0.0.220106
 
 ### Added
