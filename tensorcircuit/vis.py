@@ -1,7 +1,9 @@
 """
 visualization on circuits
 """
-
+import os
+import subprocess
+from uuid import uuid4
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
@@ -21,6 +23,7 @@ def qir2tex(
     measure: Optional[List[str]] = None,
     rcompress: bool = False,
     lcompress: bool = False,
+    standalone: bool = False,
     return_string_table: bool = False,
 ) -> Union[str, Tuple[str, List[List[str]]]]:
     # flag for applied layers
@@ -199,8 +202,55 @@ def qir2tex(
             texcode += x + r"&"  # type: ignore
         texcode = texcode[:-1] + "\n"
     texcode += r"\end{quantikz}"
-
+    if standalone:
+        texcode = (
+            r"""\documentclass{standalone}
+\usepackage{quantikz}
+\begin{document}
+"""
+            + texcode
+            + r"""
+\end{document}"""
+        )
     if return_string_table:
         return texcode, tex_string_table
     else:
         return texcode
+
+
+def render_pdf(
+    texcode: str,
+    filename: Optional[str] = None,
+    latex: Optional[str] = None,
+    filepath: Optional[str] = None,
+    notebook: bool = False,
+) -> Any:
+    if not filepath:
+        filepath = os.getcwd()
+    if not latex:
+        latex = "pdflatex"
+    if not filename:
+        filename = str(uuid4())
+    if filename.endswith(".pdf"):
+        filename = filename[:-4]
+    texfile = os.path.join(filepath, filename + ".tex")
+    with open(texfile, "w") as f:
+        f.write(texcode)
+    _ = subprocess.run(
+        [
+            latex,
+            "-output-directory",
+            filepath,
+            texfile,
+        ],
+        stdout=subprocess.DEVNULL,
+    )
+    if notebook:
+        # from IPython.display import IFrame
+
+        # assert width is not None, ValueError("width must be a number")
+        # assert height is not None, ValueError("width must be a number")
+        # return IFrame(filename + ".pdf", width=width, height=height)
+        from wand.image import Image
+
+        return Image(filename=filename + ".pdf", resolution=300)

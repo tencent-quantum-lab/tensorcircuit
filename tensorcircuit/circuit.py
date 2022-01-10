@@ -357,21 +357,28 @@ class Circuit:
     ) -> Callable[..., None]:
         # nested function must be utilized, functools.partial doesn't work for method register on class
         # see https://re-ra.xyz/Python-中实例方法动态绑定的几组最小对立/
+        defaultname = name
+
         def apply(
             self: "Circuit",
             *index: int,
             split: Optional[Dict[str, Any]] = None,
+            name: Optional[str] = None,
         ) -> None:
+            if name is not None:
+                localname = name
+            else:
+                localname = defaultname  # type: ignore
             gate_dict = {
                 "gate": gatef,
                 "index": index,
-                "name": name,
+                "name": localname,
                 "split": split,
             }
             self._qir.append(gate_dict)
             split = None
             gate = gatef()
-            self.apply_general_gate(gate, *index, name=name, split=split)
+            self.apply_general_gate(gate, *index, name=localname, split=split)
 
         return apply
 

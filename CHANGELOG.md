@@ -6,6 +6,8 @@
 
 - add `hessian` method on backends
 
+- add further automatic pipelines for visualization by generating pdf or images
+
 ### Fixed
 
 - `sizen` correctly returns 1 for tensor of no shape
