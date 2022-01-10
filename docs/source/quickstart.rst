@@ -16,14 +16,52 @@ Depending on one's need, one may further pip install tensorflow (for tensorflow 
 If one needs circuit visualization on Jupyter lab, python package `wand <https://docs.wand-py.org/en/0.6.7/>`__ and its binary bindings as well as LaTeX installation is required.
 
 
-Circuit object
+Circuit Object
 ------------------
+
+The basic object for TensorCircuit is ``tc.Circuit``. 
+
+Initialize the circuit with the number of qubits ``c=tc.Circuit(n)``.
+
+**Input states:**
+
+The default input function for the circuit is :math:`\vert 0^n \rangle`. One can change this to other wavefunctions by directly feed the inputs state vectors w: ``c=tc.Circuit(n, inputs=w)``.
+
+One can also feed matrix product state as input states for the circuit, but we leave MPS/MPO usage for future sections.
+
+**Quantum gates:**
+
+We can apply gates on the circuit object as: ``c.H(1)`` or ``c.rx(2, theta=0.2)`` which are for apply Hadamard gate on qubit 1 (0-based) or apply Rx gate on qubit 2 as :math:`e^{-i\theta/2 X}`.
+
+The same rules apply to multi-qubit gates, such as ``c.cnot(0, 1)``.
+
+There are also highly customizable gates, two representatives are:
+
+- ``c.exp1(0, 1, unitary=m, theta=0.2)`` which is for the exponential gate :math:`e^{i\theta m}` of any matrix m as long as :math:`m^2=1`.
+
+- ``c.any(0, 1, unitary=m)`` which is for applying the unitary gate m on the circuit.
+
+These two examples are flexible and support gate on any number of qubits.
+
+**Measurements and expectations:**
+
+The most directly way to get the output from the circuit object is just getting the output wavefunction in vector form as ``c.state()``.
+
+For bitstring sampling, we have ``c.perfect_sampling()`` which returns the bitstring and the corresponding probability amplitude.
+
+To measure part of the qubits, we can use ``c.measure(0, 1)``, if we want to know the corresponding probability of the measurement output, try ``c.measure(0, 1, with_prob=True)``. The measure API is by default non-jittable, but we also have a jittable version as ``c.measure_jit(0, 1)``.
+
+To compute expectation values for local observables, we have ``c.expectation([tc.gates.z(), [0]], [tc.gates.z(), [1]])`` for :math:`\langle Z_0Z_1 \rangle` or ``c.expectation([tc.gates.x(), [0]])`` for :math:`\langle X_0 \rangle`.
+
+This expectation API is rather flexible, as one can measure any matrix m on several qubits as ``c.expectation([m, [0, 1, 2]])``.
+
+**Circuit visualization:**
 
 
 Programming Paradigm
 -------------------------
 
-The most common use case and the most typical programming paradigm for TensorCircuit is to evaluate the circuit output and the corresponding quantum gradients.
+The most common use case and the most typical programming paradigm for TensorCircuit is to evaluate the circuit output and the corresponding quantum gradients, which is common in variational quantum algorithms.
 
 .. code-block:: python
 
@@ -144,3 +182,23 @@ Setup the contractor
 TensorCircuit is a tensornetwork contraction based quantum circuit simulator. A contractor is for searching the optimal contraction path of the circuit tensornetwork.
 
 There are various advanced contractor provided by the third-party packages, such as `opt-einsum <https://github.com/dgasmith/opt_einsum>`__ and `cotengra <https://github.com/jcmgray/cotengra>`__.
+
+
+Noisy Circuit simulation
+----------------------------
+
+**Monte Carlo State Simulator:**
+
+**Density Matrix Simulator:**
+
+
+MPS and MPO
+----------------
+
+
+Interfaces
+-------------
+
+
+Templates as Shortcuts
+------------------------

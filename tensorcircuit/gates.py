@@ -372,8 +372,9 @@ def any_gate(unitary: Tensor, name: str = "any") -> Gate:
     :param unitary: corresponding gate
     """
     # deepcopy roadblocks tf.function, pls take care of the unitary outside
-    nleg = int(np.log2(backend.sizen(unitary)))
-    unitary = backend.reshape(unitary, [2 for _ in range(nleg)])
+    unitary = backend.reshape2(unitary)
+    # nleg = int(np.log2(backend.sizen(unitary)))
+    # unitary = backend.reshape(unitary, [2 for _ in range(nleg)])
     return Gate(unitary, name=name)
 
 

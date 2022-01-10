@@ -8,9 +8,15 @@
 
 - add further automatic pipelines for visualization by generating pdf or images
 
+- add `reshape2` method on backends as a short cut to reshape a tensor with all legs 2-d
+
 ### Fixed
 
 - `sizen` correctly returns 1 for tensor of no shape
+
+### Changed
+
+- `expectation` API now also accepts plain tensor instead of `tc.Gate`.
 
 ## 0.0.220106
 

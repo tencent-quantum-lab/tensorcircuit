@@ -8,6 +8,8 @@ from functools import reduce, partial
 from operator import mul
 from typing import Any, Callable, List, Optional, Sequence, Tuple, Union
 
+import numpy as np
+
 try:  # old version tn compatiblity
     from tensornetwork.backends import base_backend
 
@@ -212,6 +214,11 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         raise NotImplementedError(
             "Backend '{}' has not implemented `i`.".format(self.name)
         )
+
+    def reshape2(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+        nleg = int(np.log2(self.sizen(a)))
+        a = self.reshape(a, [2 for _ in range(nleg)])
+        return a
 
     def stack(  # pylint: disable=unused-variable
         self: Any, a: Sequence[Tensor], axis: int = 0

@@ -1016,6 +1016,10 @@ class Circuit:
 
         occupied = set()
         for op, index in ops:
+            if not isinstance(op, tn.Node):
+                # op is only a matrix
+                op = backend.reshape2(op)
+                op = gates.Gate(op)
             noe = len(index)
             for j, e in enumerate(index):
                 if e in occupied:
