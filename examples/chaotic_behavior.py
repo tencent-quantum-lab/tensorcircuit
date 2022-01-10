@@ -14,7 +14,7 @@ K = tc.set_backend("tensorflow")
 # build the circuit
 
 
-@partial(K.jit, static_argnums=(0, 1))
+@partial(K.jit, static_argnums=(1, 2))
 def get_state(params, n, nlayers, inputs=None):
     c = tc.Circuit(n, inputs=inputs)  # inputs is for input state of the circuit
     for i in range(nlayers):
@@ -35,6 +35,27 @@ rm = tc.quantum.reduced_density_matrix(s, cut=10 // 2)
 print(tc.quantum.entropy(rm))
 # entanglement
 # for more quantum quantities functions, please refer to tc.quantum module
+
+
+@partial(K.jit, static_argnums=(2, 3, 4))
+def frame_potential(param1, param2, t, n, nlayers):
+    s1 = get_state(param1, n, nlayers)
+    s2 = get_state(param2, n, nlayers)
+    inner = K.tensordot(K.conj(s1), s2, 1)
+    return K.abs(inner) ** (2 * t)
+
+
+# calculate several samples together using vmap
+
+frame_potential_vmap = K.vmap(
+    partial(frame_potential, t=1, n=10, nlayers=5), vectorized_argnums=(0, 1)
+)
+
+for _ in range(5):
+    print(
+        frame_potential_vmap(K.implicit_randn([3, 5, 10]), K.implicit_randn([3, 5, 10]))
+    )
+    # the first dimension is the batch
 
 # get \partial \psi_i/ \partial \params_j (Jacobian)
 
