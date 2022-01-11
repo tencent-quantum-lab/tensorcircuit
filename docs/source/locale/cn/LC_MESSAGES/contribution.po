@@ -1,0 +1,261 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, The TensorCircuit Authors
+# This file is distributed under the same license as the tensorcircuit
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: tensorcircuit \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-01-11 09:34+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../source/contribution.rst:2
+msgid "Guide for contributors"
+msgstr "开发者指南"
+
+#: ../../source/contribution.rst:4
+msgid ""
+"We welcome everyone’s contributions. The development of tensorcircuit are"
+" open-sourced and centered on GitHub."
+msgstr ""
+
+#: ../../source/contribution.rst:6
+msgid "There are various ways to contribute:"
+msgstr "参与贡献有很多方式："
+
+#: ../../source/contribution.rst:8
+msgid "Answering questions on tensorcircuit’s discussions page or issue page."
+msgstr ""
+
+#: ../../source/contribution.rst:10
+msgid ""
+"Rasing issues such as bug report or feature request on tensorcircuit's "
+"issue page."
+msgstr ""
+
+#: ../../source/contribution.rst:12
+msgid ""
+"Improving tensorcircuit's documentation (docstrings/tutorials) by pull "
+"requests."
+msgstr ""
+
+#: ../../source/contribution.rst:14
+msgid "Contributing to tensorcircuit's codebase by pull requests."
+msgstr ""
+
+#: ../../source/contribution.rst:19
+msgid "Pull Request Guidelines"
+msgstr ""
+
+#: ../../source/contribution.rst:21
+msgid ""
+"We welcome pull requests from everyone. But for large PRs related to "
+"feature enhencement or API changes, we ask that you first open a GitHub "
+"issue to discuss on your proposals."
+msgstr ""
+
+#: ../../source/contribution.rst:23
+msgid ""
+"We develop tensorcircuit using git on GitHub, so basic knowledge on git "
+"and GitHub is assumed."
+msgstr ""
+
+#: ../../source/contribution.rst:25
+msgid "The following git workflow is recommended to contribute by PR:"
+msgstr ""
+
+#: ../../source/contribution.rst:27
+msgid ""
+"Fork the tensorcircuit GitHub repository by clicking the Fork button from"
+" GitHub. This will create a fork version of the code repository in your "
+"own GitHub account."
+msgstr ""
+
+#: ../../source/contribution.rst:29
+msgid ""
+"Configure the python environment locally for development. ``pip install "
+"-r requirements.txt`` and ``pip install -r requirements-dev.txt`` are "
+"recommended. Extra packages may be required for specific development "
+"tasks."
+msgstr ""
+
+#: ../../source/contribution.rst:31
+msgid ""
+"Clone your fork repository locally and setup upstreams to the official "
+"tensorcircuit repository. And configure your git user and email so that "
+"they match your GitHub account if you haven't."
+msgstr ""
+
+#: ../../source/contribution.rst:41
+msgid ""
+"Pip installing your fork from source. This allows you to modify the code "
+"locally and immediately test it out, ``python setup.py develop``"
+msgstr ""
+
+#: ../../source/contribution.rst:43
+msgid ""
+"Create a feature branch where you will develop from, don't open PR from "
+"your master/main branch, ``git checkout -b name-of-change``."
+msgstr ""
+
+#: ../../source/contribution.rst:45
+msgid ""
+"Make sure the changes can pass all checks by running: ``./check_all.sh``."
+" (See details for checks below)"
+msgstr ""
+
+#: ../../source/contribution.rst:47
+msgid "Once you are satisfied with your change, create a commit as follows:"
+msgstr ""
+
+#: ../../source/contribution.rst:54
+msgid "You should sync your code with the official repo:"
+msgstr ""
+
+#: ../../source/contribution.rst:62
+msgid ""
+"Note that PRs typically comprise a single git commit, you should squash "
+"all you commits in the feature branch. Using ``git rebase -i`` for "
+"commits squash, see `instructions <https://www.internalpointers.com/post"
+"/squash-commits-into-one-git>`_"
+msgstr ""
+
+#: ../../source/contribution.rst:64
+msgid ""
+"Finally, push your commit from your feature branch and create a remote "
+"branch in your forked repository on GitHub that you can use to create a "
+"pull request from: ``git push --set-upstream origin name-of-change``."
+msgstr ""
+
+#: ../../source/contribution.rst:66
+msgid ""
+"Create a pull request from official tensorcircuit repository and send it "
+"for review. Some comments and remarks attached with the PR are "
+"recommended. If the PR is not finally finished, please add [WIP] at the "
+"begining of the title of your PR."
+msgstr ""
+
+#: ../../source/contribution.rst:68
+msgid ""
+"The PRs will be reviewed by developers of tensorcircuit and it will get "
+"approved or change requested. In the latter case, you can further revise "
+"the PR according to suggestions and feedbacks from the code reviewers."
+msgstr ""
+
+#: ../../source/contribution.rst:70
+msgid ""
+"The PRs you opened can be automatically updated once you further push "
+"commits to your forked repository. Please ping the code reviewer in the "
+"PR dialogue once you finished the change."
+msgstr ""
+
+#: ../../source/contribution.rst:72
+msgid ""
+"Please always include new docs and tests for your PR if possible and "
+"record your changes on CHANGELOG."
+msgstr ""
+
+#: ../../source/contribution.rst:76
+msgid "Checks and Tests"
+msgstr ""
+
+#: ../../source/contribution.rst:78
+msgid ""
+"The simplest way to ensure the codebase are ok with checks and tests, is "
+"to run one-in-all scripts ``./check_all.sh`` (you may need to ``chmod +x "
+"check_all.sh`` to grant permissions on this file)."
+msgstr ""
+
+#: ../../source/contribution.rst:80
+msgid "The scripts include the following components:"
+msgstr ""
+
+#: ../../source/contribution.rst:82
+msgid "black"
+msgstr ""
+
+#: ../../source/contribution.rst:84
+msgid "mypy"
+msgstr ""
+
+#: ../../source/contribution.rst:86
+msgid "pylint"
+msgstr ""
+
+#: ../../source/contribution.rst:88
+msgid ""
+"pytest: For pytest, one can speed up the test by ``pip install pytest-"
+"xdist``, and then run parallelly as ``pytest -v -n [number of "
+"processes]``."
+msgstr ""
+
+#: ../../source/contribution.rst:90
+msgid "sphinx doc builds"
+msgstr ""
+
+#: ../../source/contribution.rst:92
+msgid "Make sure the scripts check are successful by 💐."
+msgstr ""
+
+#: ../../source/contribution.rst:94
+msgid ""
+"The similar tests and checks are also available via GitHub action as CI "
+"infrastructures."
+msgstr ""
+
+#: ../../source/contribution.rst:96
+msgid ""
+"Please also include corresponding changes for CHANGELOG.md and docs for "
+"the PR."
+msgstr ""
+
+#: ../../source/contribution.rst:100
+msgid "Docs"
+msgstr ""
+
+#: ../../source/contribution.rst:102
+msgid ""
+"We use `sphnix <https://www.sphinx-doc.org/en/master/>`__ to manage the "
+"documentations."
+msgstr ""
+
+#: ../../source/contribution.rst:104
+msgid ""
+"For English docs, ``make html`` in docs dir is enough. The html version "
+"of the docs are in docs/build/html."
+msgstr ""
+
+#: ../../source/contribution.rst:106
+msgid ""
+"For Chinese docs, we refer to standard i18n workflow provided by sphnix, "
+"see `here <https://www.sphinx-"
+"doc.org/en/master/usage/advanced/intl.html>`__."
+msgstr ""
+
+#: ../../source/contribution.rst:108
+msgid ""
+"To update the po file from updated English rst files, using ``sphinx-intl"
+" update -p build/gettext -l cn``."
+msgstr ""
+
+#: ../../source/contribution.rst:110
+msgid ""
+"Edit these po files to add translations (`poedit <https://poedit.net/>`__"
+" recommended)."
+msgstr ""
+
+#: ../../source/contribution.rst:112
+msgid ""
+"Generate Chinese version of the documentation: ``make -e SPHINXOPTS=\"-D "
+"language='cn'\" html``."
+msgstr ""
+

@@ -69,6 +69,8 @@ The following git workflow is recommended to contribute by PR:
 
 * The PRs you opened can be automatically updated once you further push commits to your forked repository. Please ping the code reviewer in the PR dialogue once you finished the change.
 
+* Please always include new docs and tests for your PR if possible and record your changes on CHANGELOG.
+
 
 Checks and Tests
 --------------------
@@ -92,3 +94,30 @@ Make sure the scripts check are successful by 💐.
 The similar tests and checks are also available via GitHub action as CI infrastructures.
 
 Please also include corresponding changes for CHANGELOG.md and docs for the PR.
+
+
+Docs
+--------
+
+We use `sphnix <https://www.sphinx-doc.org/en/master/>`__ to manage the documentations.
+
+The source files for docs are .rst file in docs/source.
+
+For English docs, ``make html`` in docs dir is enough. The html version of the docs are in docs/build/html.
+
+**i18n:**
+
+For Chinese docs, we refer to standard i18n workflow provided by sphnix, see `here <https://www.sphinx-doc.org/en/master/usage/advanced/intl.html>`__.
+
+To update the po file from updated English rst files, using
+
+.. code-block:: bash
+
+    cd docs
+    make gettext
+    sphinx-intl update -p build/gettext -l cn
+
+
+Edit these .po files to add translations (`poedit <https://poedit.net/>`__ recommended). These files are in docs/source/locale/cn/LC_MESSAGES.
+
+Generate Chinese version of the documentation: ``make -e SPHINXOPTS="-D language='cn'" html``.
