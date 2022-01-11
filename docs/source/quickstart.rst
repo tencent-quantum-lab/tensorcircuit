@@ -133,13 +133,13 @@ Automatic differentiation, JIT and vectorized parallelism
 
 For the concepts of AD, JIT and VMAP, please refer to `Jax documentation <https://jax.readthedocs.io/en/latest/jax-101/index.html>`__ . 
 
-The related API design in TensorCircuit closely follows the design pattern in Jax with some small differences.
+The related API design in TensorCircuit closely follows the functional programming design pattern in Jax with some slight differences. So we strongly recommend the users to learn some basics about Jax no matter which ML backend they intend to use.
 
 - AD support: gradients, vjps, jvps, natural gradients, Jacobians and Hessians
 
 - JIT support: parameterized quantum circuit can run in a blink
 
-- VMAP support: inputs, parameters, measurements, circuit structures, noise can all be parallelly evaluate
+- VMAP support: inputs, parameters, measurements, circuit structures, Monte Carlo noise can all be parallelly evaluate
 
 
 Backend Agnosticism
@@ -243,9 +243,70 @@ Densitymatrix simulator ``tc.DMCircuit`` simulates the noise in a full form, but
 MPS and MPO
 ----------------
 
+TensorCircuit has its own class for MPS and MPO originally defined in TensorNetwork as ``tc.QuVector``, ``tc.QuOperator``.
+
+``tc.QuVector`` can be extracted from ``tc.Circuit`` as the tensor network form for the output state (uncontracted) by ``c.quvector()``.
+
+The QuVector form wavefunction w can also be fed into Circuit as the inputs state as ``c=tc.Circuit(n, mps_inputs=w)``.
 
 Interfaces
 -------------
+
+**PyTorch interface to hybrid with PyTorch modules:**
+
+As we have mentioned in backend section, PyTorch backend may lack advanced features. This does't mean we cannot hybrid advanced circuit module with PyTorch neural module, we can run the quantum function on tensorflow or jax backend, while wrap it with a torch interface.
+
+.. code-block:: python
+
+    import tensorcircuit as tc
+    from tensorcircuit.interfaces import torch_interface
+    import torch
+
+    tc.set_backend("tensorflow")
+
+
+    def f(params):
+        c = tc.Circuit(1)
+        c.rx(0, theta=params[0])
+        c.ry(0, theta=params[1])
+        return c.expectation([tc.gates.z(), [0]])
+
+
+    f_torch = torch_interface(f, jit=True)
+
+    a = torch.ones([2], requires_grad=True)
+    b = f_torch(a)
+    c = b ** 2
+    c.backward()
+
+    print(a.grad)
+
+
+**Scipy interface to utilize scipy optimizers:**
+
+Automatically transform quantum functions as scipy-compatible value and grad function as provided for scipy interface with ``jac=True``.
+
+.. code-block:: python
+
+    n = 3
+
+    def f(param):
+        c = tc.Circuit(n)
+        for i in range(n):
+            c.rx(i, theta=param[0, i])
+            c.rz(i, theta=param[1, i])
+        loss = c.expectation(
+            [
+                tc.gates.y(),
+                [
+                    0,
+                ],
+            ]
+        )
+        return tc.backend.real(loss)
+
+    f_scipy = tc.interfaces.scipy_optimize_interface(f, shape=[2, n])
+    r = optimize.minimize(f_scipy, np.zeros([2 * n]), method="L-BFGS-B", jac=True)
 
 
 Templates as Shortcuts

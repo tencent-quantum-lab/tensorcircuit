@@ -5,6 +5,7 @@ Guide to tensorcircuit
    :maxdepth: 2
 
    quickstart.rst
+   advance.rst
    contribution.rst
 
 API References
