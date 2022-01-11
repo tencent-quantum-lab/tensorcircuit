@@ -23,7 +23,7 @@ tc.set_dtype("complex128")
 tc.set_contractor("greedy")
 ```
 
-Auto differentiations with jit (tf and jax backend currently supported):
+Auto differentiations with jit:
 
 ```python
 @tc.backend.jit
@@ -38,7 +38,7 @@ theta = tc.gates.num_to_tensor(1.0)
 print(g(theta))
 ```
 
-For tutorials on tensorcircuit, please refer to examples in this repo and separate tensorcircuit-tutorial repo for jupyter examples. Docstrings (incomplete for now) and test cases in tests are also helpful and informative.
+For tutorials on tensorcircuit, please refer to examples and docs/source in this repo as well as separate tensorcircuit-tutorial repo for integrated jupyter examples. API docstrings (incomplete for now) and test cases in tests are also helpful and informative.
 
 ## Contributing
 

@@ -6,8 +6,14 @@ Guide to tensorcircuit
 
    quickstart.rst
    contribution.rst
-   modules.rst
 
+API References
+=======================
+
+.. toctree::
+   :maxdepth: 2
+   
+   modules.rst
 
 
 Indices and tables

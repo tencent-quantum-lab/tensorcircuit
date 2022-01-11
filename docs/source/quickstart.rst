@@ -55,7 +55,13 @@ To compute expectation values for local observables, we have ``c.expectation([tc
 
 This expectation API is rather flexible, as one can measure any matrix m on several qubits as ``c.expectation([m, [0, 1, 2]])``.
 
-**Circuit visualization:**
+**Circuit visualization:** 
+
+``c.vis_tex()`` can generate tex code for circuit visualization based on LaTeX `quantikz <https://arxiv.org/abs/1809.03842>`__ package.
+
+There are also some automatic pipeline helper functions to directly generate figures from tex code, but they require extra installs in the enviroment.
+
+``render_pdf(tex)`` function requires full installation of LaTeX locally. And in Jupyter enviroment, we may prefer ``render_pdf(tex, notebook=True)`` to return jpg figures, which further require wand magicwand library installed, see `here <https://docs.wand-py.org/en/latest/>`__.
 
 
 Programming Paradigm
