@@ -111,6 +111,18 @@ class Gate(tn.Node):  # type: ignore
 
 
 def num_to_tensor(*num: Union[float, Tensor], dtype: Optional[str] = None) -> Any:
+    r"""
+    Convert the inputs to Tensor with specified dtype
+
+    :param *num: inputs
+    :param dtype: dtype of the output Tensors
+    :returns: List of Tensors
+    :rtype: List[Tensor]
+    
+    Example::
+        # TODO(@PeterYu): Add examples
+    """
+    
     l = []
     if not dtype:
         dtype = dtypestr
@@ -196,6 +208,15 @@ pauli_gates = [i(), x(), y(), z()]  # type: ignore
 
 
 def matrix_for_gate(gate: Gate) -> Tensor:
+    """
+    Convert Gate to Tensor
+    
+    :param gate: input Gate
+    :type gate: Gate
+    :return: corresponding Tensor
+    :rtype: Tensor
+    """
+    
     t = gate.tensor
     l = int(np.sqrt(t.size))
     t = t.reshape([l, l])
@@ -225,6 +246,26 @@ def bmatrix(a: Array) -> str:
 
 
 def r_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
+    r"""
+    .. math::
+        R(\theta, \phi, \alpha) = i\cos(\theta)
+    .. math::
+        - i \cos(\phi) \sin(\alpha) \sin(\theta) X
+    .. math::
+        - i \sin(\phi) \sin(\alpha) \sin(\theta) Y
+    .. math::
+        - i \sin(\theta) \cos(\alpha) Z
+        
+    :param theta:  angle in radians
+    :type theta: float, optional
+    :param alpha: angle in radians
+    :type alpha: float, optional
+    :param phi: angle in radians
+    :type phi: float, optional
+    
+    :return: R Gate
+    :rtype: Gate
+    """
     theta, phi, alpha = num_to_tensor(theta, phi, alpha)
     i, x, y, z = array_to_tensor(_i_matrix, _x_matrix, _y_matrix, _z_matrix)
     unitary = (
@@ -240,11 +281,14 @@ def r_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
 
 
 def rx_gate(theta: float = 0) -> Gate:
-    """
-    e^{-\theta/2 i X}
-
-    :param theta:
-    :return:
+    r"""
+    .. math::
+        RX(\theta) = e^{-i\frac{\theta}{2}X}
+        
+    :param theta: angle in radians
+    :type theta: float, optional
+    :return: RX gate
+    :rtype: Gate
     """
     i, x = array_to_tensor(_i_matrix, _x_matrix)
     theta = num_to_tensor(theta)
@@ -256,11 +300,14 @@ def rx_gate(theta: float = 0) -> Gate:
 
 
 def ry_gate(theta: float = 0) -> Gate:
-    """
-    e^{-\theta/2 i Y}
-
-    :param theta:
-    :return:
+    r"""
+    .. math::
+        RY(\theta) = e^{-i\frac{\theta}{2}Y}
+        
+    :param theta: angle in radians
+    :type theta: float, optional
+    :return: RY gate
+    :rtype: Gate
     """
     i, y = array_to_tensor(_i_matrix, _y_matrix)
     theta = num_to_tensor(theta)
@@ -272,11 +319,14 @@ def ry_gate(theta: float = 0) -> Gate:
 
 
 def rz_gate(theta: float = 0) -> Gate:
-    """
-    e^{-\theta/2 i Z}
-
-    :param theta:
-    :return:
+    r"""
+    .. math::
+        RX(\theta) = e^{-i\frac{\theta}{2}Z}
+        
+    :param theta: angle in radians
+    :type theta: float, optional
+    :return: RZ Gate
+    :rtype: Gate
     """
     i, z = array_to_tensor(_i_matrix, _z_matrix)
     theta = num_to_tensor(theta)
@@ -288,6 +338,24 @@ def rz_gate(theta: float = 0) -> Gate:
 
 
 def rgate_theoretical(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
+    r"""
+    .. math::
+        mx = \sin(\alpha) \cos(\phi) X
+    .. math::
+        my = \sin(\alpha) \sin(\phi) Y
+    .. math::
+        mz = \cos(\alpha) Z
+    .. math::
+        R(\theta, \alpha, \phi) = e^{-i\theta (mx+my+mz)}
+    :param theta: angle in radians
+    :type theta: float, optional
+    :param alpha: angle in radians
+    :type alpha: float, optional
+    :param phi: angle in radians
+    :type phi: float, optional
+    :return: Rotation Gate
+    :rtype: Gate
+    """
     theta, phi, alpha = num_to_tensor(theta, phi, alpha)
     mx = backend.sin(alpha) * backend.cos(phi)
     my = backend.sin(alpha) * backend.sin(phi)
@@ -300,7 +368,10 @@ def rgate_theoretical(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gat
 
 def random_single_qubit_gate() -> Gate:
     """
-    Returns the random single qubit gate described in https://arxiv.org/abs/2002.07730.
+    Random single qubit gate described in https://arxiv.org/abs/2002.07730.
+    
+    :return: A random single qubit gate
+    :rtype: Gate
     """
     # Get the random parameters
     theta, alpha, phi = np.random.rand(3) * 2 * np.pi  # type: ignore
@@ -312,6 +383,41 @@ def random_single_qubit_gate() -> Gate:
 
 
 def iswap_gate(theta: float = 1.0) -> Gate:
+    r"""
+    
+    .. math::
+        d_1 =
+        \begin{pmatrix}
+            1 & 0 & 0 & 1\\
+            0 & 0 & 0 & 0\\
+            0 & 0 & 0 & 0\\
+            0 & 0 & 0 & 0\\
+        \end{pmatrix}
+        d_2 =
+        \begin{pmatrix}
+            0 & 0 & 0 & 0\\
+            0 & 1 & 0 & 0\\
+            0 & 0 & 1 & 0\\
+            0 & 0 & 0 & 0\\
+        \end{pmatrix}
+        od =
+        \begin{pmatrix}
+            0 & 0 & 0 & 0\\
+            0 & 0 & 1 & 0\\
+            0 & 1 & 0 & 0\\
+            0 & 0 & 0 & 0\\
+        \end{pmatrix}
+          
+    .. math::
+        iSwap(\theta) = d_1 + \cos(\frac{\pi}{2} \theta ) d_2 + j \sin(\frac{\pi}{2} \theta ) od
+    
+    # TODO(@YHPeter): need review
+    
+    :param theta: angle in radians
+    :type theta: float
+    :return: iSwap Gate
+    :rtype: Gate
+    """
     d1 = np.array([[1.0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1.0]])
     d2 = np.array([[0, 0, 0, 0], [0, 1.0, 0, 0], [0, 0, 1.0, 0], [0, 0, 0, 0]])
     od = np.array([[0, 0, 0, 0], [0, 0, 1.0, 0], [0, 1.0, 0, 0], [0, 0, 0, 0]])
@@ -330,6 +436,26 @@ def iswap_gate(theta: float = 1.0) -> Gate:
 
 
 def cr_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
+    r"""  
+    .. math::
+        CR(\theta, \phi, \alpha) = j + i\cos(\theta)
+    .. math::
+        - i \cos(\phi) \sin(\alpha) sin(\theta) X
+    .. math::
+        - i \sin(\phi) \sin(\alpha) sin(\theta) Y
+    .. math::
+        - i \sin(\theta) \cos(\alpha) Z
+        
+    :param theta:  angle in radians
+    :type theta: float, optional
+    :param alpha: angle in radians
+    :type alpha: float, optional
+    :param phi: angle in radians
+    :type phi: float, optional
+    
+    :return: CR Gate
+    :rtype: Gate
+    """
     theta, phi, alpha = num_to_tensor(theta, phi, alpha)
     u = np.array([[1.0, 0.0], [0.0, 0.0]])
     d = np.array([[0.0, 0.0], [0.0, 1.0]])
@@ -357,6 +483,8 @@ def cr_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
 def random_two_qubit_gate() -> Gate:
     """
     Returns a random two-qubit gate.
+    :return: a random two-qubit gate
+    :rtype: Gate
     """
     unitary = unitary_group.rvs(dim=4).astype(
         npdtype
@@ -382,8 +510,15 @@ def any_gate(unitary: Tensor, name: str = "any") -> Gate:
 
 
 def exponential_gate(unitary: Tensor, theta: float, name: str = "none") -> Gate:
-    """
-    $\exp{-i\theta unitary}$
+    r"""
+    .. math::
+        exp(U) = e^{-i \theta U}
+    # TODO(@YHPeter): need review
+    :param unitary: input unitary
+    :type unitary: Tensor
+    :param theta: angle in radians
+    :type theta: float
+    :param name: suffix of Gate name
     """
     theta = num_to_tensor(theta)
     mat = backend.expm(-backend.i() * theta * unitary)
