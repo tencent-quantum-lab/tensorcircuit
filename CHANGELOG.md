@@ -18,6 +18,8 @@
 
 - `expectation` API now also accepts plain tensor instead of `tc.Gate`.
 
+- `DMCircuit` and `DMCircuit2` are all pointing the efficent implementations (breaking changes)
+
 ## 0.0.220106
 
 ### Added

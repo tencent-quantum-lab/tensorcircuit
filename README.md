@@ -38,7 +38,9 @@ theta = tc.gates.num_to_tensor(1.0)
 print(g(theta))
 ```
 
-For tutorials on tensorcircuit, please refer to examples and docs/source in this repo as well as separate tensorcircuit-tutorial repo for integrated jupyter examples. API docstrings (incomplete for now) and test cases in tests are also helpful and informative.
+Please begin with [Quick Start](/docs/sources/quikstart.rst) and [Jupyter Tutorials](https://github.com/quclub/tensorcircuit-tutorials).
+
+For more information and introductions, please refer to examples and docs/source in this repo. API docstrings (incomplete for now) and test cases in tests are also helpful and informative.
 
 ## Contributing
 
