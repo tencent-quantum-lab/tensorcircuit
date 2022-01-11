@@ -37,7 +37,17 @@ def _sum_numpy(
     # see https://github.com/google/TensorNetwork/issues/952
 
 
+def _convert_to_tensor_numpy(self: Any, a: Tensor) -> Tensor:
+    if not isinstance(a, np.ndarray) and not np.isscalar(a):
+        a = np.array(a)
+    a = np.asarray(a)
+    return a
+
+
 tensornetwork.backends.numpy.numpy_backend.NumPyBackend.sum = _sum_numpy
+tensornetwork.backends.numpy.numpy_backend.NumPyBackend.convert_to_tensor = (
+    _convert_to_tensor_numpy
+)
 
 
 class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore

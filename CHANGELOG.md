@@ -14,6 +14,8 @@
 
 - `sizen` correctly returns 1 for tensor of no shape
 
+- fixed `convert_to_tensor` bug in numpy backend in TensorNetwork
+
 ### Changed
 
 - `expectation` API now also accepts plain tensor instead of `tc.Gate`.

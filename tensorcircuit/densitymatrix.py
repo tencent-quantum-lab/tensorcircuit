@@ -223,6 +223,8 @@ class DMCircuit:
         self._lfront = dangling[self._nqubits :]
         setattr(self, "state_tensor", None)
 
+    general_kraus = apply_general_kraus
+
     @staticmethod
     def apply_general_kraus_delayed(
         krausf: Callable[..., Sequence[Gate]]

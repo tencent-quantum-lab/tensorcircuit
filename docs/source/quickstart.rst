@@ -189,13 +189,55 @@ TensorCircuit is a tensornetwork contraction based quantum circuit simulator. A 
 
 There are various advanced contractor provided by the third-party packages, such as `opt-einsum <https://github.com/dgasmith/opt_einsum>`__ and `cotengra <https://github.com/jcmgray/cotengra>`__.
 
+`opt-einsum` is shipped with TensorNetwork package. To use cotengra, one need to pip install it separately, kahypar is also recommended to install with cotengra.
+
+Some setup cases:
+
+.. code-block:: python
+
+    import tensorcircuit as tc
+    
+    # 1. cotengra contractors, has better and consistent performance for large circuit simulation
+    import cotengra as ctg
+
+    optr = ctg.ReusableHyperOptimizer(
+        methods=["greedy", "kahypar"],
+        parallel=True,
+        minimize="flops",
+        max_time=120,
+        max_repeats=4096,
+        progbar=True,
+    )
+    tc.set_contractor("custom", optimizer=optr, preprocessing=True)
+    # by preprocessing set as True, tensorcircuit will automatically merge all single-qubit gates into entangling gates
+
+    # 2.  RandomGreedy contractor
+    tc.set_contractor("custom_stateful", optimizer=oem.RandomGreedy, max_time=60, max_repeats=128, minimize="size")
+
+    # 3. state simulator like contractor provided by tensorcircuit, maybe better when there is ring topology for two-qubit gate layout
+    tc.set_contractor("plain-experimental")
+
 
 Noisy Circuit simulation
 ----------------------------
 
 **Monte Carlo State Simulator:**
 
+For Monte Carlo trajector noise simulator, unitary Kraus channel can be handled easily. TensorCircuit also support full, jittable and differentable general Kraus channel Monte Carlo simulation, though.
+
+.. code-block:: python
+
+    >>> c = tc.Circuit(2)
+    >>> c.unitary_kraus(tc.channels.depolarizingchannel(0.2, 0.2, 0.2), 0)
+    0.0
+    >>> c.general_kraus(tc.channels.resetchannel(), 1)
+    0.0
+    >>> c.state()
+    array([0.+0.j, 0.+0.j, 0.+1.j, 0.+0.j], dtype=complex64)
+
 **Density Matrix Simulator:**
+
+Densitymatrix simulator ``tc.DMCircuit`` simulates the noise in a full form, but takes twice qubits as noiseless simulation. The API is basically the same as ``tc.Circuit``.
 
 
 MPS and MPO
