@@ -7,6 +7,7 @@ Guide to tensorcircuit
    quickstart.rst
    advance.rst
    contribution.rst
+   
 
 API References
 =======================

@@ -113,10 +113,10 @@ class Gate(tn.Node):  # type: ignore
 def num_to_tensor(*num: Union[float, Tensor], dtype: Optional[str] = None) -> Any:
     r"""
     Convert the inputs to Tensor with specified dtype.
-    
+
     Example:
         # TODO(@PeterYu): Add examples
-        
+
     :param num: inputs
     :type num: Union[float, Tensor]
     :param dtype: dtype of the output Tensors
@@ -124,7 +124,7 @@ def num_to_tensor(*num: Union[float, Tensor], dtype: Optional[str] = None) -> An
     :returns: List of Tensors
     :rtype: List[Tensor]
     """
-    
+
     l = []
     if not dtype:
         dtype = dtypestr
@@ -212,13 +212,13 @@ pauli_gates = [i(), x(), y(), z()]  # type: ignore
 def matrix_for_gate(gate: Gate) -> Tensor:
     """
     Convert Gate to Tensor.
-    
+
     :param gate: input Gate
     :type gate: Gate
     :return: corresponding Tensor
     :rtype: Tensor
     """
-    
+
     t = gate.tensor
     l = int(np.sqrt(t.size))
     t = t.reshape([l, l])
@@ -250,7 +250,7 @@ def bmatrix(a: Array) -> str:
 def r_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
     r"""
     General single qubit rotation gate
-    
+
     .. math::
         R(\theta, \phi, \alpha) = i \cos(\theta) I
     .. math::
@@ -259,14 +259,14 @@ def r_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
         - i \sin(\phi) \sin(\alpha) \sin(\theta) Y
     .. math::
         - i \sin(\theta) \cos(\alpha) Z
-        
+
     :param theta:  angle in radians
     :type theta: float, optional
     :param alpha: angle in radians
     :type alpha: float, optional
     :param phi: angle in radians
     :type phi: float, optional
-    
+
     :return: R Gate
     :rtype: Gate
     """
@@ -287,10 +287,10 @@ def r_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
 def rx_gate(theta: float = 0) -> Gate:
     r"""
     Rotation gate along X axis.
-    
+
     .. math::
         RX(\theta) = e^{-i\frac{\theta}{2}X}
-        
+
     :param theta: angle in radians
     :type theta: float, optional
     :return: RX Gate
@@ -308,10 +308,10 @@ def rx_gate(theta: float = 0) -> Gate:
 def ry_gate(theta: float = 0) -> Gate:
     r"""
     Rotation gate along Y axis.
-    
+
     .. math::
         RY(\theta) = e^{-i\frac{\theta}{2}Y}
-        
+
     :param theta: angle in radians
     :type theta: float, optional
     :return: RY Gate
@@ -329,10 +329,10 @@ def ry_gate(theta: float = 0) -> Gate:
 def rz_gate(theta: float = 0) -> Gate:
     r"""
     Rotation gate along Z axis.
-    
+
     .. math::
         RX(\theta) = e^{-i\frac{\theta}{2}Z}
-        
+
     :param theta: angle in radians
     :type theta: float, optional
     :return: RZ Gate
@@ -350,7 +350,7 @@ def rz_gate(theta: float = 0) -> Gate:
 def rgate_theoretical(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
     r"""
     Rotation gate, which is in matrix exponential form, shall give the same result as `rgate`.
-    
+
     .. math::
         mx = \sin(\alpha) \cos(\phi) X
     .. math::
@@ -359,7 +359,7 @@ def rgate_theoretical(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gat
         mz = \cos(\alpha) Z
     .. math::
         R(\theta, \alpha, \phi) = e^{-i\theta (mx+my+mz)}
-        
+
     :param theta: angle in radians
     :type theta: float, optional
     :param alpha: angle in radians
@@ -382,7 +382,7 @@ def rgate_theoretical(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gat
 def random_single_qubit_gate() -> Gate:
     """
     Random single qubit gate described in https://arxiv.org/abs/2002.07730.
-    
+
     :return: A random single qubit gate
     :rtype: Gate
     """
@@ -398,16 +398,16 @@ def random_single_qubit_gate() -> Gate:
 def iswap_gate(theta: float = 1.0) -> Gate:
     r"""
     iSwap gate.
-    
+
     .. math::
-        iSwap(\theta) = 
+        iSwap(\theta) =
         \begin{pmatrix}
             1 & 0 & 0 & 0\\
             0 & \cos(\frac{\pi}{2} \theta ) & j \sin(\frac{\pi}{2} \theta ) & 0\\
             0 & j \sin(\frac{\pi}{2} \theta ) & \cos(\frac{\pi}{2} \theta ) & 0\\
             0 & 0 & 0 & 1\\
         \end{pmatrix}
-        
+
     :param theta: angle in radians
     :type theta: float
     :return: iSwap Gate
@@ -431,25 +431,16 @@ def iswap_gate(theta: float = 1.0) -> Gate:
 
 
 def cr_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
-    r"""  
+    r"""
     Controlled rotation gate, when the control bit is 1, `rgate` is applied on the target gate.
-    
-    .. math::
-        CR(\theta, \phi, \alpha) = j + i\cos(\theta) I
-    .. math::
-        - i \cos(\phi) \sin(\alpha) sin(\theta) X
-    .. math::
-        - i \sin(\phi) \sin(\alpha) sin(\theta) Y
-    .. math::
-        - i \sin(\theta) \cos(\alpha) Z
-        
+
     :param theta:  angle in radians
     :type theta: float, optional
     :param alpha: angle in radians
     :type alpha: float, optional
     :param phi: angle in radians
     :type phi: float, optional
-    
+
     :return: CR Gate
     :rtype: Gate
     """
@@ -480,7 +471,7 @@ def cr_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
 def random_two_qubit_gate() -> Gate:
     """
     Returns a random two-qubit gate.
-    
+
     :return: a random two-qubit gate
     :rtype: Gate
     """
@@ -510,10 +501,10 @@ def any_gate(unitary: Tensor, name: str = "any") -> Gate:
 def exponential_gate(unitary: Tensor, theta: float, name: str = "none") -> Gate:
     r"""
     Exponential gate.
-    
+
     .. math::
-        exp(U) = e^{-i \theta U}
-        
+        \rm{exp}(U) = e^{-i \theta U}
+
     :param unitary: input unitary (U)
     :type unitary: Tensor
     :param theta: angle in radians
@@ -537,11 +528,11 @@ exp_gate = exponential_gate
 def exponential_gate_unity(unitary: Tensor, theta: float, name: str = "none") -> Gate:
     r"""
     Faster exponential gate, directly implemented based on RHS, only work when: :math:`U^2` is identity matrix.
-    
+
     .. math::
-        exp(U) &= e^{-i \theta U} \\
+        \rm{exp}(U) &= e^{-i \theta U} \\
                 &= \cos(\theta) I - j \sin(\theta) U \\
-            
+
     :param unitary: input unitary (U)
     :type unitary: Tensor
     :param theta: angle in radians
