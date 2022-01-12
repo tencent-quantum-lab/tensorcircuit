@@ -114,8 +114,10 @@ def num_to_tensor(*num: Union[float, Tensor], dtype: Optional[str] = None) -> An
     r"""
     Convert the inputs to Tensor with specified dtype
 
-    :param *num: inputs
+    :param num: inputs
+    :type num: Union[float, Tensor]
     :param dtype: dtype of the output Tensors
+    :type dtype: str, optional
     :returns: List of Tensors
     :rtype: List[Tensor]
     
@@ -519,6 +521,8 @@ def exponential_gate(unitary: Tensor, theta: float, name: str = "none") -> Gate:
     :param theta: angle in radians
     :type theta: float
     :param name: suffix of Gate name
+    :return: exponential Gate
+    :rtype: Gate
     """
     theta = num_to_tensor(theta)
     mat = backend.expm(-backend.i() * theta * unitary)
@@ -533,8 +537,21 @@ exp_gate = exponential_gate
 
 
 def exponential_gate_unity(unitary: Tensor, theta: float, name: str = "none") -> Gate:
+    r"""
+    # .. math::
+    #     exp(U) = e^{-i \theta U}
+        
+    # TODO(@YHPeter): need review
+    :param unitary: input unitary
+    :type unitary: Tensor
+    :param theta: angle in radians
+    :type theta: float
+    :param name: suffix of Gate name
+    :type name: str, optional
+    :return: exponential Gate
+    :rtype: Gate
+    """
     theta, unitary = num_to_tensor(theta, unitary)
-    # n = len(unitary.shape)
     size = int(reduce(mul, unitary.shape))
     n = int(np.log2(size))
     i = np.eye(2 ** (int(n / 2)))
