@@ -55,7 +55,7 @@ def qir2tex(
         else:
             ctrl_number, gate_name = gate_name_trans(x["name"])
 
-            if "ctrl" in x.keys():
+            if x.get("ctrl", None):
                 ctrlbits = x["ctrl"]
             else:
                 ctrlbits = [1] * ctrl_number

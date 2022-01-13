@@ -5,7 +5,7 @@ declarations of single-qubit and two-qubit gates and their corresponding matrix
 import sys
 from copy import deepcopy
 from functools import reduce
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Optional, List, Union
 from operator import mul
 
 import numpy as np
@@ -149,22 +149,55 @@ def gate_wrapper(m: Tensor, n: Optional[str] = None) -> Gate:
 
 
 class GateF:
-    def __init__(self, m: Tensor, n: Optional[str] = None):
+    def __init__(
+        self, m: Tensor, n: Optional[str] = None, ctrl: Optional[List[int]] = None
+    ):
         if not n:
             n = "unknowngate"
         self.m = m
         self.n = n
+        self.ctrl = ctrl
 
     def __call__(self, *args: Any, **kws: Any) -> Gate:
         m = self.m.astype(npdtype)
         return Gate(deepcopy(m), name=self.n)
 
-    def adjoint(self, *args: Any, **kws: Any) -> Gate:
+    def adjoint(self, *args: Any, **kws: Any) -> "GateF":
         m = self.__call__(*args, **kws)
-        m.tensor = backend.adjoint(m.tensor)
-        return m
+        ma = backend.adjoint(m.tensor)
+        return GateF(ma, self.n, self.ctrl)
+        # TODO(@refraction-ray): adjoint gate convention
 
-    # TODO(@refraction-ray): controlled
+    def controlled(self, *args: Any, **kws: Any) -> "GateF":
+        m = self.__call__(*args, **kws)
+        u = m.tensor
+        u = backend.reshapem(u)
+        s = int(u.shape[-1])
+        upper = backend.concat([backend.eye(s), backend.zeros([s, s])])
+        lower = backend.concat([backend.zeros([s, s]), u])
+        cu = backend.concat([upper, lower], axis=-1)
+        cu = backend.reshape2(cu)
+        if not self.ctrl:
+            ctrl = [1]
+        else:
+            ctrl = [1] + self.ctrl
+        return GateF(cu, "c" + self.n, ctrl)
+
+    def ocontrolled(self, *args: Any, **kws: Any) -> "GateF":
+        m = self.__call__(*args, **kws)
+        u = m.tensor
+        u = backend.reshapem(u)
+        s = int(u.shape[-1])
+        lower = backend.concat([backend.zeros([s, s]), backend.eye(s)])
+        upper = backend.concat([u, backend.zeros([s, s])])
+        ocu = backend.concat([upper, lower], axis=-1)
+        ocu = backend.reshape2(ocu)
+        if not self.ctrl:
+            ctrl = [0]
+        else:
+            ctrl = [0] + self.ctrl
+        # TODO(@refraction-ray): ctrl convention to be finally determined
+        return GateF(ocu, "o" + self.n, ctrl)
 
     def __str__(self) -> str:
         return self.n
@@ -489,6 +522,8 @@ def any_gate(unitary: Tensor, name: str = "any") -> Gate:
     :param unitary: corresponding gate
     """
     # deepcopy roadblocks tf.function, pls take care of the unitary outside
+    if isinstance(unitary, Gate):
+        return unitary
     unitary = backend.reshape2(unitary)
     # nleg = int(np.log2(backend.sizen(unitary)))
     # unitary = backend.reshape(unitary, [2 for _ in range(nleg)])

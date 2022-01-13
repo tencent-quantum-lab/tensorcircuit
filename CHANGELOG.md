@@ -10,11 +10,17 @@
 
 - add `reshape2` method on backends as a short cut to reshape a tensor with all legs 2-d
 
+- add `reshapem` method on backends to reshape any tensor as a square matrix
+
+- add `controlled` and `ocontrolled` API to generate more gates
+
 ### Fixed
 
 - `sizen` correctly returns 1 for tensor of no shape
 
 - fixed `convert_to_tensor` bug in numpy backend in TensorNetwork
+
+- `any_gate` also support Gate format instead of matrix
 
 ### Changed
 
