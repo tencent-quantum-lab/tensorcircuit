@@ -14,6 +14,8 @@
 
 - add `controlled` and `ocontrolled` API to generate more gates
 
+- add `crx`, `cry`, `crz` gate on `Circuit`
+
 ### Fixed
 
 - `sizen` correctly returns 1 for tensor of no shape

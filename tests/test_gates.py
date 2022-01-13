@@ -57,3 +57,15 @@ def test_controlled():
     c.any(1, 0, 2, unitary=ocxgate())
     np.testing.assert_allclose(c.expectation([tc.gates.z(), [2]]), -1, atol=1e-5)
     print(c.to_qir()[1])
+
+
+def test_variable_controlled():
+    crxgate = tc.gates.rx.controlled()
+    c = tc.Circuit(2)
+    c.x(0)
+    tc.Circuit.crx_my = c.apply_general_variable_gate_delayed(crxgate)
+    c.crx_my(0, 1, theta=0.3)
+    np.testing.assert_allclose(
+        c.expectation([tc.gates.z(), [1]]), 0.95533645, atol=1e-5
+    )
+    assert c.to_qir()[1]["name"] == "crx"

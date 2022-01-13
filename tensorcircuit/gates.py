@@ -169,35 +169,43 @@ class GateF:
         # TODO(@refraction-ray): adjoint gate convention
 
     def controlled(self, *args: Any, **kws: Any) -> "GateF":
-        m = self.__call__(*args, **kws)
-        u = m.tensor
-        u = backend.reshapem(u)
-        s = int(u.shape[-1])
-        upper = backend.concat([backend.eye(s), backend.zeros([s, s])])
-        lower = backend.concat([backend.zeros([s, s]), u])
-        cu = backend.concat([upper, lower], axis=-1)
-        cu = backend.reshape2(cu)
+        def f(*args: Any, **kws: Any) -> Any:
+            m = self.__call__(*args, **kws)
+            u = m.tensor
+            u = backend.reshapem(u)
+            s = int(u.shape[-1])
+            upper = backend.concat([backend.eye(s), backend.zeros([s, s])])
+            lower = backend.concat([backend.zeros([s, s]), u])
+            cu = backend.concat([upper, lower], axis=-1)
+            cu = backend.reshape2(cu)
+
+            return Gate(cu, name="c" + self.n)
+
         if not self.ctrl:
             ctrl = [1]
         else:
             ctrl = [1] + self.ctrl
-        return GateF(cu, "c" + self.n, ctrl)
+        return GateVF(f, "c" + self.n, ctrl)
 
     def ocontrolled(self, *args: Any, **kws: Any) -> "GateF":
-        m = self.__call__(*args, **kws)
-        u = m.tensor
-        u = backend.reshapem(u)
-        s = int(u.shape[-1])
-        lower = backend.concat([backend.zeros([s, s]), backend.eye(s)])
-        upper = backend.concat([u, backend.zeros([s, s])])
-        ocu = backend.concat([upper, lower], axis=-1)
-        ocu = backend.reshape2(ocu)
+        def f(*args: Any, **kws: Any) -> Any:
+            m = self.__call__(*args, **kws)
+            u = m.tensor
+            u = backend.reshapem(u)
+            s = int(u.shape[-1])
+            lower = backend.concat([backend.zeros([s, s]), backend.eye(s)])
+            upper = backend.concat([u, backend.zeros([s, s])])
+            ocu = backend.concat([upper, lower], axis=-1)
+            ocu = backend.reshape2(ocu)
+
+            # TODO(@refraction-ray): ctrl convention to be finally determined
+            return Gate(ocu, name="o" + self.n)
+
         if not self.ctrl:
             ctrl = [0]
         else:
             ctrl = [0] + self.ctrl
-        # TODO(@refraction-ray): ctrl convention to be finally determined
-        return GateF(ocu, "o" + self.n, ctrl)
+        return GateVF(f, "o" + self.n, ctrl)
 
     def __str__(self) -> str:
         return self.n
@@ -206,11 +214,17 @@ class GateF:
 
 
 class GateVF(GateF):
-    def __init__(self, f: Callable[..., Gate], n: Optional[str] = None):
+    def __init__(
+        self,
+        f: Callable[..., Gate],
+        n: Optional[str] = None,
+        ctrl: Optional[List[int]] = None,
+    ):
         if not n:
             n = "unknowngate"
         self.f = f
         self.n = n
+        self.ctrl = ctrl
 
     def __call__(self, *args: Any, **kws: Any) -> Gate:
         return self.f(*args, **kws)
@@ -595,6 +609,8 @@ exp1_gate = exponential_gate_unity
 def meta_vgate() -> None:
     for f in ["r", "rx", "ry", "rz", "iswap", "any", "exp", "exp1", "cr"]:
         setattr(thismodule, f, GateVF(getattr(thismodule, f + "_gate"), f))
+    for f in ["crx", "cry", "crz"]:
+        setattr(thismodule, f, GateVF(getattr(thismodule, f[1:]).controlled(), f))
 
 
 meta_vgate()
