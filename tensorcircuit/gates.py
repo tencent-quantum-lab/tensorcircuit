@@ -333,7 +333,6 @@ def bmatrix(a: Array) -> str:
     :return: latex str for bmatrix of array a
     :rtype: str
     """
-    # TODO(@YHPeter): check the output string with extra slashes
     #   Adopted from https://stackoverflow.com/questions/17129290/numpy-2d-and-1d-array-to-latex-bmatrix/17131750
 
     if len(a.shape) > 2:
