@@ -59,6 +59,15 @@ def test_gates_in_circuit():
     np.testing.assert_allclose(c.state().reshape([4, 4]), ans, atol=1e-5)
 
 
+def test_control_vgate():
+    c = tc.Circuit(2)
+    c.x(1)
+    c.crx(1, 0, theta=0.3)
+    np.testing.assert_allclose(
+        c.expectation([tc.gates.z(), [0]]), 0.95533645, atol=1e-5
+    )
+
+
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_jittable_measure(backend):
     @partial(tc.backend.jit, static_argnums=(2, 3))

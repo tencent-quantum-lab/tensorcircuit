@@ -41,7 +41,7 @@ class Circuit:
         + ["cnot", "cz", "swap", "cy", "iswap"]
         + ["toffoli"]
     )
-    vgates = ["r", "cr", "rx", "ry", "rz", "any", "exp", "exp1"]
+    vgates = ["r", "cr", "rx", "ry", "rz", "crx", "cry", "crz", "any", "exp", "exp1"]
 
     def __init__(
         self,
@@ -355,8 +355,11 @@ class Circuit:
         gatef: Callable[[], Gate],
         name: Optional[str] = None,
     ) -> Callable[..., None]:
+        # it is more like a register instead of apply
         # nested function must be utilized, functools.partial doesn't work for method register on class
         # see https://re-ra.xyz/Python-中实例方法动态绑定的几组最小对立/
+        if name is None:
+            name = getattr(gatef, "n")
         defaultname = name
 
         def apply(
@@ -387,6 +390,9 @@ class Circuit:
         gatef: Callable[..., Gate],
         name: Optional[str] = None,
     ) -> Callable[..., None]:
+        if name is None:
+            name = getattr(gatef, "n")
+
         def apply(self: "Circuit", *index: int, **vars: float) -> None:
             split = None
             localname = name

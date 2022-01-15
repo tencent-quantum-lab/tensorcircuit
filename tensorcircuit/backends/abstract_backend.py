@@ -216,8 +216,29 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         )
 
     def reshape2(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+        """
+        Reshape a tensor to [2, 2, ...]
+
+        :param a: [description]
+        :type a: Tensor
+        :return: [description]
+        :rtype: Tensor
+        """
         nleg = int(np.log2(self.sizen(a)))
         a = self.reshape(a, [2 for _ in range(nleg)])
+        return a
+
+    def reshapem(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+        """
+        Reshape a tensor to [l, l]
+
+        :param a: [description]
+        :type a: Tensor
+        :return: [description]
+        :rtype: Tensor
+        """
+        l = int(np.sqrt(self.sizen(a)))
+        a = self.reshape(a, [l, l])
         return a
 
     def stack(  # pylint: disable=unused-variable

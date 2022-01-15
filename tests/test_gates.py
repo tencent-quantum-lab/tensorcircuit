@@ -40,3 +40,32 @@ def test_iswap_gate():
     np.testing.assert_allclose(t, ans.reshape([2, 2, 2, 2]), atol=1e-5)
     t = tc.gates.iswap_gate(theta=0).tensor
     np.testing.assert_allclose(t, np.eye(4).reshape([2, 2, 2, 2]), atol=1e-5)
+
+
+def test_controlled():
+    xgate = tc.gates.x
+    cxgate = xgate.controlled()
+    ccxgate = cxgate.controlled()
+    assert ccxgate.n == "ccx"
+    assert ccxgate.ctrl == [1, 1]
+    np.testing.assert_allclose(
+        ccxgate().tensor, tc.backend.reshape2(tc.gates._toffoli_matrix)
+    )
+    ocxgate = cxgate.ocontrolled()
+    c = tc.Circuit(3)
+    c.x(0)
+    c.any(1, 0, 2, unitary=ocxgate())
+    np.testing.assert_allclose(c.expectation([tc.gates.z(), [2]]), -1, atol=1e-5)
+    print(c.to_qir()[1])
+
+
+def test_variable_controlled():
+    crxgate = tc.gates.rx.controlled()
+    c = tc.Circuit(2)
+    c.x(0)
+    tc.Circuit.crx_my = c.apply_general_variable_gate_delayed(crxgate)
+    c.crx_my(0, 1, theta=0.3)
+    np.testing.assert_allclose(
+        c.expectation([tc.gates.z(), [1]]), 0.95533645, atol=1e-5
+    )
+    assert c.to_qir()[1]["name"] == "crx"
