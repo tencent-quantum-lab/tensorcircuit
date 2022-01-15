@@ -9,6 +9,11 @@ from functools import wraps
 def return_partial(
     f: Callable[..., Any], return_argnums: Union[int, Sequence[int]] = 0
 ) -> Callable[..., Any]:
+    r"""
+    Example:
+        # TODO(@YHPeter): add examples
+
+    """
     if isinstance(return_argnums, int):
         return_argnums = [
             return_argnums,
