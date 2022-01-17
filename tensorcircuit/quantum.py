@@ -52,19 +52,23 @@ def quantum_constructor(
     ref_nodes: Optional[Collection[AbstractNode]] = None,
     ignore_edges: Optional[Collection[Edge]] = None,
 ) -> "QuOperator":
-    """Constructs an appropriately specialized QuOperator.
+    """
+    Constructs an appropriately specialized QuOperator.
     If there are no edges, creates a QuScalar. If the are only output (input)
-    edges, creates a QuVector (QuAdjointVector). Otherwise creates a
-    QuOperator.
-    Args:
-      out_edges: output edges.
-      in_edges: in edges.
-      ref_nodes: reference nodes for the tensor network (needed if there is a
+    edges, creates a QuVector (QuAdjointVector). Otherwise creates a QuOperator.
+
+    :param out_edges: output edges.
+    :type out_edges: Sequence[Edge]
+    :param in_edges: in edges.
+    :type in_edges: Sequence[Edge]
+    :param ref_nodes: reference nodes for the tensor network (needed if there is a
         scalar component).
-      ignore_edges: edges to ignore when checking the dimensionality of the
+    :type ref_nodes: Optional[Collection[AbstractNode]], optional
+    :param ignore_edges: edges to ignore when checking the dimensionality of the
         tensor network.
-    Returns:
-      The object.
+    :type ignore_edges: Optional[Collection[Edge]], optional
+    :return: The new created QuOperator object.
+    :rtype: QuOperator
     """
     if len(out_edges) == 0 and len(in_edges) == 0:
         return QuScalar(ref_nodes, ignore_edges)  # type: ignore
