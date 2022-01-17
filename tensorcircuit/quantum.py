@@ -136,7 +136,8 @@ def eliminate_identities(nodes: Collection[AbstractNode]) -> Tuple[dict, dict]: 
 
     :param nodes: Collection of nodes to search.
     :type nodes: Collection[AbstractNode]
-    :returns: The Dictionary mapping remaining Nodes to any replacements, Dictionary specifying all dangling-edge replacements.
+    :returns: The Dictionary mapping remaining Nodes to any replacements, Dictionary specifying all dangling-edge 
+    replacements.
     :rtype: Dict[Union[CopyNode, AbstractNode], Union[Node, AbstractNode]], Dict[Edge, Edge]
     """
     nodes_dict = {}
