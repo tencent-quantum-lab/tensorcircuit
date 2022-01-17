@@ -15,24 +15,19 @@ def return_partial(
 
     Example:
 
-    >>> import tensorcircuit as tc
     >>> from tensorcircuit.utils import return_partial
-    >>> import numpy as np
-    >>>
     >>> testin = np.array([[1,2],[3,4],[5,6],[7,8]])
-    >>>
     >>> # Method 1:
     >>> return_partial(lambda x: x, [1, 3])(testin)
     (array([3, 4]), array([7, 8]))
-    >>>
-    >>> # Method 2: (As a decorator, can only return
-    >>> # the first part of the splited result along the first axis)
-    >>> @return_partial
+    >>> # Method 2:
+    >>> from functools import partial
+    >>> @partial(return_partial, return_argnums=(0,2))
     ... def f(inp):
     ...     return inp
     ...
     >>> f(testin)
-    array([1, 2])
+    (array([1, 2]), array([5, 6]))
 
     :param f: The function to be applied this method
     :type f: Callable[..., Any]

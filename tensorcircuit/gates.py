@@ -116,8 +116,6 @@ def num_to_tensor(*num: Union[float, Tensor], dtype: Optional[str] = None) -> An
 
     Example:
 
-    >>> import numpy as np
-    >>> import tensorcircuit as tc
     >>> from tensorcircuit.gates import num_to_tensor
     >>> # OR
     >>> from tensorcircuit.gates import array_to_tensor
@@ -286,11 +284,8 @@ def matrix_for_gate(gate: Gate) -> Tensor:
 
     Example:
 
-    >>> import tensorcircuit as tc
-    >>> from tensorcircuit.gates import matrix_for_gate
-    >>>
     >>> gate = tc.gates.r_gate()
-    >>> matrix_for_gate(gate)
+    >>> tc.gates.matrix_for_gate(gate)
     array([[1.+0.j, 0.+0.j],
         [0.+0.j, 1.+0.j]], dtype=complex64)
 
@@ -312,16 +307,13 @@ def bmatrix(a: Array) -> str:
 
     Example:
 
-    >>> import tensorcircuit as tc
-    >>> from tensorcircuit.gates import bmatrix
-    >>>
     >>> gate = tc.gates.r_gate()
-    >>> array = matrix_for_gate(gate)
+    >>> array = tc.gates.matrix_for_gate(gate)
     >>> array
     array([[1.+0.j, 0.+0.j],
         [0.+0.j, 1.+0.j]], dtype=complex64)
-    >>> bmatrix(array)
-    '\\begin{bmatrix}    1.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j \\end{bmatrix}'
+    >>> print(tc.gates.bmatrix(array))
+    \begin{bmatrix}    1.+0.j & 0.+0.j\\    0.+0.j & 1.+0.j \end{bmatrix}
 
     Formatted Display:
     .. math::
