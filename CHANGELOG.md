@@ -24,6 +24,8 @@
 
 - `any_gate` also support Gate format instead of matrix
 
+- `matrix_for_gate` works now for backends more than numpy
+
 ### Changed
 
 - `expectation` API now also accepts plain tensor instead of `tc.Gate`.
