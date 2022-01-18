@@ -63,6 +63,20 @@ There are also some automatic pipeline helper functions to directly generate fig
 
 ``render_pdf(tex)`` function requires full installation of LaTeX locally. And in Jupyter enviroment, we may prefer ``render_pdf(tex, notebook=True)`` to return jpg figures, which further require wand magicwand library installed, see `here <https://docs.wand-py.org/en/latest/>`__.
 
+**Circuit Intermediate Representation:**
+
+TensorCircuit provides its own circuit IR as a python list of dicts. This IR can be further utilized to run compiling, generate serialization qasm or render circuit figures.
+
+The IR is given as a list, each element is a dict containing information on one gate that applied on the circuit. Note gate attr in the dict is actually a python function that returns the gate node.
+
+.. code-block:: python
+
+    >>> c = tc.Circuit(2)
+    >>> c.cnot(0,1)
+    >>> c.crx(1,0, theta=0.2)
+    >>> c.to_qir()
+    [{'gate': cnot, 'index': (0, 1), 'name': 'cnot', 'split': None}, {'gate': crx, 'index': (1, 0), 'name': 'crx', 'split': None, 'parameters': {'theta': 0.2}}]
+
 
 Programming Paradigm
 -------------------------
