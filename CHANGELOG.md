@@ -16,7 +16,9 @@
 
 - add `crx`, `cry`, `crz` gate on `Circuit`
 
-- add `__repr__` for backend object
+- add `__repr__` and `__str__` for backend object
+
+- `tc.expectation` now support ket arg as quvector form
 
 ### Fixed
 

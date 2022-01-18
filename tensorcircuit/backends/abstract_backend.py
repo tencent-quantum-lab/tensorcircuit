@@ -1183,6 +1183,8 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
     def __repr__(self: Any) -> str:
         return self.name + "_backend"  # type: ignore
 
+    __str__ = __repr__
+
     r = inspect.stack()
     d = r[0].frame.f_locals
     for k, v in d.items():
@@ -1191,5 +1193,3 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
 
 _more_methods_for_backend(tnbackend)
-
-# TODO(@refraction-ray): implement __str__ and __repr__ for backends

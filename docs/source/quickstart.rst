@@ -249,6 +249,24 @@ TensorCircuit has its own class for MPS and MPO originally defined in TensorNetw
 
 The QuVector form wavefunction w can also be fed into Circuit as the inputs state as ``c=tc.Circuit(n, mps_inputs=w)``.
 
+For example, the quick way to calculate the wavefunction overlap without explicitly computing the state amplitude is given as below:
+
+.. code-block:: python
+
+    >>> c = tc.Circuit(3)
+    >>> [c.H(i) for i in range(3)]
+    [None, None, None]
+    >>> c.cnot(0, 1)
+    >>> c2 = tc.Circuit(3)
+    >>> [c2.H(i) for i in range(3)]
+    [None, None, None]
+    >>> c2.cnot(1, 0)
+    >>> q = c.quvector()
+    >>> q2 = c2.quvector().adjoint()
+    >>> (q2@q).eval_matrix()
+    array([[0.9999998+0.j]], dtype=complex64)
+
+
 Interfaces
 -------------
 

@@ -1108,7 +1108,6 @@ def expectation(
     normalization: bool = False,
 ) -> Tensor:
     """
-    [deprecated] direct manipulate on  ``QuOperator`` is suggested
     compute :math:`\\langle bra\\vert ops \\vert ket\\rangle`
 
     :param ket: [description]
@@ -1125,36 +1124,69 @@ def expectation(
     """
     if bra is None:
         bra = ket
-    if conj is True:
-        bra = backend.conj(bra)
-    ket = backend.reshape(ket, [-1])
-    N = ket.shape[0]
-    n = int(np.log(N) / np.log(2))
-    ket = backend.reshape(ket, [2 for _ in range(n)])
-    bra = backend.reshape(bra, [2 for _ in range(n)])
-    ket = Gate(ket)
-    bra = Gate(bra)
-    occupied = set()
-    nodes = [ket, bra]
-    if normalization is True:
-        normket = backend.norm(ket.tensor)
-        normbra = backend.norm(bra.tensor)
-    for op, index in ops:
-        noe = len(index)
-        for j, e in enumerate(index):
-            if e in occupied:
-                raise ValueError("Cannot measure two operators in one index")
-            bra[e] ^ op.get_edge(j)
-            ket[e] ^ op.get_edge(j + noe)
-            occupied.add(e)
-        nodes.append(op)
-    for j in range(n):
-        if j not in occupied:  # edge1[j].is_dangling invalid here!
-            ket[j] ^ bra[j]
-    # self._nodes = nodes1
-    num = contractor(nodes).tensor
-    if normalization is True:
-        den = normket * normbra
+    if isinstance(ket, QuOperator):
+        if conj is True:
+            bra = bra.adjoint()
+        # TODO(@refraction-ray) omit normalization arg for now
+        n = len(ket.out_edges)
+        occupied = set()
+        nodes = list(ket.nodes) + list(bra.nodes)
+        # TODO(@refraction-ray): is the order guaranteed or affect some types of contractor?
+        for op, index in ops:
+            if not isinstance(op, tn.Node):
+                # op is only a matrix
+                op = backend.reshape2(op)
+                op = gates.Gate(op)
+            noe = len(index)
+            for j, e in enumerate(index):
+                if e in occupied:
+                    raise ValueError("Cannot measure two operators in one index")
+                bra.in_edges[e] ^ op.get_edge(j)
+                ket.out_edges[e] ^ op.get_edge(j + noe)
+                occupied.add(e)
+            nodes.append(op)
+        for j in range(n):
+            if j not in occupied:  # edge1[j].is_dangling invalid here!
+                ket.out_edges[j] ^ bra.in_edges[j]
+        # self._nodes = nodes1
+        num = contractor(nodes).tensor
+        return num
+
     else:
-        den = 1.0
-    return num / den
+        # ket is the tensor
+        if conj is True:
+            bra = backend.conj(bra)
+        ket = backend.reshape(ket, [-1])
+        ket = backend.reshape2(ket)
+        bra = backend.reshape2(bra)
+        n = len(backend.shape_tuple(ket))
+        ket = Gate(ket)
+        bra = Gate(bra)
+        occupied = set()
+        nodes = [ket, bra]
+        if normalization is True:
+            normket = backend.norm(ket.tensor)
+            normbra = backend.norm(bra.tensor)
+        for op, index in ops:
+            if not isinstance(op, tn.Node):
+                # op is only a matrix
+                op = backend.reshape2(op)
+                op = gates.Gate(op)
+            noe = len(index)
+            for j, e in enumerate(index):
+                if e in occupied:
+                    raise ValueError("Cannot measure two operators in one index")
+                bra[e] ^ op.get_edge(j)
+                ket[e] ^ op.get_edge(j + noe)
+                occupied.add(e)
+            nodes.append(op)
+        for j in range(n):
+            if j not in occupied:  # edge1[j].is_dangling invalid here!
+                ket[j] ^ bra[j]
+        # self._nodes = nodes1
+        num = contractor(nodes).tensor
+        if normalization is True:
+            den = normket * normbra
+        else:
+            den = 1.0
+        return num / den
