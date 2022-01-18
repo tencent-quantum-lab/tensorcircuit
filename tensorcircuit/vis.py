@@ -26,6 +26,12 @@ def qir2tex(
     standalone: bool = False,
     return_string_table: bool = False,
 ) -> Union[str, Tuple[str, List[List[str]]]]:
+    r"""
+    Example:
+        # TODO(@YHPeter): add examples
+
+    """
+
     # flag for applied layers
     flag = np.zeros(n, dtype=int)
     tex_string_table: List[List[str]] = [[] for _ in range(n)]
@@ -225,6 +231,12 @@ def render_pdf(
     filepath: Optional[str] = None,
     notebook: bool = False,
 ) -> Any:
+    r"""
+    Example:
+        # TODO(@YHPeter): add examples
+
+    """
+
     if not filepath:
         filepath = os.getcwd()
     if not latex:
