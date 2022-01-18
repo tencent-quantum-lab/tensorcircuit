@@ -16,6 +16,8 @@
 
 - add `crx`, `cry`, `crz` gate on `Circuit`
 
+- add `__repr__` for backend object
+
 ### Fixed
 
 - `sizen` correctly returns 1 for tensor of no shape

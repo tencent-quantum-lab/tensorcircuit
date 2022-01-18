@@ -123,23 +123,23 @@ def num_to_tensor(*num: Union[float, Tensor], dtype: Optional[str] = None) -> An
     >>> x, y, z = 0, 0.1, np.array([1])
     >>>
     >>> tc.set_backend('numpy')
-    <tensorcircuit.backends.numpy_backend.NumpyBackend object at 0x0>
+    numpy_backend
     >>> num_to_tensor(x, y, z)
     [array(0.+0.j, dtype=complex64), array(0.1+0.j, dtype=complex64), array([1.+0.j], dtype=complex64)]
     >>>
     >>> tc.set_backend('tensorflow')
-    <tensorcircuit.backends.tensorflow_backend.TensorFlowBackend object at 0x0>
+    tensorflow_backend
     >>> num_to_tensor(x, y, z)
     [<tf.Tensor: shape=(), dtype=complex64, numpy=0j>,
      <tf.Tensor: shape=(), dtype=complex64, numpy=(0.1+0j)>,
      <tf.Tensor: shape=(1,), dtype=complex64, numpy=array([1.+0.j], dtype=complex64)>]
     >>>
     >>> tc.set_backend('pytorch')
-    <tensorcircuit.backends.pytorch_backend.PyTorchBackend object at 0x0>
+    pytorch_backend
     >>> num_to_tensor(x, y, z)
     [tensor(0.+0.j), tensor(0.1000+0.j), tensor([1.+0.j])]
     >>> tc.set_backend('jax')
-    <tensorcircuit.backends.jax_backend.JaxBackend object at 0x0>
+    jax_backend
     >>> num_to_tensor(x, y, z)
     [DeviceArray(0.+0.j, dtype=complex64),
      DeviceArray(0.1+0.j, dtype=complex64),
