@@ -48,7 +48,7 @@ def depolarizingchannel(px: float, py: float, pz: float) -> Sequence[Gate]:
         \sqrt{p_y}
         \begin{bmatrix}
             0 & -1j\\
-            1j & 1\\
+            1j & 0\\
         \end{bmatrix}\qquad
         \sqrt{p_z}
         \begin{bmatrix}
