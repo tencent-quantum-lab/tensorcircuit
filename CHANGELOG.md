@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- add `td` and `sd` gates for dagger version of T gate and S gate
+
 ## 0.0.220118
 
 ### Added

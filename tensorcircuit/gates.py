@@ -194,8 +194,8 @@ class GateF:
     def adjoint(self, *args: Any, **kws: Any) -> "GateF":
         m = self.__call__(*args, **kws)
         ma = backend.adjoint(m.tensor)
-        return GateF(ma, self.n, self.ctrl)
-        # TODO(@refraction-ray): adjoint gate convention
+        return GateF(ma, self.n + "d", self.ctrl)
+        # TODO(@refraction-ray): adjoint gate convention finally determined
 
     def controlled(self, *args: Any, **kws: Any) -> "GateF":
         def f(*args: Any, **kws: Any) -> Any:
@@ -658,7 +658,9 @@ def meta_vgate() -> None:
     for f in ["r", "rx", "ry", "rz", "iswap", "any", "exp", "exp1", "cr"]:
         setattr(thismodule, f, GateVF(getattr(thismodule, f + "_gate"), f))
     for f in ["crx", "cry", "crz"]:
-        setattr(thismodule, f, GateVF(getattr(thismodule, f[1:]).controlled(), f))
+        setattr(thismodule, f, getattr(thismodule, f[1:]).controlled())
+    for f in ["sd", "td"]:
+        setattr(thismodule, f, getattr(thismodule, f[:-1]).adjoint())
 
 
 meta_vgate()

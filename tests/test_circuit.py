@@ -68,6 +68,13 @@ def test_control_vgate():
     )
 
 
+def test_adjoint_gate_circuit():
+    c = tc.Circuit(1)
+    c.X(0)
+    c.SD(0)
+    np.testing.assert_allclose(c.state(), np.array([0.0, -1.0j]))
+
+
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_jittable_measure(backend):
     @partial(tc.backend.jit, static_argnums=(2, 3))

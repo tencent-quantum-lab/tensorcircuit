@@ -37,7 +37,7 @@ class Circuit:
     """
 
     sgates = (
-        ["i", "x", "y", "z", "h", "t", "s", "wroot"]
+        ["i", "x", "y", "z", "h", "t", "s", "td", "sd", "wroot"]
         + ["cnot", "cz", "swap", "cy", "iswap"]
         + ["toffoli"]
     )
