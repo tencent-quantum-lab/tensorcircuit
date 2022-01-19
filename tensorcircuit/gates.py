@@ -109,7 +109,7 @@ class Gate(tn.Node):  # type: ignore
 
     def __repr__(self) -> Text:
         """Formatted output of Gate
-        
+
         Example:
 
         >>> tc.gates.ry(0.5)
