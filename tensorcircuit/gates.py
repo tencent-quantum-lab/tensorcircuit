@@ -316,12 +316,13 @@ def bmatrix(a: Array) -> str:
     \begin{bmatrix}    1.+0.j & 0.+0.j\\    0.+0.j & 1.+0.j \end{bmatrix}
 
     Formatted Display:
+
     .. math::
         \begin{bmatrix}    1.+0.j & 0.+0.j\\    0.+0.j & 1.+0.j \end{bmatrix}
 
     :param a: 2D numpy array
     :type a: np.array
-    :raises ValueError: [description]
+    :raises ValueError: ValueError("bmatrix can at most display two dimensions")
     :return: latex str for bmatrix of array a
     :rtype: str
     """
