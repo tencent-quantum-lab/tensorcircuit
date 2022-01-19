@@ -232,9 +232,32 @@ def render_pdf(
     notebook: bool = False,
 ) -> Any:
     r"""
-    Example:
-        # TODO(@YHPeter): add examples
+    Generate the PDF file with given latex string and filename.
+    Latex command and file path can be specified.
+    When notebook is True, convert the output PDF file to image and return a Image object.
 
+    Example:
+
+    >>> string = r'''\documentclass[a4paper,12pt]{article}
+    ... \begin{document}
+    ... \title{Hello TensorCircuit!}
+    ... \end{document}'''
+    >>> tc.vis.render_pdf(string, "test.pdf", notebook=False)
+    >>> os.listdir()
+    ['test.aux', 'test.log', 'test.pdf', 'test.tex']
+
+    :param texcode: String of latex content
+    :type texcode: str
+    :param filename: File name, defaults to random UUID `str(uuid4())`
+    :type filename: Optional[str], optional
+    :param latex: Excutiable Latex command, defaults to `pdflatex`
+    :type latex: Optional[str], optional
+    :param filepath: File path, defaults to current working place `os.getcwd()`
+    :type filepath: Optional[str], optional
+    :param notebook: [description], defaults to False
+    :type notebook: bool, optional
+    :return: if notebook is True, return `Image` object; otherwise return `None`
+    :rtype: Optional[Image], defaults to None
     """
 
     if not filepath:

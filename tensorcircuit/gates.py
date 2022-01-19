@@ -5,7 +5,7 @@ declarations of single-qubit and two-qubit gates and their corresponding matrix
 import sys
 from copy import deepcopy
 from functools import reduce
-from typing import Any, Callable, Optional, List, Union
+from typing import Any, Callable, Optional, List, Union, Text
 from operator import mul
 
 import numpy as np
@@ -107,7 +107,36 @@ class Gate(tn.Node):  # type: ignore
     Wrapper of tn.Node, quantum gate
     """
 
-    pass
+    def __repr__(self) -> Text:
+        """Formatted output of Gate
+        
+        Example:
+
+        >>> tc.gates.ry(0.5)
+        >>> # OR
+        >>> print(repr(tc.gates.ry(0.5)))
+        Gate(
+            name: '__unnamed_node__',
+            tensor:
+                <tf.Tensor: shape=(2, 2), dtype=complex64, numpy=
+                array([[ 0.9689124 +0.j, -0.24740396+0.j],
+                    [ 0.24740396+0.j,  0.9689124 +0.j]], dtype=complex64)>,
+            edges: [
+                Edge(Dangling Edge)[0],
+                Edge(Dangling Edge)[1]
+            ])
+        """
+        sp = " " * 4
+        edges = self.get_all_edges()
+        edges_text = [edge.__repr__().replace("\n", "").strip() for edge in edges]
+        edges_out = f"[" + f"\n{sp*2}" + f",\n{sp*2}".join(edges_text) + f"\n{sp}]"
+        tensor_out = f"\n{sp*2}" + self.tensor.__repr__().replace("\n", f"\n{sp*2}")
+        return (
+            f"{self.__class__.__name__}(\n"
+            f"{sp}name: {self.name!r},\n"
+            f"{sp}tensor:{tensor_out},\n"
+            f"{sp}edges: {edges_out})"
+        )
 
 
 def num_to_tensor(*num: Union[float, Tensor], dtype: Optional[str] = None) -> Any:
@@ -306,7 +335,7 @@ def matrix_for_gate(gate: Gate) -> Tensor:
     return backend.reshapem(t)
 
 
-def bmatrix(a: Array) -> str:
+def bmatrix(a: Array) -> Text:
     r"""
     Returns a LaTeX bmatrix.
 
