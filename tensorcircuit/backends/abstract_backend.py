@@ -2,6 +2,7 @@
 backend magic inherited from tensornetwork: abstract backend
 """
 # pylint: disable=invalid-name
+# pylint: disable=unused-variable
 
 import inspect
 from functools import reduce, partial
@@ -30,7 +31,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
     Add tensorcircuit specific backend methods, especially with their docstrings
     """
 
-    def copy(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+    def copy(self: Any, a: Tensor) -> Tensor:
         """
         Return expm of ``a``, matrix exponential.
 
@@ -43,7 +44,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `copy`.".format(self.name)
         )
 
-    def expm(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+    def expm(self: Any, a: Tensor) -> Tensor:
         """
         Return expm of ``a``, matrix exponential.
 
@@ -56,7 +57,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `expm`.".format(self.name)
         )
 
-    def sqrtmh(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+    def sqrtmh(self: Any, a: Tensor) -> Tensor:
         """
         Return sqrtm of Hermitian matrix ``a``
 
@@ -70,7 +71,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         e = self.sqrt(e)
         return v @ self.diagflat(e) @ self.adjoint(v)
 
-    def sin(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+    def sin(self: Any, a: Tensor) -> Tensor:
         """
         Return sin of ``a``.
 
@@ -83,7 +84,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `sin`.".format(self.name)
         )
 
-    def cos(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+    def cos(self: Any, a: Tensor) -> Tensor:
         """
         Return cos of ``a``.
 
@@ -96,7 +97,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `cos`.".format(self.name)
         )
 
-    def abs(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+    def abs(self: Any, a: Tensor) -> Tensor:
         """
         Return elementwise abs value of ``a``.
 
@@ -111,9 +112,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     # TODO(@refraction-ray): abs docstring doesn't get registered in the doc
 
-    def kron(  # pylint: disable=unused-variable
-        self: Any, a: Tensor, b: Tensor
-    ) -> Tensor:
+    def kron(self: Any, a: Tensor, b: Tensor) -> Tensor:
         """
         Return kronecker product of two matrix ``a`` and ``b``.
 
@@ -128,7 +127,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `kron`.".format(self.name)
         )
 
-    def size(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+    def size(self: Any, a: Tensor) -> Tensor:
         """
         Return the total number of elements in ``a`` in tensor form.
 
@@ -141,7 +140,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `size`.".format(self.name)
         )
 
-    def sizen(self: Any, a: Tensor) -> int:  # pylint: disable=unused-variable
+    def sizen(self: Any, a: Tensor) -> int:
         """
         Return the total number of elements in ``a``, but in int form
 
@@ -152,7 +151,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         """
         return reduce(mul, list(a.shape) + [1])  # type: ignore
 
-    def numpy(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+    def numpy(self: Any, a: Tensor) -> Tensor:
         """
         Return numpy array of tensor ``a``, may not work in jitted function.
 
@@ -165,7 +164,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `numpy`.".format(self.name)
         )
 
-    def real(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+    def real(self: Any, a: Tensor) -> Tensor:
         """
         Return elementwise real value of ``a``.
 
@@ -178,7 +177,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `real`.".format(self.name)
         )
 
-    def imag(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+    def imag(self: Any, a: Tensor) -> Tensor:
         """
         Return elementwise imaginary value of ``a``.
 
@@ -191,7 +190,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `imag`.".format(self.name)
         )
 
-    def adjoint(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+    def adjoint(self: Any, a: Tensor) -> Tensor:
         """
         conjugate and transpose of the tensor ``a``
 
@@ -202,7 +201,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         """
         return self.conj(self.transpose(a))
 
-    def i(self: Any, dtype: str) -> Tensor:  # pylint: disable=unused-variable
+    def i(self: Any, dtype: str) -> Tensor:
         """
         Return 1.j in as tensor comoatible with backend.
 
@@ -215,7 +214,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `i`.".format(self.name)
         )
 
-    def reshape2(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+    def reshape2(self: Any, a: Tensor) -> Tensor:
         """
         Reshape a tensor to [2, 2, ...]
 
@@ -228,7 +227,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         a = self.reshape(a, [2 for _ in range(nleg)])
         return a
 
-    def reshapem(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+    def reshapem(self: Any, a: Tensor) -> Tensor:
         """
         Reshape a tensor to [l, l]
 
@@ -241,9 +240,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         a = self.reshape(a, [l, l])
         return a
 
-    def stack(  # pylint: disable=unused-variable
-        self: Any, a: Sequence[Tensor], axis: int = 0
-    ) -> Tensor:
+    def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         """
         Concatenates a sequence of tensors ``a`` along a new dimension ``axis``.
 
@@ -258,9 +255,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `stack`.".format(self.name)
         )
 
-    def concat(  # pylint: disable=unused-variable
-        self: Any, a: Sequence[Tensor], axis: int = 0
-    ) -> Tensor:
+    def concat(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         """
         Join a sequence of arrays along an existing axis.
 
@@ -273,9 +268,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `concat`.".format(self.name)
         )
 
-    def tile(  # pylint: disable=unused-variable
-        self: Any, a: Tensor, rep: Tensor
-    ) -> Tensor:
+    def tile(self: Any, a: Tensor, rep: Tensor) -> Tensor:
         """
         Constructs a tensor by tiling a given tensor.
 
@@ -290,9 +283,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `tile`.".format(self.name)
         )
 
-    def min(  # pylint: disable=unused-variable
-        self: Any, a: Tensor, axis: Optional[int] = None
-    ) -> Tensor:
+    def min(self: Any, a: Tensor, axis: Optional[int] = None) -> Tensor:
         """
         Return the minimum of an array or minimum along an axis.
 
@@ -307,9 +298,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `min`.".format(self.name)
         )
 
-    def max(  # pylint: disable=unused-variable
-        self: Any, a: Tensor, axis: Optional[int] = None
-    ) -> Tensor:
+    def max(self: Any, a: Tensor, axis: Optional[int] = None) -> Tensor:
         """
         Return the maximum of an array or maximum along an axis.
 
@@ -324,9 +313,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `max`.".format(self.name)
         )
 
-    def unique_with_counts(  # pylint: disable=unused-variable
-        self: Any, a: Tensor
-    ) -> Tuple[Tensor, Tensor]:
+    def unique_with_counts(self: Any, a: Tensor) -> Tuple[Tensor, Tensor]:
         """
         Find the unique elements and their corresponding counts of the given tensor ``a``.
 
@@ -339,7 +326,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `unique_with_counts`.".format(self.name)
         )
 
-    def relu(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+    def relu(self: Any, a: Tensor) -> Tensor:
         """
         Rectified linear unit activation function.
         Computes the element-wise function:
@@ -358,9 +345,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `relu`.".format(self.name)
         )
 
-    def softmax(  # pylint: disable=unused-variable
-        self: Any, a: Sequence[Tensor], axis: Optional[int] = None
-    ) -> Tensor:
+    def softmax(self: Any, a: Sequence[Tensor], axis: Optional[int] = None) -> Tensor:
         """
         Softmax function.
         Computes the function which rescales elements to the range [0,1] such that the elements along axis sum to 1.
@@ -381,9 +366,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `softmax`.".format(self.name)
         )
 
-    def onehot(  # pylint: disable=unused-variable
-        self: Any, a: Tensor, num: int
-    ) -> Tensor:
+    def onehot(self: Any, a: Tensor, num: int) -> Tensor:
         """
         One-hot encodes the given ``a``.
         Each index in the input ``a`` is encoded as a vector of zeros of length ``num``
@@ -401,17 +384,13 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         )
 
     # one_hot = onehot doesn't work
-    def one_hot(  # pylint: disable=unused-variable
-        self: Any, a: Tensor, num: int
-    ) -> Tensor:
+    def one_hot(self: Any, a: Tensor, num: int) -> Tensor:
         """
         See doc for :py:meth:`onehot`
         """
         return self.onehot(a, num)
 
-    def cumsum(  # pylint: disable=unused-variable
-        self: Any, a: Tensor, axis: Optional[int] = None
-    ) -> Tensor:
+    def cumsum(self: Any, a: Tensor, axis: Optional[int] = None) -> Tensor:
         """
         Return the cumulative sum of the elements along a given axis.
 
@@ -427,7 +406,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `cumsum`.".format(self.name)
         )
 
-    def is_tensor(self: Any, a: Tensor) -> bool:  # pylint: disable=unused-variable
+    def is_tensor(self: Any, a: Tensor) -> bool:
         """
         Return boolean on whether ``a`` is a tensor in backend package.
 
@@ -440,9 +419,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `is_tensor`.".format(self.name)
         )
 
-    def cast(  # pylint: disable=unused-variable
-        self: Any, a: Tensor, dtype: str
-    ) -> Tensor:
+    def cast(self: Any, a: Tensor, dtype: str) -> Tensor:
         """
         Cast the tensor dtype of a ``a``.
 
@@ -457,9 +434,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `cast`.".format(self.name)
         )
 
-    def solve(  # pylint: disable=unused-variable
-        self: Any, A: Tensor, b: Tensor, **kws: Any
-    ) -> Tensor:
+    def solve(self: Any, A: Tensor, b: Tensor, **kws: Any) -> Tensor:
         """
         Solve linear system Ax=b and return x
 
@@ -474,9 +449,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `solve`.".format(self.name)
         )
 
-    def tree_map(  # pylint: disable=unused-variable
-        self: Any, f: Callable[..., Any], *pytrees: Any
-    ) -> Any:
+    def tree_map(self: Any, f: Callable[..., Any], *pytrees: Any) -> Any:
         """
         tree map with multiple arg function ``f`` through pytrees
 
@@ -510,7 +483,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
         return r
 
-    def set_random_state(  # pylint: disable=unused-variable
+    def set_random_state(
         self: Any, seed: Optional[int] = None, get_only: bool = False
     ) -> Any:
         """
@@ -525,9 +498,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `set_random_state`.".format(self.name)
         )
 
-    def get_random_state(  # pylint: disable=unused-variable
-        self: Any, seed: Optional[int] = None
-    ) -> Any:
+    def get_random_state(self: Any, seed: Optional[int] = None) -> Any:
         """
         get backend specific random state object
 
@@ -538,9 +509,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         """
         return self.set_random_state(seed, True)
 
-    def random_split(  # pylint: disable=unused-variable
-        self: Any, key: Any
-    ) -> Tuple[Any, Any]:
+    def random_split(self: Any, key: Any) -> Tuple[Any, Any]:
         """
         a jax like split API, but does't split the key generator for other backends.
         just for a consistent interface of random code, be careful that you know what the function actually does.
@@ -555,7 +524,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
     # Though try hard, the current random API abstraction may not be perfect when with nested jit or vmap
     # so keep every random function a direct status parameters in case.
 
-    def implicit_randn(  # pylint: disable=unused-variable
+    def implicit_randn(
         self: Any,
         shape: Union[int, Sequence[int]] = 1,
         mean: float = 0,
@@ -583,7 +552,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         r = self.stateful_randn(g, shape, mean, stddev, dtype)
         return r
 
-    def stateful_randn(  # pylint: disable=unused-variable
+    def stateful_randn(
         self: Any,
         g: Any,
         shape: Union[int, Sequence[int]] = 1,
@@ -613,7 +582,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `stateful_randn`.".format(self.name)
         )
 
-    def implicit_randu(  # pylint: disable=unused-variable
+    def implicit_randu(
         self: Any,
         shape: Union[int, Sequence[int]] = 1,
         low: float = 0,
@@ -641,7 +610,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         r = self.stateful_randu(g, shape, low, high, dtype)
         return r
 
-    def stateful_randu(  # pylint: disable=unused-variable
+    def stateful_randu(
         self: Any,
         g: Any,
         shape: Union[int, Sequence[int]] = 1,
@@ -669,7 +638,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `stateful_randu`.".format(self.name)
         )
 
-    def implicit_randc(  # pylint: disable=unused-variable
+    def implicit_randc(
         self: Any,
         a: Union[int, Sequence[int], Tensor],
         shape: Union[int, Sequence[int]],
@@ -696,7 +665,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         r = self.stateful_randc(g, a, shape, p)
         return r
 
-    def stateful_randc(  # pylint: disable=unused-variable
+    def stateful_randc(
         self: Any,
         g: Any,
         a: Union[int, Sequence[int], Tensor],
@@ -721,9 +690,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `stateful_randc`.".format(self.name)
         )
 
-    def scatter(  # pylint: disable=unused-variable
-        self: Any, operand: Tensor, indices: Tensor, updates: Tensor
-    ) -> Tensor:
+    def scatter(self: Any, operand: Tensor, indices: Tensor, updates: Tensor) -> Tensor:
         """
         Roughly equivalent to operand[indices] = updates, indices only support shape with rank 2 for now
 
@@ -743,7 +710,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `scatter`.".format(self.name)
         )
 
-    def coo_sparse_matrix(  # pylint: disable=unused-variable
+    def coo_sparse_matrix(
         self: Any, indices: Tensor, values: Tensor, shape: Tensor
     ) -> Tensor:
         """
@@ -763,7 +730,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `coo`.".format(self.name)
         )
 
-    def sparse_dense_matmul(  # pylint: disable=unused-variable
+    def sparse_dense_matmul(
         self: Any,
         sp_a: Tensor,
         b: Tensor,
@@ -782,7 +749,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `sparse_dense_matmul`.".format(self.name)
         )
 
-    def to_dense(self: Any, sp_a: Tensor) -> Tensor:  # pylint: disable=unused-variable
+    def to_dense(self: Any, sp_a: Tensor) -> Tensor:
         """
         convert sparse matrix to dense tensor
 
@@ -795,7 +762,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `to_dense`.".format(self.name)
         )
 
-    def is_sparse(self: Any, a: Tensor) -> bool:  # pylint: disable=unused-variable
+    def is_sparse(self: Any, a: Tensor) -> bool:
         """
         determine whether the type of input ``a`` is of sparse type
 
@@ -808,7 +775,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `is_sparse`.".format(self.name)
         )
 
-    def cond(  # pylint: disable=unused-variable
+    def cond(
         self: Any,
         pred: bool,
         true_fun: Callable[[], Tensor],
@@ -831,7 +798,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `cond`.".format(self.name)
         )
 
-    def switch(  # pylint: disable=unused-variable
+    def switch(
         self: Any, index: Tensor, branches: Sequence[Callable[[], Tensor]]
     ) -> Tensor:
         """
@@ -848,9 +815,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `switch`.".format(self.name)
         )
 
-    def stop_gradient(  # pylint: disable=unused-variable
-        self: Any, a: Tensor
-    ) -> Tensor:
+    def stop_gradient(self: Any, a: Tensor) -> Tensor:
         """
         stop backpropagation from a
 
@@ -863,7 +828,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `stop_gradient`.".format(self.name)
         )
 
-    def grad(  # pylint: disable=unused-variable
+    def grad(
         self: Any,
         f: Callable[..., Any],
         argnums: Union[int, Sequence[int]] = 0,
@@ -892,7 +857,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `grad`.".format(self.name)
         )
 
-    def value_and_grad(  # pylint: disable=unused-variable
+    def value_and_grad(
         self: Any,
         f: Callable[..., Any],
         argnums: Union[int, Sequence[int]] = 0,
@@ -921,7 +886,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `value_and_grad`.".format(self.name)
         )
 
-    def jvp(  # pylint: disable=unused-variable
+    def jvp(
         self: Any,
         f: Callable[..., Any],
         inputs: Union[Tensor, Sequence[Tensor]],
@@ -944,7 +909,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `jvp`.".format(self.name)
         )
 
-    def vjp(  # pylint: disable=unused-variable
+    def vjp(
         self: Any,
         f: Callable[..., Any],
         inputs: Union[Tensor, Sequence[Tensor]],
@@ -970,7 +935,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `vjp`.".format(self.name)
         )
 
-    def jacfwd(  # pylint: disable=unused-variable
+    def jacfwd(
         self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Tensor:
         """
@@ -1034,7 +999,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
         return wrapper
 
-    def jacrev(  # pylint: disable=unused-variable
+    def jacrev(
         self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Tensor:
         """
@@ -1107,9 +1072,9 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
         return wrapper
 
-    jacbwd = jacrev  # pylint: disable=unused-variable
+    jacbwd = jacrev
 
-    def hessian(  # pylint: disable=unused-variable
+    def hessian(
         self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Tensor:
         # different by conjugate for tf and jax backend
@@ -1118,7 +1083,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         # TODO(@refraction-ray): with complains like: AttributeError: 'IndexedSlices' object has no attribute '_id'
         return self.jacrev(self.jacrev(f, argnums=argnums), argnums=argnums)
 
-    def jit(  # pylint: disable=unused-variable
+    def jit(
         self: Any,
         f: Callable[..., Any],
         static_argnums: Optional[Union[int, Sequence[int]]] = None,
@@ -1142,7 +1107,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `jit`.".format(self.name)
         )
 
-    def vmap(  # pylint: disable=unused-variable
+    def vmap(
         self: Any,
         f: Callable[..., Any],
         vectorized_argnums: Union[int, Sequence[int]] = 0,
@@ -1163,7 +1128,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `vmap`.".format(self.name)
         )
 
-    def vectorized_value_and_grad(  # pylint: disable=unused-variable
+    def vectorized_value_and_grad(
         self: Any,
         f: Callable[..., Any],
         argnums: Union[int, Sequence[int]] = 0,
@@ -1214,6 +1179,11 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
                 self.name
             )
         )
+
+    def __repr__(self: Any) -> str:
+        return self.name + "_backend"  # type: ignore
+
+    __str__ = __repr__
 
     r = inspect.stack()
     d = r[0].frame.f_locals

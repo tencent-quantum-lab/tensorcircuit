@@ -348,3 +348,14 @@ def test_mutual_information(backend):
     dm1 = tc.quantum.mutual_information(w, cut=[1, 2, 3])
     dm2 = tc.quantum.mutual_information(rho, cut=[1, 2, 3])
     np.testing.assert_allclose(dm1, dm2, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_expectation_quantum(backend):
+    c = tc.Circuit(3)
+    c.ry(0, theta=0.4)
+    c.cnot(0, 1)
+    exp1 = c.expectation([tc.gates.z(), [0]], [tc.gates.z(), [2]], reuse=False)
+    qv = c.quvector()
+    exp2 = tc.expectation([tc.gates.z(), [0]], [tc.gates.z(), [2]], ket=qv)
+    np.testing.assert_allclose(exp1, exp2, atol=1e-5)

@@ -69,3 +69,10 @@ def test_variable_controlled():
         c.expectation([tc.gates.z(), [1]]), 0.95533645, atol=1e-5
     )
     assert c.to_qir()[1]["name"] == "crx"
+
+
+def test_adjoint_gate():
+    np.testing.assert_allclose(
+        tc.gates.sd().tensor, tc.backend.adjoint(tc.gates._s_matrix)
+    )
+    assert tc.gates.td.n == "td"

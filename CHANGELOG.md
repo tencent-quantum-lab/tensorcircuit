@@ -4,6 +4,12 @@
 
 ### Added
 
+- add `td` and `sd` gates for dagger version of T gate and S gate
+
+## 0.0.220118
+
+### Added
+
 - add `hessian` method on backends
 
 - add further automatic pipelines for visualization by generating pdf or images
@@ -16,6 +22,10 @@
 
 - add `crx`, `cry`, `crz` gate on `Circuit`
 
+- add `__repr__` and `__str__` for backend object
+
+- `tc.expectation` now support ket arg as quvector form
+
 ### Fixed
 
 - `sizen` correctly returns 1 for tensor of no shape
@@ -23,6 +33,8 @@
 - fixed `convert_to_tensor` bug in numpy backend in TensorNetwork
 
 - `any_gate` also support Gate format instead of matrix
+
+- `matrix_for_gate` works now for backends more than numpy
 
 ### Changed
 

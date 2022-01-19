@@ -123,19 +123,27 @@ def num_to_tensor(*num: Union[float, Tensor], dtype: Optional[str] = None) -> An
     >>> x, y, z = 0, 0.1, np.array([1])
     >>>
     >>> tc.set_backend('numpy')
-    <tensorcircuit.backends.numpy_backend.NumpyBackend object at 0x0>
-    >>> num_to_tensor(x,y,z)
+    numpy_backend
+    >>> num_to_tensor(x, y, z)
     [array(0.+0.j, dtype=complex64), array(0.1+0.j, dtype=complex64), array([1.+0.j], dtype=complex64)]
     >>>
     >>> tc.set_backend('tensorflow')
-    <tensorcircuit.backends.tensorflow_backend.TensorFlowBackend object at 0x0>
-    >>> num_to_tensor(x,y,z)
-    [<tf.Tensor: shape=(), dtype=complex64, numpy=0j>, <tf.Tensor: shape=(), dtype=complex64, numpy=(0.1+0j)>, <tf.Tensor: shape=(1,), dtype=complex64, numpy=array([1.+0.j], dtype=complex64)>]
+    tensorflow_backend
+    >>> num_to_tensor(x, y, z)
+    [<tf.Tensor: shape=(), dtype=complex64, numpy=0j>,
+     <tf.Tensor: shape=(), dtype=complex64, numpy=(0.1+0j)>,
+     <tf.Tensor: shape=(1,), dtype=complex64, numpy=array([1.+0.j], dtype=complex64)>]
     >>>
     >>> tc.set_backend('pytorch')
-    <tensorcircuit.backends.pytorch_backend.PyTorchBackend object at 0x0>
-    >>> num_to_tensor(x,y,z)
+    pytorch_backend
+    >>> num_to_tensor(x, y, z)
     [tensor(0.+0.j), tensor(0.1000+0.j), tensor([1.+0.j])]
+    >>> tc.set_backend('jax')
+    jax_backend
+    >>> num_to_tensor(x, y, z)
+    [DeviceArray(0.+0.j, dtype=complex64),
+     DeviceArray(0.1+0.j, dtype=complex64),
+     DeviceArray([1.+0.j], dtype=complex64)]
 
     :param num: inputs
     :type num: Union[float, Tensor]
@@ -145,7 +153,6 @@ def num_to_tensor(*num: Union[float, Tensor], dtype: Optional[str] = None) -> An
     :rtype: List[Tensor]
     """
     # TODO(@YHPeter): fix __doc__ for same function with different names
-    # TODO(@YHPeter): add JAX backend example
 
     l = []
     if not dtype:
@@ -187,8 +194,8 @@ class GateF:
     def adjoint(self, *args: Any, **kws: Any) -> "GateF":
         m = self.__call__(*args, **kws)
         ma = backend.adjoint(m.tensor)
-        return GateF(ma, self.n, self.ctrl)
-        # TODO(@refraction-ray): adjoint gate convention
+        return GateF(ma, self.n + "d", self.ctrl)
+        # TODO(@refraction-ray): adjoint gate convention finally determined
 
     def controlled(self, *args: Any, **kws: Any) -> "GateF":
         def f(*args: Any, **kws: Any) -> Any:
@@ -286,8 +293,8 @@ def matrix_for_gate(gate: Gate) -> Tensor:
 
     >>> gate = tc.gates.r_gate()
     >>> tc.gates.matrix_for_gate(gate)
-    array([[1.+0.j, 0.+0.j],
-        [0.+0.j, 1.+0.j]], dtype=complex64)
+        array([[1.+0.j, 0.+0.j],
+            [0.+0.j, 1.+0.j]], dtype=complex64)
 
     :param gate: input Gate
     :type gate: Gate
@@ -296,9 +303,7 @@ def matrix_for_gate(gate: Gate) -> Tensor:
     """
 
     t = gate.tensor
-    l = int(np.sqrt(t.size))
-    t = t.reshape([l, l])
-    return t
+    return backend.reshapem(t)
 
 
 def bmatrix(a: Array) -> str:
@@ -654,7 +659,9 @@ def meta_vgate() -> None:
     for f in ["r", "rx", "ry", "rz", "iswap", "any", "exp", "exp1", "cr"]:
         setattr(thismodule, f, GateVF(getattr(thismodule, f + "_gate"), f))
     for f in ["crx", "cry", "crz"]:
-        setattr(thismodule, f, GateVF(getattr(thismodule, f[1:]).controlled(), f))
+        setattr(thismodule, f, getattr(thismodule, f[1:]).controlled())
+    for f in ["sd", "td"]:
+        setattr(thismodule, f, getattr(thismodule, f[:-1]).adjoint())
 
 
 meta_vgate()
