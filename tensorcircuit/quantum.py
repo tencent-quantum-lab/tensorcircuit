@@ -243,7 +243,7 @@ class QuOperator:
         :param tensor: The tensor.
         :type tensor: tensor
         :param out_axes: The axis indices of `tensor` to use as `out_edges`.
-        :type out_axes:Optional[Sequence[int]], optional
+        :type out_axes: Optional[Sequence[int]], optional
         :param in_axes: The axis indices of `tensor` to use as `in_edges`.
         :type in_axes: Optional[Sequence[int]], optional
         :returns: The new operator.
@@ -604,7 +604,7 @@ class QuVector(QuOperator):
         :type subsystem_edges: Sequence[Edge]
         :param ref_nodes: Nodes used to refer to parts of the tensor network that are
             not connected to any input or output edges (for example: a scalar factor).
-        :type ref_nodes:Optional[Collection[AbstractNode]], optional
+        :type ref_nodes: Optional[Collection[AbstractNode]], optional
         :param ignore_edges: Optional collection of edges to ignore when performing consistency checks.
         :type ignore_edges: Optional[Collection[Edge]], optional
         """
