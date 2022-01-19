@@ -34,6 +34,17 @@ def amplitudedampingchannel(gamma: float, p: float) -> Sequence[Gate]:
     # https://cirq.readthedocs.io/en/stable/docs/noise.html
     # https://github.com/quantumlib/Cirq/blob/master/cirq/ops/common_channels.py
     # amplitude damping corrspondings to p=1
+    """
+    Amplitude damping corrspondings to p=1
+    
+    :param gamma: [description]
+    :type gamma: float
+    :param p: [description]
+    :type p: float
+    :return: Sequence of Gates
+    :rtype: Sequence[Gate]
+    """
+    
     g00 = Gate(np.array([[1, 0], [0, 0]], dtype=cons.npdtype))
     g01 = Gate(np.array([[0, 1], [0, 0]], dtype=cons.npdtype))
     g10 = Gate(np.array([[0, 0], [1, 0]], dtype=cons.npdtype))
