@@ -24,7 +24,7 @@ def split_tensor(
     relative: bool = True,
 ) -> Tuple[Tensor, Tensor]:
     """
-    Split the tensor by SVD or QR depends on whether a truncation is required
+    Split the tensor by SVD or QR depends on whether a truncation is required.
 
     :param tensor: The input tensor to split.
     :type tensor: Tensor
@@ -36,7 +36,7 @@ def split_tensor(
     :type max_truncation_err: float, optional
     :param relative: Multiply `max_truncation_err` with the largest singular value.
     :type relative: bool, optional
-    :return: two tensors after splitting
+    :return: Two tensors after splitting
     :rtype: Tuple[Tensor, Tensor]
     """
     # The behavior is a little bit different from tn.split_node because it explicitly requires a center
@@ -98,7 +98,7 @@ class MPSCircuit:
         :param tensors: If not None, the initial state of the circuit is taken as ``tensors``
             instead of :math:`\\vert 0\\rangle^n` qubits, defaults to None
         :type tensors: Sequence[Tensor], optional
-        :param center_position: the center position of MPS, default to 0
+        :param center_position: The center position of MPS, default to 0
         :type center_position: int, optional
         """
         if tensors is None:
@@ -129,7 +129,7 @@ class MPSCircuit:
         """
         Set truncation rules when double qubit gates are applied.
         If nothing is specified, no truncation will take place and the bond dimension will keep growing.
-        For more details, refer to `split_tensor`
+        For more details, refer to `split_tensor`.
 
         :param max_singular_values: The maximum number of singular values to keep.
         :type max_singular_values: int, optional
@@ -149,9 +149,10 @@ class MPSCircuit:
 
     def position(self, site: int) -> None:
         """
-        Wrapper of tn.FiniteMPS.position
-        Set orthogonality center
-        :param site: orthogonality center
+        Wrapper of tn.FiniteMPS.position.
+        Set orthogonality center.
+
+        :param site: The orthogonality center
         :type site: int
         """
         self._mps.position(site, normalize=False)
@@ -225,10 +226,11 @@ class MPSCircuit:
 
     def apply_single_gate(self, gate: Gate, index: int) -> None:
         """
-        Apply a single qubit gate on MPS, the gate must be unitary, no truncation is needed
+        Apply a single qubit gate on MPS, the gate must be unitary, no truncation is needed.
+
         :param gate: gate to be applied
         :type gate: Gate
-        :param index: qubit indices of the gate
+        :param index: Qubit indices of the gate
         :type index: int
         """
         self._mps.apply_one_site_gate(gate.tensor, index)
@@ -241,7 +243,7 @@ class MPSCircuit:
         center_position: Optional[int] = None,
     ) -> None:
         """
-        Apply a double qubit gate on adjacent qubits of MPS, truncation rule is speficied by `set_truncation_rule`
+        Apply a double qubit gate on adjacent qubits of MPS, truncation rule is specified by `set_truncation_rule`.
         """
         # The center position of MPS must be either `index1` for `index2` before applying a double gate
         # Choose the one closer to the current center
@@ -270,12 +272,13 @@ class MPSCircuit:
         index2: int,
     ) -> None:
         """
-        Apply a double qubit gate on MPS, truncation rule is speficied by `set_truncation_rule`
-        :param gate: gate to be applied
+        Apply a double qubit gate on MPS, truncation rule is specified by `set_truncation_rule`.
+
+        :param gate: The Gate to be applied
         :type gate: Gate
-        :param index1: first qubit index of the gate
+        :param index1: The first qubit index of the gate
         :type index1: int
-        :param index2: second qubit index of the gate
+        :param index2: The second qubit index of the gate
         :type index2: int
         """
         # Equivalent to apply N SWPA gates, the required gate, N SWAP gates sequentially on adjacent gates
@@ -310,9 +313,10 @@ class MPSCircuit:
 
     def apply_general_gate(self, gate: Gate, *index: int) -> None:
         """
-        :param gate: gate to be applied
+        :param gate: The Gate to be applied
         :type gate: Gate
-        :param index: qubit indices of the gate
+        :raises ValueError: "MPS does not support application of gate on > 2 qubits."
+        :param index: Qubit indices of the gate
         :type index: int
         """
         assert len(index) == len(set(index))
@@ -348,10 +352,10 @@ class MPSCircuit:
 
     def mid_measurement(self, index: int, keep: int = 0) -> None:
         """
-        middle measurement in z basis on the circuit, note the wavefunction output is not normalized
+        Middle measurement in z basis on the circuit, note the wavefunction output is not normalized
         with ``mid_measurement`` involved, one should normalized the state manually if needed.
 
-        :param index: the index of qubit that the Z direction postselection applied on
+        :param index: The index of qubit that the Z direction postselection applied on
         :type index: int
         :param keep: 0 for spin up, 1 for spin down, defaults to 0
         :type keep: int, optional
@@ -363,9 +367,10 @@ class MPSCircuit:
 
     def is_valid(self) -> bool:
         """
-        check whether the circuit is legal
+        Check whether the circuit is legal.
 
-        :return:
+        :return: Whether the circuit is legal.
+        :rtype: bool
         """
         mps = self._mps
         if len(mps) != self._nqubits:
@@ -386,7 +391,7 @@ class MPSCircuit:
         relative: bool = True,
     ) -> "MPSCircuit":
         """
-        Construct the MPS from a given wavefunction
+        Construct the MPS from a given wavefunction.
 
         :param wavefunction: The given wavefunction (any shape is OK)
         :type wavefunction: Tensor
@@ -396,7 +401,7 @@ class MPSCircuit:
         :type max_truncation_err: float, optional
         :param relative: Multiply `max_truncation_err` with the largest singular value.
         :type relative: bool, optional
-        :return: The contructed MPS
+        :return: The constructed MPS
         :rtype: MPSCircuit
         """
         wavefunction = backend.reshape(wavefunction, (-1, 1))
@@ -418,7 +423,7 @@ class MPSCircuit:
 
     def wavefunction(self, form: str = "default") -> Tensor:
         """
-        compute the output wavefunction from the circuit
+        Compute the output wavefunction from the circuit.
 
         :return: Tensor with shape [1, -1]
         :rtype: Tensor
@@ -442,7 +447,7 @@ class MPSCircuit:
 
     def copy_without_tensor(self) -> "MPSCircuit":
         """
-        Copy the current MPS without the tensors
+        Copy the current MPS without the tensors.
 
         :return: The contructed MPS
         :rtype: MPSCircuit
@@ -457,9 +462,9 @@ class MPSCircuit:
 
     def copy(self) -> "MPSCircuit":
         """
-        Copy the current MPS
+        Copy the current MPS.
 
-        :return: The contructed MPS
+        :return: The constructed MPS
         :rtype: MPSCircuit
         """
         result = self.copy_without_tensor()
@@ -468,9 +473,9 @@ class MPSCircuit:
 
     def conj(self) -> "MPSCircuit":
         """
-        Get the conjugate of the current MPS
+        Compute the conjugate of the current MPS.
 
-        :return: The contructed MPS
+        :return: The constructed MPS
         :rtype: MPSCircuit
         """
         result = self.copy_without_tensor()
@@ -535,10 +540,12 @@ class MPSCircuit:
 
     def proj_with_mps(self, other: "MPSCircuit") -> Tensor:
         """
-        compute the projection between `other` as bra and `self` as ket
+        Compute the projection between `other` as bra and `self` as ket.
 
         :param other: ket of the other MPS, which will be converted to bra automatically
         :type other: MPSCircuit
+        :return: The projection in form of tensor
+        :rtype: Tensor
         """
         bra = other.conj().copy()
         ket = self.copy()
@@ -565,11 +572,13 @@ class MPSCircuit:
 
     def general_expectation(self, *ops: Tuple[Gate, List[int]]) -> Tensor:
         """
-        compute expectation of corresponding operators
+        Compute the expectation of corresponding operators in the form of tensor.
 
-        :param ops: operator and its position on the circuit,
+        :param ops: Operator and its position on the circuit,
             eg. ``(gates.Z(), [1]), (gates.X(), [2])`` is for operator :math:`Z_1X_2`
         :type ops: Tuple[tn.Node, List[int]]
+        :return: The expectation of corresponding operators
+        :rtype: Tensor
         """
         # A better idea is to create a MPO class and have a function to transform gates to MPO
         mpscircuit = self.copy()
@@ -584,12 +593,14 @@ class MPSCircuit:
         site: int,
     ) -> Tensor:
         """
-        Compute expectation of the corresponding single qubit gate
+        Compute the expectation of the corresponding single qubit gate in the form of tensor.
 
-        :param gate: gate to be applied
+        :param gate: Gate to be applied
         :type gate: Gate
-        :param site: qubit index of the gate
+        :param site: Qubit index of the gate
         :type site: int
+        :return: The expectation of the corresponding single qubit gate
+        :rtype: Tensor
         """
         value = self._mps.measure_local_operator([gate.tensor], [site])[0]
         return backend.convert_to_tensor(value)
@@ -598,16 +609,18 @@ class MPSCircuit:
         self, gate1: Gate, gate2: Gate, site1: int, site2: int
     ) -> Tensor:
         """
-        Compute correlation of the corresponding two gates
+        Compute correlation of the corresponding two qubit gates in the form of tensor.
 
-        :param gate1: first gate to be applied
+        :param gate1: First gate to be applied
         :type gate1: Gate
-        :param gate2: second gate to be applied
+        :param gate2: Second gate to be applied
         :type gate2: Gate
-        :param site1: qubit index of the first gate
+        :param site1: Qubit index of the first gate
         :type site1: int
-        :param site2: qubit index of the second gate
+        :param site2: Qubit index of the second gate
         :type site2: int
+        :return: The correlation of the corresponding two qubit gates
+        :rtype: Tensor
         """
         value = self._mps.measure_two_body_correlator(
             gate1.tensor, gate2.tensor, site1, [site2]
