@@ -404,6 +404,7 @@ def _get_path_cache_friendly(
     }
     logger.debug("input_sets: %s" % input_sets)
     logger.debug("output_set: %s" % output_set)
+    logger.debug("size_dict: %s" % size_dict)
     logger.debug("path finder algorithm: %s" % algorithm)
     return algorithm(input_sets, output_set, size_dict), nodes_new  # type: ignore
 

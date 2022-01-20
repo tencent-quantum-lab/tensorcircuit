@@ -51,6 +51,24 @@ For bitstring sampling, we have ``c.perfect_sampling()`` which returns the bitst
 
 To measure part of the qubits, we can use ``c.measure(0, 1)``, if we want to know the corresponding probability of the measurement output, try ``c.measure(0, 1, with_prob=True)``. The measure API is by default non-jittable, but we also have a jittable version as ``c.measure_jit(0, 1)``.
 
+The measurement and sampling utilize advanced algorithm based on tensornetwork, and thus requires no knowledge or space for the full wavefunction. See example below:
+
+.. code-block:: python
+
+    K = tc.set_backend("jax")
+    @K.jit
+    def sam(key):
+        K.set_random_state(key)
+        n = 50
+        c = tc.Circuit(n)
+        for i in range(n):
+            c.H(i)
+        return c.perfect_sampling()
+
+    sam(jax.random.PRNGKey(42))
+    sam(jax.random.PRNGKey(43))
+
+
 To compute expectation values for local observables, we have ``c.expectation([tc.gates.z(), [0]], [tc.gates.z(), [1]])`` for :math:`\langle Z_0Z_1 \rangle` or ``c.expectation([tc.gates.x(), [0]])`` for :math:`\langle X_0 \rangle`.
 
 This expectation API is rather flexible, as one can measure any matrix m on several qubits as ``c.expectation([m, [0, 1, 2]])``.
@@ -232,6 +250,7 @@ Some setup cases:
     # 3. state simulator like contractor provided by tensorcircuit, maybe better when there is ring topology for two-qubit gate layout
     tc.set_contractor("plain-experimental")
 
+For advanced configuration on cotengra contractor, please refer cotengra `doc <https://cotengra.readthedocs.io/en/latest/advanced.html>`__.
 
 Besides global level setup, we can also setup the backend, the dtype and the contractor in function level or context manager level:
 
