@@ -673,7 +673,7 @@ class QuAdjointVector(QuOperator):
             not connected to any input or output edges (for example: a scalar factor).
         :type ref_nodes: Optional[Collection[AbstractNode]], optional
         :param ignore_edges: Optional collection of edges to ignore when performing consistency checks.
-        :type ignore_edges: ignore_edges: Optional[Collection[Edge]], optional
+        :type ignore_edges: Optional[Collection[Edge]], optional
         """
         super().__init__([], subsystem_edges, ref_nodes, ignore_edges)
 

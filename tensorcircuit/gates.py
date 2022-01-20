@@ -5,7 +5,7 @@ declarations of single-qubit and two-qubit gates and their corresponding matrix
 import sys
 from copy import deepcopy
 from functools import reduce
-from typing import Any, Callable, Optional, List, Union, Text
+from typing import Any, Callable, Optional, List, Union
 from operator import mul
 
 import numpy as np
@@ -107,7 +107,7 @@ class Gate(tn.Node):  # type: ignore
     Wrapper of tn.Node, quantum gate
     """
 
-    def __repr__(self) -> Text:
+    def __repr__(self) -> str:
         """Formatted output of Gate
 
         Example:
@@ -335,7 +335,7 @@ def matrix_for_gate(gate: Gate) -> Tensor:
     return backend.reshapem(t)
 
 
-def bmatrix(a: Array) -> Text:
+def bmatrix(a: Array) -> str:
     r"""
     Returns a LaTeX bmatrix.
 

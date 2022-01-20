@@ -187,6 +187,7 @@ The backend can be set as ``K=tc.set_backend("jax")`` and ``K`` is the backend w
 The supported APIs in backend come from two sources, one part is implemented in `TensorNetwork package <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/abstract_backend.py>`__
 and the other part is implemented in `TensorCircuit package <modules.html#module-tensorcircuit.backends>`__.
 
+
 Switch the dtype
 --------------------
 
@@ -230,6 +231,23 @@ Some setup cases:
 
     # 3. state simulator like contractor provided by tensorcircuit, maybe better when there is ring topology for two-qubit gate layout
     tc.set_contractor("plain-experimental")
+
+
+Besides global level setup, we can also setup the backend, the dtype and the contractor in function level or context manager level:
+
+.. code-block:: python
+
+    with tc.runtime_backend("tensorflow"):
+        with tc.runtime_dtype("complex128"):
+            m = tc.backend.eye(2)
+    n = tc.backend.eye(2)
+    print(m, n) # m is tf tensor while n is numpy array
+
+    @tc.set_function_backend("tensorflow")
+    @tc.set_function_dtype("complex128")
+    def f():
+        return tc.backend.eye(2)
+    print(f()) # complex128 tf tensor
 
 
 Noisy Circuit simulation

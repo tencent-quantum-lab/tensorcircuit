@@ -18,7 +18,7 @@ Tensor = Any
 
 
 def _sqrt(a: Tensor) -> Tensor:
-    r"""Return the square root of Tensor
+    r"""Return the square root of Tensor with default global dtype
 
     .. math::
         \sqrt{a}
@@ -55,12 +55,12 @@ def depolarizingchannel(px: float, py: float, pz: float) -> Sequence[Gate]:
             1 & 0\\
             0 & -1\\
         \end{bmatrix}
-        
+
     Example:
-    
+
     >>> cs = depolarizingchannel(0.1, 0.15, 0.2)
     >>> tc.channels.single_qubit_kraus_identity_check(cs)
-    
+
     :param px: :math:`p_x`
     :type px: float
     :param py: :math:`p_y`
@@ -82,7 +82,7 @@ def amplitudedampingchannel(gamma: float, p: float) -> Sequence[Gate]:
     r"""
     Return an amplitude damping channel.
     Notice: Amplitude damping corrspondings to p = 1.
- 
+
     .. math::
         \sqrt{p}
         \begin{bmatrix}
@@ -104,9 +104,9 @@ def amplitudedampingchannel(gamma: float, p: float) -> Sequence[Gate]:
             0 & 0\\
             \sqrt{\gamma} & 0\\
         \end{bmatrix}
-    
+
     Example:
-    
+
     >>> cs = amplitudedampingchannel(0.25, 0.3)
     >>> tc.channels.single_qubit_kraus_identity_check(cs)
 
@@ -134,7 +134,7 @@ def amplitudedampingchannel(gamma: float, p: float) -> Sequence[Gate]:
 def resetchannel() -> Sequence[Gate]:
     r"""Reset channel
 
-    .. math:: 
+    .. math::
         \begin{bmatrix}
             1 & 0\\
             0 & 0\\
@@ -143,13 +143,13 @@ def resetchannel() -> Sequence[Gate]:
             0 & 1\\
             0 & 0\\
         \end{bmatrix}
-    
+
     Example:
-    
+
     >>> cs = resetchannel()
-    >>> tc.channels.single_qubit_kraus_identity_check(cs)    
-    
-    :return: Reseted channel
+    >>> tc.channels.single_qubit_kraus_identity_check(cs)
+
+    :return: Reset channel
     :rtype: Sequence[Gate]
     """
     m0 = Gate(np.array([[1, 0], [0, 0]], dtype=cons.npdtype))
@@ -169,12 +169,12 @@ def phasedampingchannel(gamma: float) -> Sequence[Gate]:
             0 & 0\\
             0 & \sqrt{\gamma}\\
         \end{bmatrix}
-        
-    Example: 
-    
+
+    Example:
+
     >>> cs = phasedampingchannel(0.6)
     >>> tc.channels.single_qubit_kraus_identity_check(cs)
-    
+
     :param gamma: The damping parameter of phase (:math:`\gamma`)
     :type gamma: float
     :return: A phase damping channel with given :math:`\gamma`
@@ -209,29 +209,7 @@ def single_qubit_kraus_identity_check(kraus: Sequence[Gate]) -> None:
 
 
 def kraus_to_super_gate(kraus_list: Sequence[Gate]) -> Tensor:
-    r"""Convert Karaus operators to one Tensor (one Super Gate).
-
-    Example:
-
-    .. code-block:: python
-        :emphasize-lines: 9
-
-        def ad_channel():
-            tc.set_backend("tensorflow")
-            p = tf.Variable(initial_value=0.1, dtype=tf.float32)
-            theta = tf.Variable(initial_value=0.1, dtype=tf.complex64)
-            with tf.GradientTape() as tape:
-                tape.watch(p)
-                c = tc.DMCircuit(3)
-                c.rx(1, theta=theta)
-                c.apply_general_kraus(tc.channels.depolarizingchannel(p, 0.2 * p, p), [(1,)])
-                c.H(0)
-                loss = c.expectation((tc.gates.z(), [1]))
-                g = tape.gradient(loss, p)
-            return {'loss': loss.numpy(), 'gradient': g.numpy()}
-
-    >>> ad_channel()
-    {'loss': (0.7562032+0j), 'gradient': -2.3880098}
+    r"""Convert Kraus operators to one Tensor (as one Super Gate).
 
     .. math::
         \sum_{k}^{} K_k \otimes K_k^{\dagger}

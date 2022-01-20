@@ -250,7 +250,7 @@ def render_pdf(
     :type texcode: str
     :param filename: File name, defaults to random UUID `str(uuid4())`
     :type filename: Optional[str], optional
-    :param latex: Excutiable Latex command, defaults to `pdflatex`
+    :param latex: Executable Latex command, defaults to `pdflatex`
     :type latex: Optional[str], optional
     :param filepath: File path, defaults to current working place `os.getcwd()`
     :type filepath: Optional[str], optional
