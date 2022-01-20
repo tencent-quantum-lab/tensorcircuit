@@ -6,6 +6,14 @@
 
 - add `td` and `sd` gates for dagger version of T gate and S gate
 
+### Changed
+
+- refined repr for `tc.gates.Gate`
+
+### Fixed
+
+- make consistent `Gate` return for channels
+
 ## 0.0.220118
 
 ### Added

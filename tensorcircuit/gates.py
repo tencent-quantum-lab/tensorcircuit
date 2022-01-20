@@ -456,7 +456,7 @@ def rz_gate(theta: float = 0) -> Gate:
     Rotation gate along Z axis.
 
     .. math::
-        RX(\theta) = e^{-i\frac{\theta}{2}Z}
+        RZ(\theta) = e^{-i\frac{\theta}{2}Z}
 
     :param theta: angle in radians
     :type theta: float, optional

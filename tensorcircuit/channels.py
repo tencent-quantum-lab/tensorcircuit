@@ -182,7 +182,7 @@ def phasedampingchannel(gamma: float) -> Sequence[Gate]:
     """
     g00 = Gate(np.array([[1, 0], [0, 0]], dtype=cons.npdtype))
     g11 = Gate(np.array([[0, 0], [0, 1]], dtype=cons.npdtype))
-    m0 = g00 + _sqrt(1 - gamma) * g11
+    m0 = 1.0 * (g00 + _sqrt(1 - gamma) * g11)  # 1* ensure gate
     m1 = _sqrt(gamma) * g11
     return [m0, m1]
 
