@@ -743,8 +743,7 @@ class QuScalar(QuOperator):
     def from_tensor(cls, tensor: Tensor) -> "QuScalar":  # type: ignore
         """
         Construct a `QuScalar` directly from a single tensor.
-        This first wraps the tensor in a `Node`, then constructs the
-        `QuScalar` from that `Node`.
+        This first wraps the tensor in a `Node`, then constructs the `QuScalar` from that `Node`.
 
         :param tensor: The tensor for constructing a new QuScalar.
         :type tensor: Tensor
@@ -767,7 +766,7 @@ def generate_local_hamiltonian(
     :param matrix_form: [description], defaults to True
     :type matrix_form: bool, optional
     :return: [description]
-    :rtype: [type]
+    :rtype: Tensor
     """
     hlist = [backend.cast(h, dtype=dtypestr) for h in hlist]  # type: ignore
     hop_list = [QuOperator.from_tensor(h) for h in hlist]
@@ -1019,7 +1018,7 @@ def reduced_density_matrix(
     p: Optional[Tensor] = None,
 ) -> Union[Tensor, QuOperator]:
     """
-    compute reduced density matrix from quantum state ``state``
+    Compute the reduced density matrix from quantum state ``state``.
 
     :param state: [description]
     :type state: Tensor
