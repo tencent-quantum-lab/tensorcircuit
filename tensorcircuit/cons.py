@@ -427,6 +427,22 @@ opt = ctg.ReusableHyperOptimizer(
 tc.set_contractor("custom", optimizer=opt, preprocessing=True)
 tc.set_contractor("custom_stateful", optimizer=oem.RandomGreedy, max_time=60, max_repeats=128, minimize="size")
 tc.set_contractor("plain-experimental", local_steps=3)
+
+# hyper efficient contractor: though long computation time required, suitable for extra large circuit simulation
+opt = ctg.HyperOptimizer(
+    minimize='combo',
+    max_repeats=1024,
+    max_time='equil:128',
+    optlib='nevergrad',
+    progbar=True,
+)
+
+def opt_reconf(inputs, output, size, **kws):
+    tree = opt.search(inputs, output, size)
+    tree_r = tree.subtree_reconfigure_forest(progbar=True, num_trees=10, num_restarts=20, subtree_weight_what=("size", ))
+    return tree_r.get_path()
+
+tc.set_contractor("custom", optimizer=opt_reconf)
 """
 
 
