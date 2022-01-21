@@ -26,29 +26,40 @@ class FiniteMPS(tn.FiniteMPS):  # type: ignore
         center_position: Optional[int] = None,
         relative: bool = False,
     ) -> Tensor:
-        """Apply a two-site gate to an MPS. This routine will in general destroy
+        """
+        Apply a two-site gate to an MPS. This routine will in general destroy
         any canonical form of the state. If a canonical form is needed, the user
         can restore it using `FiniteMPS.position`.
 
-        Args:
-          gate: A two-body gate.
-          site1: The first site where the gate acts.
-          site2: The second site where the gate acts.
-          max_singular_values: The maximum number of singular values to keep.
-          max_truncation_err: The maximum allowed truncation error.
-          center_position: An optional value to choose the MPS tensor at
+        :param gate: A two-body gate.
+        :type gate: Tensor
+        :param site1: The first site where the gate acts.
+        :type site1: int
+        :param site2: The second site where the gate acts.
+        :type site2: int
+        :param max_singular_values: The maximum number of singular values to keep.
+        :type max_singular_values: Optional[float], optional
+        :param max_truncation_err: The maximum allowed truncation error.
+        :type max_truncation_err: Optional[float], optional
+        :param center_position: An optional value to choose the MPS tensor at
             `center_position` to be isometric after the application of the gate.
-            Defaults to `site1`. If the MPS is canonical (i.e.
-            `BaseMPS.center_position != None`), and if the orthogonality center
+            Defaults to `site1`. If the MPS is canonical (i.e.`BaseMPS.center_position != None`),
+            and if the orthogonality center
             coincides with either `site1` or `site2`,  the orthogonality center will
-            be shifted to `center_position` (`site1` by default). If the
-            orthogonality center does not coincide with `(site1, site2)` then
+            be shifted to `center_position` (`site1` by default).
+            If the orthogonality center does not coincide with `(site1, site2)` then
             `MPS.center_position` is set to `None`.
-          relative: Multiply `max_truncation_err` with the largest singular value.
-
-        Returns:
-          `Tensor`: A scalar tensor containing the truncated weight of the
-            truncation.
+        :type center_position: Optional[int],optional
+        :param relative: Multiply `max_truncation_err` with the largest singular value.
+        :type relative: bool
+        :raises ValueError: "rank of gate is {} but has to be 4", "site1 = {} is not between 0 <= site < N - 1 = {}",
+            "site2 = {} is not between 1 <= site < N = {}","Found site2 ={}, site1={}. Only nearest
+            neighbor gates are currently supported",
+            "f center_position = {center_position} not  f in {(site1, site2)} ", or
+            "center_position = {}, but gate is applied at sites {}, {}. Truncation should only be done if the gate
+            is applied at the center position of the MPS."
+        :return: A scalar tensor containing the truncated weight of the truncation.
+        :rtype: Tensor
         """
         if len(gate.shape) != 4:
             raise ValueError(
