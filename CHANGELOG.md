@@ -6,6 +6,8 @@
 
 - add `td` and `sd` gates for dagger version of T gate and S gate
 
+- add `argmax` and `argmin` as backend methods
+
 ### Changed
 
 - refined repr for `tc.gates.Gate`

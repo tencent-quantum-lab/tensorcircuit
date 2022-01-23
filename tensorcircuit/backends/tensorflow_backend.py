@@ -200,6 +200,12 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     def max(self, a: Tensor, axis: Optional[int] = None) -> Tensor:
         return tf.reduce_max(a, axis=axis)
 
+    def argmax(self, a: Tensor, axis: int = 0) -> Tensor:
+        return tf.math.argmax(a, axis=axis)
+
+    def argmin(self, a: Tensor, axis: int = 0) -> Tensor:
+        return tf.math.argmin(a, axis=axis)
+
     def unique_with_counts(self, a: Tensor) -> Tuple[Tensor, Tensor]:
         r = tf.unique_with_counts(a)
         order = tf.argsort(r.y)

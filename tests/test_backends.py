@@ -164,6 +164,23 @@ def test_backend_methods(backend):
     )
 
 
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])
+def test_arg_cmp(backend):
+    np.testing.assert_allclose(tc.backend.argmax(tc.backend.ones([3], "float64")), 0)
+    np.testing.assert_allclose(
+        tc.backend.argmax(
+            tc.array_to_tensor(np.array([[1, 2], [3, 4]]), dtype="float64")
+        ),
+        np.array([1, 1]),
+    )
+    np.testing.assert_allclose(
+        tc.backend.argmin(
+            tc.array_to_tensor(np.array([[1, 2], [3, 4]]), dtype="float64"), axis=-1
+        ),
+        np.array([0, 0]),
+    )
+
+
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_tree_map(backend):
     def f(a, b):

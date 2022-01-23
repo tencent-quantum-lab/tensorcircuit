@@ -313,6 +313,36 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `max`.".format(self.name)
         )
 
+    def argmax(self: Any, a: Tensor, axis: int = 0) -> Tensor:
+        """
+        Return the index of maximum of an array an axis.
+
+        :param a: [description]
+        :type a: Tensor
+        :param axis: [description], defaults to 0, different behavior from numpy defaults!
+        :type axis: int
+        :return: [description]
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `argmax`.".format(self.name)
+        )
+
+    def argmin(self: Any, a: Tensor, axis: int = 0) -> Tensor:
+        """
+        Return the index of minimum of an array an axis.
+
+        :param a: [description]
+        :type a: Tensor
+        :param axis: [description], defaults to 0, different behavior from numpy defaults!
+        :type axis: int
+        :return: [description]
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `argmin`.".format(self.name)
+        )
+
     def unique_with_counts(self: Any, a: Tensor) -> Tuple[Tensor, Tensor]:
         """
         Find the unique elements and their corresponding counts of the given tensor ``a``.

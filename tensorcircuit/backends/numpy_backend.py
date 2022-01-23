@@ -125,6 +125,12 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def max(self, a: Tensor, axis: Optional[int] = None) -> Tensor:
         return np.max(a, axis=axis)
 
+    def argmax(self, a: Tensor, axis: int = 0) -> Tensor:
+        return np.argmax(a, axis=axis)
+
+    def argmin(self, a: Tensor, axis: int = 0) -> Tensor:
+        return np.argmin(a, axis=axis)
+
     def relu(self, a: Tensor) -> Tensor:
         return (abs(a) + a) / 2
         # this impl seems to be the fastest

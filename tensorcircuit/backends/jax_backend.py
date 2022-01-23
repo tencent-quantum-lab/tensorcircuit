@@ -239,6 +239,12 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     def max(self, a: Tensor, axis: Optional[int] = None) -> Tensor:
         return jnp.max(a, axis=axis)
 
+    def argmax(self, a: Tensor, axis: int = 0) -> Tensor:
+        return jnp.argmax(a, axis=axis)
+
+    def argmin(self, a: Tensor, axis: int = 0) -> Tensor:
+        return jnp.argmin(a, axis=axis)
+
     def unique_with_counts(self, a: Tensor) -> Tuple[Tensor, Tensor]:
         return jnp.unique(a, return_counts=True)  # type: ignore
 
