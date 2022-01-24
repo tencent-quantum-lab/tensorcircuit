@@ -167,6 +167,7 @@ def num_to_tensor(*num: Union[float, Tensor], dtype: Optional[str] = None) -> An
     pytorch_backend
     >>> num_to_tensor(x, y, z)
     [tensor(0.+0.j), tensor(0.1000+0.j), tensor([1.+0.j])]
+    >>>
     >>> tc.set_backend('jax')
     jax_backend
     >>> num_to_tensor(x, y, z)
@@ -178,7 +179,7 @@ def num_to_tensor(*num: Union[float, Tensor], dtype: Optional[str] = None) -> An
     :type num: Union[float, Tensor]
     :param dtype: dtype of the output Tensors
     :type dtype: str, optional
-    :returns: List of Tensors
+    :return: List of Tensors
     :rtype: List[Tensor]
     """
     # TODO(@YHPeter): fix __doc__ for same function with different names

@@ -60,9 +60,32 @@ contractor = tn.contractors.auto
 def set_tensornetwork_backend(
     backend: Optional[str] = None, set_global: bool = True
 ) -> Any:
-    """
-    set the runtime backend of tensorcircuit
-
+    r"""
+    Set the runtime backend of tensorcircuit.
+    
+    Note: `tc.set_backend` and `tc.cons.set_tensornetwork_backend` are same.
+    
+    Example:
+    
+    >>> tc.set_backend("numpy")
+    numpy_backend
+    >>> tc.gates.num_to_tensor(0.1)
+    array(0.1+0.j, dtype=complex64)
+    >>>
+    >>> tc.set_backend("tensorflow")
+    tensorflow_backend
+    >>> tc.gates.num_to_tensor(0.1)
+    <tf.Tensor: shape=(), dtype=complex64, numpy=(0.1+0j)>
+    >>>
+    >>> tc.set_backend("pytorch")
+    pytorch_backend
+    >>> tc.gates.num_to_tensor(0.1)
+    tensor(0.1000+0.j)
+    >>>
+    >>> tc.set_backend("jax")
+    jax_backend
+    >>> tc.gates.num_to_tensor(0.1)
+    DeviceArray(0.1+0.j, dtype=complex64)    
     :param backend: "numpy", "tensorflow", "jax", "pytorch". defaults to None,
         which gives the same behavior as ``tensornetwork.backend_contextmanager.get_default_backend()``
     :type backend: Optional[str], optional
@@ -454,20 +477,24 @@ def _base(
     total_size: Optional[int] = None,
 ) -> tn.Node:
     """Base method for all `opt_einsum` contractors.
-
-    Args:
-      nodes: A collection of connected nodes.
-      algorithm: `opt_einsum` contraction method to use.
-      output_edge_order: An optional list of edges. Edges of the
+    :param nodes: A collection of connected nodes.
+    :type nodes: List[tn.Node]
+    :param algorithm: `opt_einsum` contraction method to use.
+    :type algorithm: Any
+    :param output_edge_order: An optional list of edges. Edges of the
         final node in `nodes_set`
         are reordered into `output_edge_order`;
         if final node has more than one edge,
         `output_edge_order` must be provided.
-      ignore_edge_order: An option to ignore the output edge
-        order.
-
-    Returns:
-      Final node after full contraction.
+    :type output_edge_order: Optional[Sequence[tn.Edge]], optional
+    :param ignore_edge_order: An option to ignore the output edge order, defaults to False.
+    :type ignore_edge_order: bool, optional
+    :param total_size: [description], defaults to None
+    :type total_size: Optional[int], optional
+    :raises ValueError: The final node after contraction has more than one remaining edge. In this case `output_edge_order` has to be provided.
+    :raises ValueError: Output edges are not equal to the remaining non-contracted edges of the final  node.
+    :return: Final node after full contraction.
+    :rtype: tn.Node
     """
     # rewrite tensornetwork default to add logging infras
     nodes_set = set(nodes)

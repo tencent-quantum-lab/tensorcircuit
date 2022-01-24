@@ -139,7 +139,7 @@ def eliminate_identities(nodes: Collection[AbstractNode]) -> Tuple[dict, dict]: 
 
     :param nodes: Collection of nodes to search.
     :type nodes: Collection[AbstractNode]
-    :returns: The Dictionary mapping remaining Nodes to any replacements, Dictionary specifying all dangling-edge
+    :return: The Dictionary mapping remaining Nodes to any replacements, Dictionary specifying all dangling-edge
         replacements.
     :rtype: Dict[Union[CopyNode, AbstractNode], Union[Node, AbstractNode]], Dict[Edge, Edge]
     """
@@ -246,7 +246,7 @@ class QuOperator:
         :type out_axes: Optional[Sequence[int]], optional
         :param in_axes: The axis indices of `tensor` to use as `in_edges`.
         :type in_axes: Optional[Sequence[int]], optional
-        :returns: The new operator.
+        :return: The new operator.
         :rtype: QuOperator
         """
         nlegs = len(tensor.shape)
@@ -386,7 +386,7 @@ class QuOperator:
 
         :param subsystems_to_trace_out: Indices of subsystems to trace out.
         :type subsystems_to_trace_out: Collection[int]
-        :returns: A new QuOperator or QuScalar representing the result.
+        :return: A new QuOperator or QuScalar representing the result.
         :rtype: QuOperator
         """
         out_edges_trace = [self.out_edges[i] for i in subsystems_to_trace_out]
@@ -493,7 +493,7 @@ class QuOperator:
 
         :param other: The other operator (`B`).
         :type other: QuOperator
-        :returns: The result (`AB`).
+        :return: The result (`AB`).
         :rtype: QuOperator
         """
         nodes_dict1, edges_dict1 = copy(self.nodes, False)
@@ -533,7 +533,7 @@ class QuOperator:
 
         :param final_edge_order: Manually specify the axis ordering of the final tensor.
         :type final_edge_order: Optional[Sequence[Edge]], optional
-        :returns: The present object.
+        :return: The present object.
         :rtype: QuOperator
         """
         nodes_dict, dangling_edges_dict = eliminate_identities(self.nodes)
@@ -567,7 +567,7 @@ class QuOperator:
             The default ordering is determined by `out_edges` and `in_edges` (see above).
         :type final_edge_order: Optional[Sequence[Edge]], optional
         :raises ValueError: Node count '{}' > 1 after contraction!
-        :returns: The final tensor representing the operator.
+        :return: The final tensor representing the operator.
         :rtype: Tensor
         """
         if not final_edge_order:
@@ -627,7 +627,7 @@ class QuVector(QuOperator):
             to interpret the axes as subsystems (output edges). If not specified,
             the axes are taken in ascending order.
         :type subsystem_axes: Optional[Sequence[int]], optional
-        :returns: The new constructed QuVector from the given tensor.
+        :return: The new constructed QuVector from the given tensor.
         :rtype: QuVector
         """
         n = Node(tensor)
@@ -693,7 +693,7 @@ class QuAdjointVector(QuOperator):
             to interpret the axes as subsystems (input edges). If not specified,
             the axes are taken in ascending order.
         :type subsystem_axes: Optional[Sequence[int]], optional
-        :returns: The new construted QuAdjointVector give from the given tensor.
+        :return: The new construted QuAdjointVector give from the given tensor.
         :rtype: QuAdjointVector
         """
         n = Node(tensor)
@@ -747,7 +747,7 @@ class QuScalar(QuOperator):
 
         :param tensor: The tensor for constructing a new QuScalar.
         :type tensor: Tensor
-        :returns: The new constructed QuScalar from the given tensor.
+        :return: The new constructed QuScalar from the given tensor.
         :rtype: QuScalar
         """
         n = Node(tensor)
