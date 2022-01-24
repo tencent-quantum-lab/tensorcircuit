@@ -8,13 +8,19 @@
 
 - add `argmax` and `argmin` as backend methods
 
+- add `expectation_before` methods for `tc.Circuit` for further manipulation on the tensornetwork
+
 ### Changed
 
 - refined repr for `tc.gates.Gate`
 
+- expectation API now supports int index besides list indexes
+
 ### Fixed
 
 - make consistent `Gate` return for channels
+
+- fixed bug on list optimizer for contraction
 
 ## 0.0.220118
 

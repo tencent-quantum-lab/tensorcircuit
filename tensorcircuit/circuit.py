@@ -996,9 +996,39 @@ class Circuit:
         """
         return self.measure_jit(*[i for i in range(self._nqubits)], with_prob=True)
 
+    # TODO(@refraction-ray): more _before function like state_before? and better API?
+
+    def expectation_before(
+        self, *ops: Tuple[tn.Node, List[int]], reuse: bool = True
+    ) -> List[tn.Node]:
+        nodes1, edge1 = self._copy_state_tensor(reuse=reuse)
+        nodes2, edge2 = self._copy_state_tensor(conj=True, reuse=reuse)
+        nodes1.extend(nodes2)  # left right op order for plain contractor
+
+        occupied = set()
+        for op, index in ops:
+            if not isinstance(op, tn.Node):
+                # op is only a matrix
+                op = backend.reshape2(op)
+                op = gates.Gate(op)
+            if isinstance(index, int):
+                index = [index]
+            noe = len(index)
+            for j, e in enumerate(index):
+                if e in occupied:
+                    raise ValueError("Cannot measure two operators in one index")
+                edge1[e] ^ op.get_edge(j)
+                edge2[e] ^ op.get_edge(j + noe)
+                occupied.add(e)
+            nodes1.append(op)
+        for j in range(self._nqubits):
+            if j not in occupied:  # edge1[j].is_dangling invalid here!
+                edge1[j] ^ edge2[j]
+        return nodes1
+
     def expectation(
         self, *ops: Tuple[tn.Node, List[int]], reuse: bool = True
-    ) -> tn.Node.tensor:
+    ) -> Tensor:
         """
         compute expectation of corresponding operators
 
@@ -1016,28 +1046,9 @@ class Circuit:
         #     nodes1, edge1 = self._copy()
         #     nodes2, edge2 = self._copy(conj=True)
         # else:  # reuse
-        nodes1, edge1 = self._copy_state_tensor(reuse=reuse)
-        nodes2, edge2 = self._copy_state_tensor(conj=True, reuse=reuse)
-        nodes1.extend(nodes2)  # left right op order for plain contractor
 
-        occupied = set()
-        for op, index in ops:
-            if not isinstance(op, tn.Node):
-                # op is only a matrix
-                op = backend.reshape2(op)
-                op = gates.Gate(op)
-            noe = len(index)
-            for j, e in enumerate(index):
-                if e in occupied:
-                    raise ValueError("Cannot measure two operators in one index")
-                edge1[e] ^ op.get_edge(j)
-                edge2[e] ^ op.get_edge(j + noe)
-                occupied.add(e)
-            nodes1.append(op)
-        for j in range(self._nqubits):
-            if j not in occupied:  # edge1[j].is_dangling invalid here!
-                edge1[j] ^ edge2[j]
         # self._nodes = nodes1
+        nodes1 = self.expectation_before(*ops, reuse=reuse)
         return contractor(nodes1).tensor
 
     def vis_tex(self, **kws: Any) -> str:
@@ -1137,6 +1148,8 @@ def expectation(
                 # op is only a matrix
                 op = backend.reshape2(op)
                 op = gates.Gate(op)
+            if isinstance(index, int):
+                index = [index]
             noe = len(index)
             for j, e in enumerate(index):
                 if e in occupied:
@@ -1172,6 +1185,8 @@ def expectation(
                 # op is only a matrix
                 op = backend.reshape2(op)
                 op = gates.Gate(op)
+            if isinstance(index, int):
+                index = [index]
             noe = len(index)
             for j, e in enumerate(index):
                 if e in occupied:
