@@ -210,9 +210,9 @@ Switch the dtype
 --------------------
 
 TensorCircuit supports simulation using 32/64 bit percesion. The default dtype is 32-bit as "complex64".
-Change this by `tc.set_dtype("complex128")`.
+Change this by ``tc.set_dtype("complex128")``.
 
-`tc.dtypestr` always return the current dtype str: either "complex64" or "complex128".
+``tc.dtypestr`` always return the current dtype string: either "complex64" or "complex128".
 
 
 Setup the contractor
@@ -274,7 +274,7 @@ Noisy Circuit simulation
 
 **Monte Carlo State Simulator:**
 
-For Monte Carlo trajector noise simulator, unitary Kraus channel can be handled easily. TensorCircuit also support full, jittable and differentable general Kraus channel Monte Carlo simulation, though.
+For Monte Carlo trajector noise simulator, unitary Kraus channel can be handled easily. TensorCircuit also support fully jittable and differentable general Kraus channel Monte Carlo simulation, though.
 
 .. code-block:: python
 
@@ -380,3 +380,7 @@ Automatically transform quantum functions as scipy-compatible value and grad fun
 
 Templates as Shortcuts
 ------------------------
+
+**Measurements:**
+
+**Circuit blocks:**

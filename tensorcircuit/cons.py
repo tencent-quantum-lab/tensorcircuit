@@ -517,7 +517,7 @@ def _base(
     #     path = algorithm
     # else:
     path, nodes = _get_path_cache_friendly(nodes, algorithm)
-    logger.info("the contraction path is given as %s" % path)
+    logger.info("the contraction path is given as %s" % str(path))
     if total_size is None:
         total_size = sum([_sizen(t) for t in nodes])
     for ab in path:
