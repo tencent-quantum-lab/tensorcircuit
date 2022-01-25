@@ -10,3 +10,6 @@ Split two-qubit gates
 
 SavedModel
 -----------------
+
+Prameterized measurements
+-----------------------------
