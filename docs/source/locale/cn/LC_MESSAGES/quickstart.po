@@ -1,0 +1,306 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, The TensorCircuit Authors
+# This file is distributed under the same license as the tensorcircuit
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: tensorcircuit \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-01-11 09:16+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../source/quickstart.rst:3
+msgid "Quick Start"
+msgstr ""
+
+#: ../../source/quickstart.rst:6
+msgid "Install from GitHub"
+msgstr ""
+
+#: ../../source/quickstart.rst:8
+msgid ""
+"For beta version usage, one needs to install tensorcircuit package from "
+"GitHub. For development and PR workflow, please refer to `contribution "
+"<contribution.html>`__ instead."
+msgstr ""
+
+#: ../../source/quickstart.rst:10
+msgid ""
+"For private tensorcircuit-dev repo, one needs to firstly configure the "
+"SSH key on GitHub and locally, please refer to `GitHub doc "
+"<https://docs.github.com/en/authentication/connecting-to-github-with-"
+"ssh>`__"
+msgstr ""
+
+#: ../../source/quickstart.rst:12
+msgid ""
+"Then try ``pip3 install --force-reinstall git+ssh://git@github.com/quclub"
+"/tensorcircuit-dev.git`` in shell."
+msgstr ""
+
+#: ../../source/quickstart.rst:14
+msgid ""
+"Depending on one's need, one may further pip install tensorflow (for "
+"tensorflow backend) or jax and jaxlib (for jax backend) or `cotengra "
+"<https://github.com/jcmgray/cotengra>`__ (for more advanced tensornetwork"
+" contraction path solver)."
+msgstr ""
+
+#: ../../source/quickstart.rst:16
+msgid ""
+"If one needs circuit visualization on Jupyter lab, python package `wand "
+"<https://docs.wand-py.org/en/0.6.7/>`__ and its binary bindings as well "
+"as LaTeX installation is required."
+msgstr ""
+
+#: ../../source/quickstart.rst:20
+msgid "Circuit Object"
+msgstr ""
+
+#: ../../source/quickstart.rst:22
+msgid "The basic object for TensorCircuit is ``tc.Circuit``."
+msgstr ""
+
+#: ../../source/quickstart.rst:24
+msgid "Initialize the circuit with the number of qubits ``c=tc.Circuit(n)``."
+msgstr ""
+
+#: ../../source/quickstart.rst:26
+msgid "**Input states:**"
+msgstr ""
+
+#: ../../source/quickstart.rst:28
+msgid ""
+"The default input function for the circuit is :math:`\\vert 0^n "
+"\\rangle`. One can change this to other wavefunctions by directly feed "
+"the inputs state vectors w: ``c=tc.Circuit(n, inputs=w)``."
+msgstr ""
+
+#: ../../source/quickstart.rst:30
+msgid ""
+"One can also feed matrix product state as input states for the circuit, "
+"but we leave MPS/MPO usage for future sections."
+msgstr ""
+
+#: ../../source/quickstart.rst:32
+msgid "**Quantum gates:**"
+msgstr ""
+
+#: ../../source/quickstart.rst:34
+msgid ""
+"We can apply gates on the circuit object as: ``c.H(1)`` or ``c.rx(2, "
+"theta=0.2)`` which are for apply Hadamard gate on qubit 1 (0-based) or "
+"apply Rx gate on qubit 2 as :math:`e^{-i\\theta/2 X}`."
+msgstr ""
+
+#: ../../source/quickstart.rst:36
+msgid "The same rules apply to multi-qubit gates, such as ``c.cnot(0, 1)``."
+msgstr ""
+
+#: ../../source/quickstart.rst:38
+msgid "There are also highly customizable gates, two representatives are:"
+msgstr ""
+
+#: ../../source/quickstart.rst:40
+msgid ""
+"``c.exp1(0, 1, unitary=m, theta=0.2)`` which is for the exponential gate "
+":math:`e^{i\\theta m}` of any matrix m as long as :math:`m^2=1`."
+msgstr ""
+
+#: ../../source/quickstart.rst:42
+msgid ""
+"``c.any(0, 1, unitary=m)`` which is for applying the unitary gate m on "
+"the circuit."
+msgstr ""
+
+#: ../../source/quickstart.rst:44
+msgid "These two examples are flexible and support gate on any number of qubits."
+msgstr ""
+
+#: ../../source/quickstart.rst:46
+msgid "**Measurements and expectations:**"
+msgstr ""
+
+#: ../../source/quickstart.rst:48
+msgid ""
+"The most directly way to get the output from the circuit object is just "
+"getting the output wavefunction in vector form as ``c.state()``."
+msgstr ""
+
+#: ../../source/quickstart.rst:50
+msgid ""
+"For bitstring sampling, we have ``c.perfect_sampling()`` which returns "
+"the bitstring and the corresponding probability amplitude."
+msgstr ""
+
+#: ../../source/quickstart.rst:52
+msgid ""
+"To measure part of the qubits, we can use ``c.measure(0, 1)``, if we want"
+" to know the corresponding probability of the measurement output, try "
+"``c.measure(0, 1, with_prob=True)``. The measure API is by default non-"
+"jittable, but we also have a jittable version as ``c.measure_jit(0, 1)``."
+msgstr ""
+
+#: ../../source/quickstart.rst:54
+msgid ""
+"To compute expectation values for local observables, we have "
+"``c.expectation([tc.gates.z(), [0]], [tc.gates.z(), [1]])`` for "
+":math:`\\langle Z_0Z_1 \\rangle` or ``c.expectation([tc.gates.x(), "
+"[0]])`` for :math:`\\langle X_0 \\rangle`."
+msgstr ""
+
+#: ../../source/quickstart.rst:56
+msgid ""
+"This expectation API is rather flexible, as one can measure any matrix m "
+"on several qubits as ``c.expectation([m, [0, 1, 2]])``."
+msgstr ""
+
+#: ../../source/quickstart.rst:58
+msgid "**Circuit visualization:**"
+msgstr ""
+
+#: ../../source/quickstart.rst:62
+msgid "Programming Paradigm"
+msgstr ""
+
+#: ../../source/quickstart.rst:64
+msgid ""
+"The most common use case and the most typical programming paradigm for "
+"TensorCircuit is to evaluate the circuit output and the corresponding "
+"quantum gradients, which is common in variational quantum algorithms."
+msgstr ""
+
+#: ../../source/quickstart.rst:91
+msgid ""
+"If the users have no intension to maintain the application code in a "
+"backend agnostic fashion, the API for ML frameworks can be more freely "
+"used and interleaved with TensorCircuit API."
+msgstr ""
+
+#: ../../source/quickstart.rst:126
+msgid "Automatic differentiation, JIT and vectorized parallelism"
+msgstr ""
+
+#: ../../source/quickstart.rst:128
+msgid ""
+"For the concepts of AD, JIT and VMAP, please refer to `Jax documentation "
+"<https://jax.readthedocs.io/en/latest/jax-101/index.html>`__ ."
+msgstr ""
+
+#: ../../source/quickstart.rst:130
+msgid ""
+"The related API design in TensorCircuit closely follows the design "
+"pattern in Jax with some small differences."
+msgstr ""
+
+#: ../../source/quickstart.rst:132
+msgid ""
+"AD support: gradients, vjps, jvps, natural gradients, Jacobians and "
+"Hessians"
+msgstr ""
+
+#: ../../source/quickstart.rst:134
+msgid "JIT support: parameterized quantum circuit can run in a blink"
+msgstr ""
+
+#: ../../source/quickstart.rst:136
+msgid ""
+"VMAP support: inputs, parameters, measurements, circuit structures, noise"
+" can all be parallelly evaluate"
+msgstr ""
+
+#: ../../source/quickstart.rst:140
+msgid "Backend Agnosticism"
+msgstr ""
+
+#: ../../source/quickstart.rst:142
+msgid ""
+"TensorCircuit support TensorFlow, Jax and PyTorch backends. We recommend "
+"to use TensorFlow or Jax backend, since PyTorch lacks advanced jit and "
+"vmap features."
+msgstr ""
+
+#: ../../source/quickstart.rst:144
+msgid ""
+"The backend can be set as ``K=tc.set_backend(\"jax\")`` and ``K`` is the "
+"backend with a full set of APIs as a conventional ML framework, which can"
+" also be accessed by ``tc.backend``."
+msgstr ""
+
+#: ../../source/quickstart.rst:167
+msgid ""
+"The supported APIs in backend come from two sources, one part is "
+"implemented in `TensorNetwork package "
+"<https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/abstract_backend.py>`__"
+" and the other part is implemented in `TensorCircuit package "
+"<modules.html#module-tensorcircuit.backends>`__."
+msgstr ""
+
+#: ../../source/quickstart.rst:171
+msgid "Switch the dtype"
+msgstr ""
+
+#: ../../source/quickstart.rst:173
+msgid ""
+"TensorCircuit supports simulation using 32/64 bit percesion. The default "
+"dtype is 32-bit as \"complex64\". Change this by "
+"`tc.set_dtype(\"complex128\")`."
+msgstr ""
+
+#: ../../source/quickstart.rst:176
+msgid ""
+"`tc.dtypestr` always return the current dtype str: either \"complex64\" "
+"or \"complex128\"."
+msgstr ""
+
+#: ../../source/quickstart.rst:180
+msgid "Setup the contractor"
+msgstr ""
+
+#: ../../source/quickstart.rst:182
+msgid ""
+"TensorCircuit is a tensornetwork contraction based quantum circuit "
+"simulator. A contractor is for searching the optimal contraction path of "
+"the circuit tensornetwork."
+msgstr ""
+
+#: ../../source/quickstart.rst:184
+msgid ""
+"There are various advanced contractor provided by the third-party "
+"packages, such as `opt-einsum <https://github.com/dgasmith/opt_einsum>`__"
+" and `cotengra <https://github.com/jcmgray/cotengra>`__."
+msgstr ""
+
+#: ../../source/quickstart.rst:188
+msgid "Noisy Circuit simulation"
+msgstr ""
+
+#: ../../source/quickstart.rst:190
+msgid "**Monte Carlo State Simulator:**"
+msgstr ""
+
+#: ../../source/quickstart.rst:192
+msgid "**Density Matrix Simulator:**"
+msgstr ""
+
+#: ../../source/quickstart.rst:196
+msgid "MPS and MPO"
+msgstr ""
+
+#: ../../source/quickstart.rst:200
+msgid "Interfaces"
+msgstr ""
+
+#: ../../source/quickstart.rst:204
+msgid "Templates as Shortcuts"
+msgstr ""
+

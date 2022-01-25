@@ -52,19 +52,23 @@ def quantum_constructor(
     ref_nodes: Optional[Collection[AbstractNode]] = None,
     ignore_edges: Optional[Collection[Edge]] = None,
 ) -> "QuOperator":
-    """Constructs an appropriately specialized QuOperator.
+    """
+    Constructs an appropriately specialized QuOperator.
     If there are no edges, creates a QuScalar. If the are only output (input)
-    edges, creates a QuVector (QuAdjointVector). Otherwise creates a
-    QuOperator.
-    Args:
-      out_edges: output edges.
-      in_edges: in edges.
-      ref_nodes: reference nodes for the tensor network (needed if there is a
+    edges, creates a QuVector (QuAdjointVector). Otherwise creates a QuOperator.
+
+    :param out_edges: output edges.
+    :type out_edges: Sequence[Edge]
+    :param in_edges: in edges.
+    :type in_edges: Sequence[Edge]
+    :param ref_nodes: reference nodes for the tensor network (needed if there is a
         scalar component).
-      ignore_edges: edges to ignore when checking the dimensionality of the
+    :type ref_nodes: Optional[Collection[AbstractNode]], optional
+    :param ignore_edges: edges to ignore when checking the dimensionality of the
         tensor network.
-    Returns:
-      The object.
+    :type ignore_edges: Optional[Collection[Edge]], optional
+    :return: The new created QuOperator object.
+    :rtype: QuOperator
     """
     if len(out_edges) == 0 and len(in_edges) == 0:
         return QuScalar(ref_nodes, ignore_edges)  # type: ignore
@@ -79,16 +83,18 @@ def identity(
     space: Sequence[int],
     dtype: Any = np.float64,
 ) -> "QuOperator":
-    """Construct a `QuOperator` representing the identity on a given space.
-    Internally, this is done by constructing `CopyNode`s for each edge, with
-    dimension according to `space`.
-    Args:
-      space: A sequence of integers for the dimensions of the tensor product
+    """
+    Construct a 'QuOperator' representing the identity on a given space.
+    Internally, this is done by constructing 'CopyNode's for each edge, with
+    dimension according to 'space'.
+
+    :param space: A sequence of integers for the dimensions of the tensor product
         factors of the space (the edges in the tensor network).
-      backend: Optionally specify the backend to use for computations.
-      dtype: The data type (for conversion to dense).
-    Returns:
-      The desired identity operator.
+    :type space: Sequence[int]
+    :param dtype: The data type (for conversion to dense).
+    :type dtype: Any type
+    :return: The desired identity operator.
+    :rtype: QuOperator
     """
     nodes = [CopyNode(2, d, dtype=dtype) for d in space]
     out_edges = [n[0] for n in nodes]
@@ -97,12 +103,17 @@ def identity(
 
 
 def check_spaces(edges_1: Sequence[Edge], edges_2: Sequence[Edge]) -> None:
-    """Check the vector spaces represented by two lists of edges are compatible.
+    """
+    Check the vector spaces represented by two lists of edges are compatible.
     The number of edges must be the same and the dimensions of each pair of edges
     must match. Otherwise, an exception is raised.
-    Args:
-      edges_1: List of edges representing a many-body Hilbert space.
-      edges_2: List of edges representing a many-body Hilbert space.
+    :param edges_1: List of edges representing a many-body Hilbert space.
+    :type edges_1: Sequence[Edge]
+    :param edges_2: List of edges representing a many-body Hilbert space.
+    :type edges_2: Sequence[Edge]
+
+    :raises ValueError: Hilbert-space mismatch: "Cannot connect {} subsystems with {} subsystems", or
+        "Input dimension {} != output dimension {}."
     """
     if len(edges_1) != len(edges_2):
         raise ValueError(
@@ -121,14 +132,16 @@ def check_spaces(edges_1: Sequence[Edge], edges_2: Sequence[Edge]) -> None:
 
 
 def eliminate_identities(nodes: Collection[AbstractNode]) -> Tuple[dict, dict]:  # type: ignore
-    """Eliminates any connected CopyNodes that are identity matrices.
+    """
+    Eliminates any connected CopyNodes that are identity matrices.
     This will modify the network represented by `nodes`.
     Only identities that are connected to other nodes are eliminated.
-    Args:
-      nodes: Collection of nodes to search.
-    Returns:
-      nodes_dict: Dictionary mapping remaining Nodes to any replacements.
-      dangling_edges_dict: Dictionary specifying all dangling-edge replacements.
+
+    :param nodes: Collection of nodes to search.
+    :type nodes: Collection[AbstractNode]
+    :returns: The Dictionary mapping remaining Nodes to any replacements, Dictionary specifying all dangling-edge
+        replacements.
+    :rtype: Dict[Union[CopyNode, AbstractNode], Union[Node, AbstractNode]], Dict[Edge, Edge]
     """
     nodes_dict = {}
     dangling_edges_dict = {}
@@ -160,7 +173,8 @@ def eliminate_identities(nodes: Collection[AbstractNode]) -> Tuple[dict, dict]: 
 
 
 class QuOperator:
-    """Represents a linear operator via a tensor network.
+    """
+    Represents a linear operator via a tensor network.
     To interpret a tensor network as a linear operator, some of the dangling
     edges must be designated as `out_edges` (output edges) and the rest as
     `in_edges` (input edges).
@@ -180,19 +194,25 @@ class QuOperator:
         ref_nodes: Optional[Collection[AbstractNode]] = None,
         ignore_edges: Optional[Collection[Edge]] = None,
     ) -> None:
-        """Creates a new `QuOperator` from a tensor network.
+        """
+        Creates a new `QuOperator` from a tensor network.
         This encapsulates an existing tensor network, interpreting it as a linear
         operator.
         The network is checked for consistency: All dangling edges must either be
         in `out_edges`, `in_edges`, or `ignore_edges`.
-        Args:
-          out_edges: The edges of the network to be used as the output edges.
-          in_edges: The edges of the network to be used as the input edges.
-          ref_nodes: Nodes used to refer to parts of the tensor network that are
+
+        :param out_edges: The edges of the network to be used as the output edges.
+        :type out_edges: Sequence[Edge]
+        :param in_edges: The edges of the network to be used as the input edges.
+        :type in_edges: Sequence[Edge]
+        :param ref_nodes: Nodes used to refer to parts of the tensor network that are
             not connected to any input or output edges (for example: a scalar
             factor).
-          ignore_edges: Optional collection of dangling edges to ignore when
+        :type ref_nodes: Optional[Collection[AbstractNode]], optional
+        :param ignore_edges: Optional collection of dangling edges to ignore when
             performing consistency checks.
+        :type ignore_edges: Optional[Collection[Edge]], optional
+        :raises ValueError: At least one reference node is required to specify a scalar. None provided!
         """
         # TODO: Decide whether the user must also supply all nodes involved.
         #       This would enable extra error checking and is probably clearer
@@ -215,16 +235,19 @@ class QuOperator:
         out_axes: Optional[Sequence[int]] = None,
         in_axes: Optional[Sequence[int]] = None,
     ) -> "QuOperator":
-        """Construct a `QuOperator` directly from a single tensor.
+        """
+        Construct a `QuOperator` directly from a single tensor.
         This first wraps the tensor in a `Node`, then constructs the `QuOperator`
         from that `Node`.
-        Args:
-          tensor: The tensor.
-          out_axes: The axis indices of `tensor` to use as `out_edges`.
-          in_axes: The axis indices of `tensor` to use as `in_edges`.
-          backend: Optionally specify the backend to use for computations.
-        Returns:
-          The new operator.
+
+        :param tensor: The tensor.
+        :type tensor: tensor
+        :param out_axes: The axis indices of `tensor` to use as `out_edges`.
+        :type out_axes: Optional[Sequence[int]], optional
+        :param in_axes: The axis indices of `tensor` to use as `in_edges`.
+        :type in_axes: Optional[Sequence[int]], optional
+        :returns: The new operator.
+        :rtype: QuOperator
         """
         nlegs = len(tensor.shape)
         if (out_axes is None) and (in_axes is None):
@@ -293,7 +316,8 @@ class QuOperator:
         return len(self.out_edges) == 0 and len(self.in_edges) > 0
 
     def check_network(self) -> None:
-        """Check that the network has the expected dimensionality.
+        """
+        Check that the network has the expected dimensionality.
         This checks that all input and output edges are dangling and that
         there are no other dangling edges (except any specified in
         `ignore_edges`). If not, an exception is raised.
@@ -319,7 +343,8 @@ class QuOperator:
             )
 
     def adjoint(self) -> "QuOperator":
-        """The adjoint of the operator.
+        """
+        The adjoint of the operator.
         This creates a new `QuOperator` with complex-conjugate copies of all
         tensors in the network and with the input and output edges switched.
         """
@@ -343,23 +368,26 @@ class QuOperator:
         return self.partial_trace(range(len(self.in_edges)))
 
     def norm(self) -> "QuOperator":
-        """The norm of the operator.
+        """
+        The norm of the operator.
         This is the 2-norm (also known as the Frobenius or Hilbert-Schmidt
         norm).
         """
         return (self.adjoint() @ self).trace()
 
     def partial_trace(self, subsystems_to_trace_out: Collection[int]) -> "QuOperator":
-        """The partial trace of the operator.
+        """
+        The partial trace of the operator.
         Subsystems to trace out are supplied as indices, so that dangling edges
-        are connected to eachother as:
+        are connected to each other as:
           `out_edges[i] ^ in_edges[i] for i in subsystems_to_trace_out`
         This does not modify the original network. The original ordering of the
         remaining subsystems is maintained.
-        Args:
-          subsystems_to_trace_out: Indices of subsystems to trace out.
-        Returns:
-          A new QuOperator or QuScalar representing the result.
+
+        :param subsystems_to_trace_out: Indices of subsystems to trace out.
+        :type subsystems_to_trace_out: Collection[int]
+        :returns: A new QuOperator or QuScalar representing the result.
+        :rtype: QuOperator
         """
         out_edges_trace = [self.out_edges[i] for i in subsystems_to_trace_out]
         in_edges_trace = [self.in_edges[i] for i in subsystems_to_trace_out]
@@ -454,17 +482,19 @@ class QuOperator:
         return self.__mul__(other)
 
     def tensor_product(self, other: "QuOperator") -> "QuOperator":
-        """Tensor product with another operator.
+        """
+        Tensor product with another operator.
         Given two operators `A` and `B`, produces a new operator `AB` representing
         `A` ⊗ `B`. The `out_edges` (`in_edges`) of `AB` is simply the
         concatenation of the `out_edges` (`in_edges`) of `A.copy()` with that of
         `B.copy()`:
         `new_out_edges = [*out_edges_A_copy, *out_edges_B_copy]`
         `new_in_edges = [*in_edges_A_copy, *in_edges_B_copy]`
-        Args:
-          other: The other operator (`B`).
-        Returns:
-          The result (`AB`).
+
+        :param other: The other operator (`B`).
+        :type other: QuOperator
+        :returns: The result (`AB`).
+        :rtype: QuOperator
         """
         nodes_dict1, edges_dict1 = copy(self.nodes, False)
         nodes_dict2, edges_dict2 = copy(other.nodes, False)
@@ -496,16 +526,15 @@ class QuOperator:
         self,
         final_edge_order: Optional[Sequence[Edge]] = None,
     ) -> "QuOperator":
-        """Contract the tensor network in place.
+        """
+        Contract the tensor network in place.
         This modifies the tensor network representation of the operator (or vector,
         or scalar), reducing it to a single tensor, without changing the value.
-        Args:
-          contractor: A function that performs the contraction. Defaults to
-            `greedy`, which uses the greedy algorithm from `opt_einsum` to
-            determine a contraction order.
-          final_edge_order: Manually specify the axis ordering of the final tensor.
-        Returns:
-          The present object.
+
+        :param final_edge_order: Manually specify the axis ordering of the final tensor.
+        :type final_edge_order: Optional[Sequence[Edge]], optional
+        :returns: The present object.
+        :rtype: QuOperator
         """
         nodes_dict, dangling_edges_dict = eliminate_identities(self.nodes)
         self.in_edges = [dangling_edges_dict[e] for e in self.in_edges]
@@ -526,21 +555,20 @@ class QuOperator:
         self,
         final_edge_order: Optional[Sequence[Edge]] = None,
     ) -> Tensor:
-        """Contracts the tensor network in place and returns the final tensor.
+        """
+        Contracts the tensor network in place and returns the final tensor.
         Note that this modifies the tensor network representing the operator.
         The default ordering for the axes of the final tensor is:
           `*out_edges, *in_edges`.
         If there are any "ignored" edges, their axes come first:
           `*ignored_edges, *out_edges, *in_edges`.
-        Args:
-          contractor: A function that performs the contraction. Defaults to
-            `greedy`, which uses the greedy algorithm from `opt_einsum` to
-            determine a contraction order.
-          final_edge_order: Manually specify the axis ordering of the final tensor.
-            The default ordering is determined by `out_edges` and `in_edges` (see
-            above).
-        Returns:
-          The final tensor representing the operator.
+
+        :param final_edge_order: Manually specify the axis ordering of the final tensor.
+            The default ordering is determined by `out_edges` and `in_edges` (see above).
+        :type final_edge_order: Optional[Sequence[Edge]], optional
+        :raises ValueError: Node count '{}' > 1 after contraction!
+        :returns: The final tensor representing the operator.
+        :rtype: Tensor
         """
         if not final_edge_order:
             final_edge_order = list(self.ignore_edges) + self.out_edges + self.in_edges
@@ -568,16 +596,17 @@ class QuVector(QuOperator):
         ref_nodes: Optional[Collection[AbstractNode]] = None,
         ignore_edges: Optional[Collection[Edge]] = None,
     ) -> None:
-        """Constructs a new `QuVector` from a tensor network.
-        This encapsulates an existing tensor network, interpreting it as a (column)
-        vector.
-        Args:
-          subsystem_edges: The edges of the network to be used as the output edges.
-          ref_nodes: Nodes used to refer to parts of the tensor network that are
-            not connected to any input or output edges (for example: a scalar
-            factor).
-          ignore_edges: Optional collection of edges to ignore when performing
-            consistency checks.
+        """
+        Constructs a new `QuVector` from a tensor network.
+        This encapsulates an existing tensor network, interpreting it as a (column) vector.
+
+        :param subsystem_edges: The edges of the network to be used as the output edges.
+        :type subsystem_edges: Sequence[Edge]
+        :param ref_nodes: Nodes used to refer to parts of the tensor network that are
+            not connected to any input or output edges (for example: a scalar factor).
+        :type ref_nodes: Optional[Collection[AbstractNode]], optional
+        :param ignore_edges: Optional collection of edges to ignore when performing consistency checks.
+        :type ignore_edges: Optional[Collection[Edge]], optional
         """
         super().__init__(subsystem_edges, [], ref_nodes, ignore_edges)
 
@@ -587,17 +616,19 @@ class QuVector(QuOperator):
         tensor: Tensor,
         subsystem_axes: Optional[Sequence[int]] = None,
     ) -> "QuVector":
-        """Construct a `QuVector` directly from a single tensor.
+        """
+        Construct a `QuVector` directly from a single tensor.
         This first wraps the tensor in a `Node`, then constructs the `QuVector`
         from that `Node`.
-        Args:
-          tensor: The tensor.
-          subsystem_axes: Sequence of integer indices specifying the order in which
+
+        :param tensor: The tensor for constructing a "QuVector".
+        :type tensor: Tensor
+        :param subsystem_axes: Sequence of integer indices specifying the order in which
             to interpret the axes as subsystems (output edges). If not specified,
             the axes are taken in ascending order.
-          backend: Optionally specify the backend to use for computations.
-        Returns:
-          The new operator.
+        :type subsystem_axes: Optional[Sequence[int]], optional
+        :returns: The new constructed QuVector from the given tensor.
+        :rtype: QuVector
         """
         n = Node(tensor)
         if subsystem_axes is not None:
@@ -631,16 +662,18 @@ class QuAdjointVector(QuOperator):
         ref_nodes: Optional[Collection[AbstractNode]] = None,
         ignore_edges: Optional[Collection[Edge]] = None,
     ) -> None:
-        """Constructs a new `QuAdjointVector` from a tensor network.
+        """
+        Constructs a new `QuAdjointVector` from a tensor network.
         This encapsulates an existing tensor network, interpreting it as an adjoint
         vector (row vector).
-        Args:
-          subsystem_edges: The edges of the network to be used as the input edges.
-          ref_nodes: Nodes used to refer to parts of the tensor network that are
-            not connected to any input or output edges (for example: a scalar
-            factor).
-          ignore_edges: Optional collection of edges to ignore when performing
-            consistency checks.
+
+        :param subsystem_edges: The edges of the network to be used as the input edges.
+        :type subsystem_edges: Sequence[Edge]
+        :param ref_nodes: Nodes used to refer to parts of the tensor network that are
+            not connected to any input or output edges (for example: a scalar factor).
+        :type ref_nodes: Optional[Collection[AbstractNode]], optional
+        :param ignore_edges: Optional collection of edges to ignore when performing consistency checks.
+        :type ignore_edges: Optional[Collection[Edge]], optional
         """
         super().__init__([], subsystem_edges, ref_nodes, ignore_edges)
 
@@ -650,17 +683,18 @@ class QuAdjointVector(QuOperator):
         tensor: Tensor,
         subsystem_axes: Optional[Sequence[int]] = None,
     ) -> "QuAdjointVector":
-        """Construct a `QuAdjointVector` directly from a single tensor.
-        This first wraps the tensor in a `Node`, then constructs the
-        `QuAdjointVector` from that `Node`.
-        Args:
-          tensor: The tensor.
-          subsystem_axes: Sequence of integer indices specifying the order in which
+        """
+        Construct a `QuAdjointVector` directly from a single tensor.
+        This first wraps the tensor in a `Node`, then constructs the `QuAdjointVector` from that `Node`.
+
+        :param tensor: The tensor for consturcting an QuAdjointVector.
+        :type tensor: Tensor
+        :param subsystem_axes: Sequence of integer indices specifying the order in which
             to interpret the axes as subsystems (input edges). If not specified,
             the axes are taken in ascending order.
-          backend: Optionally specify the backend to use for computations.
-        Returns:
-          The new operator.
+        :type subsystem_axes: Optional[Sequence[int]], optional
+        :returns: The new construted QuAdjointVector give from the given tensor.
+        :rtype: QuAdjointVector
         """
         n = Node(tensor)
         if subsystem_axes is not None:
@@ -693,26 +727,28 @@ class QuScalar(QuOperator):
         ref_nodes: Collection[AbstractNode],
         ignore_edges: Optional[Collection[Edge]] = None,
     ) -> None:
-        """Constructs a new `QuScalar` from a tensor network.
+        """
+        Constructs a new `QuScalar` from a tensor network.
         This encapsulates an existing tensor network, interpreting it as a scalar.
-        Args:
-          ref_nodes: Nodes used to refer to the tensor network (need not be
+
+        :param ref_nodes: Nodes used to refer to the tensor network (need not be
             exhaustive - one node from each disconnected subnetwork is sufficient).
-            ignore_edges: Optional collection of edges to ignore when performing
-            consistency checks.
+        :type ref_nodes: Collection[AbstractNode]
+        :param ignore_edges: Optional collection of edges to ignore when performing consistency checks.
+        :type ignore_edges: Optional[Collection[Edge]], optional
         """
         super().__init__([], [], ref_nodes, ignore_edges)
 
     @classmethod
     def from_tensor(cls, tensor: Tensor) -> "QuScalar":  # type: ignore
-        """Construct a `QuScalar` directly from a single tensor.
-        This first wraps the tensor in a `Node`, then constructs the
-        `QuScalar` from that `Node`.
-        Args:
-          tensor: The tensor.
-          backend: Optionally specify the backend to use for computations.
-        Returns:
-          The new operator.
+        """
+        Construct a `QuScalar` directly from a single tensor.
+        This first wraps the tensor in a `Node`, then constructs the `QuScalar` from that `Node`.
+
+        :param tensor: The tensor for constructing a new QuScalar.
+        :type tensor: Tensor
+        :returns: The new constructed QuScalar from the given tensor.
+        :rtype: QuScalar
         """
         n = Node(tensor)
         return cls(set([n]))
@@ -730,7 +766,7 @@ def generate_local_hamiltonian(
     :param matrix_form: [description], defaults to True
     :type matrix_form: bool, optional
     :return: [description]
-    :rtype: [type]
+    :rtype: Tensor
     """
     hlist = [backend.cast(h, dtype=dtypestr) for h in hlist]  # type: ignore
     hop_list = [QuOperator.from_tensor(h) for h in hlist]
@@ -982,7 +1018,7 @@ def reduced_density_matrix(
     p: Optional[Tensor] = None,
 ) -> Union[Tensor, QuOperator]:
     """
-    compute reduced density matrix from quantum state ``state``
+    Compute the reduced density matrix from quantum state ``state``.
 
     :param state: [description]
     :type state: Tensor

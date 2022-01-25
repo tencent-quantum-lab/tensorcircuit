@@ -1,4 +1,5 @@
 .idea/
+*.mo
 develop
 .coverage*
 *.result

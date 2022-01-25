@@ -162,6 +162,12 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
             return torchlib.max(a)
         return torchlib.max(a, dim=axis).values
 
+    def argmax(self, a: Tensor, axis: int = 0) -> Tensor:
+        return torchlib.argmax(a, dim=axis)
+
+    def argmin(self, a: Tensor, axis: int = 0) -> Tensor:
+        return torchlib.argmin(a, dim=axis)
+
     def unique_with_counts(self, a: Tensor) -> Tuple[Tensor, Tensor]:
         return torchlib.unique(a, return_counts=True)  # type: ignore
 

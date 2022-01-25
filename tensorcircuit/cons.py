@@ -397,6 +397,9 @@ def _get_path_cache_friendly(
     placeholder = [[1e20 for _ in range(100)]]
     order = np.argsort(np.array(list(map(sorted, input_sets)) + placeholder, dtype=object))[:-1]  # type: ignore
     nodes_new = [nodes[i] for i in order]
+    if isinstance(algorithm, list):
+        return algorithm, nodes_new
+
     input_sets = [set([mapping_dict[id(e)] for e in node.edges]) for node in nodes_new]
     output_set = set([mapping_dict[id(e)] for e in tn.get_subgraph_dangling(nodes_new)])
     size_dict = {
@@ -404,6 +407,7 @@ def _get_path_cache_friendly(
     }
     logger.debug("input_sets: %s" % input_sets)
     logger.debug("output_set: %s" % output_set)
+    logger.debug("size_dict: %s" % size_dict)
     logger.debug("path finder algorithm: %s" % algorithm)
     return algorithm(input_sets, output_set, size_dict), nodes_new  # type: ignore
 
@@ -426,6 +430,22 @@ opt = ctg.ReusableHyperOptimizer(
 tc.set_contractor("custom", optimizer=opt, preprocessing=True)
 tc.set_contractor("custom_stateful", optimizer=oem.RandomGreedy, max_time=60, max_repeats=128, minimize="size")
 tc.set_contractor("plain-experimental", local_steps=3)
+
+# hyper efficient contractor: though long computation time required, suitable for extra large circuit simulation
+opt = ctg.HyperOptimizer(
+    minimize='combo',
+    max_repeats=1024,
+    max_time='equil:128',
+    optlib='nevergrad',
+    progbar=True,
+)
+
+def opt_reconf(inputs, output, size, **kws):
+    tree = opt.search(inputs, output, size)
+    tree_r = tree.subtree_reconfigure_forest(progbar=True, num_trees=10, num_restarts=20, subtree_weight_what=("size", ))
+    return tree_r.get_path()
+
+tc.set_contractor("custom", optimizer=opt_reconf)
 """
 
 
@@ -492,10 +512,11 @@ def _base(
     # nodes = list(nodes_set)
 
     # Then apply `opt_einsum`'s algorithm
-    if isinstance(algorithm, list):
-        path = algorithm
-    else:
-        path, nodes = _get_path_cache_friendly(nodes, algorithm)
+    # if isinstance(algorithm, list):
+    #     path = algorithm
+    # else:
+    path, nodes = _get_path_cache_friendly(nodes, algorithm)
+    logger.info("the contraction path is given as %s" % path)
     if total_size is None:
         total_size = sum([_sizen(t) for t in nodes])
     for ab in path:
@@ -537,7 +558,10 @@ def custom(
     total_size = None
     if kws.get("preprocessing", None):
         nodes, total_size = _merge_single_gates(nodes)
-    alg = partial(optimizer, memory_limit=memory_limit)
+    if not isinstance(optimizer, list):
+        alg = partial(optimizer, memory_limit=memory_limit)
+    else:
+        alg = optimizer
     return _base(nodes, alg, output_edge_order, ignore_edge_order, total_size)
 
 

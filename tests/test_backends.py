@@ -164,6 +164,23 @@ def test_backend_methods(backend):
     )
 
 
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])
+def test_arg_cmp(backend):
+    np.testing.assert_allclose(tc.backend.argmax(tc.backend.ones([3], "float64")), 0)
+    np.testing.assert_allclose(
+        tc.backend.argmax(
+            tc.array_to_tensor(np.array([[1, 2], [3, 4]]), dtype="float64")
+        ),
+        np.array([1, 1]),
+    )
+    np.testing.assert_allclose(
+        tc.backend.argmin(
+            tc.array_to_tensor(np.array([[1, 2], [3, 4]]), dtype="float64"), axis=-1
+        ),
+        np.array([0, 0]),
+    )
+
+
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_tree_map(backend):
     def f(a, b):
@@ -737,3 +754,28 @@ def test_optimizers(backend):
         print(loss)
 
     assert loss < -0.8
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_hessian(backend):
+    # hessian support is now very fragile and especially has potential issues on tf backend
+    def f(param):
+        return tc.backend.sum(param ** 2)
+
+    hf = tc.backend.hessian(f)
+    param = tc.backend.ones([2])
+    np.testing.assert_allclose(hf(param), 2 * tc.backend.eye(2), atol=1e-5)
+
+    param = tc.backend.ones([2, 2])
+    assert list(hf(param).shape) == [2, 2, 2, 2]  # possible tf retracing?
+
+    g = tc.templates.graphs.Line1D(5)
+
+    def circuit_f(param):
+        c = tc.Circuit(5)
+        c = tc.templates.blocks.example_block(c, param, nlayers=1)
+        return tc.templates.measurements.heisenberg_measurements(c, g)
+
+    param = tc.backend.ones([10])
+    hf = tc.backend.hessian(circuit_f)
+    print(hf(param))  # still upto a conjugate for jax and tf backend.

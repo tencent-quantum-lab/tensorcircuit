@@ -5,7 +5,7 @@ declarations of single-qubit and two-qubit gates and their corresponding matrix
 import sys
 from copy import deepcopy
 from functools import reduce
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Optional, List, Union
 from operator import mul
 
 import numpy as np
@@ -107,10 +107,82 @@ class Gate(tn.Node):  # type: ignore
     Wrapper of tn.Node, quantum gate
     """
 
-    pass
+    def __repr__(self) -> str:
+        """Formatted output of Gate
+
+        Example:
+
+        >>> tc.gates.ry(0.5)
+        >>> # OR
+        >>> print(repr(tc.gates.ry(0.5)))
+        Gate(
+            name: '__unnamed_node__',
+            tensor:
+                <tf.Tensor: shape=(2, 2), dtype=complex64, numpy=
+                array([[ 0.9689124 +0.j, -0.24740396+0.j],
+                    [ 0.24740396+0.j,  0.9689124 +0.j]], dtype=complex64)>,
+            edges: [
+                Edge(Dangling Edge)[0],
+                Edge(Dangling Edge)[1]
+            ])
+        """
+        sp = " " * 4
+        edges = self.get_all_edges()
+        edges_text = [edge.__repr__().replace("\n", "").strip() for edge in edges]
+        edges_out = f"[" + f"\n{sp*2}" + f",\n{sp*2}".join(edges_text) + f"\n{sp}]"
+        tensor_out = f"\n{sp*2}" + self.tensor.__repr__().replace("\n", f"\n{sp*2}")
+        return (
+            f"{self.__class__.__name__}(\n"
+            f"{sp}name: {self.name!r},\n"
+            f"{sp}tensor:{tensor_out},\n"
+            f"{sp}edges: {edges_out})"
+        )
 
 
 def num_to_tensor(*num: Union[float, Tensor], dtype: Optional[str] = None) -> Any:
+    r"""
+    Convert the inputs to Tensor with specified dtype.
+
+    Example:
+
+    >>> from tensorcircuit.gates import num_to_tensor
+    >>> # OR
+    >>> from tensorcircuit.gates import array_to_tensor
+    >>>
+    >>> x, y, z = 0, 0.1, np.array([1])
+    >>>
+    >>> tc.set_backend('numpy')
+    numpy_backend
+    >>> num_to_tensor(x, y, z)
+    [array(0.+0.j, dtype=complex64), array(0.1+0.j, dtype=complex64), array([1.+0.j], dtype=complex64)]
+    >>>
+    >>> tc.set_backend('tensorflow')
+    tensorflow_backend
+    >>> num_to_tensor(x, y, z)
+    [<tf.Tensor: shape=(), dtype=complex64, numpy=0j>,
+     <tf.Tensor: shape=(), dtype=complex64, numpy=(0.1+0j)>,
+     <tf.Tensor: shape=(1,), dtype=complex64, numpy=array([1.+0.j], dtype=complex64)>]
+    >>>
+    >>> tc.set_backend('pytorch')
+    pytorch_backend
+    >>> num_to_tensor(x, y, z)
+    [tensor(0.+0.j), tensor(0.1000+0.j), tensor([1.+0.j])]
+    >>> tc.set_backend('jax')
+    jax_backend
+    >>> num_to_tensor(x, y, z)
+    [DeviceArray(0.+0.j, dtype=complex64),
+     DeviceArray(0.1+0.j, dtype=complex64),
+     DeviceArray([1.+0.j], dtype=complex64)]
+
+    :param num: inputs
+    :type num: Union[float, Tensor]
+    :param dtype: dtype of the output Tensors
+    :type dtype: str, optional
+    :returns: List of Tensors
+    :rtype: List[Tensor]
+    """
+    # TODO(@YHPeter): fix __doc__ for same function with different names
+
     l = []
     if not dtype:
         dtype = dtypestr
@@ -135,22 +207,63 @@ def gate_wrapper(m: Tensor, n: Optional[str] = None) -> Gate:
 
 
 class GateF:
-    def __init__(self, m: Tensor, n: Optional[str] = None):
+    def __init__(
+        self, m: Tensor, n: Optional[str] = None, ctrl: Optional[List[int]] = None
+    ):
         if not n:
             n = "unknowngate"
         self.m = m
         self.n = n
+        self.ctrl = ctrl
 
     def __call__(self, *args: Any, **kws: Any) -> Gate:
         m = self.m.astype(npdtype)
         return Gate(deepcopy(m), name=self.n)
 
-    def adjoint(self, *args: Any, **kws: Any) -> Gate:
+    def adjoint(self, *args: Any, **kws: Any) -> "GateF":
         m = self.__call__(*args, **kws)
-        m.tensor = backend.adjoint(m.tensor)
-        return m
+        ma = backend.adjoint(m.tensor)
+        return GateF(ma, self.n + "d", self.ctrl)
+        # TODO(@refraction-ray): adjoint gate convention finally determined
 
-    # TODO(@refraction-ray): controlled
+    def controlled(self, *args: Any, **kws: Any) -> "GateF":
+        def f(*args: Any, **kws: Any) -> Any:
+            m = self.__call__(*args, **kws)
+            u = m.tensor
+            u = backend.reshapem(u)
+            s = int(u.shape[-1])
+            upper = backend.concat([backend.eye(s), backend.zeros([s, s])])
+            lower = backend.concat([backend.zeros([s, s]), u])
+            cu = backend.concat([upper, lower], axis=-1)
+            cu = backend.reshape2(cu)
+
+            return Gate(cu, name="c" + self.n)
+
+        if not self.ctrl:
+            ctrl = [1]
+        else:
+            ctrl = [1] + self.ctrl
+        return GateVF(f, "c" + self.n, ctrl)
+
+    def ocontrolled(self, *args: Any, **kws: Any) -> "GateF":
+        def f(*args: Any, **kws: Any) -> Any:
+            m = self.__call__(*args, **kws)
+            u = m.tensor
+            u = backend.reshapem(u)
+            s = int(u.shape[-1])
+            lower = backend.concat([backend.zeros([s, s]), backend.eye(s)])
+            upper = backend.concat([u, backend.zeros([s, s])])
+            ocu = backend.concat([upper, lower], axis=-1)
+            ocu = backend.reshape2(ocu)
+
+            # TODO(@refraction-ray): ctrl convention to be finally determined
+            return Gate(ocu, name="o" + self.n)
+
+        if not self.ctrl:
+            ctrl = [0]
+        else:
+            ctrl = [0] + self.ctrl
+        return GateVF(f, "o" + self.n, ctrl)
 
     def __str__(self) -> str:
         return self.n
@@ -159,11 +272,17 @@ class GateF:
 
 
 class GateVF(GateF):
-    def __init__(self, f: Callable[..., Gate], n: Optional[str] = None):
+    def __init__(
+        self,
+        f: Callable[..., Gate],
+        n: Optional[str] = None,
+        ctrl: Optional[List[int]] = None,
+    ):
         if not n:
             n = "unknowngate"
         self.f = f
         self.n = n
+        self.ctrl = ctrl
 
     def __call__(self, *args: Any, **kws: Any) -> Gate:
         return self.f(*args, **kws)
@@ -196,19 +315,48 @@ pauli_gates = [i(), x(), y(), z()]  # type: ignore
 
 
 def matrix_for_gate(gate: Gate) -> Tensor:
+    r"""
+    Convert Gate to Tensor.
+
+    Example:
+
+    >>> gate = tc.gates.r_gate()
+    >>> tc.gates.matrix_for_gate(gate)
+        array([[1.+0.j, 0.+0.j],
+            [0.+0.j, 1.+0.j]], dtype=complex64)
+
+    :param gate: input Gate
+    :type gate: Gate
+    :return: corresponding Tensor
+    :rtype: Tensor
+    """
+
     t = gate.tensor
-    l = int(np.sqrt(t.size))
-    t = t.reshape([l, l])
-    return t
+    return backend.reshapem(t)
 
 
 def bmatrix(a: Array) -> str:
-    """
-    Returns a LaTeX bmatrix
+    r"""
+    Returns a LaTeX bmatrix.
+
+    Example:
+
+    >>> gate = tc.gates.r_gate()
+    >>> array = tc.gates.matrix_for_gate(gate)
+    >>> array
+    array([[1.+0.j, 0.+0.j],
+        [0.+0.j, 1.+0.j]], dtype=complex64)
+    >>> print(tc.gates.bmatrix(array))
+    \begin{bmatrix}    1.+0.j & 0.+0.j\\    0.+0.j & 1.+0.j \end{bmatrix}
+
+    Formatted Display:
+
+    .. math::
+        \begin{bmatrix}    1.+0.j & 0.+0.j\\    0.+0.j & 1.+0.j \end{bmatrix}
 
     :param a: 2D numpy array
     :type a: np.array
-    :raises ValueError: [description]
+    :raises ValueError: ValueError("bmatrix can at most display two dimensions")
     :return: latex str for bmatrix of array a
     :rtype: str
     """
@@ -225,6 +373,28 @@ def bmatrix(a: Array) -> str:
 
 
 def r_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
+    r"""
+    General single qubit rotation gate
+
+    .. math::
+        R(\theta, \phi, \alpha) = i \cos(\theta) I
+    .. math::
+        - i \cos(\phi) \sin(\alpha) \sin(\theta) X
+    .. math::
+        - i \sin(\phi) \sin(\alpha) \sin(\theta) Y
+    .. math::
+        - i \sin(\theta) \cos(\alpha) Z
+
+    :param theta:  angle in radians
+    :type theta: float, optional
+    :param alpha: angle in radians
+    :type alpha: float, optional
+    :param phi: angle in radians
+    :type phi: float, optional
+
+    :return: R Gate
+    :rtype: Gate
+    """
     theta, phi, alpha = num_to_tensor(theta, phi, alpha)
     i, x, y, z = array_to_tensor(_i_matrix, _x_matrix, _y_matrix, _z_matrix)
     unitary = (
@@ -240,11 +410,16 @@ def r_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
 
 
 def rx_gate(theta: float = 0) -> Gate:
-    """
-    e^{-\theta/2 i X}
+    r"""
+    Rotation gate along X axis.
 
-    :param theta:
-    :return:
+    .. math::
+        RX(\theta) = e^{-i\frac{\theta}{2}X}
+
+    :param theta: angle in radians
+    :type theta: float, optional
+    :return: RX Gate
+    :rtype: Gate
     """
     i, x = array_to_tensor(_i_matrix, _x_matrix)
     theta = num_to_tensor(theta)
@@ -256,11 +431,16 @@ def rx_gate(theta: float = 0) -> Gate:
 
 
 def ry_gate(theta: float = 0) -> Gate:
-    """
-    e^{-\theta/2 i Y}
+    r"""
+    Rotation gate along Y axis.
 
-    :param theta:
-    :return:
+    .. math::
+        RY(\theta) = e^{-i\frac{\theta}{2}Y}
+
+    :param theta: angle in radians
+    :type theta: float, optional
+    :return: RY Gate
+    :rtype: Gate
     """
     i, y = array_to_tensor(_i_matrix, _y_matrix)
     theta = num_to_tensor(theta)
@@ -272,11 +452,16 @@ def ry_gate(theta: float = 0) -> Gate:
 
 
 def rz_gate(theta: float = 0) -> Gate:
-    """
-    e^{-\theta/2 i Z}
+    r"""
+    Rotation gate along Z axis.
 
-    :param theta:
-    :return:
+    .. math::
+        RZ(\theta) = e^{-i\frac{\theta}{2}Z}
+
+    :param theta: angle in radians
+    :type theta: float, optional
+    :return: RZ Gate
+    :rtype: Gate
     """
     i, z = array_to_tensor(_i_matrix, _z_matrix)
     theta = num_to_tensor(theta)
@@ -288,6 +473,27 @@ def rz_gate(theta: float = 0) -> Gate:
 
 
 def rgate_theoretical(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
+    r"""
+    Rotation gate, which is in matrix exponential form, shall give the same result as `rgate`.
+
+    .. math::
+        mx = \sin(\alpha) \cos(\phi) X
+    .. math::
+        my = \sin(\alpha) \sin(\phi) Y
+    .. math::
+        mz = \cos(\alpha) Z
+    .. math::
+        R(\theta, \alpha, \phi) = e^{-i\theta (mx+my+mz)}
+
+    :param theta: angle in radians
+    :type theta: float, optional
+    :param alpha: angle in radians
+    :type alpha: float, optional
+    :param phi: angle in radians
+    :type phi: float, optional
+    :return: Rotation Gate
+    :rtype: Gate
+    """
     theta, phi, alpha = num_to_tensor(theta, phi, alpha)
     mx = backend.sin(alpha) * backend.cos(phi)
     my = backend.sin(alpha) * backend.sin(phi)
@@ -300,7 +506,10 @@ def rgate_theoretical(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gat
 
 def random_single_qubit_gate() -> Gate:
     """
-    Returns the random single qubit gate described in https://arxiv.org/abs/2002.07730.
+    Random single qubit gate described in https://arxiv.org/abs/2002.07730.
+
+    :return: A random single qubit gate
+    :rtype: Gate
     """
     # Get the random parameters
     theta, alpha, phi = np.random.rand(3) * 2 * np.pi  # type: ignore
@@ -312,6 +521,23 @@ def random_single_qubit_gate() -> Gate:
 
 
 def iswap_gate(theta: float = 1.0) -> Gate:
+    r"""
+    iSwap gate.
+
+    .. math::
+        iSwap(\theta) =
+        \begin{pmatrix}
+            1 & 0 & 0 & 0\\
+            0 & \cos(\frac{\pi}{2} \theta ) & j \sin(\frac{\pi}{2} \theta ) & 0\\
+            0 & j \sin(\frac{\pi}{2} \theta ) & \cos(\frac{\pi}{2} \theta ) & 0\\
+            0 & 0 & 0 & 1\\
+        \end{pmatrix}
+
+    :param theta: angle in radians
+    :type theta: float
+    :return: iSwap Gate
+    :rtype: Gate
+    """
     d1 = np.array([[1.0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1.0]])
     d2 = np.array([[0, 0, 0, 0], [0, 1.0, 0, 0], [0, 0, 1.0, 0], [0, 0, 0, 0]])
     od = np.array([[0, 0, 0, 0], [0, 0, 1.0, 0], [0, 1.0, 0, 0], [0, 0, 0, 0]])
@@ -330,6 +556,19 @@ def iswap_gate(theta: float = 1.0) -> Gate:
 
 
 def cr_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
+    r"""
+    Controlled rotation gate, when the control bit is 1, `rgate` is applied on the target gate.
+
+    :param theta:  angle in radians
+    :type theta: float, optional
+    :param alpha: angle in radians
+    :type alpha: float, optional
+    :param phi: angle in radians
+    :type phi: float, optional
+
+    :return: CR Gate
+    :rtype: Gate
+    """
     theta, phi, alpha = num_to_tensor(theta, phi, alpha)
     u = np.array([[1.0, 0.0], [0.0, 0.0]])
     d = np.array([[0.0, 0.0], [0.0, 1.0]])
@@ -357,6 +596,9 @@ def cr_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
 def random_two_qubit_gate() -> Gate:
     """
     Returns a random two-qubit gate.
+
+    :return: a random two-qubit gate
+    :rtype: Gate
     """
     unitary = unitary_group.rvs(dim=4).astype(
         npdtype
@@ -367,13 +609,16 @@ def random_two_qubit_gate() -> Gate:
 
 def any_gate(unitary: Tensor, name: str = "any") -> Gate:
     """
-    Note one should provide the gate with properly reshaped
+    Note one should provide the gate with properly reshaped.
 
     :param unitary: corresponding gate
     """
     # deepcopy roadblocks tf.function, pls take care of the unitary outside
-    nleg = int(np.log2(backend.sizen(unitary)))
-    unitary = backend.reshape(unitary, [2 for _ in range(nleg)])
+    if isinstance(unitary, Gate):
+        return unitary
+    unitary = backend.reshape2(unitary)
+    # nleg = int(np.log2(backend.sizen(unitary)))
+    # unitary = backend.reshape(unitary, [2 for _ in range(nleg)])
     return Gate(unitary, name=name)
 
 
@@ -381,8 +626,19 @@ def any_gate(unitary: Tensor, name: str = "any") -> Gate:
 
 
 def exponential_gate(unitary: Tensor, theta: float, name: str = "none") -> Gate:
-    """
-    $\exp{-i\theta unitary}$
+    r"""
+    Exponential gate.
+
+    .. math::
+        \rm{exp}(U) = e^{-i \theta U}
+
+    :param unitary: input unitary (U)
+    :type unitary: Tensor
+    :param theta: angle in radians
+    :type theta: float
+    :param name: suffix of Gate name
+    :return: Exponential Gate
+    :rtype: Gate
     """
     theta = num_to_tensor(theta)
     mat = backend.expm(-backend.i() * theta * unitary)
@@ -397,8 +653,23 @@ exp_gate = exponential_gate
 
 
 def exponential_gate_unity(unitary: Tensor, theta: float, name: str = "none") -> Gate:
+    r"""
+    Faster exponential gate, directly implemented based on RHS, only work when: :math:`U^2` is identity matrix.
+
+    .. math::
+        \rm{exp}(U) &= e^{-i \theta U} \\
+                &= \cos(\theta) I - j \sin(\theta) U \\
+
+    :param unitary: input unitary (U)
+    :type unitary: Tensor
+    :param theta: angle in radians
+    :type theta: float
+    :param name: suffix of Gate name
+    :type name: str, optional
+    :return: Exponential Gate
+    :rtype: Gate
+    """
     theta, unitary = num_to_tensor(theta, unitary)
-    # n = len(unitary.shape)
     size = int(reduce(mul, unitary.shape))
     n = int(np.log2(size))
     i = np.eye(2 ** (int(n / 2)))
@@ -416,6 +687,10 @@ exp1_gate = exponential_gate_unity
 def meta_vgate() -> None:
     for f in ["r", "rx", "ry", "rz", "iswap", "any", "exp", "exp1", "cr"]:
         setattr(thismodule, f, GateVF(getattr(thismodule, f + "_gate"), f))
+    for f in ["crx", "cry", "crz"]:
+        setattr(thismodule, f, getattr(thismodule, f[1:]).controlled())
+    for f in ["sd", "td"]:
+        setattr(thismodule, f, getattr(thismodule, f[:-1]).adjoint())
 
 
 meta_vgate()

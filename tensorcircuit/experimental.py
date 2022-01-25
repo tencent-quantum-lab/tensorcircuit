@@ -95,7 +95,6 @@ def qng(
         else:  # "rev"
             jac = backend.jacrev(f)(params)
             jac = backend.cast(jac, dtypestr)  # incase input is real
-            # TODO(@refraction-ray): sth is wrong here in rev mode
             # may have R->C issue for rev mode, which we obtain a real Jacobian
         jac = backend.transpose(jac)
         if kernel == "qng":
@@ -140,6 +139,7 @@ def qng2(
     mode: str = "rev",
 ) -> Callable[..., Tensor]:
     # reverse mode has a slightly better running time
+    # wan's approach for qng
     def wrapper(params: Tensor, **kws: Any) -> Tensor:
         params2 = backend.copy(params)
         params2 = backend.stop_gradient(params2)

@@ -37,11 +37,11 @@ class Circuit:
     """
 
     sgates = (
-        ["i", "x", "y", "z", "h", "t", "s", "wroot"]
+        ["i", "x", "y", "z", "h", "t", "s", "td", "sd", "wroot"]
         + ["cnot", "cz", "swap", "cy", "iswap"]
         + ["toffoli"]
     )
-    vgates = ["r", "cr", "rx", "ry", "rz", "any", "exp", "exp1"]
+    vgates = ["r", "cr", "rx", "ry", "rz", "crx", "cry", "crz", "any", "exp", "exp1"]
 
     def __init__(
         self,
@@ -355,23 +355,33 @@ class Circuit:
         gatef: Callable[[], Gate],
         name: Optional[str] = None,
     ) -> Callable[..., None]:
+        # it is more like a register instead of apply
         # nested function must be utilized, functools.partial doesn't work for method register on class
         # see https://re-ra.xyz/Python-中实例方法动态绑定的几组最小对立/
+        if name is None:
+            name = getattr(gatef, "n")
+        defaultname = name
+
         def apply(
             self: "Circuit",
             *index: int,
             split: Optional[Dict[str, Any]] = None,
+            name: Optional[str] = None,
         ) -> None:
+            if name is not None:
+                localname = name
+            else:
+                localname = defaultname  # type: ignore
             gate_dict = {
                 "gate": gatef,
                 "index": index,
-                "name": name,
+                "name": localname,
                 "split": split,
             }
             self._qir.append(gate_dict)
             split = None
             gate = gatef()
-            self.apply_general_gate(gate, *index, name=name, split=split)
+            self.apply_general_gate(gate, *index, name=localname, split=split)
 
         return apply
 
@@ -380,6 +390,9 @@ class Circuit:
         gatef: Callable[..., Gate],
         name: Optional[str] = None,
     ) -> Callable[..., None]:
+        if name is None:
+            name = getattr(gatef, "n")
+
         def apply(self: "Circuit", *index: int, **vars: float) -> None:
             split = None
             localname = name
@@ -983,9 +996,39 @@ class Circuit:
         """
         return self.measure_jit(*[i for i in range(self._nqubits)], with_prob=True)
 
+    # TODO(@refraction-ray): more _before function like state_before? and better API?
+
+    def expectation_before(
+        self, *ops: Tuple[tn.Node, List[int]], reuse: bool = True
+    ) -> List[tn.Node]:
+        nodes1, edge1 = self._copy_state_tensor(reuse=reuse)
+        nodes2, edge2 = self._copy_state_tensor(conj=True, reuse=reuse)
+        nodes1.extend(nodes2)  # left right op order for plain contractor
+
+        occupied = set()
+        for op, index in ops:
+            if not isinstance(op, tn.Node):
+                # op is only a matrix
+                op = backend.reshape2(op)
+                op = gates.Gate(op)
+            if isinstance(index, int):
+                index = [index]
+            noe = len(index)
+            for j, e in enumerate(index):
+                if e in occupied:
+                    raise ValueError("Cannot measure two operators in one index")
+                edge1[e] ^ op.get_edge(j)
+                edge2[e] ^ op.get_edge(j + noe)
+                occupied.add(e)
+            nodes1.append(op)
+        for j in range(self._nqubits):
+            if j not in occupied:  # edge1[j].is_dangling invalid here!
+                edge1[j] ^ edge2[j]
+        return nodes1
+
     def expectation(
         self, *ops: Tuple[tn.Node, List[int]], reuse: bool = True
-    ) -> tn.Node.tensor:
+    ) -> Tensor:
         """
         compute expectation of corresponding operators
 
@@ -1003,24 +1046,9 @@ class Circuit:
         #     nodes1, edge1 = self._copy()
         #     nodes2, edge2 = self._copy(conj=True)
         # else:  # reuse
-        nodes1, edge1 = self._copy_state_tensor(reuse=reuse)
-        nodes2, edge2 = self._copy_state_tensor(conj=True, reuse=reuse)
-        nodes1.extend(nodes2)  # left right op order for plain contractor
 
-        occupied = set()
-        for op, index in ops:
-            noe = len(index)
-            for j, e in enumerate(index):
-                if e in occupied:
-                    raise ValueError("Cannot measure two operators in one index")
-                edge1[e] ^ op.get_edge(j)
-                edge2[e] ^ op.get_edge(j + noe)
-                occupied.add(e)
-            nodes1.append(op)
-        for j in range(self._nqubits):
-            if j not in occupied:  # edge1[j].is_dangling invalid here!
-                edge1[j] ^ edge2[j]
         # self._nodes = nodes1
+        nodes1 = self.expectation_before(*ops, reuse=reuse)
         return contractor(nodes1).tensor
 
     def vis_tex(self, **kws: Any) -> str:
@@ -1091,7 +1119,6 @@ def expectation(
     normalization: bool = False,
 ) -> Tensor:
     """
-    [deprecated] direct manipulate on  ``QuOperator`` is suggested
     compute :math:`\\langle bra\\vert ops \\vert ket\\rangle`
 
     :param ket: [description]
@@ -1108,36 +1135,73 @@ def expectation(
     """
     if bra is None:
         bra = ket
-    if conj is True:
-        bra = backend.conj(bra)
-    ket = backend.reshape(ket, [-1])
-    N = ket.shape[0]
-    n = int(np.log(N) / np.log(2))
-    ket = backend.reshape(ket, [2 for _ in range(n)])
-    bra = backend.reshape(bra, [2 for _ in range(n)])
-    ket = Gate(ket)
-    bra = Gate(bra)
-    occupied = set()
-    nodes = [ket, bra]
-    if normalization is True:
-        normket = backend.norm(ket.tensor)
-        normbra = backend.norm(bra.tensor)
-    for op, index in ops:
-        noe = len(index)
-        for j, e in enumerate(index):
-            if e in occupied:
-                raise ValueError("Cannot measure two operators in one index")
-            bra[e] ^ op.get_edge(j)
-            ket[e] ^ op.get_edge(j + noe)
-            occupied.add(e)
-        nodes.append(op)
-    for j in range(n):
-        if j not in occupied:  # edge1[j].is_dangling invalid here!
-            ket[j] ^ bra[j]
-    # self._nodes = nodes1
-    num = contractor(nodes).tensor
-    if normalization is True:
-        den = normket * normbra
+    if isinstance(ket, QuOperator):
+        if conj is True:
+            bra = bra.adjoint()
+        # TODO(@refraction-ray) omit normalization arg for now
+        n = len(ket.out_edges)
+        occupied = set()
+        nodes = list(ket.nodes) + list(bra.nodes)
+        # TODO(@refraction-ray): is the order guaranteed or affect some types of contractor?
+        for op, index in ops:
+            if not isinstance(op, tn.Node):
+                # op is only a matrix
+                op = backend.reshape2(op)
+                op = gates.Gate(op)
+            if isinstance(index, int):
+                index = [index]
+            noe = len(index)
+            for j, e in enumerate(index):
+                if e in occupied:
+                    raise ValueError("Cannot measure two operators in one index")
+                bra.in_edges[e] ^ op.get_edge(j)
+                ket.out_edges[e] ^ op.get_edge(j + noe)
+                occupied.add(e)
+            nodes.append(op)
+        for j in range(n):
+            if j not in occupied:  # edge1[j].is_dangling invalid here!
+                ket.out_edges[j] ^ bra.in_edges[j]
+        # self._nodes = nodes1
+        num = contractor(nodes).tensor
+        return num
+
     else:
-        den = 1.0
-    return num / den
+        # ket is the tensor
+        if conj is True:
+            bra = backend.conj(bra)
+        ket = backend.reshape(ket, [-1])
+        ket = backend.reshape2(ket)
+        bra = backend.reshape2(bra)
+        n = len(backend.shape_tuple(ket))
+        ket = Gate(ket)
+        bra = Gate(bra)
+        occupied = set()
+        nodes = [ket, bra]
+        if normalization is True:
+            normket = backend.norm(ket.tensor)
+            normbra = backend.norm(bra.tensor)
+        for op, index in ops:
+            if not isinstance(op, tn.Node):
+                # op is only a matrix
+                op = backend.reshape2(op)
+                op = gates.Gate(op)
+            if isinstance(index, int):
+                index = [index]
+            noe = len(index)
+            for j, e in enumerate(index):
+                if e in occupied:
+                    raise ValueError("Cannot measure two operators in one index")
+                bra[e] ^ op.get_edge(j)
+                ket[e] ^ op.get_edge(j + noe)
+                occupied.add(e)
+            nodes.append(op)
+        for j in range(n):
+            if j not in occupied:  # edge1[j].is_dangling invalid here!
+                ket[j] ^ bra[j]
+        # self._nodes = nodes1
+        num = contractor(nodes).tensor
+        if normalization is True:
+            den = normket * normbra
+        else:
+            den = 1.0
+        return num / den

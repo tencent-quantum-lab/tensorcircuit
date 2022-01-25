@@ -46,7 +46,7 @@ def test_state_inputs():
     print(c.densitymatrix())
     assert np.allclose(c.densitymatrix(), answer)
 
-    c = tc.DMCircuit2(2, inputs=w)
+    c = tc.DMCircuit(2, inputs=w)
     c.Y(0)
     print(c.densitymatrix())
     assert np.allclose(c.densitymatrix(), answer)
@@ -67,7 +67,7 @@ def test_dm_inputs(backend):
     rho0 = rho0.astype(np.complex64)
     b1 = b1.astype(np.complex64)
     b2 = b2.astype(np.complex64)
-    c = tc.DMCircuit2(nqubits=2, dminputs=rho0)
+    c = tc.DMCircuit(nqubits=2, dminputs=rho0)
     c.apply_general_kraus([tc.gates.Gate(b1), tc.gates.Gate(b2)], [(1,)])
     assert np.allclose(c.densitymatrix(), rho1, atol=1e-4)
     c.y(1)
@@ -89,7 +89,7 @@ def test_inputs_and_kraus():
     s2 = np.sqrt(2.0)
     w = np.array([1 / s2, 0, 0, 1.0j / s2])
 
-    c = tc.DMCircuit2(2, inputs=w)
+    c = tc.DMCircuit(2, inputs=w)
     c.y(0)
     c.cnot(0, 1)
     assert np.allclose(c.densitymatrix(), rho0, atol=1e-4)
@@ -126,7 +126,7 @@ def test_gate_depolarizing():
             atol=1e-5,
         )
 
-    for c, v in zip([tc.DMCircuit(2), tc.DMCircuit2(2)], ["v1", "v2"]):
+    for c, v in zip([tc.DMCircuit(2), tc.DMCircuit_reference(2)], ["v1", "v2"]):
         check_template(c, v)
 
 
@@ -144,7 +144,7 @@ def test_mult_qubit_kraus(backend):
     )
 
     def forward(theta):
-        c = tc.DMCircuit(3)
+        c = tc.DMCircuit_reference(3)
         c.H(0)
         c.rx(1, theta=theta)
         c.apply_general_kraus(
@@ -163,7 +163,7 @@ def test_mult_qubit_kraus(backend):
     assert np.allclose(tc.backend.numpy(g1), 0.199, atol=1e-2)
 
     def forward2(theta):
-        c = tc.DMCircuit2(3)
+        c = tc.DMCircuit(3)
         c.H(0)
         c.rx(1, theta=theta)
         c.apply_general_kraus(
@@ -183,7 +183,7 @@ def test_mult_qubit_kraus(backend):
 @pytest.mark.parametrize("backend", [lf("jaxb"), lf("tfb")])
 def test_noise_param_ad(backend):
     def forward(p):
-        c = tc.DMCircuit2(2)
+        c = tc.DMCircuit(2)
         c.X(1)
         c.depolarizing(1, px=p, py=p, pz=p)
         return tc.backend.real(

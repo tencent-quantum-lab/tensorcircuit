@@ -4,6 +4,64 @@
 
 ### Added
 
+- add `td` and `sd` gates for dagger version of T gate and S gate
+
+- add `argmax` and `argmin` as backend methods
+
+- add `expectation_before` methods for `tc.Circuit` for further manipulation on the tensornetwork
+
+### Changed
+
+- refined repr for `tc.gates.Gate`
+
+- expectation API now supports int index besides list indexes
+
+### Fixed
+
+- make consistent `Gate` return for channels
+
+- fixed bug on list optimizer for contraction
+
+## 0.0.220118
+
+### Added
+
+- add `hessian` method on backends
+
+- add further automatic pipelines for visualization by generating pdf or images
+
+- add `reshape2` method on backends as a short cut to reshape a tensor with all legs 2-d
+
+- add `reshapem` method on backends to reshape any tensor as a square matrix
+
+- add `controlled` and `ocontrolled` API to generate more gates
+
+- add `crx`, `cry`, `crz` gate on `Circuit`
+
+- add `__repr__` and `__str__` for backend object
+
+- `tc.expectation` now support ket arg as quvector form
+
+### Fixed
+
+- `sizen` correctly returns 1 for tensor of no shape
+
+- fixed `convert_to_tensor` bug in numpy backend in TensorNetwork
+
+- `any_gate` also support Gate format instead of matrix
+
+- `matrix_for_gate` works now for backends more than numpy
+
+### Changed
+
+- `expectation` API now also accepts plain tensor instead of `tc.Gate`.
+
+- `DMCircuit` and `DMCircuit2` are all pointing the efficent implementations (breaking changes)
+
+## 0.0.220106
+
+### Added
+
 - add `solve` method on backends to solve linear equations
 
 - add full quantum natural gradient examples and `qng` method in experimental module
@@ -29,6 +87,8 @@
 - `quantum.renyi_entropy` computation with correct prefactor
 
 - `Circuit` gate can provided other names by name attr
+
+- `example_block` support param auto reshape for users' good
 
 ### Fixed
 

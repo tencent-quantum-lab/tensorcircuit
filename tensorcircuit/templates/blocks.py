@@ -63,6 +63,7 @@ def Grid2D_entangling(
 def QAOA_block(
     c: Circuit, g: Graph, paramzz: Tensor, paramx: Tensor, **kws: Any
 ) -> Circuit:
+    # TODO(@refraction-ray): graph with edge weights
     if backend.sizen(paramzz) == 1:
         for e1, e2 in g.edges:
             c.exp1(e1, e2, unitary=G._zz_matrix, theta=paramzz, **kws)
@@ -95,6 +96,7 @@ def example_block(
     else:
         split_conf = None  # type: ignore
     n = c._nqubits
+    param = backend.reshape(param, [2 * nlayers, n])
     for i in range(n):
         c.H(i)
     for j in range(nlayers):

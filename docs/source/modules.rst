@@ -94,6 +94,15 @@ tensorcircuit.densitymatrix2 module
     :undoc-members:
     :show-inheritance:
 
+tensorcircuit.experimental module
+-------------------------------------
+
+.. automodule:: tensorcircuit.experimental
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 tensorcircuit.gates module
 ---------------------------------
 
@@ -130,6 +139,62 @@ tensorcircuit.quantum module
 ---------------------------------
 
 .. automodule:: tensorcircuit.quantum
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+tensorcircuit.simplify module
+---------------------------------
+
+.. automodule:: tensorcircuit.simplify
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+tensorcircuit.templates module
+------------------------------------
+
+.. automodule:: tensorcircuit.templates
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+tensorcircuit.templates.blocks module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: tensorcircuit.templates.blocks
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+tensorcircuit.templates.graphs module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: tensorcircuit.templates.graphs
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+tensorcircuit.templates.measurements module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: tensorcircuit.templates.measurements
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+tensorcircuit.utils module
+---------------------------------
+
+.. automodule:: tensorcircuit.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+tensorcircuit.vis module
+---------------------------------
+
+.. automodule:: tensorcircuit.vis
     :members:
     :undoc-members:
     :show-inheritance:
