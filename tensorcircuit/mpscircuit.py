@@ -41,7 +41,7 @@ def split_tensor(
     """
     # The behavior is a little bit different from tn.split_node because it explicitly requires a center
     svd = (max_truncation_err is not None) or (max_singular_values is not None)
-    #svd = True
+    # svd = True
     if svd:
         U, S, VH, _ = backend.svd(
             tensor,
@@ -596,7 +596,7 @@ class MPSCircuit:
             value = self._mps.measure_local_operator([gate.tensor], [site])[0]
         except BaseException as e:
             print(type(gate.tensor))
-            print('single gate', gate.tensor, site)
+            print("single gate", gate.tensor, site)
             raise e
         return backend.convert_to_tensor(value)
 
@@ -606,7 +606,7 @@ class MPSCircuit:
         site1: int,
         site2: int,
     ) -> Tensor:
-        #TODO@(SUSYUSTC): Could be more efficient by representing distant double gates as MPO
+        # TODO@(SUSYUSTC): Could be more efficient by representing distant double gates as MPO
         """
         Compute expectation of the corresponding double qubit gate
 
@@ -640,5 +640,6 @@ class MPSCircuit:
             gate1.tensor, gate2.tensor, site1, [site2]
         )[0]
         return backend.convert_to_tensor(value)
+
 
 MPSCircuit._meta_apply()

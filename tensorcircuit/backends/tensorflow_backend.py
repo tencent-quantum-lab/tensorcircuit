@@ -7,7 +7,6 @@ from functools import reduce, partial
 from operator import mul
 from typing import Any, Callable, Optional, Sequence, Tuple, Union
 
-import numpy as np
 import tensornetwork
 from tensornetwork.backends.tensorflow import tensorflow_backend
 
@@ -108,7 +107,7 @@ def _random_choice_tf(
 
 
 def _qr_tf(
-    self,
+    self: Any,
     tensor: Tensor,
     pivot_axis: int = -1,
     non_negative_diagonal: bool = False,
@@ -136,12 +135,11 @@ def _qr_tf(
       R: Right tensor factor.
     """
     from .ops import tfqr
+
     left_dims = tf.shape(tensor)[:pivot_axis]
     right_dims = tf.shape(tensor)[pivot_axis:]
 
-    tensor = tf.reshape(tensor,
-                        [tf.reduce_prod(left_dims),
-                         tf.reduce_prod(right_dims)])
+    tensor = tf.reshape(tensor, [tf.reduce_prod(left_dims), tf.reduce_prod(right_dims)])
     q, r = tfqr(tensor)
     if non_negative_diagonal:
         phases = tf.math.sign(tf.linalg.diag_part(r))
@@ -154,7 +152,7 @@ def _qr_tf(
 
 
 def _rq_tf(
-    self,
+    self: Any,
     tensor: Tensor,
     pivot_axis: int = 1,
     non_negative_diagonal: bool = False,
@@ -182,34 +180,38 @@ def _rq_tf(
       R: Right tensor factor.
     """
     from .ops import tfqr
+
     left_dims = tf.shape(tensor)[:pivot_axis]
     right_dims = tf.shape(tensor)[pivot_axis:]
 
-    tensor = tf.reshape(tensor,
-                        [tf.reduce_prod(left_dims),
-                         tf.reduce_prod(right_dims)])
+    tensor = tf.reshape(tensor, [tf.reduce_prod(left_dims), tf.reduce_prod(right_dims)])
     q, r = tfqr(tf.math.conj(tf.transpose(tensor)))
     if non_negative_diagonal:
         phases = tf.math.sign(tf.linalg.diag_part(r))
         q = q * phases
         r = phases[:, None] * r
     r, q = tf.math.conj(tf.transpose(r)), tf.math.conj(
-        tf.transpose(q))  # M=r*q at this point
+        tf.transpose(q)
+    )  # M=r*q at this point
     center_dim = tf.shape(r)[1]
     r = tf.reshape(r, tf.concat([left_dims, [center_dim]], axis=-1))
     q = tf.reshape(q, tf.concat([[center_dim], right_dims], axis=-1))
     return r, q
 
 
-
-
 # temporary hot replace until new version of tensorflow is released,
 # see issue: https://github.com/google/TensorNetwork/issues/940
 # avoid buggy tensordot2 in tensornetwork
 
-tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.tensordot = _tensordot_tf
-tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.outer_product = _outer_product_tf
-tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.matmul = _matmul_tf
+tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.tensordot = (
+    _tensordot_tf
+)
+tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.outer_product = (
+    _outer_product_tf
+)
+tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.matmul = (
+    _matmul_tf
+)
 tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.qr = _qr_tf
 tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.rq = _rq_tf
 
@@ -272,8 +274,8 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     def kron(self, a: Tensor, b: Tensor) -> Tensor:
         # array more than 2d consistency is not guranteed for different backends
         return tf.reshape(
-            tf.reshape(a, [a.shape[0], 1, a.shape[1], 1]) *
-            tf.reshape(b, [1, b.shape[0], 1, b.shape[1]]),
+            tf.reshape(a, [a.shape[0], 1, a.shape[1], 1])
+            * tf.reshape(b, [1, b.shape[0], 1, b.shape[1]]),
             [a.shape[0] * b.shape[0], a.shape[1] * b.shape[1]],
         )
 

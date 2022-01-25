@@ -513,11 +513,13 @@ def test_qr(backend, highp):
 
     np.random.seed(0)
     A1 = get_random_complex((2, 2))
-    A2 = tc.backend.convert_to_tensor(np.array([[1.0, 0.0], [0.0, 1e-10]]).astype(dtype))
+    A2 = tc.backend.convert_to_tensor(
+        np.array([[1.0, 0.0], [0.0, 1e-10]]).astype(dtype)
+    )
     X = get_random_complex((2, 2))
 
     def func_tc(x):
-        x = tc.backend.cast(x, 'complex64')
+        x = tc.backend.cast(x, "complex64")
         Q, R = tc.backend.qr(A + X * x)
         return tc.backend.real(tc.backend.sum(tc.backend.matmul(Q, R)))
 
@@ -534,7 +536,6 @@ def test_qr(backend, highp):
         n_grad = (func(epsilon) - func(-epsilon)) / (2 * epsilon)
         a_grad = grad(0.0)
         assert tc.backend.abs((n_grad - a_grad) / n_grad) < 1e-3
-
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])

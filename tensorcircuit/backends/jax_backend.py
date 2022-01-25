@@ -118,7 +118,7 @@ tensornetwork.backends.jax.jax_backend.JaxBackend.svd = _svd_jax
 
 
 def _qr_jax(
-    self,
+    self: Any,
     tensor: Tensor,
     pivot_axis: int = -1,
     non_negative_diagonal: bool = False,
@@ -127,6 +127,7 @@ def _qr_jax(
     See tensornetwork.backends.tensorflow.decompositions for details.
     """
     from .ops import adaware_qr as adaware_qr
+
     left_dims = tensor.shape[:pivot_axis]
     right_dims = tensor.shape[pivot_axis:]
     tensor = jnp.reshape(tensor, [np.prod(left_dims), np.prod(right_dims)])
@@ -142,7 +143,7 @@ def _qr_jax(
 
 
 def _rq_jax(
-    self,
+    self: Any,
     tensor: Tensor,
     pivot_axis: int = -1,
     non_negative_diagonal: bool = False,
@@ -151,6 +152,7 @@ def _rq_jax(
     See tensornetwork.backends.tensorflow.decompositions for details.
     """
     from .ops import adaware_qr as adaware_qr
+
     left_dims = tensor.shape[:pivot_axis]
     right_dims = tensor.shape[pivot_axis:]
     tensor = jnp.reshape(tensor, [np.prod(left_dims), np.prod(right_dims)])
@@ -159,8 +161,7 @@ def _rq_jax(
         phases = jnp.sign(jnp.diagonal(r))
         q = q * phases
         r = phases.conj()[:, None] * r
-    r, q = jnp.conj(jnp.transpose(r)), jnp.conj(
-        jnp.transpose(q))  #M=r*q at this point
+    r, q = jnp.conj(jnp.transpose(r)), jnp.conj(jnp.transpose(q))  # M=r*q at this point
     center_dim = r.shape[1]
     r = jnp.reshape(r, list(left_dims) + [center_dim])
     q = jnp.reshape(q, [center_dim] + list(right_dims))
@@ -169,6 +170,7 @@ def _rq_jax(
 
 tensornetwork.backends.jax.jax_backend.JaxBackend.qr = _qr_jax
 tensornetwork.backends.jax.jax_backend.JaxBackend.rq = _rq_jax
+
 
 class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     """

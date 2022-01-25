@@ -9,7 +9,7 @@ import numpy as np
 from tensornetwork.linalg.node_linalg import conj
 import tensornetwork as tn
 import tensornetwork.ncon_interface as ncon
-from tensornetwork.network_components import Node, contract_between
+from tensornetwork.network_components import Node
 
 
 from .cons import backend
@@ -171,42 +171,9 @@ class FiniteMPS(tn.FiniteMPS):  # type: ignore
         result.center_position = self.center_position
         return result
 
-    def measure_local_operator(self, ops: List[Tensor],
-                               sites: Sequence[int]) -> List:
-        """Measure the expectation value of local operators `ops` site `sites`.
-
-        Args:
-            ops: A list Tensors of rank 2; the local operators to be measured.
-            sites: Sites where `ops` act.
-        Returns:
-            List: measurements :math:`\\langle` `ops[n]`:math:`\\rangle`
-            for n in `sites`
-        Raises:
-            ValueError if `len(ops) != len(sites)`
-        """
-        if not len(ops) == len(sites):
-            raise ValueError('measure_1site_ops: len(ops) has to be len(sites)!')
-        right_envs = self.right_envs(sites)
-        left_envs = self.left_envs(sites)
-        res = []
-        for n, site in enumerate(sites):
-            O = Node(ops[n], backend=self.backend)
-            R = Node(right_envs[site], backend=self.backend)
-            L = Node(left_envs[site], backend=self.backend)
-            A = Node(self.tensors[site], backend=self.backend)
-            conj_A = conj(A)
-            O[1] ^ A[1]
-            O[0] ^ conj_A[1]
-            R[0] ^ A[2]
-            R[1] ^ conj_A[2]
-            L[0] ^ A[0]
-            L[1] ^ conj_A[0]
-            result = L @ A @ O @ conj_A @ R
-            res.append(result.tensor)
-            return res
-
-    def measure_local_operator(self, ops: List[Tensor],
-                               sites: Sequence[int]) -> List[Tensor]:
+    def measure_local_operator(
+        self, ops: List[Tensor], sites: Sequence[int]
+    ) -> List[Tensor]:
         """Measure the expectation value of local operators `ops` site `sites`.
 
         Args:
@@ -220,7 +187,7 @@ class FiniteMPS(tn.FiniteMPS):  # type: ignore
           ValueError if `len(ops) != len(sites)`
         """
         if not len(ops) == len(sites):
-            raise ValueError('measure_1site_ops: len(ops) has to be len(sites)!')
+            raise ValueError("measure_1site_ops: len(ops) has to be len(sites)!")
         right_envs = self.right_envs(sites)
         left_envs = self.left_envs(sites)
         res = []
@@ -240,8 +207,9 @@ class FiniteMPS(tn.FiniteMPS):  # type: ignore
             res.append(result.tensor)
         return res
 
-    def measure_two_body_correlator(self, op1: Tensor, op2: Tensor, site1: int,
-                                    sites2: Sequence[int]) -> List[Tensor]:
+    def measure_two_body_correlator(
+        self, op1: Tensor, op2: Tensor, site1: int, sites2: Sequence[int]
+    ) -> List[Tensor]:
         """
         Compute the correlator
         :math:`\\langle` `op1[site1], op2[s]`:math:`\\rangle`
@@ -263,26 +231,26 @@ class FiniteMPS(tn.FiniteMPS):  # type: ignore
         if site1 < 0:
             raise ValueError(
                 "Site site1 out of range: {} not between 0 <= site < N = {}.".format(
-                    site1, N))
-        sites2 = np.array(sites2)  # enable logical indexing
+                    site1, N
+                )
+            )
+        sites2 = np.array(sites2)  # type: ignore
 
         # we break the computation into two parts:
         # first we get all correlators <op2(site2) op1(site1)> with site2 < site1
         # then all correlators <op1(site1) op2(site2)> with site2 >= site1
 
         # get all sites smaller than site1
-        left_sites = np.sort(sites2[sites2 < site1])
+        left_sites = np.sort(sites2[sites2 < site1])  # type: ignore
         # get all sites larger than site1
-        right_sites = np.sort(sites2[sites2 > site1])
+        right_sites = np.sort(sites2[sites2 > site1])  # type: ignore
 
         # compute all neccessary right reduced
         # density matrices in one go. This is
         # more efficient than calling right_envs
         # for each site individually
-        rs = self.right_envs(
-            np.append(site1, np.mod(right_sites, N)).astype(np.int64))
-        ls = self.left_envs(
-            np.append(np.mod(left_sites, N), site1).astype(np.int64))
+        rs = self.right_envs(np.append(site1, np.mod(right_sites, N)).astype(np.int64))
+        ls = self.left_envs(np.append(np.mod(left_sites, N), site1).astype(np.int64))
 
         c = []
         if len(left_sites) > 0:
@@ -328,8 +296,9 @@ class FiniteMPS(tn.FiniteMPS):  # type: ignore
                     c.append(res.tensor)
                 if n > n1:
                     R = Node(
-                        self.apply_transfer_operator(n % N, 'right', R.tensor),
-                        backend=self.backend)
+                        self.apply_transfer_operator(n % N, "right", R.tensor),
+                        backend=self.backend,
+                    )
 
             c = list(reversed(c))
 
@@ -395,6 +364,7 @@ class FiniteMPS(tn.FiniteMPS):  # type: ignore
 
                 if n < n2:
                     L = Node(
-                        self.apply_transfer_operator(n % N, 'left', L.tensor),
-                        backend=self.backend)
+                        self.apply_transfer_operator(n % N, "left", L.tensor),
+                        backend=self.backend,
+                    )
         return c

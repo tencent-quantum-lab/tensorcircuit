@@ -511,7 +511,7 @@ def _base(
 
         logger.debug(_sizen(new_node, is_log=True))
         total_size += _sizen(new_node)  # type: ignore
-    logger.info("----- WRITE: %s --------\n" % np.log2(total_size))
+    logger.info("----- WRITE: %s --------\n" % np.log2(total_size))  # type: ignore
 
     # if the final node has more than one edge,
     # output_edge_order has to be specified
