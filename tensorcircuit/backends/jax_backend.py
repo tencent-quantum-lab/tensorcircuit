@@ -11,7 +11,6 @@ import numpy as np
 import tensornetwork
 from tensornetwork.backends.jax import jax_backend
 
-
 try:  # old version tn compatiblity
     from tensornetwork.backends import base_backend
 
@@ -111,12 +110,6 @@ def _svd_jax(
     return u, s, vh, s_rest
 
 
-tensornetwork.backends.jax.jax_backend.JaxBackend.convert_to_tensor = (
-    _convert_to_tensor_jax
-)
-tensornetwork.backends.jax.jax_backend.JaxBackend.svd = _svd_jax
-
-
 def _qr_jax(
     self: Any,
     tensor: Tensor,
@@ -168,6 +161,10 @@ def _rq_jax(
     return r, q
 
 
+tensornetwork.backends.jax.jax_backend.JaxBackend.convert_to_tensor = (
+    _convert_to_tensor_jax
+)
+tensornetwork.backends.jax.jax_backend.JaxBackend.svd = _svd_jax
 tensornetwork.backends.jax.jax_backend.JaxBackend.qr = _qr_jax
 tensornetwork.backends.jax.jax_backend.JaxBackend.rq = _rq_jax
 

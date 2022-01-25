@@ -20,7 +20,6 @@ Tensor = Any
 class FiniteMPS(tn.FiniteMPS):  # type: ignore
     center_position: Optional[int]
     # TODO(@SUSYUSTC): Maybe more functions can be put here to disentangle with circuits
-
     def apply_two_site_gate(
         self,
         gate: Tensor,
