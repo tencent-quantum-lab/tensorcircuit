@@ -7,6 +7,7 @@ from typing import Any, Tuple, Sequence
 
 import jax
 import jax.numpy as jnp
+import tensorflow as tf
 
 Array = Any  # jnp.array
 
@@ -70,3 +71,158 @@ def jaxsvd_bwd(r: Sequence[Array], tangents: Sequence[Array]) -> Tuple[Array]:
 adaware_svd.defvjp(jaxsvd_fwd, jaxsvd_bwd)
 
 adaware_svd_jit = jax.jit(adaware_svd)
+
+
+qr_epsilon = 1e-8
+
+
+@jax.custom_vjp  # type: ignore
+def adaware_qr(A: Array) -> Any:
+    #q, r = jnp.linalg.qr(A)
+    return jnp.linalg.qr(A)
+
+
+def jaxqr_fwd(A: Array) -> Any:
+    q, r = adaware_qr(A)
+    return (q, r), (A, q, r)
+
+
+def jaxqr_bwd(res: Sequence[Array], tangents: Sequence[Array]) -> Tuple[Array]:
+    a, q, r = res
+    dq, dr = tangents
+    dq = dq.conj()
+    dr = dr.conj()
+
+    def _TriangularSolve(x, r):
+        return jax.scipy.linalg.solve_triangular(r, x.T.conj(), lower=False, trans=0).T.conj()
+
+    def _QrGradSquareAndDeepMatrices(q, r, dq, dr):
+        # Modification begins
+        rdiag = jnp.diag(r)
+        rdiag = (jnp.abs(rdiag) < qr_epsilon) * qr_epsilon + (jnp.abs(rdiag) >= qr_epsilon) * rdiag
+        diag_indices = jnp.arange(min(r.shape[-2:]))
+        r = r.at[diag_indices, diag_indices].set(rdiag)
+        # Modification ends
+
+        qdq = q.T.conj().dot(dq)
+        qdq_ = qdq - qdq.T.conj()
+        rdr = r.dot(dr.T.conj())
+        rdr_ = rdr - rdr.T.conj()
+        tril = jnp.tril(qdq_ + rdr_)
+
+        grad_a = q.dot(dr + _TriangularSolve(tril, r))
+        grad_b = _TriangularSolve(dq - q.dot(qdq), r)
+        ret = grad_a + grad_b
+
+        if jnp.iscomplexobj(q):
+            m = rdr - qdq.T.conj()
+            length = m.shape[0]
+            eyem = jnp.zeros_like(m)
+            eyem = eyem.at[jnp.arange(length), jnp.arange(length)].set(jnp.diag(m))
+            correction = eyem - jnp.real(eyem)
+            ret = ret + _TriangularSolve(q.dot(correction.T.conj()), r)
+
+        return ret.conj()
+
+    num_rows, num_cols = q.shape[-2], r.shape[-1]
+
+    if num_rows >= num_cols:
+        result = _QrGradSquareAndDeepMatrices(q, r, dq, dr)
+        return (result, )
+
+    y = a[..., :, num_rows:]
+    u = r[..., :, :num_rows]
+    dv = dr[..., :, num_rows:]
+    du = dr[..., :, :num_rows]
+    dy = q.dot(dv)
+    dx = _QrGradSquareAndDeepMatrices(q, u,
+                                      dq + y.dot(dv.T.conj()),
+                                      du)
+    result = jnp.concatenate([dx, dy], axis=-1)
+    return (result, )
+
+
+adaware_qr.defvjp(jaxqr_fwd, jaxqr_bwd)
+
+adaware_qr_jit = jax.jit(adaware_qr)
+
+
+def tfqr_grad(a, q, r, dq, dr):
+    """Gradient for Qr."""
+
+    if (r.shape.ndims is None or r.shape.as_list()[-2] is None
+            or r.shape.as_list()[-1] is None):
+        raise NotImplementedError("QrGrad not implemented with dynamic shapes. "
+                                  f"Received r.shape: {r.shape}")
+    if (r.shape.dims[-2].value > r.shape.dims[-1].value
+            and q.shape.dims[-2].value == q.shape.dims[-1].value):
+        raise NotImplementedError("QrGrad not implemented when nrows > ncols "
+                                  "and full_matrices is true. Received r.shape="
+                                  f"{r.shape} with nrows={r.shape.dims[-2]}"
+                                  f"and ncols={r.shape.dims[-1]}.")
+
+    def _TriangularSolve(x, r):
+        """Equiv to matmul(x, adjoint(matrix_inverse(r))) if r is upper-tri."""
+        return tf.linalg.adjoint(
+            tf.linalg.triangular_solve(
+                r, tf.linalg.adjoint(x), lower=False, adjoint=False))
+
+    def _QrGradSquareAndDeepMatrices(q, r, dq, dr):
+        """Gradient for matrix orders num_rows >= num_cols
+        and full_matrices is false.
+        """
+
+        # Modification begins
+        rdiag = tf.linalg.diag_part(r)
+        small_indices = tf.where(tf.math.abs(rdiag) < qr_epsilon)
+        length = tf.shape(small_indices)[0]
+        newvalues = tf.ones((length,), dtype=rdiag.dtype) * qr_epsilon
+        rdiag = tf.tensor_scatter_nd_update(rdiag, small_indices, newvalues)
+        delta_r = tf.linalg.set_diag(r, rdiag) - r
+        r = r + delta_r
+        #delta_dq = math_ops.matmul(q, math_ops.matmul(dr, tf.linalg.adjoint(delta_r)))
+        #dq = dq + delta_dq
+        # Modification ends
+
+        qdq = tf.matmul(q, dq, adjoint_a=True)
+        qdq_ = qdq - tf.linalg.adjoint(qdq)
+        rdr = tf.matmul(r, dr, adjoint_b=True)
+        rdr_ = rdr - tf.linalg.adjoint(rdr)
+        tril = tf.linalg.band_part(qdq_ + rdr_, -1, 0)
+
+        grad_a = tf.matmul(q, dr + _TriangularSolve(tril, r))
+        grad_b = _TriangularSolve(dq - tf.matmul(q, qdq), r)
+        ret = grad_a + grad_b
+
+        if q.dtype.is_complex:
+            m = rdr - tf.linalg.adjoint(qdq)
+            eyem = tf.linalg.set_diag(tf.zeros_like(m), tf.linalg.diag_part(m))
+            correction = eyem - tf.cast(tf.math.real(eyem), q.dtype)
+            ret = ret + _TriangularSolve(
+                tf.matmul(q, tf.linalg.adjoint(correction)), r)
+
+        return ret
+
+    num_rows, num_cols = q.shape.dims[-2].value, r.shape.dims[-1]
+
+    if num_rows >= num_cols:
+        return _QrGradSquareAndDeepMatrices(q, r, dq, dr)
+
+    y = a[..., :, num_rows:]
+    u = r[..., :, :num_rows]
+    dv = dr[..., :, num_rows:]
+    du = dr[..., :, :num_rows]
+    dy = tf.matmul(q, dv)
+    dx = _QrGradSquareAndDeepMatrices(q, u,
+                                      dq + tf.matmul(y, dv, adjoint_b=True),
+                                      du)
+    return tf.concat([dx, dy], axis=-1)
+
+
+@tf.custom_gradient
+def tfqr(A: Array) -> Any:
+    q, r = tf.linalg.qr(A)
+
+    def grad(dq, dr):
+        return tfqr_grad(A, q, r, dq, dr)
+    return (q, r), grad

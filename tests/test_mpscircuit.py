@@ -148,12 +148,15 @@ def do_test_expectation(test_circucits):
     ) = test_circucits
     for site in range(N):
         exp_mps = mps_exact.expectation_single_gate(tc.gates.z(), site)
-        exp_mps_general = mps_exact.general_expectation([tc.gates.z(), [site]])
         exp_c = c.expectation((tc.gates.z(), [site]), reuse=False)
         assert np.isclose(exp_mps, exp_c, atol=1e-7)
-        # the general expectation of a double qubit gate would be non-exact because of truncation,
-        # which could also be manually disabled (currently not implemented)
-        assert np.isclose(exp_mps_general, exp_c, atol=1e-7)
+    for site in range(N-1):
+        exp_mps = mps_exact.expectation_double_gates(tc.gates.cnot(), site, N-1)
+        exp_c = c.expectation((tc.gates.cnot(), [site, N-1]), reuse=False)
+        assert np.isclose(exp_mps, exp_c, atol=1e-7)
+        exp_mps = mps_exact.expectation_two_gates_product(tc.gates.z(), tc.gates.z(), site, N-1)
+        exp_c = c.expectation((tc.gates.zz(), [site, N-1]), reuse=False)
+        assert np.isclose(exp_mps, exp_c, atol=1e-7)
 
 
 def external_wavefunction():
