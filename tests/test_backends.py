@@ -531,7 +531,7 @@ def test_qr(backend, highp):
     np.random.seed(0)
     A1 = get_random_complex((2, 2))
     A2 = tc.backend.convert_to_tensor(
-        np.array([[1.0, 0.0], [0.0, 1e-10]]).astype(dtype)
+        np.array([[1.0, 0.0], [0.0, 0.0]]).astype(dtype)
     )
     X = get_random_complex((2, 2))
 
