@@ -410,6 +410,7 @@ def _get_path_cache_friendly(
     logger.debug("size_dict: %s" % size_dict)
     logger.debug("path finder algorithm: %s" % algorithm)
     return algorithm(input_sets, output_set, size_dict), nodes_new  # type: ignore
+    # directly get input_sets, output_set and size_dict by using identity function as algorithm
 
 
 # some contractor setup usages
@@ -516,7 +517,7 @@ def _base(
     #     path = algorithm
     # else:
     path, nodes = _get_path_cache_friendly(nodes, algorithm)
-    logger.info("the contraction path is given as %s" % path)
+    logger.info("the contraction path is given as %s" % str(path))
     if total_size is None:
         total_size = sum([_sizen(t) for t in nodes])
     for ab in path:
