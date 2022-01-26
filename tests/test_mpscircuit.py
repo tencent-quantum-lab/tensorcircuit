@@ -98,7 +98,7 @@ def do_test_wavefunction(test_circucits):
     ) = test_circucits
     print(type(w_c))
     # the wavefuntion is exact if there's no truncation
-    assert np.allclose(w_mps_exact, w_c)
+    np.testing.assert_allclose(tc.backend.numpy(w_mps_exact), tc.backend.numpy(w_c))
 
 
 def do_test_truncation(test_circucits, real_fedility_ref, estimated_fedility_ref):
@@ -114,11 +114,11 @@ def do_test_truncation(test_circucits, real_fedility_ref, estimated_fedility_ref
     real_fedility = (
         np.abs(tc.backend.numpy(w_mps).conj().dot(tc.backend.numpy(w_c))) ** 2
     )
-    assert np.isclose(real_fedility, real_fedility_ref)
-    # assert np.isclose(real_fedility, 0.9998648317622654)
+    np.testing.assert_allclose(real_fedility, real_fedility_ref)
+    # np.testing.assert_allclose(real_fedility, 0.9998648317622654)
     estimated_fedility = mps._fidelity
-    assert np.isclose(estimated_fedility, estimated_fedility_ref)
-    # assert np.isclose(estimated_fedility, 0.9999264292512574)
+    np.testing.assert_allclose(estimated_fedility, estimated_fedility_ref)
+    # np.testing.assert_allclose(estimated_fedility, 0.9999264292512574)
 
 
 def do_test_amplitude(test_circucits):
@@ -134,7 +134,7 @@ def do_test_amplitude(test_circucits):
     s = "01" * (N // 2)
     sint = int(s, 2)  # binary to decimal
     err_amplitude = tc.backend.abs(mps.amplitude(s) - w_mps[sint])
-    assert np.isclose(err_amplitude, 0, atol=1e-12)
+    np.testing.assert_allclose(err_amplitude, 0, atol=1e-12)
 
 
 def do_test_expectation(test_circucits):
@@ -149,16 +149,16 @@ def do_test_expectation(test_circucits):
     for site in range(N):
         exp_mps = mps_exact.expectation_single_gate(tc.gates.z(), site)
         exp_c = c.expectation((tc.gates.z(), [site]), reuse=False)
-        assert np.isclose(exp_mps, exp_c, atol=1e-7)
+        np.testing.assert_allclose(exp_mps, exp_c, atol=1e-7)
     for site in range(N - 1):
         exp_mps = mps_exact.expectation_double_gates(tc.gates.cnot(), site, N - 1)
         exp_c = c.expectation((tc.gates.cnot(), [site, N - 1]), reuse=False)
-        assert np.isclose(exp_mps, exp_c, atol=1e-7)
+        np.testing.assert_allclose(exp_mps, exp_c, atol=1e-7)
         exp_mps = mps_exact.expectation_two_gates_product(
             tc.gates.z(), tc.gates.z(), site, N - 1
         )
         exp_c = c.expectation((tc.gates.zz(), [site, N - 1]), reuse=False)
-        assert np.isclose(exp_mps, exp_c, atol=1e-7)
+        np.testing.assert_allclose(exp_mps, exp_c, atol=1e-7)
 
 
 def external_wavefunction():
@@ -179,7 +179,7 @@ def do_test_fromwavefunction(external_wavefunction):
         mps_external,
         mps_external_exact,
     ) = external_wavefunction
-    assert np.allclose(mps_external_exact.wavefunction(), w_external, atol=1e-7)
+    np.testing.assert_allclose(mps_external_exact.wavefunction(), w_external, atol=1e-7)
     # compare fidelity of truncation with theoretical limit obtained by SVD
     w_external = tc.backend.numpy(w_external)
     real_fedility = (
@@ -189,7 +189,7 @@ def do_test_fromwavefunction(external_wavefunction):
     s = np.linalg.svd(w_external.reshape((2 ** (N // 2), 2 ** (N // 2))))[1]
     theoretical_upper_limit = np.sum(s[0:D] ** 2)
     relative_err = np.log((1 - real_fedility) / (1 - theoretical_upper_limit))
-    assert np.isclose(relative_err, 0.11, atol=1e-2)
+    np.testing.assert_allclose(relative_err, 0.11, atol=1e-2)
 
 
 def do_test_proj(test_circucits, external_wavefunction):
@@ -213,7 +213,7 @@ def do_test_proj(test_circucits, external_wavefunction):
         .conj()
         .dot(tc.backend.numpy(w_mps))
     )
-    np.isclose(proj, proj_ref, atol=1e-12)
+    np.testing.assert_allclose(proj, proj_ref, atol=1e-12)
 
 
 @pytest.mark.parametrize(

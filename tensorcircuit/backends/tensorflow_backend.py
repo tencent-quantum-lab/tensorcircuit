@@ -134,7 +134,7 @@ def _qr_tf(
       Q: Left tensor factor.
       R: Right tensor factor.
     """
-    from .ops import tfqr
+    from .tf_ops import tfqr
 
     left_dims = tf.shape(tensor)[:pivot_axis]
     right_dims = tf.shape(tensor)[pivot_axis:]
@@ -179,7 +179,7 @@ def _rq_tf(
       Q: Left tensor factor.
       R: Right tensor factor.
     """
-    from .ops import tfqr
+    from .tf_ops import tfqr
 
     left_dims = tf.shape(tensor)[:pivot_axis]
     right_dims = tf.shape(tensor)[pivot_axis:]

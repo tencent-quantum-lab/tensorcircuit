@@ -66,7 +66,7 @@ def _svd_jax(
     max_truncation_error: Optional[float] = None,
     relative: Optional[bool] = False,
 ) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
-    from .ops import adaware_svd_jit as adaware_svd
+    from .jax_ops import adaware_svd_jit as adaware_svd
 
     left_dims = tensor.shape[:pivot_axis]
     right_dims = tensor.shape[pivot_axis:]
@@ -116,10 +116,11 @@ def _qr_jax(
     pivot_axis: int = -1,
     non_negative_diagonal: bool = False,
 ) -> Tuple[Tensor, Tensor]:
-    """Computes the QR decomposition of a tensor.
+    """
+    Computes the QR decomposition of a tensor.
     See tensornetwork.backends.tensorflow.decompositions for details.
     """
-    from .ops import adaware_qr as adaware_qr
+    from .jax_ops import adaware_qr as adaware_qr
 
     left_dims = tensor.shape[:pivot_axis]
     right_dims = tensor.shape[pivot_axis:]
@@ -141,10 +142,11 @@ def _rq_jax(
     pivot_axis: int = -1,
     non_negative_diagonal: bool = False,
 ) -> Tuple[Tensor, Tensor]:
-    """Computes the RQ (reversed QR) decomposition of a tensor.
+    """
+    Computes the RQ (reversed QR) decomposition of a tensor.
     See tensornetwork.backends.tensorflow.decompositions for details.
     """
-    from .ops import adaware_qr as adaware_qr
+    from .jax_ops import adaware_qr as adaware_qr
 
     left_dims = tensor.shape[:pivot_axis]
     right_dims = tensor.shape[pivot_axis:]

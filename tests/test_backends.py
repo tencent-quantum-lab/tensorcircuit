@@ -530,29 +530,22 @@ def test_qr(backend, highp):
 
     np.random.seed(0)
     A1 = get_random_complex((2, 2))
-    A2 = tc.backend.convert_to_tensor(
-        np.array([[1.0, 0.0], [0.0, 0.0]]).astype(dtype)
-    )
+    A2 = tc.backend.convert_to_tensor(np.array([[1.0, 0.0], [0.0, 0.0]]).astype(dtype))
     X = get_random_complex((2, 2))
 
-    def func_tc(x):
+    def func(A, x):
         x = tc.backend.cast(x, "complex64")
         Q, R = tc.backend.qr(A + X * x)
         return tc.backend.real(tc.backend.sum(tc.backend.matmul(Q, R)))
 
-    def func(x):
-        x = tc.backend.convert_to_tensor(x)
-        return func_tc(x)
-
-    def grad(x):
-        x = tc.backend.convert_to_tensor(x)
-        return tc.backend.grad(func_tc)(x)
+    def grad(A, x):
+        return tc.backend.grad(func, argnums=1)(A, x)
 
     for A in [A1, A2]:
-        epsilon = 1e-3
-        n_grad = (func(epsilon) - func(-epsilon)) / (2 * epsilon)
-        a_grad = grad(0.0)
-        assert tc.backend.abs((n_grad - a_grad) / n_grad) < 1e-3
+        epsilon = tc.backend.convert_to_tensor(1e-3)
+        n_grad = (func(A, epsilon) - func(A, -epsilon)) / (2 * epsilon)
+        a_grad = grad(A, tc.backend.convert_to_tensor(0.0))
+        np.testing.assert_allclose(n_grad, a_grad, atol=1e-3)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])

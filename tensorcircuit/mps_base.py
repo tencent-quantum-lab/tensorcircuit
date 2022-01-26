@@ -65,6 +65,7 @@ class FiniteMPS(tn.FiniteMPS):  # type: ignore
         :return: A scalar tensor containing the truncated weight of the truncation.
         :rtype: Tensor
         """
+        # Note: google/tensornetwork implementation has a center position bug, which is fixed here
         if len(gate.shape) != 4:
             raise ValueError(
                 "rank of gate is {} but has to be 4".format(len(gate.shape))
@@ -134,7 +135,7 @@ class FiniteMPS(tn.FiniteMPS):  # type: ignore
                 max_truncation_error=max_truncation_err,
                 relative=relative,
             )
-            # fix the center position bug here
+            # Note: fix the center position bug here
             if center_position == site2:
                 left_tensor = U
                 right_tensor = ncon.ncon(
@@ -184,18 +185,17 @@ class FiniteMPS(tn.FiniteMPS):  # type: ignore
     def measure_local_operator(
         self, ops: List[Tensor], sites: Sequence[int]
     ) -> List[Tensor]:
-        """Measure the expectation value of local operators `ops` site `sites`.
-
-        Args:
-          ops: A list Tensors of rank 2; the local operators to be measured.
-          sites: Sites where `ops` act.
-
-        Returns:
-          List: measurements :math:`\\langle` `ops[n]`:math:`\\rangle`
-            for n in `sites`
-        Raises:
-          ValueError if `len(ops) != len(sites)`
         """
+        Measure the expectation value of local operators `ops` site `sites`.
+
+        :param ops: A list Tensors of rank 2; the local operators to be measured.
+        :type ops: List[Tensor]
+        :param sites: Sites where `ops` act.
+        :type sites: Sequence[int]
+        :returns: measurements :math:`\\langle` `ops[n]`:math:`\\rangle` for n in `sites`
+        :rtype: List[Tensor]
+        """
+        # Note: google/tensornetwork implementation returns floating numbers which cannot be differentiated or jitted
         if not len(ops) == len(sites):
             raise ValueError("measure_1site_ops: len(ops) has to be len(sites)!")
         right_envs = self.right_envs(sites)
@@ -226,17 +226,18 @@ class FiniteMPS(tn.FiniteMPS):  # type: ignore
         between `site1` and all sites `s` in `sites2`. If `s == site1`,
         `op2[s]` will be applied first.
 
-        Args:
-          op1: Tensor of rank 2; the local operator at `site1`.
-          op2: Tensor of rank 2; the local operator at `sites2`.
-          site1: The site where `op1`  acts
-          sites2: Sites where operator `op2` acts.
-        Returns:
-          List: Correlator :math:`\\langle` `op1[site1], op2[s]`:math:`\\rangle`
-            for `s` :math:`\\in` `sites2`.
-        Raises:
-          ValueError if `site1` is out of range
+        :param op1: Tensor of rank 2; the local operator at `site1`.
+        :type op1: Tensor
+        :param op2: Tensor of rank 2; the local operator at `sites2`.
+        :type op2: Tensor
+        :param site1: The site where `op1`  acts
+        :type site1: int
+        :param sites2: Sites where operator `op2` acts.
+        :type sites2: Sequence[int]
+        :returns: Correlator :math:`\\langle` `op1[site1], op2[s]`:math:`\\rangle` for `s` :math:`\\in` `sites2`.
+        :rtype: List[Tensor]
         """
+        # Note: google/tensornetwork implementation returns floating numbers which cannot be differentiated or jitted
         N = len(self)
         if site1 < 0:
             raise ValueError(
