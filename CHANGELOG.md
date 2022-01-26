@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.0.220126
+
 ### Added
 
 - add `td` and `sd` gates for dagger version of T gate and S gate
@@ -21,6 +23,8 @@
 - make consistent `Gate` return for channels
 
 - fixed bug on list optimizer for contraction
+
+- stability for QR operator in terms of automatic differentiation
 
 ## 0.0.220118
 

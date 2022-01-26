@@ -16,6 +16,7 @@ sys.path.insert(0, modulepath)
 import tensorcircuit as tc
 
 # TODO(@refraction-ray): mps circuit test: grad & jit, differentiable? jittable?
+# AD on jax backend may have issues for now
 
 N = 16
 D = 100

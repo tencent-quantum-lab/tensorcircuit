@@ -291,18 +291,26 @@ def plain_contractor(
     nodes = list(nodes)
     nodes = list(reversed(nodes))
 
+    width = 0
+
     while len(nodes) > 1:
         new_node = tn.contract_between(nodes[-1], nodes[-2], allow_outer_product=True)
         nodes = _multi_remove(nodes, [len(nodes) - 2, len(nodes) - 1])
         nodes.append(new_node)
-        logger.info(_sizen(new_node, is_log=True))
+        im_size = _sizen(new_node, is_log=True)
+        logger.debug(im_size)
+        width = max(width, im_size)
         total_size += _sizen(new_node)
+    logger.info("----- SIZE: %s --------\n" % width)
     logger.info("----- WRITE: %s --------\n" % np.log2(total_size))
 
     final_node = nodes[0]
     if output_edge_order is not None:
         final_node.reorder_edges(output_edge_order)
     return final_node
+
+
+# TODO(@refraction-ray): consistent logger system for different contractors.
 
 
 def nodes_to_adj(ns: List[Any]) -> Any:
@@ -433,7 +441,7 @@ tc.set_contractor("custom_stateful", optimizer=oem.RandomGreedy, max_time=60, ma
 tc.set_contractor("plain-experimental", local_steps=3)
 
 # hyper efficient contractor: though long computation time required, suitable for extra large circuit simulation
-opt = ctg.HyperOptimizer(
+opt = ctg.ReusableHyperOptimizer(
     minimize='combo',
     max_repeats=1024,
     max_time='equil:128',
