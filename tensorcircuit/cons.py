@@ -61,10 +61,10 @@ def set_tensornetwork_backend(
     backend: Optional[str] = None, set_global: bool = True
 ) -> Any:
     """
-    To set the runtime the backend of tensorcircuit.
+    To set the runtime backend of tensorcircuit.
 
     :param backend: "numpy", "tensorflow", "jax", "pytorch". defaults to None,
-        which gives the same behavior as ``tensornetwork.backend_contextmanager.get_default_backend().``
+        which gives the same behavior as ``tensornetwork.backend_contextmanager.get_default_backend()''.
     :type backend: Optional[str], optional
     :param set_global: Whether the object should be set as global.
     :type set_global: bool
@@ -114,7 +114,7 @@ def set_dtype(dtype: Optional[str] = None, set_global: bool = True) -> Tuple[str
     """
     To set the runtime numerical dtype of tensors
 
-    :param dtype: "Complex64" or "complex128", defaults to None, which is equivalent to "complex64".
+    :param dtype: "complex64" or "complex128", defaults to None, which is equivalent to "complex64".
     :type dtype: Optional[str], optional
     """
     if not dtype:
