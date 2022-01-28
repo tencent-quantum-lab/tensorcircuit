@@ -522,6 +522,32 @@ def test_jax_svd(jaxb, highp):
         np.testing.assert_allclose(numericald(m), analyticald(m), atol=1e-3)
 
 
+@pytest.mark.parametrize("backend", [lf("jaxb"), lf("tfb")])
+def test_qr(backend, highp):
+    def get_random_complex(shape):
+        result = np.random.random(shape) + np.random.random(shape) * 1j
+        return tc.backend.convert_to_tensor(result.astype(dtype))
+
+    np.random.seed(0)
+    A1 = get_random_complex((2, 2))
+    A2 = tc.backend.convert_to_tensor(np.array([[1.0, 0.0], [0.0, 0.0]]).astype(dtype))
+    X = get_random_complex((2, 2))
+
+    def func(A, x):
+        x = tc.backend.cast(x, "complex64")
+        Q, R = tc.backend.qr(A + X * x)
+        return tc.backend.real(tc.backend.sum(tc.backend.matmul(Q, R)))
+
+    def grad(A, x):
+        return tc.backend.grad(func, argnums=1)(A, x)
+
+    for A in [A1, A2]:
+        epsilon = tc.backend.convert_to_tensor(1e-3)
+        n_grad = (func(A, epsilon) - func(A, -epsilon)) / (2 * epsilon)
+        a_grad = grad(A, tc.backend.convert_to_tensor(0.0))
+        np.testing.assert_allclose(n_grad, a_grad, atol=1e-3)
+
+
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_sparse_methods(backend):
     values = tc.backend.convert_to_tensor(np.array([1.0, 2.0]))

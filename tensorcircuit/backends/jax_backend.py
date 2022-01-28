@@ -66,7 +66,7 @@ def _svd_jax(
     max_truncation_error: Optional[float] = None,
     relative: Optional[bool] = False,
 ) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
-    from .ops import adaware_svd_jit as adaware_svd
+    from .jax_ops import adaware_svd_jit as adaware_svd
 
     left_dims = tensor.shape[:pivot_axis]
     right_dims = tensor.shape[pivot_axis:]
@@ -110,10 +110,65 @@ def _svd_jax(
     return u, s, vh, s_rest
 
 
+def _qr_jax(
+    self: Any,
+    tensor: Tensor,
+    pivot_axis: int = -1,
+    non_negative_diagonal: bool = False,
+) -> Tuple[Tensor, Tensor]:
+    """
+    Computes the QR decomposition of a tensor.
+    See tensornetwork.backends.tensorflow.decompositions for details.
+    """
+    from .jax_ops import adaware_qr as adaware_qr
+
+    left_dims = tensor.shape[:pivot_axis]
+    right_dims = tensor.shape[pivot_axis:]
+    tensor = jnp.reshape(tensor, [np.prod(left_dims), np.prod(right_dims)])
+    q, r = adaware_qr(tensor)
+    if non_negative_diagonal:
+        phases = jnp.sign(jnp.diagonal(r))
+        q = q * phases
+        r = phases.conj()[:, None] * r
+    center_dim = q.shape[1]
+    q = jnp.reshape(q, list(left_dims) + [center_dim])
+    r = jnp.reshape(r, [center_dim] + list(right_dims))
+    return q, r
+
+
+def _rq_jax(
+    self: Any,
+    tensor: Tensor,
+    pivot_axis: int = -1,
+    non_negative_diagonal: bool = False,
+) -> Tuple[Tensor, Tensor]:
+    """
+    Computes the RQ (reversed QR) decomposition of a tensor.
+    See tensornetwork.backends.tensorflow.decompositions for details.
+    """
+    from .jax_ops import adaware_qr as adaware_qr
+
+    left_dims = tensor.shape[:pivot_axis]
+    right_dims = tensor.shape[pivot_axis:]
+    tensor = jnp.reshape(tensor, [np.prod(left_dims), np.prod(right_dims)])
+    q, r = adaware_qr(jnp.conj(jnp.transpose(tensor)))
+    if non_negative_diagonal:
+        phases = jnp.sign(jnp.diagonal(r))
+        q = q * phases
+        r = phases.conj()[:, None] * r
+    r, q = jnp.conj(jnp.transpose(r)), jnp.conj(jnp.transpose(q))  # M=r*q at this point
+    center_dim = r.shape[1]
+    r = jnp.reshape(r, list(left_dims) + [center_dim])
+    q = jnp.reshape(q, [center_dim] + list(right_dims))
+    return r, q
+
+
 tensornetwork.backends.jax.jax_backend.JaxBackend.convert_to_tensor = (
     _convert_to_tensor_jax
 )
 tensornetwork.backends.jax.jax_backend.JaxBackend.svd = _svd_jax
+tensornetwork.backends.jax.jax_backend.JaxBackend.qr = _qr_jax
+tensornetwork.backends.jax.jax_backend.JaxBackend.rq = _rq_jax
 
 
 class JaxBackend(jax_backend.JaxBackend):  # type: ignore

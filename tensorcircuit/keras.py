@@ -26,8 +26,8 @@ class QuantumLayer(Layer):  # type: ignore
         **kwargs: Any
     ) -> None:
         """
-        `QuantumLayer` wraps the quantum function `f` as a `keras.Layer`,
-        so that tensorcircuit is better integrated with tensorflow
+        `QuantumLayer` wraps the quantum function `f` as a `keras.Layer`
+        so that tensorcircuit is better integrated with tensorflow.
 
         :param f: [description]
         :type f: Callable[..., Any]
@@ -117,7 +117,7 @@ class QuantumLayer(Layer):  # type: ignore
 
 def output_asis_loss(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
     """
-    keras loss function that directly taking the model output at the loss
+    The keras loss function that directly taking the model output at the loss.
 
     :param y_true: [description]
     :type y_true: tf.Tensor
@@ -131,7 +131,7 @@ def output_asis_loss(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
 
 def save_func(f: Callable[..., Any], path: str) -> None:
     """
-    save tf function in file (``tf.savedmodel`` format)
+    Save tf function in the file (``tf.savedmodel`` format).
 
     :param f: ``tf.function`` ed function with graph building
     :type f: Callable[..., Any]
@@ -157,7 +157,7 @@ def load_func(
     *path: str, fallback: Optional[Callable[..., Any]] = None
 ) -> Callable[..., Any]:
     """
-    Load function from the files in ``tf.savedmodel`` format.
+    Load function from the files in the ``tf.savedmodel`` format.
     We can load several functions at the same time, as they can be the same function of different input shapes.
 
     :param fallback: The fallback function when all functions loaded are failed, defaults to None

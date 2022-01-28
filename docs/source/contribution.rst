@@ -42,7 +42,7 @@ The following git workflow is recommended to contribute by PR:
 
 * Create a feature branch where you will develop from, don't open PR from your master/main branch, ``git checkout -b name-of-change``.
 
-* Make sure the changes can pass all checks by running: ``./check_all.sh``. (See details for checks below)
+* Make sure the changes can pass all checks by running: ``./check_all.sh``. (See details for :ref:`Checks` section below)
 
 * Once you are satisfied with your change, create a commit as follows:
 
@@ -72,7 +72,7 @@ The following git workflow is recommended to contribute by PR:
 * Please always include new docs and tests for your PR if possible and record your changes on CHANGELOG.
 
 
-Checks and Tests
+Checks
 --------------------
 
 The simplest way to ensure the codebase are ok with checks and tests, is to run one-in-all scripts ``./check_all.sh`` (you may need to ``chmod +x check_all.sh`` to grant permissions on this file).
@@ -81,19 +81,41 @@ The scripts include the following components:
 
 * black
 
-* mypy
+* mypy: configure file is ``mypy.ini``, results strongly correlated with the version of numpy, we fix ``numpy==1.21.5`` as mypy standard in CI.
 
-* pylint
+* pylint: configure file is ``.pylintrc``
 
-* pytest: For pytest, one can speed up the test by ``pip install pytest-xdist``, and then run parallelly as ``pytest -v -n [number of processes]``.
+* pytest: see :ref:`Pytest` sections for details. 
 
-* sphinx doc builds
+* sphinx doc builds: see :ref:`Docs` section for details.
 
 Make sure the scripts check are successful by 💐.
 
 The similar tests and checks are also available via GitHub action as CI infrastructures.
 
 Please also include corresponding changes for CHANGELOG.md and docs for the PR.
+
+
+Pytest
+---------
+
+For pytest, one can speed up the test by ``pip install pytest-xdist``, and then run parallelly as ``pytest -v -n [number of processes]``. 
+We also have included some micro benchmark tests, which works with ``pip install pytest-benchmark``. 
+
+**Fixtures:**
+
+There are some pytest fixtures defined in conftest file, which are for customization on backends and dtype in function level.
+``highp`` is a fixture for complex128 simulation. While ``npb``, ``tfb``, ``jaxb`` and ``torchb`` are fixtures for global numpy, tensorflow, jax and pytorch backends, respectively.
+To test different backends in one function, we need to use parameterized fixture, which is enabled by ``pip install pytest-lazy-fixture``. Namely we have the following approach to test different backends in one function.
+
+.. code-block:: python
+
+    from pytest_lazyfixture import lazy_fixture as lf
+
+    @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])
+    def test_parameterized_backend(backend):
+        print(tc.backend.name)
+
 
 
 Docs
