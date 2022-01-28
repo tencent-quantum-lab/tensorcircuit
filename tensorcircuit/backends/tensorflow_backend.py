@@ -106,6 +106,99 @@ def _random_choice_tf(
     return tf.reshape(res, shape)
 
 
+def _qr_tf(
+    self: Any,
+    tensor: Tensor,
+    pivot_axis: int = -1,
+    non_negative_diagonal: bool = False,
+) -> Tuple[Tensor, Tensor]:
+    """Computes the QR decomposition of a tensor.
+    The QR decomposition is performed by treating the tensor as a matrix,
+    with an effective left (row) index resulting from combining the
+    axes `tensor.shape[:pivot_axis]` and an effective right (column)
+    index resulting from combining the axes `tensor.shape[pivot_axis:]`.
+    For example, if `tensor` had a shape (2, 3, 4, 5) and `pivot_axis` was 2,
+    then `q` would have shape (2, 3, 6), and `r` would
+    have shape (6, 4, 5).
+    The output consists of two tensors `Q, R` such that:
+    ```python
+      Q[i1,...,iN, j] * R[j, k1,...,kM] == tensor[i1,...,iN, k1,...,kM]
+    ```
+    Note that the output ordering matches numpy.linalg.svd rather than tf.svd.
+    Args:
+      tf: The tensorflow module.
+      tensor: A tensor to be decomposed.
+      pivot_axis: Where to split the tensor's axes before flattening into a
+        matrix.
+    Returns:
+      Q: Left tensor factor.
+      R: Right tensor factor.
+    """
+    from .tf_ops import tfqr
+
+    left_dims = tf.shape(tensor)[:pivot_axis]
+    right_dims = tf.shape(tensor)[pivot_axis:]
+
+    tensor = tf.reshape(tensor, [tf.reduce_prod(left_dims), tf.reduce_prod(right_dims)])
+    q, r = tfqr(tensor)
+    if non_negative_diagonal:
+        phases = tf.math.sign(tf.linalg.diag_part(r))
+        q = q * phases
+        r = phases[:, None] * r
+    center_dim = tf.shape(q)[1]
+    q = tf.reshape(q, tf.concat([left_dims, [center_dim]], axis=-1))
+    r = tf.reshape(r, tf.concat([[center_dim], right_dims], axis=-1))
+    return q, r
+
+
+def _rq_tf(
+    self: Any,
+    tensor: Tensor,
+    pivot_axis: int = 1,
+    non_negative_diagonal: bool = False,
+) -> Tuple[Tensor, Tensor]:
+    """Computes the RQ decomposition of a tensor.
+    The QR decomposition is performed by treating the tensor as a matrix,
+    with an effective left (row) index resulting from combining the axes
+    `tensor.shape[:pivot_axis]` and an effective right (column) index
+    resulting from combining the axes `tensor.shape[pivot_axis:]`.
+    For example, if `tensor` had a shape (2, 3, 4, 5) and `pivot_axis` was 2,
+    then `r` would have shape (2, 3, 6), and `q` would
+    have shape (6, 4, 5).
+    The output consists of two tensors `Q, R` such that:
+    ```python
+      Q[i1,...,iN, j] * R[j, k1,...,kM] == tensor[i1,...,iN, k1,...,kM]
+    ```
+    Note that the output ordering matches numpy.linalg.svd rather than tf.svd.
+    Args:
+      tf: The tensorflow module.
+      tensor: A tensor to be decomposed.
+      pivot_axis: Where to split the tensor's axes before flattening into a
+        matrix.
+    Returns:
+      Q: Left tensor factor.
+      R: Right tensor factor.
+    """
+    from .tf_ops import tfqr
+
+    left_dims = tf.shape(tensor)[:pivot_axis]
+    right_dims = tf.shape(tensor)[pivot_axis:]
+
+    tensor = tf.reshape(tensor, [tf.reduce_prod(left_dims), tf.reduce_prod(right_dims)])
+    q, r = tfqr(tf.math.conj(tf.transpose(tensor)))
+    if non_negative_diagonal:
+        phases = tf.math.sign(tf.linalg.diag_part(r))
+        q = q * phases
+        r = phases[:, None] * r
+    r, q = tf.math.conj(tf.transpose(r)), tf.math.conj(
+        tf.transpose(q)
+    )  # M=r*q at this point
+    center_dim = tf.shape(r)[1]
+    r = tf.reshape(r, tf.concat([left_dims, [center_dim]], axis=-1))
+    q = tf.reshape(q, tf.concat([[center_dim], right_dims], axis=-1))
+    return r, q
+
+
 # temporary hot replace until new version of tensorflow is released,
 # see issue: https://github.com/google/TensorNetwork/issues/940
 # avoid buggy tensordot2 in tensornetwork
@@ -119,6 +212,8 @@ tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.outer_pro
 tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.matmul = (
     _matmul_tf
 )
+tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.qr = _qr_tf
+tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.rq = _rq_tf
 
 
 class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore

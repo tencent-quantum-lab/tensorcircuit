@@ -60,8 +60,7 @@ contractor = tn.contractors.auto
 def set_tensornetwork_backend(
     backend: Optional[str] = None, set_global: bool = True
 ) -> Any:
-    r"""
-    Set the runtime backend of tensorcircuit.
+    r"""To set the runtime backend of tensorcircuit.
     
     Note: `tc.set_backend` and `tc.cons.set_tensornetwork_backend` are same.
     
@@ -86,9 +85,14 @@ def set_tensornetwork_backend(
     jax_backend
     >>> tc.gates.num_to_tensor(0.1)
     DeviceArray(0.1+0.j, dtype=complex64)    
+
     :param backend: "numpy", "tensorflow", "jax", "pytorch". defaults to None,
-        which gives the same behavior as ``tensornetwork.backend_contextmanager.get_default_backend()``
+        which gives the same behavior as ``tensornetwork.backend_contextmanager.get_default_backend()``.
     :type backend: Optional[str], optional
+    :param set_global: Whether the object should be set as global.
+    :type set_global: bool
+    :return: The `tc.backend` object that with all registered universal functions.
+    :rtype: backend object
     """
     if not backend:
         backend = get_default_backend()
@@ -131,9 +135,9 @@ def runtime_backend(backend: Optional[str] = None) -> Iterator[Any]:
 
 def set_dtype(dtype: Optional[str] = None, set_global: bool = True) -> Tuple[str, str]:
     """
-    set the runtime numerical dtype of tensors
+    To set the runtime numerical dtype of tensors
 
-    :param dtype: "complex64" or "complex128", defaults to None, which is equivalent to "complex64"
+    :param dtype: "complex64" or "complex128", defaults to None, which is equivalent to "complex64".
     :type dtype: Optional[str], optional
     """
     if not dtype:
@@ -196,7 +200,7 @@ def runtime_dtype(dtype: Optional[str] = None) -> Iterator[Tuple[str, str]]:
 
 
 def _multi_remove(elems: List[Any], indices: List[int]) -> List[Any]:
-    """Remove multiple indicies in a list at once."""
+    """Remove multiple indicies in a list for one time."""
     return [i for j, i in enumerate(elems) if j not in indices]
 
 
@@ -300,13 +304,13 @@ def plain_contractor(
     ignore_edge_order: bool = False,
 ) -> Any:
     """
-    naive statevector simulator contraction path
+    The naive statevector simulator contraction path.
 
-    :param nodes: list of ``tn.Node``
+    :param nodes: The list of ``tn.Node``.
     :type nodes: List[Any]
-    :param output_edge_order: list of dangling node edges, defaults to None
+    :param output_edge_order: The list of dangling node edges, defaults to None.
     :type output_edge_order: Optional[List[Any]], optional
-    :return: ``tn.Node`` after contraction
+    :return: The ``tn.Node`` after contraction
     :rtype: tn.Node
     """
     total_size = sum([_sizen(t) for t in nodes])
@@ -314,18 +318,26 @@ def plain_contractor(
     nodes = list(nodes)
     nodes = list(reversed(nodes))
 
+    width = 0
+
     while len(nodes) > 1:
         new_node = tn.contract_between(nodes[-1], nodes[-2], allow_outer_product=True)
         nodes = _multi_remove(nodes, [len(nodes) - 2, len(nodes) - 1])
         nodes.append(new_node)
-        logger.info(_sizen(new_node, is_log=True))
+        im_size = _sizen(new_node, is_log=True)
+        logger.debug(im_size)
+        width = max(width, im_size)
         total_size += _sizen(new_node)
+    logger.info("----- SIZE: %s --------\n" % width)
     logger.info("----- WRITE: %s --------\n" % np.log2(total_size))
 
     final_node = nodes[0]
     if output_edge_order is not None:
         final_node.reorder_edges(output_edge_order)
     return final_node
+
+
+# TODO(@refraction-ray): consistent logger system for different contractors.
 
 
 def nodes_to_adj(ns: List[Any]) -> Any:
@@ -420,6 +432,9 @@ def _get_path_cache_friendly(
     placeholder = [[1e20 for _ in range(100)]]
     order = np.argsort(np.array(list(map(sorted, input_sets)) + placeholder, dtype=object))[:-1]  # type: ignore
     nodes_new = [nodes[i] for i in order]
+    if isinstance(algorithm, list):
+        return algorithm, nodes_new
+
     input_sets = [set([mapping_dict[id(e)] for e in node.edges]) for node in nodes_new]
     output_set = set([mapping_dict[id(e)] for e in tn.get_subgraph_dangling(nodes_new)])
     size_dict = {
@@ -430,6 +445,7 @@ def _get_path_cache_friendly(
     logger.debug("size_dict: %s" % size_dict)
     logger.debug("path finder algorithm: %s" % algorithm)
     return algorithm(input_sets, output_set, size_dict), nodes_new  # type: ignore
+    # directly get input_sets, output_set and size_dict by using identity function as algorithm
 
 
 # some contractor setup usages
@@ -452,7 +468,7 @@ tc.set_contractor("custom_stateful", optimizer=oem.RandomGreedy, max_time=60, ma
 tc.set_contractor("plain-experimental", local_steps=3)
 
 # hyper efficient contractor: though long computation time required, suitable for extra large circuit simulation
-opt = ctg.HyperOptimizer(
+opt = ctg.ReusableHyperOptimizer(
     minimize='combo',
     max_repeats=1024,
     max_time='equil:128',
@@ -476,24 +492,25 @@ def _base(
     ignore_edge_order: bool = False,
     total_size: Optional[int] = None,
 ) -> tn.Node:
-    """Base method for all `opt_einsum` contractors.
+    """
+    The base method for all `opt_einsum` contractors.
+
     :param nodes: A collection of connected nodes.
     :type nodes: List[tn.Node]
-    :param algorithm: `opt_einsum` contraction method to use.
+    :pram algorithm: `opt_einsum` contraction method to use.
     :type algorithm: Any
     :param output_edge_order: An optional list of edges. Edges of the
-        final node in `nodes_set`
-        are reordered into `output_edge_order`;
-        if final node has more than one edge,
-        `output_edge_order` must be provided.
+        final node in `nodes_set` are reordered into `output_edge_order`;
+        if final node has more than one edge, `output_edge_order` must be provided.
     :type output_edge_order: Optional[Sequence[tn.Edge]], optional
-    :param ignore_edge_order: An option to ignore the output edge order, defaults to False.
-    :type ignore_edge_order: bool, optional
-    :param total_size: [description], defaults to None
+    :param ignore_edge_order: An option to ignore the output edge order.
+    :type ignore_edge_order: bool
+    :param total_size: The total size of the tensor network.
     :type total_size: Optional[int], optional
-    :raises ValueError: The final node after contraction has more than one remaining edge. In this case `output_edge_order` has to be provided.
-    :raises ValueError: Output edges are not equal to the remaining non-contracted edges of the final  node.
-    :return: Final node after full contraction.
+    :raises ValueError:"The final node after contraction has more than
+        one remaining edge. In this case `output_edge_order` has to be provided," or
+        "Output edges are not equal to the remaining non-contracted edges of the final node."
+    :return: The final node after full contraction.
     :rtype: tn.Node
     """
     # rewrite tensornetwork default to add logging infras
@@ -536,10 +553,11 @@ def _base(
     # nodes = list(nodes_set)
 
     # Then apply `opt_einsum`'s algorithm
-    if isinstance(algorithm, list):
-        path = algorithm
-    else:
-        path, nodes = _get_path_cache_friendly(nodes, algorithm)
+    # if isinstance(algorithm, list):
+    #     path = algorithm
+    # else:
+    path, nodes = _get_path_cache_friendly(nodes, algorithm)
+    logger.info("the contraction path is given as %s" % str(path))
     if total_size is None:
         total_size = sum([_sizen(t) for t in nodes])
     for ab in path:
@@ -555,7 +573,7 @@ def _base(
 
         logger.debug(_sizen(new_node, is_log=True))
         total_size += _sizen(new_node)  # type: ignore
-    logger.info("----- WRITE: %s --------\n" % np.log2(total_size))
+    logger.info("----- WRITE: %s --------\n" % np.log2(total_size))  # type: ignore
 
     # if the final node has more than one edge,
     # output_edge_order has to be specified
@@ -581,7 +599,10 @@ def custom(
     total_size = None
     if kws.get("preprocessing", None):
         nodes, total_size = _merge_single_gates(nodes)
-    alg = partial(optimizer, memory_limit=memory_limit)
+    if not isinstance(optimizer, list):
+        alg = partial(optimizer, memory_limit=memory_limit)
+    else:
+        alg = optimizer
     return _base(nodes, alg, output_edge_order, ignore_edge_order, total_size)
 
 
@@ -619,17 +640,19 @@ def set_contractor(
     **kws: Any
 ) -> Callable[..., Any]:
     """
-    set runtime contractor of the tensornetwork for a better contraction path
+    To set runtime contractor of the tensornetwork for a better contraction path.
 
     :param method: "auto", "greedy", "branch", "plain", "tng", "custom", "custom_stateful". defaults to None ("auto")
     :type method: Optional[str], optional
-    :param optimizer: valid for "custom" or "custom_stateful" as method, defaults to None
+    :param optimizer: Valid for "custom" or "custom_stateful" as method, defaults to None
     :type optimizer: Optional[Any], optional
-    :param memory_limit: not very useful, as ``memory_limit`` leads to ``branch`` contraction
+    :param memory_limit: It is not very useful, as ``memory_limit`` leads to ``branch`` contraction
         instead of ``greedy`` which is rather slow, defaults to None
     :type memory_limit: Optional[int], optional
-    :raises Exception: tensornetwork version is too low to support some of the contractors
-    :raises ValueError: unknown method options
+    :raises Exception: Tensornetwork version is too low to support some of the contractors.
+    :raises ValueError: Unknown method options.
+    :return: The new tensornetwork with its contractor set.
+    :rtype: tn.Node
     """
     if not method:
         method = "greedy"

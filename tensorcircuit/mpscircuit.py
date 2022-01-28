@@ -605,11 +605,32 @@ class MPSCircuit:
         value = self._mps.measure_local_operator([gate.tensor], [site])[0]
         return backend.convert_to_tensor(value)
 
-    def expectation_two_gates_correlations(
+    def expectation_double_gates(
+        self,
+        gate: Gate,
+        site1: int,
+        site2: int,
+    ) -> Tensor:
+        # TODO@(SUSYUSTC): Could be more efficient by representing distant double gates as MPO
+        """
+        Compute expectation of the corresponding double qubit gate
+
+        :param gate: gate to be applied
+        :type gate: Gate
+        :param site: qubit index of the gate
+        :type site: int
+        """
+        mps = self.copy()
+        # disable truncation
+        mps.set_truncation_rule()
+        mps.apply_double_gate(gate, site1, site2)
+        return mps.proj_with_mps(self)
+
+    def expectation_two_gates_product(
         self, gate1: Gate, gate2: Gate, site1: int, site2: int
     ) -> Tensor:
         """
-        Compute correlation of the corresponding two qubit gates in the form of tensor.
+        Compute expectation of the direct product of the corresponding two gates
 
         :param gate1: First gate to be applied
         :type gate1: Gate
