@@ -130,8 +130,26 @@ def output_asis_loss(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
 
 
 def save_func(f: Callable[..., Any], path: str) -> None:
-    """
-    Save tf function in the file (``tf.savedmodel`` format).
+    r"""Save tf function in the file (``tf.savedmodel`` format).
+
+    Example:
+
+    .. code-block:: python
+    
+        def sample_circuit():
+            c = tc.Circuit(nqubits=2)
+            c.H(0)
+            return c
+
+    >>> save_func(sample_circuit(), "./model")
+    INFO:tensorflow:Assets written to: ./model\assets
+    >>> os.system("tree ./model")
+    ~/model
+    │  saved_model.pb
+    ├─assets
+    └─variables
+            variables.data-00000-of-00001
+            variables.index
 
     :param f: ``tf.function`` ed function with graph building
     :type f: Callable[..., Any]

@@ -61,11 +61,11 @@ def set_tensornetwork_backend(
     backend: Optional[str] = None, set_global: bool = True
 ) -> Any:
     r"""To set the runtime backend of tensorcircuit.
-    
+
     Note: `tc.set_backend` and `tc.cons.set_tensornetwork_backend` are same.
-    
+
     Example:
-    
+
     >>> tc.set_backend("numpy")
     numpy_backend
     >>> tc.gates.num_to_tensor(0.1)
@@ -84,7 +84,7 @@ def set_tensornetwork_backend(
     >>> tc.set_backend("jax")
     jax_backend
     >>> tc.gates.num_to_tensor(0.1)
-    DeviceArray(0.1+0.j, dtype=complex64)    
+    DeviceArray(0.1+0.j, dtype=complex64)
 
     :param backend: "numpy", "tensorflow", "jax", "pytorch". defaults to None,
         which gives the same behavior as ``tensornetwork.backend_contextmanager.get_default_backend()``.
