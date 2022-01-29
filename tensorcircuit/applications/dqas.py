@@ -53,15 +53,17 @@ def get_var(name: str) -> Any:
     """
     Call in customized functions and grab variables within DQAF framework function by var name str.
 
-    :param name:
-    :return:
+    :param name: The DQAF framework function
+    :type name: str
+    :return: Variables within the DQAF framework
+    :rtype: Any
     """
     return inspect.stack()[2][0].f_locals[name]
 
 
 def verbose_output(max_prob: bool = True, weight: bool = True) -> None:
     """
-    doesn't support prob model DQAS search
+    Doesn't support prob model DQAS search.
 
     :param max_prob:
     :param weight:
@@ -99,7 +101,7 @@ def get_weights(
     nnp: Tensor, stp: Tensor = None, preset: Optional[Sequence[int]] = None
 ) -> Tensor:
     """
-    works only when nnp has the same shape as stp, i.e. one parameter for each op
+    This function works only when nnp has the same shape as stp, i.e. one parameter for each op.
 
     :param nnp:
     :param stp:
@@ -135,7 +137,7 @@ def parallel_kernel(
     kernel_func: Callable[[Any, Tensor, Sequence[int]], Tuple[Tensor, Tensor]],
 ) -> Tuple[Tensor, Tensor, Tensor]:
     """
-    kernel for multiprocess to run parallel in DQAS function
+    The kernel for multiprocess to run parallel in DQAS function/
 
     :param prob:
     :param gdata:
@@ -694,7 +696,7 @@ def DQAS_search_pmb(
     vg: Optional[Iterator[Any]] = None,
 ) -> Tuple[Tensor, Tensor, Sequence[Any]]:
     """
-    probabilistic model based DQAS, can use extensively for DQAS case for ``NMF`` probabilistic model
+    The probabilistic model based DQAS, can use extensively for DQAS case for ``NMF`` probabilistic model.
 
     :param kernel_func: vag func, return loss and nabla lnp
     :param prob_model: keras model
