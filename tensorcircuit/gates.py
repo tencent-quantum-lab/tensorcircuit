@@ -534,6 +534,11 @@ def any_gate(unitary: Tensor, name: str = "any") -> Gate:
     Note one should provide the gate with properly reshaped.
 
     :param unitary: corresponding gate
+    :type unitary: Tensor
+    :param name: The name of the gate.
+    :type name: str
+    :return: the resulted gate
+    :rtype: Gate
     """
     # deepcopy roadblocks tf.function, pls take care of the unitary outside
     if isinstance(unitary, Gate):

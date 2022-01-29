@@ -51,7 +51,7 @@ def get_op_pool() -> Sequence[Any]:
 
 def get_var(name: str) -> Any:
     """
-    call in customized functions and grab variable within DQAF framework function by var name str
+    Call in customized functions and grab variables within DQAF framework function by var name str.
 
     :param name:
     :return:

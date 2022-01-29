@@ -16,7 +16,7 @@ Graph = Any  # nx.graph
 def any_measurements(c: Circuit, structures: Tensor, onehot: bool = False) -> Tensor:
     """
     This measurements pattern is specifically suitable for vmap. Parameterize the Pauli string
-    to be measured
+    to be measured.
 
     :param c: [description]
     :type c: Circuit
