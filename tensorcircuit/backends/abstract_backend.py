@@ -650,7 +650,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         dtype: str = "32",
     ) -> Tensor:
         """
-        Uniform random sampler for ``low`` to ``high``.
+        Uniform random sampler from ``low`` to ``high``.
 
         :param g: stateful register for each package
         :type g: Any

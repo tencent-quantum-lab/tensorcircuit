@@ -51,11 +51,11 @@ def get_op_pool() -> Sequence[Any]:
 
 def get_var(name: str) -> Any:
     """
-    Call in customized functions and grab variables within DQAF framework function by var name str.
+    Call in customized functions and grab variables within DQAS framework function by var name str.
 
-    :param name: The DQAF framework function
+    :param name: The DQAS framework function
     :type name: str
-    :return: Variables within the DQAF framework
+    :return: Variables within the DQAS framework
     :rtype: Any
     """
     return inspect.stack()[2][0].f_locals[name]
