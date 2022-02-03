@@ -291,11 +291,14 @@ def regular_graph_generator(d: int, n: int, weights: bool = False) -> Iterator[G
 
 def _maxcut(g: Graph, values: Sequence[int]) -> float:
     """
-    cut by given values $$\pm 1$$ on each vertex as a list
+    To get the max-cut for the graph g by given values $$\pm 1$$ on each vertex as a list.
 
-    :param g:
-    :param values:
-    :return:
+    :param g: The graph
+    :type g: Graph
+    :param values: The list of values to be cut on each vertex
+    :type values: Sequence[int]
+    :return: The resulted graph
+    :rtype: g
     """
     cost = 0
     for e in g.edges:
@@ -350,11 +353,13 @@ def reduce_edges(g: Graph, m: int = 1) -> Sequence[Graph]:
 
 def reduced_ansatz(g: Graph, ratio: Optional[int] = None) -> Graph:
     """
-    generate reduced graph with give ratio of edges compared to original graph g
+    Generate a reduced graph with given ratio of edges compared to the original graph g.
 
-    :param g: base graph
-    :param ratio: num of edges kept, default half of the edges
-    :return:
+    :param g: The base graph
+    :type g: Graph
+    :param ratio: number of edges kept, default half of the edges
+    :return: The resulted reduced graph
+    :rtype: Graph
     """
     nn = len(g.nodes)
     ne = len(g.edges)
@@ -371,13 +376,13 @@ def reduced_ansatz(g: Graph, ratio: Optional[int] = None) -> Graph:
 
 def split_ansatz(g: Graph, split: int = 2) -> Sequence[Graph]:
     """
-    split the graph in exactly ``split`` piece evenly
+    Split the graph in exactly ``split`` piece evenly.
 
-    :param g: the monther graph
+    :param g: The mother graph
     :type g: Graph
-    :param split: how many pieces of the graph we want to divide into, defaults to 2
+    :param split: The number of the graph we want to divide into, defaults to 2
     :type split: int, optional
-    :return: list of graph instance of size ``split``
+    :return: List of graph instance of size ``split``
     :rtype: Sequence[Graph]
     """
     edges = np.array(g.edges)
@@ -392,10 +397,12 @@ def split_ansatz(g: Graph, split: int = 2) -> Sequence[Graph]:
 
 def graph1D(n: int, pbc: bool = True) -> Graph:
     """
-    1D PBC chain with n sites
+    1D PBC chain with n sites.
 
-    :param n:
-    :return:
+    :param n: The number of nodes
+    :type n: int
+    :return: The resulted graph g
+    :rtype: Graph
     """
 
     g = nx.Graph()

@@ -33,9 +33,9 @@ Symbol = Any  # sympy.Symbol
 
 def _resolve(symbol: Union[Symbol, Tensor], i: int = 0) -> Tensor:
     """
-    make sure the layer is compatible with both multiparam and single param requirements
+    Make sure the layer is compatible with both multi-param and single param requirements。
 
-    what could be the input: list/tuple of sympy.symbol, tf.tensor with 1D or 0D shape
+    What could be the input: list/tuple of sympy.symbol, tf.tensor with 1D or 0D shape
     """
     if isinstance(symbol, list) or isinstance(symbol, tuple):
         return symbol[i]
@@ -84,6 +84,7 @@ def generate_gate_layer(gate: str) -> None:
     $$e^{-i\theta \sigma}$$
 
     :param gate:
+    :type gate: str
     :return:
     """
 
@@ -110,6 +111,7 @@ def generate_any_gate_layer(gate: str) -> None:
     $$e^{-i\theta_i \sigma}$$
 
     :param gate:
+    :type gate: str
     :return:
     """
 
@@ -393,6 +395,7 @@ try:
         $$e^{-i\theta \sigma}$$
 
         :param gate:
+        :type gate: str
         :return:
         """
 
@@ -422,6 +425,7 @@ try:
         $$e^{-i\theta \sigma}$$
 
         :param gate:
+        :type gate: str
         :return:
         """
 
@@ -466,10 +470,11 @@ try:
 
     def generate_cirq_any_double_gate_layer(gates: str) -> None:
         """
-        The following function generated layer should be used with special case,
-        as its soundness depends on the nature of task or problem, it doesn't always make sense
+        The following function should be used to generate layers with special case.
+        As its soundness depends on the nature of the task or problem, it doesn't always make sense.
 
         :param gates:
+        :type gates: str
         :return:
         """
 
