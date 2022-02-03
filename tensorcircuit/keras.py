@@ -130,8 +130,35 @@ def output_asis_loss(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
 
 
 def save_func(f: Callable[..., Any], path: str) -> None:
-    """
+    r"""
     Save tf function in the file (``tf.savedmodel`` format).
+
+    Example:
+
+    .. code-block:: python
+
+        @tf.function
+        def test_circuit(weights):
+            param = tf.cast(weights, tf.complex64)
+            c = tc.Circuit(2)
+            c.H(0)
+            c.rx(0, theta=param[0])
+            c.ry(1, theta=param[1])
+            return tf.math.real(c.expectation((tc.gates.x(), [1])))
+
+    >>> print(test_circuit(weights=tf.ones([2])))
+    tf.Tensor(0.84147096, shape=(), dtype=float32)
+    >>> K.save_func(test_circuit, save_path)
+    >>> circuit_loaded = K.load_func(save_path)
+    >>> print(circuit_loaded(weights=tf.ones([2])))
+    tf.Tensor(0.84147096, shape=(), dtype=float32)
+    >>> os.system(f"tree {save_path}")
+    ~/model
+    │   saved_model.pb
+    ├─assets
+    └─variables
+        variables.data-00000-of-00001
+        variables.index
 
     :param f: ``tf.function`` ed function with graph building
     :type f: Callable[..., Any]
@@ -159,6 +186,26 @@ def load_func(
     """
     Load function from the files in the ``tf.savedmodel`` format.
     We can load several functions at the same time, as they can be the same function of different input shapes.
+
+    Example:
+
+    .. code-block:: python
+
+        @tf.function
+        def test_circuit(weights):
+            param = tf.cast(weights, tf.complex64)
+            c = tc.Circuit(2)
+            c.H(0)
+            c.rx(0, theta=param[0])
+            c.ry(1, theta=param[1])
+            return tf.math.real(c.expectation((tc.gates.x(), [1])))
+
+    >>> print(test_circuit(weights=tf.ones([2])))
+    tf.Tensor(0.84147096, shape=(), dtype=float32)
+    >>> K.save_func(test_circuit, save_path)
+    >>> circuit_loaded = K.load_func(save_path)
+    >>> print(circuit_loaded(weights=tf.ones([2])))
+    tf.Tensor(0.84147096, shape=(), dtype=float32)
 
     :param fallback: The fallback function when all functions loaded are failed, defaults to None
     :type fallback: Optional[Callable[..., Any]], optional

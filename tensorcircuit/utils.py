@@ -33,7 +33,7 @@ def return_partial(
     :type f: Callable[..., Any]
     :param return_partial: The ith parts of original output along the first axis (axis=0 or dim=0)
     :type return_partial: Union[int, Sequence[int]]
-    :returns: The modified callable function
+    :return: The modified callable function
     :rtype: Callable[..., Any]
     """
     if isinstance(return_argnums, int):
