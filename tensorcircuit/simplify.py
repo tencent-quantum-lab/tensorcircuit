@@ -29,7 +29,28 @@ def infer_new_size(a: tn.Node, b: tn.Node, include_old: bool = True) -> Any:
 
 
 def infer_new_shape(a: tn.Node, b: tn.Node, include_old: bool = True) -> Any:
-    # return: Union[Tuple[int, ...], Tuple[Tuple[int, ...], Tuple[int, ...], Tuple[int, ...]]]
+    """
+    Get the new shape of two nodes, also supporting to return original shapes of two nodes.
+
+    Example:
+
+    >>> a = tn.Node(np.ones([2, 3, 5]))
+    >>> b = tn.Node(np.ones([3, 5, 7]))
+    >>> a[1] ^ b[0]
+    >>> a[2] ^ b[1]
+    >>> tc.simplify.infer_new_shape(a, b)
+    >>> ((2, 7), (2, 3, 5), (3, 5, 7))
+    >>> # (shape of a, shape of b, new shape)
+
+    :param a: node one
+    :type a: tn.Node
+    :param b: node two
+    :type b: tn.Node
+    :param include_old: Whether to include original shape of two nodes, default is True.
+    :type include_old: bool
+    :return: The new shape of the two nodes.
+    :rtype: Union[Tuple[int, ...], Tuple[Tuple[int, ...], Tuple[int, ...], Tuple[int, ...]]]
+    """
     shared_edges = tn.get_shared_edges(a, b)
     a_shape = tuple(sorted([e.dimension for e in a]))
     b_shape = tuple(sorted([e.dimension for e in b]))
@@ -114,6 +135,44 @@ def _rank_simplify(nodes: List[Any]) -> Tuple[List[Any], bool]:
 
 
 def _full_rank_simplify(nodes: List[Any]) -> List[Any]:
+    """
+    Simplify the list of tc.Nodes without increasing the rank of any tensors.
+
+    Example:
+
+    .. code-block:: python
+
+        a = tn.Node(np.ones([2, 2]), name="a")
+        b = tn.Node(np.ones([2, 2]), name="b")
+        c = tn.Node(np.ones([2, 2, 2, 2]), name="c")
+        d = tn.Node(np.ones([2, 2, 2, 2, 2, 2]), name="d")
+        e = tn.Node(np.ones([2, 2]), name="e")
+        a[1] ^ c[0]
+        b[1] ^ c[1]
+        c[2] ^ d[0]
+        c[3] ^ d[1]
+        d[4] ^ e[0]
+    
+        f = tn.Node(np.ones([2, 2]), name="f")
+        g = tn.Node(np.ones([2, 2, 2, 2]), name="g")
+        h = tn.Node(np.ones([2, 2, 2, 2]), name="h")
+        f[1] ^ g[0]
+        g[2] ^ h[1]
+        
+    >>> nodes = simplify._full_rank_simplify([a, b, c, d, e])
+    >>> nodes[0].shape
+    [2, 2, 2, 2, 2, 2]
+    >>> len(nodes)
+    1
+    >>> len(simplify._full_rank_simplify([f, g, h]))
+    2
+
+
+    :param nodes: List of Nodes
+    :type nodes: List[Any]
+    :return: List of Nodes
+    :rtype: List[Any]
+    """
     nodes, is_changed = _rank_simplify(nodes)
     while is_changed:
         nodes, is_changed = _rank_simplify(nodes)

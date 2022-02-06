@@ -66,11 +66,11 @@ class MPSCircuit:
 
     .. code-block:: python
 
-    mps = tc.MPSCircuit(3)
-    mps.H(1)
-    mps.CNOT(0, 1)
-    mps.rx(2, theta=tc.num_to_tensor(1.))
-    mps.expectation_single_gate(tc.gates.z(), 2)
+        mps = tc.MPSCircuit(3)
+        mps.H(1)
+        mps.CNOT(0, 1)
+        mps.rx(2, theta=tc.num_to_tensor(1.))
+        mps.expectation_single_gate(tc.gates.z(), 2)
 
     """
 
@@ -243,8 +243,18 @@ class MPSCircuit:
         center_position: Optional[int] = None,
     ) -> None:
         """
-        Apply a double qubit gate on adjacent qubits of MPS, truncation rule is specified by `set_truncation_rule`.
+        Apply a double qubit gate on adjacent qubits of Matrix Product States (MPS), truncation rule is specified by `set_truncation_rule`.
+
+        :param gate: The Gate to be applied
+        :type gate: Gate
+        :param index1: The first qubit index of the gate
+        :type index1: int
+        :param index2: The second qubit index of the gate
+        :type index2: int
+        :param center_position: Center position of MPS, default is None
+        :type center_position: Optional[int]
         """
+
         # The center position of MPS must be either `index1` for `index2` before applying a double gate
         # Choose the one closer to the current center
         assert index2 - index1 == 1
@@ -483,9 +493,18 @@ class MPSCircuit:
         return result
 
     def get_norm(self) -> Tensor:
+        """
+        Get the normalized Center Position.
+
+        :return: Normalized Center Position.
+        :rtype: Tensor
+        """
         return self._mps.norm(self._mps.center_position)
 
     def normalize(self) -> None:
+        """
+        Normalize MPS Circuit according to the center position.
+        """
         center = self._mps.center_position
         norm = self._mps.norm(center)
         self._mps.tensor[center] /= norm

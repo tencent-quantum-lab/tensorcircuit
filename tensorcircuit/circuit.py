@@ -822,7 +822,7 @@ class Circuit:
 
     def _copy(self, conj: bool = False) -> Tuple[List[tn.Node], List[tn.Edge]]:
         """
-        copy all nodes and dangling edges correspondingly
+        Copy all nodes and dangling edges correspondingly
 
         :param conj: bool indicating whether the tensors for nodes should be conjugated
         :type conj: bool
@@ -840,7 +840,7 @@ class Circuit:
 
     def wavefunction(self, form: str = "default") -> tn.Node.tensor:
         """
-        compute the output wavefunction from the circuit
+        Compute the output wavefunction from the circuit
 
         :return: Tensor with the corresponding shape
         :rtype: Tensor
@@ -897,6 +897,21 @@ class Circuit:
 
     def measure(self, *index: int, with_prob: bool = False) -> Tuple[str, float]:
         """
+        Take measurement to the given quantum lines.
+
+        Example:
+
+        >>> c = tc.Circuit(3)
+        >>> c.H(0)
+        >>> c.h(1)
+        >>> c.toffoli(0, 1, 2)
+        >>> c.measure(2)
+        ('1', -1.0)
+        >>> # Another possible output: ('0', -1.0)
+        >>> c.measure(2, with_prob=True)
+        ('1', (0.25000011920928955+0j))
+        >>> # Another possible output: ('0', (0.7499998807907104+0j))
+
         :param index: measure on which quantum line
         :param with_prob: if true, theoretical probability is also returned
         :return:
@@ -990,7 +1005,7 @@ class Circuit:
 
     def perfect_sampling(self) -> Tuple[str, float]:
         """
-        reference: arXiv:1201.3974.
+        Reference: arXiv:1201.3974.
 
         :return: sampled bit string and the corresponding theoretical probability
         """
@@ -1030,7 +1045,14 @@ class Circuit:
         self, *ops: Tuple[tn.Node, List[int]], reuse: bool = True
     ) -> Tensor:
         """
-        compute expectation of corresponding operators
+        Compute expectation of corresponding operators
+
+        Example:
+
+        >>> c = tc.Circuit(2)
+        >>> c.H(0)
+        >>> c.expectation((tc.gates.z(), [0]))
+        array(0.+0.j, dtype=complex64)
 
         :param ops: operator and its position on the circuit,
             eg. ``(tc.gates.z(), [1, ]), (tc.gates.x(), [2, ])`` is for operator :math:`Z_1X_2`
@@ -1119,7 +1141,46 @@ def expectation(
     normalization: bool = False,
 ) -> Tensor:
     """
-    compute :math:`\\langle bra\\vert ops \\vert ket\\rangle`
+    Compute :math:`\\langle bra\\vert ops \\vert ket\\rangle`
+
+    Example 1 (:math:`bra` is same as :math:`ket`)
+    
+    >>> c = tc.Circuit(3)
+    >>> c.H(0)
+    >>> c.ry(1, theta=tc.num_to_tensor(0.8 + 0.7j))
+    >>> c.cnot(1, 2)
+    >>> state = c.wavefunction() # the state of this circuit
+    >>> x1z2 = [(tc.gates.x(), [0]), (tc.gates.z(), [1])] # input qubits
+    >>>
+    >>> # Expection of this circuit / <state|*x1z2|state>
+    >>> c.expectation(*x1z2)
+    array(0.69670665+0.j, dtype=complex64)
+    >>> tc.expectation(*x1z2, ket=state)
+    (0.6967066526412964+0j)
+    >>>
+    >>> # Normalize(expection of Circuit) / Normalize(<state|*x1z2|state>)
+    >>> c.expectation(*x1z2) / tc.backend.norm(state) ** 2   # Compute:
+    (0.5550700389340034+0j)
+    >>> tc.expectation(*x1z2, ket=state, normalization=True)
+    (0.55507004+0j)
+
+    Example 2 (:math:`bra` is different from :math:`ket`)
+    
+    >>> c = tc.Circuit(2)
+    >>> c.X(1)
+    >>> s1 = c.state()
+    >>> c2 = tc.Circuit(2)
+    >>> c2.X(0)
+    >>> s2 = c2.state()
+    >>> c3 = tc.Circuit(2)
+    >>> c3.H(1)
+    >>> s3 = c3.state()
+    >>> x1x2 = [(tc.gates.x(), [0]), (tc.gates.x(), [1])]
+    >>>
+    >>> tc.expectation(*x1x2, ket=s1, bra=s2)
+    (1+0j)
+    >>> tc.expectation(*x1x2, ket=s3, bra=s2)
+    (0.7071067690849304+0j) # 1/sqrt(2)
 
     :param ket: [description]
     :type ket: Tensor
