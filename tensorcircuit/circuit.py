@@ -1144,7 +1144,7 @@ def expectation(
     Compute :math:`\\langle bra\\vert ops \\vert ket\\rangle`
 
     Example 1 (:math:`bra` is same as :math:`ket`)
-    
+
     >>> c = tc.Circuit(3)
     >>> c.H(0)
     >>> c.ry(1, theta=tc.num_to_tensor(0.8 + 0.7j))
@@ -1165,7 +1165,7 @@ def expectation(
     (0.55507004+0j)
 
     Example 2 (:math:`bra` is different from :math:`ket`)
-    
+
     >>> c = tc.Circuit(2)
     >>> c.X(1)
     >>> s1 = c.state()

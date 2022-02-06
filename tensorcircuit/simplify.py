@@ -152,13 +152,13 @@ def _full_rank_simplify(nodes: List[Any]) -> List[Any]:
         c[2] ^ d[0]
         c[3] ^ d[1]
         d[4] ^ e[0]
-    
+
         f = tn.Node(np.ones([2, 2]), name="f")
         g = tn.Node(np.ones([2, 2, 2, 2]), name="g")
         h = tn.Node(np.ones([2, 2, 2, 2]), name="h")
         f[1] ^ g[0]
         g[2] ^ h[1]
-        
+
     >>> nodes = simplify._full_rank_simplify([a, b, c, d, e])
     >>> nodes[0].shape
     [2, 2, 2, 2, 2, 2]
