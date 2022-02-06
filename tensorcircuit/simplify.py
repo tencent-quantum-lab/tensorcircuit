@@ -167,7 +167,6 @@ def _full_rank_simplify(nodes: List[Any]) -> List[Any]:
     >>> len(simplify._full_rank_simplify([f, g, h]))
     2
 
-
     :param nodes: List of Nodes
     :type nodes: List[Any]
     :return: List of Nodes
