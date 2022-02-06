@@ -33,12 +33,12 @@ _INSTANTIATED_BACKENDS: Dict[str, bk] = dict()
 
 def get_backend(backend: Union[Text, bk]) -> bk:
     """
-    get the `tc.backend` object
+    Get the `tc.backend` object
 
     :param backend: "numpy", "tensorflow", "jax", "pytorch"
     :type backend: Union[Text, tnbackend]
-    :raises ValueError: Backend doesn't exist for `backend` argument
-    :return: the `tc.backend` object that with all registered universal functions
+    :raises ValueError: Backend doesn't exist for `backend` argument.
+    :return: The `tc.backend` object that with all registered universal functions.
     :rtype: backend object
     """
     if isinstance(backend, tnbackend):

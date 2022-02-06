@@ -468,11 +468,11 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         """
         Solve linear system Ax=b and return x
 
-        :param A: [description]
+        :param A: The multiplied matrix.
         :type A: Tensor
-        :param b: [description]
+        :param b: The resulted matrix.
         :type b: Tensor
-        :return: [description]
+        :return: The solution of the linear system.
         :rtype: Tensor
         """
         raise NotImplementedError(
@@ -481,14 +481,14 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def tree_map(self: Any, f: Callable[..., Any], *pytrees: Any) -> Any:
         """
-        tree map with multiple arg function ``f`` through pytrees
+        Return the new tree map with multiple arg function ``f`` through pytrees
 
         :param f: The function
         :type f: Callable[..., Any]
         :param pytrees: inputs as any python structure
         :type pytrees: Any
-        :raises NotImplementedError: raise when neither tensorflow or jax is installed
-        :return: [description]
+        :raises NotImplementedError: raise when neither tensorflow or jax is installed.
+        :return: The new tree map with the same structure but different values.
         :rtype: Any
         """
         try:
@@ -517,7 +517,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         self: Any, seed: Optional[int] = None, get_only: bool = False
     ) -> Any:
         """
-        set random state attached in the backend
+        Set the random state attached in the backend
 
         :param seed: int, defaults to None
         :type seed: Optional[int], optional
@@ -530,7 +530,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def get_random_state(self: Any, seed: Optional[int] = None) -> Any:
         """
-        get backend specific random state object
+        Get backend specific random state object
 
         :param seed: [description], defaults to None
         :type seed: Optional[int], optional
@@ -541,7 +541,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def random_split(self: Any, key: Any) -> Tuple[Any, Any]:
         """
-        a jax like split API, but does't split the key generator for other backends.
+        A jax like split API, but does't split the key generator for other backends.
         just for a consistent interface of random code, be careful that you know what the function actually does.
 
         :param key: [description]
@@ -562,7 +562,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         dtype: str = "32",
     ) -> Tensor:
         """
-        call random normal function with the random state management behind the scene
+        Call random normal function with the random state management behind the scene.
 
         :param shape: [description], defaults to 1
         :type shape: Union[int, Sequence[int]], optional
@@ -620,7 +620,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         dtype: str = "32",
     ) -> Tensor:
         """
-        call random normal function with the random state management behind the scene
+        Call random normal function with the random state management behind the scene.
 
         :param shape: [description], defaults to 1
         :type shape: Union[int, Sequence[int]], optional
@@ -649,7 +649,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         dtype: str = "32",
     ) -> Tensor:
         """
-        uniform random sampler for ``low`` to ``high``
+        Uniform random sampler from ``low`` to ``high``.
 
         :param g: stateful register for each package
         :type g: Any
