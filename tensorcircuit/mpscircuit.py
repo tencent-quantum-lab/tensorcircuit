@@ -243,7 +243,8 @@ class MPSCircuit:
         center_position: Optional[int] = None,
     ) -> None:
         """
-        Apply a double qubit gate on adjacent qubits of Matrix Product States (MPS), truncation rule is specified by `set_truncation_rule`.
+        Apply a double qubit gate on adjacent qubits of Matrix Product States (MPS),
+        truncation rule is specified by `set_truncation_rule`.
 
         :param gate: The Gate to be applied
         :type gate: Gate
