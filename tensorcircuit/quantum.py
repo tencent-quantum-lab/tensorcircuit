@@ -979,7 +979,7 @@ def op2tensor(
 @op2tensor
 def entropy(rho: Union[Tensor, QuOperator], eps: float = 1e-12) -> Tensor:
     """
-    compute entropy from given density matrix ``rho``
+    Compute the entropy from the given density matrix ``rho``.
 
     :param rho: [description]
     :type rho: Union[Tensor, QuOperator]
@@ -997,7 +997,7 @@ def entropy(rho: Union[Tensor, QuOperator], eps: float = 1e-12) -> Tensor:
 
 def trace_product(*o: Union[Tensor, QuOperator]) -> Tensor:
     """
-    Compute the following with several input ``o`` as tensor or ``QuOperator``
+    Compute the trace of several inputs ``o`` as tensor or ``QuOperator``.
 
     .. math ::
 

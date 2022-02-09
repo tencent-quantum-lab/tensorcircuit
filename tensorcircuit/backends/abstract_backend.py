@@ -32,7 +32,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def copy(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
-        Return expm of ``a``, matrix exponential.
+        Return the expm of ``a``, matrix exponential.
 
         :param a: tensor in matrix form
         :type a: Tensor
@@ -45,7 +45,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def expm(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
-        Return expm of ``a``, matrix exponential.
+        Return the expm of ``a``, matrix exponential.
 
         :param a: tensor in matrix form
         :type a: Tensor
@@ -58,7 +58,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def sqrtmh(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
-        Return sqrtm of Hermitian matrix ``a``
+        Return the sqrtm of a Hermitian matrix ``a``.
 
         :param a: tensor in matrix form
         :type a: Tensor
@@ -72,11 +72,11 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def sin(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
-        Return sin of ``a``.
+        Return the sine of a tensor ``a``.
 
         :param a: tensor in matrix form
         :type a: Tensor
-        :return: sin of ``a``
+        :return: sine of ``a``
         :rtype: Tensor
         """
         raise NotImplementedError(
@@ -85,11 +85,11 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def cos(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
-        Return cos of ``a``.
+        Return the cosine of a tensor ``a``.
 
         :param a: tensor in matrix form
         :type a: Tensor
-        :return: cos of ``a``
+        :return: cosine of ``a``
         :rtype: Tensor
         """
         raise NotImplementedError(
@@ -98,7 +98,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def abs(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
-        Return elementwise abs value of ``a``.
+        Return the elementwise abs value of a matrix ``a``.
 
         :param a: tensor in matrix form
         :type a: Tensor
@@ -115,7 +115,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         self: Any, a: Tensor, b: Tensor
     ) -> Tensor:
         """
-        Return kronecker product of two matrix ``a`` and ``b``.
+        Return the kronecker product of two matrices ``a`` and ``b``.
 
         :param a: tensor in matrix form
         :type a: Tensor
@@ -143,18 +143,18 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def sizen(self: Any, a: Tensor) -> int:  # pylint: disable=unused-variable
         """
-        Return the total number of elements in ``a``, but in int form
+        Return the total number of elements in `a``, but in integer form.
 
         :param a: tensor
         :type a: Tensor
-        :return: [description]
+        :return: the total number of elements in `a``
         :rtype: int
         """
         return reduce(mul, list(a.shape) + [1])  # type: ignore
 
     def numpy(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
-        Return numpy array of tensor ``a``, may not work in jitted function.
+        Return the numpy array of a tensor ``a``, but may not work in a jitted function.
 
         :param a: tensor in matrix form
         :type a: Tensor
@@ -167,7 +167,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def real(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
-        Return elementwise real value of ``a``.
+        Return the elementwise real value of a tensor ``a``.
 
         :param a: tensor
         :type a: Tensor
@@ -180,7 +180,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def imag(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
-        Return elementwise imaginary value of ``a``.
+        Return the elementwise imaginary value of a tensor ``a``.
 
         :param a: tensor
         :type a: Tensor
@@ -193,7 +193,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def adjoint(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
-        conjugate and transpose of the tensor ``a``
+        Return the conjugate and transpose of a tensor ``a``
 
         :param a: Input tensor
         :type a: Tensor
@@ -204,7 +204,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def i(self: Any, dtype: str) -> Tensor:  # pylint: disable=unused-variable
         """
-        Return 1.j in as tensor comoatible with backend.
+        Return 1.j in as tensor compatible with backend.
 
         :param dtype: "complex64" or "complex128"
         :type dtype: str
@@ -217,11 +217,11 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def reshape2(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
-        Reshape a tensor to [2, 2, ...]
+        Reshape a tensor to the [2, 2, ...] form.
 
-        :param a: [description]
+        :param a: Input tensor
         :type a: Tensor
-        :return: [description]
+        :return: the reshaped tensor
         :rtype: Tensor
         """
         nleg = int(np.log2(self.sizen(a)))
@@ -230,11 +230,11 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def reshapem(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
-        Reshape a tensor to [l, l]
+        Reshape a tensor to the [l, l] form.
 
-        :param a: [description]
+        :param a: Input tensor
         :type a: Tensor
-        :return: [description]
+        :return: the reshaped tensor
         :rtype: Tensor
         """
         l = int(np.sqrt(self.sizen(a)))
@@ -429,7 +429,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def is_tensor(self: Any, a: Tensor) -> bool:  # pylint: disable=unused-variable
         """
-        Return boolean on whether ``a`` is a tensor in backend package.
+        Return a boolean on whether ``a`` is a tensor in backend package.
 
         :param a: a tensor to be determined
         :type a: Tensor
@@ -461,7 +461,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         self: Any, A: Tensor, b: Tensor, **kws: Any
     ) -> Tensor:
         """
-        Solve linear system Ax=b and return x
+        Solve the linear system Ax=b and return x
 
         :param A: The multiplied matrix.
         :type A: Tensor
