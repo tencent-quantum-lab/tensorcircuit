@@ -684,6 +684,11 @@ def test_vis_tex():
 def test_debug_contract():
     n = 10
     d = 4
+    try:
+        import cotengra  # pylint: disable=unused-import
+
+    except ImportError:
+        pytest.skip("cotengra is not installed")
 
     @tc.set_function_contractor(
         "custom_stateful",
