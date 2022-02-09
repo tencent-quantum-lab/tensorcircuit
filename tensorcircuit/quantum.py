@@ -1207,21 +1207,17 @@ def measurement_counts(
     state: Tensor, counts: int = 8192, sparse: bool = True
 ) -> Union[Tuple[Tensor, Tensor], Tensor]:
     """
-    Simulate measuring each qubit of ``p`` in the computational basis,
-    producing output like that of ``qiskit``.
-    Parameters
-    ----------
-    state : vector or operator
-        The quantum state, assumed to be normalized, as either a ket or density
-        operator.
-    C : int
-        The number of counts to perform.
-    phys_dim : int, optional
-        The assumed size of the subsystems of ``p``, defaults to 2 for qubits.
-    Returns
-    -------
-    results : Tuple[]
-        The counts for each bit string measured.
+    Simulate the measuring of each qubit of ``p`` in the computational basis,
+    thus producing output like that of ``qiskit``.
+
+    :param state: The quantum state, assumed to be normalized, as either a ket or density operator.
+    :type state: Tensor
+    :param counts: The number of counts to perform.
+    :type counts: int
+    :param sparse: Whether the matrix is sparse.
+    :type sparse: bool
+    :return: The counts for each bit string measured.
+    :rtype: Tuple[]
     """
     if len(state.shape) == 2:
         state /= backend.trace(state)
