@@ -1,0 +1,60 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, The TensorCircuit Authors
+# This file is distributed under the same license as the tensorcircuit
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: tensorcircuit \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-02-08 15:20+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../source/advance.rst:3
+msgid "Advance Usage"
+msgstr ""
+
+#: ../../source/advance.rst:6
+msgid "MPS simulator"
+msgstr ""
+
+#: ../../source/advance.rst:9
+msgid "Split two-qubit gates"
+msgstr ""
+
+#: ../../source/advance.rst:11
+msgid ""
+"The two-qubit gates applied on the circuit can be decomposed via SVD, "
+"which may further improve the optimality the contraction path finding."
+msgstr ""
+
+#: ../../source/advance.rst:13
+msgid "`split` configuration can be set in circuit level or gate level."
+msgstr ""
+
+#: ../../source/advance.rst:36
+msgid "SavedModel"
+msgstr ""
+
+#: ../../source/advance.rst:39
+msgid "Prameterized measurements"
+msgstr ""
+
+#: ../../source/advance.rst:42
+msgid "Randoms, jit, backend agnostic and their interplay"
+msgstr ""
+
+#: ../../source/advance.rst:85
+msgid ""
+"Therefore, a unified jittable random infrastructure with backend agnostic"
+" can be formulatted as"
+msgstr ""
+

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tensorcircuit \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-11 09:16+0800\n"
+"POT-Creation-Date: 2022-02-08 15:20+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,19 +22,23 @@ msgstr ""
 msgid "Guide to tensorcircuit"
 msgstr ""
 
-#: ../../source/index.rst:14
+#: ../../source/index.rst:13
+msgid "API References"
+msgstr ""
+
+#: ../../source/index.rst:22
 msgid "Indices and tables"
 msgstr ""
 
-#: ../../source/index.rst:16
+#: ../../source/index.rst:24
 msgid ":ref:`genindex`"
 msgstr ""
 
-#: ../../source/index.rst:17
+#: ../../source/index.rst:25
 msgid ":ref:`modindex`"
 msgstr ""
 
-#: ../../source/index.rst:18
+#: ../../source/index.rst:26
 msgid ":ref:`search`"
 msgstr ""
 
