@@ -468,12 +468,12 @@ class Circuit:
 
     def mid_measurement(self, index: int, keep: int = 0) -> None:
         """
-        middle measurement in z basis on the circuit, note the wavefunction output is not normalized
-        with ``mid_measurement`` involved, one should normalized the state manually if needed.
+        Middle measurement in z-basis on the circuit, note the wavefunction output is not normalized
+        with ``mid_measurement`` involved, one should normalize the state manually if needed.
 
         :param index: the index of qubit that the Z direction postselection applied on
         :type index: int
-        :param keep: 0 for spin up, 1 for spin down, defaults to 0
+        :param keep: 0 for spin up, 1 for spin down, defaults to be 0
         :type keep: int, optional
         """
         # normalization not guaranteed
@@ -789,16 +789,16 @@ class Circuit:
         amplified to unitary operators. For unitary operators composed Kraus channel, :py:meth:`unitary_kraus`
         is much faster.
 
-        This function is jittable in theory. But only jax+GPU combination is recommended for jit,
-        since the graph building time is too long for other backend options, though the running
+        This function is jittable in theory. But only jax+GPU combination is recommended for jit
+        since the graph building time is too long for other backend options; though the running
         time of the function is very fast for every case.
 
         :param kraus: list of ``tn.Node`` for Kraus operators
         :type kraus: Sequence[Gate]
         :param index: the qubits index that Kraus channel is applied on
         :type index: int
-        :param status: random tensor between 0 or 1, defaults to None,
-            the random number will generated automatically
+        :param status: random tensor between 0 or 1, defaults to be None,
+            the random number will be generated automatically
         :type status: Optional[float], optional
         """
         return self._general_kraus_2(kraus, *index, status=status)
@@ -807,9 +807,10 @@ class Circuit:
 
     def is_valid(self) -> bool:
         """
-        [WIP], check whether the circuit is legal
+        [WIP], check whether the circuit is legal.
 
-        :return:
+        :return: the bool indicating whether the circuit is legal
+        :rtype: bool
         """
         try:
             assert len(self._front) == self._nqubits
@@ -822,7 +823,7 @@ class Circuit:
 
     def _copy(self, conj: bool = False) -> Tuple[List[tn.Node], List[tn.Edge]]:
         """
-        Copy all nodes and dangling edges correspondingly
+        Copy all nodes and dangling edges correspondingly.
 
         :param conj: bool indicating whether the tensors for nodes should be conjugated
         :type conj: bool
@@ -840,8 +841,10 @@ class Circuit:
 
     def wavefunction(self, form: str = "default") -> tn.Node.tensor:
         """
-        Compute the output wavefunction from the circuit
+        Compute the output wavefunction from the circuit.
 
+        :param form: the str indicating the form of the output wavefunction
+        :type form: str, optional
         :return: Tensor with the corresponding shape
         :rtype: Tensor
         """
@@ -915,6 +918,7 @@ class Circuit:
         :param index: measure on which quantum line
         :param with_prob: if true, theoretical probability is also returned
         :return:
+        :rtype: Tuple[str, float]
         """
         # not jit compatible due to random number generations!
         sample = ""
@@ -960,8 +964,11 @@ class Circuit:
         """
 
         :param index: measure on which quantum line
+        :type index: int
         :param with_prob: if true, theoretical probability is also returned
+        :type with_prob: bool, optional
         :return:
+        :rtype: Tuple[Tensor, Tensor]
         """
         # finally jit compatible ! and much faster than unjit version ! (100x)
         sample: List[Tensor] = []
@@ -1008,6 +1015,7 @@ class Circuit:
         Reference: arXiv:1201.3974.
 
         :return: sampled bit string and the corresponding theoretical probability
+        :rtype: Tuple[str, float]
         """
         return self.measure_jit(*[i for i in range(self._nqubits)], with_prob=True)
 

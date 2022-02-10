@@ -135,7 +135,7 @@ def runtime_backend(backend: Optional[str] = None) -> Iterator[Any]:
 
 def set_dtype(dtype: Optional[str] = None, set_global: bool = True) -> Tuple[str, str]:
     """
-    To set the runtime numerical dtype of tensors
+    To set the runtime numerical dtype of tensors.
 
     :param dtype: "complex64" or "complex128", defaults to None, which is equivalent to "complex64".
     :type dtype: Optional[str], optional
