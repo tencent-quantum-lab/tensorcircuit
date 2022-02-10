@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tensorcircuit \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-08 15:20+0800\n"
+"POT-Creation-Date: 2022-02-10 16:18+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -225,12 +225,12 @@ msgstr ""
 #: tensorcircuit.circuit.Circuit.mid_measurement
 #: tensorcircuit.circuit.Circuit.replace_inputs
 #: tensorcircuit.circuit.Circuit.replace_mps_inputs
-#: tensorcircuit.circuit.expectation tensorcircuit.cons.get_contractor
-#: tensorcircuit.cons.get_dtype tensorcircuit.cons.plain_contractor
-#: tensorcircuit.cons.set_contractor tensorcircuit.cons.set_dtype
-#: tensorcircuit.cons.set_tensornetwork_backend tensorcircuit.gates.any_gate
-#: tensorcircuit.gates.bmatrix tensorcircuit.gates.cr_gate
-#: tensorcircuit.gates.exponential_gate
+#: tensorcircuit.circuit.Circuit.wavefunction tensorcircuit.circuit.expectation
+#: tensorcircuit.cons.get_contractor tensorcircuit.cons.get_dtype
+#: tensorcircuit.cons.plain_contractor tensorcircuit.cons.set_contractor
+#: tensorcircuit.cons.set_dtype tensorcircuit.cons.set_tensornetwork_backend
+#: tensorcircuit.gates.any_gate tensorcircuit.gates.bmatrix
+#: tensorcircuit.gates.cr_gate tensorcircuit.gates.exponential_gate
 #: tensorcircuit.gates.exponential_gate_unity tensorcircuit.gates.iswap_gate
 #: tensorcircuit.gates.matrix_for_gate tensorcircuit.gates.num_to_tensor
 #: tensorcircuit.gates.r_gate tensorcircuit.gates.rgate_theoretical
@@ -254,6 +254,7 @@ msgstr ""
 #: tensorcircuit.mpscircuit.MPSCircuit.position
 #: tensorcircuit.mpscircuit.MPSCircuit.proj_with_mps
 #: tensorcircuit.mpscircuit.MPSCircuit.set_truncation_rule
+#: tensorcircuit.mpscircuit.MPSCircuit.wavefunction
 #: tensorcircuit.mpscircuit.split_tensor
 #: tensorcircuit.quantum.QuAdjointVector.__init__
 #: tensorcircuit.quantum.QuAdjointVector.from_tensor
@@ -269,9 +270,12 @@ msgstr ""
 #: tensorcircuit.quantum.QuVector.from_tensor
 #: tensorcircuit.quantum.eliminate_identities tensorcircuit.quantum.entropy
 #: tensorcircuit.quantum.generate_local_hamiltonian
-#: tensorcircuit.quantum.identity tensorcircuit.quantum.quantum_constructor
+#: tensorcircuit.quantum.identity tensorcircuit.quantum.measurement_counts
+#: tensorcircuit.quantum.quantum_constructor
 #: tensorcircuit.quantum.reduced_density_matrix
-#: tensorcircuit.simplify.infer_new_shape tensorcircuit.templates.graphs.Line1D
+#: tensorcircuit.simplify.infer_new_shape
+#: tensorcircuit.simplify.pseudo_contract_between
+#: tensorcircuit.templates.graphs.Line1D
 #: tensorcircuit.templates.measurements.any_measurements
 #: tensorcircuit.templates.measurements.sparse_expectation
 #: tensorcircuit.utils.return_partial tensorcircuit.vis.render_pdf
@@ -506,9 +510,11 @@ msgstr ""
 #: tensorcircuit.quantum.QuVector.from_tensor
 #: tensorcircuit.quantum.eliminate_identities tensorcircuit.quantum.entropy
 #: tensorcircuit.quantum.generate_local_hamiltonian
-#: tensorcircuit.quantum.identity tensorcircuit.quantum.quantum_constructor
+#: tensorcircuit.quantum.identity tensorcircuit.quantum.measurement_counts
+#: tensorcircuit.quantum.quantum_constructor
 #: tensorcircuit.quantum.reduced_density_matrix
 #: tensorcircuit.quantum.trace_product tensorcircuit.simplify.infer_new_shape
+#: tensorcircuit.simplify.pseudo_contract_between
 #: tensorcircuit.templates.graphs.Line1D
 #: tensorcircuit.templates.measurements.any_measurements
 #: tensorcircuit.templates.measurements.sparse_expectation
@@ -692,6 +698,9 @@ msgstr ""
 #: tensorcircuit.channels.phasedampingchannel
 #: tensorcircuit.channels.resetchannel
 #: tensorcircuit.circuit.Circuit.expectation
+#: tensorcircuit.circuit.Circuit.is_valid tensorcircuit.circuit.Circuit.measure
+#: tensorcircuit.circuit.Circuit.measure_jit
+#: tensorcircuit.circuit.Circuit.perfect_sampling
 #: tensorcircuit.circuit.Circuit.wavefunction tensorcircuit.circuit.expectation
 #: tensorcircuit.cons.get_contractor tensorcircuit.cons.plain_contractor
 #: tensorcircuit.cons.set_contractor
@@ -727,9 +736,11 @@ msgstr ""
 #: tensorcircuit.quantum.QuVector.from_tensor
 #: tensorcircuit.quantum.eliminate_identities tensorcircuit.quantum.entropy
 #: tensorcircuit.quantum.generate_local_hamiltonian
-#: tensorcircuit.quantum.identity tensorcircuit.quantum.quantum_constructor
+#: tensorcircuit.quantum.identity tensorcircuit.quantum.measurement_counts
+#: tensorcircuit.quantum.quantum_constructor
 #: tensorcircuit.quantum.reduced_density_matrix
 #: tensorcircuit.quantum.trace_product tensorcircuit.simplify.infer_new_shape
+#: tensorcircuit.simplify.pseudo_contract_between
 #: tensorcircuit.templates.graphs.Line1D
 #: tensorcircuit.templates.measurements.any_measurements
 #: tensorcircuit.templates.measurements.sparse_expectation
@@ -954,10 +965,13 @@ msgstr ""
 #: tensorcircuit.quantum.reduced_density_matrix:3
 #: tensorcircuit.quantum.reduced_density_matrix:5
 #: tensorcircuit.quantum.reduced_density_matrix:9
+#: tensorcircuit.simplify.pseudo_contract_between:3
+#: tensorcircuit.simplify.pseudo_contract_between:5
+#: tensorcircuit.simplify.pseudo_contract_between:7
 #: tensorcircuit.templates.graphs.Line1D:3
 #: tensorcircuit.templates.graphs.Line1D:7
 #: tensorcircuit.templates.measurements.any_measurements:4
-#: tensorcircuit.templates.measurements.any_measurements:11
+#: tensorcircuit.templates.measurements.any_measurements:12
 #: tensorcircuit.templates.measurements.sparse_expectation:3
 msgid "[description]"
 msgstr ""
@@ -1086,14 +1100,10 @@ msgid "Tuple[int, ...]"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.copy:1
-#: tensorcircuit.backends.jax_backend.JaxBackend.expm:1
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.copy:1
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.expm:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.copy:1
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.expm:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.copy:1
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.expm:1
-msgid "Return expm of ``a``, matrix exponential."
+msgid "Return the expm of ``a``, matrix exponential."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.copy:3
@@ -1142,14 +1152,14 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.cos:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cos:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cos:1
-msgid "Return cos of ``a``."
+msgid "Return the cosine of a tensor ``a``."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.cos:5
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.cos:5
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cos:5
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cos:5
-msgid "cos of ``a``"
+msgid "cosine of ``a``"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.cumsum:1
@@ -1166,6 +1176,13 @@ msgstr ""
 msgid ""
 "The default behavior is the same as numpy, different from tf/torch as "
 "cumsum of the flattern 1D array, defaults to None"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.expm:1
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.expm:1
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.expm:1
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.expm:1
+msgid "Return the copy of tensor ''a''."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.eye:4
@@ -1242,7 +1259,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.i:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.i:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.i:1
-msgid "Return 1.j in as tensor comoatible with backend."
+msgid "Return 1.j in as a tensor compatible with the backend."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.i:3
@@ -1263,7 +1280,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.imag:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.imag:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.imag:1
-msgid "Return elementwise imaginary value of ``a``."
+msgid "Return the elementwise imaginary value of a tensor ``a``."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.imag:5
@@ -1342,7 +1359,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.is_tensor:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.is_tensor:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.is_tensor:1
-msgid "Return boolean on whether ``a`` is a tensor in backend package."
+msgid "Return a boolean on whether ``a`` is a tensor in backend package."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.is_tensor:3
@@ -1439,7 +1456,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.kron:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.kron:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.kron:1
-msgid "Return kronecker product of two matrix ``a`` and ``b``."
+msgid "Return the kronecker product of two matrices ``a`` and ``b``."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.kron:7
@@ -1480,7 +1497,9 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.numpy:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.numpy:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.numpy:1
-msgid "Return numpy array of tensor ``a``, may not work in jitted function."
+msgid ""
+"Return the numpy array of a tensor ``a``, but may not work in a jitted "
+"function."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.numpy:5
@@ -1556,7 +1575,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.real:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.real:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.real:1
-msgid "Return elementwise real value of ``a``."
+msgid "Return the elementwise real value of a tensor ``a``."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.real:5
@@ -1620,14 +1639,14 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.sin:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.sin:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.sin:1
-msgid "Return sin of ``a``."
+msgid "Return the  elementwise sine of a tensor ``a``."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.sin:5
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.sin:5
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.sin:5
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.sin:5
-msgid "sin of ``a``"
+msgid "sine of ``a``"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.size:1
@@ -1691,7 +1710,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.solve:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.solve:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.solve:1
-msgid "Solve linear system Ax=b and return x"
+msgid "Solve the linear system Ax=b and return x"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.solve:3
@@ -2148,6 +2167,7 @@ msgstr ""
 #: tensorcircuit.cons.set_tensornetwork_backend:5 tensorcircuit.gates.bmatrix:3
 #: tensorcircuit.gates.matrix_for_gate:3 tensorcircuit.gates.num_to_tensor:3
 #: tensorcircuit.keras.load_func:4 tensorcircuit.keras.save_func:3
+#: tensorcircuit.quantum.measurement_counts:4
 #: tensorcircuit.simplify.infer_new_shape:3
 #: tensorcircuit.utils.return_partial:4 tensorcircuit.vis.qir2tex:1
 #: tensorcircuit.vis.render_pdf:5
@@ -2746,8 +2766,8 @@ msgstr ""
 #: of tensorcircuit.circuit.Circuit.general_kraus:5
 msgid ""
 "This function is jittable in theory. But only jax+GPU combination is "
-"recommended for jit, since the graph building time is too long for other "
-"backend options, though the running time of the function is very fast for"
+"recommended for jit since the graph building time is too long for other "
+"backend options; though the running time of the function is very fast for"
 " every case."
 msgstr ""
 
@@ -2761,8 +2781,8 @@ msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.general_kraus:13
 msgid ""
-"random tensor between 0 or 1, defaults to None, the random number will "
-"generated automatically"
+"random tensor between 0 or 1, defaults to be None, the random number will"
+" be generated automatically"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.expectation:1
@@ -2786,7 +2806,11 @@ msgid "Tensor with one element"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.is_valid:1
-msgid "[WIP], check whether the circuit is legal"
+msgid "[WIP], check whether the circuit is legal."
+msgstr ""
+
+#: of tensorcircuit.circuit.Circuit.is_valid:3
+msgid "the bool indicating whether the circuit is legal"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.measure:1
@@ -2795,21 +2819,20 @@ msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.measure:16
 #: tensorcircuit.circuit.Circuit.measure_jit:1
-#: tensorcircuit.mpscircuit.MPSCircuit.measure:1
 msgid "measure on which quantum line"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.measure:17
-#: tensorcircuit.circuit.Circuit.measure_jit:2
+#: tensorcircuit.circuit.Circuit.measure_jit:3
 #: tensorcircuit.mpscircuit.MPSCircuit.measure:2
 msgid "if true, theoretical probability is also returned"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.mid_measurement:1
 msgid ""
-"middle measurement in z basis on the circuit, note the wavefunction "
+"Middle measurement in z-basis on the circuit, note the wavefunction "
 "output is not normalized with ``mid_measurement`` involved, one should "
-"normalized the state manually if needed."
+"normalize the state manually if needed."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.mid_measurement:4
@@ -2817,8 +2840,7 @@ msgid "the index of qubit that the Z direction postselection applied on"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.mid_measurement:6
-#: tensorcircuit.mpscircuit.MPSCircuit.mid_measurement:6
-msgid "0 for spin up, 1 for spin down, defaults to 0"
+msgid "0 for spin up, 1 for spin down, defaults to be 0"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.perfect_sampling:1
@@ -2844,10 +2866,16 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.wavefunction:1
-msgid "Compute the output wavefunction from the circuit"
+#: tensorcircuit.mpscircuit.MPSCircuit.wavefunction:1
+msgid "Compute the output wavefunction from the circuit."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.wavefunction:3
+#: tensorcircuit.mpscircuit.MPSCircuit.wavefunction:3
+msgid "the str indicating the form of the output wavefunction"
+msgstr ""
+
+#: of tensorcircuit.circuit.Circuit.wavefunction:5
 msgid "Tensor with the corresponding shape"
 msgstr ""
 
@@ -2873,9 +2901,7 @@ msgstr ""
 msgid "[description], defaults to True"
 msgstr ""
 
-#: of tensorcircuit.circuit.expectation:48
-#: tensorcircuit.templates.measurements.any_measurements:9
-#: tensorcircuit.vis.render_pdf:23
+#: of tensorcircuit.circuit.expectation:48 tensorcircuit.vis.render_pdf:23
 msgid "[description], defaults to False"
 msgstr ""
 
@@ -2929,7 +2955,7 @@ msgid "The new tensornetwork with its contractor set."
 msgstr ""
 
 #: of tensorcircuit.cons.get_dtype:1 tensorcircuit.cons.set_dtype:1
-msgid "To set the runtime numerical dtype of tensors"
+msgid "To set the runtime numerical dtype of tensors."
 msgstr ""
 
 #: of tensorcircuit.cons.get_dtype:3 tensorcircuit.cons.set_dtype:3
@@ -3430,25 +3456,28 @@ msgstr ""
 msgid "The center position of MPS, default to 0"
 msgstr ""
 
+#: of tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate:1
+msgid "Apply a general qubit gate on MPS."
+msgstr ""
+
 #: of tensorcircuit.mpscircuit.MPSCircuit.apply_adjacent_double_gate:4
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_double_gate:3
-#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate:1
+#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate:3
 msgid "The Gate to be applied"
 msgstr ""
 
-#: of tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate:4
-#: tensorcircuit.mpscircuit.MPSCircuit.apply_single_gate:5
+#: of tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate:6
 msgid "Qubit indices of the gate"
 msgstr ""
 
-#: of tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate:3
+#: of tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate:5
 msgid "\"MPS does not support application of gate on > 2 qubits.\""
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.apply_adjacent_double_gate:1
 msgid ""
 "Apply a double qubit gate on adjacent qubits of Matrix Product States "
-"(MPS), truncation rule is specified by `set_truncation_rule`."
+"(MPS). Truncation rule is specified by `set_truncation_rule`."
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.apply_adjacent_double_gate:6
@@ -3467,19 +3496,24 @@ msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.apply_double_gate:1
 msgid ""
-"Apply a double qubit gate on MPS, truncation rule is specified by "
+"Apply a double qubit gate on MPS. Truncation rule is specified by "
 "`set_truncation_rule`."
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.apply_single_gate:1
 msgid ""
-"Apply a single qubit gate on MPS, the gate must be unitary, no truncation"
-" is needed."
+"Apply a single qubit gate on MPS, and the gate must be unitary; no "
+"truncation is needed."
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.apply_single_gate:3
 #: tensorcircuit.mpscircuit.MPSCircuit.expectation_double_gates:3
 msgid "gate to be applied"
+msgstr ""
+
+#: of tensorcircuit.mpscircuit.MPSCircuit.apply_single_gate:5
+#: tensorcircuit.mpscircuit.MPSCircuit.expectation_single_gate:5
+msgid "Qubit index of the gate"
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.conj:1
@@ -3505,7 +3539,7 @@ msgid "The contructed MPS"
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.expectation_double_gates:1
-msgid "Compute expectation of the corresponding double qubit gate"
+msgid "Compute the expectation of the corresponding double qubit gate."
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.expectation_double_gates:5
@@ -3522,16 +3556,14 @@ msgstr ""
 msgid "Gate to be applied"
 msgstr ""
 
-#: of tensorcircuit.mpscircuit.MPSCircuit.expectation_single_gate:5
-msgid "Qubit index of the gate"
-msgstr ""
-
 #: of tensorcircuit.mpscircuit.MPSCircuit.expectation_single_gate:7
 msgid "The expectation of the corresponding single qubit gate"
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.expectation_two_gates_product:1
-msgid "Compute expectation of the direct product of the corresponding two gates"
+msgid ""
+"Compute the expectation of the direct product of the corresponding two "
+"gates."
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.expectation_two_gates_product:3
@@ -3610,15 +3642,23 @@ msgstr ""
 msgid "Whether the circuit is legal."
 msgstr ""
 
+#: of tensorcircuit.mpscircuit.MPSCircuit.measure:1
+msgid "integer indicating the measure on which quantum line"
+msgstr ""
+
 #: of tensorcircuit.mpscircuit.MPSCircuit.mid_measurement:1
 msgid ""
-"Middle measurement in z basis on the circuit, note the wavefunction "
+"Middle measurement in the z-basis on the circuit, note the wavefunction "
 "output is not normalized with ``mid_measurement`` involved, one should "
 "normalized the state manually if needed."
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.mid_measurement:4
 msgid "The index of qubit that the Z direction postselection applied on"
+msgstr ""
+
+#: of tensorcircuit.mpscircuit.MPSCircuit.mid_measurement:6
+msgid "0 for spin up, 1 for spin down, defaults to 0"
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.normalize:1
@@ -3652,11 +3692,7 @@ msgid ""
 " growing. For more details, refer to `split_tensor`."
 msgstr ""
 
-#: of tensorcircuit.mpscircuit.MPSCircuit.wavefunction:1
-msgid "Compute the output wavefunction from the circuit."
-msgstr ""
-
-#: of tensorcircuit.mpscircuit.MPSCircuit.wavefunction:3
+#: of tensorcircuit.mpscircuit.MPSCircuit.wavefunction:5
 msgid "Tensor with shape [1, -1]"
 msgstr ""
 
@@ -4015,7 +4051,7 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.quantum.entropy:1
-msgid "compute entropy from given density matrix ``rho``"
+msgid "Compute the entropy from the given density matrix ``rho``."
 msgstr ""
 
 #: of tensorcircuit.quantum.entropy:5
@@ -4051,50 +4087,28 @@ msgstr ""
 
 #: of tensorcircuit.quantum.measurement_counts:1
 msgid ""
-"Simulate measuring each qubit of ``p`` in the computational basis, "
-"producing output like that of ``qiskit``. Parameters ---------- state : "
-"vector or operator"
+"Simulate the measuring of each qubit of ``p`` in the computational basis,"
+" thus producing output like that of ``qiskit``."
 msgstr ""
 
-#: of tensorcircuit.quantum.measurement_counts:6
+#: of tensorcircuit.quantum.measurement_counts:14
 msgid ""
 "The quantum state, assumed to be normalized, as either a ket or density "
 "operator."
 msgstr ""
 
-#: of tensorcircuit.quantum.measurement_counts:8
-msgid "C"
-msgstr ""
-
-#: of
-msgid "int"
-msgstr ""
-
-#: of tensorcircuit.quantum.measurement_counts:9
+#: of tensorcircuit.quantum.measurement_counts:16
 msgid "The number of counts to perform."
 msgstr ""
 
-#: of tensorcircuit.quantum.measurement_counts:10
-msgid "phys_dim"
+#: of tensorcircuit.quantum.measurement_counts:18
+msgid ""
+"Defaults True. The bool indicating whether the return form is in the form"
+" of two array or one of the same length as the ``state`` (if "
+"``sparse=False``)."
 msgstr ""
 
-#: of
-msgid "int, optional"
-msgstr ""
-
-#: of tensorcircuit.quantum.measurement_counts:11
-msgid "The assumed size of the subsystems of ``p``, defaults to 2 for qubits."
-msgstr ""
-
-#: of tensorcircuit.quantum.measurement_counts:14
-msgid "results"
-msgstr ""
-
-#: of
-msgid "Tuple[]"
-msgstr ""
-
-#: of tensorcircuit.quantum.measurement_counts:15
+#: of tensorcircuit.quantum.measurement_counts:21
 msgid "The counts for each bit string measured."
 msgstr ""
 
@@ -4132,7 +4146,7 @@ msgid "Compute the reduced density matrix from quantum state ``state``."
 msgstr ""
 
 #: of tensorcircuit.quantum.trace_product:1
-msgid "Compute the following with several input ``o`` as tensor or ``QuOperator``"
+msgid "Compute the trace of several inputs ``o`` as tensor or ``QuOperator``."
 msgstr ""
 
 #: of tensorcircuit.quantum.trace_product:3
@@ -4173,6 +4187,12 @@ msgstr ""
 msgid "The new shape of the two nodes."
 msgstr ""
 
+#: of tensorcircuit.simplify.pseudo_contract_between:1
+msgid ""
+"Contract between Node ``a`` and ``b``, with correct shape only and no "
+"calculation"
+msgstr ""
+
 #: ../../source/modules.rst:155
 msgid "tensorcircuit.templates module"
 msgstr ""
@@ -4211,6 +4231,12 @@ msgstr ""
 msgid ""
 "parameter tensors determines what Pauli string to be measured, shape is "
 "[nwires, 4] if onehot is False."
+msgstr ""
+
+#: of tensorcircuit.templates.measurements.any_measurements:9
+msgid ""
+"[description], defaults to False. If set to be True, structures will "
+"first go through onehot procedure."
 msgstr ""
 
 #: of tensorcircuit.templates.measurements.sparse_expectation:5
@@ -4830,5 +4856,146 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "compute reduced density matrix from quantum state ``state``"
+#~ msgstr ""
+
+#~ msgid "Return expm of ``a``, matrix exponential."
+#~ msgstr ""
+
+#~ msgid "Return cos of ``a``."
+#~ msgstr ""
+
+#~ msgid "cos of ``a``"
+#~ msgstr ""
+
+#~ msgid "Return 1.j in as tensor comoatible with backend."
+#~ msgstr ""
+
+#~ msgid "Return elementwise imaginary value of ``a``."
+#~ msgstr ""
+
+#~ msgid "Return boolean on whether ``a`` is a tensor in backend package."
+#~ msgstr ""
+
+#~ msgid "Return kronecker product of two matrix ``a`` and ``b``."
+#~ msgstr ""
+
+#~ msgid "Return numpy array of tensor ``a``, may not work in jitted function."
+#~ msgstr ""
+
+#~ msgid "Return elementwise real value of ``a``."
+#~ msgstr ""
+
+#~ msgid "Return sin of ``a``."
+#~ msgstr ""
+
+#~ msgid "sin of ``a``"
+#~ msgstr ""
+
+#~ msgid "Solve linear system Ax=b and return x"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This function is jittable in theory. "
+#~ "But only jax+GPU combination is "
+#~ "recommended for jit, since the graph "
+#~ "building time is too long for "
+#~ "other backend options, though the "
+#~ "running time of the function is "
+#~ "very fast for every case."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "random tensor between 0 or 1, "
+#~ "defaults to None, the random number "
+#~ "will generated automatically"
+#~ msgstr ""
+
+#~ msgid "[WIP], check whether the circuit is legal"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "middle measurement in z basis on "
+#~ "the circuit, note the wavefunction "
+#~ "output is not normalized with "
+#~ "``mid_measurement`` involved, one should "
+#~ "normalized the state manually if needed."
+#~ msgstr ""
+
+#~ msgid "Compute the output wavefunction from the circuit"
+#~ msgstr ""
+
+#~ msgid "To set the runtime numerical dtype of tensors"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply a double qubit gate on "
+#~ "adjacent qubits of Matrix Product States"
+#~ " (MPS), truncation rule is specified "
+#~ "by `set_truncation_rule`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply a double qubit gate on MPS,"
+#~ " truncation rule is specified by "
+#~ "`set_truncation_rule`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply a single qubit gate on MPS,"
+#~ " the gate must be unitary, no "
+#~ "truncation is needed."
+#~ msgstr ""
+
+#~ msgid "Compute expectation of the corresponding double qubit gate"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Compute expectation of the direct "
+#~ "product of the corresponding two gates"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Middle measurement in z basis on "
+#~ "the circuit, note the wavefunction "
+#~ "output is not normalized with "
+#~ "``mid_measurement`` involved, one should "
+#~ "normalized the state manually if needed."
+#~ msgstr ""
+
+#~ msgid "compute entropy from given density matrix ``rho``"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Simulate measuring each qubit of ``p``"
+#~ " in the computational basis, producing "
+#~ "output like that of ``qiskit``. "
+#~ "Parameters ---------- state : vector or"
+#~ " operator"
+#~ msgstr ""
+
+#~ msgid "C"
+#~ msgstr ""
+
+#~ msgid "int"
+#~ msgstr ""
+
+#~ msgid "phys_dim"
+#~ msgstr ""
+
+#~ msgid "int, optional"
+#~ msgstr ""
+
+#~ msgid "The assumed size of the subsystems of ``p``, defaults to 2 for qubits."
+#~ msgstr ""
+
+#~ msgid "results"
+#~ msgstr ""
+
+#~ msgid "Tuple[]"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Compute the following with several input"
+#~ " ``o`` as tensor or ``QuOperator``"
 #~ msgstr ""
 

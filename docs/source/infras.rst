@@ -66,3 +66,17 @@ Overview of modules
 
     Recommend reading order -- only read the part of code you care about on your purpose. 
     If you want to get and overview of the codebase, please read ``tc.circuit`` following by ``tc.cons`` and ``tc.gates``.
+
+
+Relation between TensorCircuit and TensorNetwork
+---------------------------------------------------
+
+TensorCircuit has a strong relation with the `TensorNetwork package <https://github.com/google/TensorNetwork>`_ released by Google. Since TensorNetwork package has poor documentation and tutorials, most of the time, we need to delve into the codebase of TensorNetwork to figure out what happened. In other words, to read TensorCircuit codebase, one may have to frequently refer to TensorNetwork codebase.
+
+Inside TensorCircuit, we heavily utilize tensornetwork related APIs from TensorNetwork package and highly customized several modules from TensorNetwork by inheritance and rewriting:
+
+- We implement our own /backends from TensorNetwork's /backends by adding much more APIs and fixing lots of bugs in TensorNetwork's implementations on certain backends via monkey patching. (The upstream is inactive and not that responsive anyhow.)
+
+- We borrow TensorNetwork's code in /quantum to our ``tc.quantum`` module, since they has no ``__init__.py`` file to export these MPO and MPS related objects. Of course, we have made substantial improvements since then.
+
+- We borrow the TensorNetwork's code in /matrixproductstates as ``tc.mps_base`` for bug fixing and jit/AD compatibility, so that we have better support for our MPS based quantum circuit simulator.

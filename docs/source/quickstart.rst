@@ -126,7 +126,7 @@ The most common use case and the most typical programming paradigm for TensorCir
     params = K.implicit_randn([2, n])
     print(vagf(params, n))  # get the quantum loss and the gradient
 
-Also for a non-quantum simpler example (linear regression) demonstrating the backend agnostic feature, AD/jit/vmap usage and variational optimization loops, please refer to example scripts: `linear regression example <https://github.com/quclub/tensorcircuit-dev/blob/master/examples/universal_lr.py>`_.
+Also for a non-quantum simpler example (linear regression) demonstrating the backend agnostic feature, pytree support for variables, AD/jit/vmap usage and variational optimization loops, please refer to the example script: `linear regression example <https://github.com/quclub/tensorcircuit-dev/blob/master/examples/universal_lr.py>`_.
 This example might be more friendly to machine learning community since it is purely classical while also showcasing the main features and paradigms of tensorcircuit.
 
 If the users have no intension to maintain the application code in a backend agnostic fashion, the API for ML frameworks can be more freely used and interleaved with TensorCircuit API.
@@ -172,15 +172,20 @@ The related API design in TensorCircuit closely follows the functional programmi
 
 **AD support:**
 
-Gradients, vjps, jvps, natural gradients, Jacobians and Hessians
+Gradients, vjps, jvps, natural gradients, Jacobians and Hessians.
+AD is the base for all modern machine learning libraries.
+
 
 **JIT support:**
 
 Parameterized quantum circuit can run in a blink. Always use jit if the circuit will get evaluations multiple times, it greatly boost the simulation efficiency with two or three order time reduction. But also be caution, you need to be an expert on jit, otherwise the jitted function may return unexpected results or recompiling on every hit (wasting lots of time).
+To learn more about jit mechanism, one can refer to documentations or blogs on ``tf.function`` or ``jax.jit``, though these two still have subtle differences.
+
 
 **VMAP support:**
 
-inputs, parameters, measurements, circuit structures, Monte Carlo noise can all be parallelly evaluate
+Inputs, parameters, measurements, circuit structures, Monte Carlo noise can all be parallelly evaluate.
+To learn more about vmap mechanism, one can refer to documentations or blogs on ``tf.vectorized_map`` or ``jax.vmap``.
 
 
 Backend Agnosticism
