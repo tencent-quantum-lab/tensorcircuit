@@ -264,7 +264,9 @@ Some setup cases:
     # 3. state simulator like contractor provided by tensorcircuit, maybe better when there is ring topology for two-qubit gate layout
     tc.set_contractor("plain-experimental")
 
-For advanced configuration on cotengra contractor, please refer cotengra `doc <https://cotengra.readthedocs.io/en/latest/advanced.html>`__.
+For advanced configuration on cotengra contractor, please refer cotengra `doc <https://cotengra.readthedocs.io/en/latest/advanced.html>`__ and more fancy examples can be found at `contractor tutorial <https://github.com/quclub/tensorcircuit-tutorials/blob/master/tutorials/contractors.ipynb>`__.
+
+**Setup in function or context level**
 
 Besides global level setup, we can also setup the backend, the dtype and the contractor in function level or context manager level:
 

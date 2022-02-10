@@ -27,4 +27,6 @@ pytest-lazy-fixture
 black==21.9b0
 sphinx>=4.0
 sphinx-intl
+sphinx-copybutton
+furo
 pylint==2.11.1
