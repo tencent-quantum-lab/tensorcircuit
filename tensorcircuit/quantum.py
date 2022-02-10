@@ -1214,7 +1214,7 @@ def measurement_counts(
     :type state: Tensor
     :param counts: The number of counts to perform.
     :type counts: int
-    :param sparse: Whether the matrix is sparse.
+    :param sparse: The bool indicating whether the return form is sparse.
     :type sparse: bool
     :return: The counts for each bit string measured.
     :rtype: Tuple[]

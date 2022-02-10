@@ -45,7 +45,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def expm(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
-        Return the expm of ``a``, matrix exponential.
+        Return the copy of tensor ''a''.
 
         :param a: tensor in matrix form
         :type a: Tensor
@@ -72,7 +72,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def sin(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
-        Return the sine of a tensor ``a``.
+        Return the  elementwise sine of a tensor ``a``.
 
         :param a: tensor in matrix form
         :type a: Tensor
@@ -143,11 +143,11 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def sizen(self: Any, a: Tensor) -> int:  # pylint: disable=unused-variable
         """
-        Return the total number of elements in `a``, but in integer form.
+        Return the total number of elements in tensor ``a``, but in integer form.
 
         :param a: tensor
         :type a: Tensor
-        :return: the total number of elements in `a``
+        :return: the total number of elements in tensor ``a``
         :rtype: int
         """
         return reduce(mul, list(a.shape) + [1])  # type: ignore
@@ -204,7 +204,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def i(self: Any, dtype: str) -> Tensor:  # pylint: disable=unused-variable
         """
-        Return 1.j in as tensor compatible with backend.
+        Return 1.j in as a tensor compatible with the backend.
 
         :param dtype: "complex64" or "complex128"
         :type dtype: str
@@ -217,7 +217,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def reshape2(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
-        Reshape a tensor to the [2, 2, ...] form.
+        Reshape a tensor to the [2, 2, ...] shape.
 
         :param a: Input tensor
         :type a: Tensor
@@ -230,7 +230,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def reshapem(self: Any, a: Tensor) -> Tensor:  # pylint: disable=unused-variable
         """
-        Reshape a tensor to the [l, l] form.
+        Reshape a tensor to the [l, l] shape.
 
         :param a: Input tensor
         :type a: Tensor
