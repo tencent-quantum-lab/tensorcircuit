@@ -126,6 +126,9 @@ The most common use case and the most typical programming paradigm for TensorCir
     params = K.implicit_randn([2, n])
     print(vagf(params, n))  # get the quantum loss and the gradient
 
+Also for a non-quantum simpler example (linear regression) demonstrating the backend agnostic feature, AD/jit/vmap usage and variational optimization loops, please refer to example scripts: `linear regression example <https://github.com/quclub/tensorcircuit-dev/blob/master/examples/universal_lr.py>`_.
+This example might be more friendly to machine learning community since it is purely classical while also showcasing the main features and paradigms of tensorcircuit.
+
 If the users have no intension to maintain the application code in a backend agnostic fashion, the API for ML frameworks can be more freely used and interleaved with TensorCircuit API.
 
 .. code-block:: python
