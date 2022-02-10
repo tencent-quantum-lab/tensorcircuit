@@ -90,8 +90,8 @@ The IR is given as a list, each element is a dict containing information on one 
 .. code-block:: python
 
     >>> c = tc.Circuit(2)
-    >>> c.cnot(0,1)
-    >>> c.crx(1,0, theta=0.2)
+    >>> c.cnot(0, 1)
+    >>> c.crx(1, 0, theta=0.2)
     >>> c.to_qir()
     [{'gate': cnot, 'index': (0, 1), 'name': 'cnot', 'split': None}, {'gate': crx, 'index': (1, 0), 'name': 'crx', 'split': None, 'parameters': {'theta': 0.2}}]
 
