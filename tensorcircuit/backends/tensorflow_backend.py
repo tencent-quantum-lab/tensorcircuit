@@ -112,27 +112,32 @@ def _qr_tf(
     pivot_axis: int = -1,
     non_negative_diagonal: bool = False,
 ) -> Tuple[Tensor, Tensor]:
-    """Computes the QR decomposition of a tensor.
+    """
+    Computes the QR decomposition of a tensor.
     The QR decomposition is performed by treating the tensor as a matrix,
     with an effective left (row) index resulting from combining the
     axes `tensor.shape[:pivot_axis]` and an effective right (column)
     index resulting from combining the axes `tensor.shape[pivot_axis:]`.
-    For example, if `tensor` had a shape (2, 3, 4, 5) and `pivot_axis` was 2,
+
+    Example:
+
+    If `tensor` had a shape (2, 3, 4, 5) and `pivot_axis` was 2,
     then `q` would have shape (2, 3, 6), and `r` would
     have shape (6, 4, 5).
     The output consists of two tensors `Q, R` such that:
-    ```python
-      Q[i1,...,iN, j] * R[j, k1,...,kM] == tensor[i1,...,iN, k1,...,kM]
-    ```
+
+    Q[i1,...,iN, j] * R[j, k1,...,kM] == tensor[i1,...,iN, k1,...,kM]
+
     Note that the output ordering matches numpy.linalg.svd rather than tf.svd.
-    Args:
-      tf: The tensorflow module.
-      tensor: A tensor to be decomposed.
-      pivot_axis: Where to split the tensor's axes before flattening into a
-        matrix.
-    Returns:
-      Q: Left tensor factor.
-      R: Right tensor factor.
+
+    :param tensor: A tensor to be decomposed.
+    :type tensor: Tensor
+    :param pivot_axis: Where to split the tensor's axes before flattening into a matrix.
+    :type pivot_axis: int, optional
+    :param non_negative_diagonal: a bool indicating whether the tenor is diagonal non-negative matrix.
+    :type non_negative_diagonal: bool, optional
+    :returns: Q, the left tensor factor, and R, the right tensor factor.
+    :rtype: Tuple[Tensor, Tensor]
     """
     from .tf_ops import tfqr
 
@@ -157,27 +162,32 @@ def _rq_tf(
     pivot_axis: int = 1,
     non_negative_diagonal: bool = False,
 ) -> Tuple[Tensor, Tensor]:
-    """Computes the RQ decomposition of a tensor.
+    """
+    Computes the RQ decomposition of a tensor.
     The QR decomposition is performed by treating the tensor as a matrix,
     with an effective left (row) index resulting from combining the axes
     `tensor.shape[:pivot_axis]` and an effective right (column) index
     resulting from combining the axes `tensor.shape[pivot_axis:]`.
-    For example, if `tensor` had a shape (2, 3, 4, 5) and `pivot_axis` was 2,
+
+    Example:
+
+    If `tensor` had a shape (2, 3, 4, 5) and `pivot_axis` was 2,
     then `r` would have shape (2, 3, 6), and `q` would
     have shape (6, 4, 5).
     The output consists of two tensors `Q, R` such that:
-    ```python
-      Q[i1,...,iN, j] * R[j, k1,...,kM] == tensor[i1,...,iN, k1,...,kM]
-    ```
+
+    Q[i1,...,iN, j] * R[j, k1,...,kM] == tensor[i1,...,iN, k1,...,kM]
+
     Note that the output ordering matches numpy.linalg.svd rather than tf.svd.
-    Args:
-      tf: The tensorflow module.
-      tensor: A tensor to be decomposed.
-      pivot_axis: Where to split the tensor's axes before flattening into a
-        matrix.
-    Returns:
-      Q: Left tensor factor.
-      R: Right tensor factor.
+
+    :param tensor: A tensor to be decomposed.
+    :type tensor: Tensor
+    :param pivot_axis: Where to split the tensor's axes before flattening into a matrix.
+    :type pivot_axis: int, optional
+    :param non_negative_diagonal: a bool indicating whether the tenor is diagonal non-negative matrix.
+    :type non_negative_diagonal: bool, optional
+    :returns: Q, the left tensor factor, and R, the right tensor factor.
+    :rtype: Tuple[Tensor, Tensor]
     """
     from .tf_ops import tfqr
 
