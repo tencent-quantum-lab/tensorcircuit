@@ -6,6 +6,7 @@ Guide to tensorcircuit
 
    quickstart.rst
    advance.rst
+   infras.rst
    contribution.rst
    
 

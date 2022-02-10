@@ -167,11 +167,17 @@ For the concepts of AD, JIT and VMAP, please refer to `Jax documentation <https:
 
 The related API design in TensorCircuit closely follows the functional programming design pattern in Jax with some slight differences. So we strongly recommend the users to learn some basics about Jax no matter which ML backend they intend to use.
 
-- AD support: gradients, vjps, jvps, natural gradients, Jacobians and Hessians
+**AD support:**
 
-- JIT support: parameterized quantum circuit can run in a blink
+gradients, vjps, jvps, natural gradients, Jacobians and Hessians
 
-- VMAP support: inputs, parameters, measurements, circuit structures, Monte Carlo noise can all be parallelly evaluate
+**JIT support:**
+
+parameterized quantum circuit can run in a blink. Always use jit if the circuit will get evaluations multiple times, it greatly boost the simulation efficiency with two or three order time reduction. But also be caution, you need to be an expert on jit, otherwise the jitted function may return unexpected results or recompiling on every hit (wasting lots of time).
+
+**VMAP support:**
+
+inputs, parameters, measurements, circuit structures, Monte Carlo noise can all be parallelly evaluate
 
 
 Backend Agnosticism
