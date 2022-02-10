@@ -169,11 +169,11 @@ The related API design in TensorCircuit closely follows the functional programmi
 
 **AD support:**
 
-gradients, vjps, jvps, natural gradients, Jacobians and Hessians
+Gradients, vjps, jvps, natural gradients, Jacobians and Hessians
 
 **JIT support:**
 
-parameterized quantum circuit can run in a blink. Always use jit if the circuit will get evaluations multiple times, it greatly boost the simulation efficiency with two or three order time reduction. But also be caution, you need to be an expert on jit, otherwise the jitted function may return unexpected results or recompiling on every hit (wasting lots of time).
+Parameterized quantum circuit can run in a blink. Always use jit if the circuit will get evaluations multiple times, it greatly boost the simulation efficiency with two or three order time reduction. But also be caution, you need to be an expert on jit, otherwise the jitted function may return unexpected results or recompiling on every hit (wasting lots of time).
 
 **VMAP support:**
 

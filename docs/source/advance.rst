@@ -31,6 +31,8 @@ The two-qubit gates applied on the circuit can be decomposed via SVD, which may 
             split=split_conf
         )
 
+Note ``max_singular_values`` must be specified to make the whole procedure static and thus jittable.
+
 
 SavedModel
 -----------------
