@@ -1,5 +1,5 @@
 ================
-Advance Usage
+Advanced Usage
 ================
 
 MPS simulator
@@ -35,7 +35,7 @@ The two-qubit gates applied on the circuit can be decomposed via SVD, which may 
 SavedModel
 -----------------
 
-Prameterized measurements
+Parameterized measurements
 -----------------------------
 
 Randoms, jit, backend agnostic and their interplay

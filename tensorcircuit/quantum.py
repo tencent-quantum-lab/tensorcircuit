@@ -1210,11 +1210,22 @@ def measurement_counts(
     Simulate the measuring of each qubit of ``p`` in the computational basis,
     thus producing output like that of ``qiskit``.
 
+    Example:
+
+    >>> tc.quantum.measurement_counts(np.ones([2**6])/2**3, counts=16, sparse=True)
+    (array([ 4,  7, 13, 19, 21, 33, 36, 41, 42, 45, 49, 50, 54, 56]),
+     array([1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1]))
+    >>> tc.quantum.measurement_counts(np.ones([2**6])/2**3, counts=16, sparse=False)
+    array([0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+       0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 1, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 1,
+       0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0])
+
     :param state: The quantum state, assumed to be normalized, as either a ket or density operator.
     :type state: Tensor
     :param counts: The number of counts to perform.
     :type counts: int
-    :param sparse: The bool indicating whether the return form is sparse.
+    :param sparse: Defaults True. The bool indicating whether
+        the return form is in the form of two array or one of the same length as the ``state`` (if ``sparse=False``).
     :type sparse: bool
     :return: The counts for each bit string measured.
     :rtype: Tuple[]

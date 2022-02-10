@@ -23,7 +23,8 @@ def any_measurements(c: Circuit, structures: Tensor, onehot: bool = False) -> Te
     :param structures: parameter tensors determines what Pauli string to be measured,
         shape is [nwires, 4] if onehot is False.
     :type structures: Tensor
-    :param onehot: [description], defaults to False
+    :param onehot: [description], defaults to False. If set to be True,
+        structures will first go through onehot procedure.
     :type onehot: bool, optional
     :return: [description]
     :rtype: Tensor
@@ -53,6 +54,9 @@ def any_measurements(c: Circuit, structures: Tensor, onehot: bool = False) -> Te
     loss = c.expectation(*obs, reuse=False)  # type: ignore
     # TODO(@refraction-ray): is reuse=True in this setup has user case?
     return backend.real(loss)
+
+
+parameterized_measurements = any_measurements
 
 
 def sparse_expectation(c: Circuit, hamiltonian: Tensor) -> Tensor:
