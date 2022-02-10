@@ -226,11 +226,11 @@ class MPSCircuit:
 
     def apply_single_gate(self, gate: Gate, index: int) -> None:
         """
-        Apply a single qubit gate on MPS, the gate must be unitary, no truncation is needed.
+        Apply a single qubit gate on MPS, and the gate must be unitary; no truncation is needed.
 
         :param gate: gate to be applied
         :type gate: Gate
-        :param index: Qubit indices of the gate
+        :param index: Qubit index of the gate
         :type index: int
         """
         self._mps.apply_one_site_gate(gate.tensor, index)
@@ -243,8 +243,8 @@ class MPSCircuit:
         center_position: Optional[int] = None,
     ) -> None:
         """
-        Apply a double qubit gate on adjacent qubits of Matrix Product States (MPS),
-        truncation rule is specified by `set_truncation_rule`.
+        Apply a double qubit gate on adjacent qubits of Matrix Product States (MPS).
+        Truncation rule is specified by `set_truncation_rule`.
 
         :param gate: The Gate to be applied
         :type gate: Gate
@@ -283,7 +283,7 @@ class MPSCircuit:
         index2: int,
     ) -> None:
         """
-        Apply a double qubit gate on MPS, truncation rule is specified by `set_truncation_rule`.
+        Apply a double qubit gate on MPS. Truncation rule is specified by `set_truncation_rule`.
 
         :param gate: The Gate to be applied
         :type gate: Gate
@@ -324,6 +324,8 @@ class MPSCircuit:
 
     def apply_general_gate(self, gate: Gate, *index: int) -> None:
         """
+        Apply a general qubit gate on MPS.
+
         :param gate: The Gate to be applied
         :type gate: Gate
         :raises ValueError: "MPS does not support application of gate on > 2 qubits."
@@ -363,7 +365,7 @@ class MPSCircuit:
 
     def mid_measurement(self, index: int, keep: int = 0) -> None:
         """
-        Middle measurement in z basis on the circuit, note the wavefunction output is not normalized
+        Middle measurement in the z-basis on the circuit, note the wavefunction output is not normalized
         with ``mid_measurement`` involved, one should normalized the state manually if needed.
 
         :param index: The index of qubit that the Z direction postselection applied on
@@ -436,6 +438,8 @@ class MPSCircuit:
         """
         Compute the output wavefunction from the circuit.
 
+        :param form: the str indicating the form of the output wavefunction
+        :type form: str, optional
         :return: Tensor with shape [1, -1]
         :rtype: Tensor
         """
@@ -517,7 +521,7 @@ class MPSCircuit:
 
     def measure(self, *index: int, with_prob: bool = False) -> Tuple[str, float]:
         """
-        :param index: measure on which quantum line
+        :param index: integer indicating the measure on which quantum line
         :param with_prob: if true, theoretical probability is also returned
         :return:
         """
@@ -633,7 +637,7 @@ class MPSCircuit:
     ) -> Tensor:
         # TODO@(SUSYUSTC): Could be more efficient by representing distant double gates as MPO
         """
-        Compute expectation of the corresponding double qubit gate
+        Compute the expectation of the corresponding double qubit gate.
 
         :param gate: gate to be applied
         :type gate: Gate
@@ -650,7 +654,7 @@ class MPSCircuit:
         self, gate1: Gate, gate2: Gate, site1: int, site2: int
     ) -> Tensor:
         """
-        Compute expectation of the direct product of the corresponding two gates
+        Compute the expectation of the direct product of the corresponding two gates.
 
         :param gate1: First gate to be applied
         :type gate1: Gate
