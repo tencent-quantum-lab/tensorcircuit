@@ -409,7 +409,8 @@ class QuOperator:
         return quantum_constructor(out_edges, in_edges, ref_nodes, ignore_edges)
 
     def __matmul__(self, other: Union["QuOperator", Tensor]) -> "QuOperator":
-        """The action of this operator on another.
+        """
+        The action of this operator on another.
         Given `QuOperator`s `A` and `B`, produces a new `QuOperator` for `A @ B`,
         where `A @ B` means: "the action of A, as a linear operator, on B".
         Under the hood, this produces copies of the tensor networks defining `A`
@@ -445,7 +446,8 @@ class QuOperator:
         return self.__matmul__(other)
 
     def __mul__(self, other: Union["QuOperator", AbstractNode, Tensor]) -> "QuOperator":
-        """Scalar multiplication of operators.
+        """
+        Scalar multiplication of operators.
         Given two operators `A` and `B`, one of the which is a scalar (it has no
         input or output edges), `A * B` produces a new operator representing the
         scalar multiplication of `A` and `B`.
@@ -476,7 +478,8 @@ class QuOperator:
     def __rmul__(
         self, other: Union["QuOperator", AbstractNode, Tensor]
     ) -> "QuOperator":
-        """Scalar multiplication of operators.
+        """
+        Scalar multiplication of operators.
         See `.__mul__()`.
         """
         return self.__mul__(other)
@@ -687,13 +690,13 @@ class QuAdjointVector(QuOperator):
         Construct a `QuAdjointVector` directly from a single tensor.
         This first wraps the tensor in a `Node`, then constructs the `QuAdjointVector` from that `Node`.
 
-        :param tensor: The tensor for consturcting an QuAdjointVector.
+        :param tensor: The tensor for constructing an QuAdjointVector.
         :type tensor: Tensor
         :param subsystem_axes: Sequence of integer indices specifying the order in which
             to interpret the axes as subsystems (input edges). If not specified,
             the axes are taken in ascending order.
         :type subsystem_axes: Optional[Sequence[int]], optional
-        :return: The new construted QuAdjointVector give from the given tensor.
+        :return: The new constructed QuAdjointVector give from the given tensor.
         :rtype: QuAdjointVector
         """
         n = Node(tensor)
@@ -758,8 +761,8 @@ def generate_local_hamiltonian(
     *hlist: Sequence[Tensor], matrix_form: bool = True
 ) -> Union[QuOperator, Tensor]:
     """
-    Note: further jit is recommended,
-    for large Hilbert space, sparse Hamiltonian is recommended
+    Note: further jit is recommended.
+    For large Hilbert space, sparse Hamiltonian is recommended
 
     :param hlist: [description]
     :type hlist: Sequence[Tensor]
@@ -1003,7 +1006,7 @@ def trace_product(*o: Union[Tensor, QuOperator]) -> Tensor:
 
         \\mathrm{Tr}(\\prod_i O_i)
 
-    :return: a scalar
+    :return: the trace of several inputs
     :rtype: Tensor
     """
     prod = reduce(matmul, o)
@@ -1018,7 +1021,7 @@ def reduced_density_matrix(
     p: Optional[Tensor] = None,
 ) -> Union[Tensor, QuOperator]:
     """
-    Compute the reduced density matrix from quantum state ``state``.
+    Compute the reduced density matrix from the quantum state ``state``.
 
     :param state: [description]
     :type state: Tensor

@@ -464,7 +464,7 @@ class MPSCircuit:
         """
         Copy the current MPS without the tensors.
 
-        :return: The contructed MPS
+        :return: The constructed MPS
         :rtype: MPSCircuit
         """
         result: "MPSCircuit" = MPSCircuit.__new__(MPSCircuit)
