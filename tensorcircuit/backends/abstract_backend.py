@@ -522,7 +522,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         :param seed: int, defaults to be None
         :type seed: Optional[int], optional
         :param get_only:
-        :type get_only: bool, optional
+        :type get_only: bool, defaults to False
         """
         raise NotImplementedError(
             "Backend '{}' has not implemented `set_random_state`.".format(self.name)
