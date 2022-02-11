@@ -1,50 +1,68 @@
 Guide for contributors
 ============================
 
-We welcome everyone’s contributions. The development of tensorcircuit are open-sourced and centered on GitHub.
+We welcome everyone’s contributions. The development of tensorcircuit are open-sourced and centered on `GitHub <https://github.com/quclub/tensorcircuit-dev>`_.
 
 There are various ways to contribute:
 
-* Answering questions on tensorcircuit’s discussions page or issue page.
+* Answering questions on the discussions page or issue page.
 
-* Rasing issues such as bug report or feature request on tensorcircuit's issue page.
+* Raising issues such as bug report or feature request on the issue page.
 
-* Improving tensorcircuit's documentation (docstrings/tutorials) by pull requests.
+* Improving the documentation (docstrings/tutorials) by pull requests.
 
-* Contributing to tensorcircuit's codebase by pull requests.
+* Contributing to the codebase by pull requests.
 
 
 
 Pull Request Guidelines
 -------------------------------
 
-We welcome pull requests from everyone. But for large PRs related to feature enhencement or API changes, we ask that you first open a GitHub issue to discuss on your proposals.
+We welcome pull requests from everyone. For large PRs involving feature enhancement or API changes, we ask that you first open a GitHub issue to discuss on your proposal.
 
-We develop tensorcircuit using git on GitHub, so basic knowledge on git and GitHub is assumed.
+The following git workflow is recommended for contribution by PR:
 
-The following git workflow is recommended to contribute by PR:
+* Configure your git username and email so that they match your GitHub account, if you haven't.
 
-* Fork the tensorcircuit GitHub repository by clicking the Fork button from GitHub. This will create a fork version of the code repository in your own GitHub account.
+.. code-block:: bash
 
-* Configure the python environment locally for development. ``pip install -r requirements.txt`` and ``pip install -r requirements-dev.txt`` are recommended. Extra packages may be required for specific development tasks.
+    git config user.name <GitHub name>
+    git config user.email <GitHub email>
 
-* Clone your fork repository locally and setup upstreams to the official tensorcircuit repository. And configure your git user and email so that they match your GitHub account if you haven't.
+* Fork the tensorcircuit repository by clicking the Fork button on GitHub. This will create an independent version of the codebase in your own GitHub account.
+
+* Clone your forked repository and set up an ``upstream`` reference to the official tensorcircuit repository.
 
 .. code-block:: bash
 
     git clone <your-forked-repo-git-link>
     cd tensorcircuit
-    git remote add upstream <offical-repo-git-link>
-    git config user.name <GitHub name>
-    git config user.email <GitHub email>
+    git remote add upstream <official-repo-git-link>
 
-* Pip installing your fork from source. This allows you to modify the code locally and immediately test it out, ``python setup.py develop``
+* Configure the python environment locally for development. The following commands are recommended:
 
-* Create a feature branch where you will develop from, don't open PR from your master/main branch, ``git checkout -b name-of-change``.
+.. code-block:: bash
 
-* Make sure the changes can pass all checks by running: ``./check_all.sh``. (See details for :ref:`Checks` section below)
+    pip install -r requirements.txt
+    pip install -r requirements-dev.txt
 
-* Once you are satisfied with your change, create a commit as follows:
+Extra packages may be required for specific development tasks.
+
+* Pip installing your fork from source. This allows you to modify the code locally and immediately test it out.
+
+.. code-block:: bash
+
+    python setup.py develop
+
+* Create a feature branch where you can make modifications and developments. DON'T open PR from your master/main branch.
+
+.. code-block:: bash
+
+    git checkout -b <name-of-change>
+
+* Make sure your changes can pass all checks by running: ``./check_all.sh``. (See the :ref:`Checks` section below for details)
+
+* Once you are satisfied with your changes, create a commit as follows:
 
 .. code-block:: bash
 
@@ -56,18 +74,21 @@ The following git workflow is recommended to contribute by PR:
 .. code-block:: bash
 
     git fetch upstream
-    git rebase upstream/master
-    # resolve conflicts if any
+    git rebase upstream/master      # resolve conflicts if any
 
 * Note that PRs typically comprise a single git commit, you should squash all you commits in the feature branch. Using ``git rebase -i`` for commits squash, see `instructions <https://www.internalpointers.com/post/squash-commits-into-one-git>`_
 
-* Finally, push your commit from your feature branch and create a remote branch in your forked repository on GitHub that you can use to create a pull request from: ``git push --set-upstream origin name-of-change``.
+* Push your commit from your feature branch. This will create a remote branch in your forked repository on GitHub, from which you will raise a PR.
 
-* Create a pull request from official tensorcircuit repository and send it for review. Some comments and remarks attached with the PR are recommended. If the PR is not finally finished, please add [WIP] at the begining of the title of your PR.
+.. code-block:: bash
 
-* The PRs will be reviewed by developers of tensorcircuit and it will get approved or change requested. In the latter case, you can further revise the PR according to suggestions and feedbacks from the code reviewers.
+  git push --set-upstream origin <name-of-change>
 
-* The PRs you opened can be automatically updated once you further push commits to your forked repository. Please ping the code reviewer in the PR dialogue once you finished the change.
+* Create a PR from the official tensorcircuit repository and send it for review. Some comments and remarks attached with the PR are recommended. If the PR is not finally finished, please add [WIP] at the beginning of the title of your PR.
+
+* The PR will be reviewed by the developers and may get approved or change requested. In the latter case, you can further revise the PR according to suggestions and feedbacks from the code reviewers.
+
+* The PR you opened can be automatically updated once you further push commits to your forked repository. Please remember to ping the code reviewers in the PR conversation soon.
 
 * Please always include new docs and tests for your PR if possible and record your changes on CHANGELOG.
 
