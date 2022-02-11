@@ -1053,7 +1053,7 @@ class Circuit:
         self, *ops: Tuple[tn.Node, List[int]], reuse: bool = True
     ) -> Tensor:
         """
-        Compute expectation of corresponding operators
+        Compute the expectation of corresponding operators.
 
         Example:
 
@@ -1066,7 +1066,7 @@ class Circuit:
             eg. ``(tc.gates.z(), [1, ]), (tc.gates.x(), [2, ])`` is for operator :math:`Z_1X_2`
         :type ops: Tuple[tn.Node, List[int]]
         :param reuse: if True, then the wavefunction tensor is cached for further expectation evaluation,
-            defaults to True
+            defaults to be true
         :type reuse: bool, optional
         :raises ValueError: [description]
         :return: Tensor with one element

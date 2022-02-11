@@ -200,7 +200,7 @@ def runtime_dtype(dtype: Optional[str] = None) -> Iterator[Tuple[str, str]]:
 
 
 def _multi_remove(elems: List[Any], indices: List[int]) -> List[Any]:
-    """Remove multiple indicies in a list for one time."""
+    """Remove multiple indices from a list for one time."""
     return [i for j, i in enumerate(elems) if j not in indices]
 
 
@@ -304,11 +304,11 @@ def plain_contractor(
     ignore_edge_order: bool = False,
 ) -> Any:
     """
-    The naive statevector simulator contraction path.
+    The naive state-vector simulator contraction path.
 
     :param nodes: The list of ``tn.Node``.
     :type nodes: List[Any]
-    :param output_edge_order: The list of dangling node edges, defaults to None.
+    :param output_edge_order: The list of dangling node edges, defaults to be None.
     :type output_edge_order: Optional[List[Any]], optional
     :return: The ``tn.Node`` after contraction
     :rtype: tn.Node
