@@ -1,6 +1,5 @@
-tensorcircuit.applications.layers module
+tensorcircuit.applications.layers
 ==================================================
-
 .. automodule:: tensorcircuit.applications.layers
     :members:
     :undoc-members:

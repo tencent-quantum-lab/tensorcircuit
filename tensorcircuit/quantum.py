@@ -1,5 +1,5 @@
 """
-quantum state and operator class backend by tensornetwork
+Quantum state and operator class backend by tensornetwork
 """
 # pylint: disable=invalid-name
 
@@ -299,11 +299,34 @@ class QuOperator:
         out_axes: Optional[Sequence[int]] = None,
         in_axes: Optional[Sequence[int]] = None,
     ) -> "QuOperator":
-        """
+        r"""
         Construct a `QuOperator` directly from a single tensor.
         This first wraps the tensor in a `Node`, then constructs the `QuOperator`
         from that `Node`.
 
+        Example:
+        
+        .. code-block:: python
+
+            def show_attributes(op):
+                print(f"op.is_scalar() \t\t-> {op.is_scalar()}")
+                print(f"op.is_vector() \t\t-> {op.is_vector()}")
+                print(f"op.is_adjoint_vector() \t-> {op.is_adjoint_vector()}")
+                print(f"op.eval() \n{op.eval()}")
+            
+        >>> psi_tensor = np.random.rand(2, 2)
+        >>> psi_tensor
+        array([[0.27260127, 0.91401091],
+            [0.06490953, 0.38653646]])
+        >>> op = qu.QuOperator.from_tensor(psi_tensor, [0], [1])
+        >>> show_attributes(op)
+        op.is_scalar()          -> False
+        op.is_vector()          -> False
+        op.is_adjoint_vector()  -> False
+        op.eval()
+        [[0.27260127 0.91401091]
+        [0.06490953 0.38653646]]
+        
         :param tensor: The tensor.
         :type tensor: tensor
         :param out_axes: The axis indices of `tensor` to use as `out_edges`.
@@ -683,11 +706,34 @@ class QuVector(QuOperator):
         tensor: Tensor,
         subsystem_axes: Optional[Sequence[int]] = None,
     ) -> "QuVector":
-        """
+        r"""
         Construct a `QuVector` directly from a single tensor.
         This first wraps the tensor in a `Node`, then constructs the `QuVector`
         from that `Node`.
 
+        Example:
+        
+        .. code-block:: python
+
+            def show_attributes(op):
+                print(f"op.is_scalar() \t\t-> {op.is_scalar()}")
+                print(f"op.is_vector() \t\t-> {op.is_vector()}")
+                print(f"op.is_adjoint_vector() \t-> {op.is_adjoint_vector()}")
+                print(f"op.eval() \n{op.eval()}")
+            
+        >>> psi_tensor = np.random.rand(2, 2)
+        >>> psi_tensor
+        array([[0.27260127, 0.91401091],
+               [0.06490953, 0.38653646]])
+        >>> op = qu.QuVector.from_tensor(psi_tensor, [0, 1])
+        >>> show_attributes(op)
+        op.is_scalar()          -> False
+        op.is_vector()          -> True
+        op.is_adjoint_vector()  -> False
+        op.eval()
+        [[0.27260127 0.91401091]
+         [0.06490953 0.38653646]]
+        
         :param tensor: The tensor for constructing a "QuVector".
         :type tensor: Tensor
         :param subsystem_axes: Sequence of integer indices specifying the order in which
@@ -750,9 +796,32 @@ class QuAdjointVector(QuOperator):
         tensor: Tensor,
         subsystem_axes: Optional[Sequence[int]] = None,
     ) -> "QuAdjointVector":
-        """
+        r"""
         Construct a `QuAdjointVector` directly from a single tensor.
         This first wraps the tensor in a `Node`, then constructs the `QuAdjointVector` from that `Node`.
+        
+        Example:
+        
+        .. code-block:: python
+
+            def show_attributes(op):
+                print(f"op.is_scalar() \t\t-> {op.is_scalar()}")
+                print(f"op.is_vector() \t\t-> {op.is_vector()}")
+                print(f"op.is_adjoint_vector() \t-> {op.is_adjoint_vector()}")
+                print(f"op.eval() \n{op.eval()}")
+            
+        >>> psi_tensor = np.random.rand(2, 2)
+        >>> psi_tensor
+        array([[0.27260127, 0.91401091],
+               [0.06490953, 0.38653646]])
+        >>> op = qu.QuAdjointVector.from_tensor(psi_tensor, [0, 1])
+        >>> show_attributes(op)
+        op.is_scalar()          -> False
+        op.is_vector()          -> False
+        op.is_adjoint_vector()  -> True
+        op.eval()
+        [[0.27260127 0.91401091]
+         [0.06490953 0.38653646]]
 
         :param tensor: The tensor for constructing an QuAdjointVector.
         :type tensor: Tensor
@@ -808,10 +877,28 @@ class QuScalar(QuOperator):
 
     @classmethod
     def from_tensor(cls, tensor: Tensor) -> "QuScalar":  # type: ignore
-        """
+        r"""
         Construct a `QuScalar` directly from a single tensor.
         This first wraps the tensor in a `Node`, then constructs the `QuScalar` from that `Node`.
+        
+        Example:
+        
+        .. code-block:: python
 
+            def show_attributes(op):
+                print(f"op.is_scalar() \t\t-> {op.is_scalar()}")
+                print(f"op.is_vector() \t\t-> {op.is_vector()}")
+                print(f"op.is_adjoint_vector() \t-> {op.is_adjoint_vector()}")
+                print(f"op.eval() \n{op.eval()}")
+            
+        >>> op = qu.QuScalar.from_tensor(1.0)
+        >>> show_attributes(op)
+        op.is_scalar()          -> True
+        op.is_vector()          -> False
+        op.is_adjoint_vector()  -> False
+        op.eval()
+        1.0
+        
         :param tensor: The tensor for constructing a new QuScalar.
         :type tensor: Tensor
         :return: The new constructed QuScalar from the given tensor.

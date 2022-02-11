@@ -1,5 +1,5 @@
 """
-some common noise quantum channels
+Some common noise quantum channels.
 """
 
 import sys

@@ -1,9 +1,6 @@
 tensorcircuit
 ==================================================
-
 .. toctree::
-    :maxdepth: 2
-
     ./api/applications.rst
     ./api/backends.rst
     ./api/channels.rst

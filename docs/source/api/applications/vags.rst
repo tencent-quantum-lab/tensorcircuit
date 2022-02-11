@@ -1,6 +1,5 @@
-tensorcircuit.applications.vags module
+tensorcircuit.applications.vags
 ==================================================
-
 .. automodule:: tensorcircuit.applications.vags
     :members:
     :undoc-members:

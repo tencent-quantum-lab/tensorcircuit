@@ -1,5 +1,5 @@
 """
-keras layer for tc quantum function
+Keras layer for tc quantum function
 """
 
 from typing import Any, Callable, List, Optional, Sequence, Text, Tuple, Union

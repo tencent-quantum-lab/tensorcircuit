@@ -1,5 +1,5 @@
 """
-some helper functions
+Helper functions
 """
 
 from typing import Any, Callable, Union, Sequence

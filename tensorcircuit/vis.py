@@ -1,5 +1,5 @@
 """
-visualization on circuits
+Visualization on circuits
 """
 import os
 import subprocess

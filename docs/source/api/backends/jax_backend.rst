@@ -1,6 +1,5 @@
-tensorcircuit.backends.jax_backend module
+tensorcircuit.backends.jax_backend
 ==================================================
-
 .. automodule:: tensorcircuit.backends.jax_backend
     :members:
     :undoc-members:

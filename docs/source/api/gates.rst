@@ -1,6 +1,5 @@
 tensorcircuit.gates
 ==================================================
-
 .. automodule:: tensorcircuit.gates
     :members:
     :undoc-members:

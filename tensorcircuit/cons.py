@@ -1,5 +1,5 @@
 """
-some constants and setups
+Constants and setups
 """
 # pylint: disable=invalid-name
 

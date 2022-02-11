@@ -1,5 +1,5 @@
 """
-declarations of single-qubit and two-qubit gates and their corresponding matrix
+Declarations of single-qubit and two-qubit gates and their corresponding matrix.
 """
 
 import sys

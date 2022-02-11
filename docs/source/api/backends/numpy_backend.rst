@@ -1,6 +1,5 @@
-tensorcircuit.backends.numpy_backend module
+tensorcircuit.backends.numpy_backend
 ==================================================
-
 .. automodule:: tensorcircuit.backends.numpy_backend
     :members:
     :undoc-members:

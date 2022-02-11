@@ -1,5 +1,5 @@
 """
-quantum circuit class but with density matrix simulator: v2
+Quantum circuit class but with density matrix simulator: v2
 """
 # pylint: disable=invalid-name
 

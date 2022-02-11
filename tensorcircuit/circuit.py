@@ -1,5 +1,5 @@
 """
-quantum circuit: state simulator
+Quantum circuit: state simulator
 """
 # pylint: disable=invalid-name
 

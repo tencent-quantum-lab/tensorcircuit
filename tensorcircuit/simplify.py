@@ -1,5 +1,5 @@
 """
-tensornetwork simplification
+Tensornetwork Simplification
 """
 # part of the implementations and ideas are inspired from
 # https://github.com/jcmgray/quimb/blob/a2968050eba5a8a04ced4bdaa5e43c4fb89edc33/quimb/tensor/tensor_core.py#L7309-L8293
