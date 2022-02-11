@@ -1,7 +1,7 @@
-tensorcircuit.simplify
+tensorcircuit.applications.graphdata module
 ==================================================
 
-.. automodule:: tensorcircuit.simplify
+.. automodule:: tensorcircuit.applications.graphdata
     :members:
     :undoc-members:
     :show-inheritance:

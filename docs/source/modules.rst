@@ -1,9 +1,11 @@
 tensorcircuit
-==========================================
+==================================================
 
 .. toctree::
-    :maxdepth: 4
+    :maxdepth: 2
 
+    ./api/applications.rst
+    ./api/backends.rst
     ./api/channels.rst
     ./api/circuit.rst
     ./api/cons.rst
@@ -13,9 +15,10 @@ tensorcircuit
     ./api/gates.rst
     ./api/interfaces.rst
     ./api/keras.rst
-    ./api/mpscircuit.rst
     ./api/mps_base.rst
+    ./api/mpscircuit.rst
     ./api/quantum.rst
     ./api/simplify.rst
+    ./api/templates.rst
     ./api/utils.rst
     ./api/vis.rst

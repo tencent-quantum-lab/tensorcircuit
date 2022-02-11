@@ -1,7 +1,7 @@
-tensorcircuit.simplify
+tensorcircuit.backends.tensorflow_backend module
 ==================================================
 
-.. automodule:: tensorcircuit.simplify
+.. automodule:: tensorcircuit.backends.tensorflow_backend
     :members:
     :undoc-members:
     :show-inheritance:

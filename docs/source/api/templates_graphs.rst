@@ -1,7 +1,7 @@
-tensorcircuit.simplify
+tensorcircuit.templates.graphs module
 ==================================================
 
-.. automodule:: tensorcircuit.simplify
+.. automodule:: tensorcircuit.templates.graphs
     :members:
     :undoc-members:
     :show-inheritance:

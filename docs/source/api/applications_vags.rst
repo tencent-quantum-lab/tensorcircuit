@@ -1,7 +1,7 @@
-tensorcircuit.simplify
+tensorcircuit.applications.vags module
 ==================================================
 
-.. automodule:: tensorcircuit.simplify
+.. automodule:: tensorcircuit.applications.vags
     :members:
     :undoc-members:
     :show-inheritance:

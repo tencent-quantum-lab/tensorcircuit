@@ -1,7 +1,7 @@
-tensorcircuit.simplify
+tensorcircuit.backends.jax_backend module
 ==================================================
 
-.. automodule:: tensorcircuit.simplify
+.. automodule:: tensorcircuit.backends.jax_backend
     :members:
     :undoc-members:
     :show-inheritance:

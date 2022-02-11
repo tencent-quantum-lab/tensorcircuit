@@ -1,7 +1,7 @@
-tensorcircuit.simplify
+tensorcircuit.applications.van module
 ==================================================
 
-.. automodule:: tensorcircuit.simplify
+.. automodule:: tensorcircuit.applications.van
     :members:
     :undoc-members:
     :show-inheritance:

@@ -1,7 +1,7 @@
-tensorcircuit.simplify
+tensorcircuit.applications.vqes module
 ==================================================
 
-.. automodule:: tensorcircuit.simplify
+.. automodule:: tensorcircuit.applications.vqes
     :members:
     :undoc-members:
     :show-inheritance:

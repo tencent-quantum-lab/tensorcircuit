@@ -1,7 +1,7 @@
-tensorcircuit.simplify
+tensorcircuit.templates.blocks module
 ==================================================
 
-.. automodule:: tensorcircuit.simplify
+.. automodule:: tensorcircuit.templates.blocks
     :members:
     :undoc-members:
     :show-inheritance:

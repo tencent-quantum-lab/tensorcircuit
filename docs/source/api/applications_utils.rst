@@ -1,7 +1,7 @@
-tensorcircuit.simplify
+tensorcircuit.applications.utils module
 ==================================================
 
-.. automodule:: tensorcircuit.simplify
+.. automodule:: tensorcircuit.applications.utils
     :members:
     :undoc-members:
     :show-inheritance:
