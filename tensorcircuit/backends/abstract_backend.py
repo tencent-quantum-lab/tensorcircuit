@@ -519,10 +519,11 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         """
         Set the random state attached to the backend.
 
-        :param seed: int, defaults to be None
+        :param seed: the random seed, defaults to be None
         :type seed: Optional[int], optional
-        :param get_only:
-        :type get_only: bool, optional
+        :param get_only: If set to be true, only get the random state in return
+            instead of setting the state on the backend
+        :type get_only: bool, defaults to be False
         """
         raise NotImplementedError(
             "Backend '{}' has not implemented `set_random_state`.".format(self.name)
@@ -544,6 +545,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         A jax like split API, but it doesn't split the key generator for other backends.
         It is just for a consistent interface of random code;
         make sure you know what the function actually does.
+        This function is mainly a utility to write backend agnostic code instead of doing magic things.
 
         :param key: [description]
         :type key: Any
@@ -553,7 +555,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         return key, key
 
     # Though try hard, the current random API abstraction may not be perfect when with nested jit or vmap
-    # so keep every random function a direct status parameters in case.
+    # so keep every random function a direct status parameters in case for development.
 
     def implicit_randn(
         self: Any,
