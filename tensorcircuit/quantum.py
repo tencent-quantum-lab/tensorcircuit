@@ -444,7 +444,7 @@ class QuOperator:
         The partial trace of the operator.
         Subsystems to trace out are supplied as indices, so that dangling edges
         are connected to each other as:
-          `out_edges[i] ^ in_edges[i] for i in subsystems_to_trace_out`
+        `out_edges[i] ^ in_edges[i] for i in subsystems_to_trace_out`
         This does not modify the original network. The original ordering of the
         remaining subsystems is maintained.
 
@@ -623,9 +623,9 @@ class QuOperator:
         Contracts the tensor network in place and returns the final tensor.
         Note that this modifies the tensor network representing the operator.
         The default ordering for the axes of the final tensor is:
-          `*out_edges, *in_edges`.
+        `*out_edges, *in_edges`.
         If there are any "ignored" edges, their axes come first:
-          `*ignored_edges, *out_edges, *in_edges`.
+        `*ignored_edges, *out_edges, *in_edges`.
 
         :param final_edge_order: Manually specify the axis ordering of the final tensor.
             The default ordering is determined by `out_edges` and `in_edges` (see above).
@@ -1273,20 +1273,20 @@ def measurement_counts(
     """
     Simulate measuring each qubit of ``p`` in the computational basis,
     producing output like that of ``qiskit``.
-    Parameters
-    ----------
-    state : vector or operator
-        The quantum state, assumed to be normalized, as either a ket or density
-        operator.
-    C : int
-        The number of counts to perform.
-    phys_dim : int, optional
-        The assumed size of the subsystems of ``p``, defaults to 2 for qubits.
-    Returns
-    -------
-    results : Tuple[]
-        The counts for each bit string measured.
+
+    :param state: The quantum state, assumed to be normalized, as either a ket or density operator.
+    :type state: Tensor
+    :param counts: The number of counts to perform, default is 8192
+    :type counts: int
+    :param sparse: Sparse, default is True
+    :type sparse: bool
+    :return: The counts for each bit string measured.
+    :rtype: Union[Tuple[Tensor, Tensor], Tensor]
     """
+    # :param phys_dim: The assumed size of the subsystems of ``p``, defaults to 2 for qubits.
+    # :type phys_dim:, optional
+    # TODO: Double Check the description
+
     if len(state.shape) == 2:
         state /= backend.trace(state)
         pi = backend.real(backend.diagonal(state))
