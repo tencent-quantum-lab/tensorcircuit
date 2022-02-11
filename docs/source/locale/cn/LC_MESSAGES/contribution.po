@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tensorcircuit \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-11 09:34+0800\n"
+"POT-Creation-Date: 2022-02-08 15:20+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -110,7 +110,7 @@ msgstr ""
 #: ../../source/contribution.rst:45
 msgid ""
 "Make sure the changes can pass all checks by running: ``./check_all.sh``."
-" (See details for checks below)"
+" (See details for :ref:`Checks` section below)"
 msgstr ""
 
 #: ../../source/contribution.rst:47
@@ -165,7 +165,7 @@ msgid ""
 msgstr ""
 
 #: ../../source/contribution.rst:76
-msgid "Checks and Tests"
+msgid "Checks"
 msgstr ""
 
 #: ../../source/contribution.rst:78
@@ -184,22 +184,21 @@ msgid "black"
 msgstr ""
 
 #: ../../source/contribution.rst:84
-msgid "mypy"
+msgid ""
+"mypy: configure file is ``mypy.ini``, results strongly correlated with "
+"the version of numpy, we fix ``numpy==1.21.5`` as mypy standard in CI."
 msgstr ""
 
 #: ../../source/contribution.rst:86
-msgid "pylint"
+msgid "pylint: configure file is ``.pylintrc``"
 msgstr ""
 
 #: ../../source/contribution.rst:88
-msgid ""
-"pytest: For pytest, one can speed up the test by ``pip install pytest-"
-"xdist``, and then run parallelly as ``pytest -v -n [number of "
-"processes]``."
+msgid "pytest: see :ref:`Pytest` sections for details."
 msgstr ""
 
 #: ../../source/contribution.rst:90
-msgid "sphinx doc builds"
+msgid "sphinx doc builds: see :ref:`Docs` section for details."
 msgstr ""
 
 #: ../../source/contribution.rst:92
@@ -219,43 +218,116 @@ msgid ""
 msgstr ""
 
 #: ../../source/contribution.rst:100
-msgid "Docs"
+msgid "Pytest"
 msgstr ""
 
 #: ../../source/contribution.rst:102
+msgid ""
+"For pytest, one can speed up the test by ``pip install pytest-xdist``, "
+"and then run parallelly as ``pytest -v -n [number of processes]``. We "
+"also have included some micro benchmark tests, which works with ``pip "
+"install pytest-benchmark``."
+msgstr ""
+
+#: ../../source/contribution.rst:105
+msgid "**Fixtures:**"
+msgstr ""
+
+#: ../../source/contribution.rst:107
+msgid ""
+"There are some pytest fixtures defined in conftest file, which are for "
+"customization on backends and dtype in function level. ``highp`` is a "
+"fixture for complex128 simulation. While ``npb``, ``tfb``, ``jaxb`` and "
+"``torchb`` are fixtures for global numpy, tensorflow, jax and pytorch "
+"backends, respectively. To test different backends in one function, we "
+"need to use parameterized fixture, which is enabled by ``pip install "
+"pytest-lazy-fixture``. Namely we have the following approach to test "
+"different backends in one function."
+msgstr ""
+
+#: ../../source/contribution.rst:122
+msgid "Docs"
+msgstr ""
+
+#: ../../source/contribution.rst:124
 msgid ""
 "We use `sphnix <https://www.sphinx-doc.org/en/master/>`__ to manage the "
 "documentations."
 msgstr ""
 
-#: ../../source/contribution.rst:104
+#: ../../source/contribution.rst:126
+msgid "The source files for docs are .rst file in docs/source."
+msgstr ""
+
+#: ../../source/contribution.rst:128
 msgid ""
 "For English docs, ``make html`` in docs dir is enough. The html version "
 "of the docs are in docs/build/html."
 msgstr ""
 
-#: ../../source/contribution.rst:106
+#: ../../source/contribution.rst:130
+msgid "**i18n:**"
+msgstr ""
+
+#: ../../source/contribution.rst:132
 msgid ""
 "For Chinese docs, we refer to standard i18n workflow provided by sphnix, "
 "see `here <https://www.sphinx-"
 "doc.org/en/master/usage/advanced/intl.html>`__."
 msgstr ""
 
-#: ../../source/contribution.rst:108
-msgid ""
-"To update the po file from updated English rst files, using ``sphinx-intl"
-" update -p build/gettext -l cn``."
+#: ../../source/contribution.rst:134
+msgid "To update the po file from updated English rst files, using"
 msgstr ""
 
-#: ../../source/contribution.rst:110
+#: ../../source/contribution.rst:143
 msgid ""
-"Edit these po files to add translations (`poedit <https://poedit.net/>`__"
-" recommended)."
+"Edit these .po files to add translations (`poedit "
+"<https://poedit.net/>`__ recommended). These files are in "
+"docs/source/locale/cn/LC_MESSAGES."
 msgstr ""
 
-#: ../../source/contribution.rst:112
+#: ../../source/contribution.rst:145
 msgid ""
 "Generate Chinese version of the documentation: ``make -e SPHINXOPTS=\"-D "
 "language='cn'\" html``."
 msgstr ""
+
+#~ msgid ""
+#~ "Make sure the changes can pass all"
+#~ " checks by running: ``./check_all.sh``. "
+#~ "(See details for checks below)"
+#~ msgstr ""
+
+#~ msgid "Checks and Tests"
+#~ msgstr ""
+
+#~ msgid "mypy"
+#~ msgstr ""
+
+#~ msgid "pylint"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "pytest: For pytest, one can speed "
+#~ "up the test by ``pip install "
+#~ "pytest-xdist``, and then run parallelly "
+#~ "as ``pytest -v -n [number of "
+#~ "processes]``."
+#~ msgstr ""
+
+#~ msgid "sphinx doc builds"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "To update the po file from updated"
+#~ " English rst files, using ``sphinx-"
+#~ "intl update -p build/gettext -l cn``."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Edit these po files to add "
+#~ "translations (`poedit <https://poedit.net/>`__ "
+#~ "recommended)."
+#~ msgstr ""
 

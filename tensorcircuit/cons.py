@@ -62,7 +62,7 @@ def set_tensornetwork_backend(
 ) -> Any:
     r"""To set the runtime backend of tensorcircuit.
 
-    Note: `tc.set_backend` and `tc.cons.set_tensornetwork_backend` are same.
+    Note: ``tc.set_backend`` and ``tc.cons.set_tensornetwork_backend`` are the same.
 
     Example:
 
@@ -337,6 +337,8 @@ def plain_contractor(
     return final_node
 
 
+# TODO(@refraction-ray): try to make plain contractor follow the pattern of custom?
+
 # TODO(@refraction-ray): consistent logger system for different contractors.
 
 
@@ -491,6 +493,7 @@ def _base(
     output_edge_order: Optional[Sequence[tn.Edge]] = None,
     ignore_edge_order: bool = False,
     total_size: Optional[int] = None,
+    rehearsal: bool = False,
 ) -> tn.Node:
     """
     The base method for all `opt_einsum` contractors.
@@ -565,7 +568,13 @@ def _base(
             logger.warning("single element tuple in contraction path!")
             continue
         a, b = ab
-        new_node = tn.contract_between(nodes[a], nodes[b], allow_outer_product=True)
+
+        if rehearsal:
+            from .simplify import pseudo_contract_between
+
+            new_node = pseudo_contract_between(nodes[a], nodes[b])
+        else:
+            new_node = tn.contract_between(nodes[a], nodes[b], allow_outer_product=True)
         nodes.append(new_node)
         # nodes[a] = backend.zeros([1])
         # nodes[b] = backend.zeros([1])
@@ -603,7 +612,15 @@ def custom(
         alg = partial(optimizer, memory_limit=memory_limit)
     else:
         alg = optimizer
-    return _base(nodes, alg, output_edge_order, ignore_edge_order, total_size)
+    rehearsal = kws.get("rehearsal", False)
+    return _base(
+        nodes,
+        alg,
+        output_edge_order,
+        ignore_edge_order,
+        total_size,
+        rehearsal=rehearsal,
+    )
 
 
 def custom_stateful(
@@ -627,8 +644,45 @@ def custom_stateful(
     if opt_conf is None:
         opt_conf = {}
     opt = optimizer(**opt_conf)  # reinitiate the optimizer each time
+    if kws.get("contraction_info", None):
+        opt = contraction_info_decorator(opt)
     alg = partial(opt, memory_limit=memory_limit)
-    return _base(nodes, alg, output_edge_order, ignore_edge_order, total_size)
+    rehearsal = kws.get("rehearsal", False)
+
+    return _base(
+        nodes,
+        alg,
+        output_edge_order,
+        ignore_edge_order,
+        total_size,
+        rehearsal=rehearsal,
+    )
+
+
+# only work for custom
+def contraction_info_decorator(algorithm: Callable[..., Any]) -> Callable[..., Any]:
+    from cotengra import ContractionTree
+
+    def new_algorithm(
+        input_sets: Dict[Any, int],
+        output_set: Dict[Any, int],
+        size_dict: Dict[Any, int],
+        **kws: Any
+    ) -> Any:
+        path = algorithm(input_sets, output_set, size_dict, **kws)
+        tree = ContractionTree.from_path(input_sets, output_set, size_dict, path=path)
+        print("------ contraction cost summary ------")
+        print(
+            "flops: ",
+            "%.3f" % np.log2(tree.total_flops()),
+            " size: ",
+            "%.0f" % tree.contraction_width(),
+            " write: ",
+            "%.3f" % np.log2(tree.total_write()),
+        )
+        return path
+
+    return new_algorithm
 
 
 def set_contractor(
@@ -637,6 +691,7 @@ def set_contractor(
     memory_limit: Optional[int] = None,
     opt_conf: Optional[Dict[str, Any]] = None,
     set_global: bool = True,
+    contraction_info: bool = False,
     **kws: Any
 ) -> Callable[..., Any]:
     """
@@ -662,7 +717,7 @@ def set_contractor(
         cf = plain_contractor
     elif method == "plain-experimental":
         cf = partial(experimental_contractor, local_steps=kws.get("local_steps", 2))
-    elif method == "tng":
+    elif method == "tng":  # don't use, deprecated, no guarantee
         if has_ps:
             cf = tn_greedy_contractor
         else:
@@ -671,17 +726,24 @@ def set_contractor(
             )
     elif method == "custom_stateful":
         cf = custom_stateful  # type: ignore
-        cf = partial(cf, optimizer=optimizer, opt_conf=opt_conf, **kws)
+        cf = partial(
+            cf,
+            optimizer=optimizer,
+            opt_conf=opt_conf,
+            contraction_info=contraction_info,
+            **kws
+        )
 
     else:
         # cf = getattr(tn.contractors, method, None)
         # if not cf:
         # raise ValueError("Unknown contractor type: %s" % method)
-        if method == "custom":
-            cf = partial(custom, optimizer=optimizer, **kws)
-        else:
-            cf = partial(custom, optimizer=getattr(opt_einsum.paths, method))
-        cf = partial(cf, memory_limit=memory_limit)
+
+        if method != "custom":
+            optimizer = getattr(opt_einsum.paths, method)
+        if contraction_info is True:
+            optimizer = contraction_info_decorator(optimizer)  # type: ignore
+        cf = partial(custom, optimizer=optimizer, memory_limit=memory_limit, **kws)
     if set_global:
         for module in modules:
             if module in sys.modules:

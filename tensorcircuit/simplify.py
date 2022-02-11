@@ -13,7 +13,7 @@ from typing import Any, List, Optional, Tuple
 import numpy as np
 import tensornetwork as tn
 
-from .cons import _multi_remove
+from .cons import _multi_remove, backend
 
 
 def infer_new_size(a: tn.Node, b: tn.Node, include_old: bool = True) -> Any:
@@ -52,17 +52,36 @@ def infer_new_shape(a: tn.Node, b: tn.Node, include_old: bool = True) -> Any:
     :rtype: Union[Tuple[int, ...], Tuple[Tuple[int, ...], Tuple[int, ...], Tuple[int, ...]]]
     """
     shared_edges = tn.get_shared_edges(a, b)
-    a_shape = tuple(sorted([e.dimension for e in a]))
-    b_shape = tuple(sorted([e.dimension for e in b]))
+    a_shape = tuple([e.dimension for e in a])
+    b_shape = tuple([e.dimension for e in b])
     new_shape = tuple(
-        sorted(
-            ([e.dimension for e in a if e not in shared_edges])
-            + ([e.dimension for e in b if e not in shared_edges])
-        )
+        ([e.dimension for e in a if e not in shared_edges])
+        + ([e.dimension for e in b if e not in shared_edges])
     )
     if include_old is True:
         return new_shape, a_shape, b_shape
     return new_shape
+
+
+def pseudo_contract_between(a: tn.Node, b: tn.Node, **kws: Any) -> tn.Node:
+    """
+    Contract between Node ``a`` and ``b``, with correct shape only and no calculation
+
+    :param a: [description]
+    :type a: tn.Node
+    :param b: [description]
+    :type b: tn.Node
+    :return: [description]
+    :rtype: tn.Node
+    """
+    shared_edges = tn.get_shared_edges(a, b)
+    new_shape = tuple(
+        ([e.dimension for e in a if e not in shared_edges])
+        + ([e.dimension for e in b if e not in shared_edges])
+    )
+    new_node = tn.Node(backend.zeros(new_shape))
+    tn.network_components._remove_edges(shared_edges, a, b, new_node)
+    return new_node
 
 
 def _split_two_qubit_gate(

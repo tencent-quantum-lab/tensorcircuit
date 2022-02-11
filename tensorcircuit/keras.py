@@ -117,7 +117,7 @@ class QuantumLayer(Layer):  # type: ignore
 
 def output_asis_loss(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
     """
-    The keras loss function that directly taking the model output at the loss.
+    The keras loss function that directly taking the model output as the loss.
 
     :param y_true: [description]
     :type y_true: tf.Tensor
