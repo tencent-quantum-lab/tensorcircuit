@@ -57,6 +57,49 @@ def quantum_constructor(
     If there are no edges, creates a QuScalar. If the are only output (input)
     edges, creates a QuVector (QuAdjointVector). Otherwise creates a QuOperator.
 
+    Example:
+
+    .. code-block:: python
+
+        def show_attributes(op):
+            print(f"op.is_scalar() \t\t-> {op.is_scalar()}")
+            print(f"op.is_vector() \t\t-> {op.is_vector()}")
+            print(f"op.is_adjoint_vector() \t-> {op.is_adjoint_vector()}")
+            print(f"len(op.out_edges) \t-> {len(op.out_edges)}")
+            print(f"len(op.in_edges) \t-> {len(op.in_edges)}")
+
+    >>> psi_node = tn.Node(np.random.rand(2, 2))
+    >>>
+    >>> op = qu.quantum_constructor([psi_node[0]], [psi_node[1]])
+    >>> show_attributes(op)
+    op.is_scalar()          -> False
+    op.is_vector()          -> False
+    op.is_adjoint_vector()  -> False
+    len(op.out_edges)       -> 1
+    len(op.in_edges)        -> 1
+    >>> # psi_node[0] -> op.out_edges[0]
+    >>> # psi_node[1] -> op.in_edges[0]
+
+    >>> op = qu.quantum_constructor([psi_node[0], psi_node[1]], [])
+    >>> show_attributes(op)
+    op.is_scalar()          -> False
+    op.is_vector()          -> True
+    op.is_adjoint_vector()  -> False
+    len(op.out_edges)       -> 2
+    len(op.in_edges)        -> 0
+    >>> # psi_node[0] -> op.out_edges[0]
+    >>> # psi_node[1] -> op.out_edges[1]
+
+    op = qu.quantum_constructor([], [psi_node[0], psi_node[1]])
+    >>> show_attributes(op)
+    op.is_scalar()          -> False
+    op.is_vector()          -> False
+    op.is_adjoint_vector()  -> True
+    len(op.out_edges)       -> 0
+    len(op.in_edges)        -> 2
+    >>> # psi_node[0] -> op.in_edges[0]
+    >>> # psi_node[1] -> op.in_edges[1]
+
     :param out_edges: output edges.
     :type out_edges: Sequence[Edge]
     :param in_edges: in edges.
@@ -87,6 +130,27 @@ def identity(
     Construct a 'QuOperator' representing the identity on a given space.
     Internally, this is done by constructing 'CopyNode's for each edge, with
     dimension according to 'space'.
+
+    Example:
+
+    >>> E = qu.identity((2, 3, 4))
+    >>> float(E.trace().eval())
+    24.0
+
+    >>> tensor = np.random.rand(2, 2)
+    >>> psi = qu.QuVector.from_tensor(tensor)
+    >>> E = qu.identity((2, 2))
+    >>> psi.eval()
+    array([[0.03964233, 0.99298281],
+           [0.38564989, 0.00950596]])
+    >>> (E @ psi).eval()
+    array([[0.03964233, 0.99298281],
+           [0.38564989, 0.00950596]])
+    >>>
+    >>> (psi.adjoint() @ E @ psi).eval()
+    array(1.13640257)
+    >>> psi.norm().eval()
+    array(1.13640257)
 
     :param space: A sequence of integers for the dimensions of the tensor product
         factors of the space (the edges in the tensor network).

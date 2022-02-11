@@ -1159,7 +1159,7 @@ def expectation(
     (0.6967066526412964+0j)
     >>>
     >>> # Normalize(expection of Circuit) / Normalize(<state|*x1z2|state>)
-    >>> c.expectation(*x1z2) / tc.backend.norm(state) ** 2   # Compute:
+    >>> c.expectation(*x1z2) / tc.backend.norm(state) ** 2
     (0.5550700389340034+0j)
     >>> tc.expectation(*x1z2, ket=state, normalization=True)
     (0.55507004+0j)

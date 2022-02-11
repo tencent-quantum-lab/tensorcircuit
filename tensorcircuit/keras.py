@@ -146,11 +146,11 @@ def save_func(f: Callable[..., Any], path: str) -> None:
             c.ry(1, theta=param[1])
             return tf.math.real(c.expectation((tc.gates.x(), [1])))
 
-    >>> print(test_circuit(weights=tf.ones([2])))
+    >>> test_circuit(weights=tf.ones([2]))
     tf.Tensor(0.84147096, shape=(), dtype=float32)
     >>> K.save_func(test_circuit, save_path)
     >>> circuit_loaded = K.load_func(save_path)
-    >>> print(circuit_loaded(weights=tf.ones([2])))
+    >>> circuit_loaded(weights=tf.ones([2]))
     tf.Tensor(0.84147096, shape=(), dtype=float32)
     >>> os.system(f"tree {save_path}")
     ~/model
@@ -200,11 +200,11 @@ def load_func(
             c.ry(1, theta=param[1])
             return tf.math.real(c.expectation((tc.gates.x(), [1])))
 
-    >>> print(test_circuit(weights=tf.ones([2])))
+    >>> test_circuit(weights=tf.ones([2]))
     tf.Tensor(0.84147096, shape=(), dtype=float32)
     >>> K.save_func(test_circuit, save_path)
     >>> circuit_loaded = K.load_func(save_path)
-    >>> print(circuit_loaded(weights=tf.ones([2])))
+    >>> circuit_loaded(weights=tf.ones([2]))
     tf.Tensor(0.84147096, shape=(), dtype=float32)
 
     :param fallback: The fallback function when all functions loaded are failed, defaults to None
