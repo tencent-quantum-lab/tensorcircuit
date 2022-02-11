@@ -28,7 +28,7 @@ Tensor = Any
 
 def _more_methods_for_backend(tnbackend: Any) -> None:
     """
-    Add tensorcircuit specific backend methods, especially with their docstrings
+    Add tensorcircuit specific backend methods, especially with their docstrings.
     """
 
     def copy(self: Any, a: Tensor) -> Tensor:
@@ -466,7 +466,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def solve(self: Any, A: Tensor, b: Tensor, **kws: Any) -> Tensor:
         """
-        Solve the linear system Ax=b and return x
+        Solve the linear system Ax=b and return the solution x.
 
         :param A: The multiplied matrix.
         :type A: Tensor
@@ -481,7 +481,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def tree_map(self: Any, f: Callable[..., Any], *pytrees: Any) -> Any:
         """
-        Return the new tree map with multiple arg function ``f`` through pytrees
+        Return the new tree map with multiple arg function ``f`` through pytrees.
 
         :param f: The function
         :type f: Callable[..., Any]
@@ -517,12 +517,12 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         self: Any, seed: Optional[int] = None, get_only: bool = False
     ) -> Any:
         """
-        Set the random state attached in the backend
+        Set the random state attached to the backend.
 
-        :param seed: int, defaults to None
+        :param seed: int, defaults to be None
         :type seed: Optional[int], optional
         :param get_only:
-        :type get_only: bool
+        :type get_only: bool, optional
         """
         raise NotImplementedError(
             "Backend '{}' has not implemented `set_random_state`.".format(self.name)
@@ -530,19 +530,20 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def get_random_state(self: Any, seed: Optional[int] = None) -> Any:
         """
-        Get backend specific random state object
+        Get the backend specific random state object.
 
         :param seed: [description], defaults to None
         :type seed: Optional[int], optional
-        :return: [description]
+        :return:the backend specific random state object
         :rtype: Any
         """
         return self.set_random_state(seed, True)
 
     def random_split(self: Any, key: Any) -> Tuple[Any, Any]:
         """
-        A jax like split API, but does't split the key generator for other backends.
-        just for a consistent interface of random code, be careful that you know what the function actually does.
+        A jax like split API, but it doesn't split the key generator for other backends.
+        It is just for a consistent interface of random code;
+        make sure you know what the function actually does.
 
         :param key: [description]
         :type key: Any
@@ -562,7 +563,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         dtype: str = "32",
     ) -> Tensor:
         """
-        Call random normal function with the random state management behind the scene.
+        Call the random normal function with the random state management behind the scene.
 
         :param shape: [description], defaults to 1
         :type shape: Union[int, Sequence[int]], optional
@@ -865,7 +866,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         has_aux: bool = False,
     ) -> Callable[..., Any]:
         """
-        Return function which is the grad function of input ``f``
+        Return the function which is the grad function of input ``f``.
 
         .. code-block:: python
 
@@ -894,7 +895,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         hax_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
         """
-        Return function which returns the value and grad of ``f``
+        Return the function which returns the value and grad of ``f``.
 
         .. code-block:: python
 
@@ -909,7 +910,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         :type f: Callable[..., Any]
         :param argnums: the position of args in ``f`` that are to be differentiated, defaults to 0
         :type argnums: Union[int, Sequence[int]], optional
-        :return: the value and grad fuction of ``f`` with the same set of arguments as ``f``
+        :return: the value and grad function of ``f`` with the same set of arguments as ``f``
         :rtype: Callable[..., Tuple[Any, Any]]
         """
         raise NotImplementedError(
@@ -924,15 +925,15 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
     ) -> Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]:
         """
         Function that computes a (forward-mode) Jacobian-vector product of ``f``.
-        Strictly speaking, this function is value_and_jvp
+        Strictly speaking, this function is value_and_jvp.
 
         :param f: The function to compute jvp
         :type f: Callable[..., Any]
-        :param inputs: primals
+        :param inputs: input for ``f``
         :type inputs: Union[Tensor, Sequence[Tensor]]
         :param v: tangents
         :type v: Union[Tensor, Sequence[Tensor]]
-        :return: (``f(*inputs)``, jvp_tensor), where jvp_tensor is the same shape as output of ``f``
+        :return: (``f(*inputs)``, jvp_tensor), where jvp_tensor is the same shape as the output of ``f``
         :rtype: Tuple[Union[Tensor, Sequence[Tensor]], Union[Tensor, Sequence[Tensor]]]
         """
         raise NotImplementedError(
@@ -949,7 +950,6 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         Function that computes the dot product between a vector v and the Jacobian
         of the given function at the point given by the inputs. (reverse mode AD relevant)
         Strictly speaking, this function is value_and_vjp.
-
 
         :param f: The function to carry out vjp calculation
         :type f: Callable[..., Any]
@@ -969,7 +969,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Tensor:
         """
-        compute the jacobian of ``f`` using forward mode AD
+        Compute the Jacobian of ``f`` using the forward mode AD.
 
         :param self: [description]
         :type self: Any
@@ -1033,7 +1033,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         self: Any, f: Callable[..., Any], argnums: Union[int, Sequence[int]] = 0
     ) -> Tensor:
         """
-        compute the jacobian of ``f`` using reverse mode AD
+        Compute the Jacobian of ``f`` using reverse mode AD.
 
         :param self: [description]
         :type self: Any
@@ -1120,17 +1120,17 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         jit_compile: Optional[bool] = None,
     ) -> Callable[..., Any]:
         """
-        Return jitted version function of ``f``
+        Return the jitted version of function ``f``.
 
         :param f: function to be jitted
         :type f: Callable[..., Any]
         :param static_argnums: index of args that doesn't regarded as tensor,
             only work for jax backend
         :type static_argnums: Optional[Union[int, Sequence[int]]], defaults to None
-        :param jit_compile: whether open XLA compliation, only works for tensorflow backend,
+        :param jit_compile: whether open XLA compilation, only works for tensorflow backend,
             defaults False since several ops has no XLA correspondence
         :type jit_compile: bool
-        :return: jitted ``f``
+        :return: jitted version of ``f``
         :rtype: Callable[..., Any]
         """
         raise NotImplementedError(
@@ -1143,8 +1143,8 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         vectorized_argnums: Union[int, Sequence[int]] = 0,
     ) -> Any:
         """
-        Return vectorized map or batched version of ``f`` on the first extra axis,
-        the general interface support ``f`` with multiple arguments and broadcast in the fist dimension.
+        Return the vectorized map or batched version of ``f`` on the first extra axis.
+        The general interface supports ``f`` with multiple arguments and broadcast in the fist dimension.
 
         :param f: function to be broadcasted.
         :type f: Callable[..., Any]
@@ -1166,12 +1166,12 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
         """
-        Return vvag function of ``f``. the inputs for ``f`` is (args[0], args[1], args[2], ...),
-        and the output of ``f`` is a scalar. Suppose vvag(f) is a function with inputs in the form
+        Return the VVAG function of ``f``. The inputs for ``f`` is (args[0], args[1], args[2], ...),
+        and the output of ``f`` is a scalar. Suppose VVAG(f) is a function with inputs in the form
         (vargs[0], args[1], args[2], ...), where vagrs[0] has one extra dimension than args[0] in the first axis
         and consistent with args[0] in shape for remaining dimensions, i.e. shape(vargs[0]) = [batch] + shape(args[0]).
-        (We only cover case where ``vectorized_argnums`` defaults to 0 here for demonstration).
-        vvag(f) returns a tuple as a value tensor with shape [batch, 1] and a gradient tuple with shape:
+        (We only cover cases where ``vectorized_argnums`` defaults to 0 here for demonstration).
+        VVAG(f) returns a tuple as a value tensor with shape [batch, 1] and a gradient tuple with shape:
         ([batch]+shape(args[argnum]) for argnum in argnums). The gradient for argnums=k is defined as
 
         .. math::
@@ -1192,7 +1192,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             g^1_i = \\frac{\\partial \\sum_j f(vargs[0][j], args[1])}{\\partial args[1][i]}
 
         , which is suitable for quantum machine learning scenarios, where ``f`` is the loss function,
-        args[0] corresponds the input data and args[1] corresponds to the weights in the QML model.
+        args[0] corresponds to the input data and args[1] corresponds to the weights in the QML model.
 
         :param f: [description]
         :type f: Callable[..., Any]
