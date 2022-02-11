@@ -315,9 +315,9 @@ meta_gate()
 pauli_gates = [i(), x(), y(), z()]  # type: ignore
 
 
-def matrix_for_gate(gate: Gate) -> Tensor:
+def matrix_for_gate(gate: Gate, tol: float = 1e-6) -> Tensor:
     r"""
-    Convert Gate to Tensor.
+    Convert Gate to numpy array.
 
     Example:
 
@@ -333,7 +333,11 @@ def matrix_for_gate(gate: Gate) -> Tensor:
     """
 
     t = gate.tensor
-    return backend.reshapem(t)
+    t = backend.reshapem(t)
+    t = backend.numpy(t)
+    t.real[abs(t.real) < tol] = 0.0
+    t.imag[abs(t.imag) < tol] = 0.0
+    return t
 
 
 def bmatrix(a: Array) -> str:

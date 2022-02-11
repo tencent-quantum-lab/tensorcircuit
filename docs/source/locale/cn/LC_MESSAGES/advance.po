@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tensorcircuit \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-08 15:20+0800\n"
+"POT-Creation-Date: 2022-02-10 16:18+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,42 +19,61 @@ msgstr ""
 "Generated-By: Babel 2.9.1\n"
 
 #: ../../source/advance.rst:3
-msgid "Advance Usage"
+msgid "Advanced Usage"
 msgstr ""
 
 #: ../../source/advance.rst:6
 msgid "MPS simulator"
 msgstr ""
 
-#: ../../source/advance.rst:9
-msgid "Split two-qubit gates"
+#: ../../source/advance.rst:8
+msgid "(Still experimental support)"
 msgstr ""
 
 #: ../../source/advance.rst:11
+msgid "Split two-qubit gates"
+msgstr ""
+
+#: ../../source/advance.rst:13
 msgid ""
 "The two-qubit gates applied on the circuit can be decomposed via SVD, "
 "which may further improve the optimality the contraction path finding."
 msgstr ""
 
-#: ../../source/advance.rst:13
+#: ../../source/advance.rst:15
 msgid "`split` configuration can be set in circuit level or gate level."
 msgstr ""
 
 #: ../../source/advance.rst:36
-msgid "SavedModel"
+msgid ""
+"Note ``max_singular_values`` must be specified to make the whole "
+"procedure static and thus jittable."
 msgstr ""
 
-#: ../../source/advance.rst:39
-msgid "Prameterized measurements"
+#: ../../source/advance.rst:40
+msgid "Jitted function save/load"
 msgstr ""
 
-#: ../../source/advance.rst:42
+#: ../../source/advance.rst:43
+msgid "Parameterized measurements"
+msgstr ""
+
+#: ../../source/advance.rst:46
 msgid "Randoms, jit, backend agnostic and their interplay"
 msgstr ""
 
-#: ../../source/advance.rst:85
+#: ../../source/advance.rst:89
 msgid ""
 "Therefore, a unified jittable random infrastructure with backend agnostic"
 " can be formulatted as"
 msgstr ""
+
+#~ msgid "Advance Usage"
+#~ msgstr ""
+
+#~ msgid "SavedModel"
+#~ msgstr ""
+
+#~ msgid "Prameterized measurements"
+#~ msgstr ""
 

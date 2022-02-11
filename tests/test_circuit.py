@@ -2,6 +2,7 @@ import sys
 import os
 from functools import partial
 import numpy as np
+import opt_einsum as oem
 import pytest
 from pytest_lazyfixture import lazy_fixture as lf
 
@@ -678,3 +679,30 @@ def test_vis_tex():
     c.cz(2, 1)
 
     print(c.vis_tex(init=["0", "1", ""], measure=["x", "y", "z"]))
+
+
+def test_debug_contract():
+    n = 10
+    d = 4
+    try:
+        import cotengra  # pylint: disable=unused-import
+
+    except ImportError:
+        pytest.skip("cotengra is not installed")
+
+    @tc.set_function_contractor(
+        "custom_stateful",
+        optimizer=oem.RandomGreedy,
+        max_time=10,
+        max_repeats=64,
+        minimize="size",
+        debug_level=2,
+        contraction_info=True,
+    )
+    def small_tn():
+        param = tc.backend.ones([2 * d, n])
+        c = tc.Circuit(n)
+        c = tc.templates.blocks.example_block(c, param, nlayers=d)
+        return c.state()
+
+    np.testing.assert_allclose(small_tn(), np.zeros([2 ** n]), atol=1e-5)

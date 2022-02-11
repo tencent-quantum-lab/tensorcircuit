@@ -5,7 +5,7 @@ tensorflow==2.7
 tensornetwork==0.4.6
 graphviz
 jax==0.2.27
-# jablib indepedent specify the version
+# jaxlib indepedent specify the version in Dockerfile
 torch
 torchvision
 networkx
@@ -27,4 +27,6 @@ pytest-lazy-fixture
 black==21.9b0
 sphinx>=4.0
 sphinx-intl
+sphinx-copybutton
+furo
 pylint==2.11.1

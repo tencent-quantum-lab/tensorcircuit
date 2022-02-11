@@ -6,13 +6,23 @@ TensorCircuit is built on top of modern machine learning frameworks, and has the
 
 ## Basic Usage
 
+Please begin with [Quick Start](/docs/source/quickstart.rst) and [Jupyter Tutorials](https://github.com/quclub/tensorcircuit-tutorials/tree/master/tutorials).
+
+For more information and introductions, please refer to helpful scripts [examples](/examples) and [documentations](/docs/source). API docstrings (incomplete for now) and test cases in [tests](/tests) are also informative.
+
+The following are some minimal demos.
+
+Circuit manipulation:
+
 ```python
 import tensorcircuit as tc
 c = tc.Circuit(2)
 c.H(0)
 c.CNOT(0,1)
+c.rx(1, theta=0.2)
 print(c.wavefunction())
 print(c.expectation((tc.gates.z(), [1])))
+print(c.perfect_sampling())
 ```
 
 Runtime behavior customization:
@@ -23,10 +33,9 @@ tc.set_dtype("complex128")
 tc.set_contractor("greedy")
 ```
 
-Auto differentiations with jit:
+Automatic differentiations with jit:
 
 ```python
-@tc.backend.jit
 def forward(theta):
     c = tc.Circuit(2)
     c.R(0, theta=theta, alpha=0.5, phi=0.8)
@@ -38,13 +47,11 @@ theta = tc.gates.num_to_tensor(1.0)
 print(g(theta))
 ```
 
-Please begin with [Quick Start](/docs/source/quickstart.rst) and [Jupyter Tutorials](https://github.com/quclub/tensorcircuit-tutorials/tree/master/tutorials).
-
-For more information and introductions, please refer to examples and docs/source in this repo. API docstrings (incomplete for now) and test cases in tests are also helpful and informative.
-
 ## Contributing
 
-### Guidelines
+For contribution guidelines and notes, see [CONTRIBUTING](/CONTRIBUTING.md).
+
+### Cautions
 
 Please open issues or PRs.
 
@@ -55,8 +62,6 @@ Keep the codebase private!
 ### Install
 
 For development workflow, we suggest to first configure a good conda environment. The versions of dependecy package may vary in terms of development requirements. The minimum requirement is the [TensorNetwork](https://github.com/google/TensorNetwork) package (pip install suggested).
-
-For git workflow of contribution, see [CONTRIBUTING](/CONTRIBUTING.md).
 
 ### Docs
 
@@ -96,10 +101,6 @@ For now, we introduce one for all checker for development:
 ```bash
 ./check_all.sh
 ```
-
-### CI
-
-We currently use GitHub Action for test CI, but it has limited quota for free private repo.
 
 ## Research projects and application codes
 

@@ -1,9 +1,11 @@
 ================
-Advance Usage
+Advanced Usage
 ================
 
 MPS simulator
 ----------------
+
+(Still experimental support)
 
 Split two-qubit gates
 -------------------------
@@ -31,11 +33,13 @@ The two-qubit gates applied on the circuit can be decomposed via SVD, which may 
             split=split_conf
         )
 
+Note ``max_singular_values`` must be specified to make the whole procedure static and thus jittable.
 
-SavedModel
------------------
 
-Prameterized measurements
+Jitted function save/load
+-----------------------------
+
+Parameterized measurements
 -----------------------------
 
 Randoms, jit, backend agnostic and their interplay

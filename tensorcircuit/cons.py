@@ -135,7 +135,7 @@ def runtime_backend(backend: Optional[str] = None) -> Iterator[Any]:
 
 def set_dtype(dtype: Optional[str] = None, set_global: bool = True) -> Tuple[str, str]:
     """
-    To set the runtime numerical dtype of tensors
+    To set the runtime numerical dtype of tensors.
 
     :param dtype: "complex64" or "complex128", defaults to None, which is equivalent to "complex64".
     :type dtype: Optional[str], optional
@@ -200,7 +200,7 @@ def runtime_dtype(dtype: Optional[str] = None) -> Iterator[Tuple[str, str]]:
 
 
 def _multi_remove(elems: List[Any], indices: List[int]) -> List[Any]:
-    """Remove multiple indicies in a list for one time."""
+    """Remove multiple indices from a list for one time."""
     return [i for j, i in enumerate(elems) if j not in indices]
 
 
@@ -304,11 +304,11 @@ def plain_contractor(
     ignore_edge_order: bool = False,
 ) -> Any:
     """
-    The naive statevector simulator contraction path.
+    The naive state-vector simulator contraction path.
 
     :param nodes: The list of ``tn.Node``.
     :type nodes: List[Any]
-    :param output_edge_order: The list of dangling node edges, defaults to None.
+    :param output_edge_order: The list of dangling node edges, defaults to be None.
     :type output_edge_order: Optional[List[Any]], optional
     :return: The ``tn.Node`` after contraction
     :rtype: tn.Node
@@ -493,7 +493,7 @@ def _base(
     output_edge_order: Optional[Sequence[tn.Edge]] = None,
     ignore_edge_order: bool = False,
     total_size: Optional[int] = None,
-    rehearsal: bool = False,
+    debug_level: int = 0,
 ) -> tn.Node:
     """
     The base method for all `opt_einsum` contractors.
@@ -560,6 +560,12 @@ def _base(
     #     path = algorithm
     # else:
     path, nodes = _get_path_cache_friendly(nodes, algorithm)
+    if debug_level == 2:  # do nothing
+        if output_edge_order:
+            shape = [e.dimension for e in output_edge_order]
+        else:
+            shape = []
+        return tn.Node(backend.zeros(shape))
     logger.info("the contraction path is given as %s" % str(path))
     if total_size is None:
         total_size = sum([_sizen(t) for t in nodes])
@@ -569,7 +575,7 @@ def _base(
             continue
         a, b = ab
 
-        if rehearsal:
+        if debug_level == 1:
             from .simplify import pseudo_contract_between
 
             new_node = pseudo_contract_between(nodes[a], nodes[b])
@@ -612,14 +618,14 @@ def custom(
         alg = partial(optimizer, memory_limit=memory_limit)
     else:
         alg = optimizer
-    rehearsal = kws.get("rehearsal", False)
+    debug_level = kws.get("debug_level", 0)
     return _base(
         nodes,
         alg,
         output_edge_order,
         ignore_edge_order,
         total_size,
-        rehearsal=rehearsal,
+        debug_level=debug_level,
     )
 
 
@@ -647,7 +653,7 @@ def custom_stateful(
     if kws.get("contraction_info", None):
         opt = contraction_info_decorator(opt)
     alg = partial(opt, memory_limit=memory_limit)
-    rehearsal = kws.get("rehearsal", False)
+    debug_level = kws.get("debug_level", 0)
 
     return _base(
         nodes,
@@ -655,7 +661,7 @@ def custom_stateful(
         output_edge_order,
         ignore_edge_order,
         total_size,
-        rehearsal=rehearsal,
+        debug_level=debug_level,
     )
 
 
@@ -673,11 +679,11 @@ def contraction_info_decorator(algorithm: Callable[..., Any]) -> Callable[..., A
         tree = ContractionTree.from_path(input_sets, output_set, size_dict, path=path)
         print("------ contraction cost summary ------")
         print(
-            "flops: ",
-            "%.3f" % np.log2(tree.total_flops()),
-            " size: ",
+            "log10[FLOPs]: ",
+            "%.3f" % np.log10(tree.total_flops()),
+            " log2[SIZE]: ",
             "%.0f" % tree.contraction_width(),
-            " write: ",
+            " log2[WRITE]: ",
             "%.3f" % np.log2(tree.total_write()),
         )
         return path
@@ -692,6 +698,7 @@ def set_contractor(
     opt_conf: Optional[Dict[str, Any]] = None,
     set_global: bool = True,
     contraction_info: bool = False,
+    debug_level: int = 0,
     **kws: Any
 ) -> Callable[..., Any]:
     """
@@ -731,6 +738,7 @@ def set_contractor(
             optimizer=optimizer,
             opt_conf=opt_conf,
             contraction_info=contraction_info,
+            debug_level=debug_level,
             **kws
         )
 
@@ -743,7 +751,13 @@ def set_contractor(
             optimizer = getattr(opt_einsum.paths, method)
         if contraction_info is True:
             optimizer = contraction_info_decorator(optimizer)  # type: ignore
-        cf = partial(custom, optimizer=optimizer, memory_limit=memory_limit, **kws)
+        cf = partial(
+            custom,
+            optimizer=optimizer,
+            memory_limit=memory_limit,
+            debug_level=debug_level,
+            **kws
+        )
     if set_global:
         for module in modules:
             if module in sys.modules:

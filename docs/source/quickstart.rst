@@ -90,8 +90,8 @@ The IR is given as a list, each element is a dict containing information on one 
 .. code-block:: python
 
     >>> c = tc.Circuit(2)
-    >>> c.cnot(0,1)
-    >>> c.crx(1,0, theta=0.2)
+    >>> c.cnot(0, 1)
+    >>> c.crx(1, 0, theta=0.2)
     >>> c.to_qir()
     [{'gate': cnot, 'index': (0, 1), 'name': 'cnot', 'split': None}, {'gate': crx, 'index': (1, 0), 'name': 'crx', 'split': None, 'parameters': {'theta': 0.2}}]
 
@@ -125,6 +125,9 @@ The most common use case and the most typical programming paradigm for TensorCir
     vagf = K.jit(K.value_and_grad(loss), static_argnums=1)
     params = K.implicit_randn([2, n])
     print(vagf(params, n))  # get the quantum loss and the gradient
+
+Also for a non-quantum simpler example (linear regression) demonstrating the backend agnostic feature, pytree support for variables, AD/jit/vmap usage and variational optimization loops, please refer to the example script: `linear regression example <https://github.com/quclub/tensorcircuit-dev/blob/master/examples/universal_lr.py>`_.
+This example might be more friendly to machine learning community since it is purely classical while also showcasing the main features and paradigms of tensorcircuit.
 
 If the users have no intension to maintain the application code in a backend agnostic fashion, the API for ML frameworks can be more freely used and interleaved with TensorCircuit API.
 
@@ -167,11 +170,22 @@ For the concepts of AD, JIT and VMAP, please refer to `Jax documentation <https:
 
 The related API design in TensorCircuit closely follows the functional programming design pattern in Jax with some slight differences. So we strongly recommend the users to learn some basics about Jax no matter which ML backend they intend to use.
 
-- AD support: gradients, vjps, jvps, natural gradients, Jacobians and Hessians
+**AD support:**
 
-- JIT support: parameterized quantum circuit can run in a blink
+Gradients, vjps, jvps, natural gradients, Jacobians and Hessians.
+AD is the base for all modern machine learning libraries.
 
-- VMAP support: inputs, parameters, measurements, circuit structures, Monte Carlo noise can all be parallelly evaluate
+
+**JIT support:**
+
+Parameterized quantum circuit can run in a blink. Always use jit if the circuit will get evaluations multiple times, it greatly boost the simulation efficiency with two or three order time reduction. But also be caution, you need to be an expert on jit, otherwise the jitted function may return unexpected results or recompiling on every hit (wasting lots of time).
+To learn more about jit mechanism, one can refer to documentations or blogs on ``tf.function`` or ``jax.jit``, though these two still have subtle differences.
+
+
+**VMAP support:**
+
+Inputs, parameters, measurements, circuit structures, Monte Carlo noise can all be parallelly evaluate.
+To learn more about vmap mechanism, one can refer to documentations or blogs on ``tf.vectorized_map`` or ``jax.vmap``.
 
 
 Backend Agnosticism
@@ -250,7 +264,9 @@ Some setup cases:
     # 3. state simulator like contractor provided by tensorcircuit, maybe better when there is ring topology for two-qubit gate layout
     tc.set_contractor("plain-experimental")
 
-For advanced configuration on cotengra contractor, please refer cotengra `doc <https://cotengra.readthedocs.io/en/latest/advanced.html>`__.
+For advanced configuration on cotengra contractor, please refer cotengra `doc <https://cotengra.readthedocs.io/en/latest/advanced.html>`__ and more fancy examples can be found at `contractor tutorial <https://github.com/quclub/tensorcircuit-tutorials/blob/master/tutorials/contractors.ipynb>`__.
+
+**Setup in function or context level**
 
 Besides global level setup, we can also setup the backend, the dtype and the contractor in function level or context manager level:
 

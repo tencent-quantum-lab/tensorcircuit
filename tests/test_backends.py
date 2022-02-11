@@ -728,7 +728,7 @@ def test_optimizers(backend):
         params = opt.update(grads, params)
         print(loss)
 
-    assert loss < -0.8
+    assert loss < -0.7
 
     def f2(params, n):
         c = tc.Circuit(n)
@@ -746,7 +746,7 @@ def test_optimizers(backend):
         params = opt.update(grads, params)
         print(loss)
 
-    assert loss < -0.8
+    assert loss < -0.7
 
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])

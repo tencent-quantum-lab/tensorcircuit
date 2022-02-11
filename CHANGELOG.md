@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- new universal contraction analyse tools and pseudo contraction rehearsals for debug
+
 ## 0.0.220126
 
 ### Added

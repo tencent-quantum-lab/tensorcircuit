@@ -1,0 +1,241 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, The TensorCircuit Authors
+# This file is distributed under the same license as the tensorcircuit
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: tensorcircuit \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-02-10 16:18+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../source/infras.rst:3
+msgid "TensorCircuit: What is inside?"
+msgstr ""
+
+#: ../../source/infras.rst:5
+msgid ""
+"This part of documentation is mainly for advanced users and developers "
+"who want to learn more about what happened behind the scene and delve "
+"into the codebase."
+msgstr ""
+
+#: ../../source/infras.rst:9
+msgid "Overview of modules"
+msgstr ""
+
+#: ../../source/infras.rst:11
+msgid "**Core modules:**"
+msgstr ""
+
+#: ../../source/infras.rst:13
+msgid ""
+":py:mod:`tensorcircuit.circuit`: The core object "
+":py:obj:`tensorcircuit.circuit.Circuit`. It supports circuit "
+"construction, simulation, representation and visualization without noise "
+"or with noise using Monte Carlo trajectory approach."
+msgstr ""
+
+#: ../../source/infras.rst:15
+msgid ""
+":py:mod:`tensorcircuit.cons`: Runtime ML backend, dtype and contractor "
+"setups. We provide three sets of set methods for global setup, function "
+"level setup using function decorators and context setup using ``with`` "
+"context managers. We also include customized contractor infrastructures "
+"in this module."
+msgstr ""
+
+#: ../../source/infras.rst:17
+msgid ""
+":py:mod:`tensorcircuit.gates`: Definition of quantum gates, either fixed "
+"ones or parameterized ones, as well as "
+":py:obj:`tensorcircuit.gates.GateF` class for gates."
+msgstr ""
+
+#: ../../source/infras.rst:19
+msgid "**Backend agnostic abstraction:**"
+msgstr ""
+
+#: ../../source/infras.rst:21
+msgid ""
+":py:mod:`tensorcircuit.backends` provides a set of backend API and the "
+"coreesponding implementation on Numpy, Jax, TensorFlow and PyTorch "
+"backends. These backends are inherited fron TensorNetwork package and "
+"highly customized."
+msgstr ""
+
+#: ../../source/infras.rst:23
+msgid "**Noisy simulation related modules:**"
+msgstr ""
+
+#: ../../source/infras.rst:25
+msgid ":py:mod:`tensorcircuit.channels`: Definition of quantum noise channels."
+msgstr ""
+
+#: ../../source/infras.rst:27
+msgid ""
+":py:mod:`tensorcircuit.densitymatrix`: Referenced implementation of "
+"``tc.DMCircuit`` class, with similar set API of ``tc.Circuit`` while "
+"simulating the noise in the full form of density matrix."
+msgstr ""
+
+#: ../../source/infras.rst:29
+msgid ""
+":py:mod:`tensorcircuit.densitymatrix2`: Highly efficient implementation "
+"of :py:obj:`tensorcircuit.densitymatrix2.DMCircuit2` class, always "
+"preferred than the referenced implementation."
+msgstr ""
+
+#: ../../source/infras.rst:31
+msgid "**ML interfaces related modules:**"
+msgstr ""
+
+#: ../../source/infras.rst:33
+msgid ""
+":py:mod:`tensorcircuit.interfaces`: Provide interfaces when quantum "
+"simulation backend is different from neural libraries. Currently include "
+"PyTorch and scipy optimizer interfaces."
+msgstr ""
+
+#: ../../source/infras.rst:35
+msgid ""
+":py:mod:`tensorcircuit.keras`: Provide TensorFlow Keras layers as well as"
+" wrappers of jitted function save/load from tf side."
+msgstr ""
+
+#: ../../source/infras.rst:37
+msgid "**MPS and MPO utilities modules:**"
+msgstr ""
+
+#: ../../source/infras.rst:39
+msgid ""
+":py:mod:`tensorcircuit.quantum`: Provide definition and classes for "
+"Matrix Product States as well as Matrix Product Operators, we also "
+"include various quantum physics and quantum information quantities in "
+"this module."
+msgstr ""
+
+#: ../../source/infras.rst:41
+msgid "**MPS based simulator modules:**"
+msgstr ""
+
+#: ../../source/infras.rst:43
+msgid ""
+":py:mod:`tensorcircuit.mps_base`: Customized and jit/AD compatible MPS "
+"class from TensorNetwork package."
+msgstr ""
+
+#: ../../source/infras.rst:45
+msgid ""
+":py:mod:`tensorcircuit.mpscircuit`: "
+":py:obj:`tensorcircuit.mpscircuit.MPSCircuit` class with similar (but "
+"subtley different) APIs as ``tc.Circuit``, where the simulation engine is"
+" based on MPS TEBD."
+msgstr ""
+
+#: ../../source/infras.rst:47
+msgid "**Supplemental modules:**"
+msgstr ""
+
+#: ../../source/infras.rst:49
+msgid ""
+":py:mod:`tensorcircuit.simplify`: Provide tools and utility functions to "
+"simplify the tensornetworks before the real contractions."
+msgstr ""
+
+#: ../../source/infras.rst:51
+msgid ""
+":py:mod:`tensorcircuit.experimental`: Experimental functions, long and "
+"stable support is not guaranteed."
+msgstr ""
+
+#: ../../source/infras.rst:53
+msgid ""
+":py:mod:`tensorcircuit.utils`: Some and general function tools that is "
+"not quantum at all."
+msgstr ""
+
+#: ../../source/infras.rst:55
+msgid ":py:mod:`tensorcircuit.vis`: Visualization code for circuit drawing."
+msgstr ""
+
+#: ../../source/infras.rst:57
+msgid "**Shortcuts and templates for circuit manipulation:**"
+msgstr ""
+
+#: ../../source/infras.rst:59
+msgid ""
+":py:mod:`tensorcircuit.templates`: provide handy shortcuts functions for "
+"expectation or circuit building patterns."
+msgstr ""
+
+#: ../../source/infras.rst:61
+msgid "**Applications:**"
+msgstr ""
+
+#: ../../source/infras.rst:63
+msgid ""
+":py:mod:`tensorcircuit.applications`: most code here are not maintained "
+"and deprecated, use on your own risk."
+msgstr ""
+
+#: ../../source/infras.rst:67
+msgid ""
+"Recommend reading order -- only read the part of code you care about on "
+"your purpose. If you want to get and overview of the codebase, please "
+"read ``tc.circuit`` following by ``tc.cons`` and ``tc.gates``."
+msgstr ""
+
+#: ../../source/infras.rst:72
+msgid "Relation between TensorCircuit and TensorNetwork"
+msgstr ""
+
+#: ../../source/infras.rst:74
+msgid ""
+"TensorCircuit has a strong relation with the `TensorNetwork package "
+"<https://github.com/google/TensorNetwork>`_ released by Google. Since "
+"TensorNetwork package has poor documentation and tutorials, most of the "
+"time, we need to delve into the codebase of TensorNetwork to figure out "
+"what happened. In other words, to read TensorCircuit codebase, one may "
+"have to frequently refer to TensorNetwork codebase."
+msgstr ""
+
+#: ../../source/infras.rst:76
+msgid ""
+"Inside TensorCircuit, we heavily utilize tensornetwork related APIs from "
+"TensorNetwork package and highly customized several modules from "
+"TensorNetwork by inheritance and rewriting:"
+msgstr ""
+
+#: ../../source/infras.rst:78
+msgid ""
+"We implement our own /backends from TensorNetwork's /backends by adding "
+"much more APIs and fixing lots of bugs in TensorNetwork's implementations"
+" on certain backends via monkey patching. (The upstream is inactive and "
+"not that responsive anyhow.)"
+msgstr ""
+
+#: ../../source/infras.rst:80
+msgid ""
+"We borrow TensorNetwork's code in /quantum to our ``tc.quantum`` module, "
+"since they has no ``__init__.py`` file to export these MPO and MPS "
+"related objects. Of course, we have made substantial improvements since "
+"then."
+msgstr ""
+
+#: ../../source/infras.rst:82
+msgid ""
+"We borrow the TensorNetwork's code in /matrixproductstates as "
+"``tc.mps_base`` for bug fixing and jit/AD compatibility, so that we have "
+"better support for our MPS based quantum circuit simulator."
+msgstr ""
+
