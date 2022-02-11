@@ -427,7 +427,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         :param a: [description]
         :type a: Tensor
         :param axis: The default behavior is the same as numpy, different from tf/torch
-            as cumsum of the flattern 1D array, defaults to None
+            as cumsum of the flatten 1D array, defaults to None
         :type axis: Optional[int], optional
         :return: [description]
         :rtype: Tensor
@@ -621,7 +621,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         dtype: str = "32",
     ) -> Tensor:
         """
-        Call random normal function with the random state management behind the scene.
+        Call the random normal function with the random state management behind the scene.
 
         :param shape: [description], defaults to 1
         :type shape: Union[int, Sequence[int]], optional
@@ -723,7 +723,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def scatter(self: Any, operand: Tensor, indices: Tensor, updates: Tensor) -> Tensor:
         """
-        Roughly equivalent to operand[indices] = updates, indices only support shape with rank 2 for now
+        Roughly equivalent to operand[indices] = updates, indices only support shape with rank 2 for now.
 
         :param operand: [description]
         :type operand: Tensor
@@ -745,7 +745,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         self: Any, indices: Tensor, values: Tensor, shape: Tensor
     ) -> Tensor:
         """
-        generate coo format sparse matrix from indices and values,
+        Generate the coo format sparse matrix from indices and values,
         the only sparse format supported in different ML backends
 
         :param indices: shape [n, 2] for n non zero values in the returned matrix
@@ -767,7 +767,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         b: Tensor,
     ) -> Tensor:
         """
-        sparse matrix times dense matrix
+        A sparse matrix multiplies a dense matrix
 
         :param sp_a: [description]
         :type sp_a: Tensor
@@ -782,7 +782,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def to_dense(self: Any, sp_a: Tensor) -> Tensor:
         """
-        convert sparse matrix to dense tensor
+        Convert sparse matrix to dense tensor.
 
         :param sp_a: [description]
         :type sp_a: Tensor
@@ -795,7 +795,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def is_sparse(self: Any, a: Tensor) -> bool:
         """
-        determine whether the type of input ``a`` is of sparse type
+        Determine whether the type of input ``a`` is of the sparse type.
 
         :param a: [description]
         :type a: Tensor
@@ -813,7 +813,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         false_fun: Callable[[], Tensor],
     ) -> Tensor:
         """
-        the native cond for XLA compiling, wrapper for ``tf.cond`` and limited functionality of ``jax.lax.cond``
+        The native cond for XLA compiling, wrapper for ``tf.cond`` and limited functionality of ``jax.lax.cond``.
 
         :param pred: [description]
         :type pred: bool
@@ -848,7 +848,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def stop_gradient(self: Any, a: Tensor) -> Tensor:
         """
-        stop backpropagation from a
+        Stop backpropagation from a.
 
         :param a: [description]
         :type a: Tensor
@@ -881,7 +881,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         :type f: Callable[..., Any]
         :param argnums: the position of args in ``f`` that are to be differentiated, defaults to 0
         :type argnums: Union[int, Sequence[int]], optional
-        :return: the grad fuction of ``f`` with the same set of arguments as ``f``
+        :return: the grad function of ``f`` with the same set of arguments as ``f``
         :rtype: Callable[..., Any]
         """
         raise NotImplementedError(
@@ -955,7 +955,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         :type f: Callable[..., Any]
         :param inputs: input for ``f``
         :type inputs: Union[Tensor, Sequence[Tensor]]
-        :param v: value vector or gradient from downstream in reserse mode AD
+        :param v: value vector or gradient from downstream in reverse mode AD
             the same shape as return of function ``f``
         :type v: Union[Tensor, Sequence[Tensor]]
         :return: (``f(*inputs)``, vjp_tensor), where vjp_tensor is the same shape as inputs
