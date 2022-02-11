@@ -1,4 +1,4 @@
-tensorcircuit.templates.blocks module
+tensorcircuit.templates.blocks
 ==================================================
 
 .. automodule:: tensorcircuit.templates.blocks

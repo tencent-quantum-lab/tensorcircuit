@@ -1,4 +1,4 @@
-tensorcircuit.backends.backend_factory module
+tensorcircuit.backends.backend_factory
 ==================================================
 
 .. automodule:: tensorcircuit.backends.backend_factory

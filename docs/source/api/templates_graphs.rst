@@ -1,4 +1,4 @@
-tensorcircuit.templates.graphs module
+tensorcircuit.templates.graphs
 ==================================================
 
 .. automodule:: tensorcircuit.templates.graphs

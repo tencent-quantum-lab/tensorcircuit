@@ -1,4 +1,5 @@
-import os, glob
+import os
+import glob
 
 modules_content = """tensorcircuit
 ==================================================
@@ -23,7 +24,7 @@ module_content2 = """tensorcircuit.{}
 
 """
 
-submodule_content = """tensorcircuit.{} module
+submodule_content = """tensorcircuit.{}
 ==================================================
 
 .. automodule:: tensorcircuit.{}
@@ -51,6 +52,8 @@ def main():
             continue
 
         subdir = os.path.basename(os.path.normpath(subdir))
+        if subdir == "applications":  # temporally disable this module
+            continue
 
         all_submodules = []
         for module_name in glob.glob(f"../../tensorcircuit/{subdir}/*.py"):
@@ -60,7 +63,6 @@ def main():
                 "abstract_backend",
                 "tf_ops",
                 "jax_ops",
-                "abstract_backend",
             ]:
                 continue
 
@@ -99,3 +101,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# current weakness: cannot update outdated module names

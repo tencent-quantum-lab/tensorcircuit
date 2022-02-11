@@ -1,4 +1,4 @@
-tensorcircuit.backends.pytorch_backend module
+tensorcircuit.backends.pytorch_backend
 ==================================================
 
 .. automodule:: tensorcircuit.backends.pytorch_backend
