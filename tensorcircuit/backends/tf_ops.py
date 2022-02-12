@@ -1,5 +1,5 @@
 """
-customized ops for ML framework
+Customized ops for ML framework
 """
 # pylint: disable=invalid-name
 

@@ -1,5 +1,5 @@
 """
-modules for graph instance data and more
+Modules for graph instance data and more
 """
 
 import itertools

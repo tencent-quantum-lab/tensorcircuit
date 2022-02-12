@@ -133,7 +133,7 @@ def save_func(f: Callable[..., Any], path: str) -> None:
     r"""
     Save tf function in the file (``tf.savedmodel`` format).
 
-    Example:
+    :Example:
 
     .. code-block:: python
 
@@ -187,7 +187,7 @@ def load_func(
     Load function from the files in the ``tf.savedmodel`` format.
     We can load several functions at the same time, as they can be the same function of different input shapes.
 
-    Example:
+    :Example:
 
     .. code-block:: python
 

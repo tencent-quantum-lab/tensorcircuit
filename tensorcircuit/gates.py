@@ -110,7 +110,7 @@ class Gate(tn.Node):  # type: ignore
     def __repr__(self) -> str:
         """Formatted output of Gate
 
-        Example:
+        :Example:
 
         >>> tc.gates.ry(0.5)
         >>> # OR
@@ -143,7 +143,7 @@ def num_to_tensor(*num: Union[float, Tensor], dtype: Optional[str] = None) -> An
     r"""
     Convert the inputs to Tensor with specified dtype.
 
-    Example:
+    :Example:
 
     >>> from tensorcircuit.gates import num_to_tensor
     >>> # OR
@@ -319,7 +319,7 @@ def matrix_for_gate(gate: Gate, tol: float = 1e-6) -> Tensor:
     r"""
     Convert Gate to numpy array.
 
-    Example:
+    :Example:
 
     >>> gate = tc.gates.r_gate()
     >>> tc.gates.matrix_for_gate(gate)
@@ -344,7 +344,7 @@ def bmatrix(a: Array) -> str:
     r"""
     Returns a LaTeX bmatrix.
 
-    Example:
+    :Example:
 
     >>> gate = tc.gates.r_gate()
     >>> array = tc.gates.matrix_for_gate(gate)

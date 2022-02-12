@@ -1,5 +1,5 @@
 """
-relevant classes for VQNHE
+Relevant classes for VQNHE
 """
 from functools import lru_cache
 from itertools import product

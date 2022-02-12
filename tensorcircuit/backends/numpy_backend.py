@@ -1,5 +1,5 @@
 """
-backend magic inherited from tensornetwork: numpy backend
+Backend magic inherited from tensornetwork: numpy backend
 """
 # pylint: disable=invalid-name
 

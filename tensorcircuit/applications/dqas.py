@@ -1,5 +1,5 @@
 """
-modules for DQAS framework
+Modules for DQAS framework
 """
 # possibly deprecated, multiprocessing is not the recommended way to do DQAS task now, using vmap!
 

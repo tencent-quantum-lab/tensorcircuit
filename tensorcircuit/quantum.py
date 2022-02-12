@@ -57,7 +57,7 @@ def quantum_constructor(
     If there are no edges, creates a QuScalar. If the are only output (input)
     edges, creates a QuVector (QuAdjointVector). Otherwise creates a QuOperator.
 
-    Example:
+    :Example:
 
     .. code-block:: python
 
@@ -131,7 +131,7 @@ def identity(
     Internally, this is done by constructing 'CopyNode's for each edge, with
     dimension according to 'space'.
 
-    Example:
+    :Example:
 
     >>> E = qu.identity((2, 3, 4))
     >>> float(E.trace().eval())
@@ -304,7 +304,7 @@ class QuOperator:
         This first wraps the tensor in a `Node`, then constructs the `QuOperator`
         from that `Node`.
 
-        Example:
+        :Example:
         
         .. code-block:: python
 
@@ -711,7 +711,7 @@ class QuVector(QuOperator):
         This first wraps the tensor in a `Node`, then constructs the `QuVector`
         from that `Node`.
 
-        Example:
+        :Example:
         
         .. code-block:: python
 
@@ -800,7 +800,7 @@ class QuAdjointVector(QuOperator):
         Construct a `QuAdjointVector` directly from a single tensor.
         This first wraps the tensor in a `Node`, then constructs the `QuAdjointVector` from that `Node`.
         
-        Example:
+        :Example:
         
         .. code-block:: python
 
@@ -881,7 +881,7 @@ class QuScalar(QuOperator):
         Construct a `QuScalar` directly from a single tensor.
         This first wraps the tensor in a `Node`, then constructs the `QuScalar` from that `Node`.
         
-        Example:
+        :Example:
         
         .. code-block:: python
 
@@ -1364,7 +1364,7 @@ def measurement_counts(
     Simulate the measuring of each qubit of ``p`` in the computational basis,
     thus producing output like that of ``qiskit``.
 
-    Example:
+    :Example:
 
     >>> tc.quantum.measurement_counts(np.ones([2**6])/2**3, counts=16, sparse=True)
     (array([ 4,  7, 13, 19, 21, 33, 36, 41, 42, 45, 49, 50, 54, 56]),

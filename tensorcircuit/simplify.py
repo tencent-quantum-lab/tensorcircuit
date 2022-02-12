@@ -32,7 +32,7 @@ def infer_new_shape(a: tn.Node, b: tn.Node, include_old: bool = True) -> Any:
     """
     Get the new shape of two nodes, also supporting to return original shapes of two nodes.
 
-    Example:
+    :Example:
 
     >>> a = tn.Node(np.ones([2, 3, 5]))
     >>> b = tn.Node(np.ones([3, 5, 7]))
@@ -157,7 +157,7 @@ def _full_rank_simplify(nodes: List[Any]) -> List[Any]:
     """
     Simplify the list of tc.Nodes without increasing the rank of any tensors.
 
-    Example:
+    :Example:
 
     .. code-block:: python
 

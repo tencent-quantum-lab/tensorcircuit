@@ -64,7 +64,7 @@ def set_tensornetwork_backend(
 
     Note: ``tc.set_backend`` and ``tc.cons.set_tensornetwork_backend`` are the same.
 
-    Example:
+    :Example:
 
     >>> tc.set_backend("numpy")
     numpy_backend
