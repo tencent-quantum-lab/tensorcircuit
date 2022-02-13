@@ -33,7 +33,7 @@ _INSTANTIATED_BACKENDS: Dict[str, bk] = dict()
 
 def get_backend(backend: Union[Text, bk]) -> bk:
     """
-    Get the `tc.backend` object
+    Get the `tc.backend` object.
 
     :param backend: "numpy", "tensorflow", "jax", "pytorch"
     :type backend: Union[Text, tnbackend]

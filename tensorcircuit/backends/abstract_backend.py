@@ -532,7 +532,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         """
         Get the backend specific random state object.
 
-        :param seed: [description], defaults to None
+        :param seed: [description], defaults to be None
         :type seed: Optional[int], optional
         :return:the backend specific random state object
         :rtype: Any
@@ -746,7 +746,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
     ) -> Tensor:
         """
         Generate the coo format sparse matrix from indices and values,
-        the only sparse format supported in different ML backends
+        which is the only sparse format supported in different ML backends.
 
         :param indices: shape [n, 2] for n non zero values in the returned matrix
         :type indices: Tensor
@@ -767,11 +767,11 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         b: Tensor,
     ) -> Tensor:
         """
-        A sparse matrix multiplies a dense matrix
+        A sparse matrix multiplies a dense matrix.
 
-        :param sp_a: [description]
+        :param sp_a: a sparse matrix
         :type sp_a: Tensor
-        :param b: [description]
+        :param b: a dense matrix
         :type b: Tensor
         :return: dense matrix
         :rtype: Tensor
@@ -782,11 +782,11 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def to_dense(self: Any, sp_a: Tensor) -> Tensor:
         """
-        Convert sparse matrix to dense tensor.
+        Convert a sparse matrix to dense tensor.
 
-        :param sp_a: [description]
+        :param sp_a: a sparse matrix
         :type sp_a: Tensor
-        :return: [description]
+        :return: the resulted dense matrix
         :rtype: Tensor
         """
         raise NotImplementedError(
@@ -795,11 +795,11 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def is_sparse(self: Any, a: Tensor) -> bool:
         """
-        Determine whether the type of input ``a`` is of the sparse type.
+        Determine whether the type of input ``a`` is  ``sparse``.
 
-        :param a: [description]
+        :param a: input matrix ``a``
         :type a: Tensor
-        :return: [description]
+        :return: a bool indicating whether the matrix ``a`` is sparse
         :rtype: bool
         """
         raise NotImplementedError(
@@ -848,7 +848,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def stop_gradient(self: Any, a: Tensor) -> Tensor:
         """
-        Stop backpropagation from a.
+        Stop backpropagation from ``a``.
 
         :param a: [description]
         :type a: Tensor
@@ -868,18 +868,21 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         """
         Return the function which is the grad function of input ``f``.
 
+        Example:
+
         .. code-block:: python
 
-            f = lambda x,y: x**2+2*y
-            g = tc.backend.grad(f)
-            g(tc.num_to_tensor(1),tc.num_to_tensor(2)) # return 2
-            g = tc.backend.grad(f, argnums=(0,1))
-            g(tc.num_to_tensor(1),tc.num_to_tensor(2)) # return [2, 2]
+        >>> f = lambda x,y: x**2+2*y
+        >>> g = tc.backend.grad(f)
+        >>> g(tc.num_to_tensor(1),tc.num_to_tensor(2))
+        2
+        >>> g = tc.backend.grad(f, argnums=(0,1))
+        >>> g(tc.num_to_tensor(1),tc.num_to_tensor(2))
+        [2, 2]
 
-
-        :param f: function to be differentiated
+        :param f: the function to be differentiated
         :type f: Callable[..., Any]
-        :param argnums: the position of args in ``f`` that are to be differentiated, defaults to 0
+        :param argnums: the position of args in ``f`` that are to be differentiated, defaults to be 0
         :type argnums: Union[int, Sequence[int]], optional
         :return: the grad function of ``f`` with the same set of arguments as ``f``
         :rtype: Callable[..., Any]
@@ -897,18 +900,21 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         """
         Return the function which returns the value and grad of ``f``.
 
+        Example:
+
         .. code-block:: python
 
-            f = lambda x,y: x**2+2*y
-            g = tc.backend.value_and_grad(f)
-            g(tc.num_to_tensor(1),tc.num_to_tensor(2)) # return 5, 2
-            g = tc.backend.value_and_grad(f, argnums=(0,1))
-            g(tc.num_to_tensor(1),tc.num_to_tensor(2)) # return 5, [2, 2]
+        >>> f = lambda x,y: x**2+2*y
+        >>> g = tc.backend.value_and_grad(f)
+        >>> g(tc.num_to_tensor(1),tc.num_to_tensor(2))
+        5, 2
+        >>> g = tc.backend.value_and_grad(f, argnums=(0,1))
+        >>> g(tc.num_to_tensor(1),tc.num_to_tensor(2))
+        5, [2, 2]
 
-
-        :param f: function to be differentiated
+        :param f: the function to be differentiated
         :type f: Callable[..., Any]
-        :param argnums: the position of args in ``f`` that are to be differentiated, defaults to 0
+        :param argnums: the position of args in ``f`` that are to be differentiated, defaults to be 0
         :type argnums: Union[int, Sequence[int]], optional
         :return: the value and grad function of ``f`` with the same set of arguments as ``f``
         :rtype: Callable[..., Tuple[Any, Any]]
@@ -951,7 +957,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         of the given function at the point given by the inputs. (reverse mode AD relevant)
         Strictly speaking, this function is value_and_vjp.
 
-        :param f: The function to carry out vjp calculation
+        :param f: the function to carry out vjp calculation
         :type f: Callable[..., Any]
         :param inputs: input for ``f``
         :type inputs: Union[Tensor, Sequence[Tensor]]
