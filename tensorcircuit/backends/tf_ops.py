@@ -13,7 +13,7 @@ qr_epsilon = 1e-8
 
 
 def tfqr_grad(a: Array, q: Array, r: Array, dq: Array, dr: Array) -> Array:
-    """Gradient for Qr."""
+    """Get the gradient for Qr."""
 
     if (
         r.shape.ndims is None
@@ -36,7 +36,7 @@ def tfqr_grad(a: Array, q: Array, r: Array, dq: Array, dr: Array) -> Array:
         )
 
     def _TriangularSolve(x: Array, r: Array) -> Array:
-        """Equiv to matmul(x, adjoint(matrix_inverse(r))) if r is upper-tri."""
+        """Equivalent to matmul(x, adjoint(matrix_inverse(r))) if r is upper-tri."""
         return tf.linalg.adjoint(
             tf.linalg.triangular_solve(
                 r, tf.linalg.adjoint(x), lower=False, adjoint=False
@@ -44,8 +44,8 @@ def tfqr_grad(a: Array, q: Array, r: Array, dq: Array, dr: Array) -> Array:
         )
 
     def _QrGradSquareAndDeepMatrices(q: Array, r: Array, dq: Array, dr: Array) -> Array:
-        """Gradient for matrix orders num_rows >= num_cols
-        and full_matrices is false.
+        """
+        Get the gradient for matrix orders num_rows >= num_cols and full_matrices is false.
         """
 
         # Modification begins

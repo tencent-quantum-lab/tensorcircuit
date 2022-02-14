@@ -173,7 +173,7 @@ tensornetwork.backends.jax.jax_backend.JaxBackend.rq = _rq_jax
 
 class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     """
-    see the original backend API at `jax backend
+    See the original backend API at ``jax backend``.
     <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/jax/jax_backend.py>`_
     """
 
