@@ -146,7 +146,7 @@ We use `sphnix <https://www.sphinx-doc.org/en/master/>`__ to manage the document
 
 The source files for docs are .rst file in docs/source.
 
-For English docs, ``make html`` in docs dir is enough. The html version of the docs are in docs/build/html.
+For English docs, ``sphinx-build source build/html`` in docs dir is enough. The html version of the docs are in docs/build/html.
 
 **i18n:**
 

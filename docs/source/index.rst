@@ -2,21 +2,19 @@ Guide to tensorcircuit
 ==================================
 
 .. toctree::
-    :maxdepth: 2
 
-    quickstart.rst
-    advance.rst
-    infras.rst
-    contribution.rst
-    
+   quickstart.rst
+   advance.rst
+   infras.rst
+   contribution.rst
+
 
 API References
 =======================
 
 .. toctree::
-    :maxdepth: 4
     
-    modules.rst
+   modules.rst
     
 
 Indices and tables

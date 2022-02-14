@@ -1,4 +1,6 @@
-import os, glob, shutil
+import os
+import glob
+import shutil
 from os.path import join as pj
 
 

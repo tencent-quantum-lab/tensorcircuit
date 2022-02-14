@@ -9,5 +9,5 @@ pylint tensorcircuit tests
 echo "pytest check"
 pytest -n 4 --cov=tensorcircuit -vv -W ignore::DeprecationWarning
 echo "sphinx check"
-cd docs && make html
+cd docs && sphinx-build source build/html
 echo "all checks passed, congratulates! 💐"
