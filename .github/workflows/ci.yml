@@ -35,7 +35,7 @@ jobs:
       - name: build docs
         run: |
           cd docs
-          make html
+          sphinx-build source build/html
       - name: run example demos
         run: |
           cd examples
