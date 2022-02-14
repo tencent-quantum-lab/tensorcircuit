@@ -1,6 +1,6 @@
-tensorcircuit.keras
+tensorcircuit.applications.graphdata
 ==================================================
-.. automodule:: tensorcircuit.keras
+.. automodule:: tensorcircuit.applications.graphdata
     :members:
     :undoc-members:
     :show-inheritance:

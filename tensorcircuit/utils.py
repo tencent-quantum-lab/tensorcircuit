@@ -1,5 +1,5 @@
 """
-some helper functions
+Helper functions
 """
 
 from typing import Any, Callable, Union, Sequence
@@ -13,7 +13,7 @@ def return_partial(
     Return a callable function for output ith parts of the original output along the first axis.
     Original output supports List and Tensor.
 
-    Example:
+    :Example:
 
     >>> from tensorcircuit.utils import return_partial
     >>> testin = np.array([[1,2],[3,4],[5,6],[7,8]])

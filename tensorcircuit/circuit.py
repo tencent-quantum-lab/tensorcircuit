@@ -1,5 +1,5 @@
 """
-quantum circuit: state simulator
+Quantum circuit: state simulator
 """
 # pylint: disable=invalid-name
 
@@ -902,7 +902,7 @@ class Circuit:
         """
         Take measurement to the given quantum lines.
 
-        Example:
+        :Example:
 
         >>> c = tc.Circuit(3)
         >>> c.H(0)
@@ -1055,7 +1055,7 @@ class Circuit:
         """
         Compute the expectation of corresponding operators.
 
-        Example:
+        :Example:
 
         >>> c = tc.Circuit(2)
         >>> c.H(0)

@@ -1,5 +1,5 @@
 """
-module for functions adding layers of circuits
+Module for functions adding layers of circuits
 """
 import itertools
 import logging

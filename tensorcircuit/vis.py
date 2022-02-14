@@ -1,5 +1,5 @@
 """
-visualization on circuits
+Visualization on circuits
 """
 import os
 import subprocess
@@ -27,7 +27,7 @@ def qir2tex(
     return_string_table: bool = False,
 ) -> Union[str, Tuple[str, List[List[str]]]]:
     r"""
-    Example:
+    :Example:
         # TODO(@YHPeter): add examples
 
     """
@@ -236,7 +236,7 @@ def render_pdf(
     Latex command and file path can be specified.
     When notebook is True, convert the output PDF file to image and return a Image object.
 
-    Example:
+    :Example:
 
     >>> string = r'''\documentclass[a4paper,12pt]{article}
     ... \begin{document}

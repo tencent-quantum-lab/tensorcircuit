@@ -1,5 +1,5 @@
 """
-interfaces bridging different backends
+Interfaces bridging different backends
 """
 
 from typing import Any, Callable, Tuple, Optional

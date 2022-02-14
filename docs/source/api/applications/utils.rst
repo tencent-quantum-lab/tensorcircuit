@@ -1,6 +1,6 @@
-tensorcircuit.keras
+tensorcircuit.applications.utils
 ==================================================
-.. automodule:: tensorcircuit.keras
+.. automodule:: tensorcircuit.applications.utils
     :members:
     :undoc-members:
     :show-inheritance:

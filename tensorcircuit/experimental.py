@@ -1,5 +1,5 @@
 """
-experimental features
+Experimental features
 """
 
 from functools import partial

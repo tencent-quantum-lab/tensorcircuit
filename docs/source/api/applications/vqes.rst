@@ -1,6 +1,6 @@
-tensorcircuit.keras
+tensorcircuit.applications.vqes
 ==================================================
-.. automodule:: tensorcircuit.keras
+.. automodule:: tensorcircuit.applications.vqes
     :members:
     :undoc-members:
     :show-inheritance:

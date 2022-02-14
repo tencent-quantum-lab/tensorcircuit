@@ -1,5 +1,5 @@
 """
-one-hot variational autoregressive models for multiple categorical choices beyond binary
+One-hot variational autoregressive models for multiple categorical choices beyond binary
 """
 
 import tensorflow as tf

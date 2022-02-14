@@ -1,6 +1,6 @@
-tensorcircuit.keras
+tensorcircuit.applications.layers
 ==================================================
-.. automodule:: tensorcircuit.keras
+.. automodule:: tensorcircuit.applications.layers
     :members:
     :undoc-members:
     :show-inheritance:

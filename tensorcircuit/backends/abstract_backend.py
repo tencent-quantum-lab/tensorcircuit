@@ -1,5 +1,5 @@
 """
-backend magic inherited from tensornetwork: abstract backend
+Backend magic inherited from tensornetwork: abstract backend
 """
 # pylint: disable=invalid-name
 # pylint: disable=unused-variable

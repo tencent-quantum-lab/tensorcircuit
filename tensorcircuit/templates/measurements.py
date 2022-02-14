@@ -1,5 +1,5 @@
 """
-shortcuts for measurement patterns on circuit
+Shortcuts for measurement patterns on circuit
 """
 # circuit in, scalar out
 

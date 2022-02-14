@@ -1,6 +1,6 @@
-tensorcircuit.keras
+tensorcircuit.applications.vags
 ==================================================
-.. automodule:: tensorcircuit.keras
+.. automodule:: tensorcircuit.applications.vags
     :members:
     :undoc-members:
     :show-inheritance:

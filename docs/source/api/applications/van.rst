@@ -1,6 +1,6 @@
-tensorcircuit.keras
+tensorcircuit.applications.van
 ==================================================
-.. automodule:: tensorcircuit.keras
+.. automodule:: tensorcircuit.applications.van
     :members:
     :undoc-members:
     :show-inheritance:

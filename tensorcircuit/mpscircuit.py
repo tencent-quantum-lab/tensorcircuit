@@ -1,5 +1,5 @@
 """
-quantum circuit: MPS state simulator
+Quantum circuit: MPS state simulator
 """
 # pylint: disable=invalid-name
 

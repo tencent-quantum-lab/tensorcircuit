@@ -1,5 +1,5 @@
 """
-backend magic inherited from tensornetwork: jax backend
+Backend magic inherited from tensornetwork: jax backend
 """
 # pylint: disable=invalid-name
 

@@ -1,5 +1,5 @@
 """
-some common noise quantum channels
+Some common noise quantum channels.
 """
 
 import sys
@@ -56,7 +56,7 @@ def depolarizingchannel(px: float, py: float, pz: float) -> Sequence[Gate]:
             0 & -1\\
         \end{bmatrix}
 
-    Example:
+    :Example:
 
     >>> cs = depolarizingchannel(0.1, 0.15, 0.2)
     >>> tc.channels.single_qubit_kraus_identity_check(cs)
@@ -105,7 +105,7 @@ def amplitudedampingchannel(gamma: float, p: float) -> Sequence[Gate]:
             \sqrt{\gamma} & 0\\
         \end{bmatrix}
 
-    Example:
+    :Example:
 
     >>> cs = amplitudedampingchannel(0.25, 0.3)
     >>> tc.channels.single_qubit_kraus_identity_check(cs)
@@ -144,7 +144,7 @@ def resetchannel() -> Sequence[Gate]:
             0 & 0\\
         \end{bmatrix}
 
-    Example:
+    :Example:
 
     >>> cs = resetchannel()
     >>> tc.channels.single_qubit_kraus_identity_check(cs)
@@ -170,7 +170,7 @@ def phasedampingchannel(gamma: float) -> Sequence[Gate]:
             0 & \sqrt{\gamma}\\
         \end{bmatrix}
 
-    Example:
+    :Example:
 
     >>> cs = phasedampingchannel(0.6)
     >>> tc.channels.single_qubit_kraus_identity_check(cs)
@@ -230,7 +230,7 @@ def kraus_to_super_gate(kraus_list: Sequence[Gate]) -> Tensor:
 def _collect_channels() -> Sequence[str]:
     r"""Return channels names in this module.
 
-    Example:
+    :Example:
 
     >>> tc.channels._collect_channels()
     ['amplitudedamping', 'depolarizing', 'phasedamping', 'reset']

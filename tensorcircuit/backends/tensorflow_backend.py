@@ -1,5 +1,5 @@
 """
-backend magic inherited from tensornetwork: tensorflow backend
+Backend magic inherited from tensornetwork: tensorflow backend
 """
 # pylint: disable=invalid-name
 
@@ -119,7 +119,7 @@ def _qr_tf(
     axes `tensor.shape[:pivot_axis]` and an effective right (column)
     index resulting from combining the axes `tensor.shape[pivot_axis:]`.
 
-    Example:
+    :Example:
 
     If `tensor` had a shape (2, 3, 4, 5) and `pivot_axis` was 2,
     then `q` would have shape (2, 3, 6), and `r` would
@@ -169,7 +169,7 @@ def _rq_tf(
     `tensor.shape[:pivot_axis]` and an effective right (column) index
     resulting from combining the axes `tensor.shape[pivot_axis:]`.
 
-    Example:
+    :Example:
 
     If `tensor` had a shape (2, 3, 4, 5) and `pivot_axis` was 2,
     then `r` would have shape (2, 3, 6), and `q` would

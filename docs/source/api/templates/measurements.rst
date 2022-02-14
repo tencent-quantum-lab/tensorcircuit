@@ -1,6 +1,5 @@
 tensorcircuit.templates.measurements
 ==================================================
-
 .. automodule:: tensorcircuit.templates.measurements
     :members:
     :undoc-members:
