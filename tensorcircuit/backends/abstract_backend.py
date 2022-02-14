@@ -870,9 +870,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         """
         Return the function which is the grad function of input ``f``.
 
-        Example:
-
-        .. code-block:: python
+        :Example:
 
         >>> f = lambda x,y: x**2+2*y
         >>> g = tc.backend.grad(f)
@@ -902,9 +900,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         """
         Return the function which returns the value and grad of ``f``.
 
-        Example:
-
-        .. code-block:: python
+        :Example:
 
         >>> f = lambda x,y: x**2+2*y
         >>> g = tc.backend.value_and_grad(f)
