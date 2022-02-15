@@ -77,6 +77,6 @@ Inside TensorCircuit, we heavily utilize tensornetwork related APIs from TensorN
 
 - We implement our own /backends from TensorNetwork's /backends by adding much more APIs and fixing lots of bugs in TensorNetwork's implementations on certain backends via monkey patching. (The upstream is inactive and not that responsive anyhow.)
 
-- We borrow TensorNetwork's code in /quantum to our ``tc.quantum`` module, since they has no ``__init__.py`` file to export these MPO and MPS related objects. Of course, we have made substantial improvements since then.
+- We borrow TensorNetwork's code in /quantum to our ``tc.quantum`` module, since TensorNetwork has no ``__init__.py`` file to export these MPO and MPS related objects. Of course, we have made substantial improvements since then.
 
 - We borrow the TensorNetwork's code in /matrixproductstates as ``tc.mps_base`` for bug fixing and jit/AD compatibility, so that we have better support for our MPS based quantum circuit simulator.
