@@ -193,7 +193,7 @@ To learn more about vmap mechanism, one can refer to documentation or blogs on `
 Backend Agnosticism
 -------------------------
 
-TensorCircuit supports TensorFlow, Jax and PyTorch backends. We recommend using TensorFlow or Jax backend, since PyTorch lacks advanced jit and vmap features.
+TensorCircuit supports TensorFlow, Jax, and PyTorch backends. We recommend using TensorFlow or Jax backend since PyTorch lacks advanced jit and vmap features.
 
 The backend can be set as ``K=tc.set_backend("jax")`` and ``K`` is the backend with a full set of APIs as a conventional ML framework, which can also be accessed by ``tc.backend``.
 
@@ -292,7 +292,7 @@ Noisy Circuit simulation
 
 **Monte Carlo State Simulator:**
 
-For the Monte Carlo trajectory noise simulator, unitary Kraus channel can be handled easily. TensorCircuit also support fully jittable and differentiable general Kraus channel Monte Carlo simulation, though.
+For the Monte Carlo trajectory noise simulator, the unitary Kraus channel can be handled easily. TensorCircuit also supports fully jittable and differentiable general Kraus channel Monte Carlo simulation, though.
 
 .. code-block:: python
 
@@ -306,7 +306,7 @@ For the Monte Carlo trajectory noise simulator, unitary Kraus channel can be han
 
 **Density Matrix Simulator:**
 
-Density matrix simulator ``tc.DMCircuit`` simulates the noise in a full form, but takes twice qubits as noiseless simulation. The API is basically the same as ``tc.Circuit``.
+Density matrix simulator ``tc.DMCircuit`` simulates the noise in a full form, but takes twice qubits to do noiseless simulation. The API is basically the same as ``tc.Circuit``.
 
 
 MPS and MPO
@@ -316,7 +316,7 @@ TensorCircuit has its own class for MPS and MPO originally defined in TensorNetw
 
 ``tc.QuVector`` can be extracted from ``tc.Circuit`` as the tensor network form for the output state (uncontracted) by ``c.quvector()``.
 
-The QuVector form a wavefunction w, which can also be fed into Circuit as the inputs state as ``c=tc.Circuit(n, mps_inputs=w)``.
+The QuVector forms a wavefunction w, which can also be fed into Circuit as the inputs state as ``c=tc.Circuit(n, mps_inputs=w)``.
 
 For example, a quick way to calculate the wavefunction overlap without explicitly computing the state amplitude is given as below:
 
