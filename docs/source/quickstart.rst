@@ -45,7 +45,7 @@ These two examples are flexible and support gates on any number of qubits.
 
 **Measurements and Expectations:**
 
-The most straightforward way to get the output from the circuit object is getting the output wavefunction in vector form as ``c.state()``.
+The most straightforward way to get the output from the circuit object is by getting the output wavefunction in vector form as ``c.state()``.
 
 For bitstring sampling, we have ``c.perfect_sampling()`` which returns the bitstring and the corresponding probability amplitude.
 
@@ -131,7 +131,7 @@ The most common case and the most typical programming paradigm for TensorCircuit
 Also for a non-quantum example (linear regression) demonstrating the backend agnostic feature, pytree supports variables, AD/jit/vmap usage, and variational optimization loops. Please refer to the example script: `linear regression example <https://github.com/quclub/tensorcircuit-dev/blob/master/examples/universal_lr.py>`_.
 This example might be more friendly to machine learning community since it is purely classical while also showcasing the main features and paradigms of tensorcircuit.
 
-If the user have no intention to maintain the application code in a backend agnostic fashion, the API for ML frameworks can be more handily used and connected with the TensorCircuit API.
+If the user has no intention to maintain the application code in a backend agnostic fashion, the API for ML frameworks can be more handily used and connected with the TensorCircuit API.
 
 .. code-block:: python
 
@@ -180,14 +180,14 @@ AD is the base for all modern machine learning libraries.
 
 **JIT support:**
 
-Parameterized quantum circuits can run in a blink. Always use jit if the circuit will get evaluations multiple times, it can greatly boost the simulation with two or three order time reduction. But also be cautious, users need to be familiar with jit, otherwise the jitted function may return unexpected results or recompiling on every hit (wasting lots of time).
-To learn more about the jit mechanism, one can refer to documentations or blogs on ``tf.function`` or ``jax.jit``, though these two still have subtle differences.
+Parameterized quantum circuits can run in a blink. Always use jit if the circuit will get evaluations multiple times, it can greatly boost the simulation with two or three order time reduction. But also be cautious, users need to be familiar with jit, otherwise, the jitted function may return unexpected results or recompile on every hit (wasting lots of time).
+To learn more about the jit mechanism, one can refer to documentation or blogs on ``tf.function`` or ``jax.jit``, though these two still have subtle differences.
 
 
 **VMAP support:**
 
 Inputs, parameters, measurements, circuit structures, Monte Carlo noise can all be evaluated in parallel.
-To learn more about vmap mechanism, one can refer to documentations or blogs on ``tf.vectorized_map`` or ``jax.vmap``.
+To learn more about vmap mechanism, one can refer to documentation or blogs on ``tf.vectorized_map`` or ``jax.vmap``.
 
 
 Backend Agnosticism
@@ -341,7 +341,7 @@ Interfaces
 
 **PyTorch interface to hybrid with PyTorch modules:**
 
-As we have mentioned in backend section, PyTorch backend may lack advanced features. This doesn't mean we cannot hybrid advanced circuit module with PyTorch neural module. We can run the quantum function on tensorflow or jax backend, while wrapping it with a torch interface.
+As we have mentioned in the backend section, the PyTorch backend may lack the advanced features. This doesn't mean we cannot hybrid advanced circuit module with PyTorch neural module. We can run the quantum function on TensorFlow or Jax backend, while wrapping it with a Torch interface.
 
 .. code-block:: python
 
