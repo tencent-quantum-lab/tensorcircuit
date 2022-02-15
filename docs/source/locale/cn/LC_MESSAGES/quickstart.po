@@ -6,18 +6,17 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: tensorcircuit\n"
+"Project-Id-Version:  tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-15 16:48+0800\n"
-"PO-Revision-Date: 2022-02-15 16:50+0800\n"
+"POT-Creation-Date: 2022-02-15 17:26+0800\n"
+"PO-Revision-Date: 2022-02-15 17:09+0800\n"
 "Last-Translator: \n"
-"Language-Team: \n"
 "Language: cn\n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
-"X-Generator: Poedit 3.0.1\n"
 
 #: ../../source/quickstart.rst:3
 msgid "Quick Start"
@@ -29,48 +28,50 @@ msgstr "从GitHub安装"
 
 #: ../../source/quickstart.rst:8
 msgid ""
-"For beta version usage, one needs to install tensorcircuit package from GitHub. "
-"For development and PR workflow, please refer to `contribution <contribution."
-"html>`__ instead."
+"For beta version usage, one needs to install tensorcircuit package from "
+"GitHub. For development and PR workflow, please refer to `contribution "
+"<contribution.html>`__ instead."
 msgstr ""
-"如需使用测试版本，则需要从 GitHub 安装 tensorcircuit 包。 对于开发和 PR 工作流"
-"程，请另外参考 `贡献 <contribution.html>`__  。"
+"如需使用测试版本，则需要从 GitHub 安装 tensorcircuit 包。 对于开发和 PR 工作流程，请另外参考 `贡献 "
+"<contribution.html>`__  。"
 
 #: ../../source/quickstart.rst:10
 msgid ""
-"For private tensorcircuit-dev repo, one needs to firstly configure the SSH key "
-"on GitHub and locally, please refer to `GitHub doc <https://docs.github.com/en/"
-"authentication/connecting-to-github-with-ssh>`__"
+"For private tensorcircuit-dev repo, one needs to firstly configure the "
+"SSH key on GitHub and locally, please refer to `GitHub doc "
+"<https://docs.github.com/en/authentication/connecting-to-github-with-"
+"ssh>`__"
 msgstr ""
-"对于私有 tensorcircuit 开发库，首先需要在 GitHub 和本地配置 SSH 密钥, 请参考 "
-"`GitHub 文档 <https://docs.github.com/en/authentication/connecting-to-github-"
-"with-ssh>`__ 。"
+"对于私有 tensorcircuit 开发库，首先需要在 GitHub 和本地配置 SSH 密钥, 请参考 `GitHub 文档 "
+"<https://docs.github.com/en/authentication/connecting-to-github-with-"
+"ssh>`__ 。"
 
 #: ../../source/quickstart.rst:12
 msgid ""
-"Then try ``pip3 install --force-reinstall git+ssh://git@github.com/quclub/"
-"tensorcircuit-dev.git`` in shell."
+"Then try ``pip3 install --force-reinstall git+ssh://git@github.com/quclub"
+"/tensorcircuit-dev.git`` in shell."
 msgstr ""
-"然后尝试在命令行窗口中输入``pip3 install --force-reinstall git+ssh://git@github."
-"com/quclub/tensorcircuit-dev.git``。"
+"然后尝试在命令行窗口中输入``pip3 install --force-reinstall "
+"git+ssh://git@github.com/quclub/tensorcircuit-dev.git``。"
 
 #: ../../source/quickstart.rst:14
 msgid ""
-"Depending on one's need, one may further pip install tensorflow (for tensorflow "
-"backend) or jax and jaxlib (for jax backend) or `cotengra <https://github.com/"
-"jcmgray/cotengra>`__ (for more advanced tensornetwork contraction path solver)."
+"Depending on one's need, one may further pip install tensorflow (for "
+"tensorflow backend) or jax and jaxlib (for jax backend) or `cotengra "
+"<https://github.com/jcmgray/cotengra>`__ (for more advanced tensornetwork"
+" contraction path solver)."
 msgstr ""
 "基于个人情况，用户可能需要进一步安装 tensorflow, jax 或 jaxlib 或 `cotengra "
 "<https://github.com/jcmgray/cotengra>`_ 以满足后端要求。"
 
 #: ../../source/quickstart.rst:16
 msgid ""
-"If one needs circuit visualization on JupyterLab, python package `wand <https://"
-"docs.wand-py.org/en/0.6.7/>`__ and its binary bindings as well as LaTeX "
-"installation is required."
+"If one needs circuit visualization on JupyterLab, python package `wand "
+"<https://docs.wand-py.org/en/0.6.7/>`__ and its binary bindings as well "
+"as LaTeX installation is required."
 msgstr ""
-"如果需要在 JupyterLab 中进行电路可视化，则需要 python 库  `wand <https://docs."
-"wand-py.org/en/0.6.7/>`__ 及其二进制绑定以及 LaTeX 的安装。"
+"如果需要在 JupyterLab 中进行电路可视化，则需要 python 库  `wand <https://docs.wand-"
+"py.org/en/0.6.7/>`__ 及其二进制绑定以及 LaTeX 的安装。"
 
 #: ../../source/quickstart.rst:20
 msgid "Circuit Object"
@@ -91,38 +92,36 @@ msgstr "**输入状态:**"
 #: ../../source/quickstart.rst:28
 #, fuzzy
 msgid ""
-"The default input function for the circuit is:math:`\\vert 0^n \\rangle`. One "
-"can change this to other wavefunctions by directly feeding the inputs state "
-"vectors w: ``c=tc.Circuit(n, inputs=w)``."
+"The default input function for the circuit is :math:`\\vert 0^n "
+"\\rangle`. One can change this to other wavefunctions by directly feeding"
+" the inputs state vectors w: ``c=tc.Circuit(n, inputs=w)``."
 msgstr ""
-"电路的默认输入函数是：math:`\\vert 0^n \\rangle`。 可以通过直接输入输入状态向量 "
-"w 将其更改为其他波函数：`c=tc.Circuit(n, inputs=w)`。"
+"电路的默认输入函数是：math:`\\vert 0^n \\rangle`。 可以通过直接输入输入状态向量 w "
+"将其更改为其他波函数：`c=tc.Circuit(n, inputs=w)`。"
 
 #: ../../source/quickstart.rst:30
 msgid ""
-"One can also feed matrix product states as input states for the circuit, but we "
-"leave MPS/MPO usage for future sections."
-msgstr ""
-"也可以将矩阵乘积状态作为电路的输入状态，但我们将矩阵乘积状态/矩阵乘积算子的使用留"
-"给后面的部分。"
+"One can also feed matrix product states as input states for the circuit, "
+"but we leave MPS/MPO usage for future sections."
+msgstr "也可以将矩阵乘积状态作为电路的输入状态，但我们将矩阵乘积状态/矩阵乘积算子的使用留给后面的部分。"
 
 #: ../../source/quickstart.rst:32
 msgid "**Quantum gates:**"
-msgstr "**量子门:*"
+msgstr "**量子门:**"
 
 #: ../../source/quickstart.rst:34
+#, fuzzy
 msgid ""
-"We can apply gates on circuit objects. For example, using ``c.H(1)`` or ``c."
-"rx(2, theta=0.2)``, we cam apply Hadamard gate on qubit 1 (0-based) or apply Rx "
-"gate on qubit 2 as :math:`e^{-i\\theta/2 X}`."
+"We can apply gates on circuit objects. For example, using ``c.H(1)`` or "
+"``c.rx(2, theta=0.2)``, we can apply Hadamard gate on qubit 1 (0-based) "
+"or apply Rx gate on qubit 2 as :math:`e^{-i\\theta/2 X}`."
 msgstr ""
-"我们可以将门应用于电路对象。 例如，使用“cH(1)”或“c.rx(2, theta=0.2)”，我们可以将"
-"阿达马门应用于 量子比特1 （基于0）或将 Rx 门应用于 量子比特2： math：`e^{-i"
-"\\theta/2 X}`。"
+"我们可以将门应用于电路对象。 例如，使用“c.H(1)”或“c.rx(2, theta=0.2)”，我们可以将阿达马门应用于 量子比特1 "
+"（基于0）或将 Rx 门应用于 量子比特2： math：`e^{-i\\theta/2 X}`。"
 
 #: ../../source/quickstart.rst:36
 msgid "The same rule also apply to multi-qubit gates, such as ``c.cnot(0, 1)``."
-msgstr "同样的规则亦实用于多量子比特门，例如  ``c.cnot(0, 1)`` 。"
+msgstr "同样的规则亦适用于多量子比特门，例如  ``c.cnot(0, 1)`` 。"
 
 #: ../../source/quickstart.rst:38
 msgid "There are also highly customizable gates, two instances are:"
@@ -130,17 +129,17 @@ msgstr "这些量子门也是高度可定制的，下面是两个例子"
 
 #: ../../source/quickstart.rst:40
 msgid ""
-"``c.exp1(0, 1, unitary=m, theta=0.2)`` which is for the exponential gate :math:"
-"`e^{i\\theta m}` of any matrix m as long as :math:`m^2=1`."
+"``c.exp1(0, 1, unitary=m, theta=0.2)`` which is for the exponential gate "
+":math:`e^{i\\theta m}` of any matrix m as long as :math:`m^2=1`."
 msgstr ""
-"``c.exp1(0, 1, unitary=m, theta=0.2)`` 用于任何矩阵 m 的指数门 :math:`e^{i"
-"\\theta m}`，只要m满足 :math:` m^2=1`。"
+"``c.exp1(0, 1, unitary=m, theta=0.2)`` 用于任何矩阵 m 的指数门 :math:`e^{i\\theta "
+"m}`，只要m满足 :math:` m^2=1`。"
 
 #: ../../source/quickstart.rst:42
 msgid ""
-"``c.any(0, 1, unitary=m)`` which is for applying the unitary gate m on the "
-"circuit."
-msgstr "``c.any(0, 1, unitary=m)`` 用于在电路上应用单一门。"
+"``c.any(0, 1, unitary=m)`` which is for applying the unitary gate m on "
+"the circuit."
+msgstr "``c.any(0, 1, unitary=m)`` 在电路上作用任意的幺正量子门。"
 
 #: ../../source/quickstart.rst:44
 msgid "These two examples are flexible and support gates on any number of qubits."
@@ -148,39 +147,37 @@ msgstr "这两个例子很灵活，支持任意数量的量子比特上的门。
 
 #: ../../source/quickstart.rst:46
 msgid "**Measurements and Expectations:**"
-msgstr "**测量与预估**"
+msgstr "**测量与期望**"
 
 #: ../../source/quickstart.rst:48
 msgid ""
-"The most straightforward way to get the output from the circuit object is by "
-"getting the output wavefunction in vector form as ``c.state()``."
-msgstr ""
-"从电路对象中获取输出的最直接的方法是通过``c.state()``以向量形式获取输出波函数。"
+"The most straightforward way to get the output from the circuit object is"
+" by getting the output wavefunction in vector form as ``c.state()``."
+msgstr "从电路对象中获取输出的最直接的方法是通过``c.state()``以向量形式获取输出波函数。"
 
 #: ../../source/quickstart.rst:50
 msgid ""
-"For bitstring sampling, we have ``c.perfect_sampling()`` which returns the "
-"bitstring and the corresponding probability amplitude."
+"For bitstring sampling, we have ``c.perfect_sampling()`` which returns "
+"the bitstring and the corresponding probability amplitude."
 msgstr "对于位串采样，我们有“c.perfect_sampling()”，它返回位串和相应的概率幅度。"
 
 #: ../../source/quickstart.rst:52
 msgid ""
-"To measure part of the qubits, we can use ``c.measure(0, 1)``, if we want to "
-"know the corresponding probability of the measurement output, try ``c.measure(0, "
-"1, with_prob=True)``. The measure API is by default non-jittable, but we also "
-"have a jittable version as ``c.measure_jit(0, 1)``."
+"To measure part of the qubits, we can use ``c.measure(0, 1)``, if we want"
+" to know the corresponding probability of the measurement output, try "
+"``c.measure(0, 1, with_prob=True)``. The measure API is by default non-"
+"jittable, but we also have a jittable version as ``c.measure_jit(0, 1)``."
 msgstr ""
-"要测量部分量子比特，我们可以使用`c.measure(0, 1)`，如果我们想知道测量的结果的对应"
-"概率，可以尝试`c.measure(0, 1, with_prob=True )``。 测量 API 在默认情况下是不可即"
-"时编译的 ，但我们也有一个可即时编译的版本，如 ``c.measure_jit(0, 1)``。"
+"要测量部分量子比特，我们可以使用`c.measure(0, 1)`，如果我们想知道测量的结果的对应概率，可以尝试`c.measure(0, 1, "
+"with_prob=True)``。 测量 API 在默认情况下是不可即时编译的 ，但我们也有一个可即时编译的版本，如 "
+"``c.measure_jit(0, 1)``。"
 
 #: ../../source/quickstart.rst:54
 msgid ""
-"The measurement and sampling utilize advanced algorithms based on tensornetwork "
-"and thus requires no knowledge or space for the full wavefunction."
-msgstr ""
-"测量和采样使用了基于张量网络的高级算法，因此不需要任何相关知识或者空间来获取全波"
-"函数。"
+"The measurement and sampling utilize advanced algorithms based on "
+"tensornetwork and thus requires no knowledge or space for the full "
+"wavefunction."
+msgstr "测量和采样使用了基于张量网络的高级算法，因此不需要任何相关知识或者空间来获取全波函数。"
 
 #: ../../source/quickstart.rst:56
 msgid "See example below:"
@@ -188,21 +185,21 @@ msgstr "请看下面的例子："
 
 #: ../../source/quickstart.rst:74
 msgid ""
-"To compute expectation values for local observables, we have ``c.expectation([tc."
-"gates.z(), [0]], [tc.gates.z(), [1]])`` for :math:`\\langle Z_0Z_1 \\rangle` or "
-"``c.expectation([tc.gates.x(), [0]])`` for :math:`\\langle X_0 \\rangle`."
+"To compute expectation values for local observables, we have "
+"``c.expectation([tc.gates.z(), [0]], [tc.gates.z(), [1]])`` for "
+":math:`\\langle Z_0Z_1 \\rangle` or ``c.expectation([tc.gates.x(), "
+"[0]])`` for :math:`\\langle X_0 \\rangle`."
 msgstr ""
-"为了计算局部可观察量的期望值，我们有 ``c.expectation([tc.gates.z(), [0]], [tc."
-"gates.z(), [1]])`` 当z满足 :math:`\\langle Z_0Z_1 \\rangle` 时，或 ``c."
-"expectation([tc.gates.x(), [0]])`` 当z满足 :math:`\\langle X_0 \\rangle`时."
+"为了计算局部可观察量的期望值，我们有 ``c.expectation([tc.gates.z(), [0]], [tc.gates.z(), "
+"[1]])`` 当z满足 :math:`\\langle Z_0Z_1 \\rangle` 时，或 "
+"``c.expectation([tc.gates.x(), [0]])`` 当z满足 :math:`\\langle X_0 "
+"\\rangle`时."
 
 #: ../../source/quickstart.rst:76
 msgid ""
-"This expectation API is rather flexible, as one can measure an m on several "
-"qubits as ``c.expectation([m, [0, 1, 2]])``."
-msgstr ""
-"因为可以在几个量子比特上测量一个 m，这种计算期望值的 API 相当灵活：``c."
-"expectation([m, [0, 1, 2]])``。"
+"This expectation API is rather flexible, as one can measure an m on "
+"several qubits as ``c.expectation([m, [0, 1, 2]])``."
+msgstr "因为可以在几个量子比特上测量一个 m，这种计算期望值的 API 相当灵活：``c.expectation([m, [0, 1, 2]])``。"
 
 #: ../../source/quickstart.rst:78
 msgid "**Circuit visualization:**"
@@ -210,29 +207,30 @@ msgstr "**电路可视化**"
 
 #: ../../source/quickstart.rst:80
 msgid ""
-"``c.vis_tex()`` can generate tex code for circuit visualization based on LaTeX "
-"`quantikz <https://arxiv.org/abs/1809.03842>`__ package."
+"``c.vis_tex()`` can generate tex code for circuit visualization based on "
+"LaTeX `quantikz <https://arxiv.org/abs/1809.03842>`__ package."
 msgstr ""
-"`c.vis_tex()` 可以基于 LaTeX `quantikz <https://arxiv.org/"
-"abs/1809.03842>`__package 生成用于电路可视化的 tex 代码。"
+"`c.vis_tex()` 可以基于 LaTeX `quantikz "
+"<https://arxiv.org/abs/1809.03842>`__package 生成用于电路可视化的 tex 代码。"
 
 #: ../../source/quickstart.rst:82
 msgid ""
-"There are also some automatic pipeline helper functions to directly generate "
-"figures from tex code, but they require extra installations in the environment."
-msgstr ""
-"还有一些自动辅助函数可以直接从 tex 代码生成图形，但它们需要在环境中进行额外安装。"
+"There are also some automatic pipeline helper functions to directly "
+"generate figures from tex code, but they require extra installations in "
+"the environment."
+msgstr "还有一些自动辅助函数可以直接从 tex 代码生成图形，但它们需要在环境中进行额外安装。"
 
 #: ../../source/quickstart.rst:84
 msgid ""
-"``render_pdf(tex)`` function requires full installation of LaTeX locally. And in "
-"Jupyter environment, we may prefer ``render_pdf(tex, notebook=True)`` to return "
-"jpg figures, which further require wand magicwand library installed, see `here "
-"<https://docs.wand-py.org/en/latest/>`__."
+"``render_pdf(tex)`` function requires full installation of LaTeX locally."
+" And in Jupyter environment, we may prefer ``render_pdf(tex, "
+"notebook=True)`` to return jpg figures, which further require wand "
+"magicwand library installed, see `here <https://docs.wand-"
+"py.org/en/latest/>`__."
 msgstr ""
-"``render_pdf(tex)`` 函数需要在本地完全安装 LaTeX。 在 Jupyter 环境中，我们可能会"
-"偏好 ``render_pdf(tex, notebook=True)`` 来返回 jpg 图形，这需要安装 wand "
-"magicwand 库，请参阅 `这里 <https://docs.wand-py.org/en/latest/>`__ 。"
+"``render_pdf(tex)`` 函数需要在本地完全安装 LaTeX。 在 Jupyter 环境中，我们可能会偏好 "
+"``render_pdf(tex, notebook=True)`` 来返回 jpg 图形，这需要安装 wand magicwand 库，请参阅 "
+"`这里 <https://docs.wand-py.org/en/latest/>`__ 。"
 
 #: ../../source/quickstart.rst:86
 msgid "**Circuit Intermediate Representation:**"
@@ -240,21 +238,19 @@ msgstr "**电路中间表示：**"
 
 #: ../../source/quickstart.rst:88
 msgid ""
-"TensorCircuit provides its own circuit IR as a python list of dicts. This IR can "
-"be further utilized to run compiling, generate serialization qasm or render "
-"circuit figures."
-msgstr ""
-"TensorCircuit 提供自己的中间表示作为字典的 python 列表。 此中间表示可进一步用于运"
-"行编译、生成序列化 qasm 或渲染电路图。"
+"TensorCircuit provides its own circuit IR as a python list of dicts. This"
+" IR can be further utilized to run compiling, generate serialization qasm"
+" or render circuit figures."
+msgstr "TensorCircuit 提供自己的中间表示作为字典的 python 列表。 此中间表示可进一步用于运行编译、生成序列化 qasm 或渲染电路图。"
 
 #: ../../source/quickstart.rst:90
 msgid ""
-"The IR is given as a list, each element is a dict containing information on one "
-"gate that applied on the circuit. Note gate attr in the dict is actually a "
-"python function that returns the gate's node."
+"The IR is given as a list, each element is a dict containing information "
+"on one gate that applied on the circuit. Note gate attr in the dict is "
+"actually a python function that returns the gate's node."
 msgstr ""
-"中间表示以列表形式给出，每个元素都是一个字典，其中包含应用于电路的一个量子门的信"
-"息。 注意字典中的gate atrr实际上是一个返回此量子门的节点的python函数。"
+"中间表示以列表形式给出，每个元素都是一个字典，其中包含应用于电路的一个量子门的信息。 注意字典中的gate "
+"atrr实际上是一个返回此量子门的节点的python函数。"
 
 #: ../../source/quickstart.rst:102
 msgid "Programming Paradigm"
@@ -262,37 +258,35 @@ msgstr "编程范式"
 
 #: ../../source/quickstart.rst:104
 msgid ""
-"The most common case and the most typical programming paradigm for TensorCircuit "
-"is to evaluate the circuit output and the corresponding quantum gradients, which "
-"is common in variational quantum algorithms."
-msgstr ""
-"TensorCircuit 最常见的情况和最典型的编程范式是评估电路的输出以及相应的量子梯度，"
-"这在变分量子算法中很常见。"
+"The most common case and the most typical programming paradigm for "
+"TensorCircuit is to evaluate the circuit output and the corresponding "
+"quantum gradients, which is common in variational quantum algorithms."
+msgstr "TensorCircuit 最常见的情况和最典型的编程范式是评估电路的输出以及相应的量子梯度，这在变分量子算法中很常见。"
 
 #: ../../source/quickstart.rst:131
+#, fuzzy
 msgid ""
-"Also for a non-quantum example (linear regression) demonstrating the backend "
-"agnostic feature, pytree supports variables, AD/jit/vmap usage, and variational "
-"optimization loops. Please refer to the example script: `linear regression "
-"example <https://github.com/quclub/tensorcircuit-dev/blob/master/examples/"
-"universal_lr.py>`_. This example might be more friendly to machine learning "
-"community since it is purely classical while also showcasing the main features "
-"and paradigms of tensorcircuit."
+"Also for a non-quantum example (linear regression) demonstrating the "
+"backend agnostic feature, variables with pytree support, AD/jit/vmap "
+"usage, and variational optimization loops. Please refer to the example "
+"script: `linear regression example <https://github.com/quclub"
+"/tensorcircuit-dev/blob/master/examples/universal_lr.py>`_. This example "
+"might be more friendly to machine learning community since it is purely "
+"classical while also showcasing the main features and paradigms of "
+"tensorcircuit."
 msgstr ""
-"同样对于演示后端不可知特性的非量子示例（线性回归），pytree 支持变量、AD/jit/vmap "
-"使用和变分优化循环。 请参考示例脚本：`线性回归示例<https://github.com/quclub/"
-"tensorcircuit-dev/blob/master/examples/universal_lr.py>`_ 。 这个例子可能对机器学"
-"习的用户更友好，因为它纯粹是经典的，同时也展示了张量电路的主要特征和范式。"
+"同样对于演示后端不可知特性的非量子示例（线性回归），pytree 支持变量、AD/jit/vmap 使用和变分优化循环。 "
+"请参考示例脚本：`线性回归示例<https://github.com/quclub/tensorcircuit-"
+"dev/blob/master/examples/universal_lr.py>`_ 。 "
+"这个例子可能对机器学习的用户更友好，因为它纯粹是经典的，同时也展示了张量电路的主要特征和范式。"
 
 #: ../../source/quickstart.rst:134
 #, fuzzy
 msgid ""
-"If the user has no intention to maintain the application code in a backend "
-"agnostic fashion, the API for ML frameworks can be more handily used and "
-"connected with the TensorCircuit API."
-msgstr ""
-"如果用户无意以与后端无关的方式维护应用程序代码，则可以更方便地使用用于机器学习框"
-"架的 API 并将其与 TensorCircuit API 连接。"
+"If the user has no intention to maintain the application code in a "
+"backend agnostic fashion, the API for ML frameworks can be more handily "
+"used and interleaved with the TensorCircuit API."
+msgstr "如果用户无意以与后端无关的方式维护应用程序代码，则可以更方便地使用用于机器学习框架的 API 并将其与 TensorCircuit API 连接。"
 
 #: ../../source/quickstart.rst:169
 msgid "Automatic differentiation, JIT and vectorized parallelism"
@@ -300,22 +294,21 @@ msgstr "自动微分、即时编译和矢量化并行 "
 
 #: ../../source/quickstart.rst:171
 msgid ""
-"For concepts of AD, JIT and VMAP, please refer to `Jax documentation <https://"
-"jax.readthedocs.io/en/latest/jax-101/index.html>`__ ."
+"For concepts of AD, JIT and VMAP, please refer to `Jax documentation "
+"<https://jax.readthedocs.io/en/latest/jax-101/index.html>`__ ."
 msgstr ""
-"关于 自动微分、即时编译和矢量化图，请参考 `Jax 文档 <https://jax.readthedocs.io/"
-"en/latest/jax-101/index.html>`__ 。"
+"关于 自动微分、即时编译和矢量化图，请参考 `Jax 文档 "
+"<https://jax.readthedocs.io/en/latest/jax-101/index.html>`__ 。"
 
 #: ../../source/quickstart.rst:173
 msgid ""
 "The related API design in TensorCircuit closely follows the functional "
-"programming design pattern in Jax with some slight differences. So we strongly "
-"recommend users learning some basics about Jax no matter which ML backend they "
-"intend to use."
+"programming design pattern in Jax with some slight differences. So we "
+"strongly recommend users learning some basics about Jax no matter which "
+"ML backend they intend to use."
 msgstr ""
-"TensorCircuit 中的相关 API 设计与 Jax 中的函数式编程的设计模式密切相关，但是略有"
-"不同。 因此，我们强烈建议用户学习一些有关 Jax 的基础知识，无论他们打算使用哪种 机"
-"器学习后端。"
+"TensorCircuit 中的相关 API 设计与 Jax 中的函数式编程的设计模式密切相关，但是略有不同。 因此，我们强烈建议用户学习一些有关"
+" Jax 的基础知识，无论他们打算使用哪种 机器学习后端。"
 
 #: ../../source/quickstart.rst:175
 msgid "**AD support:**"
@@ -323,11 +316,9 @@ msgstr "**自动微分支持**"
 
 #: ../../source/quickstart.rst:177
 msgid ""
-"Gradients, vjps, jvps, natural gradients, Jacobians and Hessians. AD is the base "
-"for all modern machine learning libraries."
-msgstr ""
-"梯度、矢量雅可比乘积、自然梯度、雅可比矩阵和黑森矩阵以及自动微分是所有现代机器学"
-"习库的基础。"
+"Gradients, vjps, jvps, natural gradients, Jacobians and Hessians. AD is "
+"the base for all modern machine learning libraries."
+msgstr "梯度、矢量雅可比乘积、自然梯度、雅可比矩阵和黑森矩阵以及自动微分是所有现代机器学习库的基础。"
 
 #: ../../source/quickstart.rst:181
 msgid "**JIT support:**"
@@ -335,19 +326,19 @@ msgstr "**即时编译支持**"
 
 #: ../../source/quickstart.rst:183
 msgid ""
-"Parameterized quantum circuits can run in a blink. Always use jit if the circuit "
-"will get evaluations multiple times, it can greatly boost the simulation with "
-"two or three order time reduction. But also be cautious, users need to be "
-"familiar with jit, otherwise, the jitted function may return unexpected results "
-"or recompile on every hit (wasting lots of time). To learn more about the jit "
-"mechanism, one can refer to documentation or blogs on ``tf.function`` or ``jax."
-"jit``, though these two still have subtle differences."
+"Parameterized quantum circuits can run in a blink. Always use jit if the "
+"circuit will get evaluations multiple times, it can greatly boost the "
+"simulation with two or three order time reduction. But also be cautious, "
+"users need to be familiar with jit, otherwise, the jitted function may "
+"return unexpected results or recompile on every hit (wasting lots of "
+"time). To learn more about the jit mechanism, one can refer to "
+"documentation or blogs on ``tf.function`` or ``jax.jit``, though these "
+"two still have subtle differences."
 msgstr ""
-"参数化的量子电路可以在瞬间完成运行。 如果电路将得到多次测算，请始终使用 即时编"
-"译，它可以大大提高仿真速度，减少两到三倍的时间。 但也要小心，用户需要熟悉 即时编"
-"译，否则，即时编译的函数可能会返回意外结果或每次在点击时都重新编译（浪费大量时"
-"间）。 要了解更多关于即时编译机制的信息，可以参考关于 ``tf.function`` 或 ``jax."
-"jit`` 的文档或博客，即使这两者仍然存在细微差别。"
+"参数化的量子电路可以在瞬间完成运行。 如果电路将得到多次测算，请始终使用 即时编译，它可以大大提高仿真速度，减少两到三倍的时间。 "
+"但也要小心，用户需要熟悉 即时编译，否则，即时编译的函数可能会返回意外结果或每次在点击时都重新编译（浪费大量时间）。 "
+"要了解更多关于即时编译机制的信息，可以参考关于 ``tf.function`` 或 ``jax.jit`` "
+"的文档或博客，即使这两者仍然存在细微差别。"
 
 #: ../../source/quickstart.rst:187
 msgid "**VMAP support:**"
@@ -355,12 +346,13 @@ msgstr "**矢量化图支持**"
 
 #: ../../source/quickstart.rst:189
 msgid ""
-"Inputs, parameters, measurements, circuit structures, Monte Carlo noise can all "
-"be evaluated in parallel. To learn more about vmap mechanism, one can refer to "
-"documentation or blogs on ``tf.vectorized_map`` or ``jax.vmap``."
+"Inputs, parameters, measurements, circuit structures, Monte Carlo noise "
+"can all be evaluated in parallel. To learn more about vmap mechanism, one"
+" can refer to documentation or blogs on ``tf.vectorized_map`` or "
+"``jax.vmap``."
 msgstr ""
-"输入、参数、测量、电路结构、蒙特卡洛噪声都可以并行测算。 要了解有关 vmap 机制的更"
-"多信息，可以参考 ``tf.vectorized_map`` 或 ``jax.vmap`` 上的文档或博客。"
+"输入、参数、测量、电路结构、蒙特卡洛噪声都可以并行测算。 要了解有关 vmap 机制的更多信息，可以参考 "
+"``tf.vectorized_map`` 或 ``jax.vmap`` 上的文档或博客。"
 
 #: ../../source/quickstart.rst:194
 msgid "Backend Agnosticism"
@@ -368,23 +360,25 @@ msgstr "后端无关特性"
 
 #: ../../source/quickstart.rst:196
 msgid ""
-"TensorCircuit supports TensorFlow, Jax and PyTorch backends. We recommend using "
-"TensorFlow or Jax backend, since PyTorch lacks advanced jit and vmap features."
+"TensorCircuit supports TensorFlow, Jax and PyTorch backends. We recommend"
+" using TensorFlow or Jax backend, since PyTorch lacks advanced jit and "
+"vmap features."
 msgstr ""
 
 #: ../../source/quickstart.rst:198
 msgid ""
-"The backend can be set as ``K=tc.set_backend(\"jax\")`` and ``K`` is the backend "
-"with a full set of APIs as a conventional ML framework, which can also be "
-"accessed by ``tc.backend``."
+"The backend can be set as ``K=tc.set_backend(\"jax\")`` and ``K`` is the "
+"backend with a full set of APIs as a conventional ML framework, which can"
+" also be accessed by ``tc.backend``."
 msgstr ""
 
 #: ../../source/quickstart.rst:221
 msgid ""
-"The supported APIs in backend come from two sources, one part is implemented in "
-"`TensorNetwork package <https://github.com/google/TensorNetwork/blob/master/"
-"tensornetwork/backends/abstract_backend.py>`__ and the other part is implemented "
-"in `TensorCircuit package <modules.html#module-tensorcircuit.backends>`__."
+"The supported APIs in backend come from two sources, one part is "
+"implemented in `TensorNetwork package "
+"<https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/abstract_backend.py>`__"
+" and the other part is implemented in `TensorCircuit package "
+"<modules.html#module-tensorcircuit.backends>`__."
 msgstr ""
 
 #: ../../source/quickstart.rst:226
@@ -393,14 +387,15 @@ msgstr ""
 
 #: ../../source/quickstart.rst:228
 msgid ""
-"TensorCircuit supports simulation using 32/64 bit precession. The default dtype "
-"is 32-bit as \"complex64\". Change this by ``tc.set_dtype(\"complex128\")``."
+"TensorCircuit supports simulation using 32/64 bit precession. The default"
+" dtype is 32-bit as \"complex64\". Change this by "
+"``tc.set_dtype(\"complex128\")``."
 msgstr ""
 
 #: ../../source/quickstart.rst:231
 msgid ""
-"``tc.dtypestr`` always returns the current dtype string: either \"complex64\" or "
-"\"complex128\"."
+"``tc.dtypestr`` always returns the current dtype string: either "
+"\"complex64\" or \"complex128\"."
 msgstr ""
 
 #: ../../source/quickstart.rst:235
@@ -409,22 +404,23 @@ msgstr ""
 
 #: ../../source/quickstart.rst:237
 msgid ""
-"TensorCircuit is a tensornetwork contraction based on quantum circuit simulator. "
-"A contractor is for searching the optimal contraction path of the circuit "
-"tensornetwork."
+"TensorCircuit is a tensornetwork contraction based quantum circuit "
+"simulator. A contractor is for searching the optimal contraction path of "
+"the circuit tensornetwork."
 msgstr ""
 
 #: ../../source/quickstart.rst:239
 msgid ""
-"There are various advanced contractors provided by third-party packages, such as "
-"`opt-einsum <https://github.com/dgasmith/opt_einsum>`__ and `cotengra <https://"
-"github.com/jcmgray/cotengra>`__."
+"There are various advanced contractors provided by third-party packages, "
+"such as `opt-einsum <https://github.com/dgasmith/opt_einsum>`__ and "
+"`cotengra <https://github.com/jcmgray/cotengra>`__."
 msgstr ""
 
 #: ../../source/quickstart.rst:241
 msgid ""
-"`opt-einsum` is shipped with TensorNetwork package. To use cotengra, one need to "
-"pip install it; kahypar is also recommended to install with cotengra."
+"`opt-einsum` is shipped with TensorNetwork package. To use cotengra, one "
+"need to pip install it; kahypar is also recommended to install with "
+"cotengra."
 msgstr ""
 
 #: ../../source/quickstart.rst:243
@@ -433,10 +429,12 @@ msgstr ""
 
 #: ../../source/quickstart.rst:269
 msgid ""
-"For advanced configurations on cotengra contractors, please refer to cotengra "
-"`doc <https://cotengra.readthedocs.io/en/latest/advanced.html>`__ and more fancy "
-"examples can be found at `contractor tutorial <https://github.com/quclub/"
-"tensorcircuit-tutorials/blob/master/tutorials/contractors.ipynb>`__."
+"For advanced configurations on cotengra contractors, please refer to "
+"cotengra `doc "
+"<https://cotengra.readthedocs.io/en/latest/advanced.html>`__ and more "
+"fancy examples can be found at `contractor tutorial "
+"<https://github.com/quclub/tensorcircuit-"
+"tutorials/blob/master/tutorials/contractors.ipynb>`__."
 msgstr ""
 
 #: ../../source/quickstart.rst:271
@@ -445,8 +443,8 @@ msgstr ""
 
 #: ../../source/quickstart.rst:273
 msgid ""
-"Beside global level setup, we can also setup the backend, the dtype, and the "
-"contractor in function level or context manager level:"
+"Beside global level setup, we can also setup the backend, the dtype, and "
+"the contractor in function level or context manager level:"
 msgstr ""
 
 #: ../../source/quickstart.rst:291
@@ -459,9 +457,9 @@ msgstr ""
 
 #: ../../source/quickstart.rst:295
 msgid ""
-"For the Monte Carlo trajectory noise simulator, unitary Kraus channel can be "
-"handled easily. TensorCircuit also support fully jittable and differentiable "
-"general Kraus channel Monte Carlo simulation, though."
+"For the Monte Carlo trajectory noise simulator, unitary Kraus channel can"
+" be handled easily. TensorCircuit also support fully jittable and "
+"differentiable general Kraus channel Monte Carlo simulation, though."
 msgstr ""
 
 #: ../../source/quickstart.rst:307
@@ -470,9 +468,9 @@ msgstr ""
 
 #: ../../source/quickstart.rst:309
 msgid ""
-"Density matrix simulator ``tc.DMCircuit`` simulates the noise in a full form, "
-"but takes twice qubits as noiseless simulation. The API is basically the same as "
-"``tc.Circuit``."
+"Density matrix simulator ``tc.DMCircuit`` simulates the noise in a full "
+"form, but takes twice qubits as noiseless simulation. The API is "
+"basically the same as ``tc.Circuit``."
 msgstr ""
 
 #: ../../source/quickstart.rst:313
@@ -487,14 +485,14 @@ msgstr ""
 
 #: ../../source/quickstart.rst:317
 msgid ""
-"``tc.QuVector`` can be extracted from ``tc.Circuit`` as the tensor network form "
-"for the output state (uncontracted) by ``c.quvector()``."
+"``tc.QuVector`` can be extracted from ``tc.Circuit`` as the tensor "
+"network form for the output state (uncontracted) by ``c.quvector()``."
 msgstr ""
 
 #: ../../source/quickstart.rst:319
 msgid ""
-"The QuVector form a wavefunction w, which can also be fed into Circuit as the "
-"inputs state as ``c=tc.Circuit(n, mps_inputs=w)``."
+"The QuVector form a wavefunction w, which can also be fed into Circuit as"
+" the inputs state as ``c=tc.Circuit(n, mps_inputs=w)``."
 msgstr ""
 
 #: ../../source/quickstart.rst:321
@@ -513,14 +511,14 @@ msgstr "**与 PyTorch 模块混合的 PyTorch 接口：**"
 
 #: ../../source/quickstart.rst:344
 msgid ""
-"As we have mentioned in the backend section, the PyTorch backend may lack the "
-"advanced features. This doesn't mean we cannot hybrid advanced circuit module "
-"with PyTorch neural module. We can run the quantum function on TensorFlow or Jax "
-"backend, while wrapping it with a Torch interface."
+"As we have mentioned in the backend section, the PyTorch backend may lack"
+" the advanced features. This doesn't mean we cannot hybrid advanced "
+"circuit module with PyTorch neural module. We can run the quantum "
+"function on TensorFlow or Jax backend, while wrapping it with a Torch "
+"interface."
 msgstr ""
-"正如我们在后端部分提到的，PyTorch 后端可能缺少高级功能。 这并不意味着我们不能将高"
-"级量子电路模块与 PyTorch 神经模块混合。 我们可以在 TensorFlow 或 Jax 后端运行量子"
-"函数，同时使用 Torch 接口包装它。 "
+"正如我们在后端部分提到的，PyTorch 后端可能缺少高级功能。 这并不意味着我们不能将高级量子电路模块与 PyTorch 神经模块混合。 "
+"我们可以在 TensorFlow 或 Jax 后端运行量子函数，同时使用 Torch 接口包装它。 "
 
 #: ../../source/quickstart.rst:372
 msgid "**Scipy interface to utilize scipy optimizers:**"
@@ -528,10 +526,9 @@ msgstr "**使用 scipy接口使用scipy优化器：**"
 
 #: ../../source/quickstart.rst:374
 msgid ""
-"Automatically transform quantum functions as scipy-compatible values and grad "
-"functions as provided for scipy interface with ``jac=True``."
-msgstr ""
-"为带有 jac=True 的 scipy 接口自动将量子函数转换为与 scipy 兼容的值和 grad 函数。"
+"Automatically transform quantum functions as scipy-compatible values and "
+"grad functions as provided for scipy interface with ``jac=True``."
+msgstr "为带有 jac=True 的 scipy 接口自动将量子函数转换为与 scipy 兼容的值和 grad 函数。"
 
 #: ../../source/quickstart.rst:400
 msgid "Templates as Shortcuts"
@@ -544,3 +541,12 @@ msgstr "**测量**"
 #: ../../source/quickstart.rst:404
 msgid "**Circuit blocks:**"
 msgstr "**电路块**"
+
+#~ msgid ""
+#~ "TensorCircuit is a tensornetwork contraction"
+#~ " based on quantum circuit simulator. "
+#~ "A contractor is for searching the "
+#~ "optimal contraction path of the circuit"
+#~ " tensornetwork."
+#~ msgstr ""
+

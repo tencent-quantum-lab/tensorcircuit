@@ -25,13 +25,13 @@ Initialize the circuit with the number of qubits ``c=tc.Circuit(n)``.
 
 **Input states:**
 
-The default input function for the circuit is:math:`\vert 0^n \rangle`. One can change this to other wavefunctions by directly feeding the inputs state vectors w: ``c=tc.Circuit(n, inputs=w)``.
+The default input function for the circuit is :math:`\vert 0^n \rangle`. One can change this to other wavefunctions by directly feeding the inputs state vectors w: ``c=tc.Circuit(n, inputs=w)``.
 
 One can also feed matrix product states as input states for the circuit, but we leave MPS/MPO usage for future sections.
 
 **Quantum gates:**
 
-We can apply gates on circuit objects. For example, using ``c.H(1)`` or ``c.rx(2, theta=0.2)``, we cam apply Hadamard gate on qubit 1 (0-based) or apply Rx gate on qubit 2 as :math:`e^{-i\theta/2 X}`.
+We can apply gates on circuit objects. For example, using ``c.H(1)`` or ``c.rx(2, theta=0.2)``, we can apply Hadamard gate on qubit 1 (0-based) or apply Rx gate on qubit 2 as :math:`e^{-i\theta/2 X}`.
 
 The same rule also apply to multi-qubit gates, such as ``c.cnot(0, 1)``.
 
@@ -128,10 +128,10 @@ The most common case and the most typical programming paradigm for TensorCircuit
     params = K.implicit_randn([2, n])
     print(vagf(params, n))  # get the quantum loss and the gradient
 
-Also for a non-quantum example (linear regression) demonstrating the backend agnostic feature, pytree supports variables, AD/jit/vmap usage, and variational optimization loops. Please refer to the example script: `linear regression example <https://github.com/quclub/tensorcircuit-dev/blob/master/examples/universal_lr.py>`_.
+Also for a non-quantum example (linear regression) demonstrating the backend agnostic feature, variables with pytree support, AD/jit/vmap usage, and variational optimization loops. Please refer to the example script: `linear regression example <https://github.com/quclub/tensorcircuit-dev/blob/master/examples/universal_lr.py>`_.
 This example might be more friendly to machine learning community since it is purely classical while also showcasing the main features and paradigms of tensorcircuit.
 
-If the user has no intention to maintain the application code in a backend agnostic fashion, the API for ML frameworks can be more handily used and connected with the TensorCircuit API.
+If the user has no intention to maintain the application code in a backend agnostic fashion, the API for ML frameworks can be more handily used and interleaved with the TensorCircuit API.
 
 .. code-block:: python
 
@@ -234,7 +234,7 @@ Change this by ``tc.set_dtype("complex128")``.
 Setup the contractor
 ------------------------
 
-TensorCircuit is a tensornetwork contraction based on quantum circuit simulator. A contractor is for searching the optimal contraction path of the circuit tensornetwork.
+TensorCircuit is a tensornetwork contraction based quantum circuit simulator. A contractor is for searching the optimal contraction path of the circuit tensornetwork.
 
 There are various advanced contractors provided by third-party packages, such as `opt-einsum <https://github.com/dgasmith/opt_einsum>`__ and `cotengra <https://github.com/jcmgray/cotengra>`__.
 
