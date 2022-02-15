@@ -163,4 +163,4 @@ To update the po file from updated English rst files, using
 
 Edit these .po files to add translations (`poedit <https://poedit.net/>`__ recommended). These files are in docs/source/locale/cn/LC_MESSAGES.
 
-Generate Chinese version of the documentation: ``make -e SPHINXOPTS="-D language='cn'" html``.
+Generate Chinese version of the documentation: ``sphinx-build source -D language="cn" build/html_cn`` in the separate directory "html_cn", whereas English version is in the directory "html".
