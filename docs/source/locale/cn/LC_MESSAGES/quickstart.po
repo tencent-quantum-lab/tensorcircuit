@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tensorcircuit \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-10 16:18+0800\n"
+"POT-Creation-Date: 2022-02-15 10:02+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -377,78 +377,85 @@ msgstr ""
 #: ../../source/quickstart.rst:267
 msgid ""
 "For advanced configuration on cotengra contractor, please refer cotengra "
-"`doc <https://cotengra.readthedocs.io/en/latest/advanced.html>`__."
+"`doc <https://cotengra.readthedocs.io/en/latest/advanced.html>`__ and "
+"more fancy examples can be found at `contractor tutorial "
+"<https://github.com/quclub/tensorcircuit-"
+"tutorials/blob/master/tutorials/contractors.ipynb>`__."
 msgstr ""
 
 #: ../../source/quickstart.rst:269
+msgid "**Setup in function or context level**"
+msgstr ""
+
+#: ../../source/quickstart.rst:271
 msgid ""
 "Besides global level setup, we can also setup the backend, the dtype and "
 "the contractor in function level or context manager level:"
 msgstr ""
 
-#: ../../source/quickstart.rst:287
+#: ../../source/quickstart.rst:289
 msgid "Noisy Circuit simulation"
 msgstr ""
 
-#: ../../source/quickstart.rst:289
+#: ../../source/quickstart.rst:291
 msgid "**Monte Carlo State Simulator:**"
 msgstr ""
 
-#: ../../source/quickstart.rst:291
+#: ../../source/quickstart.rst:293
 msgid ""
 "For Monte Carlo trajector noise simulator, unitary Kraus channel can be "
 "handled easily. TensorCircuit also support fully jittable and "
 "differentable general Kraus channel Monte Carlo simulation, though."
 msgstr ""
 
-#: ../../source/quickstart.rst:303
+#: ../../source/quickstart.rst:305
 msgid "**Density Matrix Simulator:**"
 msgstr ""
 
-#: ../../source/quickstart.rst:305
+#: ../../source/quickstart.rst:307
 msgid ""
 "Densitymatrix simulator ``tc.DMCircuit`` simulates the noise in a full "
 "form, but takes twice qubits as noiseless simulation. The API is "
 "basically the same as ``tc.Circuit``."
 msgstr ""
 
-#: ../../source/quickstart.rst:309
+#: ../../source/quickstart.rst:311
 msgid "MPS and MPO"
 msgstr ""
 
-#: ../../source/quickstart.rst:311
+#: ../../source/quickstart.rst:313
 msgid ""
 "TensorCircuit has its own class for MPS and MPO originally defined in "
 "TensorNetwork as ``tc.QuVector``, ``tc.QuOperator``."
 msgstr ""
 
-#: ../../source/quickstart.rst:313
+#: ../../source/quickstart.rst:315
 msgid ""
 "``tc.QuVector`` can be extracted from ``tc.Circuit`` as the tensor "
 "network form for the output state (uncontracted) by ``c.quvector()``."
 msgstr ""
 
-#: ../../source/quickstart.rst:315
+#: ../../source/quickstart.rst:317
 msgid ""
 "The QuVector form wavefunction w can also be fed into Circuit as the "
 "inputs state as ``c=tc.Circuit(n, mps_inputs=w)``."
 msgstr ""
 
-#: ../../source/quickstart.rst:317
+#: ../../source/quickstart.rst:319
 msgid ""
 "For example, the quick way to calculate the wavefunction overlap without "
 "explicitly computing the state amplitude is given as below:"
 msgstr ""
 
-#: ../../source/quickstart.rst:336
+#: ../../source/quickstart.rst:338
 msgid "Interfaces"
 msgstr ""
 
-#: ../../source/quickstart.rst:338
+#: ../../source/quickstart.rst:340
 msgid "**PyTorch interface to hybrid with PyTorch modules:**"
 msgstr ""
 
-#: ../../source/quickstart.rst:340
+#: ../../source/quickstart.rst:342
 msgid ""
 "As we have mentioned in backend section, PyTorch backend may lack "
 "advanced features. This does't mean we cannot hybrid advanced circuit "
@@ -456,25 +463,25 @@ msgid ""
 "tensorflow or jax backend, while wrap it with a torch interface."
 msgstr ""
 
-#: ../../source/quickstart.rst:368
+#: ../../source/quickstart.rst:370
 msgid "**Scipy interface to utilize scipy optimizers:**"
 msgstr ""
 
-#: ../../source/quickstart.rst:370
+#: ../../source/quickstart.rst:372
 msgid ""
 "Automatically transform quantum functions as scipy-compatible value and "
 "grad function as provided for scipy interface with ``jac=True``."
 msgstr ""
 
-#: ../../source/quickstart.rst:396
+#: ../../source/quickstart.rst:398
 msgid "Templates as Shortcuts"
 msgstr ""
 
-#: ../../source/quickstart.rst:398
+#: ../../source/quickstart.rst:400
 msgid "**Measurements:**"
 msgstr ""
 
-#: ../../source/quickstart.rst:400
+#: ../../source/quickstart.rst:402
 msgid "**Circuit blocks:**"
 msgstr ""
 
@@ -515,5 +522,11 @@ msgstr ""
 #~ "VMAP support: inputs, parameters, "
 #~ "measurements, circuit structures, Monte Carlo"
 #~ " noise can all be parallelly evaluate"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "For advanced configuration on cotengra "
+#~ "contractor, please refer cotengra `doc "
+#~ "<https://cotengra.readthedocs.io/en/latest/advanced.html>`__."
 #~ msgstr ""
 

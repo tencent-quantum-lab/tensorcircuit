@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tensorcircuit \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-10 16:18+0800\n"
+"POT-Creation-Date: 2022-02-15 10:05+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -225,11 +225,12 @@ msgid ""
 msgstr ""
 
 #: ../../source/infras.rst:80
+#, fuzzy
 msgid ""
 "We borrow TensorNetwork's code in /quantum to our ``tc.quantum`` module, "
-"since they has no ``__init__.py`` file to export these MPO and MPS "
-"related objects. Of course, we have made substantial improvements since "
-"then."
+"since TensorNetwork has no ``__init__.py`` file to export these MPO and "
+"MPS related objects. Of course, we have made substantial improvements "
+"since then."
 msgstr ""
 
 #: ../../source/infras.rst:82
