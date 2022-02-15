@@ -328,7 +328,7 @@ def matrix_for_gate(gate: Gate, tol: float = 1e-6) -> Tensor:
 
     :param gate: input Gate
     :type gate: Gate
-    :return: corresponding Tensor
+    :return: Corresponding Tensor
     :rtype: Tensor
     """
 
@@ -342,7 +342,7 @@ def matrix_for_gate(gate: Gate, tol: float = 1e-6) -> Tensor:
 
 def bmatrix(a: Array) -> str:
     r"""
-    Returns a LaTeX bmatrix.
+    Returns a :math:`\LaTeX` bmatrix.
 
     :Example:
 
@@ -362,7 +362,7 @@ def bmatrix(a: Array) -> str:
     :param a: 2D numpy array
     :type a: np.array
     :raises ValueError: ValueError("bmatrix can at most display two dimensions")
-    :return: latex str for bmatrix of array a
+    :return: :math:`\LaTeX`-formatted string for bmatrix of the array a
     :rtype: str
     """
     #   Adopted from https://stackoverflow.com/questions/17129290/numpy-2d-and-1d-array-to-latex-bmatrix/17131750
@@ -382,13 +382,10 @@ def r_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
     General single qubit rotation gate
 
     .. math::
-        R(\theta, \phi, \alpha) = i \cos(\theta) I
-    .. math::
-        - i \cos(\phi) \sin(\alpha) \sin(\theta) X
-    .. math::
-        - i \sin(\phi) \sin(\alpha) \sin(\theta) Y
-    .. math::
-        - i \sin(\theta) \cos(\alpha) Z
+        R(\theta, \alpha, \phi) = j \cos(\theta) I
+        - j \cos(\phi) \sin(\alpha) \sin(\theta) X
+        - j \sin(\phi) \sin(\alpha) \sin(\theta) Y
+        - j \sin(\theta) \cos(\alpha) Z
 
     :param theta:  angle in radians
     :type theta: float, optional
@@ -416,10 +413,10 @@ def r_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
 
 def rx_gate(theta: float = 0) -> Gate:
     r"""
-    Rotation gate along X axis.
+    Rotation gate along :math:`x` axis.
 
     .. math::
-        RX(\theta) = e^{-i\frac{\theta}{2}X}
+        RX(\theta) = e^{-j\frac{\theta}{2}X}
 
     :param theta: angle in radians
     :type theta: float, optional
@@ -437,10 +434,10 @@ def rx_gate(theta: float = 0) -> Gate:
 
 def ry_gate(theta: float = 0) -> Gate:
     r"""
-    Rotation gate along Y axis.
+    Rotation gate along :math:`y` axis.
 
     .. math::
-        RY(\theta) = e^{-i\frac{\theta}{2}Y}
+        RY(\theta) = e^{-j\frac{\theta}{2}Y}
 
     :param theta: angle in radians
     :type theta: float, optional
@@ -458,10 +455,10 @@ def ry_gate(theta: float = 0) -> Gate:
 
 def rz_gate(theta: float = 0) -> Gate:
     r"""
-    Rotation gate along Z axis.
+    Rotation gate along :math:`z` axis.
 
     .. math::
-        RZ(\theta) = e^{-i\frac{\theta}{2}Z}
+        RZ(\theta) = e^{-j\frac{\theta}{2}Z}
 
     :param theta: angle in radians
     :type theta: float, optional
@@ -479,16 +476,12 @@ def rz_gate(theta: float = 0) -> Gate:
 
 def rgate_theoretical(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
     r"""
-    Rotation gate, which is in matrix exponential form, shall give the same result as `rgate`.
+    Rotation gate implemented by matrix exponential. The output is the same as `rgate`.
 
     .. math::
-        mx = \sin(\alpha) \cos(\phi) X
-    .. math::
-        my = \sin(\alpha) \sin(\phi) Y
-    .. math::
-        mz = \cos(\alpha) Z
-    .. math::
-        R(\theta, \alpha, \phi) = e^{-i\theta (mx+my+mz)}
+        R(\theta, \alpha, \phi) = e^{-j \theta \left[\sin(\alpha) \cos(\phi) X
+                                                   + \sin(\alpha) \sin(\phi) Y
+                                                   + \cos(\alpha) Z\right]}
 
     :param theta: angle in radians
     :type theta: float, optional
@@ -513,7 +506,7 @@ def random_single_qubit_gate() -> Gate:
     """
     Random single qubit gate described in https://arxiv.org/abs/2002.07730.
 
-    :return: A random single qubit gate
+    :return: A random single-qubit gate
     :rtype: Gate
     """
     # Get the random parameters
@@ -530,7 +523,7 @@ def iswap_gate(theta: float = 1.0) -> Gate:
     iSwap gate.
 
     .. math::
-        iSwap(\theta) =
+        \textrm{iSwap}(\theta) =
         \begin{pmatrix}
             1 & 0 & 0 & 0\\
             0 & \cos(\frac{\pi}{2} \theta ) & j \sin(\frac{\pi}{2} \theta ) & 0\\
@@ -562,7 +555,7 @@ def iswap_gate(theta: float = 1.0) -> Gate:
 
 def cr_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
     r"""
-    Controlled rotation gate, when the control bit is 1, `rgate` is applied on the target gate.
+    Controlled rotation gate. When the control qubit is 1, `rgate` is applied to the target qubit.
 
     :param theta:  angle in radians
     :type theta: float, optional
@@ -602,7 +595,7 @@ def random_two_qubit_gate() -> Gate:
     """
     Returns a random two-qubit gate.
 
-    :return: a random two-qubit gate
+    :return: A random two-qubit gate
     :rtype: Gate
     """
     unitary = unitary_group.rvs(dim=4).astype(
@@ -640,9 +633,9 @@ def exponential_gate(unitary: Tensor, theta: float, name: str = "none") -> Gate:
     Exponential gate.
 
     .. math::
-        \rm{exp}(U) = e^{-i \theta U}
+        \textrm{exp}(U) = e^{-j \theta U}
 
-    :param unitary: input unitary (U)
+    :param unitary: input unitary :math:`U`
     :type unitary: Tensor
     :param theta: angle in radians
     :type theta: float
@@ -664,13 +657,13 @@ exp_gate = exponential_gate
 
 def exponential_gate_unity(unitary: Tensor, theta: float, name: str = "none") -> Gate:
     r"""
-    Faster exponential gate, directly implemented based on RHS, only work when: :math:`U^2` is identity matrix.
+    Faster exponential gate directly implemented based on RHS. Only works when :math:`U^2 = I` is an identity matrix.
 
     .. math::
-        \rm{exp}(U) &= e^{-i \theta U} \\
+        \textrm{exp}(U) &= e^{-j \theta U} \\
                 &= \cos(\theta) I - j \sin(\theta) U \\
 
-    :param unitary: input unitary (U)
+    :param unitary: input unitary :math:`U`
     :type unitary: Tensor
     :param theta: angle in radians
     :type theta: float
