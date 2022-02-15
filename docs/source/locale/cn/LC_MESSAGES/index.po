@@ -33,12 +33,12 @@ msgstr "索引和表格"
 
 #: ../../source/index.rst:24
 msgid ":ref:`genindex`"
-msgstr "索引"
+msgstr ""
 
 #: ../../source/index.rst:25
 msgid ":ref:`modindex`"
-msgstr "模块索引"
+msgstr ""
 
 #: ../../source/index.rst:26
 msgid ":ref:`search`"
-msgstr "搜索"
+msgstr ""
