@@ -1,13 +1,13 @@
 Guide for contributors
 ============================
 
-We welcome everyone’s contributions. The development of tensorcircuit are open-sourced and centered on `GitHub <https://github.com/quclub/tensorcircuit-dev>`_.
+We welcome everyone’s contributions! The development of TensorCircuit is open-sourced and centered on `GitHub <https://github.com/quclub/tensorcircuit-dev>`_.
 
 There are various ways to contribute:
 
 * Answering questions on the discussions page or issue page.
 
-* Raising issues such as bug report or feature request on the issue page.
+* Raising issues such as bug reports or feature requests on the issue page.
 
 * Improving the documentation (docstrings/tutorials) by pull requests.
 
@@ -18,20 +18,20 @@ There are various ways to contribute:
 Pull Request Guidelines
 -------------------------------
 
-We welcome pull requests from everyone. For large PRs involving feature enhancement or API changes, we ask that you first open a GitHub issue to discuss on your proposal.
+We welcome pull requests from everyone. For large PRs involving feature enhancement or API changes, we ask that you first open a GitHub issue to discuss your proposal.
 
 The following git workflow is recommended for contribution by PR:
 
-* Configure your git username and email so that they match your GitHub account, if you haven't.
+* Configure your git username and email so that they match your GitHub account if you haven't.
 
 .. code-block:: bash
 
     git config user.name <GitHub name>
     git config user.email <GitHub email>
 
-* Fork the tensorcircuit repository by clicking the Fork button on GitHub. This will create an independent version of the codebase in your own GitHub account.
+* Fork the TensorCircuit repository by clicking the Fork button on GitHub. This will create an independent version of the codebase in your own GitHub account.
 
-* Clone your forked repository and set up an ``upstream`` reference to the official tensorcircuit repository.
+* Clone your forked repository and set up an ``upstream`` reference to the official TensorCircuit repository.
 
 .. code-block:: bash
 
@@ -48,7 +48,7 @@ The following git workflow is recommended for contribution by PR:
 
 Extra packages may be required for specific development tasks.
 
-* Pip installing your fork from source. This allows you to modify the code locally and immediately test it out.
+* Pip installing your fork from the source. This allows you to modify the code locally and immediately test it out.
 
 .. code-block:: bash
 
@@ -76,7 +76,7 @@ Extra packages may be required for specific development tasks.
     git fetch upstream
     git rebase upstream/master      # resolve conflicts if any
 
-* Note that PRs typically comprise a single git commit, you should squash all you commits in the feature branch. Using ``git rebase -i`` for commits squash, see `instructions <https://www.internalpointers.com/post/squash-commits-into-one-git>`_
+* Note that PRs typically comprise a single git commit, you should squash all your commits in the feature branch. Using ``git rebase -i`` for commits squash, see `instructions <https://www.internalpointers.com/post/squash-commits-into-one-git>`_
 
 * Push your commit from your feature branch. This will create a remote branch in your forked repository on GitHub, from which you will raise a PR.
 
@@ -84,9 +84,9 @@ Extra packages may be required for specific development tasks.
 
   git push --set-upstream origin <name-of-change>
 
-* Create a PR from the official tensorcircuit repository and send it for review. Some comments and remarks attached with the PR are recommended. If the PR is not finally finished, please add [WIP] at the beginning of the title of your PR.
+* Create a PR from the official TensorCircuit repository and send it for review. Some comments and remarks attached with the PR are recommended. If the PR is not finally finished, please add [WIP] at the beginning of the title of your PR.
 
-* The PR will be reviewed by the developers and may get approved or change requested. In the latter case, you can further revise the PR according to suggestions and feedbacks from the code reviewers.
+* The PR will be reviewed by the developers and may get approved or change requested. In the latter case, you can further revise the PR according to suggestions and feedback from the code reviewers.
 
 * The PR you opened can be automatically updated once you further push commits to your forked repository. Please remember to ping the code reviewers in the PR conversation soon.
 
@@ -96,7 +96,7 @@ Extra packages may be required for specific development tasks.
 Checks
 --------------------
 
-The simplest way to ensure the codebase are ok with checks and tests, is to run one-in-all scripts ``./check_all.sh`` (you may need to ``chmod +x check_all.sh`` to grant permissions on this file).
+The simplest way to ensure the codebase is ok with checks and tests, is to run one-in-all scripts ``./check_all.sh`` (you may need to ``chmod +x check_all.sh`` to grant permissions on this file).
 
 The scripts include the following components:
 
@@ -112,7 +112,7 @@ The scripts include the following components:
 
 Make sure the scripts check are successful by 💐.
 
-The similar tests and checks are also available via GitHub action as CI infrastructures.
+Similar tests and checks are also available via GitHub action as CI infrastructures.
 
 Please also include corresponding changes for CHANGELOG.md and docs for the PR.
 
@@ -121,13 +121,13 @@ Pytest
 ---------
 
 For pytest, one can speed up the test by ``pip install pytest-xdist``, and then run parallelly as ``pytest -v -n [number of processes]``. 
-We also have included some micro benchmark tests, which works with ``pip install pytest-benchmark``. 
+We also have included some micro-benchmark tests, which work with ``pip install pytest-benchmark``.
 
 **Fixtures:**
 
-There are some pytest fixtures defined in conftest file, which are for customization on backends and dtype in function level.
+There are some pytest fixtures defined in the conftest file, which are for customization on backends and dtype in function level.
 ``highp`` is a fixture for complex128 simulation. While ``npb``, ``tfb``, ``jaxb`` and ``torchb`` are fixtures for global numpy, tensorflow, jax and pytorch backends, respectively.
-To test different backends in one function, we need to use parameterized fixture, which is enabled by ``pip install pytest-lazy-fixture``. Namely we have the following approach to test different backends in one function.
+To test different backends in one function, we need to use the parameterized fixture, which is enabled by ``pip install pytest-lazy-fixture``. Namely, we have the following approach to test different backends in one function.
 
 .. code-block:: python
 
@@ -142,7 +142,7 @@ To test different backends in one function, we need to use parameterized fixture
 Docs
 --------
 
-We use `sphnix <https://www.sphinx-doc.org/en/master/>`__ to manage the documentations.
+We use `sphinx <https://www.sphinx-doc.org/en/master/>`__ to manage the documentation.
 
 The source files for docs are .rst file in docs/source.
 
@@ -150,7 +150,7 @@ For English docs, ``sphinx-build source build/html`` in docs dir is enough. The 
 
 **i18n:**
 
-For Chinese docs, we refer to standard i18n workflow provided by sphnix, see `here <https://www.sphinx-doc.org/en/master/usage/advanced/intl.html>`__.
+For Chinese docs, we refer to the standard i18n workflow provided by sphinx, see `here <https://www.sphinx-doc.org/en/master/usage/advanced/intl.html>`__.
 
 To update the po file from updated English rst files, using
 
@@ -163,4 +163,4 @@ To update the po file from updated English rst files, using
 
 Edit these .po files to add translations (`poedit <https://poedit.net/>`__ recommended). These files are in docs/source/locale/cn/LC_MESSAGES.
 
-Generate Chinese version of the documentation: ``make -e SPHINXOPTS="-D language='cn'" html``.
+To generate Chinese version of the documentation: ``sphinx-build source -D language="cn" build/html_cn`` which is in the separate directory ``.../build/html_cn``, whereas English version is in the directory ``.../build/html``.

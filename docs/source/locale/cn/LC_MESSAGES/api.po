@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tensorcircuit \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-15 10:02+0800\n"
+"POT-Creation-Date: 2022-02-15 11:04+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1486,7 +1486,7 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.applications.van.MADE.call:18
-#: tensorcircuit.applications.van.MaskedConv2D.build:11
+#: tensorcircuit.applications.van.MaskedConv2D.build:13
 #: tensorcircuit.applications.van.MaskedConv2D.call:37
 #: tensorcircuit.applications.van.MaskedLinear.call:37
 #: tensorcircuit.applications.van.NMF.call:18
@@ -1497,7 +1497,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.eye:8
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.eye:8
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.eye:8
-#: tensorcircuit.keras.QuantumLayer.build:11
+#: tensorcircuit.keras.QuantumLayer.build:13
 msgid "Args:"
 msgstr ""
 
@@ -1571,21 +1571,24 @@ msgstr ""
 msgid ""
 "This is a method that implementers of subclasses of `Layer` or `Model` "
 "can override if they need a state-creation step in-between layer "
-"instantiation and layer call."
+"instantiation and layer call. It is invoked automatically before the "
+"first execution of `call()`."
 msgstr ""
 
-#: of tensorcircuit.applications.van.MaskedConv2D.build:7
-#: tensorcircuit.keras.QuantumLayer.build:7
-msgid "This is typically used to create the weights of `Layer` subclasses."
+#: of tensorcircuit.applications.van.MaskedConv2D.build:8
+#: tensorcircuit.keras.QuantumLayer.build:8
+msgid ""
+"This is typically used to create the weights of `Layer` subclasses (at "
+"the discretion of the subclass implementer)."
 msgstr ""
 
-#: of tensorcircuit.applications.van.MaskedConv2D.build:11
-#: tensorcircuit.keras.QuantumLayer.build:11
+#: of tensorcircuit.applications.van.MaskedConv2D.build:13
+#: tensorcircuit.keras.QuantumLayer.build:13
 msgid "input_shape: Instance of `TensorShape`, or list of instances of"
 msgstr ""
 
-#: of tensorcircuit.applications.van.MaskedConv2D.build:11
-#: tensorcircuit.keras.QuantumLayer.build:11
+#: of tensorcircuit.applications.van.MaskedConv2D.build:13
+#: tensorcircuit.keras.QuantumLayer.build:13
 msgid ""
 "`TensorShape` if the layer expects a list of inputs (one instance per "
 "input)."
@@ -1603,10 +1606,11 @@ msgstr ""
 #: tensorcircuit.applications.van.ResidualBlock.call:3
 #: tensorcircuit.applications.vqes.Linear.call:3
 msgid ""
-"Note here that `call()` method in `tf.keras` is little bit different from"
-" `keras` API. In `keras` API, you can pass support masking for layers as "
-"additional arguments. Whereas `tf.keras` has `compute_mask()` method to "
-"support masking."
+"The `call()` method may not create state (except in its first invocation,"
+" wrapping the creation of variables or other resources in "
+"`tf.init_scope()`). It is recommended to create state in `__init__()`, or"
+" the `build()` method that is called automatically before `call()` "
+"executes the first time."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:24
@@ -5452,4 +5456,25 @@ msgstr ""
 #: of tensorcircuit.vis.render_pdf:25
 msgid "if notebook is True, return `Image` object; otherwise return `None`"
 msgstr ""
+
+#~ msgid ""
+#~ "This is a method that implementers "
+#~ "of subclasses of `Layer` or `Model` "
+#~ "can override if they need a "
+#~ "state-creation step in-between layer "
+#~ "instantiation and layer call."
+#~ msgstr ""
+
+#~ msgid "This is typically used to create the weights of `Layer` subclasses."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Note here that `call()` method in "
+#~ "`tf.keras` is little bit different from"
+#~ " `keras` API. In `keras` API, you "
+#~ "can pass support masking for layers "
+#~ "as additional arguments. Whereas `tf.keras`"
+#~ " has `compute_mask()` method to support "
+#~ "masking."
+#~ msgstr ""
 

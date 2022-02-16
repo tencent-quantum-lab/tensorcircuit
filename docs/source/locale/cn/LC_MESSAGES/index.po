@@ -2,33 +2,34 @@
 # Copyright (C) 2020, The TensorCircuit Authors
 # This file is distributed under the same license as the tensorcircuit
 # package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+# Xinghan Yang <yang-xinghan@outlook.com>, 2022.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: tensorcircuit \n"
+"Project-Id-Version: tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-02-08 15:20+0800\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2022-02-15 17:24+0800\n"
+"Last-Translator: Xinghan Yang \n"
+"Language-Team: \n"
+"Language: cn\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
+"X-Generator: Poedit 3.0.1\n"
 
 #: ../../source/index.rst:2
 msgid "Guide to tensorcircuit"
-msgstr ""
+msgstr "TensorCircuit指南"
 
 #: ../../source/index.rst:13
 msgid "API References"
-msgstr ""
+msgstr "API 参考"
 
 #: ../../source/index.rst:22
 msgid "Indices and tables"
-msgstr ""
+msgstr "索引和表格"
 
 #: ../../source/index.rst:24
 msgid ":ref:`genindex`"
@@ -41,4 +42,3 @@ msgstr ""
 #: ../../source/index.rst:26
 msgid ":ref:`search`"
 msgstr ""
-
