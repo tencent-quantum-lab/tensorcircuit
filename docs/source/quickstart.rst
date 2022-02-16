@@ -401,4 +401,19 @@ Templates as Shortcuts
 
 **Measurements:**
 
+* Ising type Hamiltonian defined on a general graph
+
+See :py:meth:`tensorcircuit.templates.measurements.spin_glass_measurements`
+
+* Istropic Heisenberg Hamiltonian on a general graph with possible external friendly
+
+See :py:meth:`tensorcircuit.templates.measurements.heisenberg_measurements`
+
 **Circuit blocks:**
+
+.. code-block:: python
+
+    c = tc.Circuit(4)
+    c = tc.templates.blocks.example_block(c, tc.backend.ones([16]))
+
+.. figure:: statics/example_block.png
