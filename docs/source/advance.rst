@@ -2,12 +2,12 @@
 Advanced Usage
 ================
 
-MPS simulator
+MPS Simulator
 ----------------
 
 (Still experimental support)
 
-Split two-qubit gates
+Split Two-qubit Gates
 -------------------------
 
 The two-qubit gates applied on the circuit can be decomposed via SVD, which may further improve the optimality the contraction path finding.
@@ -36,13 +36,13 @@ The two-qubit gates applied on the circuit can be decomposed via SVD, which may 
 Note ``max_singular_values`` must be specified to make the whole procedure static and thus jittable.
 
 
-Jitted function save/load
+Jitted Function Save/Load
 -----------------------------
 
-Parameterized measurements
+Parameterized Measurements
 -----------------------------
 
-Randoms, jit, backend agnostic and their interplay
+Randoms, Jit, Backend Agnostic and Their Interplay
 --------------------------------------------------------
 
 .. code-block:: python

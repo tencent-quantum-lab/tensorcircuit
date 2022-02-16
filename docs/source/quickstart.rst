@@ -165,7 +165,7 @@ If the user has no intention to maintain the application code in a backend agnos
     print(vagf(params, n))  # get the quantum loss and the gradient
 
 
-Automatic differentiation, JIT and vectorized parallelism
+Automatic differentiation, JIT and Vectorized Parallelism
 -------------------------------------------------------------
 
 For concepts of AD, JIT and VMAP, please refer to `Jax documentation <https://jax.readthedocs.io/en/latest/jax-101/index.html>`__ .
@@ -222,7 +222,7 @@ The supported APIs in backend come from two sources, one part is implemented in 
 and the other part is implemented in `TensorCircuit package <modules.html#module-tensorcircuit.backends>`__.
 
 
-Switch the dtype
+Switch the Dtype
 --------------------
 
 TensorCircuit supports simulation using 32/64 bit precession. The default dtype is 32-bit as "complex64".
@@ -231,7 +231,7 @@ Change this by ``tc.set_dtype("complex128")``.
 ``tc.dtypestr`` always returns the current dtype string: either "complex64" or "complex128".
 
 
-Setup the contractor
+Setup the Contractor
 ------------------------
 
 TensorCircuit is a tensornetwork contraction based quantum circuit simulator. A contractor is for searching the optimal contraction path of the circuit tensornetwork.
@@ -287,7 +287,7 @@ Beside global level setup, we can also setup the backend, the dtype, and the con
     print(f()) # complex128 tf tensor
 
 
-Noisy Circuit simulation
+Noisy Circuit Simulation
 ----------------------------
 
 **Monte Carlo State Simulator:**
