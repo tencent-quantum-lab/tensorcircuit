@@ -2,12 +2,12 @@
 Advanced Usage
 ================
 
-MPS simulator
+MPS Simulator
 ----------------
 
 (Still experimental support)
 
-Split two-qubit gates
+Split Two-qubit Gates
 -------------------------
 
 The two-qubit gates applied on the circuit can be decomposed via SVD, which may further improve the optimality the contraction path finding.
@@ -36,7 +36,7 @@ The two-qubit gates applied on the circuit can be decomposed via SVD, which may 
 Note ``max_singular_values`` must be specified to make the whole procedure static and thus jittable.
 
 
-Jitted function save/load
+Jitted Function Save/Load
 -----------------------------
 
 To reuse the jitted function, we can save it on the disk via support from TensorFlow `SavedModel <https://www.tensorflow.org/guide/saved_model>`_. That is to say, only jitted quantum function on TensorFlow backend can be saved on the disk. 
@@ -45,7 +45,7 @@ For jax-backend quantum function, one can first transform them into tf-backend f
 
 We wrap the tf-backend `SavedModel` as very easy-to-use function :py:meth:`tensorcircuit.keras.save_func` and :py:meth:`tensorcircuit.keras.load_func`.
 
-Parameterized measurements
+Parameterized Measurements
 -----------------------------
 
 For plain measurements API on a ``tc.Circuit``, eg. `c = tc.Circuit(n=3)`, if we want to evaluate the expectation :math:`<Z_1Z_2>`, we need to call the API as ``c.expectation((tc.gates.z(), [1]), (tc.gates.z(), [2]))``. 
@@ -62,7 +62,8 @@ This API corresponds to measure :math:`I_0Z_1Z_2I_3` where 0, 1, 2, 3 are for lo
 Sparse Matrix
 ----------------
 
-Randoms, jit, backend agnostic and their interplay
+
+Randoms, Jit, Backend Agnostic and Their Interplay
 --------------------------------------------------------
 
 .. code-block:: python
