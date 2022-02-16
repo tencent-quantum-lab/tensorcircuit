@@ -39,8 +39,28 @@ Note ``max_singular_values`` must be specified to make the whole procedure stati
 Jitted function save/load
 -----------------------------
 
+To reuse the jitted function, we can save it on the disk via support from TensorFlow `SavedModel <https://www.tensorflow.org/guide/saved_model>`_. That is to say, only jitted quantum function on TensorFlow backend can be saved on the disk. 
+
+For jax-backend quantum function, one can first transform them into tf-backend function via jax experimental support: `jax2tf <https://github.com/google/jax/tree/main/jax/experimental/jax2tf>`_.
+
+We wrap the tf-backend `SavedModel` as very easy-to-use function :py:meth:`tensorcircuit.keras.save_func` and :py:meth:`tensorcircuit.keras.load_func`.
+
 Parameterized measurements
 -----------------------------
+
+For plain measurements API on a ``tc.Circuit``, eg. `c = tc.Circuit(n=3)`, if we want to evaluate the expectation :math:`<Z_1Z_2>`, we need to call the API as ``c.expectation((tc.gates.z(), [1]), (tc.gates.z(), [2]))``. 
+
+In some cases, we may want to tell the software what to measure but in a tensor fashion. For example, if we want to get the above expectation, we can use the following API: :py:meth:`tensorcircuit.templates.measurements.parameterized_measurements`.
+
+.. code-block:: python
+
+    c = tc.Circuit(3)
+    z1z2 = tc.templates.measurements.parameterized_measurements(c, tc.array_to_tensor([0, 3, 3, 0]), onehot=True) # 1
+
+This API corresponds to measure :math:`I_0Z_1Z_2I_3` where 0, 1, 2, 3 are for local I, X, Y, Z operators respectively.
+
+Sparse Matrix
+----------------
 
 Randoms, jit, backend agnostic and their interplay
 --------------------------------------------------------
