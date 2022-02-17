@@ -1,5 +1,3 @@
-English | [简体中文](README_cn.md)
-
 <h1 align="center"> TENSORCIRCUIT </h1>
 
 <p align="center">
@@ -20,6 +18,8 @@ English | [简体中文](README_cn.md)
     <img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=flat-square&logo=apache"/>
   </a>
 </p>
+
+<p align="center"> English | <a href="README_cn.md"> 简体中文 </a></p>
 
 TensorCircuit is the next generation of quantum circuit simulator with support for automatic differentiation, just-in-time compiling, hardware acceleration, and vectorized parallelism.
 
