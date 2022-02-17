@@ -1,7 +1,8 @@
 """
-demonstration of TFIM VQE on V100 with lager qubit number counts
+Demonstration of TFIM VQE on V100 with lager qubit number counts (100+)
 """
 
+import time
 import logging
 import sys
 import numpy as np
@@ -15,9 +16,10 @@ logger.addHandler(ch)
 sys.setrecursionlimit(10000)
 
 import tensorflow as tf
+import cotengra as ctg
+
 import tensorcircuit as tc
 from tensorcircuit import keras
-import cotengra as ctg
 
 optr = ctg.ReusableHyperOptimizer(
     methods=["greedy", "kahypar"],
@@ -32,8 +34,6 @@ tc.set_contractor("custom", optimizer=optr, preprocessing=True)
 tc.set_dtype("complex64")
 tc.set_backend("tensorflow")
 dtype = np.complex64
-
-import time
 
 nwires, nlayers = 50, 7
 
@@ -95,12 +95,17 @@ structures = tc.backend.reshape(structures, [-1, nwires, 4])
 print(structures.shape)
 time0 = time.time()
 
-tc_vag = tc.backend.jit(
-    tc.backend.vectorized_value_and_grad(vqe_forward, argnums=0, vectorized_argnums=1)
+batch = 50
+tc_vag = tf.function(
+    tc.backend.vectorized_value_and_grad(vqe_forward, argnums=0, vectorized_argnums=1),
+    input_signature=[
+        tf.TensorSpec([2 * nlayers, nwires], tf.float32),
+        tf.TensorSpec([batch, nwires, 4], tf.float32),
+    ],
 )
 param = tf.Variable(tf.random.normal(stddev=0.1, shape=[2 * nlayers, nwires]))
 
-print(tc_vag(param, structures[:50]))
+print(tc_vag(param, structures[:batch]))
 
 time1 = time.time()
 print("staging time: ", time1 - time0)

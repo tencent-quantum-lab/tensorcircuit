@@ -1,8 +1,8 @@
 """
-boosting the monte carlo noise simulation on general error with circuit layerwise slicing
+boosting the monte carlo noise simulation (specifically the staging time)
+on general error with circuit layerwise slicing
 """
 
-from functools import partial
 import time
 import sys
 

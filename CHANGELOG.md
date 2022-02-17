@@ -6,6 +6,10 @@
 
 - new universal contraction analyse tools and pseudo contraction rehearsals for debug
 
+### Fixed
+
+- fixed real operation on some methods in templates.measurements
+
 ## 0.0.220126
 
 ### Added

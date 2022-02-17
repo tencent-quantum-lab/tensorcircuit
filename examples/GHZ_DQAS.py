@@ -1,15 +1,14 @@
 import sys
 
 sys.path.insert(0, "../")
-import tensorcircuit as tc
 import numpy as np
 import tensorflow as tf
 import cirq
 
+import tensorcircuit as tc
 from tensorcircuit.applications.vags import double_qubits_initial, GHZ_vag, GHZ_vag_tfq
 from tensorcircuit.applications.dqas import (
     set_op_pool,
-    get_op_pool,
     get_preset,
     DQAS_search,
 )

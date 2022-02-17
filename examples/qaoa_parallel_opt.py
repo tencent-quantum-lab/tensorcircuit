@@ -8,7 +8,7 @@ from tensorcircuit.applications.dqas import (
     single_generator,
     set_op_pool,
 )
-from tensorcircuit.applications.layers import *
+from tensorcircuit.applications.layers import *  # pylint: disable=wildcard-import
 from tensorcircuit.applications.graphdata import get_graph
 
 tc.set_backend("tensorflow")

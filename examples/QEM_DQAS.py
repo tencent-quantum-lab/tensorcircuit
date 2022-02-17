@@ -3,7 +3,6 @@ import sys
 sys.path.insert(0, "../")
 
 from functools import partial
-from collections import namedtuple
 import cirq
 import numpy as np
 import tensorflow as tf
@@ -12,7 +11,6 @@ from tensorcircuit.applications.dqas import (
     set_op_pool,
     DQAS_search,
     verbose_output,
-    get_var,
 )
 
 

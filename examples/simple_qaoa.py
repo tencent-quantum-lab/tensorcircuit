@@ -1,9 +1,12 @@
+"""
+A plain QAOA optimization example with given graph using networkx
+"""
 import sys
 
 sys.path.insert(0, "../")
-import tensorcircuit as tc
 import networkx as nx
 import tensorflow as tf
+import tensorcircuit as tc
 
 K = tc.set_backend("tensorflow")
 

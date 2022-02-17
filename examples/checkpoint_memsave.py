@@ -1,16 +1,14 @@
 """
-some possible attempts to save memory from state-like simulator with checkpoint tricks
+some possible attempts to save memory from state-like simulator with checkpoint tricks (jax support only)
 """
 
-from functools import partial
-from itertools import product
 import time
 import sys
 import logging
 
 import numpy as np
 import jax
-from jax import numpy as jnp
+import cotengra as ctg
 
 logger = logging.getLogger("tensorcircuit")
 logger.setLevel(logging.INFO)
@@ -22,8 +20,6 @@ sys.path.insert(0, "../")
 sys.setrecursionlimit(10000)
 
 import tensorcircuit as tc
-import cotengra as ctg
-from tensorcircuit import keras
 
 optr = ctg.ReusableHyperOptimizer(
     methods=["greedy", "kahypar"],
@@ -115,7 +111,7 @@ def profile(tries=3):
     print(tc_vag(param))
 
     time1 = time.time()
-    for i in range(tries):
+    for _ in range(tries):
         print(tc_vag(param)[0])
 
     time2 = time.time()

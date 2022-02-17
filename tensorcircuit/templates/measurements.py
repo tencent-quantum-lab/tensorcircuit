@@ -18,15 +18,37 @@ def any_measurements(c: Circuit, structures: Tensor, onehot: bool = False) -> Te
     This measurements pattern is specifically suitable for vmap. Parameterize the Pauli string
     to be measured.
 
-    :param c: [description]
+    :example:
+
+    .. code-block:: python
+
+        c = tc.Circuit(3)
+        c.rx(0, theta=1.0)
+        c.cnot(0, 1)
+        c.cnot(1, 2)
+        c.ry(2, theta=-1.0)
+
+        z0x2 = c.expectation([tc.gates.z(), [0]], [tc.gates.x(), [2]])
+        z0x2p1 = tc.templates.measurements.parameterized_measurements(
+            c, tc.array_to_tensor(np.array([3, 0, 1])), onehot=True
+        )
+        z0x2p2 = tc.templates.measurements.parameterized_measurements(
+            c,
+            tc.array_to_tensor(np.array([[0, 0, 0, 1], [1, 0, 0, 0], [0, 1, 0, 0]])),
+            onehot=False,
+        )
+        np.testing.assert_allclose(z0x2, z0x2p1)
+        np.testing.assert_allclose(z0x2, z0x2p2)
+
+    :param c: The circuit to be measured
     :type c: Circuit
     :param structures: parameter tensors determines what Pauli string to be measured,
-        shape is [nwires, 4] if onehot is False.
+        shape is [nwires, 4] if ``onehot`` is False and [nwires] if ``onehot`` is True.
     :type structures: Tensor
-    :param onehot: [description], defaults to False. If set to be True,
+    :param onehot: defaults to False. If set to be True,
         structures will first go through onehot procedure.
     :type onehot: bool, optional
-    :return: [description]
+    :return: The expectation value of given Pauli string by the tensor ``structures``.
     :rtype: Tensor
     """
     if onehot is True:
@@ -61,13 +83,13 @@ parameterized_measurements = any_measurements
 
 def sparse_expectation(c: Circuit, hamiltonian: Tensor) -> Tensor:
     """
-    [summary]
+    Evaluate Hamiltonian expectation where ``hamiltonian`` is kept in sparse matrix form to save space
 
-    :param c: [description]
+    :param c: The circuit whose output state is used to evaluate the expectation
     :type c: Circuit
-    :param hamiltonian: COO_sparse_matrix
+    :param hamiltonian: Hamiltonian matrix in COO_sparse_matrix form
     :type hamiltonian: Tensor
-    :return: a real and scalar tensor of shape []
+    :return: a real and scalar tensor of shape [] as the expectation value
     :rtype: Tensor
     """
     state = c.wavefunction(form="ket")
@@ -87,6 +109,45 @@ def heisenberg_measurements(
     hy: float = 0.0,
     reuse: bool = True,
 ) -> Tensor:
+    """
+    Evaluate Heisenberg energy expectation, whose Hamiltonian is defined on the lattice graph ``g`` as follows:
+    (e are edges in graph ``g`` where e1 and e2 are two nodes for edge e and v are nodes in graph ``g``)
+
+    .. math::
+
+        H = \sum_{e\in g} w_e (h_{xx} X_{e1}X_{e2} + h_{yy} Y_{e1}Y_{e2} + h_{zz} Z_{e1}Z_{e2})
+         + \sum_{v\in g} (h_x X_v + h_y Y_v + h_z Z_v)
+
+    :example:
+
+    .. code-block:: python
+
+        g = tc.templates.graphs.Line1D(n=5)
+        c = tc.Circuit(5)
+        c.X(0)
+        energy = tc.templates.measurements.heisenberg_measurements(c, g) # 1
+
+    :param c: Circuit to be measured
+    :type c: Circuit
+    :param g: Lattice graph defining Heisenberg Hamiltonian
+    :type g: Graph
+    :param hzz: [description], defaults to 1.0
+    :type hzz: float, optional
+    :param hxx: [description], defaults to 1.0
+    :type hxx: float, optional
+    :param hyy: [description], defaults to 1.0
+    :type hyy: float, optional
+    :param hz: [description], defaults to 0.0
+    :type hz: float, optional
+    :param hx: [description], defaults to 0.0
+    :type hx: float, optional
+    :param hy: [description], defaults to 0.0
+    :type hy: float, optional
+    :param reuse: [description], defaults to True
+    :type reuse: bool, optional
+    :return: Value of Heisenberg energy
+    :rtype: Tensor
+    """
     loss = 0.0
     for e in g.edges:
         loss += (
@@ -113,10 +174,47 @@ def heisenberg_measurements(
     if hz != 0:
         for i in range(len(g.nodes)):
             loss += hz * c.expectation((G.z(), [i]), reuse=reuse)  # type: ignore
-    return loss
+    return backend.real(loss)
 
 
 def spin_glass_measurements(c: Circuit, g: Graph, reuse: bool = True) -> Tensor:
+    r"""
+    Compute spin glass energy defined on graph ``g`` expectation for output state of the circuit ``c``.
+    The Hamiltonian to be evaluated is defined as (first term is determined by node weights while
+    the second term is determined by edge weights of the graph):
+
+    .. math::
+
+        H = \sum_{v\in g} w_v Z_v + \sum_{e\in g} w_e Z_{e1} Z_{e2}
+
+    :example:
+
+    .. code-block:: python
+
+        import networkx as nx
+
+        # building the lattice graph for spin glass Hamiltonian
+        g = nx.Graph()
+        g.add_node(0, weight=1)
+        g.add_node(1, weight=-1)
+        g.add_node(2, weight=1)
+        g.add_edge(0, 1, weight=-1)
+        g.add_edge(1, 2, weight=-1)
+
+        c = tc.Circuit(3)
+        c.X(1)
+        energy = tc.templates.measurements.spin_glass_measurements(c, g)
+        print(energy) # 5.0
+
+    :param c: The quantum circuit
+    :type c: Circuit
+    :param g: The graph for spin glass Hamiltonian definition
+    :type g: Graph
+    :param reuse: Whether measure the circuit with reusing the wavefunction, defaults to True
+    :type reuse: bool, optional
+    :return: The spin glass energy expectation value
+    :rtype: Tensor
+    """
     loss = 0
     for e1, e2 in g.edges:
         loss += g[e1][e2].get("weight", 1.0) * c.expectation(

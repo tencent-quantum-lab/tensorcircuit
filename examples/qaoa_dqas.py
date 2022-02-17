@@ -1,8 +1,13 @@
+"""
+old-fashioned DQAS code on QAOA ansatz design, deprecated
+"""
+
+# pylint: disable=wildcard-import
+
 import sys
 
 sys.path.insert(0, "../")
 
-from functools import partial
 from collections import namedtuple
 from pickle import dump
 from matplotlib import pyplot as plt

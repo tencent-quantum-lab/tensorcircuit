@@ -1,4 +1,4 @@
-Guide to tensorcircuit
+Guide to TensorCircuit
 ==================================
 
 .. toctree::
@@ -17,7 +17,7 @@ API References
    modules.rst
     
 
-Indices and tables
+Indices and Tables
 ==================
 
 * :ref:`genindex`

@@ -228,7 +228,7 @@ tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.rq = _rq_
 
 class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     """
-    See the original backend API at `'tensorflow backend''.
+    See the original backend API at `tensorflow backend
     <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/tensorflow/tensorflow_backend.py>`_
     """
 
