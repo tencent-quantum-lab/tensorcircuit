@@ -6,21 +6,22 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: tensorcircuit\n"
+"Project-Id-Version: TensorCircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-16 09:39+0800\n"
-"PO-Revision-Date: 2022-02-16 11:49+0800\n"
+"POT-Creation-Date: 2022-02-17 23:02+0800\n"
+"PO-Revision-Date: 2022-02-18 00:05+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.9.1\n"
 "X-Generator: Poedit 3.0.1\n"
 
 #: ../../source/contribution.rst:2
-msgid "Guide for contributors"
+msgid "Guide for Contributors"
 msgstr "开发者指南"
 
 #: ../../source/contribution.rst:4
@@ -28,8 +29,8 @@ msgid ""
 "We welcome everyone’s contributions! The development of TensorCircuit is open-"
 "sourced and centered on `GitHub <https://github.com/quclub/tensorcircuit-dev>`_."
 msgstr ""
-"我们欢迎每一位贡献者！TensorCircuit 的开发是开源的，并以 `GitHub <https://"
-"github.com/quclub/tensorcircuit-dev>`_ 为中心。"
+"我们欢迎每一位贡献者！TensorCircuit 的开发是开源的，并以 `GitHub <https://github."
+"com/quclub/tensorcircuit-dev>`_ 为中心。"
 
 #: ../../source/contribution.rst:6
 msgid "There are various ways to contribute:"
@@ -58,11 +59,11 @@ msgstr "拉取请求指南"
 #: ../../source/contribution.rst:21
 msgid ""
 "We welcome pull requests from everyone. For large PRs involving feature "
-"enhancement or API changes, we ask that you first open a GitHub issue to "
-"discuss your proposal."
+"enhancement or API changes, we ask that you first open a GitHub issue to discuss "
+"your proposal."
 msgstr ""
-"我们欢迎大家提出拉取请求。对于涉及功能增强或 API 更改的大型拉取请求，我们需要您"
-"首先打开一个 GitHub issue 来讨论您的企划。"
+"我们欢迎大家提出拉取请求。对于涉及功能增强或 API 更改的大型拉取请求，我们需要您首"
+"先打开一个 GitHub issue 来讨论您的企划。"
 
 #: ../../source/contribution.rst:23
 msgid "The following git workflow is recommended for contribution by PR:"
@@ -91,8 +92,8 @@ msgstr "克隆您的分叉存储库并设置对官方 TensorCircuit 存储库的
 
 #: ../../source/contribution.rst:42
 msgid ""
-"Configure the python environment locally for development. The following "
-"commands are recommended:"
+"Configure the python environment locally for development. The following commands "
+"are recommended:"
 msgstr "在本地配置 python 环境以进行开发。推荐使用以下命令："
 
 #: ../../source/contribution.rst:49
@@ -107,19 +108,19 @@ msgstr "从源代码 pip 安装你的 fork。这允许您在本地修改代码�
 
 #: ../../source/contribution.rst:57
 msgid ""
-"Create a feature branch where you can make modifications and developments. "
-"DON'T open PR from your master/main branch."
+"Create a feature branch where you can make modifications and developments. DON'T "
+"open PR from your master/main branch."
 msgstr ""
-"创建一个功能分支，您可以在其中进行修改和开发、不要从你的 ``master/main`` 分支打"
-"开拉取请求。"
+"创建一个功能分支，您可以在其中进行修改和开发、不要从你的 ``master/main`` 分支打开"
+"拉取请求。"
 
 #: ../../source/contribution.rst:63
 msgid ""
 "Make sure your changes can pass all checks by running: ``./check_all.sh``. (See "
 "the :ref:`Checks` section below for details)"
 msgstr ""
-"运行 ``./check_all.sh`` 以确保你的修改能够通过所有检查（参考 :ref:`Checks` 部分"
-"以获取更多细节）。"
+"运行 ``./check_all.sh`` 以确保你的修改能够通过所有检查（参考 :ref:`Checks` 部分以"
+"获取更多细节）。"
 
 #: ../../source/contribution.rst:65
 msgid "Once you are satisfied with your changes, create a commit as follows:"
@@ -131,10 +132,10 @@ msgstr "您应该将您的代码与官方库进行同步："
 
 #: ../../source/contribution.rst:79
 msgid ""
-"Note that PRs typically comprise a single git commit, you should squash all "
-"your commits in the feature branch. Using ``git rebase -i`` for commits squash, "
-"see `instructions <https://www.internalpointers.com/post/squash-commits-into-"
-"one-git>`_"
+"Note that PRs typically comprise a single git commit, you should squash all your "
+"commits in the feature branch. Using ``git rebase -i`` for commits squash, see "
+"`instructions <https://www.internalpointers.com/post/squash-commits-into-one-"
+"git>`_"
 msgstr ""
 "请注意，拉取请求通常包含一个 git 提交，您应该在功能分支中压缩所有提交。使用  "
 "``git rebase -i`` 压缩修改，参考  `教程 <https://www.internalpointers.com/post/"
@@ -151,11 +152,11 @@ msgstr ""
 #: ../../source/contribution.rst:87
 msgid ""
 "Create a PR from the official TensorCircuit repository and send it for review. "
-"Some comments and remarks attached with the PR are recommended. If the PR is "
-"not finally finished, please add [WIP] at the beginning of the title of your PR."
+"Some comments and remarks attached with the PR are recommended. If the PR is not "
+"finally finished, please add [WIP] at the beginning of the title of your PR."
 msgstr ""
-"从官方 TensorCircuit 存储库创建拉取请求并将其发送以供审核。建议在拉取请求中附上"
-"一些评论和备注。如果拉取请求没有最终完成，请在您的拉取请求的标题前加上 [WIP]。"
+"从官方 TensorCircuit 存储库创建拉取请求并将其发送以供审核。建议在拉取请求中附上一"
+"些评论和备注。如果拉取请求没有最终完成，请在您的拉取请求的标题前加上 [WIP]。"
 
 #: ../../source/contribution.rst:89
 msgid ""
@@ -177,8 +178,8 @@ msgstr ""
 
 #: ../../source/contribution.rst:93
 msgid ""
-"Please always include new docs and tests for your PR if possible and record "
-"your changes on CHANGELOG."
+"Please always include new docs and tests for your PR if possible and record your "
+"changes on CHANGELOG."
 msgstr ""
 "请尽可能始终为您的拉取请求包含新的文档和测试，并在 CHANGELOG 上记录您的更改。"
 
@@ -189,11 +190,11 @@ msgstr "检查"
 #: ../../source/contribution.rst:99
 msgid ""
 "The simplest way to ensure the codebase is ok with checks and tests, is to run "
-"one-in-all scripts ``./check_all.sh`` (you may need to ``chmod +x check_all."
-"sh`` to grant permissions on this file)."
+"one-in-all scripts ``./check_all.sh`` (you may need to ``chmod +x check_all.sh`` "
+"to grant permissions on this file)."
 msgstr ""
-"确保代码库可以进行检查和测试的最简单方法是运行一体化脚本  ``./check_all.sh`` "
-"（你可能需要 ``chmod +x check_all.sh`` 以在文件中获得批准）。"
+"确保代码库可以进行检查和测试的最简单方法是运行一体化脚本  ``./check_all.sh`` （你"
+"可能需要 ``chmod +x check_all.sh`` 以在文件中获得批准）。"
 
 #: ../../source/contribution.rst:101
 msgid "The scripts include the following components:"
@@ -300,8 +301,8 @@ msgstr "**国际化**"
 
 #: ../../source/contribution.rst:153
 msgid ""
-"For Chinese docs, we refer to the standard i18n workflow provided by sphinx, "
-"see `here <https://www.sphinx-doc.org/en/master/usage/advanced/intl.html>`__."
+"For Chinese docs, we refer to the standard i18n workflow provided by sphinx, see "
+"`here <https://www.sphinx-doc.org/en/master/usage/advanced/intl.html>`__."
 msgstr ""
 "对于中文版文档, 我们参考 sphinx 提供的国际化标准工作流，请参考 `这里 <https://"
 "www.sphinx-doc.org/en/master/usage/advanced/intl.html>`__ 。"
@@ -325,5 +326,5 @@ msgid ""
 "html_cn``, whereas English version is in the directory ``.../build/html``."
 msgstr ""
 "生成简体中文文档： ``sphinx-build source -D language=\"cn\" build/html_cn`` 储存"
-"在单独的文件夹 ``.../build/html_cn`` 中, 而英文版本则储存在 ``.../build/html`` "
-"文件夹中。"
+"在单独的文件夹 ``.../build/html_cn`` 中, 而英文版本则储存在 ``.../build/html`` 文"
+"件夹中。"

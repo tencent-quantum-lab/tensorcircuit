@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tensorcircuit \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-10 16:18+0800\n"
+"POT-Creation-Date: 2022-02-17 23:02+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,7 +23,7 @@ msgid "Advanced Usage"
 msgstr ""
 
 #: ../../source/advance.rst:6
-msgid "MPS simulator"
+msgid "MPS Simulator"
 msgstr ""
 
 #: ../../source/advance.rst:8
@@ -31,7 +31,7 @@ msgid "(Still experimental support)"
 msgstr ""
 
 #: ../../source/advance.rst:11
-msgid "Split two-qubit gates"
+msgid "Split Two-qubit Gates"
 msgstr ""
 
 #: ../../source/advance.rst:13
@@ -51,18 +51,66 @@ msgid ""
 msgstr ""
 
 #: ../../source/advance.rst:40
-msgid "Jitted function save/load"
+msgid "Jitted Function Save/Load"
 msgstr ""
 
-#: ../../source/advance.rst:43
-msgid "Parameterized measurements"
+#: ../../source/advance.rst:42
+msgid ""
+"To reuse the jitted function, we can save it on the disk via support from"
+" TensorFlow `SavedModel <https://www.tensorflow.org/guide/saved_model>`_."
+" That is to say, only jitted quantum function on TensorFlow backend can "
+"be saved on the disk."
+msgstr ""
+
+#: ../../source/advance.rst:44
+msgid ""
+"For jax-backend quantum function, one can first transform them into tf-"
+"backend function via jax experimental support: `jax2tf "
+"<https://github.com/google/jax/tree/main/jax/experimental/jax2tf>`_."
 msgstr ""
 
 #: ../../source/advance.rst:46
-msgid "Randoms, jit, backend agnostic and their interplay"
+msgid ""
+"We wrap the tf-backend `SavedModel` as very easy-to-use function "
+":py:meth:`tensorcircuit.keras.save_func` and "
+":py:meth:`tensorcircuit.keras.load_func`."
 msgstr ""
 
-#: ../../source/advance.rst:89
+#: ../../source/advance.rst:49
+msgid "Parameterized Measurements"
+msgstr ""
+
+#: ../../source/advance.rst:51
+msgid ""
+"For plain measurements API on a ``tc.Circuit``, eg. `c = "
+"tc.Circuit(n=3)`, if we want to evaluate the expectation "
+":math:`<Z_1Z_2>`, we need to call the API as "
+"``c.expectation((tc.gates.z(), [1]), (tc.gates.z(), [2]))``."
+msgstr ""
+
+#: ../../source/advance.rst:53
+msgid ""
+"In some cases, we may want to tell the software what to measure but in a "
+"tensor fashion. For example, if we want to get the above expectation, we "
+"can use the following API: "
+":py:meth:`tensorcircuit.templates.measurements.parameterized_measurements`."
+msgstr ""
+
+#: ../../source/advance.rst:60
+msgid ""
+"This API corresponds to measure :math:`I_0Z_1Z_2I_3` where 0, 1, 2, 3 are"
+" for local I, X, Y, Z operators respectively."
+msgstr ""
+
+#: ../../source/advance.rst:63
+msgid "Sparse Matrix"
+msgstr ""
+
+#: ../../source/advance.rst:67
+msgid "Randoms, Jit, Backend Agnostic and Their Interplay"
+msgstr ""
+
+#: ../../source/advance.rst:110
 msgid ""
 "Therefore, a unified jittable random infrastructure with backend agnostic"
 " can be formulatted as"
@@ -75,5 +123,20 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Prameterized measurements"
+#~ msgstr ""
+
+#~ msgid "MPS simulator"
+#~ msgstr ""
+
+#~ msgid "Split two-qubit gates"
+#~ msgstr ""
+
+#~ msgid "Jitted function save/load"
+#~ msgstr ""
+
+#~ msgid "Parameterized measurements"
+#~ msgstr ""
+
+#~ msgid "Randoms, jit, backend agnostic and their interplay"
 #~ msgstr ""
 
