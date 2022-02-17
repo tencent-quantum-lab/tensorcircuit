@@ -1,10 +1,31 @@
+English | [简体中文](README_cn.md)
+
 # TENSORCIRCUIT
+
+<p align="center">
+  <!-- tests (GitHub actions) -->
+  <a href="https://github.com/quclub/tensorcircuit-dev/actions/workflows/ci.yml">
+    <img src="https://img.shields.io/github/workflow/status/quclub/tensorcircuit-dev/ci/master?logo=github&style=flat-square&logo=github" />
+  </a>
+  <!-- docs -->
+  <a href="">
+    <img src="https://img.shields.io/badge/docs-link-green.svg?style=flat-square&logo=read-the-docs"/>
+  </a>
+  <!-- PyPI -->
+  <a href="https://pypi.org/project/paddle-quantum/">
+    <img src="https://img.shields.io/pypi/v/tensorcircuit.svg?style=flat-square&logo=pypi"/>
+  </a>
+  <!-- License -->
+  <a href="./LICENSE">
+    <img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=flat-square&logo=apache"/>
+  </a>
+</p>
 
 TensorCircuit is the next generation of quantum circuit simulator with support for automatic differentiation, just-in-time compiling, hardware acceleration, and vectorized parallelism.
 
-TensorCircuit is built on top of modern machine learning frameworks, and has the beautiful backend agnostic feature. It is specifically suitable for simulations of quantum-classical hybrid paradigm and variational quantum algorithms.
+TensorCircuit is built on top of modern machine learning frameworks, and is machine learning backend agnostic. It is specifically suitable for efficient simulations of quantum-classical hybrid paradigm and variational quantum algorithms.
 
-## Basic Usage
+## Getting Started
 
 Please begin with [Quick Start](/docs/source/quickstart.rst) and [Jupyter Tutorials](https://github.com/quclub/tensorcircuit-tutorials/tree/master/tutorials).
 
@@ -37,7 +58,7 @@ Automatic differentiations with jit:
 
 ```python
 def forward(theta):
-    c = tc.Circuit(2)
+    c = tc.Circuit(n=2)
     c.R(0, theta=theta, alpha=0.5, phi=0.8)
     return tc.backend.real(c.expectation((tc.gates.z(), [0])))
 
@@ -54,8 +75,6 @@ For contribution guidelines and notes, see [CONTRIBUTING](/CONTRIBUTING.md).
 ### Cautions
 
 Please open issues or PRs.
-
-NEVER directly push to this repo!
 
 Keep the codebase private!
 
@@ -85,7 +104,7 @@ black .
 ### Linter
 
 ```bash
-pylint tensorcircuit tests
+pylint tensorcircuit tests examples/*.py
 ```
 
 ### Type checker
@@ -96,13 +115,13 @@ mypy tensorcircuit
 
 ### Integrated script
 
-For now, we introduce one for all checker for development:
+For now, we introduce one-for-all checker for development before committing:
 
 ```bash
 ./check_all.sh
 ```
 
-## Research projects and application codes
+## Researches and applications
 
 ### DQAS
 
