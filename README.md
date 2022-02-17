@@ -1,6 +1,6 @@
 English | [简体中文](README_cn.md)
 
-# TENSORCIRCUIT
+<h1 align="center"> TENSORCIRCUIT </h1>
 
 <p align="center">
   <!-- tests (GitHub actions) -->
