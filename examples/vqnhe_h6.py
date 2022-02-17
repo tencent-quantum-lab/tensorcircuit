@@ -1,7 +1,11 @@
-import numpy as np
+"""
+H6 molecule VQNHE with code from tc.application
+"""
 import sys
 
 sys.path.insert(0, "../")
+import numpy as np
+
 import tensorcircuit as tc
 from tensorcircuit.applications.vqes import VQNHE, JointSchedule
 

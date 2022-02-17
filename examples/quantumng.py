@@ -1,11 +1,17 @@
+"""
+quantum natural gradient descent demonstration with TFIM VQE example
+"""
+
 import sys
+import time
 
 sys.path.insert(0, "../")
-import tensorcircuit as tc
-from tensorcircuit import experimental
+
 import optax
 import tensorflow as tf
-import time
+
+import tensorcircuit as tc
+from tensorcircuit import experimental
 
 tc.set_backend("jax")  # tf, jax are both ok
 

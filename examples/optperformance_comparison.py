@@ -1,10 +1,14 @@
+"""
+optimization performance comparison for different density of two-qubit gates
+(random layouts averaged)
+"""
 import sys
 
 sys.path.insert(0, "../")
-import tensorcircuit as tc
 import tensorflow as tf
 import numpy as np
 import cotengra as ctg
+import tensorcircuit as tc
 
 K = tc.set_backend("tensorflow")
 optr = ctg.ReusableHyperOptimizer(

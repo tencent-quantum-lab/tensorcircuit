@@ -1,3 +1,6 @@
+"""
+Cross check the correctness of density matrix simulator and the Monte Carlo trajectory state simulator
+"""
 import os
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -7,8 +10,8 @@ import sys
 sys.path.insert(0, "../")
 
 from tqdm import tqdm
-import tensorcircuit as tc
 import jax
+import tensorcircuit as tc
 
 tc.set_backend("jax")
 

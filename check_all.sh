@@ -5,7 +5,7 @@ black . --check
 echo "mypy check"
 mypy tensorcircuit
 echo "pylint check"
-pylint tensorcircuit tests
+pylint tensorcircuit tests examples/*.py
 echo "pytest check"
 pytest -n 4 --cov=tensorcircuit -vv -W ignore::DeprecationWarning
 echo "sphinx check"

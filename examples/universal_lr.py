@@ -1,15 +1,16 @@
 """
-Backend agnostic linear regression with gradient descent optimization
+Backend agnostic linear regression with gradient descent optimization:
+a demonstration on most of core features and paradigm of tensorcircuit
 """
 
 # this script shows how backend agnostic magic works, no code change is required to switch backend
 # we also include jit, vmap and AD features in this pure classical example
 # this demonstrates that tensorcircuit can serve as a solid unified ML library without any "quantumness"
 
-import numpy as np
 import sys
 
 sys.path.insert(0, "../")
+import numpy as np
 import tensorcircuit as tc
 
 # (x, y) data preparation
