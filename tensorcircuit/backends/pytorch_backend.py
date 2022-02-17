@@ -54,8 +54,8 @@ tensornetwork.backends.pytorch.pytorch_backend.PyTorchBackend.conj = _conj_torch
 
 class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
     """
-    See the original backend API at ``pytorch backend``.
-    `<https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/pytorch/pytorch_backend.py>`_
+    See the original backend API at `pytorch backend
+    <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/pytorch/pytorch_backend.py>`_
 
     Note the functionality provided by pytorch backend is incomplete,
     it currenly lacks native efficicent jit and vmap support.

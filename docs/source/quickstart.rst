@@ -405,7 +405,7 @@ Templates as Shortcuts
 
 See :py:meth:`tensorcircuit.templates.measurements.spin_glass_measurements`
 
-* Istropic Heisenberg Hamiltonian on a general graph with possible external friendly
+* Heisenberg Hamiltonian on a general graph with possible external friendly
 
 See :py:meth:`tensorcircuit.templates.measurements.heisenberg_measurements`
 
@@ -417,3 +417,11 @@ See :py:meth:`tensorcircuit.templates.measurements.heisenberg_measurements`
     c = tc.templates.blocks.example_block(c, tc.backend.ones([16]))
 
 .. figure:: statics/example_block.png
+
+.. code-block:: python
+
+    c = tc.Circuit(4)
+    c = tc.templates.blocks.Bell_pair_block(c)
+
+.. figure:: statics/bell_pair_block.png
+    :scale: 50%

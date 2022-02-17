@@ -35,6 +35,16 @@ def state_centric(f: Callable[..., Circuit]) -> Callable[..., Tensor]:
 def Bell_pair_block(
     c: Circuit, links: Optional[Sequence[Tuple[int, int]]] = None
 ) -> Circuit:
+    """
+    For each pair in links, the input product state |00> is transformed as (01>-|10>)
+
+    :param c: Circuit in
+    :type c: Circuit
+    :param links: pairs indices for Bell pairs, defaults to None, corresponds to neighbor links
+    :type links: Optional[Sequence[Tuple[int, int]]], optional
+    :return: Circuit out
+    :rtype: Circuit
+    """
     # from |00> return |01>-|10>
     n = c._nqubits
     if links is None:
