@@ -1,6 +1,6 @@
 """
 A collection of useful function snippets that irrelevant with the main modules
-or await for furthere refactor
+or await for further refactor
 """
 import logging
 from typing import Any, Callable, Iterator, Optional, Sequence, Tuple
@@ -159,8 +159,8 @@ def generate_random_circuit(
 
 
 # the following vags are not the recommended fashion to write qml tasks in tensorcircuit now.
-# also the hardcoded circuit structure is also a bad practice, they are here for backward compatibility
-# instead use vvag or keras paradigm
+# also the hardcoded circuit structure is a bad practice, they are here for backward compatibility
+# instead use vvag or keras paradigm now
 
 
 def naive_qml_vag(

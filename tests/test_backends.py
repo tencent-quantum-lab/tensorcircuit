@@ -163,6 +163,15 @@ def test_backend_methods(backend):
         atol=1e-5,
     )
 
+    np.testing.assert_allclose(
+        tc.backend.gather1d(
+            tc.array_to_tensor(np.array([0, 1, 2])),
+            tc.array_to_tensor(np.array([2, 1, 0]), dtype="int32"),
+        ),
+        np.array([2, 1, 0]),
+        atol=1e-5,
+    )
+
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])
 def test_arg_cmp(backend):
@@ -719,8 +728,8 @@ def test_optimizers(backend):
     opt = get_opt()
 
     params = {
-        "a": tc.backend.implicit_randn([4, n]),
-        "b": tc.backend.implicit_randn([4, n]),
+        "a": tc.backend.ones([4, n]),
+        "b": tc.backend.ones([4, n]),
     }
 
     for _ in range(20):
@@ -737,7 +746,7 @@ def test_optimizers(backend):
 
     vags2 = tc.backend.jit(tc.backend.value_and_grad(f2, argnums=0), static_argnums=1)
 
-    params = tc.backend.implicit_randn([4, n])
+    params = tc.backend.ones([4, n])
     opt = get_opt()
 
     for _ in range(20):

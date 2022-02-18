@@ -723,6 +723,19 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `stateful_randc`.".format(self.name)
         )
 
+    def gather1d(self: Any, operand: Tensor, indices: Tensor) -> Tensor:
+        """
+        Return ``operand[indices]``, both ``operand`` and ``indices`` are rank-1 tensor.
+
+        :param operand: rank-1 tensor
+        :type operand: Tensor
+        :param indices: rank-1 tensor with int dtype
+        :type indices: Tensor
+        :return: ``operand[indices]``
+        :rtype: Tensor
+        """
+        return operand[indices]
+
     def scatter(self: Any, operand: Tensor, indices: Tensor, updates: Tensor) -> Tensor:
         """
         Roughly equivalent to operand[indices] = updates, indices only support shape with rank 2 for now.
