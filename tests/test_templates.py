@@ -93,3 +93,14 @@ def test_state_wrapper():
     np.testing.assert_allclose(
         s, np.array([0.0, 0.70710677 + 0.0j, -0.70710677 + 0.0j, 0]), atol=1e-5
     )
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_amplitude_encoding(backend):
+    figs = np.stack([np.eye(2), np.ones([2, 2])])
+    states = tc.templates.dataset.batched_amplitude_encoding(figs, nqubits=3)
+    np.testing.assert_allclose(states[1], np.array([0.5, 0.5, 0.5, 0.5, 0, 0, 0, 0]))
+    states = tc.templates.dataset.batched_amplitude_encoding(
+        figs, nqubits=2, index=tc.array_to_tensor(np.array([0, 3, 1, 2]), dtype="int32")
+    )
+    np.testing.assert_allclose(states[0], 1 / np.sqrt(2) * np.array([1, 1, 0, 0]))

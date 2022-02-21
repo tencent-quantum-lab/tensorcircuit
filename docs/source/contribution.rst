@@ -148,6 +148,15 @@ The source files for docs are .rst file in docs/source.
 
 For English docs, ``sphinx-build source build/html`` in docs dir is enough. The html version of the docs are in docs/build/html.
 
+**auto generation of API docs:**
+
+We utilize a python script to generate/refresh all API docs rst files under /docs/source/api based on the codebase /tensorcircuit.
+
+.. code-block:: bash
+
+    cd docs
+    python generate_rst.py
+
 **i18n:**
 
 For Chinese docs, we refer to the standard i18n workflow provided by sphinx, see `here <https://www.sphinx-doc.org/en/master/usage/advanced/intl.html>`__.
