@@ -10,9 +10,9 @@ MPS Simulator
 Split Two-qubit Gates
 -------------------------
 
-The two-qubit gates applied on the circuit can be decomposed via SVD, which may further improve the optimality the contraction path finding.
+The two-qubit gates applied on the circuit can be decomposed via SVD, which may further improve the optimality of the contraction pathfinding.
 
-`split` configuration can be set in circuit level or gate level.
+`split` configuration can be set in circuit-level or gate-level.
 
 .. code-block:: python
 
@@ -39,9 +39,9 @@ Note ``max_singular_values`` must be specified to make the whole procedure stati
 Jitted Function Save/Load
 -----------------------------
 
-To reuse the jitted function, we can save it on the disk via support from TensorFlow `SavedModel <https://www.tensorflow.org/guide/saved_model>`_. That is to say, only jitted quantum function on TensorFlow backend can be saved on the disk. 
+To reuse the jitted function, we can save it on the disk via support from the TensorFlow `SavedModel <https://www.tensorflow.org/guide/saved_model>`_. That is to say, only jitted quantum function on the TensorFlow backend can be saved on the disk. 
 
-For jax-backend quantum function, one can first transform them into tf-backend function via jax experimental support: `jax2tf <https://github.com/google/jax/tree/main/jax/experimental/jax2tf>`_.
+For jax-backend quantum function, one can first transform them into the tf-backend function via jax experimental support: `jax2tf <https://github.com/google/jax/tree/main/jax/experimental/jax2tf>`_.
 
 We wrap the tf-backend `SavedModel` as very easy-to-use function :py:meth:`tensorcircuit.keras.save_func` and :py:meth:`tensorcircuit.keras.load_func`.
 
@@ -63,7 +63,7 @@ Sparse Matrix
 ----------------
 
 
-Randoms, Jit, Backend Agnostic and Their Interplay
+Randoms, Jit, Backend Agnostic, and Their Interplay
 --------------------------------------------------------
 
 .. code-block:: python
@@ -107,7 +107,7 @@ Randoms, Jit, Backend Agnostic and Their Interplay
 
     print(r(key1), r(key2)) # different, correct
 
-Therefore, a unified jittable random infrastructure with backend agnostic can be formulatted as 
+Therefore, a unified jittable random infrastructure with backend agnostic can be formulated as 
 
 .. code-block:: python
 

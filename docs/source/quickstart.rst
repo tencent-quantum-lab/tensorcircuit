@@ -405,7 +405,7 @@ Templates as Shortcuts
 
 See :py:meth:`tensorcircuit.templates.measurements.spin_glass_measurements`
 
-* Heisenberg Hamiltonian on a general graph with possible external friendly
+* Heisenberg Hamiltonian on a general graph with possible external fields
 
 See :py:meth:`tensorcircuit.templates.measurements.heisenberg_measurements`
 
