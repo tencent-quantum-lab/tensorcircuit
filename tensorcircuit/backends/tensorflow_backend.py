@@ -436,6 +436,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     ) -> Tensor:
         return _random_choice_tf(g, a, shape, p)
 
+    def gather1d(self, operand: Tensor, indices: Tensor) -> Tensor:
+        return tf.gather(operand, indices)
+
     def scatter(self, operand: Tensor, indices: Tensor, updates: Tensor) -> Tensor:
         return tf.tensor_scatter_nd_update(operand, indices, updates)
 

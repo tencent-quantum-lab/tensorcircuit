@@ -6,6 +6,10 @@
 
 - new universal contraction analyse tools and pseudo contraction rehearsals for debug
 
+- add `gather1d` method on backends for 1d tensor indexing
+
+- add `dataset` module in template submodule for dataset preprocessing and embedding
+
 ### Fixed
 
 - fixed real operation on some methods in templates.measurements
