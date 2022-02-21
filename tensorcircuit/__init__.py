@@ -24,3 +24,8 @@ from .vis import qir2tex, render_pdf
 from . import interfaces
 from . import templates
 from . import quantum
+
+try:
+    from . import keras
+except ModuleNotFoundError:
+    pass  # in case tf is not installed

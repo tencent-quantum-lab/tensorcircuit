@@ -33,7 +33,7 @@ msgstr "施工中"
 
 #: ../../source/advance.rst:11
 msgid "Split Two-qubit Gates"
-msgstr "分开双量子比特门"
+msgstr "分解双量子比特门"
 
 #: ../../source/advance.rst:13
 msgid ""
