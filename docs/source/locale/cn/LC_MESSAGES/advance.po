@@ -4,139 +4,136 @@
 # package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: tensorcircuit \n"
+"Project-Id-Version: tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-17 23:02+0800\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"POT-Creation-Date: 2022-02-21 14:20+0800\n"
+"PO-Revision-Date: 2022-02-21 15:19+0800\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: cn\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
+"X-Generator: Poedit 3.0.1\n"
 
 #: ../../source/advance.rst:3
 msgid "Advanced Usage"
-msgstr ""
+msgstr "高级用法"
 
 #: ../../source/advance.rst:6
 msgid "MPS Simulator"
-msgstr ""
+msgstr "MPS 模拟器"
 
 #: ../../source/advance.rst:8
 msgid "(Still experimental support)"
-msgstr ""
+msgstr "施工中"
 
 #: ../../source/advance.rst:11
 msgid "Split Two-qubit Gates"
-msgstr ""
+msgstr "分开双量子比特门"
 
 #: ../../source/advance.rst:13
 msgid ""
 "The two-qubit gates applied on the circuit can be decomposed via SVD, "
-"which may further improve the optimality the contraction path finding."
+"which may further improve the optimality of the contraction pathfinding."
 msgstr ""
+"应用在电路上的双量子比特门可以通过 SVD 进行分解，这可以进一步提高收缩路径"
+"查找的最优性。"
 
 #: ../../source/advance.rst:15
-msgid "`split` configuration can be set in circuit level or gate level."
-msgstr ""
+msgid "`split` configuration can be set in circuit-level or gate-level."
+msgstr "`split` 配置可以在电路级或门级设置。"
 
 #: ../../source/advance.rst:36
 msgid ""
 "Note ``max_singular_values`` must be specified to make the whole "
 "procedure static and thus jittable."
 msgstr ""
+"请注意 ``max_singular_values`` 必须被指定明以使整个过程成为静态的，因此是"
+"可即时编译的。"
 
 #: ../../source/advance.rst:40
 msgid "Jitted Function Save/Load"
-msgstr ""
+msgstr "即时编译函的保存/加载"
 
 #: ../../source/advance.rst:42
 msgid ""
-"To reuse the jitted function, we can save it on the disk via support from"
-" TensorFlow `SavedModel <https://www.tensorflow.org/guide/saved_model>`_."
-" That is to say, only jitted quantum function on TensorFlow backend can "
-"be saved on the disk."
+"To reuse the jitted function, we can save it on the disk via support "
+"from the TensorFlow `SavedModel <https://www.tensorflow.org/guide/"
+"saved_model>`_. That is to say, only jitted quantum function on the "
+"TensorFlow backend can be saved on the disk."
 msgstr ""
+"要重新使用可即时编译函数，我们可以通过 TensorFlow `SavedModel <https://"
+"www.tensorflow.org/guide/saved_model>`_. 的帮助将其保存在磁盘上。也就是"
+"说，只有 TensorFlow 后端的可即时编译量子函数才能保存在磁盘上。"
 
 #: ../../source/advance.rst:44
 msgid ""
-"For jax-backend quantum function, one can first transform them into tf-"
-"backend function via jax experimental support: `jax2tf "
-"<https://github.com/google/jax/tree/main/jax/experimental/jax2tf>`_."
+"For jax-backend quantum function, one can first transform them into the "
+"tf-backend function via jax experimental support: `jax2tf <https://"
+"github.com/google/jax/tree/main/jax/experimental/jax2tf>`_."
 msgstr ""
+"对于 jax-backend 量子函数，可以先通过 jax 实验支持将它们转换为 tf-"
+"backend 函数: `jax2tf <https://github.com/google/jax/tree/main/jax/"
+"experimental/jax2tf>`_。"
 
 #: ../../source/advance.rst:46
 msgid ""
-"We wrap the tf-backend `SavedModel` as very easy-to-use function "
-":py:meth:`tensorcircuit.keras.save_func` and "
-":py:meth:`tensorcircuit.keras.load_func`."
+"We wrap the tf-backend `SavedModel` as very easy-to-use function :py:"
+"meth:`tensorcircuit.keras.save_func` and :py:meth:`tensorcircuit.keras."
+"load_func`."
 msgstr ""
+"我们将 tf-backend `SavedModel` 包装为非常易于使用的函数 :py:meth:"
+"`tensorcircuit.keras.save_func` 和 :py:meth:`tensorcircuit.keras."
+"load_func`。"
 
 #: ../../source/advance.rst:49
 msgid "Parameterized Measurements"
-msgstr ""
+msgstr "参数化测量"
 
 #: ../../source/advance.rst:51
 msgid ""
-"For plain measurements API on a ``tc.Circuit``, eg. `c = "
-"tc.Circuit(n=3)`, if we want to evaluate the expectation "
-":math:`<Z_1Z_2>`, we need to call the API as "
-"``c.expectation((tc.gates.z(), [1]), (tc.gates.z(), [2]))``."
+"For plain measurements API on a ``tc.Circuit``, eg. `c = tc."
+"Circuit(n=3)`, if we want to evaluate the expectation :math:`<Z_1Z_2>`, "
+"we need to call the API as ``c.expectation((tc.gates.z(), [1]), (tc."
+"gates.z(), [2]))``."
 msgstr ""
+"对于 ``tc.Circuit`` 上的普通测量 API, 例如 `c = tc.Circuit(n=3)`, 如果我"
+"们要评估期望 :math:`<Z_1Z_2>`, 我们需要调用API为 ``c.expectation((tc."
+"gates.z(), [1]), (tc.gates.z(), [2]))``。"
 
 #: ../../source/advance.rst:53
 msgid ""
 "In some cases, we may want to tell the software what to measure but in a "
 "tensor fashion. For example, if we want to get the above expectation, we "
-"can use the following API: "
-":py:meth:`tensorcircuit.templates.measurements.parameterized_measurements`."
+"can use the following API: :py:meth:`tensorcircuit.templates."
+"measurements.parameterized_measurements`."
 msgstr ""
+"在某些情况下，我们可能希望以张量形式告诉软件要测量什么。例如，如果我们想"
+"获得上述期望，我们可以使用以下 API ： :py:meth:`tensorcircuit.templates."
+"measurements.parameterized_measurements`。"
 
 #: ../../source/advance.rst:60
 msgid ""
-"This API corresponds to measure :math:`I_0Z_1Z_2I_3` where 0, 1, 2, 3 are"
-" for local I, X, Y, Z operators respectively."
+"This API corresponds to measure :math:`I_0Z_1Z_2I_3` where 0, 1, 2, 3 "
+"are for local I, X, Y, Z operators respectively."
 msgstr ""
+"此 API 对应于测量 :math:`I_0Z_1Z_2I_3`， 其中 0、1、2、3 分别用于 I、X、"
+"Y、Z 局部运算符。"
 
 #: ../../source/advance.rst:63
 msgid "Sparse Matrix"
-msgstr ""
+msgstr "稀疏矩阵"
 
 #: ../../source/advance.rst:67
-msgid "Randoms, Jit, Backend Agnostic and Their Interplay"
-msgstr ""
+msgid "Randoms, Jit, Backend Agnostic, and Their Interplay"
+msgstr "随机数，即时编译，后端无关特性，和他们的相互作用"
 
 #: ../../source/advance.rst:110
 msgid ""
-"Therefore, a unified jittable random infrastructure with backend agnostic"
-" can be formulatted as"
-msgstr ""
-
-#~ msgid "Advance Usage"
-#~ msgstr ""
-
-#~ msgid "SavedModel"
-#~ msgstr ""
-
-#~ msgid "Prameterized measurements"
-#~ msgstr ""
-
-#~ msgid "MPS simulator"
-#~ msgstr ""
-
-#~ msgid "Split two-qubit gates"
-#~ msgstr ""
-
-#~ msgid "Jitted function save/load"
-#~ msgstr ""
-
-#~ msgid "Parameterized measurements"
-#~ msgstr ""
-
-#~ msgid "Randoms, jit, backend agnostic and their interplay"
-#~ msgstr ""
-
+"Therefore, a unified jittable random infrastructure with backend "
+"agnostic can be formulated as"
+msgstr "因此，一个与后端无关并且统一可即时编译的随机基础设施可以表述为"
