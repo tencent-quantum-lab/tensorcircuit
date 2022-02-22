@@ -10,9 +10,17 @@
 
 - add `dataset` module in template submodule for dataset preprocessing and embedding
 
+- MPO format quantum gate is natively support now
+
+- add multicontrol gates in MPO format
+
 ### Fixed
 
 - fixed real operation on some methods in templates.measurements
+
+### Changed
+
+- add gatef key in circuit IR dict for the gate function, while replace gate key with the gate node or MPO (breaking change)
 
 ## 0.0.220126
 

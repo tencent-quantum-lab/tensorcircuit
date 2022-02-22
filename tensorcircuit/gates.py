@@ -5,7 +5,7 @@ Declarations of single-qubit and two-qubit gates and their corresponding matrix.
 import sys
 from copy import deepcopy
 from functools import reduce
-from typing import Any, Callable, Optional, List, Union
+from typing import Any, Callable, Optional, Sequence, List, Union
 from operator import mul
 
 import numpy as np
@@ -18,6 +18,7 @@ thismodule = sys.modules[__name__]
 
 Tensor = Any
 Array = Any
+Operator = Any  # QuOperator
 
 # Common single qubit states as np.ndarray objects
 zero_state = np.array([1.0, 0.0], dtype=npdtype)
@@ -687,6 +688,61 @@ exp1_gate = exponential_gate_unity
 # exp1 = exponential_gate_unity
 
 
+def multicontrol_gate(unitary: Tensor, ctrl: Union[int, Sequence[int]] = 1) -> Operator:
+    unitary = backend.reshapem(unitary)
+    rend = backend.stack(
+        [backend.cast(unitary, dtypestr), backend.eye(backend.shape_tuple(unitary)[-1])]
+    )
+    rn = tn.Node(rend)
+    nodes = []
+    if isinstance(ctrl, int):
+        ctrl = [ctrl]
+    if ctrl[0] == 1:
+        leftend = np.zeros([2, 2, 2])
+        leftend[1, 1, 0] = 1
+        leftend[0, 0, 1] = 1
+    else:
+        leftend = np.zeros([2, 2, 2])
+        leftend[0, 0, 0] = 1
+        leftend[1, 1, 1] = 1
+    nodes.append(tn.Node(array_to_tensor(leftend)))
+    for c in ctrl[1:]:
+        mid = np.zeros([2, 2, 2, 2])
+        if c == 1:
+            mid[0, 1, 1, 0] = 1
+            mid[1, 0, 0, 1] = 1
+            mid[1, 1, 1, 1] = 1
+            mid[0, 0, 0, 1] = 1
+        else:  # c= 0
+            mid[0, 0, 0, 0] = 1
+            mid[1, 1, 1, 1] = 1
+            mid[1, 0, 0, 1] = 1
+            mid[0, 1, 1, 1] = 1
+        nodes.append(tn.Node(array_to_tensor(mid)))
+
+    nodes.append(rn)
+
+    if len(nodes) == 2:
+        nodes[0][2] ^ nodes[1][0]
+    else:
+        nodes[0][2] ^ nodes[1][0]
+        for i in range(1, len(nodes) - 1):
+            nodes[i][3] ^ nodes[i + 1][0]
+
+    from .quantum import QuOperator
+
+    gate = QuOperator(
+        [nodes[0][0]] + [n[1] for n in nodes[1:-1]] + [nodes[-1][1]],
+        [nodes[0][1]] + [n[2] for n in nodes[1:-1]] + [nodes[-1][2]],
+    )
+
+    return gate
+
+
+def mpo_gate(mpo: Operator, name: str = "mpo") -> Operator:
+    return mpo
+
+
 def meta_vgate() -> None:
     for f in ["r", "rx", "ry", "rz", "iswap", "any", "exp", "exp1", "cr"]:
         setattr(thismodule, f, GateVF(getattr(thismodule, f + "_gate"), f))
@@ -694,6 +750,8 @@ def meta_vgate() -> None:
         setattr(thismodule, f, getattr(thismodule, f[1:]).controlled())
     for f in ["sd", "td"]:
         setattr(thismodule, f, getattr(thismodule, f[:-1]).adjoint())
+    for f in ["multicontrol", "mpo"]:  # mpo type gate
+        setattr(thismodule, f, GateVF(getattr(thismodule, f + "_gate"), f))
 
 
 meta_vgate()

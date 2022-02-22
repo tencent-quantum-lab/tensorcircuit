@@ -97,10 +97,16 @@ def test_state_wrapper():
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_amplitude_encoding(backend):
+    batched_amplitude_encoding = tc.backend.vmap(
+        tc.templates.dataset.amplitude_encoding, vectorized_argnums=0
+    )
     figs = np.stack([np.eye(2), np.ones([2, 2])])
-    states = tc.templates.dataset.batched_amplitude_encoding(figs, nqubits=3)
+    figs = tc.array_to_tensor(figs)
+    states = batched_amplitude_encoding(figs, 3)
+    # note that you cannot use nqubits=3 here for jax backend
+    # see this issue: https://github.com/google/jax/issues/7465
     np.testing.assert_allclose(states[1], np.array([0.5, 0.5, 0.5, 0.5, 0, 0, 0, 0]))
-    states = tc.templates.dataset.batched_amplitude_encoding(
-        figs, nqubits=2, index=tc.array_to_tensor(np.array([0, 3, 1, 2]), dtype="int32")
+    states = batched_amplitude_encoding(
+        figs, 2, tc.array_to_tensor(np.array([0, 3, 1, 2]), dtype="int32")
     )
     np.testing.assert_allclose(states[0], 1 / np.sqrt(2) * np.array([1, 1, 0, 0]))

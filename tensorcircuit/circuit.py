@@ -42,6 +42,7 @@ class Circuit:
         + ["toffoli"]
     )
     vgates = ["r", "cr", "rx", "ry", "rz", "crx", "cry", "crz", "any", "exp", "exp1"]
+    mpogates = ["multicontrol", "mpo"]
 
     def __init__(
         self,
@@ -239,6 +240,34 @@ class Circuit:
             getattr(cls, g).__doc__ = doc
             getattr(cls, g.upper()).__doc__ = doc
 
+        for g in cls.mpogates:
+            setattr(
+                cls,
+                g,
+                cls.apply_general_variable_gate_delayed(
+                    gatef=getattr(gates, g), name=g, mpo=True
+                ),
+            )
+            setattr(
+                cls,
+                g.upper(),
+                cls.apply_general_variable_gate_delayed(
+                    gatef=getattr(gates, g), name=g, mpo=True
+                ),
+            )
+            doc = """
+            Apply %s gate in MPO format on the circuit.
+
+            :param index: Qubit number than the gate applies on.
+            :type index: int.
+            :param vars: Parameters for the gate
+            :type vars: float.
+            """ % (
+                g
+            )
+            getattr(cls, g).__doc__ = doc
+            getattr(cls, g.upper()).__doc__ = doc
+
     # @classmethod
     # def from_qcode(
     #     cls, qcode: str
@@ -296,6 +325,7 @@ class Circuit:
         self._nodes.append(gate)
 
         # actually apply single and double gate never directly used in the Circuit class
+        # and don't use, directly use general gate function as it is more richful in feature
 
     def apply_general_gate(
         self,
@@ -303,7 +333,21 @@ class Circuit:
         *index: int,
         name: Optional[str] = None,
         split: Optional[Dict[str, Any]] = None,
+        mpo: bool = False,
+        ir_dict: Optional[Dict[str, Any]] = None,
     ) -> None:
+        gate_dict = {
+            "gate": gate,
+            "index": index,
+            "name": name,
+            "split": split,
+            "mpo": mpo,
+        }
+        if ir_dict is not None:
+            ir_dict.update(gate_dict)
+        else:
+            ir_dict = gate_dict
+        self._qir.append(ir_dict)
         assert len(index) == len(set(index))
         noe = len(index)
         applied = False
@@ -312,33 +356,42 @@ class Circuit:
             split_conf = split
         elif self.split is not None:
             split_conf = self.split
-        if (split_conf is not None) and noe == 2:
-            results = _split_two_qubit_gate(gate, **split_conf)
-            # max_err cannot be jax jitted
-            if results is not None:
-                n1, n2, is_swap = results
 
-                if is_swap is False:
-                    n1[1] ^ self._front[index[0]]
-                    n2[2] ^ self._front[index[1]]
-                    self._nodes.append(n1)
-                    self._nodes.append(n2)
-                    self._front[index[0]] = n1[0]
-                    self._front[index[1]] = n2[1]
-                else:
-                    n2[2] ^ self._front[index[0]]
-                    n1[1] ^ self._front[index[1]]
-                    self._nodes.append(n1)
-                    self._nodes.append(n2)
-                    self._front[index[0]] = n1[0]
-                    self._front[index[1]] = n2[1]
-                applied = True
+        if not mpo:
+            if (split_conf is not None) and noe == 2:
+                results = _split_two_qubit_gate(gate, **split_conf)
+                # max_err cannot be jax jitted
+                if results is not None:
+                    n1, n2, is_swap = results
 
-        if applied is False:
+                    if is_swap is False:
+                        n1[1] ^ self._front[index[0]]
+                        n2[2] ^ self._front[index[1]]
+                        self._nodes.append(n1)
+                        self._nodes.append(n2)
+                        self._front[index[0]] = n1[0]
+                        self._front[index[1]] = n2[1]
+                    else:
+                        n2[2] ^ self._front[index[0]]
+                        n1[1] ^ self._front[index[1]]
+                        self._nodes.append(n1)
+                        self._nodes.append(n2)
+                        self._front[index[0]] = n1[0]
+                        self._front[index[1]] = n2[1]
+                    applied = True
+
+            if applied is False:
+                for i, ind in enumerate(index):
+                    gate.get_edge(i + noe) ^ self._front[ind]
+                    self._front[ind] = gate.get_edge(i)
+                self._nodes.append(gate)
+
+        else:  # gate in MPO format
+            self._nodes += gate.nodes
             for i, ind in enumerate(index):
-                gate.get_edge(i + noe) ^ self._front[ind]
-                self._front[ind] = gate.get_edge(i)
-            self._nodes.append(gate)
+
+                gate.in_edges[i] ^ self._front[ind]
+                self._front[ind] = gate.out_edges[i]
 
         self.state_tensor = None  # refresh the state cache
         # if name:
@@ -354,6 +407,7 @@ class Circuit:
     def apply_general_gate_delayed(
         gatef: Callable[[], Gate],
         name: Optional[str] = None,
+        mpo: bool = False,
     ) -> Callable[..., None]:
         # it is more like a register instead of apply
         # nested function must be utilized, functools.partial doesn't work for method register on class
@@ -372,16 +426,14 @@ class Circuit:
                 localname = name
             else:
                 localname = defaultname  # type: ignore
-            gate_dict = {
-                "gate": gatef,
-                "index": index,
-                "name": localname,
-                "split": split,
-            }
-            self._qir.append(gate_dict)
-            split = None
+
+            # split = None
             gate = gatef()
-            self.apply_general_gate(gate, *index, name=localname, split=split)
+            gate_dict = {"gatef": gatef}
+
+            self.apply_general_gate(
+                gate, *index, name=localname, split=split, mpo=mpo, ir_dict=gate_dict
+            )
 
         return apply
 
@@ -389,29 +441,33 @@ class Circuit:
     def apply_general_variable_gate_delayed(
         gatef: Callable[..., Gate],
         name: Optional[str] = None,
+        mpo: bool = False,
     ) -> Callable[..., None]:
         if name is None:
             name = getattr(gatef, "n")
 
-        def apply(self: "Circuit", *index: int, **vars: float) -> None:
+        def apply(self: "Circuit", *index: int, **vars: Any) -> None:
             split = None
             localname = name
             if "name" in vars:
-                localname = vars["name"]  # type: ignore
+                localname = vars["name"]
                 del vars["name"]
             if "split" in vars:
                 split = vars["split"]
                 del vars["split"]
             gate_dict = {
-                "gate": gatef,
+                "gatef": gatef,
                 "index": index,
                 "name": localname,
                 "split": split,
+                "mpo": mpo,
                 "parameters": vars,
             }
-            self._qir.append(gate_dict)
+            # self._qir.append(gate_dict)
             gate = gatef(**vars)
-            self.apply_general_gate(gate, *index, name=localname, split=split)  # type: ignore
+            self.apply_general_gate(
+                gate, *index, name=localname, split=split, mpo=mpo, ir_dict=gate_dict
+            )  # type: ignore
             # self._qcode = self._qcode[:-1] + " "  # rip off the final "\n"
             # for k, v in vars.items():
             #     self._qcode += k + " " + str(v) + " "
@@ -436,11 +492,11 @@ class Circuit:
     def _apply_qir(c: "Circuit", qir: str) -> "Circuit":
         for d in qir:
             if "parameters" not in d:
-                c.apply_general_gate_delayed(d["gate"], d["name"])(  # type: ignore
+                c.apply_general_gate_delayed(d["gatef"], d["name"], mpo=d["mpo"])(  # type: ignore
                     c, *d["index"], split=d["split"]  # type: ignore
                 )
             else:
-                c.apply_general_variable_gate_delayed(d["gate"], d["name"])(  # type: ignore
+                c.apply_general_variable_gate_delayed(d["gatef"], d["name"], mpo=d["mpo"])(  # type: ignore
                     c, *d["index"], **d["parameters"], split=d["split"]  # type: ignore
                 )
         return c
