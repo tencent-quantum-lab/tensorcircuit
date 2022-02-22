@@ -706,3 +706,40 @@ def test_debug_contract():
         return c.state()
 
     np.testing.assert_allclose(small_tn(), np.zeros([2 ** n]), atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_apply_mpo_gate(backend):
+    gate = tc.gates.multicontrol_gate(tc.gates._x_matrix, ctrl=[1, 0])
+    ans = np.array(
+        [
+            [1.0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1.0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1.0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1.0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 1.0, 0, 0],
+            [0, 0, 0, 0, 1.0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 1.0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1.0],
+        ]
+    )
+    c = tc.Circuit(3)
+    c.X(0)
+    c.mpo(0, 1, 2, mpo=gate.copy())
+    np.testing.assert_allclose(c.expectation([tc.gates.z(), [2]]), -1, atol=1e-5)
+    c = tc.Circuit(3)
+    c.X(1)
+    c.mpo(0, 1, 2, mpo=gate.copy())
+    np.testing.assert_allclose(c.expectation([tc.gates.z(), [2]]), 1, atol=1e-5)
+    np.testing.assert_allclose(gate.eval_matrix(), ans, atol=1e-5)
+
+
+def test_apply_multicontrol_gate():
+    c = tc.Circuit(3)
+    c.X(2)
+    c.multicontrol(0, 2, 1, ctrl=[0, 1], unitary=tc.gates._x_matrix)
+    np.testing.assert_allclose(c.expectation([tc.gates.z(), [1]]), -1, atol=1e-5)
+    c = tc.Circuit(3)
+    c.X(0)
+    c.multicontrol(0, 2, 1, ctrl=[0, 1], unitary=tc.gates._x_matrix)
+    np.testing.assert_allclose(c.expectation([tc.gates.z(), [1]]), 1, atol=1e-5)
