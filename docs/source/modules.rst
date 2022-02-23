@@ -1,4 +1,4 @@
-tensorcircuit
+TensorCircuit
 ==================================================
 .. toctree::
     ./api/applications.rst

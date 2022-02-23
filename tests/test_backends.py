@@ -728,8 +728,8 @@ def test_optimizers(backend):
     opt = get_opt()
 
     params = {
-        "a": tc.backend.ones([4, n]),
-        "b": tc.backend.ones([4, n]),
+        "a": tc.backend.implicit_randn([4, n]),
+        "b": tc.backend.implicit_randn([4, n]),
     }
 
     for _ in range(20):
@@ -746,7 +746,7 @@ def test_optimizers(backend):
 
     vags2 = tc.backend.jit(tc.backend.value_and_grad(f2, argnums=0), static_argnums=1)
 
-    params = tc.backend.ones([4, n])
+    params = tc.backend.implicit_randn([4, n])
     opt = get_opt()
 
     for _ in range(20):
