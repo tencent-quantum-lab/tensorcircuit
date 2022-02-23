@@ -5,10 +5,10 @@ TensorCircuit: What is inside?
 This part of the documentation is mainly for advanced users and developers who want to learn more about what happened behind the scene and delve into the codebase.
 
 
-Overview of modules
+Overview of Modules
 -----------------------
 
-**Core modules:**
+**Core Modules:**
 
 - :py:mod:`tensorcircuit.circuit`: The core object :py:obj:`tensorcircuit.circuit.Circuit`. It supports circuit construction, simulation, representation, and visualization without noise or with noise using the Monte Carlo trajectory approach.
 
@@ -16,11 +16,11 @@ Overview of modules
 
 - :py:mod:`tensorcircuit.gates`: Definition of quantum gates, either fixed ones or parameterized ones, as well as :py:obj:`tensorcircuit.gates.GateF` class for gates.
 
-**Backend agnostic abstraction:**
+**Backend Agnostic Abstraction:**
 
 - :py:mod:`tensorcircuit.backends` provides a set of backend API and the corresponding implementation on Numpy, Jax, TensorFlow, and PyTorch backends. These backends are inherited from the TensorNetwork package and are highly customized.
 
-**Noisy simulation related modules:**
+**Noisy Simulation Related Modules:**
 
 - :py:mod:`tensorcircuit.channels`: Definition of quantum noise channels.
 
@@ -28,23 +28,23 @@ Overview of modules
 
 - :py:mod:`tensorcircuit.densitymatrix2`: Highly efficient implementation of :py:obj:`tensorcircuit.densitymatrix2.DMCircuit2` class, always preferred than the referenced implementation.
 
-**ML interfaces related modules:**
+**ML Interfaces Related Modules:**
 
 - :py:mod:`tensorcircuit.interfaces`: Provide interfaces when quantum simulation backend is different from neural libraries. Currently include PyTorch and scipy optimizer interfaces.
 
 - :py:mod:`tensorcircuit.keras`: Provide TensorFlow Keras layers, as well as wrappers of jitted function, save/load from tf side.
 
-**MPS and MPO utiliy modules:**
+**MPS and MPO Utiliy Modules:**
 
 - :py:mod:`tensorcircuit.quantum`: Provide definition and classes for Matrix Product States as well as Matrix Product Operators, we also include various quantum physics and quantum information quantities in this module.
 
-**MPS based simulator modules:**
+**MPS Based Simulator Modules:**
 
 - :py:mod:`tensorcircuit.mps_base`: Customized and jit/AD compatible MPS class from TensorNetwork package.
 
 - :py:mod:`tensorcircuit.mpscircuit`: :py:obj:`tensorcircuit.mpscircuit.MPSCircuit` class with similar (but subtly different) APIs as ``tc.Circuit``, where the simulation engine is based on MPS TEBD.
 
-**Supplemental modules:**
+**Supplemental Modules:**
 
 - :py:mod:`tensorcircuit.simplify`: Provide tools and utility functions to simplify the tensornetworks before the real contractions.
 
