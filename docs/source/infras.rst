@@ -54,7 +54,7 @@ Overview of Modules
 
 - :py:mod:`tensorcircuit.vis`: Visualization code for circuit drawing.
 
-**Shortcuts and templates for circuit manipulation:**
+**Shortcuts and Templates for Circuit Manipulation:**
 
 - :py:mod:`tensorcircuit.templates`: provide handy shortcuts functions for expectation or circuit building patterns.
 
@@ -65,7 +65,7 @@ Overview of Modules
 .. note::
 
     Recommend reading order -- only read the part of code you care about on your purpose. 
-    If you want to get an overview of the codebase, please read ``tc.circuit`` following by ``tc.cons`` and ``tc.gates``.
+    If you want to get an overview of the codebase, please read ``tc.circuit`` followed by ``tc.cons`` and ``tc.gates``.
 
 
 Relation between TensorCircuit and TensorNetwork
