@@ -972,7 +972,7 @@ try:
         sparse: bool = True,
     ) -> Tensor:
         """
-        Hamiltonian measurements for Heisenberg model on graph
+        Make Hamiltonian measurements for Heisenberg model on the given graph.
 
         :Example:
 
@@ -983,7 +983,7 @@ try:
                 -5.123106 ,  -5.123106 ,  -5.1231055,  -5.1231055,  -5.1231055],
             dtype=float32)
 
-        :param g:
+        :param g: input circuit graph
         :type g: Graph
         :param hzz: Local spin Hamiltonia, default is 1.0
         :type hzz: float
@@ -997,14 +997,12 @@ try:
         :type hx: float
         :param hy: yy coupling, external field on x direction, default is 0.0
         :type hy: float
-        :param sparse: Sparse matrix, default is True
+        :param sparse: return sparse matrix, default is True
         :type sparse: bool
 
-        :return:
+        :return: Hamiltonian measurements
         :rtype: Tensor
         """
-        # TODO(@YHPeter): imcomplete docstring
-
         n = len(g.nodes)
         ls = []
         weight = []
@@ -1277,7 +1275,7 @@ def reduced_density_matrix(
     """
     Compute the reduced density matrix from the quantum state ``state``.
 
-    :param state: quantum state
+    :param state: quantum state in Tensor or QuOperator
     :type state: Union[Tensor, QuOperator]
     :param cut: [description]
     :type cut: Union[int, List[int]]
@@ -1387,6 +1385,16 @@ def free_energy(
 
 
 def renyi_entropy(rho: Union[Tensor, QuOperator], k: int = 2) -> Tensor:
+    """
+    Compute the Rényi entropy of order :math: `k` by given density matrix. 
+
+    :param rho: density matrix
+    :type rho: Union[Tensor, QuOperator]
+    :param k: order, defaults to 2
+    :type k: int, optional
+    :return: The :math: `k`th order of Rényi entropy
+    :rtype: Tensor
+    """
     s = 1 / (1 - k) * backend.real(backend.log(trace_product(*[rho for _ in range(k)])))
     return s
 
@@ -1398,7 +1406,7 @@ def renyi_free_energy(
     k: int = 2,
 ) -> Tensor:
     """
-    Compute the Renyi free energy of the given density matrix and Hamiltonian.
+    Compute the Rényi free energy of the corresponding density matrix and Hamiltonian.
 
     :Example:
 
@@ -1409,18 +1417,17 @@ def renyi_free_energy(
     >>> qu.free_energy(rho, h, 0.5)
     -0.9999999999979998
 
-    :param rho: density matrix `rho`
+    :param rho: density matrix
     :type rho: Union[Tensor, QuOperator]
     :param h: Hamiltonian
     :type h: Union[Tensor, QuOperator]
     :param beta: constant for the optimization, defaults to 1
     :type beta: float, optional
-    :param k: _description_, defaults to 2
+    :param k: order, defaults to 2
     :type k: int, optional
-    :return: Renyi free energy
+    :return: Rényi free energy
     :rtype: Tensor
     """
-    # TODO(@YHPeter): imcomplete docstring
     energy = backend.real(trace_product(rho, h))
     s = renyi_entropy(rho, k)
     return backend.real(energy - s / beta)
@@ -1558,7 +1565,7 @@ def measurement_counts(
 
 def spin_by_basis(n: int, m: int, elements: Tuple[int, int] = (1, -1)) -> Tensor:
     """
-    
+    _summary_
 
     :Example:
 
@@ -1585,7 +1592,8 @@ def spin_by_basis(n: int, m: int, elements: Tuple[int, int] = (1, -1)) -> Tensor
 
 
 def correlation_from_counts(index: Sequence[int], results: Tensor) -> Tensor:
-    """_summary_
+    """
+    _summary_
 
     :Example:
 
