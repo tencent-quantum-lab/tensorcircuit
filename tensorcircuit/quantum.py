@@ -938,15 +938,15 @@ def generate_local_hamiltonian(
     *hlist: Sequence[Tensor], matrix_form: bool = True
 ) -> Union[QuOperator, Tensor]:
     """
-    Generate a local hamiltonian operation based on the given sequence of Tensor.
+    Generate a local Hamiltonian operator based on the given sequence of Tensor.
     Note: further jit is recommended.
     For large Hilbert space, sparse Hamiltonian is recommended
 
     :param hlist: sequence of Tensor
     :type hlist: Sequence[Tensor]
-    :param matrix_form: Return matrix form of hamiltonian operation, defaults to True.
+    :param matrix_form: Return matrix form of Hamiltonian operator, defaults to True.
     :type matrix_form: bool, optional
-    :return: The hamiltonian QuOperator or hamiltonian operation in matrix form. 
+    :return: The Hamiltonian QuOperator or Hamiltonian operator in matrix form. 
     :rtype: Union[QuOperator, Tensor] 
     """
     hlist = [backend.cast(h, dtype=dtypestr) for h in hlist]  # type: ignore
@@ -972,7 +972,7 @@ try:
         sparse: bool = True,
     ) -> Tensor:
         """
-        Make Hamiltonian measurements for Heisenberg model on the given graph.
+        Generate Heisenberg Hamiltonian with possible external fields.
 
         :Example:
 
@@ -991,13 +991,15 @@ try:
         :type hxx: float
         :param hyy: yy coupling, default is 1.0
         :type hyy: float
-        :param hz: external field on z direction, default is 0.0
+        :param hz: External field on z direction, default is 0.0
         :type hz: float
-        :param hx: external field on y direction, default is 0.0
+        :param hx: External field on y direction, default is 0.0
         :type hx: float
-        :param hy: external field on x direction, default is 0.0
+        :param hy: External field on x direction, default is 0.0
         :type hy: float
-        :param sparse: return sparse matrix, default is True
+        :param sparse: Defaults True. The bool indicating whether 
+            the return form is in the form of two array or one of the 
+            same length as the ``state`` (if ``sparse=False``).
         :type sparse: bool
 
         :return: Hamiltonian measurements
@@ -1275,7 +1277,7 @@ def reduced_density_matrix(
     """
     Compute the reduced density matrix from the quantum state ``state``.
 
-    :param state: quantum state in Tensor or QuOperator
+    :param state: The quantum state in form of Tensor or QuOperator.
     :type state: Union[Tensor, QuOperator]
     :param cut: [description]
     :type cut: Union[int, List[int]]
