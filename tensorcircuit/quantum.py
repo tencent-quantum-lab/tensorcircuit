@@ -2,6 +2,7 @@
 Quantum state and operator class backend by tensornetwork
 
 :IMPORT:
+
 .. code-block:: python
 
     import tensorcircuit.quantum as qu
@@ -1376,6 +1377,7 @@ def free_energy(
     :type beta: float, optional
     :param eps: Epsilon, default is 1e-12.
     :type eps: float, optional
+
     :return: The free energy of the given density matrix with the Hamiltonian operator.
     :rtype: Tensor
     """
@@ -1386,13 +1388,13 @@ def free_energy(
 
 def renyi_entropy(rho: Union[Tensor, QuOperator], k: int = 2) -> Tensor:
     """
-    Compute the Rényi entropy of order :math: `k` by given density matrix.
+    Compute the Rényi entropy of order :math:`k` by given density matrix.
 
     :param rho: The density matrix in form of Tensor or QuOperator.
     :type rho: Union[Tensor, QuOperator]
     :param k: The order of Rényi entropy, default is 2.
     :type k: int, optional
-    :return: The :math: `k`th order of Rényi entropy.
+    :return: The :math:`k` th order of Rényi entropy.
     :rtype: Tensor
     """
     s = 1 / (1 - k) * backend.real(backend.log(trace_product(*[rho for _ in range(k)])))
@@ -1425,7 +1427,7 @@ def renyi_free_energy(
     :type beta: float, optional
     :param k: The order of Rényi entropy, default is 2.
     :type k: int, optional
-    :return: The :math: `k`th order of Rényi entropy.
+    :return: The :math:`k` th order of Rényi entropy.
     :rtype: Tensor
     """
     energy = backend.real(trace_product(rho, h))
