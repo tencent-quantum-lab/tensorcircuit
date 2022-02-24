@@ -105,9 +105,9 @@ def quantum_constructor(
     >>> # psi_node[0] -> op.in_edges[0]
     >>> # psi_node[1] -> op.in_edges[1]
 
-    :param out_edges: Output edges.
+    :param out_edges: output edges
     :type out_edges: Sequence[Edge]
-    :param in_edges: Input edges.
+    :param in_edges: input edges
     :type in_edges: Sequence[Edge]
     :param ref_nodes: Reference nodes for the tensor network (needed if there is a
         scalar component).
@@ -985,17 +985,17 @@ try:
 
         :param g: input circuit graph
         :type g: Graph
-        :param hzz: Local spin Hamiltonia, default is 1.0
+        :param hzz: zz coupling, default is 1.0
         :type hzz: float
-        :param hxx: Local spin Hamiltonia, default is 1.0
+        :param hxx: xx coupling, default is 1.0
         :type hxx: float
-        :param hyy: Local spin Hamiltonia, default is 1.0
+        :param hyy: yy coupling, default is 1.0
         :type hyy: float
-        :param hz: zz coupling, external field on z direction, default is 0.0
+        :param hz: external field on z direction, default is 0.0
         :type hz: float
-        :param hx: xx coupling, external field on y direction, default is 0.0
+        :param hx: external field on y direction, default is 0.0
         :type hx: float
-        :param hy: yy coupling, external field on x direction, default is 0.0
+        :param hy: external field on x direction, default is 0.0
         :type hy: float
         :param sparse: return sparse matrix, default is True
         :type sparse: bool
@@ -1225,7 +1225,7 @@ def entropy(rho: Union[Tensor, QuOperator], eps: float = 1e-12) -> Tensor:
     :type rho: Union[Tensor, QuOperator]
     :param eps: epsilon, defaults to 1e-12
     :type eps: float
-    :return: Real part of entropy on the given density matrix
+    :return: entropy on the given density matrix
     :rtype: Tensor
     """
     lbd = backend.real(backend.eigh(rho)[0])
@@ -1607,7 +1607,7 @@ def correlation_from_counts(index: Sequence[int], results: Tensor) -> Tensor:
     :type index: Sequence[int]
     :param results: _description_
     :type results: Tensor
-    :return: correlation from counts
+    :return: correlation expectation from measurement shots
     :rtype: Tensor
     """
     # TODO(@YHPeter): imcomplete docstring
