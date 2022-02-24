@@ -105,11 +105,11 @@ def quantum_constructor(
     >>> # psi_node[0] -> op.in_edges[0]
     >>> # psi_node[1] -> op.in_edges[1]
 
-    :param out_edges: output edges
+    :param out_edges: A list of output edges.
     :type out_edges: Sequence[Edge]
-    :param in_edges: input edges
+    :param in_edges: A list of input edges.
     :type in_edges: Sequence[Edge]
-    :param ref_nodes: Reference nodes for the tensor network (needed if there is a
+    :param ref_nodes: Reference nodes for the tensor network (needed if there is a.
         scalar component).
     :type ref_nodes: Optional[Collection[AbstractNode]], optional
     :param ignore_edges: Edges to ignore when checking the dimensionality of the
@@ -942,11 +942,11 @@ def generate_local_hamiltonian(
     Note: further jit is recommended.
     For large Hilbert space, sparse Hamiltonian is recommended
 
-    :param hlist: sequence of Tensor
+    :param hlist: A sequence of Tensor.
     :type hlist: Sequence[Tensor]
-    :param matrix_form: Return matrix form of Hamiltonian operator, defaults to True.
+    :param matrix_form: Return Hamiltonian operator in form of matrix, defaults to True.
     :type matrix_form: bool, optional
-    :return: The Hamiltonian QuOperator or Hamiltonian operator in matrix form. 
+    :return: The Hamiltonian operator in form of QuOperator or matrix. 
     :rtype: Union[QuOperator, Tensor] 
     """
     hlist = [backend.cast(h, dtype=dtypestr) for h in hlist]  # type: ignore
@@ -997,9 +997,7 @@ try:
         :type hx: float
         :param hy: External field on x direction, default is 0.0
         :type hy: float
-        :param sparse: Defaults True. The bool indicating whether 
-            the return form is in the form of two array or one of the 
-            same length as the ``state`` (if ``sparse=False``).
+        :param sparse: Whether to return sparse Hamiltonian operator, default is True.
         :type sparse: bool
 
         :return: Hamiltonian measurements
@@ -1223,11 +1221,11 @@ def entropy(rho: Union[Tensor, QuOperator], eps: float = 1e-12) -> Tensor:
     >>> entanglement2(param, 6, 3)
     1.3132653
 
-    :param rho: density matrix
+    :param rho: The density matrix in form of Tensor or QuOperator.
     :type rho: Union[Tensor, QuOperator]
-    :param eps: epsilon, defaults to 1e-12
+    :param eps: Epsilon, default is 1e-12.
     :type eps: float
-    :return: entropy on the given density matrix
+    :return: Entropy on the given density matrix.
     :rtype: Tensor
     """
     lbd = backend.real(backend.eigh(rho)[0])
@@ -1281,9 +1279,9 @@ def reduced_density_matrix(
     :type state: Union[Tensor, QuOperator]
     :param cut: [description]
     :type cut: Union[int, List[int]]
-    :param p: [description], defaults to None
+    :param p: [description], default is None.
     :type p: Optional[Tensor]
-    :return: reduced density matrix
+    :return: The reduced density matrix.
     :rtype: Union[Tensor, QuOperator]
     """
     # TODO(@YHPeter): imcomplete docstring
@@ -1370,15 +1368,15 @@ def free_energy(
     >>> qu.free_energy(rho, hq, 0.5)
     array([[-1.]])
 
-    :param rho: density matrix
+    :param rho: The density matrix in form of Tensor or QuOperator.
     :type rho: Union[Tensor, QuOperator]
-    :param h: Hamiltonian
+    :param h: Hamiltonian operator in form of Tensor or QuOperator.
     :type h: Union[Tensor, QuOperator]
-    :param beta: constant for the optimization, defaults to 1
+    :param beta: Constant for the optimization, default is 1.
     :type beta: float, optional
-    :param eps: epsilon, defaults to 1e-12
+    :param eps: Epsilon, default is 1e-12.
     :type eps: float, optional
-    :return: The free energy of the given density matrix and Hamiltonian.
+    :return: The free energy of the given density matrix with the Hamiltonian operator.
     :rtype: Tensor
     """
     energy = backend.real(trace_product(rho, h))
@@ -1390,11 +1388,11 @@ def renyi_entropy(rho: Union[Tensor, QuOperator], k: int = 2) -> Tensor:
     """
     Compute the Rényi entropy of order :math: `k` by given density matrix. 
 
-    :param rho: density matrix
+    :param rho: The density matrix in form of Tensor or QuOperator.
     :type rho: Union[Tensor, QuOperator]
-    :param k: order, defaults to 2
+    :param k: The order of Rényi entropy, default is 2.
     :type k: int, optional
-    :return: The :math: `k`th order of Rényi entropy
+    :return: The :math: `k`th order of Rényi entropy.
     :rtype: Tensor
     """
     s = 1 / (1 - k) * backend.real(backend.log(trace_product(*[rho for _ in range(k)])))
@@ -1419,15 +1417,15 @@ def renyi_free_energy(
     >>> qu.free_energy(rho, h, 0.5)
     -0.9999999999979998
 
-    :param rho: density matrix
+    :param rho: The density matrix in form of Tensor or QuOperator.
     :type rho: Union[Tensor, QuOperator]
-    :param h: Hamiltonian
+    :param h: Hamiltonian operator in form of Tensor or QuOperator.
     :type h: Union[Tensor, QuOperator]
-    :param beta: constant for the optimization, defaults to 1
+    :param beta: Constant for the optimization, default is 1.
     :type beta: float, optional
-    :param k: order, defaults to 2
+    :param k: The order of Rényi entropy, default is 2.
     :type k: int, optional
-    :return: Rényi free energy
+    :return: The :math: `k`th order of Rényi entropy.
     :rtype: Tensor
     """
     energy = backend.real(trace_product(rho, h))
@@ -1578,7 +1576,7 @@ def spin_by_basis(n: int, m: int, elements: Tuple[int, int] = (1, -1)) -> Tensor
     :type n: int
     :param m: _description_
     :type m: int
-    :param elements: _description_, defaults to (1, -1)
+    :param elements: _description_, default is (1, -1).
     :type elements: Tuple[int, int], optional
     :return: _description_
     :rtype: Tensor
@@ -1609,7 +1607,7 @@ def correlation_from_counts(index: Sequence[int], results: Tensor) -> Tensor:
     :type index: Sequence[int]
     :param results: _description_
     :type results: Tensor
-    :return: correlation expectation from measurement shots
+    :return: Correlation expectation from measurement shots.
     :rtype: Tensor
     """
     # TODO(@YHPeter): imcomplete docstring
