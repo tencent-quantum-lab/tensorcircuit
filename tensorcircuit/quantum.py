@@ -440,7 +440,7 @@ class QuOperator:
         The adjoint of the operator.
         This creates a new `QuOperator` with complex-conjugate copies of all
         tensors in the network and with the input and output edges switched.
-        
+
         :return: The adjoint of the operator.
         :rtype: QuOperator
         """
@@ -454,7 +454,7 @@ class QuOperator:
     def copy(self) -> "QuOperator":
         """
         The deep copy of the operator.
-        
+
         :return: The new copy of the operator.
         :rtype: QuOperator
         """
@@ -946,8 +946,8 @@ def generate_local_hamiltonian(
     :type hlist: Sequence[Tensor]
     :param matrix_form: Return Hamiltonian operator in form of matrix, defaults to True.
     :type matrix_form: bool, optional
-    :return: The Hamiltonian operator in form of QuOperator or matrix. 
-    :rtype: Union[QuOperator, Tensor] 
+    :return: The Hamiltonian operator in form of QuOperator or matrix.
+    :rtype: Union[QuOperator, Tensor]
     """
     hlist = [backend.cast(h, dtype=dtypestr) for h in hlist]  # type: ignore
     hop_list = [QuOperator.from_tensor(h) for h in hlist]
@@ -1386,7 +1386,7 @@ def free_energy(
 
 def renyi_entropy(rho: Union[Tensor, QuOperator], k: int = 2) -> Tensor:
     """
-    Compute the Rényi entropy of order :math: `k` by given density matrix. 
+    Compute the Rényi entropy of order :math: `k` by given density matrix.
 
     :param rho: The density matrix in form of Tensor or QuOperator.
     :type rho: Union[Tensor, QuOperator]
