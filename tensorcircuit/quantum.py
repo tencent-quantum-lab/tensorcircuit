@@ -1026,8 +1026,8 @@ try:
         if not (isinstance(weight, tf.Tensor) or isinstance(weight, tf.Variable)):
             weight = tf.constant(weight, dtype=getattr(tf, dtypestr))
         rsparse = get_backend("numpy").coo_sparse_matrix(
-            indices=tf.constant([[0, 0]], dtype=tf.int64),
-            values=tf.constant([0.0], dtype=weight.dtype),  # type: ignore
+            indices=np.array([[0, 0]], dtype=np.int64),
+            values=np.array([0.0], dtype=getattr(np, dtypestr)),  # type: ignore
             shape=(s, s),
         )
         for i in range(nterms):

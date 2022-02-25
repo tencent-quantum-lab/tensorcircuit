@@ -23,13 +23,13 @@
 
 TensorCircuit is the next generation of quantum circuit simulator with support for automatic differentiation, just-in-time compiling, hardware acceleration, and vectorized parallelism.
 
-TensorCircuit is built on top of modern machine learning frameworks, and is machine learning backend agnostic. It is specifically suitable for efficient simulations of quantum-classical hybrid paradigm and variational quantum algorithms.
+TensorCircuit is built on top of modern machine learning frameworks, and is machine learning backend agnostic. It is specifically suitable for highly efficient simulations of quantum-classical hybrid paradigm and variational quantum algorithms.
 
 ## Getting Started
 
 Please begin with [Quick Start](/docs/source/quickstart.rst) and [Jupyter Tutorials](https://github.com/quclub/tensorcircuit-tutorials/tree/master/tutorials).
 
-For more information and introductions, please refer to helpful scripts [examples](/examples) and [documentations](/docs/source). API docstrings (incomplete for now) and test cases in [tests](/tests) are also informative.
+For more information and introductions, please refer to helpful [example scripts](/examples) and [documentations](/docs/source). API docstrings and test cases in [tests](/tests) are also informative.
 
 The following are some minimal demos.
 
@@ -82,51 +82,19 @@ Keep the codebase private!
 
 For development workflow, we suggest to first configure a good conda environment. The versions of dependecy package may vary in terms of development requirements. The minimum requirement is the [TensorNetwork](https://github.com/google/TensorNetwork) package (pip install suggested).
 
-### Docs
-
-```bash
-cd docs
-make html
-```
-
-### Tests
-
-```bash
-pytest
-```
-
-### Formatter
-
-```bash
-black .
-```
-
-### Linter
-
-```bash
-pylint tensorcircuit tests examples/*.py
-```
-
-### Type checker
-
-```bash
-mypy tensorcircuit
-```
-
-### Integrated script
-
-For now, we introduce one-for-all checker for development before committing:
-
-```bash
-./check_all.sh
-```
-
 ## Researches and applications
 
 ### DQAS
 
-For application of Differentiable Quantum Architecture Search, see [applications](/tensorcircuit/applications). Reference paper: https://arxiv.org/pdf/2010.08561.pdf.
+For application of Differentiable Quantum Architecture Search, see [applications](/tensorcircuit/applications).
+Reference paper: https://arxiv.org/pdf/2010.08561.pdf.
 
 ### VQNHE
 
-For application of Variational Quantum-Neural Hybrid Eigensolver, see [applications](/tensorcircuit/applications). Reference paper: https://arxiv.org/pdf/2106.05105.pdf.
+For application of Variational Quantum-Neural Hybrid Eigensolver, see [applications](/tensorcircuit/applications).
+Reference paper: https://arxiv.org/pdf/2106.05105.pdf and https://arxiv.org/pdf/2112.10380.pdf.
+
+### VQEX - MBL
+
+For application of VQEX on MBL phase identification, see [tutorial](https://github.com/quclub/tensorcircuit-tutorials/blob/master/tutorials/vqex_mbl.ipynb).
+Reference paper: https://arxiv.org/pdf/2111.13719.pdf.
