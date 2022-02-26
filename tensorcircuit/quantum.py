@@ -1,5 +1,11 @@
 """
 Quantum state and operator class backend by tensornetwork
+
+:IMPORT:
+
+.. code-block:: python
+
+    import tensorcircuit.quantum as qu
 """
 # pylint: disable=invalid-name
 
@@ -90,7 +96,7 @@ def quantum_constructor(
     >>> # psi_node[0] -> op.out_edges[0]
     >>> # psi_node[1] -> op.out_edges[1]
 
-    op = qu.quantum_constructor([], [psi_node[0], psi_node[1]])
+    >>> op = qu.quantum_constructor([], [psi_node[0], psi_node[1]])
     >>> show_attributes(op)
     op.is_scalar()          -> False
     op.is_vector()          -> False
@@ -100,14 +106,14 @@ def quantum_constructor(
     >>> # psi_node[0] -> op.in_edges[0]
     >>> # psi_node[1] -> op.in_edges[1]
 
-    :param out_edges: output edges.
+    :param out_edges: A list of output edges.
     :type out_edges: Sequence[Edge]
-    :param in_edges: in edges.
+    :param in_edges: A list of input edges.
     :type in_edges: Sequence[Edge]
-    :param ref_nodes: reference nodes for the tensor network (needed if there is a
+    :param ref_nodes: Reference nodes for the tensor network (needed if there is a.
         scalar component).
     :type ref_nodes: Optional[Collection[AbstractNode]], optional
-    :param ignore_edges: edges to ignore when checking the dimensionality of the
+    :param ignore_edges: Edges to ignore when checking the dimensionality of the
         tensor network.
     :type ignore_edges: Optional[Collection[Edge]], optional
     :return: The new created QuOperator object.
@@ -171,6 +177,7 @@ def check_spaces(edges_1: Sequence[Edge], edges_2: Sequence[Edge]) -> None:
     Check the vector spaces represented by two lists of edges are compatible.
     The number of edges must be the same and the dimensions of each pair of edges
     must match. Otherwise, an exception is raised.
+
     :param edges_1: List of edges representing a many-body Hilbert space.
     :type edges_1: Sequence[Edge]
     :param edges_2: List of edges representing a many-body Hilbert space.
@@ -317,18 +324,18 @@ class QuOperator:
         >>> psi_tensor = np.random.rand(2, 2)
         >>> psi_tensor
         array([[0.27260127, 0.91401091],
-            [0.06490953, 0.38653646]])
-        >>> op = qu.QuOperator.from_tensor(psi_tensor, [0], [1])
+               [0.06490953, 0.38653646]])
+        >>> op = qu.QuOperator.from_tensor(psi_tensor, out_axes=[0], in_axes=[1])
         >>> show_attributes(op)
         op.is_scalar()          -> False
         op.is_vector()          -> False
         op.is_adjoint_vector()  -> False
         op.eval()
         [[0.27260127 0.91401091]
-        [0.06490953 0.38653646]]
+         [0.06490953 0.38653646]]
 
         :param tensor: The tensor.
-        :type tensor: tensor
+        :type tensor: Tensor
         :param out_axes: The axis indices of `tensor` to use as `out_edges`.
         :type out_axes: Optional[Sequence[int]], optional
         :param in_axes: The axis indices of `tensor` to use as `in_edges`.
@@ -434,6 +441,9 @@ class QuOperator:
         The adjoint of the operator.
         This creates a new `QuOperator` with complex-conjugate copies of all
         tensors in the network and with the input and output edges switched.
+
+        :return: The adjoint of the operator.
+        :rtype: QuOperator
         """
         nodes_dict, edge_dict = copy(self.nodes, True)
         out_edges = [edge_dict[e] for e in self.in_edges]
@@ -443,6 +453,12 @@ class QuOperator:
         return quantum_constructor(out_edges, in_edges, ref_nodes, ignore_edges)
 
     def copy(self) -> "QuOperator":
+        """
+        The deep copy of the operator.
+
+        :return: The new copy of the operator.
+        :rtype: QuOperator
+        """
         nodes_dict, edge_dict = copy(self.nodes, False)
         out_edges = [edge_dict[e] for e in self.out_edges]
         in_edges = [edge_dict[e] for e in self.in_edges]
@@ -580,6 +596,17 @@ class QuOperator:
         `B.copy()`:
         `new_out_edges = [*out_edges_A_copy, *out_edges_B_copy]`
         `new_in_edges = [*in_edges_A_copy, *in_edges_B_copy]`
+
+        :Example:
+
+        >>> psi = qu.QuVector.from_tensor(np.random.rand(2, 2))
+        >>> psi_psi = psi.tensor_product(psi)
+        >>> len(psi_psi.subsystem_edges)
+        4
+        >>> float(psi_psi.norm().eval())
+        2.9887872748523585
+        >>> psi.norm().eval() ** 2
+        2.9887872748523585
 
         :param other: The other operator (`B`).
         :type other: QuOperator
@@ -912,15 +939,16 @@ def generate_local_hamiltonian(
     *hlist: Sequence[Tensor], matrix_form: bool = True
 ) -> Union[QuOperator, Tensor]:
     """
+    Generate a local Hamiltonian operator based on the given sequence of Tensor.
     Note: further jit is recommended.
     For large Hilbert space, sparse Hamiltonian is recommended
 
-    :param hlist: [description]
+    :param hlist: A sequence of Tensor.
     :type hlist: Sequence[Tensor]
-    :param matrix_form: [description], defaults to True
+    :param matrix_form: Return Hamiltonian operator in form of matrix, defaults to True.
     :type matrix_form: bool, optional
-    :return: [description]
-    :rtype: Tensor
+    :return: The Hamiltonian operator in form of QuOperator or matrix.
+    :rtype: Union[QuOperator, Tensor]
     """
     hlist = [backend.cast(h, dtype=dtypestr) for h in hlist]  # type: ignore
     hop_list = [QuOperator.from_tensor(h) for h in hlist]
@@ -944,6 +972,38 @@ try:
         hy: float = 0.0,
         sparse: bool = True,
     ) -> Tensor:
+        """
+        Generate Heisenberg Hamiltonian with possible external fields.
+
+        :Example:
+
+        >>> g = tc.templates.graphs.Line1D(6)
+        >>> h = qu.heisenberg_hamiltonian(g, sparse=False)
+        >>> tc.backend.eigh(h)[0][:10]
+        array([-11.2111025,  -8.4721365,  -8.472136 ,  -8.472136 ,  -6.       ,
+                -5.123106 ,  -5.123106 ,  -5.1231055,  -5.1231055,  -5.1231055],
+            dtype=float32)
+
+        :param g: input circuit graph
+        :type g: Graph
+        :param hzz: zz coupling, default is 1.0
+        :type hzz: float
+        :param hxx: xx coupling, default is 1.0
+        :type hxx: float
+        :param hyy: yy coupling, default is 1.0
+        :type hyy: float
+        :param hz: External field on z direction, default is 0.0
+        :type hz: float
+        :param hx: External field on y direction, default is 0.0
+        :type hx: float
+        :param hy: External field on x direction, default is 0.0
+        :type hy: float
+        :param sparse: Whether to return sparse Hamiltonian operator, default is True.
+        :type sparse: bool
+
+        :return: Hamiltonian measurements
+        :rtype: Tensor
+        """
         n = len(g.nodes)
         ls = []
         weight = []
@@ -1135,11 +1195,38 @@ def entropy(rho: Union[Tensor, QuOperator], eps: float = 1e-12) -> Tensor:
     """
     Compute the entropy from the given density matrix ``rho``.
 
-    :param rho: [description]
+    :Example:
+
+    .. code-block:: python
+
+        @partial(tc.backend.jit, jit_compile=False, static_argnums=(1, 2))
+        def entanglement1(param, n, nlayers):
+            c = tc.Circuit(n)
+            c = tc.templates.blocks.example_block(c, param, nlayers)
+            w = c.wavefunction()
+            rm = qu.reduced_density_matrix(w, int(n / 2))
+            return qu.entropy(rm)
+
+        @partial(tc.backend.jit, jit_compile=False, static_argnums=(1, 2))
+        def entanglement2(param, n, nlayers):
+            c = tc.Circuit(n)
+            c = tc.templates.blocks.example_block(c, param, nlayers)
+            w = c.get_quvector()
+            rm = w.reduced_density([i for i in range(int(n / 2))])
+            return qu.entropy(rm)
+
+    >>> param = tc.backend.ones([6, 6])
+    >>> tc.backend.trace(param)
+    >>> entanglement1(param, 6, 3)
+    1.3132654
+    >>> entanglement2(param, 6, 3)
+    1.3132653
+
+    :param rho: The density matrix in form of Tensor or QuOperator.
     :type rho: Union[Tensor, QuOperator]
-    :param eps: [description], defaults to 1e-12
-    :type eps: float, optional
-    :return: [description]
+    :param eps: Epsilon, default is 1e-12.
+    :type eps: float
+    :return: Entropy on the given density matrix.
     :rtype: Tensor
     """
     lbd = backend.real(backend.eigh(rho)[0])
@@ -1157,7 +1244,22 @@ def trace_product(*o: Union[Tensor, QuOperator]) -> Tensor:
 
         \\mathrm{Tr}(\\prod_i O_i)
 
-    :return: the trace of several inputs
+    :Example:
+
+    >>> o = np.ones([2, 2])
+    >>> h = np.eye(2)
+    >>> qu.trace_product(o, h)
+    2.0
+    >>> oq = qu.QuOperator.from_tensor(o)
+    >>> hq = qu.QuOperator.from_tensor(h)
+    >>> qu.trace_product(oq, hq)
+    array([[2.]])
+    >>> qu.trace_product(oq, h)
+    array([[2.]])
+    >>> qu.trace_product(o, hq)
+    array([[2.]])
+
+    :return: The trace of several inputs.
     :rtype: Tensor
     """
     prod = reduce(matmul, o)
@@ -1174,16 +1276,16 @@ def reduced_density_matrix(
     """
     Compute the reduced density matrix from the quantum state ``state``.
 
-    :param state: [description]
-    :type state: Tensor
+    :param state: The quantum state in form of Tensor or QuOperator.
+    :type state: Union[Tensor, QuOperator]
     :param cut: [description]
     :type cut: Union[int, List[int]]
-    :param p: [description], defaults to None
-    :type p: Optional[Tensor], optional
-    :return: [description]
-    :rtype: Tensor
+    :param p: [description], default is None.
+    :type p: Optional[Tensor]
+    :return: The reduced density matrix.
+    :rtype: Union[Tensor, QuOperator]
     """
-
+    # TODO(@YHPeter): imcomplete docstring
     if isinstance(cut, list) or isinstance(cut, tuple) or isinstance(cut, set):
         traceout = list(cut)
     else:
@@ -1254,12 +1356,47 @@ def free_energy(
     beta: float = 1,
     eps: float = 1e-12,
 ) -> Tensor:
+    """
+    Compute the free energy of the given density matrix.
+
+    :Example:
+
+    >>> rho = np.array([[1.0, 0], [0, 0]])
+    >>> h = np.array([[-1.0, 0], [0, 1]])
+    >>> qu.free_energy(rho, h, 0.5)
+    -0.9999999999979998
+    >>> hq = qu.QuOperator.from_tensor(h)
+    >>> qu.free_energy(rho, hq, 0.5)
+    array([[-1.]])
+
+    :param rho: The density matrix in form of Tensor or QuOperator.
+    :type rho: Union[Tensor, QuOperator]
+    :param h: Hamiltonian operator in form of Tensor or QuOperator.
+    :type h: Union[Tensor, QuOperator]
+    :param beta: Constant for the optimization, default is 1.
+    :type beta: float, optional
+    :param eps: Epsilon, default is 1e-12.
+    :type eps: float, optional
+
+    :return: The free energy of the given density matrix with the Hamiltonian operator.
+    :rtype: Tensor
+    """
     energy = backend.real(trace_product(rho, h))
     s = entropy(rho, eps)
     return backend.real(energy - s / beta)
 
 
 def renyi_entropy(rho: Union[Tensor, QuOperator], k: int = 2) -> Tensor:
+    """
+    Compute the Rényi entropy of order :math:`k` by given density matrix.
+
+    :param rho: The density matrix in form of Tensor or QuOperator.
+    :type rho: Union[Tensor, QuOperator]
+    :param k: The order of Rényi entropy, default is 2.
+    :type k: int, optional
+    :return: The :math:`k` th order of Rényi entropy.
+    :rtype: Tensor
+    """
     s = 1 / (1 - k) * backend.real(backend.log(trace_product(*[rho for _ in range(k)])))
     return s
 
@@ -1270,6 +1407,29 @@ def renyi_free_energy(
     beta: float = 1,
     k: int = 2,
 ) -> Tensor:
+    """
+    Compute the Rényi free energy of the corresponding density matrix and Hamiltonian.
+
+    :Example:
+
+    >>> rho = np.array([[1.0, 0], [0, 0]])
+    >>> h = np.array([[-1.0, 0], [0, 1]])
+    >>> qu.renyi_free_energy(rho, h, 0.5)
+    -1.0
+    >>> qu.free_energy(rho, h, 0.5)
+    -0.9999999999979998
+
+    :param rho: The density matrix in form of Tensor or QuOperator.
+    :type rho: Union[Tensor, QuOperator]
+    :param h: Hamiltonian operator in form of Tensor or QuOperator.
+    :type h: Union[Tensor, QuOperator]
+    :param beta: Constant for the optimization, default is 1.
+    :type beta: float, optional
+    :param k: The order of Rényi entropy, default is 2.
+    :type k: int, optional
+    :return: The :math:`k` th order of Rényi entropy.
+    :rtype: Tensor
+    """
     energy = backend.real(trace_product(rho, h))
     s = renyi_entropy(rho, k)
     return backend.real(energy - s / beta)
@@ -1366,10 +1526,10 @@ def measurement_counts(
 
     :Example:
 
-    >>> tc.quantum.measurement_counts(np.ones([2**6])/2**3, counts=16, sparse=True)
+    >>> qu.measurement_counts(np.ones([2**6])/2**3, counts=16, sparse=True)
     (array([ 4,  7, 13, 19, 21, 33, 36, 41, 42, 45, 49, 50, 54, 56]),
      array([1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1]))
-    >>> tc.quantum.measurement_counts(np.ones([2**6])/2**3, counts=16, sparse=False)
+    >>> qu.measurement_counts(np.ones([2**6])/2**3, counts=16, sparse=False)
     array([0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
        0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 1, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 1,
        0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0])
@@ -1406,6 +1566,24 @@ def measurement_counts(
 
 
 def spin_by_basis(n: int, m: int, elements: Tuple[int, int] = (1, -1)) -> Tensor:
+    """
+    _summary_
+
+    :Example:
+
+    >>> qu.spin_by_basis(2, 1)
+    array([ 1, -1,  1, -1])
+
+    :param n: _description_
+    :type n: int
+    :param m: _description_
+    :type m: int
+    :param elements: _description_, default is (1, -1).
+    :type elements: Tuple[int, int], optional
+    :return: _description_
+    :rtype: Tensor
+    """
+    # TODO(@YHPeter): imcomplete docstring
     s = backend.tile(
         backend.cast(
             backend.convert_to_tensor(np.array([[elements[0]], [elements[1]]])), "int32"
@@ -1416,6 +1594,25 @@ def spin_by_basis(n: int, m: int, elements: Tuple[int, int] = (1, -1)) -> Tensor
 
 
 def correlation_from_counts(index: Sequence[int], results: Tensor) -> Tensor:
+    """
+    _summary_
+
+    :Example:
+
+    >>> state = tc.array_to_tensor(np.array([0.6, 0.4, 0, 0]))
+    >>> qu.correlation_from_counts([0, 1], state)
+    (0.20000002+0j)
+    >>> qu.correlation_from_counts([1], state)
+    (0.20000002+0j)
+
+    :param index: _description_
+    :type index: Sequence[int]
+    :param results: _description_
+    :type results: Tensor
+    :return: Correlation expectation from measurement shots.
+    :rtype: Tensor
+    """
+    # TODO(@YHPeter): imcomplete docstring
     results = backend.reshape(results, [-1])
     n = int(np.log(results.shape[0]) / np.log(2))
     for i in index:
