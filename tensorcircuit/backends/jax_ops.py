@@ -63,7 +63,6 @@ def jaxsvd_bwd(r: Sequence[Array], tangents: Sequence[Array]) -> Tuple[Array]:
     )
 
     grad_a = dAv + dAu + dAs + dAc
-
     return (grad_a,)
 
 

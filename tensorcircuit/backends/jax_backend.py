@@ -120,7 +120,7 @@ def _qr_jax(
     Computes the QR decomposition of a tensor.
     See tensornetwork.backends.tensorflow.decompositions for details.
     """
-    from .jax_ops import adaware_qr as adaware_qr
+    from .jax_ops import adaware_qr_jit as adaware_qr
 
     left_dims = tensor.shape[:pivot_axis]
     right_dims = tensor.shape[pivot_axis:]
@@ -146,7 +146,7 @@ def _rq_jax(
     Computes the RQ (reversed QR) decomposition of a tensor.
     See tensornetwork.backends.tensorflow.decompositions for details.
     """
-    from .jax_ops import adaware_qr as adaware_qr
+    from .jax_ops import adaware_qr_jit as adaware_qr
 
     left_dims = tensor.shape[:pivot_axis]
     right_dims = tensor.shape[pivot_axis:]

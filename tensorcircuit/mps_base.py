@@ -255,7 +255,6 @@ class FiniteMPS(tn.FiniteMPS):  # type: ignore
         left_sites = np.sort(sites2[sites2 < site1])  # type: ignore
         # get all sites larger than site1
         right_sites = np.sort(sites2[sites2 > site1])  # type: ignore
-
         # compute all neccessary right reduced
         # density matrices in one go. This is
         # more efficient than calling right_envs
@@ -378,4 +377,5 @@ class FiniteMPS(tn.FiniteMPS):  # type: ignore
                         self.apply_transfer_operator(n % N, "left", L.tensor),
                         backend=self.backend,
                     )
+
         return c

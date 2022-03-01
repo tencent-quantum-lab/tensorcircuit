@@ -15,6 +15,8 @@ from .mps_base import FiniteMPS
 Gate = gates.Gate
 Tensor = Any
 
+# TODO(@refraction-ray): support Circuit IR for MPSCircuit
+
 
 def split_tensor(
     tensor: Tensor,
@@ -108,10 +110,10 @@ class MPSCircuit:
             ]
         else:
             assert len(tensors) == nqubits
-
         self._mps = FiniteMPS(
             tensors, canonicalize=True, center_position=center_position
         )
+
         self._nqubits = nqubits
         self._fidelity = 1.0
         self.set_truncation_rule()
@@ -338,6 +340,7 @@ class MPSCircuit:
             self.apply_single_gate(gate, *index)
         elif noe == 2:
             self.apply_double_gate(gate, *index)
+
         else:
             raise ValueError("MPS does not support application of gate on > 2 qubits")
 

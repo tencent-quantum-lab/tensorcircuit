@@ -66,13 +66,19 @@ n, nlayers = 15, 20
 print("number of qubits: ", n)
 print("number of layers: ", nlayers)
 
-# param = tc.backend.implicit_randn([2 * nlayers, n])
-param = tc.backend.ones([2 * nlayers, n])
+param = tc.backend.implicit_randu([2 * nlayers, n])
+# param = tc.backend.ones([2 * nlayers, n])
 # it turns out that the mps approximation power highly depends on the
 # parameters, if we use ``param = tc.backend.ones``, the apprixmation ratio decays very fast
 # At least, the estimated fidelity is a very good proxy metric for real fidelity
 # as long as it is larger than 50%
 e0, s0, _ = energy(param)
+print(
+    "entanglement: ",
+    tc.backend.numpy(
+        tc.quantum.entropy(tc.quantum.reduced_density_matrix(s0, cut=n // 2))
+    ),
+)
 
 for mpsd in [2, 5, 10, 20, 50, 100]:
     e1, s1, f1 = energy(param, mpsd=mpsd)
