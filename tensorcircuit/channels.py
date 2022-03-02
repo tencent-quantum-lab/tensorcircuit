@@ -190,7 +190,7 @@ def phasedampingchannel(gamma: float) -> Sequence[Gate]:
 def single_qubit_kraus_identity_check(kraus: Sequence[Gate]) -> None:
     r"""Check identity of a single qubit Kraus operators.
 
-    Examples:
+    :Examples:
 
     >>> cs = resetchannel()
     >>> tc.channels.single_qubit_kraus_identity_check(cs)

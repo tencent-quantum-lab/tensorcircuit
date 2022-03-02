@@ -31,7 +31,7 @@ class Circuit:
         c = tc.Circuit(3)
         c.H(1)
         c.CNOT(0, 1)
-        c.rx(2, theta=tc.num_to_tensor(1.))
+        c.RX(2, theta=tc.num_to_tensor(1.))
         c.expectation([tc.gates.z(), (2, )]) # 0.54
 
     """
@@ -134,6 +134,21 @@ class Circuit:
     def replace_mps_inputs(self, mps_inputs: QuOperator) -> None:
         """
         Replace the input state in MPS representation while keep the circuit structure unchanged.
+
+        :Example:
+        >>> c = tc.Circuit(2)
+        >>> c.X(0)
+        >>>
+        >>> c2 = tc.Circuit(2, mps_inputs=c.quvector())
+        >>> c2.X(0)
+        >>> c2.wavefunction()
+        array([1.+0.j, 0.+0.j, 0.+0.j, 0.+0.j], dtype=complex64)
+        >>>
+        >>> c3 = tc.Circuit(2)
+        >>> c3.X(0)
+        >>> c3.replace_mps_inputs(c.quvector())
+        >>> c3.wavefunction()
+        array([1.+0.j, 0.+0.j, 0.+0.j, 0.+0.j], dtype=complex64)
 
         :param mps_inputs: (Nodes, dangling Edges) for a MPS like initial wavefunction
         :type mps_inputs: Tuple[Sequence[Gate], Sequence[Edge]]
@@ -312,11 +327,51 @@ class Circuit:
     #     return self._qcode
 
     def apply_single_gate(self, gate: Gate, index: int) -> None:
+        """
+        Apply the gate to the bit with the given index.
+        
+        :Example:
+        
+        >>> gate = tc.gates.Gate(np.arange(4).reshape(2, 2).astype(np.complex64))
+        >>> qc = tc.Circuit(2)
+        >>> qc.apply_single_gate(gate, 0)
+        >>> qc.wavefunction()
+        array([0.+0.j, 0.+0.j, 2.+0.j, 0.+0.j], dtype=complex64)
+            
+        :param gate: The Gate applied on the bit.
+        :type gate: Gate
+        :param index: The index of the bit to apply the Gate.
+        :type index: int
+        """
+        
         gate.get_edge(1) ^ self._front[index]  # pay attention on the rank index here
         self._front[index] = gate.get_edge(0)
         self._nodes.append(gate)
 
     def apply_double_gate(self, gate: Gate, index1: int, index2: int) -> None:
+        """
+        Apply the gate to two bits with given indexes.
+        
+        :Example:
+        
+        >>> gate = tc.gates.Gate(np.arange(16).reshape(2, 2, 2, 2).astype(np.complex64))
+        >>> qc = tc.Circuit(2)
+        >>> qc.apply_double_gate(gate, 0, 1)
+        >>> qc.wavefunction()
+        array([ 0.+0.j,  4.+0.j,  8.+0.j, 12.+0.j], dtype=complex64)
+        >>>
+        >>> qc = tc.Circuit(2)
+        >>> qc.apply_double_gate(gate, 0, 1)
+        >>> qc.wavefunction()
+        array([ 0.+0.j,  8.+0.j,  4.+0.j, 12.+0.j], dtype=complex64)
+        
+        :param gate: The Gate applied on bits.
+        :type gate: Gate
+        :param index1: The index of the bit to apply the Gate.
+        :type index1: int
+        :param index2: The index of the bit to apply the Gate.
+        :type index2: int
+        """
         assert index1 != index2
         gate.get_edge(2) ^ self._front[index1]
         gate.get_edge(3) ^ self._front[index2]
@@ -482,6 +537,19 @@ class Circuit:
     quvector = get_quvector
 
     def to_qir(self) -> List[Dict[str, Any]]:
+        """
+        _description_
+        
+        :Example:
+        >>> c = tc.Circuit(3)
+        >>> c.H(0)
+        >>> c.RX(1, theta=tc.array_to_tensor(0.7))
+        >>> c.to_qir()
+        [{'gate': h, 'index': (0,), 'name': 'h', 'split': None}, {'gate': rx, 'index': (1,), 'name': 'rx', 'split': None, 'parameters': {'theta': array(0.7+0.j, dtype=complex64)}}]
+        
+        :return: The qir of the circuit.
+        :rtype: List[Dict[str, Any]]
+        """
         return self._qir
 
     # TODO(@refraction-ray): derive visualization and serialization from the consistent qir
@@ -489,7 +557,7 @@ class Circuit:
     # TODO(@refraction-ray): IR for density matrix simulator?
 
     @staticmethod
-    def _apply_qir(c: "Circuit", qir: str) -> "Circuit":
+    def _apply_qir(c: "Circuit", qir: List[Dict[str, Any]]) -> "Circuit":
         for d in qir:
             if "parameters" not in d:
                 c.apply_general_gate_delayed(d["gatef"], d["name"], mpo=d["mpo"])(  # type: ignore
@@ -503,8 +571,36 @@ class Circuit:
 
     @classmethod
     def from_qir(
-        cls, qir: str, circuit_params: Optional[Dict[str, Any]] = None
+        cls, qir: List[Dict[str, Any]], circuit_params: Optional[Dict[str, Any]] = None
     ) -> "Circuit":
+        """
+        _description_
+        
+        :Example:
+        
+        >>> c = tc.Circuit(3)
+        >>> c.H(0)
+        >>> c.rx(1, theta=tc.array_to_tensor(0.7))
+        >>> c.exp1(0, 1, unitary=tc.gates._zz_matrix, theta=tc.array_to_tensor(-0.2), split=split)
+        >>> len(c)
+        7
+        >>> c.expectation((tc.gates.z(), [1]))
+        array(0.764842+0.j, dtype=complex64)
+        >>> qirs = c.to_qir()
+        >>>
+        >>> c = tc.Circuit.from_qir(qirs, circuit_params={"nqubits": 3})
+        >>> len(c._nodes)
+        7
+        >>> c.expectation((tc.gates.z(), [1]))
+        array(0.764842+0.j, dtype=complex64)
+        
+        :param qir: _description_
+        :type qir: List[Dict[str, Any]]
+        :param circuit_params: _description_
+        :type circuit_params: Optional[Dict[str, Any]]
+        :return: _description_
+        :rtype: Circuit
+        """
         if circuit_params is None:
             circuit_params = {}
         if "nqubits" not in circuit_params:
@@ -519,7 +615,33 @@ class Circuit:
         c = cls._apply_qir(c, qir)
         return c
 
-    def append_from_qir(self, qir: str) -> None:
+    def append_from_qir(self, qir: List[Dict[str, Any]]) -> None:
+        """
+        _description_
+        
+        :Example:
+
+        >>> split = {
+        ...      "max_singular_values": 2,
+        ...      "fixed_choice": 1,
+        ... }
+        >>> c = tc.Circuit(3)
+        >>> c.H(0)
+        >>> c.RX(1, theta=tc.array_to_tensor(0.7))
+        >>> c.EXP1(0, 1, unitary=tc.gates._zz_matrix, theta=tc.array_to_tensor(-0.2), split=split)
+        >>> qirs = c.to_qir()
+        >>> c = tc.Circuit.from_qir(qirs, circuit_params={"nqubits": 3})
+        >>> len(c._nodes)
+        7
+        >>> c.append_from_qir(qirs)
+        >>> c.expectation((tc.gates.z(), [1]))
+        array(0.20272803+0.j, dtype=complex64)
+        >>> len(c._nodes)
+        11
+        
+        :param qir: _description_
+        :type qir: List[Dict[str, Any]]
+        """
         self._apply_qir(self, qir)
 
     def mid_measurement(self, index: int, keep: int = 0) -> None:
@@ -936,6 +1058,25 @@ class Circuit:
     state = wavefunction
 
     def amplitude(self, l: str) -> tn.Node.tensor:
+        """
+        Returns the amplitude of the circuit
+        
+        :Example:
+        
+        >>> c = tc.Circuit(2)
+        >>> c.X(0)
+        >>> c.amplitude("10")
+        array(1.+0.j, dtype=complex64)
+        >>> c.CNOT(0, 1)
+        >>> c.amplitude("11")
+        array(1.+0.j, dtype=complex64)
+        
+        :param l: _description_
+        :type l: string
+        :return: The amplitude of the circuit
+        :rtype: tn.Node.tensor
+        """
+        # TODO(@YHPeter): imcomplete docstring
         assert len(l) == self._nqubits
         no, d_edges = self._copy()
         ms = []
@@ -1124,7 +1265,7 @@ class Circuit:
         :param reuse: if True, then the wavefunction tensor is cached for further expectation evaluation,
             defaults to be true
         :type reuse: bool, optional
-        :raises ValueError: [description]
+        :raises ValueError: "Cannot measure two operators in one index"
         :return: Tensor with one element
         :rtype: Tensor
         """
