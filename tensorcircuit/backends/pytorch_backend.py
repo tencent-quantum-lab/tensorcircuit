@@ -171,6 +171,9 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
     def unique_with_counts(self, a: Tensor) -> Tuple[Tensor, Tensor]:
         return torchlib.unique(a, return_counts=True)  # type: ignore
 
+    def sigmoid(self, a: Tensor) -> Tensor:
+        return torchlib.nn.Sigmoid(a)
+
     def relu(self, a: Tensor) -> Tensor:
         return torchlib.nn.ReLU(a)
 

@@ -121,6 +121,12 @@ def test_backend_methods(backend):
         atol=1e-4,
     )
 
+    arr = tc.backend.zeros([5], dtype="float32")
+    assert np.allclose(
+        tc.backend.sigmoid(arr),
+        tc.backend.ones([5]) * 0.5,
+        atol=1e-4,
+    )
     ans = np.array([[1, 0.5j], [-0.5j, 1]])
     ans2 = ans @ ans
     ansp = tc.backend.sqrtmh(tc.array_to_tensor(ans2))

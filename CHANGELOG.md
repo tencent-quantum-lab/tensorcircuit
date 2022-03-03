@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- add sigmoid method on backends
+
 ## 0.0.220301
 
 ### Added
