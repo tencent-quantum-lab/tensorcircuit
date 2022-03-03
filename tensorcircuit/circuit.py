@@ -538,7 +538,7 @@ class Circuit:
 
     def to_qir(self) -> List[Dict[str, Any]]:
         """
-        _description_
+        Return the quantum intermediate representation of the circuit.
         
         :Example:
         >>> c = tc.Circuit(3)
@@ -547,7 +547,7 @@ class Circuit:
         >>> c.to_qir()
         [{'gate': h, 'index': (0,), 'name': 'h', 'split': None}, {'gate': rx, 'index': (1,), 'name': 'rx', 'split': None, 'parameters': {'theta': array(0.7+0.j, dtype=complex64)}}]
         
-        :return: The qir of the circuit.
+        :return: The quantum intermediate representation of the circuit.
         :rtype: List[Dict[str, Any]]
         """
         return self._qir
@@ -574,7 +574,7 @@ class Circuit:
         cls, qir: List[Dict[str, Any]], circuit_params: Optional[Dict[str, Any]] = None
     ) -> "Circuit":
         """
-        _description_
+        Restore the circuit from the quantum intermediate representation.
         
         :Example:
         
@@ -594,11 +594,11 @@ class Circuit:
         >>> c.expectation((tc.gates.z(), [1]))
         array(0.764842+0.j, dtype=complex64)
         
-        :param qir: _description_
+        :param qir: The quantum intermediate representation of a circuit.
         :type qir: List[Dict[str, Any]]
-        :param circuit_params: _description_
+        :param circuit_params: Extra circuit parameters.
         :type circuit_params: Optional[Dict[str, Any]]
-        :return: _description_
+        :return: The circuit have same gates in the qir.
         :rtype: Circuit
         """
         if circuit_params is None:
@@ -617,7 +617,9 @@ class Circuit:
 
     def append_from_qir(self, qir: List[Dict[str, Any]]) -> None:
         """
-        _description_
+        Apply the quantum intermediate representation to the circuit.
+        It is similar to applying the ciurict in form of quantum 
+        intermediate representation to the current cirucit.
         
         :Example:
 
@@ -639,7 +641,7 @@ class Circuit:
         >>> len(c._nodes)
         11
         
-        :param qir: _description_
+        :param qir: The quantum intermediate representation 
         :type qir: List[Dict[str, Any]]
         """
         self._apply_qir(self, qir)
