@@ -9,7 +9,7 @@ from typing import Any, Callable, Optional, Sequence, Tuple, Union
 import numpy as np
 import tensornetwork
 from scipy.linalg import expm, solve
-from scipy.special import softmax
+from scipy.special import softmax, expit
 from scipy.sparse import coo_matrix, issparse
 from tensornetwork.backends.numpy import numpy_backend
 
@@ -130,6 +130,9 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
 
     def argmin(self, a: Tensor, axis: int = 0) -> Tensor:
         return np.argmin(a, axis=axis)
+
+    def sigmoid(self, a: Tensor) -> Tensor:
+        return expit(a)
 
     def relu(self, a: Tensor) -> Tensor:
         return (abs(a) + a) / 2

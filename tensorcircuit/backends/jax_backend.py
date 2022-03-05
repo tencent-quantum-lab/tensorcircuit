@@ -303,6 +303,9 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     def unique_with_counts(self, a: Tensor) -> Tuple[Tensor, Tensor]:
         return jnp.unique(a, return_counts=True)  # type: ignore
 
+    def sigmoid(self, a: Tensor) -> Tensor:
+        return libjax.nn.sigmoid(a)
+
     def relu(self, a: Tensor) -> Tensor:
         return libjax.nn.relu(a)
 
