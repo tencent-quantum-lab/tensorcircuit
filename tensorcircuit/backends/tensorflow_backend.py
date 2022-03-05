@@ -325,6 +325,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     def tile(self, a: Tensor, rep: Tensor) -> Tensor:
         return tf.tile(a, rep)
 
+    def sigmoid(self, a: Tensor) -> Tensor:
+        return tf.nn.sigmoid(a)
+
     def relu(self, a: Tensor) -> Tensor:
         return tf.nn.relu(a)
 

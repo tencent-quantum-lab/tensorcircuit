@@ -4,6 +4,12 @@
 
 ### Added
 
+- add sigmoid method on backends
+
+## 0.0.220301
+
+### Added
+
 - new universal contraction analyse tools and pseudo contraction rehearsals for debug
 
 - add `gather1d` method on backends for 1d tensor indexing

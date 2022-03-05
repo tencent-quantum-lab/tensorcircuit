@@ -356,6 +356,19 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `unique_with_counts`.".format(self.name)
         )
 
+    def sigmoid(self: Any, a: Tensor) -> Tensor:
+        """
+        Compute sigmoid of input ``a``
+
+        :param a: [description]
+        :type a: Tensor
+        :return: [description]
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `sigmoid`.".format(self.name)
+        )
+
     def relu(self: Any, a: Tensor) -> Tensor:
         """
         Rectified linear unit activation function.
