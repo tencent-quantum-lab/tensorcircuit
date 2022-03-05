@@ -329,21 +329,21 @@ class Circuit:
     def apply_single_gate(self, gate: Gate, index: int) -> None:
         """
         Apply the gate to the bit with the given index.
-        
+
         :Example:
-        
+
         >>> gate = tc.gates.Gate(np.arange(4).reshape(2, 2).astype(np.complex64))
         >>> qc = tc.Circuit(2)
         >>> qc.apply_single_gate(gate, 0)
         >>> qc.wavefunction()
         array([0.+0.j, 0.+0.j, 2.+0.j, 0.+0.j], dtype=complex64)
-            
+
         :param gate: The Gate applied on the bit.
         :type gate: Gate
         :param index: The index of the bit to apply the Gate.
         :type index: int
         """
-        
+
         gate.get_edge(1) ^ self._front[index]  # pay attention on the rank index here
         self._front[index] = gate.get_edge(0)
         self._nodes.append(gate)
@@ -351,20 +351,15 @@ class Circuit:
     def apply_double_gate(self, gate: Gate, index1: int, index2: int) -> None:
         """
         Apply the gate to two bits with given indexes.
-        
+
         :Example:
-        
-        >>> gate = tc.gates.Gate(np.arange(16).reshape(2, 2, 2, 2).astype(np.complex64))
+
+        >>> gate = tc.gates.cr_gate()
         >>> qc = tc.Circuit(2)
         >>> qc.apply_double_gate(gate, 0, 1)
         >>> qc.wavefunction()
-        array([ 0.+0.j,  4.+0.j,  8.+0.j, 12.+0.j], dtype=complex64)
-        >>>
-        >>> qc = tc.Circuit(2)
-        >>> qc.apply_double_gate(gate, 0, 1)
-        >>> qc.wavefunction()
-        array([ 0.+0.j,  8.+0.j,  4.+0.j, 12.+0.j], dtype=complex64)
-        
+        array([1.+0.j, 0.+0.j, 0.+0.j, 0.+0.j], dtype=complex64)
+
         :param gate: The Gate applied on bits.
         :type gate: Gate
         :param index1: The index of the bit to apply the Gate.
@@ -539,14 +534,36 @@ class Circuit:
     def to_qir(self) -> List[Dict[str, Any]]:
         """
         Return the quantum intermediate representation of the circuit.
-        
+
         :Example:
-        >>> c = tc.Circuit(3)
-        >>> c.H(0)
-        >>> c.RX(1, theta=tc.array_to_tensor(0.7))
-        >>> c.to_qir()
-        [{'gate': h, 'index': (0,), 'name': 'h', 'split': None}, {'gate': rx, 'index': (1,), 'name': 'rx', 'split': None, 'parameters': {'theta': array(0.7+0.j, dtype=complex64)}}]
-        
+
+        .. code-block:: python
+
+            >>> c = tc.Circuit(2)
+            >>> c.CNOT(0, 1)
+            >>> c.to_qir()
+            [{'gatef': cnot, 'gate': Gate(
+                name: 'cnot',
+                tensor:
+                    array([[[[1.+0.j, 0.+0.j],
+                            [0.+0.j, 0.+0.j]],
+
+                            [[0.+0.j, 1.+0.j],
+                            [0.+0.j, 0.+0.j]]],
+
+
+                        [[[0.+0.j, 0.+0.j],
+                            [0.+0.j, 1.+0.j]],
+
+                            [[0.+0.j, 0.+0.j],
+                            [1.+0.j, 0.+0.j]]]], dtype=complex64),
+                edges: [
+                    Edge(Dangling Edge)[0],
+                    Edge(Dangling Edge)[1],
+                    Edge('cnot'[2] -> 'qb-1'[0] ),
+                    Edge('cnot'[3] -> 'qb-2'[0] )
+                ]), 'index': (0, 1), 'name': 'cnot', 'split': None, 'mpo': False}]
+
         :return: The quantum intermediate representation of the circuit.
         :rtype: List[Dict[str, Any]]
         """
@@ -575,9 +592,9 @@ class Circuit:
     ) -> "Circuit":
         """
         Restore the circuit from the quantum intermediate representation.
-        
+
         :Example:
-        
+
         >>> c = tc.Circuit(3)
         >>> c.H(0)
         >>> c.rx(1, theta=tc.array_to_tensor(0.7))
@@ -593,7 +610,7 @@ class Circuit:
         7
         >>> c.expectation((tc.gates.z(), [1]))
         array(0.764842+0.j, dtype=complex64)
-        
+
         :param qir: The quantum intermediate representation of a circuit.
         :type qir: List[Dict[str, Any]]
         :param circuit_params: Extra circuit parameters.
@@ -617,31 +634,24 @@ class Circuit:
 
     def append_from_qir(self, qir: List[Dict[str, Any]]) -> None:
         """
-        Apply the quantum intermediate representation to the circuit.
-        It is similar to applying the ciurict in form of quantum 
-        intermediate representation to the current cirucit.
-        
+        Apply the ciurict in form of quantum intermediate representation to the current cirucit.
+
         :Example:
 
-        >>> split = {
-        ...      "max_singular_values": 2,
-        ...      "fixed_choice": 1,
-        ... }
         >>> c = tc.Circuit(3)
         >>> c.H(0)
-        >>> c.RX(1, theta=tc.array_to_tensor(0.7))
-        >>> c.EXP1(0, 1, unitary=tc.gates._zz_matrix, theta=tc.array_to_tensor(-0.2), split=split)
-        >>> qirs = c.to_qir()
-        >>> c = tc.Circuit.from_qir(qirs, circuit_params={"nqubits": 3})
-        >>> len(c._nodes)
-        7
-        >>> c.append_from_qir(qirs)
-        >>> c.expectation((tc.gates.z(), [1]))
-        array(0.20272803+0.j, dtype=complex64)
-        >>> len(c._nodes)
-        11
-        
-        :param qir: The quantum intermediate representation 
+        >>> c.to_qir()
+        [{'gatef': h, 'gate': Gate(...), 'index': (0,), 'name': 'h', 'split': None, 'mpo': False}]
+        >>> c2 = tc.Circuit(3)
+        >>> c2.CNOT(0, 1)
+        >>> c2.to_qir()
+        [{'gatef': cnot, 'gate': Gate(...), 'index': (0, 1), 'name': 'cnot', 'split': None, 'mpo': False}]
+        >>> c.append_from_qir(c2.to_qir())
+        >>> c.to_qir()
+        [{'gatef': h, 'gate': Gate(...), 'index': (0,), 'name': 'h', 'split': None, 'mpo': False},
+         {'gatef': cnot, 'gate': Gate(...), 'index': (0, 1), 'name': 'cnot', 'split': None, 'mpo': False}]
+
+        :param qir: The quantum intermediate representation
         :type qir: List[Dict[str, Any]]
         """
         self._apply_qir(self, qir)
@@ -651,7 +661,7 @@ class Circuit:
         Middle measurement in z-basis on the circuit, note the wavefunction output is not normalized
         with ``mid_measurement`` involved, one should normalize the state manually if needed.
 
-        :param index: the index of qubit that the Z direction postselection applied on
+        :param index: The index of qubit that the Z direction postselection applied on
         :type index: int
         :param keep: 0 for spin up, 1 for spin down, defaults to be 0
         :type keep: int, optional
@@ -973,11 +983,11 @@ class Circuit:
         since the graph building time is too long for other backend options; though the running
         time of the function is very fast for every case.
 
-        :param kraus: list of ``tn.Node`` for Kraus operators
+        :param kraus: A list of ``tn.Node`` for Kraus operators.
         :type kraus: Sequence[Gate]
-        :param index: the qubits index that Kraus channel is applied on
+        :param index: The qubits index that Kraus channel is applied on
         :type index: int
-        :param status: random tensor between 0 or 1, defaults to be None,
+        :param status: Random tensor between 0 or 1, defaults to be None,
             the random number will be generated automatically
         :type status: Optional[float], optional
         """
@@ -989,7 +999,7 @@ class Circuit:
         """
         [WIP], check whether the circuit is legal.
 
-        :return: the bool indicating whether the circuit is legal
+        :return: The bool indicating whether the circuit is legal
         :rtype: bool
         """
         try:
@@ -1005,9 +1015,9 @@ class Circuit:
         """
         Copy all nodes and dangling edges correspondingly.
 
-        :param conj: bool indicating whether the tensors for nodes should be conjugated
+        :param conj: Bool indicating whether the tensors for nodes should be conjugated.
         :type conj: bool
-        :return: new copy of nodes and dangling edges for the circuit
+        :return: New copy of nodes and dangling edges for the circuit.
         :rtype: Tuple[List[tn.Node], List[tn.Edge]]
         """
         ndict, edict = tn.copy(self._nodes, conjugate=conj)
@@ -1023,9 +1033,9 @@ class Circuit:
         """
         Compute the output wavefunction from the circuit.
 
-        :param form: the str indicating the form of the output wavefunction
+        :param form: The str indicating the form of the output wavefunction.
         :type form: str, optional
-        :return: Tensor with the corresponding shape
+        :return: Tensor with the corresponding shape.
         :rtype: Tensor
         """
         nodes, d_edges = self._copy()
@@ -1061,10 +1071,10 @@ class Circuit:
 
     def amplitude(self, l: str) -> tn.Node.tensor:
         """
-        Returns the amplitude of the circuit
-        
+        Returns the amplitude of the circuit given the bitstring l.
+
         :Example:
-        
+
         >>> c = tc.Circuit(2)
         >>> c.X(0)
         >>> c.amplitude("10")
@@ -1072,13 +1082,12 @@ class Circuit:
         >>> c.CNOT(0, 1)
         >>> c.amplitude("11")
         array(1.+0.j, dtype=complex64)
-        
-        :param l: _description_
+
+        :param l: The bitstring of 0 and 1s.
         :type l: string
-        :return: The amplitude of the circuit
+        :return: The amplitude of the circuit.
         :rtype: tn.Node.tensor
         """
-        # TODO(@YHPeter): imcomplete docstring
         assert len(l) == self._nqubits
         no, d_edges = self._copy()
         ms = []
@@ -1114,8 +1123,8 @@ class Circuit:
         ('1', (0.25000011920928955+0j))
         >>> # Another possible output: ('0', (0.7499998807907104+0j))
 
-        :param index: measure on which quantum line
-        :param with_prob: if true, theoretical probability is also returned
+        :param index: Measure on which quantum line
+        :param with_prob: If true, theoretical probability is also returned
         :return:
         :rtype: Tuple[str, float]
         """
@@ -1162,9 +1171,9 @@ class Circuit:
     ) -> Tuple[Tensor, Tensor]:
         """
 
-        :param index: measure on which quantum line
+        :param index: Measure on which quantum line.
         :type index: int
-        :param with_prob: if true, theoretical probability is also returned
+        :param with_prob: If true, theoretical probability is also returned.
         :type with_prob: bool, optional
         :return:
         :rtype: Tuple[Tensor, Tensor]
@@ -1213,7 +1222,7 @@ class Circuit:
         """
         Reference: arXiv:1201.3974.
 
-        :return: sampled bit string and the corresponding theoretical probability
+        :return: Sampled bit string and the corresponding theoretical probability.
         :rtype: Tuple[str, float]
         """
         return self.measure_jit(*[i for i in range(self._nqubits)], with_prob=True)
@@ -1261,10 +1270,10 @@ class Circuit:
         >>> c.expectation((tc.gates.z(), [0]))
         array(0.+0.j, dtype=complex64)
 
-        :param ops: operator and its position on the circuit,
+        :param ops: Operator and its position on the circuit,
             eg. ``(tc.gates.z(), [1, ]), (tc.gates.x(), [2, ])`` is for operator :math:`Z_1X_2`
         :type ops: Tuple[tn.Node, List[int]]
-        :param reuse: if True, then the wavefunction tensor is cached for further expectation evaluation,
+        :param reuse: If True, then the wavefunction tensor is cached for further expectation evaluation,
             defaults to be true
         :type reuse: bool, optional
         :raises ValueError: "Cannot measure two operators in one index"
@@ -1401,6 +1410,7 @@ def expectation(
     :return: [description]
     :rtype: Tensor
     """
+    # TODO: incomplete docstring
     if bra is None:
         bra = ket
     if isinstance(ket, QuOperator):
