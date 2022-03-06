@@ -57,9 +57,9 @@ class Circuit:
         :param nqubits: The number of qubits in the circuit.
         :type nqubits: int
         :param inputs: If not None, the initial state of the circuit is taken as ``inputs``
-            instead of :math:`\\vert 0\\rangle^n` qubits, defaults to None
+            instead of :math:`\\vert 0\\rangle^n` qubits, defaults to None.
         :type inputs: Optional[Tensor], optional
-        :param mps_inputs: (Nodes, dangling Edges) for a MPS like initial wavefunction
+        :param mps_inputs: (Nodes, dangling Edges) for a MPS like initial wavefunction.
         :type inputs: Optional[Tuple[Sequence[Gate], Sequence[Edge]]], optional
         :param split: dict if two qubit gate is ready for split, including parameters for at least one of
             ``max_singular_values`` and ``max_truncation_err``.
@@ -150,7 +150,7 @@ class Circuit:
         >>> c3.wavefunction()
         array([1.+0.j, 0.+0.j, 0.+0.j, 0.+0.j], dtype=complex64)
 
-        :param mps_inputs: (Nodes, dangling Edges) for a MPS like initial wavefunction
+        :param mps_inputs: (Nodes, dangling Edges) for a MPS like initial wavefunction.
         :type mps_inputs: Tuple[Sequence[Gate], Sequence[Edge]]
         """
         mps_nodes = mps_inputs.nodes
@@ -247,7 +247,7 @@ class Circuit:
 
             :param index: Qubit number than the gate applies on.
             :type index: int.
-            :param vars: Parameters for the gate
+            :param vars: Parameters for the gate.
             :type vars: float.
             """ % (
                 g
@@ -275,7 +275,7 @@ class Circuit:
 
             :param index: Qubit number than the gate applies on.
             :type index: int.
-            :param vars: Parameters for the gate
+            :param vars: Parameters for the gate.
             :type vars: float.
             """ % (
                 g
@@ -634,7 +634,7 @@ class Circuit:
 
     def append_from_qir(self, qir: List[Dict[str, Any]]) -> None:
         """
-        Apply the ciurict in form of quantum intermediate representation to the current cirucit.
+        Apply the ciurict in form of quantum intermediate representation after the current cirucit.
 
         :Example:
 
@@ -651,7 +651,7 @@ class Circuit:
         [{'gatef': h, 'gate': Gate(...), 'index': (0,), 'name': 'h', 'split': None, 'mpo': False},
          {'gatef': cnot, 'gate': Gate(...), 'index': (0, 1), 'name': 'cnot', 'split': None, 'mpo': False}]
 
-        :param qir: The quantum intermediate representation
+        :param qir: The quantum intermediate representation.
         :type qir: List[Dict[str, Any]]
         """
         self._apply_qir(self, qir)
@@ -661,9 +661,9 @@ class Circuit:
         Middle measurement in z-basis on the circuit, note the wavefunction output is not normalized
         with ``mid_measurement`` involved, one should normalize the state manually if needed.
 
-        :param index: The index of qubit that the Z direction postselection applied on
+        :param index: The index of qubit that the Z direction postselection applied on.
         :type index: int
-        :param keep: 0 for spin up, 1 for spin down, defaults to be 0
+        :param keep: 0 for spin up, 1 for spin down, defaults to be 0.
         :type keep: int, optional
         """
         # normalization not guaranteed
@@ -985,7 +985,7 @@ class Circuit:
 
         :param kraus: A list of ``tn.Node`` for Kraus operators.
         :type kraus: Sequence[Gate]
-        :param index: The qubits index that Kraus channel is applied on
+        :param index: The qubits index that Kraus channel is applied on.
         :type index: int
         :param status: Random tensor between 0 or 1, defaults to be None,
             the random number will be generated automatically
@@ -1123,8 +1123,8 @@ class Circuit:
         ('1', (0.25000011920928955+0j))
         >>> # Another possible output: ('0', (0.7499998807907104+0j))
 
-        :param index: Measure on which quantum line
-        :param with_prob: If true, theoretical probability is also returned
+        :param index: Measure on which quantum line.
+        :param with_prob: If true, theoretical probability is also returned.
         :return:
         :rtype: Tuple[str, float]
         """
@@ -1175,9 +1175,10 @@ class Circuit:
         :type index: int
         :param with_prob: If true, theoretical probability is also returned.
         :type with_prob: bool, optional
-        :return:
+        :return: [description]
         :rtype: Tuple[Tensor, Tensor]
         """
+        # TODO: incomplete description
         # finally jit compatible ! and much faster than unjit version ! (100x)
         sample: List[Tensor] = []
         p = 1.0
@@ -1271,10 +1272,10 @@ class Circuit:
         array(0.+0.j, dtype=complex64)
 
         :param ops: Operator and its position on the circuit,
-            eg. ``(tc.gates.z(), [1, ]), (tc.gates.x(), [2, ])`` is for operator :math:`Z_1X_2`
+            eg. ``(tc.gates.z(), [1, ]), (tc.gates.x(), [2, ])`` is for operator :math:`Z_1X_2`.
         :type ops: Tuple[tn.Node, List[int]]
         :param reuse: If True, then the wavefunction tensor is cached for further expectation evaluation,
-            defaults to be true
+            defaults to be true.
         :type reuse: bool, optional
         :raises ValueError: "Cannot measure two operators in one index"
         :return: Tensor with one element
