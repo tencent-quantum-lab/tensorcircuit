@@ -6,6 +6,12 @@
 
 - add sigmoid method on backends
 
+- add MPO expectation template function for MPO evaluation on circuit
+
+### Fixed
+
+- fix the bug in QuOperator.from_local_tensor where the dtype should always be in numpy context
+
 ## 0.0.220301
 
 ### Added

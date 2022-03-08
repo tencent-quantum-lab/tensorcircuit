@@ -7,6 +7,7 @@ from typing import Any
 
 from ..circuit import Circuit
 from ..cons import backend, dtypestr
+from ..quantum import QuOperator
 from .. import gates as G
 
 Tensor = Any
@@ -96,6 +97,12 @@ def sparse_expectation(c: Circuit, hamiltonian: Tensor) -> Tensor:
     tmp = backend.sparse_dense_matmul(hamiltonian, state)
     expt = backend.adjoint(state) @ tmp
     return backend.real(expt)[0, 0]
+
+
+def mpo_expectation(c: Circuit, mpo: QuOperator) -> Tensor:
+    mps = c.get_quvector()
+    e = (mps.adjoint() @ mpo @ mps).eval_matrix()
+    return backend.real(e)[0, 0]
 
 
 def heisenberg_measurements(
