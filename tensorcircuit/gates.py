@@ -94,6 +94,19 @@ _toffoli_matrix = np.array(
     ]
 )
 
+_fredkin_matrix = np.array(
+    [
+        [1.0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1.0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1.0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1.0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1.0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 1.0, 0],
+        [0, 0, 0, 0, 0, 1.0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 1.0],
+    ]
+)
+
 
 def __rmul__(self: tn.Node, lvalue: Union[float, complex]) -> "Gate":
     newg = Gate(lvalue * self.tensor)
@@ -748,6 +761,8 @@ def meta_vgate() -> None:
         setattr(thismodule, f, GateVF(getattr(thismodule, f + "_gate"), f))
     for f in ["crx", "cry", "crz"]:
         setattr(thismodule, f, getattr(thismodule, f[1:]).controlled())
+    for f in ["ox", "oy", "oz", "orx", "ory", "orz"]:
+        setattr(thismodule, f, getattr(thismodule, f[1:]).ocontrolled())
     for f in ["sd", "td"]:
         setattr(thismodule, f, getattr(thismodule, f[:-1]).adjoint())
     for f in ["multicontrol", "mpo"]:  # mpo type gate
