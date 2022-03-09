@@ -12,6 +12,8 @@
 
 - fix the bug in QuOperator.from_local_tensor where the dtype should always be in numpy context
 
+- fix MPO copy when apply MPO gate on the circuit
+
 ## 0.0.220301
 
 ### Added
