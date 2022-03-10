@@ -10,6 +10,8 @@
 
 - add ``operator_expectation`` in templates.measurements for a unified expectation interface
 
+- add ``templates.chems`` module for interface between tc and openfermion on quantum chemistry related tasks
+
 ### Fixed
 
 - fix the bug in QuOperator.from_local_tensor where the dtype should always be in numpy context

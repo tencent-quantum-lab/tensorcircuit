@@ -48,6 +48,7 @@ modules = [
     "tensorcircuit.templates.blocks",
     "tensorcircuit.templates.graphs",
     "tensorcircuit.templates.dataset",
+    "tensorcircuit.templates.chems",
 ]
 
 thismodule = sys.modules[__name__]
