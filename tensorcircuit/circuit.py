@@ -437,11 +437,11 @@ class Circuit:
                 self._nodes.append(gate)
 
         else:  # gate in MPO format
-            self._nodes += gate.nodes
+            gatec = gate.copy()
+            self._nodes += gatec.nodes
             for i, ind in enumerate(index):
-
-                gate.in_edges[i] ^ self._front[ind]
-                self._front[ind] = gate.out_edges[i]
+                gatec.in_edges[i] ^ self._front[ind]
+                self._front[ind] = gatec.out_edges[i]
 
         self.state_tensor = None  # refresh the state cache
         # if name:

@@ -17,8 +17,14 @@ setuptools.setup(
     url="https://github.com/refraction-ray/tensorcircuit",
     packages=setuptools.find_packages(),
     include_package_data=True,
-    install_requires=["numpy", "scipy", "tensornetwork", "networkx"],
-    tests_require=["pytest"],
+    install_requires=["numpy", "scipy", "tensornetwork", "networkx", "tensorflow"],
+    tests_require=[
+        "pytest",
+        "pytest-lazy-fixture",
+        "pytest-cov",
+        "pytest-benchmark",
+        "pytest-xdist",
+    ],
     classifiers=(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache",

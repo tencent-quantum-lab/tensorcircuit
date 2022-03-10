@@ -35,7 +35,7 @@ try:
 except ImportError:
     pass
 
-from .cons import backend, contractor, dtypestr
+from .cons import backend, contractor, dtypestr, npdtype
 from .backends import get_backend  # type: ignore
 
 Tensor = Any
@@ -377,9 +377,7 @@ class QuOperator:
         out_edges = [localn[i] for i in out_axes]
         in_edges = [localn[i] for i in in_axes]  # type: ignore
         id_nodes = [
-            CopyNode(2, d, dtype=tensor.dtype)
-            for i, d in enumerate(space)
-            if i not in loc
+            CopyNode(2, d, dtype=npdtype) for i, d in enumerate(space) if i not in loc
         ]
         for n in id_nodes:
             out_edges.append(n[0])
@@ -961,7 +959,7 @@ def generate_local_hamiltonian(
 
 try:
     compiled_jit = partial(get_backend("tensorflow").jit, jit_compile=True)
-
+    # TODO(@refraction-ray): at least make the final returned sparse tensor backend agnostic?
     def heisenberg_hamiltonian(
         g: Graph,
         hzz: float = 1.0,

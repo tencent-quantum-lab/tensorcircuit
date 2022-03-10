@@ -52,6 +52,7 @@ def paulistring(term: Tuple[int, ...]) -> Array:
 
 
 def construct_matrix(ham: List[List[float]]) -> Array:
+    # deprecated
     # only suitable for matrix of small Hilbert dimensions, say <14 qubits
     h = 0.0j
     for term in ham:
@@ -85,6 +86,7 @@ _generate_local_hamiltonian = tf.function(generate_local_hamiltonian)
 
 
 def construct_matrix_v2(ham: List[List[float]], dtype: Any = tf.complex128) -> Tensor:
+    # deprecated
     s = len(ham[0]) - 1
     h = tf.zeros([2 ** s, 2 ** s], dtype=dtype)
     for term in tqdm(ham, desc="Hamiltonian building"):
@@ -131,6 +133,12 @@ def vqe_energy_shortcut(c: Circuit, h: Tensor) -> Tensor:
     w = c.wavefunction()
     e = (tf.math.conj(tf.reshape(w, [1, -1])) @ h @ tf.reshape(w, [-1, 1]))[0, 0]
     return e
+
+
+def vqe_energy_shortcut_sparse(c: Circuit, h: Tensor) -> Tensor:
+    from ..templates.measurememts import sparse_expectation
+
+    return sparse_expectation(c, h)
 
 
 class Linear(tf.keras.layers.Layer):  # type: ignore

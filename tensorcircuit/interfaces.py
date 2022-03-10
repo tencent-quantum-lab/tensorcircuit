@@ -129,6 +129,9 @@ def torch_interface(fun: Callable[..., Any], jit: bool = False) -> Callable[...,
     return Fun.apply  # type: ignore
 
 
+# TODO(@refraction-ray): add gradient free interface
+
+
 def scipy_optimize_interface(
     fun: Callable[..., Any], shape: Optional[Tuple[int, ...]] = None, jit: bool = True
 ) -> Callable[..., Any]:

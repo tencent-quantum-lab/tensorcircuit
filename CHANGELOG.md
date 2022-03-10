@@ -6,6 +6,18 @@
 
 - add sigmoid method on backends
 
+- add MPO expectation template function for MPO evaluation on circuit
+
+- add ``operator_expectation`` in templates.measurements for a unified expectation interface
+
+- add ``templates.chems`` module for interface between tc and openfermion on quantum chemistry related tasks
+
+### Fixed
+
+- fix the bug in QuOperator.from_local_tensor where the dtype should always be in numpy context
+
+- fix MPO copy when apply MPO gate on the circuit
+
 ## 0.0.220301
 
 ### Added
