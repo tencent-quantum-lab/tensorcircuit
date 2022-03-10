@@ -1,10 +1,15 @@
-from qiskit import QuantumCircuit
-import qiskit.quantum_info as qi
-import numpy as np
+"""
+Circuit object translation in different packages
+"""
+
 from typing import Any, Dict, List
 
+import numpy as np
+from qiskit import QuantumCircuit
+import qiskit.quantum_info as qi
 
-def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> "QuantumCircuit":
+
+def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
     qiskit_circ = QuantumCircuit(n)
     for gate_info in qir:
         index = gate_info["index"]

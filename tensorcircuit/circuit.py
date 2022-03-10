@@ -41,7 +41,22 @@ class Circuit:
         + ["cnot", "cz", "swap", "cy", "iswap", "ox", "oy", "oz"]
         + ["toffoli", "fredkin"]
     )
-    vgates = ["r", "cr", "rx", "ry", "rz", "crx", "cry", "crz", "orx", "ory", "orz", "any", "exp", "exp1"]
+    vgates = [
+        "r",
+        "cr",
+        "rx",
+        "ry",
+        "rz",
+        "crx",
+        "cry",
+        "crz",
+        "orx",
+        "ory",
+        "orz",
+        "any",
+        "exp",
+        "exp1",
+    ]
     mpogates = ["multicontrol", "mpo"]
 
     def __init__(
@@ -1289,6 +1304,12 @@ class Circuit:
         # self._nodes = nodes1
         nodes1 = self.expectation_before(*ops, reuse=reuse)
         return contractor(nodes1).tensor
+
+    def to_qiskit(self) -> Any:
+        from .translation import qir2qiskit
+
+        qir = self.to_qir()
+        return qir2qiskit(qir, n=self._nqubits)
 
     def vis_tex(self, **kws: Any) -> str:
         return qir2tex(self._qir, self._nqubits, **kws)  # type: ignore
