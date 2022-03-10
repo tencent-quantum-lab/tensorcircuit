@@ -82,6 +82,27 @@ def any_measurements(c: Circuit, structures: Tensor, onehot: bool = False) -> Te
 parameterized_measurements = any_measurements
 
 
+def operator_expectation(c: Circuit, hamiltonian: Any) -> Tensor:
+    """
+    Evaluate Hamiltonian expectation where ``hamiltonian`` can be dense matrix, sparse matrix or MPO.
+
+    :param c: The circuit whose output state is used to evaluate the expectation
+    :type c: Circuit
+    :param hamiltonian: Hamiltonian matrix in COO_sparse_matrix form
+    :type hamiltonian: Tensor
+    :return: a real and scalar tensor of shape [] as the expectation value
+    :rtype: Tensor
+    """
+    if isinstance(hamiltonian, QuOperator):
+        return mpo_expectation(c, hamiltonian)
+    elif backend.is_sparse(hamiltonian):
+        return sparse_expectation(c, hamiltonian)
+    else:
+        w = c.state(form="ket")
+        e = (backend.adjoint(w) @ hamiltonian @ w)[0, 0]
+        return backend.real(e)
+
+
 def sparse_expectation(c: Circuit, hamiltonian: Tensor) -> Tensor:
     """
     Evaluate Hamiltonian expectation where ``hamiltonian`` is kept in sparse matrix form to save space
@@ -100,6 +121,17 @@ def sparse_expectation(c: Circuit, hamiltonian: Tensor) -> Tensor:
 
 
 def mpo_expectation(c: Circuit, mpo: QuOperator) -> Tensor:
+    """
+    Evaluate expectation of operator ``mpo`` defined in ``QuOperator`` MPO format
+    with the output quantum state from circuit ``c``.
+
+    :param c: The circuit for the output state
+    :type c: Circuit
+    :param mpo: MPO operator
+    :type mpo: QuOperator
+    :return: a real and scalar tensor of shape [] as the expectation value
+    :rtype: Tensor
+    """
     mps = c.get_quvector()
     e = (mps.adjoint() @ mpo @ mps).eval_matrix()
     return backend.real(e)[0, 0]

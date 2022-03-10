@@ -8,6 +8,8 @@
 
 - add MPO expectation template function for MPO evaluation on circuit
 
+- add ``operator_expectation`` in templates.measurements for a unified expectation interface
+
 ### Fixed
 
 - fix the bug in QuOperator.from_local_tensor where the dtype should always be in numpy context

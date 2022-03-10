@@ -129,3 +129,30 @@ def test_mpo_measurement(backend):
 
     np.testing.assert_allclose(v, 0.84147, atol=1e-4)
     np.testing.assert_allclose(g, 0.54032, atol=1e-4)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_operator_measurement(backend):
+    mpo = tc.quantum.QuOperator.from_local_tensor(
+        tc.array_to_tensor(tc.gates._x_matrix), [2, 2], [0]
+    )
+    dense = tc.array_to_tensor(np.kron(tc.gates._x_matrix, np.eye(2)))
+    sparse = tc.quantum.PauliString2COO([1, 0])
+    if tc.backend.name == "jax":
+        sparse = tc.backend.coo_sparse_matrix(
+            sparse.indices, sparse.values, sparse.shape
+        )
+
+    for h in [dense, sparse, mpo]:
+
+        def f(theta):
+            c = tc.Circuit(2)
+            c.ry(0, theta=theta)
+            c.H(1)
+            e = tc.templates.measurements.operator_expectation(c, h)
+            return e
+
+        v, g = tc.backend.jit(tc.backend.value_and_grad(f))(tc.backend.ones([]))
+
+        np.testing.assert_allclose(v, 0.84147, atol=1e-4)
+        np.testing.assert_allclose(g, 0.54032, atol=1e-4)

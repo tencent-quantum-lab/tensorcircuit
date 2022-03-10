@@ -959,7 +959,7 @@ def generate_local_hamiltonian(
 
 try:
     compiled_jit = partial(get_backend("tensorflow").jit, jit_compile=True)
-
+    # TODO(@refraction-ray): at least make the final returned sparse tensor backend agnostic?
     def heisenberg_hamiltonian(
         g: Graph,
         hzz: float = 1.0,
