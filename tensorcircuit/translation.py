@@ -1,9 +1,10 @@
 from qiskit import QuantumCircuit
 import qiskit.quantum_info as qi
 import numpy as np
+from typing import Any, Dict, List
 
 
-def qir2qiskit(qir, n):
+def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> "QuantumCircuit":
     qiskit_circ = QuantumCircuit(n)
     for gate_info in qir:
         index = gate_info["index"]
@@ -52,7 +53,7 @@ def qir2qiskit(qir, n):
             getattr(qiskit_circ, "c" + gate_name[1:])(
                 parameters["theta"], *index, ctrl_state=0
             )
-        elif gate_name == "exp":
+        elif gate_name in ["exp", "exp1"]:
             unitary = parameters["unitary"]
             theta = parameters["theta"]
             exp_op = qi.Operator(unitary)
@@ -60,14 +61,7 @@ def qir2qiskit(qir, n):
             qiskit_circ.hamiltonian(
                 exp_op, time=theta, qubits=index_reversed, label=qis_name
             )
-        elif gate_name == "exp1":
-            unitary = parameters["unitary"]
-            theta = parameters["theta"]
-            exp_op = qi.Operator(
-                np.cos(theta) * np.eye(2 ** len(index)) - 1.0j * np.sin(theta) * unitary
-            )
-            qiskit_circ.unitary(exp_op, index[::-1], label=qis_name)
-        elif gate_name == "multicontrol":
+        elif gate_name in ["mpo", "multicontrol"]:
             qop = qi.Operator(
                 np.reshape(
                     gate_info["gatef"](**parameters).eval_matrix(),
@@ -75,8 +69,6 @@ def qir2qiskit(qir, n):
                 )
             )
             qiskit_circ.unitary(qop, index[::-1], label=qis_name)
-        elif gate_name == "mpo":
-            print("mpo gate not support now")   # gate_info["gatef"](**parameters).eval_matrix() fails
         else:  # r cr any gate
             qop = qi.Operator(
                 np.reshape(

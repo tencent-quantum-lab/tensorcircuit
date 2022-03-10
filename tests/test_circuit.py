@@ -13,6 +13,7 @@ modulepath = os.path.dirname(os.path.dirname(thisfile))
 
 sys.path.insert(0, modulepath)
 import tensorcircuit as tc
+from tensorcircuit.translation import *
 
 # TODO(@refraction-ray):replace all assert np.allclose with np.testing.assert_all_close !
 
@@ -743,3 +744,71 @@ def test_apply_multicontrol_gate():
     c.X(0)
     c.multicontrol(0, 2, 1, ctrl=[0, 1], unitary=tc.gates._x_matrix)
     np.testing.assert_allclose(c.expectation([tc.gates.z(), [1]]), 1, atol=1e-5)
+
+
+def test_qir2qiskit():
+    n = 6
+    c = tc.Circuit(n, inputs=np.eye(2 ** n))
+    for i in range(n):
+        c.H(i)
+    zz = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
+    for i in range(n):
+        c.exp(i, (i + 1) % n, theta=np.random.uniform(), unitary=zz, name="zz")
+    c.exp1(1, 3, theta=0.2, unitary=zz, name="zz")
+    c.fredkin(1, 2, 3)
+    c.swap(0, 1)
+    c.iswap(0, 1)
+    c.toffoli(0, 1, 2)
+    c.s(1)
+    c.t(1)
+    c.sd(2)
+    c.td(2)
+    c.x(3)
+    c.y(3)
+    c.z(3)
+    c.wroot(4)
+    c.cnot(0, 1)
+    c.cy(0, 1)
+    c.cz(0, 1)
+    c.oy(3, 4)
+    c.oz(3, 4)
+    c.ox(3, 4)
+    c.rx(1, theta=np.random.uniform())
+    c.r(5, theta=np.random.uniform())
+    c.cr(
+        1,
+        2,
+        theta=np.random.uniform(),
+        alpha=np.random.uniform(),
+        phi=np.random.uniform(),
+    )
+    c.ry(1, theta=np.random.uniform())
+    c.rz(1, theta=np.random.uniform())
+    c.crz(2, 3, theta=np.random.uniform())
+    c.crx(5, 3, theta=np.random.uniform())
+    c.cry(1, 3, theta=np.random.uniform())
+    c.orx(5, 3, theta=np.random.uniform())
+    c.ory(5, 3, theta=np.random.uniform())
+    c.orz(5, 3, theta=np.random.uniform())
+    c.any(1, 3, unitary=np.reshape(zz, [2, 2, 2, 2]))
+    gate = tc.gates.multicontrol_gate(tc.gates._x_matrix, ctrl=[1, 0])
+    c.mpo(0, 1, 2, mpo=gate.copy())
+    c.multicontrol(0, 2, 1, ctrl=[0, 1], unitary=tc.gates._x_matrix, name="x")
+
+    tc_unitary = c.wavefunction()
+    tc_unitary = np.reshape(tc_unitary, [2 ** n, 2 ** n])
+
+    qisc = qir2qiskit(c.to_qir(), n)
+    qis_unitary = qi.Operator(qisc)
+    qis_unitary = np.reshape(qis_unitary, [2 ** n, 2 ** n])
+
+    p_mat = np.zeros([2 ** n, 2 ** n])
+    for i in range(2 ** n):
+        bit = i
+        revs_i = 0
+        for j in range(n):
+            if bit & 0b1:
+                revs_i += 1 << (n - j - 1)
+            bit = bit >> 1
+        p_mat[i, revs_i] = 1
+    np.testing.assert_allclose(p_mat @ tc_unitary @ p_mat, qis_unitary, atol=1e-5)
