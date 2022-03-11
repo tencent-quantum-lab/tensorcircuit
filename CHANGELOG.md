@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- add gradient free scipy interface for optimization
+
 ## 0.0.220311
 
 ### Added

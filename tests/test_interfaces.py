@@ -105,7 +105,7 @@ def test_torch_interface(backend):
     np.testing.assert_allclose(pg, 2 * np.ones([2]).astype(np.complex64), atol=1e-5)
 
 
-@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_scipy_interface(backend):
     n = 3
 
@@ -124,8 +124,13 @@ def test_scipy_interface(backend):
         )
         return tc.backend.real(loss)
 
-    f_scipy = tc.interfaces.scipy_optimize_interface(f, shape=[2, n])
-    r = optimize.minimize(f_scipy, np.zeros([2 * n]), method="L-BFGS-B", jac=True)
-    # L-BFGS-B may has issue with float32
-    # see: https://github.com/scipy/scipy/issues/5832
+    if tc.backend.name != "numpy":
+        f_scipy = tc.interfaces.scipy_optimize_interface(f, shape=[2, n])
+        r = optimize.minimize(f_scipy, np.zeros([2 * n]), method="L-BFGS-B", jac=True)
+        # L-BFGS-B may has issue with float32
+        # see: https://github.com/scipy/scipy/issues/5832
+        np.testing.assert_allclose(r["fun"], -1.0, atol=1e-5)
+
+    f_scipy = tc.interfaces.scipy_optimize_interface(f, shape=[2, n], gradient=False)
+    r = optimize.minimize(f_scipy, np.zeros([2 * n]), method="COBYLA")
     np.testing.assert_allclose(r["fun"], -1.0, atol=1e-5)
