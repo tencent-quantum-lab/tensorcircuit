@@ -72,15 +72,12 @@ print(g(theta))
 
 For contribution guidelines and notes, see [CONTRIBUTING](/CONTRIBUTING.md).
 
-### Cautions
-
-Please open issues or PRs.
-
-Keep the codebase private!
 
 ### Install
 
-For development workflow, we suggest to first configure a good conda environment. The versions of dependecy package may vary in terms of development requirements. The minimum requirement is the [TensorNetwork](https://github.com/google/TensorNetwork) package (pip install suggested).
+For users, ``pip install tensorcircuit`` is enough. (Extra package installation may be required for some features.)
+
+For developers, we suggest to first configure a good conda environment. The versions of dependence packages may vary in terms of development requirements. The minimum requirement is the [TensorNetwork](https://github.com/google/TensorNetwork) package. [Dockerfiles](/docker) may also be helpful for building a good development enviroment.
 
 ## Researches and applications
 

@@ -154,7 +154,7 @@ We utilize a python script to generate/refresh all API docs rst files under /doc
 
 .. code-block:: bash
 
-    cd docs
+    cd docs/source
     python generate_rst.py
 
 **i18n:**

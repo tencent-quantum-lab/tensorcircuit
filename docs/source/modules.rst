@@ -1,4 +1,4 @@
-TensorCircuit
+tensorcircuit
 ==================================================
 .. toctree::
     ./api/applications.rst
@@ -17,5 +17,6 @@ TensorCircuit
     ./api/quantum.rst
     ./api/simplify.rst
     ./api/templates.rst
+    ./api/translation.rst
     ./api/utils.rst
     ./api/vis.rst

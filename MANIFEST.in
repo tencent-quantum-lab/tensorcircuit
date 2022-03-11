@@ -1,5 +1,8 @@
 include README.md
-include doc/*
+include README_cn.md
+include HISTORY.md
 include LICENSE
+include CHANGELOG.md
+include docs/*
 include examples/*
 include tests/*
