@@ -12,11 +12,17 @@
 
 - add ``templates.chems`` module for interface between tc and openfermion on quantum chemistry related tasks
 
+- add tc.Circuit to Qiskit QuantumCircuit transformation
+
 ### Fixed
 
 - fix the bug in QuOperator.from_local_tensor where the dtype should always be in numpy context
 
 - fix MPO copy when apply MPO gate on the circuit
+
+### Changed
+
+- allow multi-qubit gate in multicontrol gate
 
 ## 0.0.220301
 

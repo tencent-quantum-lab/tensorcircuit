@@ -13,7 +13,6 @@ modulepath = os.path.dirname(os.path.dirname(thisfile))
 
 sys.path.insert(0, modulepath)
 import tensorcircuit as tc
-from tensorcircuit.translation import *
 
 # TODO(@refraction-ray):replace all assert np.allclose with np.testing.assert_all_close !
 
@@ -744,9 +743,19 @@ def test_apply_multicontrol_gate():
     c.X(0)
     c.multicontrol(0, 2, 1, ctrl=[0, 1], unitary=tc.gates._x_matrix)
     np.testing.assert_allclose(c.expectation([tc.gates.z(), [1]]), 1, atol=1e-5)
+    c = tc.Circuit(4)
+    c.X(0)
+    c.X(2)
+    c.multicontrol(0, 1, 2, 3, ctrl=[1, 0], unitary=tc.gates.swap())
+    np.testing.assert_allclose(c.expectation([tc.gates.z(), [3]]), -1, atol=1e-5)
 
 
 def test_qir2qiskit():
+    try:
+        import qiskit.quantum_info as qi
+    except ImportError:
+        pytest.skip("qiskit is not installed")
+
     n = 6
     c = tc.Circuit(n, inputs=np.eye(2 ** n))
     for i in range(n):
@@ -798,7 +807,7 @@ def test_qir2qiskit():
     tc_unitary = c.wavefunction()
     tc_unitary = np.reshape(tc_unitary, [2 ** n, 2 ** n])
 
-    qisc = qir2qiskit(c.to_qir(), n)
+    qisc = c.to_qiskit()
     qis_unitary = qi.Operator(qisc)
     qis_unitary = np.reshape(qis_unitary, [2 ** n, 2 ** n])
 

@@ -318,6 +318,8 @@ TensorCircuit has its own class for MPS and MPO originally defined in TensorNetw
 
 The QuVector forms a wavefunction w, which can also be fed into Circuit as the inputs state as ``c=tc.Circuit(n, mps_inputs=w)``.
 
+- MPS as input state for circuit
+
 For example, a quick way to calculate the wavefunction overlap without explicitly computing the state amplitude is given as below:
 
 .. code-block:: python
@@ -335,6 +337,33 @@ For example, a quick way to calculate the wavefunction overlap without explicitl
     >>> (q2@q).eval_matrix()
     array([[0.9999998+0.j]], dtype=complex64)
 
+- MPO as the gate on circuit
+
+Instead of common quantum gate in matrix/node format, we can directly apply gate in MPO/QuOperator format.
+
+.. code-block:: python
+
+    >>> x0, x1 = tc.gates.x(), tc.gates.x()
+    >>> mpo = tc.quantum.QuOperator([x0[0], x1[0]], [x0[1], x1[1]])
+    >>> c = tc.Circuit(2)
+    >>> c.mpo(0, 1, mpo=mpo)
+    >>> c.state()
+    array([0.+0.j, 0.+0.j, 0.+0.j, 1.+0.j], dtype=complex64)
+
+The representative gate that defined in MPO format is ``multicontrol`` gate.
+
+- MPO as the operator for expectation evaluation on circuit
+
+We can also measure operator expectation on the circuit output state where the operator is in MPO/QuOperator format.
+
+.. code-block:: python
+
+    >>> z0, z1 = tc.gates.z(), tc.gates.z()
+    >>> mpo = tc.quantum.QuOperator([z0[0], z1[0]], [z0[1], z1[1]])
+    >>> c = tc.Circuit(2)
+    >>> c.X(0)
+    >>> tc.templates.measurements.mpo_expectation(c, mpo)
+    -1.0
 
 Interfaces
 -------------

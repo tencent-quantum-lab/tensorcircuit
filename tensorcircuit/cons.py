@@ -36,6 +36,7 @@ modules = [
     "tensorcircuit.interfaces",
     "tensorcircuit.experimental",
     "tensorcircuit.utils",
+    "tensorcircuit.translation",
     "tensorcircuit.backends",
     "tensorcircuit.backends.abstract_backend",
     "tensorcircuit.backends.backend_factory",

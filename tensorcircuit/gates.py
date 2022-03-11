@@ -712,10 +712,13 @@ exp1_gate = exponential_gate_unity
 
 
 def multicontrol_gate(unitary: Tensor, ctrl: Union[int, Sequence[int]] = 1) -> Operator:
+    if isinstance(unitary, tn.Node):
+        unitary = unitary.tensor
     unitary = backend.reshapem(unitary)
     rend = backend.stack(
         [backend.cast(unitary, dtypestr), backend.eye(backend.shape_tuple(unitary)[-1])]
     )
+    rend = backend.reshape2(rend)
     rn = tn.Node(rend)
     nodes = []
     if isinstance(ctrl, int):
@@ -754,9 +757,14 @@ def multicontrol_gate(unitary: Tensor, ctrl: Union[int, Sequence[int]] = 1) -> O
 
     from .quantum import QuOperator
 
+    l = int((len(nodes[-1].edges) - 1) / 2)
     gate = QuOperator(
-        [nodes[0][0]] + [n[1] for n in nodes[1:-1]] + [nodes[-1][1]],
-        [nodes[0][1]] + [n[2] for n in nodes[1:-1]] + [nodes[-1][2]],
+        [nodes[0][0]]
+        + [n[1] for n in nodes[1:-1]]
+        + [nodes[-1][i] for i in range(1, 1 + l)],
+        [nodes[0][1]]
+        + [n[2] for n in nodes[1:-1]]
+        + [nodes[-1][i] for i in range(1 + l, 1 + 2 * l)],
     )
 
     return gate
