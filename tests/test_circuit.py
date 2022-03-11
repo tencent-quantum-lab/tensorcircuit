@@ -743,6 +743,11 @@ def test_apply_multicontrol_gate():
     c.X(0)
     c.multicontrol(0, 2, 1, ctrl=[0, 1], unitary=tc.gates._x_matrix)
     np.testing.assert_allclose(c.expectation([tc.gates.z(), [1]]), 1, atol=1e-5)
+    c = tc.Circuit(4)
+    c.X(0)
+    c.X(2)
+    c.multicontrol(0, 1, 2, 3, ctrl=[1, 0], unitary=tc.gates.swap())
+    np.testing.assert_allclose(c.expectation([tc.gates.z(), [3]]), -1, atol=1e-5)
 
 
 def test_qir2qiskit():
