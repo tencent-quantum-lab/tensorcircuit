@@ -75,6 +75,19 @@ To compute expectation values for local observables, we have ``c.expectation([tc
 
 This expectation API is rather flexible, as one can measure an m on several qubits as ``c.expectation([m, [0, 1, 2]])``.
 
+We can also extract the unitary matrix underlying the whole circuit as follows:
+
+.. code-block:: python
+
+    >>> n = 2
+    >>> c = tc.Circuit(n, inputs=tc.backend.eye(2**n))
+    >>> c.X(1)
+    >>> tc.backend.reshapem(c.state())
+    array([[0.+0.j, 1.+0.j, 0.+0.j, 0.+0.j],
+        [1.+0.j, 0.+0.j, 0.+0.j, 0.+0.j],
+        [0.+0.j, 0.+0.j, 0.+0.j, 1.+0.j],
+        [0.+0.j, 0.+0.j, 1.+0.j, 0.+0.j]], dtype=complex64)
+
 **Circuit visualization:** 
 
 ``c.vis_tex()`` can generate tex code for circuit visualization based on LaTeX `quantikz <https://arxiv.org/abs/1809.03842>`__ package.

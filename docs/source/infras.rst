@@ -54,6 +54,8 @@ Overview of Modules
 
 - :py:mod:`tensorcircuit.vis`: Visualization code for circuit drawing.
 
+- :py:mod:`tensorcircuit.translation`: Translate circuit object to circuit object in other quantum packages.
+
 **Shortcuts and Templates for Circuit Manipulation:**
 
 - :py:mod:`tensorcircuit.templates`: provide handy shortcuts functions for expectation or circuit building patterns.
