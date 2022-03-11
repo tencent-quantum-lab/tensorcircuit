@@ -2,7 +2,7 @@ from qiskit import QuantumCircuit
 import qiskit.quantum_info as qi
 import numpy as np
 from typing import Any, Dict, List
-
+from . import gates
 
 def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> "QuantumCircuit":
     qiskit_circ = QuantumCircuit(n)
