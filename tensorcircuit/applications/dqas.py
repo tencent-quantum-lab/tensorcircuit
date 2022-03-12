@@ -428,7 +428,7 @@ def DQAS_search(
             cand_preset = get_preset(stp).numpy()
             cand_preset_repr = [repr_op(op_pool[f]) for f in cand_preset]
             print("best candidates so far:", cand_preset_repr)
-            # TODO: more general repr
+            # TODO(@referction-ray): more general repr
             if nnp.shape == stp.shape and verbose:
                 cand_weight = get_weights(nnp, stp).numpy()
                 print(
@@ -440,7 +440,8 @@ def DQAS_search(
                 history.append(history_func())
         if parallel_num > 0:
             pool.close()
-        return stp, nnp, history  # TODO: history list trackings
+        return stp, nnp, history
+        # TODO(@refraction-ray): history list trackings
     except KeyboardInterrupt:
         if parallel_num > 0:
             pool.close()

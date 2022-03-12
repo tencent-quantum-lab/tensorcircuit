@@ -47,7 +47,6 @@ logger = logging.getLogger(__name__)
 # https://github.com/google/TensorNetwork/blob/master/tensornetwork/quantum/quantum.py
 # For the reason of adoption instead of direct import: see https://github.com/google/TensorNetwork/issues/950
 
-# TODO(@refraction-ray): docstring to sphinx style in this file...
 
 # general conventions left (first) out, right (then) in
 
@@ -1110,7 +1109,7 @@ try:
         )
         for i in range(nterms):
             rsparse = tf.sparse.add(rsparse, PauliString2COO(ls[i], weight[i]))  # type: ignore
-            # TODO(@refraction-ray): very slow sparse.add?
+            # very slow sparse.add?
         return rsparse
 
     @compiled_jit
@@ -1276,14 +1275,14 @@ def reduced_density_matrix(
 
     :param state: The quantum state in form of Tensor or QuOperator.
     :type state: Union[Tensor, QuOperator]
-    :param cut: [description]
+    :param cut: the index list that is traced out, if cut is a int,
+        it indicates [0, cut] as the traced out region
     :type cut: Union[int, List[int]]
-    :param p: [description], default is None.
+    :param p: probability decoration, default is None.
     :type p: Optional[Tensor]
     :return: The reduced density matrix.
     :rtype: Union[Tensor, QuOperator]
     """
-    # TODO(@YHPeter): imcomplete docstring
     if isinstance(cut, list) or isinstance(cut, tuple) or isinstance(cut, set):
         traceout = list(cut)
     else:
@@ -1565,23 +1564,24 @@ def measurement_counts(
 
 def spin_by_basis(n: int, m: int, elements: Tuple[int, int] = (1, -1)) -> Tensor:
     """
-    _summary_
+    Generate all n-bitstrings as an array, each row is a bitstring basis.
+    Return m-th col.
 
     :Example:
 
     >>> qu.spin_by_basis(2, 1)
     array([ 1, -1,  1, -1])
 
-    :param n: _description_
+    :param n: length of a bitstring
     :type n: int
-    :param m: _description_
+    :param m: m<n,
     :type m: int
-    :param elements: _description_, default is (1, -1).
+    :param elements: the binary elements to generate, default is (1, -1).
     :type elements: Tuple[int, int], optional
-    :return: _description_
+    :return: The value for the m-th position in bitstring when going through
+        all bitstring basis.
     :rtype: Tensor
     """
-    # TODO(@YHPeter): imcomplete docstring
     s = backend.tile(
         backend.cast(
             backend.convert_to_tensor(np.array([[elements[0]], [elements[1]]])), "int32"
@@ -1593,24 +1593,24 @@ def spin_by_basis(n: int, m: int, elements: Tuple[int, int] = (1, -1)) -> Tensor
 
 def correlation_from_counts(index: Sequence[int], results: Tensor) -> Tensor:
     """
-    _summary_
+    Compute :math:`\prod_{i\in \\text{index}} s_i`,
+    where the probability for each bitstring is given as a vector ``results``.
 
     :Example:
 
-    >>> state = tc.array_to_tensor(np.array([0.6, 0.4, 0, 0]))
-    >>> qu.correlation_from_counts([0, 1], state)
+    >>> prob = tc.array_to_tensor(np.array([0.6, 0.4, 0, 0]))
+    >>> qu.correlation_from_counts([0, 1], prob)
     (0.20000002+0j)
-    >>> qu.correlation_from_counts([1], state)
+    >>> qu.correlation_from_counts([1], prob)
     (0.20000002+0j)
 
-    :param index: _description_
+    :param index: list of int, indicating the position in the bitstring
     :type index: Sequence[int]
-    :param results: _description_
+    :param results: probability vector of shape 2^n
     :type results: Tensor
     :return: Correlation expectation from measurement shots.
     :rtype: Tensor
     """
-    # TODO(@YHPeter): imcomplete docstring
     results = backend.reshape(results, [-1])
     n = int(np.log(results.shape[0]) / np.log(2))
     for i in index:
