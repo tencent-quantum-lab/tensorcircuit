@@ -103,11 +103,11 @@ def construct_matrix_v2(ham: List[List[float]], dtype: Any = tf.complex128) -> T
 
 def construct_matrix_v3(ham: List[List[float]], dtype: Any = tf.complex128) -> Tensor:
     from ..quantum import PauliStringSum2COO
-    from ..cons import backend
 
     sparsem = PauliStringSum2COO([h[1:] for h in ham], [h[0] for h in ham])  # type: ignore
-    densem = backend.to_dense(sparsem)
-    return tf.cast(densem, dtype)
+    return sparsem
+    # densem = backend.to_dense(sparsem)
+    # return tf.cast(densem, dtype)
 
 
 def vqe_energy(c: Circuit, h: List[List[float]], reuse: bool = True) -> Tensor:
@@ -130,15 +130,9 @@ def vqe_energy(c: Circuit, h: List[List[float]], reuse: bool = True) -> Tensor:
 
 
 def vqe_energy_shortcut(c: Circuit, h: Tensor) -> Tensor:
-    w = c.wavefunction()
-    e = (tf.math.conj(tf.reshape(w, [1, -1])) @ h @ tf.reshape(w, [-1, 1]))[0, 0]
-    return e
+    from ..templates.measurements import operator_expectation
 
-
-def vqe_energy_shortcut_sparse(c: Circuit, h: Tensor) -> Tensor:
-    from ..templates.measurememts import sparse_expectation
-
-    return sparse_expectation(c, h)
+    return operator_expectation(c, h)
 
 
 class Linear(tf.keras.layers.Layer):  # type: ignore
@@ -232,12 +226,13 @@ class VQNHE:
             circuit_params = {"epochs": 2, "stddev": 0.1}
         self.epochs = circuit_params.get("epochs", 2)
         self.circuit_stddev = circuit_params.get("stddev", 0.1)
+        self.channel = circuit_params.get("channel", 2)
 
         self.circuit_variable = tf.Variable(
             tf.random.normal(
                 mean=0.0,
                 stddev=self.circuit_stddev,
-                shape=[2 * self.epochs, self.n],
+                shape=[self.epochs, self.n, self.channel],
                 dtype=tf.float64,
             )
         )
@@ -245,11 +240,6 @@ class VQNHE:
         self.base = tf.constant(list(product(*[[0, 1] for _ in range(n)])))
         self.hamiltonian = hamiltonian
         self.shortcut = shortcut
-        if shortcut:
-            hmatrix = construct_matrix_v3(self.hamiltonian)
-            self.hop = hmatrix
-            # self.hop = tf.constant(hmatrix, dtype=tf.complex128)
-            # self.hop = G.any(hmatrix.copy().reshape([2 for _ in range(2 * n)]))
 
     def assign(
         self, c: Optional[List[Tensor]] = None, q: Optional[Tensor] = None
@@ -369,6 +359,8 @@ class VQNHE:
     ) -> Callable[[Tensor], Tensor]:
         if choose == "hea":
             return self.create_hea_circuit(**kws)
+        if choose == "hea2":
+            return self.create_hea2_circuit(**kws)
         if choose == "hn":
             return self.create_hn_circuit(**kws)
         raise ValueError("no such choose option: %s" % choose)
@@ -395,11 +387,35 @@ class VQNHE:
                     c.X(i)  # type: ignore
             for epoch in range(epochs):
                 for i in range(self.n):
-                    c.rx(i, theta=tf.cast(a[2 * epoch, i], dtype=dtype))  # type: ignore
+                    c.rx(i, theta=a[epoch, i, 0])  # type: ignore
                 for i in range(self.n):
-                    c.rz(i, theta=tf.cast(a[2 * epoch + 1, i], dtype=dtype))  # type: ignore
+                    c.rz(i, theta=a[epoch, i, 1])  # type: ignore
                 for i in range(self.n - 1):
                     c.cnot(i, (i + 1))  # type: ignore
+            return c
+
+        return circuit
+
+    def create_hea2_circuit(
+        self, epochs: int = 2, filled_qubit: Optional[List[int]] = None, **kws: Any
+    ) -> Callable[[Tensor], Tensor]:
+        if filled_qubit is None:
+            filled_qubit = [0]
+
+        def circuit(a: Tensor) -> Tensor:
+            c = Circuit(self.n)
+            if filled_qubit:
+                for i in filled_qubit:
+                    c.X(i)  # type: ignore
+            for epoch in range(epochs):
+                for i in range(self.n):
+                    c.rx(i, theta=a[epoch, i, 0])  # type: ignore
+                for i in range(self.n):
+                    c.rz(i, theta=a[epoch, i, 1])  # type: ignore
+                for i in range(self.n):
+                    c.rx(i, theta=a[epoch, i, 2])  # type: ignore
+                for i in range(self.n - 1):
+                    c.exp1(i, (i + 1), theta=a[epoch, i, 3], unitary=G._zz_matrix)  # type: ignore
             return c
 
         return circuit
@@ -426,7 +442,7 @@ class VQNHE:
             if not self.shortcut:
                 loss = tf.math.real(vqe_energy(c2, self.hamiltonian))
             else:
-                loss = tf.math.real(vqe_energy_shortcut(c2, self.hop))
+                loss = tf.math.real(vqe_energy_shortcut(c2, self.hamiltonian))
         grad = tape.gradient(loss, [cv, self.model.variables])
         for i, gr in enumerate(grad):
             if gr is None:
@@ -452,7 +468,7 @@ class VQNHE:
             if not self.shortcut:
                 loss = tf.math.real(vqe_energy(c, self.hamiltonian))
             else:
-                loss = tf.math.real(vqe_energy_shortcut(c, self.hop))
+                loss = tf.math.real(vqe_energy_shortcut(c, self.hamiltonian))
         grad = tape.gradient(loss, cv)
         return loss, grad
 
@@ -558,7 +574,7 @@ class VQNHE:
                     tf.random.normal(
                         mean=0.0,
                         stddev=self.circuit_stddev,
-                        shape=[2 * self.epochs, self.n],
+                        shape=[self.epochs, self.n, self.channel],
                         dtype=tf.float64,
                     )
                 )

@@ -6,6 +6,10 @@
 
 - add gradient free scipy interface for optimization
 
+### Changed
+
+- futher refactor VQNHE code in applications
+
 ## 0.0.220311
 
 ### Added

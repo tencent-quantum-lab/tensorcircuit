@@ -7,16 +7,18 @@ sys.path.insert(0, "../")
 import numpy as np
 
 import tensorcircuit as tc
-from tensorcircuit.applications.vqes import VQNHE, JointSchedule
+from tensorcircuit.applications.vqes import VQNHE, JointSchedule, construct_matrix_v3
 
 tc.set_backend("tensorflow")
 tc.set_dtype("complex128")
 
 h6h = np.load("./H6_hamiltonian.npy")  # reported in 0.99 A
+hamiltonian = construct_matrix_v3(h6h.tolist())
+
 
 vqeinstance = VQNHE(
     10,
-    h6h.tolist(),
+    hamiltonian,
     {"width": 16, "stddev": 0.001, "choose": "complex-rbm"},  # model parameter
     {"filled_qubit": [0, 1, 3, 4, 5, 6, 8, 9], "epochs": 2},  # circuit parameter
     shortcut=True,  # enable shortcut for full Hamiltonian matrix evaluation
