@@ -753,6 +753,7 @@ def test_apply_multicontrol_gate():
 def test_qir2qiskit():
     try:
         import qiskit.quantum_info as qi
+        from tensorcircuit.translation import perm_matrix
     except ImportError:
         pytest.skip("qiskit is not installed")
 
@@ -811,13 +812,63 @@ def test_qir2qiskit():
     qis_unitary = qi.Operator(qisc)
     qis_unitary = np.reshape(qis_unitary, [2 ** n, 2 ** n])
 
-    p_mat = np.zeros([2 ** n, 2 ** n])
-    for i in range(2 ** n):
-        bit = i
-        revs_i = 0
-        for j in range(n):
-            if bit & 0b1:
-                revs_i += 1 << (n - j - 1)
-            bit = bit >> 1
-        p_mat[i, revs_i] = 1
+    p_mat = perm_matrix(n)
+    np.testing.assert_allclose(p_mat @ tc_unitary @ p_mat, qis_unitary, atol=1e-5)
+
+
+def test_qiskit2tc():
+    try:
+        from qiskit import QuantumCircuit
+        import qiskit.quantum_info as qi
+        from qiskit.circuit.library.standard_gates import MCXGate, RXGate, SwapGate
+        from tensorcircuit.translation import qiskit2tc, perm_matrix
+    except ImportError:
+        pytest.skip("qiskit is not installed")
+    n = 6
+    qisc = QuantumCircuit(n)
+    for i in range(n):
+        qisc.h(i)
+    zz = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
+    exp_op = qi.Operator(zz)
+    for i in range(n):
+        qisc.hamiltonian(exp_op, time=np.random.uniform(), qubits=[i, (i + 1) % n])
+    qisc.fredkin(1, 2, 3)
+    qisc.cswap(1, 2, 3)
+    qisc.swap(0, 1)
+    qisc.iswap(0, 1)
+    qisc.toffoli(0, 1, 2)
+    qisc.s(1)
+    qisc.t(1)
+    qisc.sdg(2)
+    qisc.tdg(2)
+    qisc.x(3)
+    qisc.y(3)
+    qisc.z(3)
+    qisc.cnot(0, 1)
+    qisc.cy(0, 1)
+    qisc.cz(0, 1, ctrl_state=0)
+    qisc.cy(0, 1, ctrl_state=0)
+    qisc.cx(0, 1, ctrl_state=0)
+    qisc.rx(np.random.uniform(), 1)
+    qisc.ry(np.random.uniform(), 2)
+    qisc.rz(np.random.uniform(), 3)
+    qisc.crz(np.random.uniform(), 2, 3)
+    qisc.crz(np.random.uniform(), 2, 3)
+    qisc.crz(np.random.uniform(), 2, 3)
+    qisc.crz(np.random.uniform(), 2, 3, ctrl_state=0)
+    qisc.crz(np.random.uniform(), 2, 3, ctrl_state=0)
+    qisc.crz(np.random.uniform(), 2, 3, ctrl_state=0)
+    qisc.unitary(exp_op, [1, 3])
+    mcx_g = MCXGate(3, ctrl_state="010")
+    qisc.append(mcx_g, [0, 1, 2, 3])
+    qisc.ccx(0, 1, 2, ctrl_state="01")
+    CCCRX = SwapGate().control(2, ctrl_state="01")
+    qisc.append(CCCRX, [0, 1, 2, 3])
+
+    c = qiskit2tc(qisc.data, n, np.eye(2 ** n))
+    tc_unitary = c.wavefunction()
+    tc_unitary = np.reshape(tc_unitary, [2 ** n, 2 ** n])
+    qis_unitary = qi.Operator(qisc)
+    qis_unitary = np.reshape(qis_unitary, [2 ** n, 2 ** n])
+    p_mat = perm_matrix(n)
     np.testing.assert_allclose(p_mat @ tc_unitary @ p_mat, qis_unitary, atol=1e-5)
