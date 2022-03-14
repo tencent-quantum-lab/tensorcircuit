@@ -2,17 +2,19 @@
 Circuit object translation in different packages
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 from qiskit import QuantumCircuit
 import qiskit.quantum_info as qi
 
 from . import gates
-from . import Circuit
+from .circuit import Circuit
+
+Tensor = Any
 
 
-def perm_matrix(n: int) -> List[List[int]]:
+def perm_matrix(n: int) -> Tensor:
     p_mat = np.zeros([2 ** n, 2 ** n])
     for i in range(2 ** n):
         bit = i
@@ -106,9 +108,11 @@ def ctrl_str2ctrl_state(ctrl_str: str, nctrl: int) -> List[int]:
     return [0x1 & (ctrl_state_bin >> (i)) for i in range(nctrl)]
 
 
-def qiskit2tc(qcdata: List[List[Any]], n: int, inputs: List[float] = None) -> Any:
+def qiskit2tc(
+    qcdata: List[List[Any]], n: int, inputs: Optional[List[float]] = None
+) -> Any:
     if inputs is None:
-        tc_circuit = Circuit(n)
+        tc_circuit: Any = Circuit(n)
     else:
         tc_circuit = Circuit(n, inputs=inputs)
     for gate_info in qcdata:

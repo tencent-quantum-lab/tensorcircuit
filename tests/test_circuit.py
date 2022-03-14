@@ -820,7 +820,7 @@ def test_qiskit2tc():
     try:
         from qiskit import QuantumCircuit
         import qiskit.quantum_info as qi
-        from qiskit.circuit.library.standard_gates import MCXGate, RXGate, SwapGate
+        from qiskit.circuit.library.standard_gates import MCXGate, SwapGate
         from tensorcircuit.translation import qiskit2tc, perm_matrix
     except ImportError:
         pytest.skip("qiskit is not installed")
