@@ -753,6 +753,7 @@ def test_apply_multicontrol_gate():
 def test_qir2qiskit():
     try:
         import qiskit.quantum_info as qi
+        from tensorcircuit.translation import perm_matrix
     except ImportError:
         pytest.skip("qiskit is not installed")
 
@@ -811,22 +812,16 @@ def test_qir2qiskit():
     qis_unitary = qi.Operator(qisc)
     qis_unitary = np.reshape(qis_unitary, [2 ** n, 2 ** n])
 
-    p_mat = np.zeros([2 ** n, 2 ** n])
-    for i in range(2 ** n):
-        bit = i
-        revs_i = 0
-        for j in range(n):
-            if bit & 0b1:
-                revs_i += 1 << (n - j - 1)
-            bit = bit >> 1
-        p_mat[i, revs_i] = 1
+    p_mat = perm_matrix(n)
     np.testing.assert_allclose(p_mat @ tc_unitary @ p_mat, qis_unitary, atol=1e-5)
 
 
 def test_qiskit2tc():
     try:
+        from qiskit import QuantumCircuit
         import qiskit.quantum_info as qi
         from qiskit.circuit.library.standard_gates import MCXGate, RXGate, SwapGate
+        from tensorcircuit.translation import qiskit2tc, perm_matrix
     except ImportError:
         pytest.skip("qiskit is not installed")
     n = 6
@@ -875,13 +870,5 @@ def test_qiskit2tc():
     tc_unitary = np.reshape(tc_unitary, [2 ** n, 2 ** n])
     qis_unitary = qi.Operator(qisc)
     qis_unitary = np.reshape(qis_unitary, [2 ** n, 2 ** n])
-    p_mat = np.zeros([2 ** n, 2 ** n])
-    for i in range(2 ** n):
-        bit = i
-        revs_i = 0
-        for j in range(n):
-            if bit & 0b1:
-                revs_i += 1 << (n - j - 1)
-            bit = bit >> 1
-        p_mat[i, revs_i] = 1
+    p_mat = perm_matrix(n)
     np.testing.assert_allclose(p_mat @ tc_unitary @ p_mat, qis_unitary, atol=1e-5)

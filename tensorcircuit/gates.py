@@ -45,16 +45,8 @@ _ii_matrix = np.kron(_i_matrix, _i_matrix)
 _xx_matrix = np.kron(_x_matrix, _x_matrix)
 _yy_matrix = np.kron(_y_matrix, _y_matrix)
 _zz_matrix = np.kron(_z_matrix, _z_matrix)
-_cnot_matrix = np.array(
-    [
-        [1.0, 0.0, 0.0, 0.0],
-        [0.0, 1.0, 0.0, 0.0],
-        [0.0, 0.0, 0.0, 1.0],
-        [0.0, 0.0, 1.0, 0.0],
-    ]
-)
 
-_cx_matrix = np.array(
+_cnot_matrix = np.array(
     [
         [1.0, 0.0, 0.0, 0.0],
         [0.0, 1.0, 0.0, 0.0],

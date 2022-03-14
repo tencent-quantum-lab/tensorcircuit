@@ -38,7 +38,7 @@ class Circuit:
 
     sgates = (
         ["i", "x", "y", "z", "h", "t", "s", "td", "sd", "wroot"]
-        + ["cnot", "cx", "cz", "swap", "cy", "iswap", "ox", "oy", "oz"]
+        + ["cnot", "cz", "swap", "cy", "iswap", "ox", "oy", "oz"]
         + ["toffoli", "fredkin"]
     )
     vgates = [
@@ -58,6 +58,8 @@ class Circuit:
         "exp1",
     ]
     mpogates = ["multicontrol", "mpo"]
+
+    gate_alias_list = [["cnot", "cx"], ["fredkin", "cswap"], ["toffoli", "ccnot"]]
 
     def __init__(
         self,
@@ -297,6 +299,10 @@ class Circuit:
             )
             getattr(cls, g).__doc__ = doc
             getattr(cls, g.upper()).__doc__ = doc
+        for gate_alias in cls.gate_alias_list:
+            present_gate = gate_alias[0]
+            for alias_gate in gate_alias[1:]:
+                setattr(cls, alias_gate, getattr(cls, present_gate))
 
     # @classmethod
     # def from_qcode(

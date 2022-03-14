@@ -7,8 +7,22 @@ from typing import Any, Dict, List
 import numpy as np
 from qiskit import QuantumCircuit
 import qiskit.quantum_info as qi
+
 from . import gates
 from . import Circuit
+
+
+def perm_matrix(n: int) -> List[List[int]]:
+    p_mat = np.zeros([2 ** n, 2 ** n])
+    for i in range(2 ** n):
+        bit = i
+        revs_i = 0
+        for j in range(n):
+            if bit & 0b1:
+                revs_i += 1 << (n - j - 1)
+            bit = bit >> 1
+        p_mat[i, revs_i] = 1
+    return p_mat
 
 
 def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
