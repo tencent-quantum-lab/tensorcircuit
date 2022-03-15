@@ -6,6 +6,8 @@
 
 - add gradient free scipy interface for optimization
 
+- add qiskit circuit to tensorcircuit circuit methods
+
 ### Changed
 
 - futher refactor VQNHE code in applications

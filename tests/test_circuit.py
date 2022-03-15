@@ -821,7 +821,7 @@ def test_qiskit2tc():
         from qiskit import QuantumCircuit
         import qiskit.quantum_info as qi
         from qiskit.circuit.library.standard_gates import MCXGate, SwapGate
-        from tensorcircuit.translation import qiskit2tc, perm_matrix
+        from tensorcircuit.translation import perm_matrix
     except ImportError:
         pytest.skip("qiskit is not installed")
     n = 6
@@ -865,7 +865,7 @@ def test_qiskit2tc():
     CCCRX = SwapGate().control(2, ctrl_state="01")
     qisc.append(CCCRX, [0, 1, 2, 3])
 
-    c = qiskit2tc(qisc.data, n, np.eye(2 ** n))
+    c = tc.Circuit.from_qiskit(qisc, n, np.eye(2 ** n))
     tc_unitary = c.wavefunction()
     tc_unitary = np.reshape(tc_unitary, [2 ** n, 2 ** n])
     qis_unitary = qi.Operator(qisc)

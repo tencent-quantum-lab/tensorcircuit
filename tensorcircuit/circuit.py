@@ -1317,6 +1317,16 @@ class Circuit:
         qir = self.to_qir()
         return qir2qiskit(qir, n=self._nqubits)
 
+    # TODO(@refraction-ray): add class method from_qiskit
+
+    @classmethod
+    def from_qiskit(
+        self, qc: Any, n: int, inputs: Optional[List[float]] = None
+    ) -> "Circuit":
+        from .translation import qiskit2tc
+
+        return qiskit2tc(qc.data, n, inputs)  # type: ignore
+
     def vis_tex(self, **kws: Any) -> str:
         return qir2tex(self._qir, self._nqubits, **kws)  # type: ignore
 
