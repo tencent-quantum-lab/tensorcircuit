@@ -14,7 +14,9 @@ Tensor = Any
 Graph = Any  # nx.graph
 
 
-def any_measurements(c: Circuit, structures: Tensor, onehot: bool = False) -> Tensor:
+def any_measurements(
+    c: Circuit, structures: Tensor, onehot: bool = False, reuse: bool = False
+) -> Tensor:
     """
     This measurements pattern is specifically suitable for vmap. Parameterize the Pauli string
     to be measured.
@@ -74,8 +76,7 @@ def any_measurements(c: Circuit, structures: Tensor, onehot: bool = False) -> Te
                 (i,),
             ]
         )
-    loss = c.expectation(*obs, reuse=False)  # type: ignore
-    # TODO(@refraction-ray): is reuse=True in this setup has user case?
+    loss = c.expectation(*obs, reuse=reuse)  # type: ignore
     return backend.real(loss)
 
 

@@ -2,6 +2,7 @@
 *.mo
 develop
 .coverage*
+tutorials.po
 *.result
 .vscode/
 .pytest_cache/

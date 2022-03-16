@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tensorcircuit \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-11 16:03+0800\n"
+"POT-Creation-Date: 2022-03-16 18:08+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1982,7 +1982,6 @@ msgstr ""
 #: tensorcircuit.keras.output_asis_loss:3
 #: tensorcircuit.keras.output_asis_loss:5
 #: tensorcircuit.keras.output_asis_loss:7
-#: tensorcircuit.quantum.reduced_density_matrix:5
 #: tensorcircuit.simplify.pseudo_contract_between:3
 #: tensorcircuit.simplify.pseudo_contract_between:5
 #: tensorcircuit.simplify.pseudo_contract_between:7
@@ -5441,18 +5440,20 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.quantum.correlation_from_counts:1
-#: tensorcircuit.quantum.spin_by_basis:1
-msgid "_summary_"
+msgid ""
+"Compute :math:`\\prod_{i\\in \\text{index}} s_i`, where the probability "
+"for each bitstring is given as a vector ``results``."
 msgstr ""
 
-#: of tensorcircuit.quantum.correlation_from_counts:11
-#: tensorcircuit.quantum.correlation_from_counts:13
-#: tensorcircuit.quantum.spin_by_basis:8 tensorcircuit.quantum.spin_by_basis:10
-#: tensorcircuit.quantum.spin_by_basis:14
-msgid "_description_"
+#: of tensorcircuit.quantum.correlation_from_counts:12
+msgid "list of int, indicating the position in the bitstring"
 msgstr ""
 
-#: of tensorcircuit.quantum.correlation_from_counts:15
+#: of tensorcircuit.quantum.correlation_from_counts:14
+msgid "probability vector of shape 2^n"
+msgstr ""
+
+#: of tensorcircuit.quantum.correlation_from_counts:16
 msgid "Correlation expectation from measurement shots."
 msgstr ""
 
@@ -5653,11 +5654,17 @@ msgstr ""
 msgid "The quantum state in form of Tensor or QuOperator."
 msgstr ""
 
-#: of tensorcircuit.quantum.reduced_density_matrix:7
-msgid "[description], default is None."
+#: of tensorcircuit.quantum.reduced_density_matrix:5
+msgid ""
+"the index list that is traced out, if cut is a int, it indicates [0, cut]"
+" as the traced out region"
 msgstr ""
 
-#: of tensorcircuit.quantum.reduced_density_matrix:9
+#: of tensorcircuit.quantum.reduced_density_matrix:8
+msgid "probability decoration, default is None."
+msgstr ""
+
+#: of tensorcircuit.quantum.reduced_density_matrix:10
 msgid "The reduced density matrix."
 msgstr ""
 
@@ -5681,8 +5688,28 @@ msgid ""
 "Hamiltonian."
 msgstr ""
 
-#: of tensorcircuit.quantum.spin_by_basis:12
-msgid "_description_, default is (1, -1)."
+#: of tensorcircuit.quantum.spin_by_basis:1
+msgid ""
+"Generate all n-bitstrings as an array, each row is a bitstring basis. "
+"Return m-th col."
+msgstr ""
+
+#: of tensorcircuit.quantum.spin_by_basis:9
+msgid "length of a bitstring"
+msgstr ""
+
+#: of tensorcircuit.quantum.spin_by_basis:11
+msgid "m<n,"
+msgstr ""
+
+#: of tensorcircuit.quantum.spin_by_basis:13
+msgid "the binary elements to generate, default is (1, -1)."
+msgstr ""
+
+#: of tensorcircuit.quantum.spin_by_basis:15
+msgid ""
+"The value for the m-th position in bitstring when going through all "
+"bitstring basis."
 msgstr ""
 
 #: of tensorcircuit.quantum.trace_product:1
@@ -9318,5 +9345,17 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "if notebook is True, return `Image` object; otherwise return `None`"
+#~ msgstr ""
+
+#~ msgid "_summary_"
+#~ msgstr ""
+
+#~ msgid "_description_"
+#~ msgstr ""
+
+#~ msgid "[description], default is None."
+#~ msgstr ""
+
+#~ msgid "_description_, default is (1, -1)."
 #~ msgstr ""
 
