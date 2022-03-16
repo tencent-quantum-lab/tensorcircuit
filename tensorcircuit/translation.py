@@ -3,10 +3,15 @@ Circuit object translation in different packages
 """
 
 from typing import Any, Dict, List, Optional
+import warnings
 
 import numpy as np
-from qiskit import QuantumCircuit
-import qiskit.quantum_info as qi
+
+try:
+    from qiskit import QuantumCircuit
+    import qiskit.quantum_info as qi
+except ImportError:
+    warnings.warn("Please first ``pip install qiskit`` to enable related functionality")
 
 from . import gates
 from .circuit import Circuit
@@ -34,8 +39,7 @@ def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
         gate_name = str(gate_info["gatef"])
         qis_name = gate_name
         if gate_name in ["exp", "exp1", "any", "multicontrol"]:
-            if gate_info["name"] != gate_name:
-                qis_name += "_" + gate_info["name"]
+            qis_name = gate_info["name"]
         parameters = {}
         if "parameters" in gate_info:
             parameters = gate_info["parameters"]

@@ -8,9 +8,17 @@
 
 - add qiskit circuit to tensorcircuit circuit methods
 
+- add draw method on circuit from qiskit transform pipeline
+
 ### Changed
 
 - futher refactor VQNHE code in applications
+
+- add alias ``sample`` for ``perfect_sampling`` method
+
+### Fixed
+
+- Circuit inputs will convert to tensor first
 
 ## 0.0.220311
 

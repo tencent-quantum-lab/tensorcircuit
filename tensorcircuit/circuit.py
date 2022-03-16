@@ -102,6 +102,8 @@ class Circuit:
             ]
             self._front = [n.get_edge(0) for n in nodes]
         elif inputs is not None:  # provide input function
+            inputs = backend.convert_to_tensor(inputs)
+            inputs = backend.cast(inputs, dtype=dtypestr)
             inputs = backend.reshape(inputs, [-1])
             N = inputs.shape[0]
             n = int(np.log(N) / np.log(2))
@@ -1249,6 +1251,8 @@ class Circuit:
         """
         return self.measure_jit(*[i for i in range(self._nqubits)], with_prob=True)
 
+    sample = perfect_sampling
+
     # TODO(@refraction-ray): more _before function like state_before? and better API?
 
     def expectation_before(
@@ -1317,7 +1321,8 @@ class Circuit:
         qir = self.to_qir()
         return qir2qiskit(qir, n=self._nqubits)
 
-    # TODO(@refraction-ray): add class method from_qiskit
+    def draw(self) -> Any:
+        return self.to_qiskit().draw()
 
     @classmethod
     def from_qiskit(
