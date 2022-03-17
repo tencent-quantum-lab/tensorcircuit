@@ -1,8 +1,9 @@
 """
-Relevant classes for VQNHE
+VQNHE application
 """
 from functools import lru_cache
 from itertools import product
+import time
 from typing import (
     List,
     Any,
@@ -20,9 +21,6 @@ from ..circuit import Circuit
 from ..quantum import generate_local_hamiltonian
 from .. import gates as G
 
-# from .graphdata import *
-# from .vags import *
-# TODO(@refraction-ray): ensure the remove of these two wildcard import is safe
 
 Tensor = Any
 Array = Any
@@ -475,28 +473,22 @@ class VQNHE:
     def training(
         self,
         maxiter: int = 5000,
-        learn_q: Optional[Callable[[], Any]] = None,
-        learn_c: Optional[Callable[[], Any]] = None,
+        optq: Optional[Callable[[int], Any]] = None,
+        optc: Optional[Callable[[int], Any]] = None,
         threshold: float = 1e-8,
-        debug: int = 150,
+        debug: int = 100,
         onlyq: int = 0,
         checkpoints: Optional[List[Tuple[int, float]]] = None,
     ) -> Tuple[Array, Array, Array, int]:
         loss_prev = 0
         ccount = 0
 
-        if not learn_q:
-            learnq = 0.1
-        else:
-            learnq = learn_q()
-        if not learn_c:
-            learnc = 0.0
-        else:
-            learnc = learn_c()
-
-        optc = tf.keras.optimizers.Adam(learning_rate=learnc)
-        optq = tf.keras.optimizers.Adam(learning_rate=learnq)
+        if not optc:
+            optc = tf.keras.optimizers.Adam(learning_rate=0.001)
+        if not optq:
+            optq = tf.keras.optimizers.Adam(learning_rate=0.01)
         nm = tf.constant(1.0)
+        times = []
         for j in range(maxiter):
             if j < onlyq:
                 loss, grad = self.plain_evaluation(self.circuit_variable)
@@ -513,6 +505,7 @@ class VQNHE:
                     break
             if debug > 0:
                 if j % debug == 0:
+                    times.append(time.time())
                     print(loss.numpy())
                     if checkpoints is not None:
                         bk = False
@@ -525,14 +518,16 @@ class VQNHE:
                             break
                     quantume, _ = self.plain_evaluation(self.circuit_variable)
                     print("quantum part energy: ", quantume.numpy())
+                    if len(times) > 1:
+                        print("running time: ", (times[-1] - times[-2]) / debug)
             loss_prev = loss
             if j < onlyq:
                 gradofc = [grad]
             else:
                 gradofc = grad[0:1]
-            optq.apply_gradients(zip(gradofc, [self.circuit_variable]))
+            optq(j).apply_gradients(zip(gradofc, [self.circuit_variable]))
             if j >= onlyq:
-                optc.apply_gradients(zip(grad[1], self.model.variables))
+                optc(j).apply_gradients(zip(grad[1], self.model.variables))
         quantume, _ = self.plain_evaluation(self.circuit_variable)
         print(
             "vqnhe prediction: ",
@@ -548,8 +543,8 @@ class VQNHE:
     def multi_training(
         self,
         maxiter: int = 5000,
-        learn_q: Optional[Callable[[], Any]] = None,
-        learn_c: Optional[Callable[[], Any]] = None,
+        optq: Optional[Callable[[int], Any]] = None,
+        optc: Optional[Callable[[int], Any]] = None,
         threshold: float = 1e-8,
         debug: int = 150,
         onlyq: int = 0,
@@ -580,9 +575,7 @@ class VQNHE:
                 )
             else:
                 self.circuit_variable = qweights
-            r = self.training(
-                maxiter, learn_q, learn_c, threshold, debug, onlyq, checkpoints
-            )
+            r = self.training(maxiter, optq, optc, threshold, debug, onlyq, checkpoints)
             rs.append(
                 {
                     "energy": r[0],
