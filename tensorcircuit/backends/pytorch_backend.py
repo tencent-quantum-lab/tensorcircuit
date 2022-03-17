@@ -5,6 +5,8 @@ Backend magic inherited from tensornetwork: pytorch backend
 
 import logging
 from typing import Any, Callable, Optional, Sequence, Tuple, Union
+from operator import mul
+from functools import reduce
 
 import tensornetwork
 from tensornetwork.backends.pytorch import pytorch_backend
@@ -48,8 +50,112 @@ def _sum_torch(
     return torchlib.sum(tensor, dim=axis, keepdim=keepdims)
 
 
+def _qr_torch(
+    self: Any,
+    tensor: Tensor,
+    pivot_axis: int = -1,
+    non_negative_diagonal: bool = False,
+) -> Tuple[Tensor, Tensor]:
+    """
+    Computes the QR decomposition of a tensor.
+    The QR decomposition is performed by treating the tensor as a matrix,
+    with an effective left (row) index resulting from combining the
+    axes `tensor.shape[:pivot_axis]` and an effective right (column)
+    index resulting from combining the axes `tensor.shape[pivot_axis:]`.
+
+    :Example:
+
+    If `tensor` had a shape (2, 3, 4, 5) and `pivot_axis` was 2,
+    then `q` would have shape (2, 3, 6), and `r` would
+    have shape (6, 4, 5).
+    The output consists of two tensors `Q, R` such that:
+
+    Q[i1,...,iN, j] * R[j, k1,...,kM] == tensor[i1,...,iN, k1,...,kM]
+
+    Note that the output ordering matches numpy.linalg.svd rather than tf.svd.
+
+    :param tensor: A tensor to be decomposed.
+    :type tensor: Tensor
+    :param pivot_axis: Where to split the tensor's axes before flattening into a matrix.
+    :type pivot_axis: int, optional
+    :param non_negative_diagonal: a bool indicating whether the tenor is diagonal non-negative matrix.
+    :type non_negative_diagonal: bool, optional
+    :returns: Q, the left tensor factor, and R, the right tensor factor.
+    :rtype: Tuple[Tensor, Tensor]
+    """
+    from .pytorch_ops import torchqr
+
+    left_dims = list(tensor.shape[:pivot_axis])
+    right_dims = list(tensor.shape[pivot_axis:])
+
+    tensor = torchlib.reshape(tensor, [reduce(mul, left_dims), reduce(mul, right_dims)])
+    q, r = torchqr.apply(tensor)
+    if non_negative_diagonal:
+        phases = torchlib.sign(torchlib.linalg.diagonal(r))
+        q = q * phases
+        r = phases[:, None] * r
+    center_dim = q.shape[1]
+    q = torchlib.reshape(q, left_dims + [center_dim])
+    r = torchlib.reshape(r, [center_dim] + right_dims)
+    return q, r
+
+
+def _rq_torch(
+    self: Any,
+    tensor: Tensor,
+    pivot_axis: int = 1,
+    non_negative_diagonal: bool = False,
+) -> Tuple[Tensor, Tensor]:
+    """
+    Computes the RQ decomposition of a tensor.
+    The QR decomposition is performed by treating the tensor as a matrix,
+    with an effective left (row) index resulting from combining the axes
+    `tensor.shape[:pivot_axis]` and an effective right (column) index
+    resulting from combining the axes `tensor.shape[pivot_axis:]`.
+
+    :Example:
+
+    If `tensor` had a shape (2, 3, 4, 5) and `pivot_axis` was 2,
+    then `r` would have shape (2, 3, 6), and `q` would
+    have shape (6, 4, 5).
+    The output consists of two tensors `Q, R` such that:
+
+    Q[i1,...,iN, j] * R[j, k1,...,kM] == tensor[i1,...,iN, k1,...,kM]
+
+    Note that the output ordering matches numpy.linalg.svd rather than tf.svd.
+
+    :param tensor: A tensor to be decomposed.
+    :type tensor: Tensor
+    :param pivot_axis: Where to split the tensor's axes before flattening into a matrix.
+    :type pivot_axis: int, optional
+    :param non_negative_diagonal: a bool indicating whether the tenor is diagonal non-negative matrix.
+    :type non_negative_diagonal: bool, optional
+    :returns: Q, the left tensor factor, and R, the right tensor factor.
+    :rtype: Tuple[Tensor, Tensor]
+    """
+    from .pytorch_ops import torchqr
+
+    left_dims = list(tensor.shape[:pivot_axis])
+    right_dims = list(tensor.shape[pivot_axis:])
+
+    tensor = torchlib.reshape(tensor, [reduce(mul, left_dims), reduce(mul, right_dims)])
+    q, r = torchqr.apply(tensor.adjoint())
+    if non_negative_diagonal:
+        phases = torchlib.sign(torchlib.linalg.diagonal(r))
+        q = q * phases
+        r = phases[:, None] * r
+    r, q = r.adjoint(), q.adjoint()
+    # M=r*q at this point
+    center_dim = r.shape[1]
+    r = torchlib.reshape(r, left_dims + [center_dim])
+    q = torchlib.reshape(q, [center_dim] + right_dims)
+    return r, q
+
+
 tensornetwork.backends.pytorch.pytorch_backend.PyTorchBackend.sum = _sum_torch
 tensornetwork.backends.pytorch.pytorch_backend.PyTorchBackend.conj = _conj_torch
+tensornetwork.backends.pytorch.pytorch_backend.PyTorchBackend.qr = _qr_torch
+tensornetwork.backends.pytorch.pytorch_backend.PyTorchBackend.rq = _rq_torch
 
 
 class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
