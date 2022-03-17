@@ -7,7 +7,7 @@ from typing import Any
 
 import torch  # type: ignore
 
-Array = Any  # tensorflow Tensor
+Array = Any  # torch Tensor
 
 qr_epsilon = 1e-8
 
@@ -70,7 +70,6 @@ def torchqr_grad(
 
         return ret
 
-    # num_rows, num_cols = q.shape.dims[-2].value, r.shape.dims[-1]
     num_rows, num_cols = q.shape[-2], r.shape[-1]
 
     if num_rows >= num_cols:

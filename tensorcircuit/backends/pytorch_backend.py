@@ -7,7 +7,6 @@ import logging
 from typing import Any, Callable, Optional, Sequence, Tuple, Union
 from operator import mul
 from functools import reduce
-import torch
 
 import tensornetwork
 from tensornetwork.backends.pytorch import pytorch_backend
@@ -89,15 +88,15 @@ def _qr_torch(
     left_dims = list(tensor.shape[:pivot_axis])
     right_dims = list(tensor.shape[pivot_axis:])
 
-    tensor = torch.reshape(tensor, [reduce(mul, left_dims), reduce(mul, right_dims)])
+    tensor = torchlib.reshape(tensor, [reduce(mul, left_dims), reduce(mul, right_dims)])
     q, r = torchqr.apply(tensor)
     if non_negative_diagonal:
-        phases = torch.sign(torch.linalg.diagonal(r))
+        phases = torchlib.sign(torchlib.linalg.diagonal(r))
         q = q * phases
         r = phases[:, None] * r
     center_dim = q.shape[1]
-    q = torch.reshape(q, left_dims + [center_dim])
-    r = torch.reshape(r, [center_dim] + right_dims)
+    q = torchlib.reshape(q, left_dims + [center_dim])
+    r = torchlib.reshape(r, [center_dim] + right_dims)
     return q, r
 
 
@@ -139,17 +138,17 @@ def _rq_torch(
     left_dims = list(tensor.shape[:pivot_axis])
     right_dims = list(tensor.shape[pivot_axis:])
 
-    tensor = torch.reshape(tensor, [reduce(mul, left_dims), reduce(mul, right_dims)])
+    tensor = torchlib.reshape(tensor, [reduce(mul, left_dims), reduce(mul, right_dims)])
     q, r = torchqr.apply(tensor.adjoint())
     if non_negative_diagonal:
-        phases = torch.sign(torch.linalg.diagonal(r))
+        phases = torchlib.sign(torchlib.linalg.diagonal(r))
         q = q * phases
         r = phases[:, None] * r
     r, q = r.adjoint(), q.adjoint()
     # M=r*q at this point
     center_dim = r.shape[1]
-    r = torch.reshape(r, left_dims + [center_dim])
-    q = torch.reshape(q, [center_dim] + right_dims)
+    r = torchlib.reshape(r, left_dims + [center_dim])
+    q = torchlib.reshape(q, [center_dim] + right_dims)
     return r, q
 
 
