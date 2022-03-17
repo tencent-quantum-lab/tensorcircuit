@@ -220,6 +220,7 @@ class VQNHE:
             model_params = {}
         self.model = self.create_model(**model_params)
         self.model_params = model_params
+        self.cut = model_params.get("cut", 20)
         if not circuit_params:
             circuit_params = {"epochs": 2, "stddev": 0.1}
         self.epochs = circuit_params.get("epochs", 2)
@@ -432,6 +433,11 @@ class VQNHE:
             tape.watch(cv)
             w = self.circuit(cv).wavefunction()
             f2 = tf.reshape(self.model(self.base), [-1])
+            f2 -= tf.math.reduce_mean(f2)
+            f2 = (
+                tf.cast(tf.clip_by_value(tf.math.real(f2), -self.cut, self.cut), tf.complex128)
+                + tf.cast(tf.math.imag(f2), tf.complex128) * 1.0j
+            )
             f2 = tf.exp(f2)
             w1 = tf.multiply(tf.cast(f2, dtype=dtype), w)
             nm = tf.linalg.norm(w1)
