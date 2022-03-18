@@ -239,7 +239,7 @@ class VQNHE:
         self.base = tf.constant(list(product(*[[0, 1] for _ in range(n)])))
         self.hamiltonian = hamiltonian
         self.shortcut = shortcut
-        self.history = []
+        self.history: List[float] = []
 
     def assign(
         self, c: Optional[List[Tensor]] = None, q: Optional[Tensor] = None
@@ -503,7 +503,7 @@ class VQNHE:
         debug: int = 100,
         onlyq: int = 0,
         checkpoints: Optional[List[Tuple[int, float]]] = None,
-    ) -> Tuple[Array, Array, Array, int]:
+    ) -> Tuple[Array, Array, Array, int, List[float]]:
         loss_prev = 0
         loss_opt = 1e8
         j_opt = 0
@@ -513,7 +513,7 @@ class VQNHE:
         self.ccache = self.model.get_weights()
 
         if not optc:
-            optc = 0.001
+            optc = 0.001  # type: ignore
         if isinstance(optc, float) or isinstance(
             optc, tf.keras.optimizers.schedules.LearningRateSchedule
         ):
@@ -521,9 +521,9 @@ class VQNHE:
         if isinstance(optc, tf.keras.optimizers.Optimizer):
             optcf = lambda _: optc
         else:
-            optcf = optc
+            optcf = optc  # type: ignore
         if not optq:
-            optq = 0.01
+            optq = 0.01  # type: ignore
         if isinstance(optq, float) or isinstance(
             optq, tf.keras.optimizers.schedules.LearningRateSchedule
         ):
@@ -531,7 +531,7 @@ class VQNHE:
         if isinstance(optq, tf.keras.optimizers.Optimizer):
             optqf = lambda _: optq
         else:
-            optqf = optq
+            optqf = optq  # type: ignore
 
         nm = tf.constant(1.0)
         times = []
@@ -592,7 +592,7 @@ class VQNHE:
         quantume, _ = self.plain_evaluation(self.circuit_variable)
         print(
             "vqnhe prediction: ",
-            loss_prev.numpy(),
+            loss_prev.numpy(),  # type: ignore
             "quantum part energy: ",
             quantume.numpy(),
             "classical model scale: ",
@@ -601,8 +601,8 @@ class VQNHE:
         print("----------END TRAINING------------")
         self.history += history[:j_opt]
         return (
-            loss_opt.numpy(),
-            np.real(nm_opt.numpy()),
+            loss_opt.numpy(),  # type: ignore
+            np.real(nm_opt.numpy()),  # type: ignore
             quantume.numpy(),
             j_opt,
             history[:j_opt],
@@ -666,6 +666,6 @@ class VQNHE:
         if rs:
             es = [r["energy"] for r in rs]
             ind = np.argmin(es)
-            self.assign(rs[ind]["model_weights"], rs[ind]["circuit_weights"])
-            self.history = rs[ind]["history"]
+            self.assign(rs[ind]["model_weights"], rs[ind]["circuit_weights"])  # type: ignore
+            self.history = rs[ind]["history"]  # type: ignore
         return rs

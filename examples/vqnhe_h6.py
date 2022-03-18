@@ -5,7 +5,6 @@ import sys
 
 sys.path.insert(0, "../")
 import numpy as np
-import tensorflow as tf
 import tensorcircuit as tc
 from tensorcircuit.applications.vqes import VQNHE, JointSchedule, construct_matrix_v3
 
