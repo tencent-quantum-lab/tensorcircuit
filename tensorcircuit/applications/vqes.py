@@ -239,14 +239,29 @@ class VQNHE:
         self.base = tf.constant(list(product(*[[0, 1] for _ in range(n)])))
         self.hamiltonian = hamiltonian
         self.shortcut = shortcut
+        self.history = []
 
     def assign(
         self, c: Optional[List[Tensor]] = None, q: Optional[Tensor] = None
     ) -> None:
-        if c:
+        if c is not None:
             self.model.set_weights(c)
-        if q:
+        if q is not None:
             self.circuit_variable.assign(q)
+
+    def recover(self) -> None:
+        try:
+            self.assign(self.ccache, self.qcache)
+        except AttributeError:
+            pass
+
+    def load(self, path: str) -> None:
+        w = np.load(path, allow_pickle=True)
+        self.assign(w["c"], w["q"])
+        self.history = w["h"]
+
+    def save(self, path: str) -> None:
+        np.savez(path, c=self.ccache, q=self.qcache, h=np.array(self.history))
 
     def create_model(self, choose: str = "real", **kws: Any) -> Model:
         if choose == "real":
@@ -435,7 +450,10 @@ class VQNHE:
             f2 = tf.reshape(self.model(self.base), [-1])
             f2 -= tf.math.reduce_mean(f2)
             f2 = (
-                tf.cast(tf.clip_by_value(tf.math.real(f2), -self.cut, self.cut), tf.complex128)
+                tf.cast(
+                    tf.clip_by_value(tf.math.real(f2), -self.cut, self.cut),
+                    tf.complex128,
+                )
                 + tf.cast(tf.math.imag(f2), tf.complex128) * 1.0j
             )
             f2 = tf.exp(f2)
@@ -487,64 +505,108 @@ class VQNHE:
         checkpoints: Optional[List[Tuple[int, float]]] = None,
     ) -> Tuple[Array, Array, Array, int]:
         loss_prev = 0
+        loss_opt = 1e8
+        j_opt = 0
+        nm_opt = 1
         ccount = 0
+        self.qcache = self.circuit_variable.numpy()
+        self.ccache = self.model.get_weights()
 
         if not optc:
-            optc = tf.keras.optimizers.Adam(learning_rate=0.001)
+            optc = 0.001
+        if isinstance(optc, float) or isinstance(
+            optc, tf.keras.optimizers.schedules.LearningRateSchedule
+        ):
+            optc = tf.keras.optimizers.Adam(optc)
+        if isinstance(optc, tf.keras.optimizers.Optimizer):
+            optcf = lambda _: optc
+        else:
+            optcf = optc
         if not optq:
-            optq = tf.keras.optimizers.Adam(learning_rate=0.01)
+            optq = 0.01
+        if isinstance(optq, float) or isinstance(
+            optq, tf.keras.optimizers.schedules.LearningRateSchedule
+        ):
+            optq = tf.keras.optimizers.Adam(optq)
+        if isinstance(optq, tf.keras.optimizers.Optimizer):
+            optqf = lambda _: optq
+        else:
+            optqf = optq
+
         nm = tf.constant(1.0)
         times = []
-        for j in range(maxiter):
-            if j < onlyq:
-                loss, grad = self.plain_evaluation(self.circuit_variable)
-            else:
-                loss, grad, nm = self.evaluation(self.circuit_variable)
-            if not tf.math.is_finite(loss):
-                print("failed optimization since nan in %s tries" % j)
-                # in case numerical instability
-                break
-            if np.abs(loss - loss_prev) < threshold:  # 0.3e-7
-                ccount += 1
-                if ccount >= 100:
-                    print("finished in %s round" % j)
+        history = []
+
+        try:
+            for j in range(maxiter):
+                if j < onlyq:
+                    loss, grad = self.plain_evaluation(self.circuit_variable)
+                else:
+                    loss, grad, nm = self.evaluation(self.circuit_variable)
+                if not tf.math.is_finite(loss):
+                    print("failed optimization since nan in %s tries" % j)
+                    # in case numerical instability
                     break
-            if debug > 0:
-                if j % debug == 0:
-                    times.append(time.time())
-                    print(loss.numpy())
-                    if checkpoints is not None:
-                        bk = False
-                        for rd, tv in checkpoints:
-                            if j > rd and loss.numpy() > tv:
-                                print("failed optimization, as checkpoint is not met")
-                                bk = True
-                                break
-                        if bk:
+                if np.abs(loss - loss_prev) < threshold:  # 0.3e-7
+                    ccount += 1
+                    if ccount >= 100:
+                        print("finished in %s round" % j)
+                        break
+                history.append(loss.numpy())
+                if checkpoints is not None:
+                    bk = False
+                    for rd, tv in checkpoints:
+                        if j > rd and loss.numpy() > tv:
+                            print("failed optimization, as checkpoint is not met")
+                            bk = True
                             break
-                    quantume, _ = self.plain_evaluation(self.circuit_variable)
-                    print("quantum part energy: ", quantume.numpy())
-                    if len(times) > 1:
-                        print("running time: ", (times[-1] - times[-2]) / debug)
-            loss_prev = loss
-            if j < onlyq:
-                gradofc = [grad]
-            else:
-                gradofc = grad[0:1]
-            optq(j).apply_gradients(zip(gradofc, [self.circuit_variable]))
-            if j >= onlyq:
-                optc(j).apply_gradients(zip(grad[1], self.model.variables))
+                    if bk:
+                        break
+                if debug > 0:
+                    if j % debug == 0:
+                        times.append(time.time())
+                        print("energy estimation:", loss.numpy())
+
+                        quantume, _ = self.plain_evaluation(self.circuit_variable)
+                        print("quantum part energy: ", quantume.numpy())
+                        if len(times) > 1:
+                            print("running time: ", (times[-1] - times[-2]) / debug)
+                loss_prev = loss
+                if j < onlyq:
+                    gradofc = [grad]
+                else:
+                    gradofc = grad[0:1]
+                if loss < loss_opt:
+                    loss_opt = loss
+                    nm_opt = nm
+                    j_opt = j
+                    self.qcache = self.circuit_variable.numpy()
+                    self.ccache = self.model.get_weights()
+                optqf(j).apply_gradients(zip(gradofc, [self.circuit_variable]))
+                if j >= onlyq:
+                    optcf(j).apply_gradients(zip(grad[1], self.model.variables))
+
+        except KeyboardInterrupt:
+            pass
+
         quantume, _ = self.plain_evaluation(self.circuit_variable)
         print(
             "vqnhe prediction: ",
-            loss.numpy(),
+            loss_prev.numpy(),
             "quantum part energy: ",
             quantume.numpy(),
             "classical model scale: ",
             self.model.variables[-1].numpy(),
         )
         print("----------END TRAINING------------")
-        return loss.numpy(), np.real(nm.numpy()), quantume.numpy(), j
+        self.history += history[:j_opt]
+        return (
+            loss_opt.numpy(),
+            np.real(nm_opt.numpy()),
+            quantume.numpy(),
+            j_opt,
+            history[:j_opt],
+        )
 
     def multi_training(
         self,
@@ -560,36 +622,50 @@ class VQNHE:
     ) -> List[Dict[str, Any]]:
         # TODO(@refraction-ray): old multiple training implementation, we can use vmap infra for batched training
         rs = []
-        for t in tqdm(range(tries), desc="multiple round of training"):
-            if initialization_func is not None:
-                weights = initialization_func(t)
-            else:
-                weights = {}
-            qweights = weights.get("q", None)
-            cweights = weights.get("c", None)
-            if cweights is None:
-                cweights = self.create_model(**self.model_params).get_weights()
-            self.model.set_weights(cweights)
-            if qweights is None:
-                self.circuit_variable = tf.Variable(
-                    tf.random.normal(
-                        mean=0.0,
-                        stddev=self.circuit_stddev,
-                        shape=[self.epochs, self.n, self.channel],
-                        dtype=tf.float64,
+        try:
+            for t in range(tries):
+                print("---------- %s training loop ----------" % t)
+                if initialization_func is not None:
+                    weights = initialization_func(t)
+                else:
+                    weights = {}
+                qweights = weights.get("q", None)
+                cweights = weights.get("c", None)
+                if cweights is None:
+                    cweights = self.create_model(**self.model_params).get_weights()
+                self.model.set_weights(cweights)
+                if qweights is None:
+                    self.circuit_variable = tf.Variable(
+                        tf.random.normal(
+                            mean=0.0,
+                            stddev=self.circuit_stddev,
+                            shape=[self.epochs, self.n, self.channel],
+                            dtype=tf.float64,
+                        )
                     )
+                else:
+                    self.circuit_variable = qweights
+                self.history = []  # refresh the history
+                r = self.training(
+                    maxiter, optq, optc, threshold, debug, onlyq, checkpoints
                 )
-            else:
-                self.circuit_variable = qweights
-            r = self.training(maxiter, optq, optc, threshold, debug, onlyq, checkpoints)
-            rs.append(
-                {
-                    "energy": r[0],
-                    "norm": r[1],
-                    "quantum_energy": r[2],
-                    "iterations": r[-1],
-                    "model_weights": self.model.get_weights(),
-                    "circuit_weights": self.circuit_variable.numpy(),
-                }
-            )
+                rs.append(
+                    {
+                        "energy": r[0],
+                        "norm": r[1],
+                        "quantum_energy": r[2],
+                        "iterations": r[-2],
+                        "history": r[-1],
+                        "model_weights": self.ccache,
+                        "circuit_weights": self.qcache,
+                    }
+                )
+        except KeyboardInterrupt:
+            pass
+
+        if rs:
+            es = [r["energy"] for r in rs]
+            ind = np.argmin(es)
+            self.assign(rs[ind]["model_weights"], rs[ind]["circuit_weights"])
+            self.history = rs[ind]["history"]
         return rs
