@@ -1317,12 +1317,23 @@ class Circuit:
         return contractor(nodes1).tensor
 
     def to_qiskit(self) -> Any:
+        """
+        Translate to a qiskit object.
+        
+        :return: A qiskit object of this circuit.
+        """
         from .translation import qir2qiskit
 
         qir = self.to_qir()
         return qir2qiskit(qir, n=self._nqubits)
 
     def draw(self) -> Any:
+        """
+        Draw the circuit.
+        
+        :return: A drawing that can be printed as ascii art.
+        :rtype: string
+        """
         return self.to_qiskit().draw()
 
     @classmethod
