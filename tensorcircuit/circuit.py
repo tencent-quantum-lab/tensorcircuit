@@ -1245,6 +1245,7 @@ class Circuit:
 
     def perfect_sampling(self) -> Tuple[str, float]:
         """
+        Sampling bistrings from the circuit output.
         Reference: arXiv:1201.3974.
 
         :return: Sampled bit string and the corresponding theoretical probability.
