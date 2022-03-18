@@ -88,6 +88,14 @@ We can also extract the unitary matrix underlying the whole circuit as follows:
         [0.+0.j, 0.+0.j, 0.+0.j, 1.+0.j],
         [0.+0.j, 0.+0.j, 1.+0.j, 0.+0.j]], dtype=complex64)
 
+**Circuit Transformations:**
+
+We currently support transform ``tc.Circuit`` from and to Qiskit ``QuantumCircuit`` object.
+
+Export to Qiskit (possible for futher hardware experiment, compiling and visualization): ``c.to_qiskit()``.
+
+Import from Qiskit: ``c = tc.Circuit.from_qiskit(QuantumCircuit, n)``
+
 **Circuit visualization:** 
 
 ``c.vis_tex()`` can generate tex code for circuit visualization based on LaTeX `quantikz <https://arxiv.org/abs/1809.03842>`__ package.
@@ -95,6 +103,8 @@ We can also extract the unitary matrix underlying the whole circuit as follows:
 There are also some automatic pipeline helper functions to directly generate figures from tex code, but they require extra installations in the environment.
 
 ``render_pdf(tex)`` function requires full installation of LaTeX locally. And in Jupyter environment, we may prefer ``render_pdf(tex, notebook=True)`` to return jpg figures, which further require wand magicwand library installed, see `here <https://docs.wand-py.org/en/latest/>`__.
+
+Or since we can transform ``tc.Circuit`` into QuantumCircuit easily, we have a simple pipeline to first transform ``tc.Circuit`` into Qiskit and then call the visualization built in Qiskit. Namely, we have ``c.draw()`` API.
 
 **Circuit Intermediate Representation:**
 
