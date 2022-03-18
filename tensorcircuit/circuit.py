@@ -1148,7 +1148,7 @@ class Circuit:
 
         :param index: Measure on which quantum line.
         :param with_prob: If true, theoretical probability is also returned.
-        :return:
+        :return: The sample output and probability (optional) of the quantum line.
         :rtype: Tuple[str, float]
         """
         # not jit compatible due to random number generations!
@@ -1193,15 +1193,16 @@ class Circuit:
         self, *index: int, with_prob: bool = False
     ) -> Tuple[Tensor, Tensor]:
         """
+        Take measurement to the given quantum lines. 
+        This method implementated by jit is about 100 times faster than unjit version!
 
         :param index: Measure on which quantum line.
         :type index: int
         :param with_prob: If true, theoretical probability is also returned.
         :type with_prob: bool, optional
-        :return: [description]
+        :return: The sample output and probability (optional) of the quantum line.
         :rtype: Tuple[Tensor, Tensor]
         """
-        # TODO: incomplete description
         # finally jit compatible ! and much faster than unjit version ! (100x)
         sample: List[Tensor] = []
         p = 1.0
@@ -1400,7 +1401,7 @@ def expectation(
     normalization: bool = False,
 ) -> Tensor:
     """
-    Compute :math:`\\langle bra\\vert ops \\vert ket\\rangle`
+    Compute :math:`\\langle bra\\vert ops \\vert ket\\rangle`.
 
     Example 1 (:math:`bra` is same as :math:`ket`)
 
@@ -1441,16 +1442,16 @@ def expectation(
     >>> tc.expectation(*x1x2, ket=s3, bra=s2)
     (0.7071067690849304+0j) # 1/sqrt(2)
 
-    :param ket: [description]
+    :param ket: :math:`ket`.
     :type ket: Tensor
-    :param bra: [description], defaults to None, which is the same as ``ket``
+    :param bra: :math:`bra`, defaults to None, which is the same as ``ket``.
     :type bra: Optional[Tensor], optional
-    :param conj: [description], defaults to True
+    :param conj: :math:`bra` changes to the adjoint matrix of :math:`bra`, defaults to True.
     :type conj: bool, optional
-    :param normalization: [description], defaults to False
+    :param normalization: Normalize the :math:`ket` and :math:`bra`, defaults to False.
     :type normalization: bool, optional
-    :raises ValueError: [description]
-    :return: [description]
+    :raises ValueError: "Cannot measure two operators in one index"
+    :return: The result of :math:`\\langle bra\\vert ops \\vert ket\\rangle`.
     :rtype: Tensor
     """
     # TODO: incomplete docstring
