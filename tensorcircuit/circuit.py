@@ -1327,14 +1327,26 @@ class Circuit:
         qir = self.to_qir()
         return qir2qiskit(qir, n=self._nqubits)
 
-    def draw(self) -> Any:
+    def draw(self, **kws: Any) -> Any:
         """
-        Draw the circuit.
+        Visualise the circuit.
+        This method recevies the keywords as same as qiskit.circuit.QuantumCircuit.draw.
+        More details can be found here: https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.draw.html.
         
-        :return: A drawing that can be printed as ascii art.
-        :rtype: string
+        :Example:
+        >>> c = tc.Circuit(3)
+        >>> c.H(1)
+        >>> c.X(2)
+        >>> c.CNOT(0, 1)
+        >>> c.draw(output='text')
+        q_0: ───────■──
+             ┌───┐┌─┴─┐
+        q_1: ┤ H ├┤ X ├
+             ├───┤└───┘
+        q_2: ┤ X ├─────
+             └───┘
         """
-        return self.to_qiskit().draw()
+        return self.to_qiskit().draw(**kws)
 
     @classmethod
     def from_qiskit(
