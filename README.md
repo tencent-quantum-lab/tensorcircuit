@@ -10,7 +10,7 @@
     <img src="https://img.shields.io/badge/docs-link-green.svg?style=flat-square&logo=read-the-docs"/>
   </a>
   <!-- PyPI -->
-  <a href="https://pypi.org/project/paddle-quantum/">
+  <a href="https://pypi.org/project/tensorcircuit/">
     <img src="https://img.shields.io/pypi/v/tensorcircuit.svg?style=flat-square&logo=pypi"/>
   </a>
   <!-- License -->
@@ -29,7 +29,7 @@ TensorCircuit is built on top of modern machine learning frameworks, and is mach
 
 Please begin with [Quick Start](/docs/source/quickstart.rst) and [Jupyter Tutorials](/docs/source/tutorials).
 
-For more information and introductions, please refer to helpful [example scripts](/examples) and [documentations](/docs/source). API docstrings and test cases in [tests](/tests) are also informative.
+For more information and introductions, please refer to helpful [example scripts](/examples) and [full documentations](/docs/source). API docstrings and test cases in [tests](/tests) are also informative.
 
 The following are some minimal demos.
 
@@ -68,16 +68,18 @@ theta = tc.gates.num_to_tensor(1.0)
 print(g(theta))
 ```
 
+## Install
+
+``pip install tensorcircuit``(Extra package installation may be required for some features.)
+
+
 ## Contributing
 
 For contribution guidelines and notes, see [CONTRIBUTING](/CONTRIBUTING.md).
 
-
-### Install
-
-For users, ``pip install tensorcircuit`` is enough. (Extra package installation may be required for some features.)
-
 For developers, we suggest to first configure a good conda environment. The versions of dependence packages may vary in terms of development requirements. The minimum requirement is the [TensorNetwork](https://github.com/google/TensorNetwork) package. [Dockerfiles](/docker) may also be helpful for building a good development enviroment.
+
+
 
 ## Researches and applications
 

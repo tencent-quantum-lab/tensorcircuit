@@ -1,4 +1,5 @@
 .idea/
+*.disable
 *.mo
 develop
 .coverage*

@@ -1148,7 +1148,7 @@ class Circuit:
 
         :param index: Measure on which quantum line.
         :param with_prob: If true, theoretical probability is also returned.
-        :return:
+        :return: The sample output and probability (optional) of the quantum line.
         :rtype: Tuple[str, float]
         """
         # not jit compatible due to random number generations!
@@ -1193,15 +1193,16 @@ class Circuit:
         self, *index: int, with_prob: bool = False
     ) -> Tuple[Tensor, Tensor]:
         """
+        Take measurement to the given quantum lines.
+        This method implementated by jit is about 100 times faster than unjit version!
 
         :param index: Measure on which quantum line.
         :type index: int
         :param with_prob: If true, theoretical probability is also returned.
         :type with_prob: bool, optional
-        :return: [description]
+        :return: The sample output and probability (optional) of the quantum line.
         :rtype: Tuple[Tensor, Tensor]
         """
-        # TODO: incomplete description
         # finally jit compatible ! and much faster than unjit version ! (100x)
         sample: List[Tensor] = []
         p = 1.0
@@ -1244,6 +1245,7 @@ class Circuit:
 
     def perfect_sampling(self) -> Tuple[str, float]:
         """
+        Sampling bistrings from the circuit output.
         Reference: arXiv:1201.3974.
 
         :return: Sampled bit string and the corresponding theoretical probability.
@@ -1316,13 +1318,36 @@ class Circuit:
         return contractor(nodes1).tensor
 
     def to_qiskit(self) -> Any:
+        """
+        Translate to a qiskit object.
+
+        :return: A qiskit object of this circuit.
+        """
         from .translation import qir2qiskit
 
         qir = self.to_qir()
         return qir2qiskit(qir, n=self._nqubits)
 
-    def draw(self) -> Any:
-        return self.to_qiskit().draw()
+    def draw(self, **kws: Any) -> Any:
+        """
+        Visualise the circuit.
+        This method recevies the keywords as same as qiskit.circuit.QuantumCircuit.draw.
+        More details can be found here: https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.draw.html.
+
+        :Example:
+        >>> c = tc.Circuit(3)
+        >>> c.H(1)
+        >>> c.X(2)
+        >>> c.CNOT(0, 1)
+        >>> c.draw(output='text')
+        q_0: ───────■──
+             ┌───┐┌─┴─┐
+        q_1: ┤ H ├┤ X ├
+             ├───┤└───┘
+        q_2: ┤ X ├─────
+             └───┘
+        """
+        return self.to_qiskit().draw(**kws)
 
     @classmethod
     def from_qiskit(
@@ -1400,7 +1425,7 @@ def expectation(
     normalization: bool = False,
 ) -> Tensor:
     """
-    Compute :math:`\\langle bra\\vert ops \\vert ket\\rangle`
+    Compute :math:`\\langle bra\\vert ops \\vert ket\\rangle`.
 
     Example 1 (:math:`bra` is same as :math:`ket`)
 
@@ -1441,16 +1466,16 @@ def expectation(
     >>> tc.expectation(*x1x2, ket=s3, bra=s2)
     (0.7071067690849304+0j) # 1/sqrt(2)
 
-    :param ket: [description]
+    :param ket: :math:`ket`.
     :type ket: Tensor
-    :param bra: [description], defaults to None, which is the same as ``ket``
+    :param bra: :math:`bra`, defaults to None, which is the same as ``ket``.
     :type bra: Optional[Tensor], optional
-    :param conj: [description], defaults to True
+    :param conj: :math:`bra` changes to the adjoint matrix of :math:`bra`, defaults to True.
     :type conj: bool, optional
-    :param normalization: [description], defaults to False
+    :param normalization: Normalize the :math:`ket` and :math:`bra`, defaults to False.
     :type normalization: bool, optional
-    :raises ValueError: [description]
-    :return: [description]
+    :raises ValueError: "Cannot measure two operators in one index"
+    :return: The result of :math:`\\langle bra\\vert ops \\vert ket\\rangle`.
     :rtype: Tensor
     """
     # TODO: incomplete docstring

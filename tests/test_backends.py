@@ -537,7 +537,7 @@ def test_jax_svd(jaxb, highp):
         np.testing.assert_allclose(numericald(m), analyticald(m), atol=1e-3)
 
 
-@pytest.mark.parametrize("backend", [lf("jaxb"), lf("tfb")])
+@pytest.mark.parametrize("backend", [lf("jaxb"), lf("tfb"), lf("torchb")])
 def test_qr(backend, highp):
     def get_random_complex(shape):
         result = np.random.random(shape) + np.random.random(shape) * 1j
