@@ -1193,7 +1193,7 @@ class Circuit:
         self, *index: int, with_prob: bool = False
     ) -> Tuple[Tensor, Tensor]:
         """
-        Take measurement to the given quantum lines. 
+        Take measurement to the given quantum lines.
         This method implementated by jit is about 100 times faster than unjit version!
 
         :param index: Measure on which quantum line.
@@ -1245,6 +1245,7 @@ class Circuit:
 
     def perfect_sampling(self) -> Tuple[str, float]:
         """
+        Sampling bistrings from the circuit output.
         Reference: arXiv:1201.3974.
 
         :return: Sampled bit string and the corresponding theoretical probability.
@@ -1319,7 +1320,7 @@ class Circuit:
     def to_qiskit(self) -> Any:
         """
         Translate to a qiskit object.
-        
+
         :return: A qiskit object of this circuit.
         """
         from .translation import qir2qiskit
@@ -1332,7 +1333,7 @@ class Circuit:
         Visualise the circuit.
         This method recevies the keywords as same as qiskit.circuit.QuantumCircuit.draw.
         More details can be found here: https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.draw.html.
-        
+
         :Example:
         >>> c = tc.Circuit(3)
         >>> c.H(1)

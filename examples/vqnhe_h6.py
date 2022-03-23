@@ -5,7 +5,6 @@ import sys
 
 sys.path.insert(0, "../")
 import numpy as np
-
 import tensorcircuit as tc
 from tensorcircuit.applications.vqes import VQNHE, JointSchedule, construct_matrix_v3
 
@@ -25,22 +24,12 @@ vqeinstance = VQNHE(
 )
 # 1110011100
 
-
-def learn_q():
-    return JointSchedule(200, 0.01, 800, 0.002, 800)
-
-
-def learn_c():
-    lr = np.random.choice([0.004, 0.006, 0.008, 0.1])
-    return JointSchedule(200, 0.0006, 10000, lr, 5000)
-
-
 rs = vqeinstance.multi_training(
     tries=2,  # 10
     maxiter=500,  # 10000
     threshold=0.5e-8,
-    learn_q=learn_q,
-    learn_c=learn_c,
+    optq=JointSchedule(200, 0.01, 800, 0.002, 800),
+    optc=JointSchedule(200, 0.0006, 10000, 0.008, 5000),
     onlyq=0,
     debug=200,
     checkpoints=[(900, -3.18), (2600, -3.19), (4500, -3.2)],

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.0.220318
+
 ### Added
 
 - add gradient free scipy interface for optimization
@@ -15,6 +17,8 @@
 - futher refactor VQNHE code in applications
 
 - add alias ``sample`` for ``perfect_sampling`` method
+
+- optimize VQNHE pipeline for a more stable training loop (breaking changes in some APIs)
 
 ### Fixed
 
