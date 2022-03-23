@@ -172,7 +172,7 @@ class MPSCircuit:
             matrix = gates.matrix_for_gate(getattr(gates, g)())
             matrix = gates.bmatrix(matrix)
             doc = """
-            Apply %s gate on the circuit.
+            Apply **%s** gate on the circuit.
 
             :param index: Qubit number than the gate applies on.
                 The matrix for the gate is
@@ -183,16 +183,16 @@ class MPSCircuit:
 
             :type index: int.
             """ % (
-                g,
+                g.upper(),
                 matrix,
             )
             docs = """
-            Apply %s gate on the circuit.
+            Apply **%s** gate on the circuit.
 
             :param index: Qubit number than the gate applies on.
             :type index: int.
             """ % (
-                g
+                g.upper()
             )
             if g in ["rs"]:
                 getattr(cls, g).__doc__ = docs

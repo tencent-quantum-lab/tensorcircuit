@@ -216,7 +216,7 @@ class Circuit:
             matrix = gates.matrix_for_gate(getattr(gates, g)())
             matrix = gates.bmatrix(matrix)
             doc = """
-            Apply %s gate on the circuit.
+            Apply **%s** gate on the circuit.
 
             :param index: Qubit number than the gate applies on.
                 The matrix for the gate is
@@ -227,16 +227,16 @@ class Circuit:
 
             :type index: int.
             """ % (
-                g,
+                g.upper(),
                 matrix,
             )
             docs = """
-            Apply %s gate on the circuit.
+            Apply **%s** gate on the circuit.
 
             :param index: Qubit number than the gate applies on.
             :type index: int.
             """ % (
-                g
+                g.upper()
             )
             if g in ["rs"]:
                 getattr(cls, g).__doc__ = docs
@@ -262,14 +262,14 @@ class Circuit:
                 ),
             )
             doc = """
-            Apply %s gate with parameters on the circuit.
+            Apply **%s** gate with parameters on the circuit.
 
             :param index: Qubit number than the gate applies on.
             :type index: int.
             :param vars: Parameters for the gate.
             :type vars: float.
             """ % (
-                g
+                g.upper()
             )
             getattr(cls, g).__doc__ = doc
             getattr(cls, g.upper()).__doc__ = doc
@@ -1372,7 +1372,7 @@ def to_graphviz(
 ) -> graphviz.Graph:
     """
     Not an ideal visualization for quantum circuit, but reserve here as a general approch to show tensornetwork
-    [Deperacted, use ``qir2tex instead``]
+    [Deperacted, use ``tensorcircuit.vis.qir2tex instead``]
     """
     # Modified from tensornetwork codebase
     nodes = c._nodes
