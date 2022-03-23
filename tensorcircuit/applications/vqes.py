@@ -258,7 +258,7 @@ class VQNHE:
     def load(self, path: str) -> None:
         w = np.load(path, allow_pickle=True)
         self.assign(w["c"], w["q"])
-        self.history = w["h"]
+        self.history = list(w["h"])
 
     def save(self, path: str) -> None:
         np.savez(path, c=self.ccache, q=self.qcache, h=np.array(self.history))
