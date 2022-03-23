@@ -29,11 +29,11 @@ class QuantumLayer(Layer):  # type: ignore
         `QuantumLayer` wraps the quantum function `f` as a `keras.Layer`
         so that tensorcircuit is better integrated with tensorflow.
 
-        :param f: [description]
+        :param f: Callabel function.
         :type f: Callable[..., Any]
-        :param weights_shape: [description]
+        :param weights_shape: The shape of the weights.
         :type weights_shape: Sequence[Tuple[int, ...]]
-        :param initializer: [description], defaults to "glorot_uniform"
+        :param initializer: The initializer of the weights, defaults to "glorot_uniform"
         :type initializer: Union[Text, Sequence[Text]], optional
         :param constraint: [description], defaults to None
         :type constraint: Optional[Union[Text, Sequence[Text]]], optional
@@ -119,11 +119,11 @@ def output_asis_loss(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
     """
     The keras loss function that directly taking the model output as the loss.
 
-    :param y_true: [description]
+    :param y_true: Ignoring this parameter.
     :type y_true: tf.Tensor
-    :param y_pred: [description]
+    :param y_pred: Model output.
     :type y_pred: tf.Tensor
-    :return: [description]
+    :return: Model output, which is y_pred.
     :rtype: tf.Tensor
     """
     return y_pred
