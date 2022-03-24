@@ -1027,6 +1027,7 @@ try:
         hx: float = 0.0,
         hy: float = 0.0,
         sparse: bool = True,
+        numpy: bool = False,
     ) -> Tensor:
         """
         Generate Heisenberg Hamiltonian with possible external fields.
@@ -1055,7 +1056,9 @@ try:
         :param hy: External field on x direction, default is 0.0
         :type hy: float
         :param sparse: Whether to return sparse Hamiltonian operator, default is True.
-        :type sparse: bool
+        :type sparse: bool, defalts True
+        :param numpy: whether return the matrix in numpy or tensorflow form
+        :type numpy: bool, defaults False,
 
         :return: Hamiltonian measurements
         :rtype: Tensor
@@ -1104,13 +1107,19 @@ try:
         weight = get_backend("tensorflow").cast(weight, dtypestr)
         if sparse:
             r = PauliStringSum2COO_numpy(ls, weight)
+            if numpy:
+                return r
             return _numpy2tf_sparse(r)
-        return PauliStringSum2Dense(ls, weight)
+        return PauliStringSum2Dense(ls, weight, numpy=numpy)
 
     def PauliStringSum2Dense(
-        ls: Sequence[Sequence[int]], weight: Optional[Sequence[float]] = None
+        ls: Sequence[Sequence[int]],
+        weight: Optional[Sequence[float]] = None,
+        numpy: bool = False,
     ) -> Tensor:
         sparsem = PauliStringSum2COO_numpy(ls, weight)
+        if numpy:
+            return sparsem.todense()
         sparsem = _numpy2tf_sparse(sparsem)
         densem = get_backend("tensorflow").to_dense(sparsem)
         return densem

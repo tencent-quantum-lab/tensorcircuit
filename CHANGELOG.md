@@ -6,6 +6,10 @@
 
 - add QuOperator convert tools which can convert MPO in the form of TensorNetwork and Quimb into MPO in the form of QuOperator
 
+### Changed
+
+- quantum Hamiltonian generation now support the direct return of numpy form matrix
+
 ## 0.0.220318
 
 ### Added
