@@ -359,3 +359,51 @@ def test_expectation_quantum(backend):
     qv = c.quvector()
     exp2 = tc.expectation([tc.gates.z(), [0]], [tc.gates.z(), [2]], ket=qv)
     np.testing.assert_allclose(exp1, exp2, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_tn2qop(backend):
+    nwires = 6
+    dtype = np.complex64
+    # only obc is supported, even if you supply nwires Jx terms
+    Jx = np.array([1.0 for _ in range(nwires - 1)])  # strength of xx interaction (OBC)
+    Bz = np.array([-1.0 for _ in range(nwires)])  # strength of transverse field
+    tn_mpo = tn.matrixproductstates.mpo.FiniteTFI(Jx, Bz, dtype=dtype)
+    qu_mpo = tc.quantum.tn2qop(tn_mpo)
+    h1 = qu_mpo.eval_matrix()
+    g = tc.templates.graphs.Line1D(nwires, pbc=False)
+    h2 = tc.quantum.heisenberg_hamiltonian(
+        g, hzz=0, hxx=1, hyy=0, hz=1, hx=0, hy=0, sparse=False
+    ).numpy()
+    np.testing.assert_allclose(h1, h2, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_qb2qop(backend):
+    try:
+        import quimb
+    except ImportError:
+        pytest.skip("quimb is not installed")
+    nwires = 6
+    qb_mpo = quimb.tensor.tensor_gen.MPO_ham_ising(nwires, 4, 2, cyclic=True)
+    qu_mpo = tc.quantum.quimb2qop(qb_mpo)
+    h1 = qu_mpo.eval_matrix()
+    g = tc.templates.graphs.Line1D(nwires, pbc=True)
+    h2 = tc.quantum.heisenberg_hamiltonian(
+        g, hzz=1, hxx=0, hyy=0, hz=0, hx=-1, hy=0, sparse=False
+    ).numpy()
+    np.testing.assert_allclose(h1, h2, atol=1e-5)
+
+    # in out edge order test
+    builder = quimb.tensor.tensor_gen.SpinHam()
+    # new version quimb breaking API change: SpinHam1D -> SpinHam
+    builder += 1, "Y"
+    builder += 1, "X"
+    H = builder.build_mpo(3)
+    h = tc.quantum.quimb2qop(H)
+    m1 = h.eval_matrix()
+    g = tc.templates.graphs.Line1D(3, pbc=False)
+    m2 = tc.quantum.heisenberg_hamiltonian(
+        g, hzz=0, hxx=0, hyy=0, hz=0, hy=0.5, hx=0.5, sparse=False
+    ).numpy()
+    np.testing.assert_allclose(m1, m2, atol=1e-5)
