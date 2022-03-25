@@ -95,5 +95,5 @@ Reference paper: https://arxiv.org/pdf/2106.05105.pdf and https://arxiv.org/pdf/
 
 ### VQEX - MBL
 
-For the application of VQEX on MBL phase identification, see [the tutorial](https://github.com/quclub/tensorcircuit-tutorials/blob/master/tutorials/vqex_mbl.ipynb).
+For the application of VQEX on MBL phase identification, see the [tutorial](https://github.com/quclub/tensorcircuit-tutorials/blob/master/tutorials/vqex_mbl.ipynb).
 Reference paper: https://arxiv.org/pdf/2111.13719.pdf.

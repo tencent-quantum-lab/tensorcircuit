@@ -9,7 +9,6 @@ RUN wget -q -P /tmp \
   https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
     && bash /tmp/Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda \
     && rm /tmp/Miniconda3-latest-Linux-x86_64.sh
-
 ENV PATH="/opt/conda/bin:$PATH"
 RUN conda install -y  \
     cudatoolkit=11.0 \
