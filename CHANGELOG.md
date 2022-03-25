@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Added
+
+- add QuOperator convert tools which can convert MPO in the form of TensorNetwork and Quimb into MPO in the form of QuOperator
+
+### Changed
+
+- quantum Hamiltonian generation now support the direct return of numpy form matrix
+
 ## 0.0.220318
 
 ### Added
@@ -16,7 +24,7 @@
 
 - futher refactor VQNHE code in applications
 
-- add alias ``sample`` for ``perfect_sampling`` method
+- add alias `sample` for `perfect_sampling` method
 
 - optimize VQNHE pipeline for a more stable training loop (breaking changes in some APIs)
 
@@ -32,9 +40,9 @@
 
 - add MPO expectation template function for MPO evaluation on circuit
 
-- add ``operator_expectation`` in templates.measurements for a unified expectation interface
+- add `operator_expectation` in templates.measurements for a unified expectation interface
 
-- add ``templates.chems`` module for interface between tc and openfermion on quantum chemistry related tasks
+- add `templates.chems` module for interface between tc and openfermion on quantum chemistry related tasks
 
 - add tc.Circuit to Qiskit QuantumCircuit transformation
 
