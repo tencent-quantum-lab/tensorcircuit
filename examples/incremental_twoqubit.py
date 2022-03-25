@@ -25,7 +25,7 @@ def energy(params, structures, n, nlayers):
     for j in range(nlayers):
         for i in range(n - 1):
             matrix = structures[j, i] * tc.gates._ii_matrix + (
-                    1.0 - structures[j, i]
+                1.0 - structures[j, i]
             ) * (
                              K.cos(params[2 * j + 1, i]) * tc.gates._ii_matrix
                              + 1.0j * K.sin(params[2 * j + 1, i]) * tc.gates._zz_matrix
