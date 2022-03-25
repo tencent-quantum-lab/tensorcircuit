@@ -956,6 +956,65 @@ def generate_local_hamiltonian(
     return hop
 
 
+def tn2qop(tn_mpo: Any) -> QuOperator:
+    """
+    Convert MPO in TensorNetwork package to QuOperator.
+
+    :param tn_mpo: MPO in the form of TensorNetwork package
+    :type tn_mpo: ``tn.matrixproductstates.mpo.*``
+    :return: MPO in the form of QuOperator
+    :rtype: QuOperator
+    """
+    tn_mpo = tn_mpo.tensors
+    nwires = len(tn_mpo)
+    mpo = []
+    for i in range(nwires):
+        mpo.append(Node(tn_mpo[i]))
+
+    for i in range(nwires - 1):
+        connect(mpo[i][1], mpo[i + 1][0])
+    # TODO(@refraction-ray): whether in and out edge is in the correct order require further check
+    qop = quantum_constructor(
+        [mpo[i][-1] for i in range(nwires)],  # out_edges
+        [mpo[i][-2] for i in range(nwires)],  # in_edges
+        [],
+        [mpo[0][0], mpo[-1][1]],  # ignore_edges
+    )
+    return qop
+
+
+def quimb2qop(qb_mpo: Any) -> QuOperator:
+    """
+    Convert MPO in Quimb package to QuOperator.
+
+    :param tn_mpo: MPO in the form of Quimb package
+    :type tn_mpo: ``quimb.tensor.tensor_gen.*``
+    :return: MPO in the form of QuOperator
+    :rtype: QuOperator
+    """
+    qb_mpo = qb_mpo.tensors
+    nwires = len(qb_mpo)
+    assert nwires >= 3, "number of tensors must be larger than 2"
+    mpo = []
+    for i in range(nwires):
+        mpo.append(Node(qb_mpo[i].data))
+    pbc = len(qb_mpo[0].shape) == 4
+    if pbc:
+        for i in range(nwires):
+            connect(mpo[i][1], mpo[(i + 1) % nwires][0])
+    else:
+        for i in range(1, nwires - 1):
+            connect(mpo[i][1], mpo[i + 1][0])
+        connect(mpo[0][0], mpo[1][0])
+    qop = quantum_constructor(
+        [mpo[i][-2] for i in range(nwires)],  # out_edges
+        [mpo[i][-1] for i in range(nwires)],  # in_edges
+        [],
+        [],  # ignore_edges
+    )
+    return qop
+
+
 try:
     compiled_jit = partial(get_backend("tensorflow").jit, jit_compile=True)
     # TODO(@refraction-ray): at least make the final returned sparse tensor backend agnostic?
@@ -968,6 +1027,7 @@ try:
         hx: float = 0.0,
         hy: float = 0.0,
         sparse: bool = True,
+        numpy: bool = False,
     ) -> Tensor:
         """
         Generate Heisenberg Hamiltonian with possible external fields.
@@ -996,7 +1056,9 @@ try:
         :param hy: External field on x direction, default is 0.0
         :type hy: float
         :param sparse: Whether to return sparse Hamiltonian operator, default is True.
-        :type sparse: bool
+        :type sparse: bool, defalts True
+        :param numpy: whether return the matrix in numpy or tensorflow form
+        :type numpy: bool, defaults False,
 
         :return: Hamiltonian measurements
         :rtype: Tensor
@@ -1045,13 +1107,19 @@ try:
         weight = get_backend("tensorflow").cast(weight, dtypestr)
         if sparse:
             r = PauliStringSum2COO_numpy(ls, weight)
+            if numpy:
+                return r
             return _numpy2tf_sparse(r)
-        return PauliStringSum2Dense(ls, weight)
+        return PauliStringSum2Dense(ls, weight, numpy=numpy)
 
     def PauliStringSum2Dense(
-        ls: Sequence[Sequence[int]], weight: Optional[Sequence[float]] = None
+        ls: Sequence[Sequence[int]],
+        weight: Optional[Sequence[float]] = None,
+        numpy: bool = False,
     ) -> Tensor:
         sparsem = PauliStringSum2COO_numpy(ls, weight)
+        if numpy:
+            return sparsem.todense()
         sparsem = _numpy2tf_sparse(sparsem)
         densem = get_backend("tensorflow").to_dense(sparsem)
         return densem
