@@ -4,7 +4,7 @@ cirq==0.11
 tensorflow==2.7
 tensornetwork==0.4.6
 graphviz
-jax==0.2.27
+jax==0.3.4
 # jaxlib indepedent specify the version in Dockerfile
 torch
 torchvision
@@ -17,6 +17,10 @@ nevergrad
 scikit-optimize
 matplotlib
 jupyter
+qiskit
+openfermion
+quimb
+openfermionpyscf
 # below is for development
 mypy==0.782
 pytest==6.2.4
