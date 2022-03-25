@@ -21,15 +21,15 @@
 
 <p align="center"> English | <a href="README_cn.md"> 简体中文 </a></p>
 
-TensorCircuit is the next generation of quantum circuit simulator with support for automatic differentiation, just-in-time compiling, hardware acceleration, and vectorized parallelism.
+TensorCircuit is the next generation of quantum circuit simulators with support for automatic differentiation, just-in-time compiling, hardware acceleration, and vectorized parallelism.
 
-TensorCircuit is built on top of modern machine learning frameworks, and is machine learning backend agnostic. It is specifically suitable for highly efficient simulations of quantum-classical hybrid paradigm and variational quantum algorithms.
+TensorCircuit is built on top of modern machine learning frameworks and is machine learning backend agnostic. It is specifically suitable for highly efficient simulations of quantum-classical hybrid paradigm and variational quantum algorithms.
 
 ## Getting Started
 
-Please begin with [Quick Start](/docs/source/quickstart.rst) and [Jupyter Tutorials](/docs/source/tutorials).
+Please begin with [QuickStart](/docs/source/quickstart.rst) and [Jupyter Tutorials](/docs/source/tutorials).
 
-For more information and introductions, please refer to helpful [example scripts](/examples) and [full documentations](/docs/source). API docstrings and test cases in [tests](/tests) are also informative.
+For more information and introductions, please refer to helpful [example scripts](/examples) and [full documentation](/docs/source). API docstrings and test cases in [tests](/tests) are also informative.
 
 The following are some minimal demos.
 
@@ -77,7 +77,7 @@ print(g(theta))
 
 For contribution guidelines and notes, see [CONTRIBUTING](/CONTRIBUTING.md).
 
-For developers, we suggest to first configure a good conda environment. The versions of dependence packages may vary in terms of development requirements. The minimum requirement is the [TensorNetwork](https://github.com/google/TensorNetwork) package. [Dockerfiles](/docker) may also be helpful for building a good development enviroment.
+For developers, we suggest first configuring a good conda environment. The versions of dependence packages may vary in terms of development requirements. The minimum requirement is the [TensorNetwork](https://github.com/google/TensorNetwork) package. [Dockerfiles](/docker) may also help build a good development environment.
 
 
 
@@ -85,15 +85,15 @@ For developers, we suggest to first configure a good conda environment. The vers
 
 ### DQAS
 
-For application of Differentiable Quantum Architecture Search, see [applications](/tensorcircuit/applications).
+For the application of Differentiable Quantum Architecture Search, see [applications](/tensorcircuit/applications).
 Reference paper: https://arxiv.org/pdf/2010.08561.pdf.
 
 ### VQNHE
 
-For application of Variational Quantum-Neural Hybrid Eigensolver, see [applications](/tensorcircuit/applications).
+For the application of Variational Quantum-Neural Hybrid Eigensolver, see [applications](/tensorcircuit/applications).
 Reference paper: https://arxiv.org/pdf/2106.05105.pdf and https://arxiv.org/pdf/2112.10380.pdf.
 
 ### VQEX - MBL
 
-For application of VQEX on MBL phase identification, see [tutorial](https://github.com/quclub/tensorcircuit-tutorials/blob/master/tutorials/vqex_mbl.ipynb).
+For the application of VQEX on MBL phase identification, see [the tutorial](https://github.com/quclub/tensorcircuit-tutorials/blob/master/tutorials/vqex_mbl.ipynb).
 Reference paper: https://arxiv.org/pdf/2111.13719.pdf.
