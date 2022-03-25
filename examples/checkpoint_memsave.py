@@ -1,5 +1,5 @@
 """
-some possible attempts to save memory from state-like simulator with checkpoint tricks (jax support only)
+Some possible attempts to save memory from the state-like simulator with checkpoint tricks (jax support only).
 """
 
 import time

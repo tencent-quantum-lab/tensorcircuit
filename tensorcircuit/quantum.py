@@ -43,7 +43,7 @@ Graph = Any
 
 logger = logging.getLogger(__name__)
 
-# Note the first version of part of this file is adpated from source code of tensornetwork: (Apache2)
+# Note the first version of part of this file is adapted from source code of tensornetwork: (Apache2)
 # https://github.com/google/TensorNetwork/blob/master/tensornetwork/quantum/quantum.py
 # For the reason of adoption instead of direct import: see https://github.com/google/TensorNetwork/issues/950
 

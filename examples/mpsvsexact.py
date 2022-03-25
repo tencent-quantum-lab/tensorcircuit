@@ -1,5 +1,5 @@
 """
-A simple script to benchmark the approximation power of MPS simulator
+A simple script to benchmark the approximation power of the MPS simulator.
 """
 import sys
 

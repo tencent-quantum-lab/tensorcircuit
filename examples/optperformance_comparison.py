@@ -1,6 +1,6 @@
 """
-optimization performance comparison for different density of two-qubit gates
-(random layouts averaged)
+Optimization for performance comparison for different densities of two-qubit gates
+(random layouts averaged).
 """
 import sys
 

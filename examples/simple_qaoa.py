@@ -1,5 +1,5 @@
 """
-A plain QAOA optimization example with given graph using networkx
+A plain QAOA optimization example with given graphs using networkx.
 """
 import sys
 
@@ -65,7 +65,7 @@ def QAOAansatz(gamma, beta, g=example_graph):
     return loss
 
 
-# 3. get compiled function for qaoa ansatz and its gradient
+# 3. get compiled function for QAOA ansatz and its gradient
 
 QAOA_vag = K.jit(K.value_and_grad(QAOAansatz, argnums=(0, 1)), static_argnums=2)
 

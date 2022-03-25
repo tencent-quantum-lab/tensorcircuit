@@ -1,5 +1,5 @@
 """
-Quantum circuit: state simulator
+Quantum circuit: the state simulator
 """
 # pylint: disable=invalid-name
 
@@ -398,7 +398,7 @@ class Circuit:
         self._nodes.append(gate)
 
         # actually apply single and double gate never directly used in the Circuit class
-        # and don't use, directly use general gate function as it is more richful in feature
+        # and don't use, directly use general gate function as it is more diverse in feature
 
     def apply_general_gate(
         self,
@@ -913,7 +913,7 @@ class Circuit:
         fallback_weight_i = 0
         len_kraus = len(kraus)
         for i in tf.range(len_kraus):  # breaks backend agnostic
-            # nested for and if, if tensor inner must come with for in tensor outter, s.t. autograph works
+            # nested for and if, if tensor inner must come with for in tensor outer, s.t. autograph works
             weight = calculate_kraus_p(i)
             if weight > fallback_weight:
                 fallback_weight_i = i
@@ -1194,7 +1194,7 @@ class Circuit:
     ) -> Tuple[Tensor, Tensor]:
         """
         Take measurement to the given quantum lines.
-        This method implementated by jit is about 100 times faster than unjit version!
+        This method implemented by jit is about 100 times faster than unjit version!
 
         :param index: Measure on which quantum line.
         :type index: int
@@ -1329,6 +1329,7 @@ class Circuit:
         return qir2qiskit(qir, n=self._nqubits)
 
     def draw(self, **kws: Any) -> Any:
+        # TODO(@Xinghan): The example part of the documentation doesn't load as you put your mouse on the draw dunction
         """
         Visualise the circuit.
         This method recevies the keywords as same as qiskit.circuit.QuantumCircuit.draw.
@@ -1371,8 +1372,8 @@ def to_graphviz(
     engine: str = "neato",
 ) -> graphviz.Graph:
     """
-    Not an ideal visualization for quantum circuit, but reserve here as a general approch to show tensornetwork
-    [Deperacted, use ``tensorcircuit.vis.qir2tex instead``]
+    Not an ideal visualization for quantum circuit, but reserve here as a general approach to show the tensornetwork
+    [Deprecated, use ``tensorcircuit.vis.qir2tex instead``]
     """
     # Modified from tensornetwork codebase
     nodes = c._nodes

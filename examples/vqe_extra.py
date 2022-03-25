@@ -1,5 +1,5 @@
 """
-Demonstration of TFIM VQE on V100 with lager qubit number counts (100+)
+Demonstration of the TFIM VQE on V100 with lager qubit number counts (100+).
 """
 
 import time

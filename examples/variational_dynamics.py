@@ -1,5 +1,5 @@
 """
-Variational wavefunction based on variational circuit and its dynamics
+Variational wavefunctions based on variational circuits and its dynamics.
 """
 
 # Variational Quantum Algorithm for Quantum Dynamics
@@ -36,7 +36,7 @@ ppsioverptheta = tc.backend.jit(tc.backend.jacfwd(variational_wfn, argnums=0))
 
 def ij(i, j):
     """
-    inner product
+    Inner product
     """
     return tc.backend.tensordot(tc.backend.conj(i), j, 1)
 

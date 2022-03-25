@@ -1,5 +1,5 @@
 """
-old-fashioned DQAS code on QAOA ansatz design, deprecated
+Old-fashioned DQAS code on QAOA ansatz design, now deprecated.
 """
 
 # pylint: disable=wildcard-import

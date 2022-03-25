@@ -1,6 +1,6 @@
 """
-optimizing the parameterized circuit with progressively dense two-qubit gates,
-as a potential approach to alleviate barren plateau
+Optimizing the parameterized circuit with progressively dense two-qubit gates,
+as a potential approach to alleviate barren plateau.
 """
 import sys
 
@@ -25,11 +25,11 @@ def energy(params, structures, n, nlayers):
     for j in range(nlayers):
         for i in range(n - 1):
             matrix = structures[j, i] * tc.gates._ii_matrix + (
-                1.0 - structures[j, i]
+                    1.0 - structures[j, i]
             ) * (
-                K.cos(params[2 * j + 1, i]) * tc.gates._ii_matrix
-                + 1.0j * K.sin(params[2 * j + 1, i]) * tc.gates._zz_matrix
-            )
+                             K.cos(params[2 * j + 1, i]) * tc.gates._ii_matrix
+                             + 1.0j * K.sin(params[2 * j + 1, i]) * tc.gates._zz_matrix
+                     )
             c.any(
                 i,
                 i + 1,
@@ -55,8 +55,8 @@ opt = K.optimizer(tf.keras.optimizers.Adam(1e-2))
 for i in range(300):
     if i % 20 == 0:
         structures -= 0.2 * K.ones([nlayers, n])
-    ## one can change the structures by tune the structure tensor value
-    ## this specifically equiv to add two qubit gates
+    # one can change the structures by tune the structure tensor value
+    # this specifically equiv to add two qubit gates
     e, grads = vagf(params, structures, n, nlayers)
     params = opt.update(grads, params)
     print(K.numpy(e))

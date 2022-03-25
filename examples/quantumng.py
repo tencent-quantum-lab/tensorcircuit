@@ -1,5 +1,5 @@
 """
-quantum natural gradient descent demonstration with TFIM VQE example
+Quantum natural gradient descent demonstration with the TFIM VQE example.
 """
 
 import sys

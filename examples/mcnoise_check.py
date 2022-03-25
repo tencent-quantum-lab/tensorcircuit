@@ -1,5 +1,5 @@
 """
-Cross check the correctness of density matrix simulator and the Monte Carlo trajectory state simulator
+Cross check the correctness of the density matrix simulator and the Monte Carlo trajectory state simulator.
 """
 import os
 

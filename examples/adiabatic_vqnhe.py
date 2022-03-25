@@ -1,5 +1,5 @@
 """
-Calculate molecule dissociation curve using VQNHE
+Calculate the molecule dissociation curve using VQNHE.
 """
 from functools import partial
 import sys
@@ -63,7 +63,7 @@ def adiabatic_range(hm, history):
         )[0]
     else:
         lastlast = None
-    print("begin caculation on new")
+    print("begin calculation on new")
     vqeinstance = VQNHE(
         4,
         hm,

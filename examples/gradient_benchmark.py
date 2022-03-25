@@ -1,5 +1,5 @@
 """
-gradient evaluation comparison between qiskit and tensorcircut
+Gradient evaluation comparison between qiskit and tensorcircut
 """
 
 import time

@@ -1,5 +1,5 @@
 """
-some chaotic properties calculation from circuit state
+Some chaotic properties calculations from the circuit state.
 """
 from functools import partial
 import sys
@@ -71,13 +71,13 @@ def get_zz(params, n, nlayers, inputs=None):
     z1z2 = c.expectation([tc.gates.z(), [1]], [tc.gates.z(), [2]])
     return K.real(
         z1z2
-    )  # one can also add serveral correlations together as energy estimation
+    )  # one can also add several correlations together as energy estimation
 
 
 # hessian matrix
 
 h_func = K.hessian(partial(get_zz, n=10, nlayers=5))
-# suggect jax backend for hessian and directly use `jax.hessian` may be better
+# suggest jax backend for hessian and directly use `jax.hessian` may be better
 print(h_func(params))
 
 # optimization, suppose the energy we want to minimize is just z1z2 as above
