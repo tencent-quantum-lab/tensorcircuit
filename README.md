@@ -27,7 +27,7 @@ TensorCircuit is built on top of modern machine learning frameworks and is machi
 
 ## Getting Started
 
-Please begin with [QuickStart](/docs/source/quickstart.rst) and [Jupyter Tutorials](/docs/source/tutorials).
+Please begin with [Quick Start](/docs/source/quickstart.rst) and [Jupyter Tutorials](/docs/source/tutorials).
 
 For more information and introductions, please refer to helpful [example scripts](/examples) and [full documentation](/docs/source). API docstrings and test cases in [tests](/tests) are also informative.
 
@@ -70,16 +70,13 @@ print(g(theta))
 
 ## Install
 
-``pip install tensorcircuit``(Extra package installation may be required for some features.)
-
+`pip install tensorcircuit`(Extra package installation may be required for some features.)
 
 ## Contributing
 
 For contribution guidelines and notes, see [CONTRIBUTING](/CONTRIBUTING.md).
 
-For developers, we suggest first configuring a good conda environment. The versions of dependence packages may vary in terms of development requirements. The minimum requirement is the [TensorNetwork](https://github.com/google/TensorNetwork) package. [Dockerfiles](/docker) may also help build a good development environment.
-
-
+For developers, we suggest first configuring a good conda environment. The versions of dependence packages may vary in terms of development requirements. The minimum requirement is the [TensorNetwork](https://github.com/google/TensorNetwork) package. [Dockerfile](/docker) is also provided.
 
 ## Researches and applications
 

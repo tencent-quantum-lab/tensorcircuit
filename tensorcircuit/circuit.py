@@ -837,8 +837,7 @@ class Circuit:
         ] = None,
     ) -> float:  # DRY
         sites = len(index)
-        if isinstance(kraus[0], tn.Node):
-            kraus = [k.tensor for k in kraus]
+        kraus = [k.tensor if isinstance(k, tn.Node) else k for k in kraus]
         if prob is None:
             prob = [
                 backend.real(backend.trace(backend.adjoint(k) @ k) / k.shape[0])
@@ -954,7 +953,8 @@ class Circuit:
         # vmap, grad, vvag are all fine for this function
         # layerwise jit technique can greatly boost the staging time, see in /examples/mcnoise_boost.py
         sites = len(index)
-        kraus_tensor = [k.tensor for k in kraus]
+        kraus_tensor = [k.tensor if isinstance(k, tn.Node) else k for k in kraus]
+        # kraus_tensor = [k.tensor for k in kraus]
 
         # tn with hole
         newnodes, newfront = self._copy()

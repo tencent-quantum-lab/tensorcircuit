@@ -134,3 +134,20 @@ Therefore, a unified jittable random infrastructure with backend agnostic can be
     key1, key2 = K.random_split(key)
 
     print(r(key1), r(key2))
+
+And a more neat approach to achieve this is as follows:
+
+.. code-block:: python
+
+    key = K.get_random_state(42)
+
+    @K.jit
+    def r(key):
+        K.set_random_state(key)
+        return K.implicit_randn()
+
+    key1, key2 = K.random_split(key)
+
+    print(r(key1), r(key2))
+
+It is worth noting that since ``Circuit.unitary_kraus`` and ``Circuit.general_kraus`` calls ``implicit_rand*`` API, the correct usage of these APIs are the same as above.

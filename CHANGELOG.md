@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.0.220328
+
 ### Added
 
 - add QuOperator convert tools which can convert MPO in the form of TensorNetwork and Quimb into MPO in the form of QuOperator
@@ -9,6 +11,10 @@
 ### Changed
 
 - quantum Hamiltonian generation now support the direct return of numpy form matrix
+
+### Fixed
+
+- unitary_kraus and general_kraus API now supports the mix input of array and Node as kraus list
 
 ## 0.0.220318
 
