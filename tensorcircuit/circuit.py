@@ -761,7 +761,7 @@ class Circuit:
     ) -> float:
         # px/y/z here not support differentiation for now
         # jit compatible for now
-        assert px + py + pz < 1 and px >= 0 and py >= 0 and pz >= 0
+        # assert px + py + pz < 1 and px >= 0 and py >= 0 and pz >= 0
 
         def step_function(x: Tensor) -> Tensor:
             r = (

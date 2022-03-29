@@ -53,3 +53,31 @@ def return_partial(
         return tuple(nr)
 
     return wrapper
+
+
+def append(f: Callable[..., Any], *op: Callable[..., Any]) -> Any:
+    """
+    Functional programming paradigm to build function pipeline
+
+    :Example:
+
+    >>> f = tc.utils.append(lambda x: x**2, lambda x: x+1, tc.backend.mean)
+    >>> f(tc.backend.ones(2))
+    (2+0j)
+
+    :param f: The function which are attached with other functions
+    :type f: Callable[..., Any]
+    :param op: Function to be attached
+    :type op: Callable[..., Any]
+    :return: The final results after function pipeline
+    :rtype: Any
+    """
+
+    @wraps(f)
+    def wrapper(*args: Any, **kws: Any) -> Any:
+        rs = f(*args, **kws)
+        for opi in op:
+            rs = opi(rs)
+        return rs
+
+    return wrapper

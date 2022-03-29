@@ -180,6 +180,71 @@ def test_backend_methods(backend):
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])
+def test_backend_methods_2(backend):
+    np.testing.assert_allclose(tc.backend.mean(tc.backend.ones([10])), 1.0, atol=1e-5)
+    # acos acosh asin asinh atan atan2 atanh cosh (cos) tan tanh sinh (sin)
+    np.testing.assert_allclose(
+        tc.backend.acos(tc.backend.ones([2], dtype="float32")),
+        np.arccos(tc.backend.ones([2])),
+        atol=1e-5,
+    )
+    np.testing.assert_allclose(
+        tc.backend.acosh(tc.backend.ones([2], dtype="float32")),
+        np.arccosh(tc.backend.ones([2])),
+        atol=1e-5,
+    )
+    np.testing.assert_allclose(
+        tc.backend.asin(tc.backend.ones([2], dtype="float32")),
+        np.arcsin(tc.backend.ones([2])),
+        atol=1e-5,
+    )
+    np.testing.assert_allclose(
+        tc.backend.asinh(tc.backend.ones([2], dtype="float32")),
+        np.arcsinh(tc.backend.ones([2])),
+        atol=1e-5,
+    )
+    np.testing.assert_allclose(
+        tc.backend.atan(0.5 * tc.backend.ones([2], dtype="float32")),
+        np.arctan(0.5 * tc.backend.ones([2])),
+        atol=1e-5,
+    )
+    np.testing.assert_allclose(
+        tc.backend.atan2(
+            tc.backend.ones([1], dtype="float32"), tc.backend.ones([1], dtype="float32")
+        ),
+        np.arctan2(
+            tc.backend.ones([1], dtype="float32"), tc.backend.ones([1], dtype="float32")
+        ),
+        atol=1e-5,
+    )
+    np.testing.assert_allclose(
+        tc.backend.atanh(0.5 * tc.backend.ones([2], dtype="float32")),
+        np.arctanh(0.5 * tc.backend.ones([2])),
+        atol=1e-5,
+    )
+    np.testing.assert_allclose(
+        tc.backend.cosh(tc.backend.ones([2], dtype="float32")),
+        np.cosh(tc.backend.ones([2])),
+        atol=1e-5,
+    )
+    np.testing.assert_allclose(
+        tc.backend.tan(tc.backend.ones([2], dtype="float32")),
+        np.tan(tc.backend.ones([2])),
+        atol=1e-5,
+    )
+    np.testing.assert_allclose(
+        tc.backend.tanh(tc.backend.ones([2], dtype="float32")),
+        np.tanh(tc.backend.ones([2])),
+        atol=1e-5,
+    )
+    np.testing.assert_allclose(
+        tc.backend.sinh(0.5 * tc.backend.ones([2], dtype="float32")),
+        np.sinh(0.5 * tc.backend.ones([2])),
+        atol=1e-5,
+    )
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])
 def test_arg_cmp(backend):
     np.testing.assert_allclose(tc.backend.argmax(tc.backend.ones([3], "float64")), 0)
     np.testing.assert_allclose(

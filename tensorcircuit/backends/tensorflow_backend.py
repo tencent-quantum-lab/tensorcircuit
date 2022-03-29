@@ -278,6 +278,39 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     def cos(self, a: Tensor) -> Tensor:
         return tf.math.cos(a)
 
+    def acos(self, a: Tensor) -> Tensor:
+        return tf.math.acos(a)
+
+    def acosh(self, a: Tensor) -> Tensor:
+        return tf.math.acosh(a)
+
+    def asin(self, a: Tensor) -> Tensor:
+        return tf.math.asin(a)
+
+    def asinh(self, a: Tensor) -> Tensor:
+        return tf.math.asinh(a)
+
+    def atan(self, a: Tensor) -> Tensor:
+        return tf.math.atan(a)
+
+    def atan2(self, y: Tensor, x: Tensor) -> Tensor:
+        return tf.math.atan2(y, x)
+
+    def atanh(self, a: Tensor) -> Tensor:
+        return tf.math.atanh(a)
+
+    def cosh(self, a: Tensor) -> Tensor:
+        return tf.math.cosh(a)
+
+    def tan(self, a: Tensor) -> Tensor:
+        return tf.math.tan(a)
+
+    def tanh(self, a: Tensor) -> Tensor:
+        return tf.math.tanh(a)
+
+    def sinh(self, a: Tensor) -> Tensor:
+        return tf.math.sinh(a)
+
     def size(self, a: Tensor) -> Tensor:
         return tf.size(a)
 
@@ -324,6 +357,14 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
 
     def tile(self, a: Tensor, rep: Tensor) -> Tensor:
         return tf.tile(a, rep)
+
+    def mean(
+        self,
+        a: Tensor,
+        axis: Optional[Sequence[int]] = None,
+        keepdims: bool = False,
+    ) -> Tensor:
+        return tf.math.reduce_mean(a, axis=axis, keepdims=keepdims)
 
     def sigmoid(self, a: Tensor) -> Tensor:
         return tf.nn.sigmoid(a)

@@ -97,6 +97,138 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `cos`.".format(self.name)
         )
 
+    def acos(self: Any, a: Tensor) -> Tensor:
+        """
+        Return the acos of a tensor ``a``.
+
+        :param a: tensor in matrix form
+        :type a: Tensor
+        :return: acos of ``a``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `acos`.".format(self.name)
+        )
+
+    def acosh(self: Any, a: Tensor) -> Tensor:
+        """
+        Return the acosh of a tensor ``a``.
+
+        :param a: tensor in matrix form
+        :type a: Tensor
+        :return: acosh of ``a``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `acosh`.".format(self.name)
+        )
+
+    def asin(self: Any, a: Tensor) -> Tensor:
+        """
+        Return the acos of a tensor ``a``.
+
+        :param a: tensor in matrix form
+        :type a: Tensor
+        :return: asin of ``a``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `asin`.".format(self.name)
+        )
+
+    def asinh(self: Any, a: Tensor) -> Tensor:
+        """
+        Return the asinh of a tensor ``a``.
+
+        :param a: tensor in matrix form
+        :type a: Tensor
+        :return: asinh of ``a``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `asinh`.".format(self.name)
+        )
+
+    def atan(self: Any, a: Tensor) -> Tensor:
+        """
+        Return the atan of a tensor ``a``.
+
+        :param a: tensor in matrix form
+        :type a: Tensor
+        :return: atan of ``a``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `atan`.".format(self.name)
+        )
+
+    def atan2(self: Any, y: Tensor, x: Tensor) -> Tensor:
+        """
+        Return the atan of a tensor ``y``/``x``.
+
+        :param a: tensor in matrix form
+        :type a: Tensor
+        :return: atan2 of ``a``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `atan2`.".format(self.name)
+        )
+
+    def cosh(self: Any, a: Tensor) -> Tensor:
+        """
+        Return the cosh of a tensor ``a``.
+
+        :param a: tensor in matrix form
+        :type a: Tensor
+        :return: cosh of ``a``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `cosh`.".format(self.name)
+        )
+
+    def tan(self: Any, a: Tensor) -> Tensor:
+        """
+        Return the tan of a tensor ``a``.
+
+        :param a: tensor in matrix form
+        :type a: Tensor
+        :return: tan of ``a``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `tan`.".format(self.name)
+        )
+
+    def tanh(self: Any, a: Tensor) -> Tensor:
+        """
+        Return the tanh of a tensor ``a``.
+
+        :param a: tensor in matrix form
+        :type a: Tensor
+        :return: tanh of ``a``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `tanh`.".format(self.name)
+        )
+
+    def sinh(self: Any, a: Tensor) -> Tensor:
+        """
+        Return the sinh of a tensor ``a``.
+
+        :param a: tensor in matrix form
+        :type a: Tensor
+        :return: sinh of ``a``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `sinh`.".format(self.name)
+        )
+
+    # acos acosh asin asinh atan atan2 atanh cosh (cos) tan tanh (sin) sinh
+
     def abs(self: Any, a: Tensor) -> Tensor:
         """
         Return the elementwise abs value of a matrix ``a``.
@@ -281,6 +413,28 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         """
         raise NotImplementedError(
             "Backend '{}' has not implemented `tile`.".format(self.name)
+        )
+
+    def mean(
+        self: Any,
+        a: Tensor,
+        axis: Optional[Sequence[int]] = None,
+        keepdims: bool = False,
+    ) -> Tensor:
+        """
+        Compute the arithmetic mean for ``a`` along the specified ``axis``.
+
+        :param a: tensor to take average
+        :type a: Tensor
+        :param axis: the axis to take mean, defaults to None indicating sum over flatten array
+        :type axis: Optional[Sequence[int]], optional
+        :param keepdims: _description_, defaults to False
+        :type keepdims: bool, optional
+        :return: _description_
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `mean`.".format(self.name)
         )
 
     def min(self: Any, a: Tensor, axis: Optional[int] = None) -> Tensor:

@@ -247,6 +247,39 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     def cos(self, a: Tensor) -> Tensor:
         return jnp.cos(a)
 
+    def acos(self, a: Tensor) -> Tensor:
+        return jnp.arccos(a)
+
+    def acosh(self, a: Tensor) -> Tensor:
+        return jnp.arccosh(a)
+
+    def asin(self, a: Tensor) -> Tensor:
+        return jnp.arcsin(a)
+
+    def asinh(self, a: Tensor) -> Tensor:
+        return jnp.arcsinh(a)
+
+    def atan(self, a: Tensor) -> Tensor:
+        return jnp.arctan(a)
+
+    def atan2(self, y: Tensor, x: Tensor) -> Tensor:
+        return jnp.arctan2(y, x)
+
+    def atanh(self, a: Tensor) -> Tensor:
+        return jnp.arctanh(a)
+
+    def cosh(self, a: Tensor) -> Tensor:
+        return jnp.cosh(a)
+
+    def tan(self, a: Tensor) -> Tensor:
+        return jnp.tan(a)
+
+    def tanh(self, a: Tensor) -> Tensor:
+        return jnp.tanh(a)
+
+    def sinh(self, a: Tensor) -> Tensor:
+        return jnp.sinh(a)
+
     def size(self, a: Tensor) -> Tensor:
         return jnp.size(a)
 
@@ -287,6 +320,14 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
 
     def tile(self, a: Tensor, rep: Tensor) -> Tensor:
         return jnp.tile(a, rep)
+
+    def mean(
+        self,
+        a: Tensor,
+        axis: Optional[Sequence[int]] = None,
+        keepdims: bool = False,
+    ) -> Tensor:
+        return jnp.mean(a, axis=axis, keepdims=keepdims)
 
     def min(self, a: Tensor, axis: Optional[int] = None) -> Tensor:
         return jnp.min(a, axis=axis)

@@ -217,6 +217,39 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
     def cos(self, a: Tensor) -> Tensor:
         return torchlib.cos(a)
 
+    def acos(self, a: Tensor) -> Tensor:
+        return torchlib.acos(a)
+
+    def acosh(self, a: Tensor) -> Tensor:
+        return torchlib.acosh(a)
+
+    def asin(self, a: Tensor) -> Tensor:
+        return torchlib.asin(a)
+
+    def asinh(self, a: Tensor) -> Tensor:
+        return torchlib.asinh(a)
+
+    def atan(self, a: Tensor) -> Tensor:
+        return torchlib.atan(a)
+
+    def atan2(self, y: Tensor, x: Tensor) -> Tensor:
+        return torchlib.atan2(y, x)
+
+    def atanh(self, a: Tensor) -> Tensor:
+        return torchlib.atanh(a)
+
+    def cosh(self, a: Tensor) -> Tensor:
+        return torchlib.cosh(a)
+
+    def tan(self, a: Tensor) -> Tensor:
+        return torchlib.tan(a)
+
+    def tanh(self, a: Tensor) -> Tensor:
+        return torchlib.tanh(a)
+
+    def sinh(self, a: Tensor) -> Tensor:
+        return torchlib.sinh(a)
+
     def size(self, a: Tensor) -> Tensor:
         return a.size()
 
@@ -257,6 +290,16 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
 
     def tile(self, a: Tensor, rep: Tensor) -> Tensor:
         return torchlib.tile(a, rep)
+
+    def mean(
+        self,
+        a: Tensor,
+        axis: Optional[Sequence[int]] = None,
+        keepdims: bool = False,
+    ) -> Tensor:
+        if axis is None:
+            axis = tuple([i for i in range(len(a.shape))])
+        return torchlib.mean(a, dim=axis, keepdim=keepdims)
 
     def min(self, a: Tensor, axis: Optional[int] = None) -> Tensor:
         if axis is None:

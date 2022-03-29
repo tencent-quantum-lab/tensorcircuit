@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Added
+
+- add `utils.append` to build function pipeline
+
+- add `mean` method on backends
+
+- add trigonometric methods on backends
+
 ## 0.0.220328
 
 ### Added
