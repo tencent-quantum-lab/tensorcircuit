@@ -20,8 +20,8 @@ Tensor = Any
 
 
 def perm_matrix(n: int) -> Tensor:
-    p_mat = np.zeros([2 ** n, 2 ** n])
-    for i in range(2 ** n):
+    p_mat = np.zeros([2**n, 2**n])
+    for i in range(2**n):
         bit = i
         revs_i = 0
         for j in range(n):

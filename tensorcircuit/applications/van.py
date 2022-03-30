@@ -43,7 +43,7 @@ class MaskedLinear(tf.keras.layers.Layer):
         return tf.tensordot(inputs, w_mask, axes=[[-2, -1], [2, 3]]) + self.b
 
     def regularization(self, lbd_w=1.0, lbd_b=1.0):
-        return lbd_w * tf.reduce_sum(self.w ** 2) + lbd_b * tf.reduce_sum(self.b ** 2)
+        return lbd_w * tf.reduce_sum(self.w**2) + lbd_b * tf.reduce_sum(self.b**2)
 
 
 class MADE(tf.keras.Model):

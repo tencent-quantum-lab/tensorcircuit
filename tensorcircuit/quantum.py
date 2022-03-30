@@ -1227,7 +1227,6 @@ try:
         )
         return tf.SparseTensor(indices=indices, values=values, dense_shape=(s, s))  # type: ignore
 
-
 except NameError:
     logger.warning(
         "tensorflow is not installed, and sparse Hamiltonian generation utilities are disabled"
@@ -1654,7 +1653,7 @@ def spin_by_basis(n: int, m: int, elements: Tuple[int, int] = (1, -1)) -> Tensor
         backend.cast(
             backend.convert_to_tensor(np.array([[elements[0]], [elements[1]]])), "int32"
         ),
-        [2 ** m, int(2 ** (n - m - 1))],
+        [2**m, int(2 ** (n - m - 1))],
     )
     return backend.reshape(s, [-1])
 

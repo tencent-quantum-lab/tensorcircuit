@@ -239,7 +239,7 @@ class DMCircuit:
         nodes, _ = self._copy_dm_tensor(conj=False, reuse=reuse)
         # t = contractor(nodes, output_edge_order=d_edges)
         dm = backend.reshape(
-            nodes[0].tensor, shape=[2 ** self._nqubits, 2 ** self._nqubits]
+            nodes[0].tensor, shape=[2**self._nqubits, 2**self._nqubits]
         )
         if check:
             self.check_density_matrix(dm)

@@ -54,7 +54,7 @@ def test_measure():
 
 
 def test_gates_in_circuit():
-    c = tc.Circuit(2, inputs=np.eye(2 ** 2))
+    c = tc.Circuit(2, inputs=np.eye(2**2))
     c.iswap(0, 1)
     ans = tc.gates.iswap_gate().tensor.reshape([4, 4])
     np.testing.assert_allclose(c.state().reshape([4, 4]), ans, atol=1e-5)
@@ -717,7 +717,7 @@ def test_debug_contract():
         c = tc.templates.blocks.example_block(c, param, nlayers=d)
         return c.state()
 
-    np.testing.assert_allclose(small_tn(), np.zeros([2 ** n]), atol=1e-5)
+    np.testing.assert_allclose(small_tn(), np.zeros([2**n]), atol=1e-5)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
@@ -795,7 +795,7 @@ def test_qir2qiskit():
         pytest.skip("qiskit is not installed")
 
     n = 6
-    c = tc.Circuit(n, inputs=np.eye(2 ** n))
+    c = tc.Circuit(n, inputs=np.eye(2**n))
     for i in range(n):
         c.H(i)
     zz = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
@@ -843,11 +843,11 @@ def test_qir2qiskit():
     c.multicontrol(0, 2, 1, ctrl=[0, 1], unitary=tc.gates._x_matrix, name="x")
 
     tc_unitary = c.wavefunction()
-    tc_unitary = np.reshape(tc_unitary, [2 ** n, 2 ** n])
+    tc_unitary = np.reshape(tc_unitary, [2**n, 2**n])
 
     qisc = c.to_qiskit()
     qis_unitary = qi.Operator(qisc)
-    qis_unitary = np.reshape(qis_unitary, [2 ** n, 2 ** n])
+    qis_unitary = np.reshape(qis_unitary, [2**n, 2**n])
 
     p_mat = perm_matrix(n)
     np.testing.assert_allclose(p_mat @ tc_unitary @ p_mat, qis_unitary, atol=1e-5)
@@ -902,10 +902,10 @@ def test_qiskit2tc():
     CCCRX = SwapGate().control(2, ctrl_state="01")
     qisc.append(CCCRX, [0, 1, 2, 3])
 
-    c = tc.Circuit.from_qiskit(qisc, n, np.eye(2 ** n))
+    c = tc.Circuit.from_qiskit(qisc, n, np.eye(2**n))
     tc_unitary = c.wavefunction()
-    tc_unitary = np.reshape(tc_unitary, [2 ** n, 2 ** n])
+    tc_unitary = np.reshape(tc_unitary, [2**n, 2**n])
     qis_unitary = qi.Operator(qisc)
-    qis_unitary = np.reshape(qis_unitary, [2 ** n, 2 ** n])
+    qis_unitary = np.reshape(qis_unitary, [2**n, 2**n])
     p_mat = perm_matrix(n)
     np.testing.assert_allclose(p_mat @ tc_unitary @ p_mat, qis_unitary, atol=1e-5)
