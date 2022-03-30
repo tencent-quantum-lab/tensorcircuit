@@ -787,13 +787,34 @@ class Circuit:
         self.any(index, unitary=g)  # type: ignore
         return 0.0
 
+    def select_gate(self, which: Tensor, kraus: Sequence[Gate], *index: int) -> None:
+        """
+        Apply ``which``-th gate from ``kraus`` list, i.e. apply kraus[which]
+
+        :param which: Tensor of shape [] and dtype int
+        :type which: Tensor
+        :param kraus: A list of gate in the form of ``tc.gate`` or Tensor
+        :type kraus: Sequence[Gate]
+        :param index: the qubit lines the gate applied on
+        :type index: int
+        """
+        kraus = [k.tensor if isinstance(k, tn.Node) else k for k in kraus]
+        kraus = [gates.array_to_tensor(k) for k in kraus]
+        l = len(kraus)
+        r = backend.onehot(which, l)
+        r = backend.cast(r, dtype=dtypestr)
+        tensor = reduce(add, [r[i] * kraus[i] for i in range(l)])
+        self.any(*index, unitary=tensor)  # type: ignore
+
+    conditional_gate = select_gate
+
     def unitary_kraus2(
         self,
         kraus: Sequence[Gate],
         *index: int,
         prob: Optional[Sequence[float]] = None,
         status: Optional[float] = None,
-    ) -> float:
+    ) -> Tensor:
         # general impl from Monte Carlo trajectory depolarizing above
         # still jittable
         # speed is similar to ``unitary_kraus``
@@ -811,7 +832,19 @@ class Circuit:
         *index: int,
         prob: Optional[Sequence[float]] = None,
         status: Optional[float] = None,
-    ) -> float:
+    ) -> Tensor:
+        """
+        Apply unitary gates in ``kraus`` randomly based on corresponding ``prob``.
+
+        :param kraus: List of ``tc.gates.Gate`` or just Tensors
+        :type kraus: Sequence[Gate]
+        :param prob: prob list with the same size as ``kraus``, defaults to None
+        :type prob: Optional[Sequence[float]], optional
+        :param status: random seed between 0 to 1, defaults to None
+        :type status: Optional[float], optional
+        :return: shape [] int dtype tensor indicates which kraus gate is applied
+        :rtype: Tensor
+        """
         # general impl from Monte Carlo trajectory depolarizing above
         # still jittable
 
@@ -835,9 +868,10 @@ class Circuit:
         get_gate_from_index: Optional[
             Callable[[Tensor, Sequence[Tensor]], Tensor]
         ] = None,
-    ) -> float:  # DRY
+    ) -> Tensor:  # DRY
         sites = len(index)
         kraus = [k.tensor if isinstance(k, tn.Node) else k for k in kraus]
+        kraus = [gates.array_to_tensor(k) for k in kraus]
         if prob is None:
             prob = [
                 backend.real(backend.trace(backend.adjoint(k) @ k) / k.shape[0])
@@ -867,7 +901,7 @@ class Circuit:
         g = get_gate_from_index(r, kraus)
         g = backend.reshape(g, [2 for _ in range(sites * 2)])
         self.any(*index, unitary=g)  # type: ignore
-        return 0.0
+        return r
 
     def _general_kraus_tf(
         self,
@@ -942,7 +976,7 @@ class Circuit:
         kraus: Sequence[Gate],
         *index: int,
         status: Optional[float] = None,
-    ) -> float:
+    ) -> Tensor:
         # the graph building time is frustratingly slow, several minutes
         # though running time is in terms of ms
         # raw running time in terms of s
@@ -954,7 +988,7 @@ class Circuit:
         # layerwise jit technique can greatly boost the staging time, see in /examples/mcnoise_boost.py
         sites = len(index)
         kraus_tensor = [k.tensor if isinstance(k, tn.Node) else k for k in kraus]
-        # kraus_tensor = [k.tensor for k in kraus]
+        kraus_tensor = [gates.array_to_tensor(k) for k in kraus_tensor]
 
         # tn with hole
         newnodes, newfront = self._copy()
@@ -988,15 +1022,14 @@ class Circuit:
             for w, k in zip(prob, kraus_tensor)
         ]
 
-        self.unitary_kraus2(new_kraus, *index, prob=prob, status=status)
-        return 0.0
+        return self.unitary_kraus2(new_kraus, *index, prob=prob, status=status)
 
     def general_kraus(
         self,
         kraus: Sequence[Gate],
         *index: int,
         status: Optional[float] = None,
-    ) -> float:
+    ) -> Tensor:
         """
         Monte Carlo trajectory simulation of general Kraus channel whose Kraus operators cannot be
         amplified to unitary operators. For unitary operators composed Kraus channel, :py:meth:`unitary_kraus`

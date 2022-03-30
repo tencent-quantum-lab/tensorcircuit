@@ -709,6 +709,33 @@ def test_debug_contract():
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_teleportation(backend):
+    key = tc.backend.get_random_state(42)
+
+    @tc.backend.jit
+    def f(key):
+        tc.backend.set_random_state(key)
+        c = tc.Circuit(2)
+        c.H(0)
+        r = c.general_kraus(
+            [np.array([[1.0, 0], [0, 0]]), np.array([[0, 0], [0, 1]])], 0
+        )
+        c.conditional_gate(r, [tc.gates.i(), tc.gates.x()], 1)
+        return r, c.expectation([tc.gates.z(), [1]])
+
+    keys = []
+    for _ in range(6):
+        key, subkey = tc.backend.random_split(key)
+        keys.append(subkey)
+    rs = [f(k) for k in keys]
+    for r, e in rs:
+        if tc.backend.numpy(r) > 0.5:
+            np.testing.assert_allclose(e, -1, atol=1e-5)
+        else:
+            np.testing.assert_allclose(e, 1, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_apply_mpo_gate(backend):
     gate = tc.gates.multicontrol_gate(tc.gates._x_matrix, ctrl=[1, 0])
     ans = np.array(

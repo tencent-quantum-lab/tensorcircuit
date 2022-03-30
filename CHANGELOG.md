@@ -10,6 +10,12 @@
 
 - add trigonometric methods on backends
 
+- add `conditional_gate` to support quantum ops based on previous measurment results
+
+### Changed
+
+- change the return information of `unitary_kraus` and `general_kraus` methods
+
 ## 0.0.220328
 
 ### Added
