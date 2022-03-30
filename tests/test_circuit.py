@@ -717,9 +717,7 @@ def test_teleportation(backend):
         tc.backend.set_random_state(key)
         c = tc.Circuit(2)
         c.H(0)
-        r = c.general_kraus(
-            [np.array([[1.0, 0], [0, 0]]), np.array([[0, 0], [0, 1]])], 0
-        )
+        r = c.cond_measurement(0)
         c.conditional_gate(r, [tc.gates.i(), tc.gates.x()], 1)
         return r, c.expectation([tc.gates.z(), [1]])
 

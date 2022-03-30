@@ -549,6 +549,13 @@ class Circuit:
         return apply
 
     def get_quvector(self) -> QuVector:
+        """
+        Get the representation of the output state in the form of ``QuVector``
+        while maintaining the circuit uncomputed
+
+        :return: ``QuVector`` representation of the output state from the circuit
+        :rtype: QuVector
+        """
         _, edges = self._copy()
         return QuVector(edges)
 
@@ -592,7 +599,6 @@ class Circuit:
         """
         return self._qir
 
-    # TODO(@refraction-ray): derive visualization and serialization from the consistent qir
     # TODO(@refraction-ray): add noise support in IR
     # TODO(@refraction-ray): IR for density matrix simulator?
 
@@ -683,6 +689,7 @@ class Circuit:
         """
         Middle measurement in z-basis on the circuit, note the wavefunction output is not normalized
         with ``mid_measurement`` involved, one should normalize the state manually if needed.
+        This is a post-selection method as keep is provided as a prior.
 
         :param index: The index of qubit that the Z direction postselection applied on.
         :type index: int
@@ -715,6 +722,34 @@ class Circuit:
         self._front[index] = mg2.get_edge(0)
         self._nodes.append(mg1)
         self._nodes.append(mg2)
+
+    mid_measure = mid_measurement
+
+    def cond_measurement(self, index: int) -> Tensor:
+        """
+        Measurement on z basis at ``index`` qubit based on quantum amplitude
+        (not post-selection). The highlight is that this method can return the
+        measured result as a int Tensor and thus maintained a jittable pipeline.
+
+        :Example:
+
+        >>> c = tc.Circuit(2)
+        >>> c.H(0)
+        >>> r = c.cond_measurement(0)
+        >>> c.conditional_gate(r, [tc.gates.i(), tc.gates.x()], 1)
+        >>> c.expectation([tc.gates.z(), [0]]), c.expectation([tc.gates.z(), [1]])
+        # two possible outputs: (1, 1) or (-1, -1)
+
+        :param index: the qubit for the z-basis measurement
+        :type index: int
+        :return: 0 or 1 for z measurement on up and down freedom
+        :rtype: Tensor
+        """
+        return self.general_kraus(
+            [np.array([[1.0, 0], [0, 0]]), np.array([[0, 0], [0, 1]])], index  # type: ignore
+        )
+
+    cond_measure = cond_measurement
 
     def depolarizing2(
         self,
@@ -758,7 +793,27 @@ class Circuit:
         py: float,
         pz: float,
         status: Optional[float] = None,
-    ) -> float:
+    ) -> Tensor:
+        """
+        Apply depolarizing channel in a Monte Carlo way,
+        i.e. for each call of this method, one of gates from
+        X, Y, Z, I are applied on the circuit based on the probability
+        indicated by ``px``, ``py``, ``pz``.
+
+        :param index: The qubit that depolarizing channel is on
+        :type index: int
+        :param px: probability for X noise
+        :type px: float
+        :param py: probability for Y noise
+        :type py: float
+        :param pz: probability for Z noise
+        :type pz: float
+        :param status: random seed uniformly from 0 to 1, defaults to None (generated implicitly)
+        :type status: Optional[float], optional
+        :return: int Tensor, the element lookup: [0: x, 1: y, 2: z, 3: I]
+        :rtype: Tensor
+        """
+
         # px/y/z here not support differentiation for now
         # jit compatible for now
         # assert px + py + pz < 1 and px >= 0 and py >= 0 and pz >= 0
@@ -771,21 +826,22 @@ class Circuit:
             )
             r = backend.cast(r / 2 + 1.5, dtype="int32")
             # [0: x, 1: y, 2: z, 3: I]
-            r = backend.onehot(r, 4)
-            r = backend.cast(r, dtype=dtypestr)
+
             return r
 
         if status is None:
             status = backend.implicit_randu()[0]
         r = step_function(status)
+        rv = backend.onehot(r, 4)
+        rv = backend.cast(rv, dtype=dtypestr)
         g = (
-            r[0] * gates._x_matrix
-            + r[1] * gates._y_matrix
-            + r[2] * gates._z_matrix
-            + r[3] * gates._i_matrix
+            rv[0] * gates._x_matrix
+            + rv[1] * gates._y_matrix
+            + rv[2] * gates._z_matrix
+            + rv[3] * gates._i_matrix
         )
         self.any(index, unitary=g)  # type: ignore
-        return 0.0
+        return r
 
     def select_gate(self, which: Tensor, kraus: Sequence[Gate], *index: int) -> None:
         """
@@ -842,7 +898,7 @@ class Circuit:
         :type prob: Optional[Sequence[float]], optional
         :param status: random seed between 0 to 1, defaults to None
         :type status: Optional[float], optional
-        :return: shape [] int dtype tensor indicates which kraus gate is applied
+        :return: shape [] int dtype tensor indicates which kraus gate is actually applied
         :rtype: Tensor
         """
         # general impl from Monte Carlo trajectory depolarizing above
@@ -1043,8 +1099,8 @@ class Circuit:
         :type kraus: Sequence[Gate]
         :param index: The qubits index that Kraus channel is applied on.
         :type index: int
-        :param status: Random tensor between 0 or 1, defaults to be None,
-            the random number will be generated automatically
+        :param status: Random tensor uniformly between 0 or 1, defaults to be None,
+            when the random number will be generated automatically
         :type status: Optional[float], optional
         """
         return self._general_kraus_2(kraus, *index, status=status)
@@ -1090,6 +1146,7 @@ class Circuit:
         Compute the output wavefunction from the circuit.
 
         :param form: The str indicating the form of the output wavefunction.
+            "default": [-1], "ket": [-1, 1], "bra": [1, -1]
         :type form: str, optional
         :return: Tensor with the corresponding shape.
         :rtype: Tensor
@@ -1164,7 +1221,7 @@ class Circuit:
 
     def measure(self, *index: int, with_prob: bool = False) -> Tuple[str, float]:
         """
-        Take measurement to the given quantum lines.
+        Take measurement on the given quantum lines by ``index``.
 
         :Example:
 
@@ -1227,7 +1284,7 @@ class Circuit:
     ) -> Tuple[Tensor, Tensor]:
         """
         Take measurement to the given quantum lines.
-        This method implemented by jit is about 100 times faster than unjit version!
+        This method is jittable is and about 100 times faster than unjit version!
 
         :param index: Measure on which quantum line.
         :type index: int
@@ -1278,7 +1335,7 @@ class Circuit:
 
     def perfect_sampling(self) -> Tuple[str, float]:
         """
-        Sampling bistrings from the circuit output.
+        Sampling bistrings from the circuit output based on quantum amplitudes.
         Reference: arXiv:1201.3974.
 
         :return: Sampled bit string and the corresponding theoretical probability.
@@ -1293,6 +1350,14 @@ class Circuit:
     def expectation_before(
         self, *ops: Tuple[tn.Node, List[int]], reuse: bool = True
     ) -> List[tn.Node]:
+        """
+        Return the list of nodes that consititues the expectation value just before the contraction.
+
+        :param reuse: whether contract the output state firstly, defaults to True
+        :type reuse: bool, optional
+        :return: The tensor network for the expectation
+        :rtype: List[tn.Node]
+        """
         nodes1, edge1 = self._copy_state_tensor(reuse=reuse)
         nodes2, edge2 = self._copy_state_tensor(conj=True, reuse=reuse)
         nodes1.extend(nodes2)  # left right op order for plain contractor
@@ -1352,7 +1417,7 @@ class Circuit:
 
     def to_qiskit(self) -> Any:
         """
-        Translate to a qiskit object.
+        Translate ``tc.Circuit`` to a qiskit QuantumCircuit object.
 
         :return: A qiskit object of this circuit.
         """
@@ -1385,13 +1450,43 @@ class Circuit:
 
     @classmethod
     def from_qiskit(
-        self, qc: Any, n: int, inputs: Optional[List[float]] = None
+        self, qc: Any, n: Optional[int] = None, inputs: Optional[List[float]] = None
     ) -> "Circuit":
+        """
+        Import Qiskit QuantumCircuit object as a ``tc.Circuit`` object.
+
+        :Example:
+
+        >>> from qiskit import QuantumCircuit
+        >>> qisc = QuantumCircuit(3)
+        >>> qisc.h(2)
+        >>> qisc.cswap(1, 2, 0)
+        >>> qisc.swap(0, 1)
+        >>> c = tc.Circuit.from_qiskit(qisc)
+
+        :param qc: Qiskit Circuit object
+        :type qc: QuantumCircuit in Qiskit
+        :param n: The number of qubits for the circuit
+        :type n: int
+        :param inputs: possible input wavefunction for ``tc.Circuit``, defaults to None
+        :type inputs: Optional[List[float]], optional
+        :return: The same circuit but as tensorcircuit object
+        :rtype: Circuit
+        """
         from .translation import qiskit2tc
+
+        if n is None:
+            n = qc.num_qubits
 
         return qiskit2tc(qc.data, n, inputs)  # type: ignore
 
     def vis_tex(self, **kws: Any) -> str:
+        """
+        Generate latex string based on quantikz latex package
+
+        :return: Latex string that can be directly compiled via, e.g. latexit
+        :rtype: str
+        """
         return qir2tex(self._qir, self._nqubits, **kws)  # type: ignore
 
 
@@ -1406,7 +1501,7 @@ def to_graphviz(
 ) -> graphviz.Graph:
     """
     Not an ideal visualization for quantum circuit, but reserve here as a general approach to show the tensornetwork
-    [Deprecated, use ``tensorcircuit.vis.qir2tex instead``]
+    [Deprecated, use ``Circuit.vis_tex`` or ``Circuit.draw`` instead]
     """
     # Modified from tensornetwork codebase
     nodes = c._nodes
