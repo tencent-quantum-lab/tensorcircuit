@@ -1427,7 +1427,6 @@ class Circuit:
         return qir2qiskit(qir, n=self._nqubits)
 
     def draw(self, **kws: Any) -> Any:
-        # TODO(@Xinghan): The example part of the documentation doesn't load as you put your mouse on the draw dunction
         """
         Visualise the circuit.
         This method recevies the keywords as same as qiskit.circuit.QuantumCircuit.draw.

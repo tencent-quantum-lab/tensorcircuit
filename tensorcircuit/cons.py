@@ -114,6 +114,15 @@ set_tensornetwork_backend()
 
 
 def set_function_backend(backend: Optional[str] = None) -> Callable[..., Any]:
+    """
+    Function decorator to set function-level runtime backend
+
+    :param backend: "numpy", "tensorflow", "jax", "pytorch", defaults to None
+    :type backend: Optional[str], optional
+    :return: Decorated function
+    :rtype: Callable[..., Any]
+    """
+
     def wrapper(f: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(f)
         def newf(*args: Any, **kws: Any) -> Any:
@@ -130,6 +139,14 @@ def set_function_backend(backend: Optional[str] = None) -> Callable[..., Any]:
 
 @contextmanager
 def runtime_backend(backend: Optional[str] = None) -> Iterator[Any]:
+    """
+    Context manager to set with-level runtime backend
+
+    :param backend: "numpy", "tensorflow", "jax", "pytorch", defaults to None
+    :type backend: Optional[str], optional
+    :yield: the backend object
+    :rtype: Iterator[Any]
+    """
     old_backend = getattr(thismodule, "backend").name
     K = set_backend(backend)
     yield K
@@ -138,10 +155,12 @@ def runtime_backend(backend: Optional[str] = None) -> Iterator[Any]:
 
 def set_dtype(dtype: Optional[str] = None, set_global: bool = True) -> Tuple[str, str]:
     """
-    To set the runtime numerical dtype of tensors.
+    Set the global runtime numerical dtype of tensors.
 
     :param dtype: "complex64" or "complex128", defaults to None, which is equivalent to "complex64".
     :type dtype: Optional[str], optional
+    :return: complex dtype str and the corresponding real dtype str
+    :rtype: Tuple[str, str]
     """
     if not dtype:
         dtype = "complex64"
@@ -176,6 +195,15 @@ set_dtype()
 
 
 def set_function_dtype(dtype: Optional[str] = None) -> Callable[..., Any]:
+    """
+    Function decorator to set function-level numerical dtype
+
+    :param dtype: "complex64" or "complex128", defaults to None
+    :type dtype: Optional[str], optional
+    :return: The decorated function
+    :rtype: Callable[..., Any]
+    """
+
     def wrapper(f: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(f)
         def newf(*args: Any, **kws: Any) -> Any:
@@ -192,6 +220,14 @@ def set_function_dtype(dtype: Optional[str] = None) -> Callable[..., Any]:
 
 @contextmanager
 def runtime_dtype(dtype: Optional[str] = None) -> Iterator[Tuple[str, str]]:
+    """
+    Context manager to set with-level runtime dtype
+
+    :param dtype: "complex64" or "complex128", defaults to None ("complex64")
+    :type dtype: Optional[str], optional
+    :yield: complex dtype str and real dtype str
+    :rtype: Iterator[Tuple[str, str]]
+    """
     old_dtype = getattr(thismodule, "dtypestr")
     dtuple = set_dtype(dtype)
     yield dtuple
@@ -707,6 +743,7 @@ def set_contractor(
 ) -> Callable[..., Any]:
     """
     To set runtime contractor of the tensornetwork for a better contraction path.
+    For more information on the usage of contractor, please refer to independent tutorial.
 
     :param method: "auto", "greedy", "branch", "plain", "tng", "custom", "custom_stateful". defaults to None ("auto")
     :type method: Optional[str], optional
@@ -775,6 +812,13 @@ get_contractor = partial(set_contractor, set_global=False)
 
 
 def set_function_contractor(*confargs: Any, **confkws: Any) -> Callable[..., Any]:
+    """
+    Function decorate to change function-level contractor
+
+    :return: _description_
+    :rtype: Callable[..., Any]
+    """
+
     def wrapper(f: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(f)
         def newf(*args: Any, **kws: Any) -> Any:
@@ -793,6 +837,12 @@ def set_function_contractor(*confargs: Any, **confkws: Any) -> Callable[..., Any
 
 @contextmanager
 def runtime_contractor(*confargs: Any, **confkws: Any) -> Iterator[Any]:
+    """
+    Context manager to change with-levek contractor
+
+    :yield: _description_
+    :rtype: Iterator[Any]
+    """
     old_contractor = getattr(thismodule, "contractor")
     nc = set_contractor(*confargs, **confkws)
     yield nc

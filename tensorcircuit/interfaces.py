@@ -76,6 +76,42 @@ def is_sequence(x: Any) -> bool:
 
 
 def torch_interface(fun: Callable[..., Any], jit: bool = False) -> Callable[..., Any]:
+    """
+    Wrap a quantum function on different ML backend with a pytorch interface.
+
+    :Example:
+
+    .. code-block:: python
+
+        import torch
+
+        tc.set_backend("tensorflow")
+
+
+        def f(params):
+            c = tc.Circuit(1)
+            c.rx(0, theta=params[0])
+            c.ry(0, theta=params[1])
+            return c.expectation([tc.gates.z(), [0]])
+
+
+        f_torch = tc.interfaces.torch_interface(f, jit=True)
+
+        a = torch.ones([2], requires_grad=True)
+        b = f_torch(a)
+        c = b ** 2
+        c.backward()
+
+        print(a.grad)
+
+    :param fun: The quantum function with tensor in and tensor out
+    :type fun: Callable[..., Any]
+    :param jit: whether to jit ``fun``, defaults to False
+    :type jit: bool, optional
+    :return: The same quantum function but now with torch tensor in and torch tensor out
+        while AD is also supported
+    :rtype: Callable[..., Any]
+    """
     import torch
 
     def vjp_fun(x: Tensor, v: Tensor) -> Tuple[Tensor, Tensor]:
@@ -135,6 +171,53 @@ def scipy_optimize_interface(
     jit: bool = True,
     gradient: bool = True,
 ) -> Callable[..., Any]:
+    """
+    Convert ``fun`` into a scipy optimize interface compatible version
+
+    :Example:
+
+    .. code-block:: python
+
+        n = 3
+
+        def f(param):
+            c = tc.Circuit(n)
+            for i in range(n):
+                c.rx(i, theta=param[0, i])
+                c.rz(i, theta=param[1, i])
+            loss = c.expectation(
+                [
+                    tc.gates.y(),
+                    [
+                        0,
+                    ],
+                ]
+            )
+            return tc.backend.real(loss)
+
+        # A gradient-based optimization interface
+
+        f_scipy = tc.interfaces.scipy_optimize_interface(f, shape=[2, n])
+        r = optimize.minimize(f_scipy, np.zeros([2 * n]), method="L-BFGS-B", jac=True)
+
+        # A gradient-free optimization interface
+
+        f_scipy = tc.interfaces.scipy_optimize_interface(f, shape=[2, n], gradient=False)
+        r = optimize.minimize(f_scipy, np.zeros([2 * n]), method="COBYLA")
+
+
+    :param fun: The quantum function with scalar out that to be optimized
+    :type fun: Callable[..., Any]
+    :param shape: the shape of parameters that ``fun`` accepts, defaults to None
+    :type shape: Optional[Tuple[int, ...]], optional
+    :param jit: whether to jit ``fun``, defaults to True
+    :type jit: bool, optional
+    :param gradient: whether using gradient-based or gradient free scipy optimize interface,
+        defaults to True
+    :type gradient: bool, optional
+    :return: The scipy interface compatible version of ``fun``
+    :rtype: Callable[..., Any]
+    """
     if gradient:
         vag = backend.value_and_grad(fun, argnums=0)
         if jit:
