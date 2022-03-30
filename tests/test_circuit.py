@@ -397,6 +397,18 @@ def test_unitary():
     assert np.allclose(c.wavefunction().reshape([4, 4]), answer, atol=1e-4)
 
 
+def test_expectation_ps():
+    c = tc.Circuit(2)
+    c.X(0)
+    r = c.expectation_ps(z=[0, 1])
+    np.testing.assert_allclose(r, -1, atol=1e-5)
+
+    c = tc.Circuit(2)
+    c.H(0)
+    r = c.expectation_ps(z=[1], x=[0])
+    np.testing.assert_allclose(r, 1, atol=1e-5)
+
+
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_dqas_type_circuit(backend):
     eye = tc.gates.i().tensor
