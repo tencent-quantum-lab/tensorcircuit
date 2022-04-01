@@ -1,4 +1,8 @@
-<h1 align="center"> TENSORCIRCUIT </h1>
+<p align="center">
+  <a href="https://pennylane.ai">
+    <img width=80% src="docs/source/statics/logo.png">
+  </a>
+</p>
 
 <p align="center">
   <!-- tests (GitHub actions) -->

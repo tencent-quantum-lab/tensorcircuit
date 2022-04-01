@@ -14,9 +14,13 @@
 
 - add `expectation_ps` as shortcut to get Pauli string expectation
 
+- add `append` and `prepend` to compose circuits
+
 ### Changed
 
 - change the return information of `unitary_kraus` and `general_kraus` methods
+
+- add alias for any gate as unitary
 
 ## 0.0.220328
 

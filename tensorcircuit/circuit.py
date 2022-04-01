@@ -59,7 +59,12 @@ class Circuit:
     ]
     mpogates = ["multicontrol", "mpo"]
 
-    gate_alias_list = [["cnot", "cx"], ["fredkin", "cswap"], ["toffoli", "ccnot"]]
+    gate_alias_list = [
+        ["cnot", "cx"],
+        ["fredkin", "cswap"],
+        ["toffoli", "ccnot"],
+        ["any", "unitary"],
+    ]
 
     def __init__(
         self,
@@ -750,6 +755,17 @@ class Circuit:
         )
 
     cond_measure = cond_measurement
+
+    def prepend(self, c: "Circuit") -> "Circuit":
+        self.replace_mps_inputs(c.quvector())
+        self._qir = c._qir + self._qir
+        return self
+
+    def append(self, c: "Circuit") -> "Circuit":
+        c.replace_mps_inputs(self.quvector())
+        c._qir = self._qir + c._qir
+        self.__dict__ = c.__dict__
+        return self
 
     def depolarizing2(
         self,
