@@ -2,6 +2,10 @@
 QML task on noisy PQC with vmapped Monte Carlo noise simulation
 """
 
+import os
+
+os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
+# one need this for jax+gpu combination in some cases
 import time
 import tensorflow as tf
 import numpy as np
@@ -32,7 +36,7 @@ maxiter = 5000
 x_train, y_train = filter_pair(x_train, y_train, 0, 1)
 x_train_small = tf.image.resize(x_train, (3, 3)).numpy()
 x_train_bin = np.array(x_train_small > 0.5, dtype=np.float32)
-x_train_bin = np.squeeze(x_train_bin).reshape([-1, 9])
+x_train_bin = np.squeeze(x_train_bin).reshape([-1, n])
 
 
 mnist_data = (
@@ -69,6 +73,7 @@ vf = tc.utils.append(K.vmap(f, vectorized_argnums=1), K.mean)
 def loss(param, scale, seeds, x, y, pn):
     ypred = vf(param, seeds, x, pn)
     ypred = K.sigmoid(scale * ypred)
+    y = K.cast(y, "float32")
     return (
         K.real(-y * K.log(ypred) - (1 - y) * K.log(1 - ypred)),
         ypred,
@@ -86,33 +91,47 @@ vgloss = K.jit(K.vvag(loss, argnums=(0, 1), vectorized_argnums=(3, 4), has_aux=T
 vloss = K.jit(K.vmap(loss, vectorized_argnums=(3, 4)))
 
 
-def train(param=None, scale=None, noise=0, noc=1, fixed=True):
+def train(param=None, scale=None, noise=0, noc=1, fixed=True, val_step=40):
     times = []
+    val_times = []
     if param is None:
         param = K.implicit_randn([m, n, 2])
     if scale is None:
         scale = 15.0 * K.ones([], dtype="float32")
     else:
         scale *= K.ones([], dtype="float32")
-    opt = K.optimizer(optax.adam(1e-2))
-    opt2 = K.optimizer(optax.adam(5e-2))
-    pn = noise * K.ones([])
+    if K.name == "jax":
+        opt = K.optimizer(optax.adam(1e-2))
+        opt2 = K.optimizer(optax.adam(5e-2))
+    else:
+        opt = K.optimizer(tf.keras.optimizers.Adam(1e-2))
+        opt2 = K.optimizer(tf.keras.optimizers.Adam(5e-2))
+    pn = noise * K.ones([], dtype="float32")
 
     try:
         for i, (xs, ys) in zip(range(maxiter), mnist_data):  # using tf data loader here
             xs, ys = tc.array_to_tensor(xs.numpy(), ys.numpy())
             seeds = K.implicit_randu([noc, m, n, 2])
+            time0 = time.time()
             _, grads = vgloss(param, scale, seeds, xs, ys, pn)
+            time1 = time.time()
+            times.append(time1 - time0)
             param = opt.update(grads[0], param)
             if fixed is False:
                 scale = opt2.update(grads[1], scale)
-            if i % 40 == 0:
-                times.append(time.time())
+            if i % val_step == 0:
                 print("%s round" % str(i))
                 print("scale: ", K.numpy(scale))
+                time0 = time.time()
                 inference(param)
+                time1 = time.time()
+                val_times.append(time1 - time0)
                 if len(times) > 1:
-                    print("running time est.: ", (times[-1] - times[0]) / i)
+                    print("batch running time est.: ", np.mean(times[1:]))
+                    print("batch staging time est.: ", times[0])
+                if len(val_times) > 1:
+                    print("full set running time est.: ", np.mean(val_times[1:]))
+                    print("full set staging time est.: ", val_times[0])
     except KeyboardInterrupt:
         pass
 
@@ -121,7 +140,7 @@ def train(param=None, scale=None, noise=0, noc=1, fixed=True):
 
 
 def inference(param=None, scale=None, noise=0, noc=1, debug=False):
-    pn = noise * K.ones([])
+    pn = noise * K.ones([], dtype="float32")
     if param is None:
         param = np.load(logfile)
     if scale is None:
@@ -144,5 +163,5 @@ def inference(param=None, scale=None, noise=0, noc=1, debug=False):
 
 
 if __name__ == "__main__":
-    train(noise=0.01, scale=40, noc=500, fixed=False)
-    # inference(noise=0.03, noc=3000, scale=40, debug=True)
+    train(noise=0.005, scale=30, noc=500, fixed=False)
+    # inference(noise=0.01, noc=1000, scale=40, debug=True)

@@ -1,6 +1,11 @@
 """
 Time comparison for different evaluation approach on molecule VQE
 """
+
+import os
+
+os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
+# one need this for jax+gpu combination in some cases
 import time
 import numpy as np
 from openfermion.chem import MolecularData
