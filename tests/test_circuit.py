@@ -289,12 +289,12 @@ def universal_ad():
         return tc.backend.real(c.expectation((tc.gates.z(), [0])))
 
     gg = tc.backend.grad(forward)
-    vag = tc.backend.value_and_grad(forward)
+    vg = tc.backend.value_and_grad(forward)
     gg = tc.backend.jit(gg)
-    vag = tc.backend.jit(vag)
+    vg = tc.backend.jit(vg)
     theta = tc.gates.num_to_tensor(1.0)
     grad1 = gg(theta)
-    v2, grad2 = vag(theta)
+    v2, grad2 = vg(theta)
     assert grad1 == grad2
     return v2, grad2
 
@@ -601,12 +601,12 @@ def test_circuit_split(backend):
     # np.testing.assert_allclose(s1, s2, atol=1e-5)
     np.testing.assert_allclose(s1, s3, atol=1e-5)
 
-    f_vag = tc.backend.jit(
+    f_vg = tc.backend.jit(
         tc.backend.value_and_grad(f, argnums=0), static_argnums=(1, 2, 3)
     )
 
-    s1, g1 = f_vag(tc.backend.ones([4, n]))
-    s3, g3 = f_vag(tc.backend.ones([4, n]), max_singular_values=2, fixed_choice=1)
+    s1, g1 = f_vg(tc.backend.ones([4, n]))
+    s3, g3 = f_vg(tc.backend.ones([4, n]), max_singular_values=2, fixed_choice=1)
 
     np.testing.assert_allclose(s1, s3, atol=1e-5)
     # DONE(@refraction-ray): nan on jax backend?

@@ -147,9 +147,9 @@ The most common case and the most typical programming paradigm for TensorCircuit
         return K.real(loss)
 
 
-    vagf = K.jit(K.value_and_grad(loss), static_argnums=1)
+    vgf = K.jit(K.value_and_grad(loss), static_argnums=1)
     params = K.implicit_randn([2, n])
-    print(vagf(params, n))  # get the quantum loss and the gradient
+    print(vgf(params, n))  # get the quantum loss and the gradient
 
 Also for a non-quantum example (linear regression) demonstrating the backend agnostic feature, variables with pytree support, AD/jit/vmap usage, and variational optimization loops. Please refer to the example script: `linear regression example <https://github.com/quclub/tensorcircuit-dev/blob/master/examples/universal_lr.py>`_.
 This example might be more friendly to machine learning community since it is purely classical while also showcasing the main features and paradigms of tensorcircuit.
@@ -177,15 +177,15 @@ If the user has no intention to maintain the application code in a backend agnos
             loss += c.expectation([tc.gates.z(), [i]])
         return tf.math.real(loss)
 
-    def vagf(params, n):
+    def vgf(params, n):
         with tf.GradientTape() as tape:
             tape.watch(params)
             l = loss(params, n)
         return l, tape.gradient(l, params)
 
-    vagf = tf.function(vagf)
+    vgf = tf.function(vgf)
     params = tf.random.normal([2, n])
-    print(vagf(params, n))  # get the quantum loss and the gradient
+    print(vgf(params, n))  # get the quantum loss and the gradient
 
 
 Automatic differentiation, JIT and Vectorized Parallelism

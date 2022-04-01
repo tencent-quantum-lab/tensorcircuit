@@ -351,8 +351,8 @@ def test_vvag(backend):
 
     vqe_energy_p = partial(vqe_energy, n=n, nlayers=nlayers)
 
-    vag = tc.backend.value_and_grad(vqe_energy_p, argnums=(0, 1))
-    v0, (g00, g01) = vag(inp, param)
+    vg = tc.backend.value_and_grad(vqe_energy_p, argnums=(0, 1))
+    v0, (g00, g01) = vg(inp, param)
 
     batch = 8
     inps = tc.backend.ones([batch, 2**n]) / 2 ** (n / 2)
@@ -743,10 +743,10 @@ def test_grad_has_aux(backend):
     def f(x):
         return tc.backend.real(x**2), x**3
 
-    vag = tc.backend.value_and_grad(f, has_aux=True)
+    vg = tc.backend.value_and_grad(f, has_aux=True)
 
     np.testing.assert_allclose(
-        vag(tc.backend.ones([]))[1], 2 * tc.backend.ones([]), atol=1e-5
+        vg(tc.backend.ones([]))[1], 2 * tc.backend.ones([]), atol=1e-5
     )
 
     def f2(x):
@@ -782,7 +782,7 @@ def test_optimizers(backend):
         c = tc.templates.blocks.example_block(c, params["b"])
         return tc.backend.real(c.expectation([tc.gates.x(), [n // 2]]))
 
-    vags = tc.backend.jit(tc.backend.value_and_grad(f, argnums=0), static_argnums=1)
+    vgs = tc.backend.jit(tc.backend.value_and_grad(f, argnums=0), static_argnums=1)
 
     def get_opt():
         if tc.backend.name == "tensorflow":
@@ -804,7 +804,7 @@ def test_optimizers(backend):
     }
 
     for _ in range(20):
-        loss, grads = vags(params, n)
+        loss, grads = vgs(params, n)
         params = opt.update(grads, params)
         print(loss)
 
@@ -815,13 +815,13 @@ def test_optimizers(backend):
         c = tc.templates.blocks.example_block(c, params)
         return tc.backend.real(c.expectation([tc.gates.x(), [n // 2]]))
 
-    vags2 = tc.backend.jit(tc.backend.value_and_grad(f2, argnums=0), static_argnums=1)
+    vgs2 = tc.backend.jit(tc.backend.value_and_grad(f2, argnums=0), static_argnums=1)
 
     params = tc.backend.implicit_randn([4, n])
     opt = get_opt()
 
     for _ in range(20):
-        loss, grads = vags2(params, n)
+        loss, grads = vgs2(params, n)
         print(grads, params)
         params = opt.update(grads, params)
         print(loss)

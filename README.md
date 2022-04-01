@@ -74,7 +74,9 @@ print(g(theta))
 
 ## Install
 
-`pip install tensorcircuit`(Extra package installation may be required for some features.)
+`pip install tensorcircuit`.
+
+Extra package installation may be required for some features.
 
 ## Contributing
 
