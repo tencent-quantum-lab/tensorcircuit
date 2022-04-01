@@ -16,6 +16,8 @@
 
 - add `append` and `prepend` to compose circuits
 
+- add `matrix` method to get the circuit unitary matrix
+
 ### Changed
 
 - change the return information of `unitary_kraus` and `general_kraus` methods

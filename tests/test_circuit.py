@@ -539,6 +539,15 @@ def test_circuit_add_demo():
     assert np.allclose(c3.wavefunction(), answer, atol=1e-4)
 
 
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_circuit_matrix(backend):
+    c = tc.Circuit(2)
+    c.x(1)
+    c.cnot(0, 1)
+    np.testing.assert_allclose(c.matrix()[3], np.array([0.0, 0.0, 0.0, 1.0]), atol=1e-5)
+    np.testing.assert_allclose(c.state(), np.array([0, 1.0, 0, 0]), atol=1e-5)
+
+
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_circuit_split(backend):
     n = 4
@@ -743,6 +752,23 @@ def test_teleportation(backend):
             np.testing.assert_allclose(e, -1, atol=1e-5)
         else:
             np.testing.assert_allclose(e, 1, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_append_circuit(backend):
+    c = tc.Circuit(2)
+    c.cnot(0, 1)
+    c1 = tc.Circuit(2)
+    c1.x(0)
+    c.append(c1)
+    np.testing.assert_allclose(c.expectation_ps(z=[1]), 1.0)
+
+    c = tc.Circuit(2)
+    c.cnot(0, 1)
+    c1 = tc.Circuit(2)
+    c1.x(0)
+    c.prepend(c1)
+    np.testing.assert_allclose(c.expectation_ps(z=[1]), -1.0)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])

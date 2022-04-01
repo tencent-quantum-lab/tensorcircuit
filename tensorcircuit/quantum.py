@@ -129,7 +129,7 @@ def quantum_constructor(
 
 def identity(
     space: Sequence[int],
-    dtype: Any = np.float64,
+    dtype: Any = None,
 ) -> "QuOperator":
     """
     Construct a 'QuOperator' representing the identity on a given space.
@@ -160,11 +160,13 @@ def identity(
     :param space: A sequence of integers for the dimensions of the tensor product
         factors of the space (the edges in the tensor network).
     :type space: Sequence[int]
-    :param dtype: The data type (for conversion to dense).
+    :param dtype: The data type by np.* (for conversion to dense). defaults None to tc dtype.
     :type dtype: Any type
     :return: The desired identity operator.
     :rtype: QuOperator
     """
+    if dtype is None:
+        dtype = npdtype
     nodes = [CopyNode(2, d, dtype=dtype) for d in space]
     out_edges = [n[0] for n in nodes]
     in_edges = [n[1] for n in nodes]

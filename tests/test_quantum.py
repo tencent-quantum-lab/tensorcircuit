@@ -117,7 +117,7 @@ def test_from_tensor(backend):
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_identity(backend):
-    E = qu.identity((2, 3, 4))
+    E = qu.identity((2, 3, 4), dtype=np.float64)
     for n in E.nodes:
         assert isinstance(n, tn.CopyNode)
     twentyfour = E.trace()
@@ -127,7 +127,7 @@ def test_identity(backend):
 
     tensor = np.random.rand(2, 2)
     psi = qu.QuVector.from_tensor(tensor)
-    E = qu.identity((2, 2))
+    E = qu.identity((2, 2), dtype=np.float64)
     np.testing.assert_allclose((E @ psi).eval(), psi.eval(), atol=atol)
 
     np.testing.assert_allclose(
@@ -319,7 +319,7 @@ def test_heisenberg_ham(tfb):
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_reduced_density_from_density(backend):
     n = 6
-    w = np.random.normal(size=[2**n]) + 1.0j * np.random.normal(size=[2**n])
+    w = np.random.normal(size=[2 ** n]) + 1.0j * np.random.normal(size=[2 ** n])
     w /= np.linalg.norm(w)
     rho = np.reshape(w, [-1, 1]) @ np.reshape(np.conj(w), [1, -1])
     dm1 = tc.quantum.reduced_density_matrix(w, cut=[0, 2])
@@ -328,9 +328,9 @@ def test_reduced_density_from_density(backend):
 
     # with p
     n = 5
-    w = np.random.normal(size=[2**n]) + 1.0j * np.random.normal(size=[2**n])
+    w = np.random.normal(size=[2 ** n]) + 1.0j * np.random.normal(size=[2 ** n])
     w /= np.linalg.norm(w)
-    p = np.random.normal(size=[2**3])
+    p = np.random.normal(size=[2 ** 3])
     p = tc.backend.softmax(p)
     p = tc.backend.cast(p, "complex128")
     rho = np.reshape(w, [-1, 1]) @ np.reshape(np.conj(w), [1, -1])
@@ -342,7 +342,7 @@ def test_reduced_density_from_density(backend):
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_mutual_information(backend):
     n = 5
-    w = np.random.normal(size=[2**n]) + 1.0j * np.random.normal(size=[2**n])
+    w = np.random.normal(size=[2 ** n]) + 1.0j * np.random.normal(size=[2 ** n])
     w /= np.linalg.norm(w)
     rho = np.reshape(w, [-1, 1]) @ np.reshape(np.conj(w), [1, -1])
     dm1 = tc.quantum.mutual_information(w, cut=[1, 2, 3])

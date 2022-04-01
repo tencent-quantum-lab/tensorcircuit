@@ -13,7 +13,7 @@ import tensornetwork as tn
 
 from . import gates
 from .cons import backend, contractor, dtypestr, npdtype
-from .quantum import QuVector, QuOperator
+from .quantum import QuVector, QuOperator, identity
 from .simplify import _split_two_qubit_gate
 from .vis import qir2tex
 
@@ -204,7 +204,10 @@ class Circuit:
                             other = (e.node2, e.axis2)
                         e.disconnect()
                         new_front[j] ^ other[0][other[1]]
+        j += 1
+        self._front += new_front[j:]
         self._nodes = new_nodes + self._nodes[self._start_index :]
+        self._start_index = len(new_nodes)
 
     @classmethod
     def _meta_apply(cls) -> None:
@@ -1197,6 +1200,21 @@ class Circuit:
         return newnodes, newfront
 
     state = wavefunction
+
+    def matrix(self) -> Tensor:
+        """
+        Get the unitary matrix for the circuit irrespective with the circuit input state.
+
+        :return: The circuit unitary matrix
+        :rtype: Tensor
+        """
+        mps = identity([2 for _ in range(self._nqubits)])
+        c = Circuit(self._nqubits)
+        ns, es = self._copy()
+        c._nodes = ns
+        c._front = es
+        c.replace_mps_inputs(mps)
+        return backend.reshapem(c.state())
 
     def amplitude(self, l: str) -> tn.Node.tensor:
         """
