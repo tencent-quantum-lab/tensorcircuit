@@ -67,7 +67,7 @@ def QAOAansatz(gamma, beta, g=example_graph):
 
 # 3. get compiled function for QAOA ansatz and its gradient
 
-QAOA_vag = K.jit(K.value_and_grad(QAOAansatz, argnums=(0, 1)), static_argnums=2)
+QAOA_vg = K.jit(K.value_and_grad(QAOAansatz, argnums=(0, 1)), static_argnums=2)
 
 
 # 4. optimization loop
@@ -77,6 +77,6 @@ gamma = tf.Variable(tf.random.normal(shape=[nlayers], stddev=0.1))
 opt = K.optimizer(tf.keras.optimizers.Adam(1e-2))
 
 for i in range(100):
-    loss, grads = QAOA_vag(gamma, beta, example_graph)
+    loss, grads = QAOA_vg(gamma, beta, example_graph)
     print(K.numpy(loss))
     gamma, beta = opt.update(grads, [gamma, beta])  # gradient descent

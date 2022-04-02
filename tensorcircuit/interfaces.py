@@ -219,17 +219,17 @@ def scipy_optimize_interface(
     :rtype: Callable[..., Any]
     """
     if gradient:
-        vag = backend.value_and_grad(fun, argnums=0)
+        vg = backend.value_and_grad(fun, argnums=0)
         if jit:
-            vag = backend.jit(vag)
+            vg = backend.jit(vg)
 
-        def scipy_vag(*args: Any, **kws: Any) -> Tuple[Tensor, Tensor]:
+        def scipy_vg(*args: Any, **kws: Any) -> Tuple[Tensor, Tensor]:
             scipy_args = numpy_args_to_backend(args, dtype=dtypestr)
             if shape is not None:
                 scipy_args = list(scipy_args)
                 scipy_args[0] = backend.reshape(scipy_args[0], shape)
                 scipy_args = tuple(scipy_args)
-            vs, gs = vag(*scipy_args, **kws)
+            vs, gs = vg(*scipy_args, **kws)
             scipy_vs = general_args_to_numpy(vs)
             gs = backend.reshape(gs, [-1])
             scipy_gs = general_args_to_numpy(gs)
@@ -237,7 +237,7 @@ def scipy_optimize_interface(
             scipy_gs = scipy_gs.astype(np.float64)
             return scipy_vs, scipy_gs
 
-        return scipy_vag
+        return scipy_vg
     # no gradient
     if jit:
         fun = backend.jit(fun)

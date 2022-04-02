@@ -82,11 +82,11 @@ print(h_func(params))
 
 # optimization, suppose the energy we want to minimize is just z1z2 as above
 
-vag_func = K.jit(K.value_and_grad(get_zz), static_argnums=(1, 2))
+vg_func = K.jit(K.value_and_grad(get_zz), static_argnums=(1, 2))
 opt = K.optimizer(tf.keras.optimizers.Adam(1e-2))
 
 for i in range(200):  # gradient descent
-    energy, grads = vag_func(params, 10, 5)
+    energy, grads = vg_func(params, 10, 5)
     params = opt.update(grads, params)
     if i % 20 == 0:
         print(energy)  # see energy optimization dynamics

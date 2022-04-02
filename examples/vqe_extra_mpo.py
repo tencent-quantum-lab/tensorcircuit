@@ -94,15 +94,15 @@ if __name__ == "__main__":
 
     time0 = time.time()
     if refresh:
-        tc_vag = tf.function(
+        tc_vg = tf.function(
             tc.backend.value_and_grad(vqe_forward),
             input_signature=[tf.TensorSpec([4 * nlayers, nwires], tf.float32)],
         )
-        tc.keras.save_func(tc_vag, "./funcs/%s_%s_tfim_mpo" % (nwires, nlayers))
+        tc.keras.save_func(tc_vg, "./funcs/%s_%s_tfim_mpo" % (nwires, nlayers))
         time1 = time.time()
         print("staging time: ", time1 - time0)
 
-    tc_vag_loaded = tc.keras.load_func("./funcs/%s_%s_tfim_mpo" % (nwires, nlayers))
+    tc_vg_loaded = tc.keras.load_func("./funcs/%s_%s_tfim_mpo" % (nwires, nlayers))
 
     lr1 = 0.008
     lr2 = 0.06
@@ -121,7 +121,7 @@ if __name__ == "__main__":
     param = tc.backend.implicit_randn(stddev=0.1, shape=[4 * nlayers, nwires])
 
     for j in range(steps):
-        loss, gr = tc_vag_loaded(param)
+        loss, gr = tc_vg_loaded(param)
         if j < switch:
             param = opt.update(gr, param)
         else:

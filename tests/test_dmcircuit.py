@@ -155,8 +155,8 @@ def test_mult_qubit_kraus(backend):
         return tc.backend.real(tc.backend.sum(c.densitymatrix()))
 
     theta = tc.num_to_tensor(0.2)
-    vag = tc.backend.value_and_grad(forward)
-    _, g1 = vag(theta)
+    vg = tc.backend.value_and_grad(forward)
+    _, g1 = vg(theta)
     assert np.allclose(tc.backend.numpy(g1), 0.199, atol=1e-2)
 
     def forward2(theta):
@@ -172,8 +172,8 @@ def test_mult_qubit_kraus(backend):
         return tc.backend.real(tc.backend.sum(c.densitymatrix()))
 
     theta = tc.num_to_tensor(0.2)
-    vag2 = tc.backend.value_and_grad(forward2)
-    _, g2 = vag2(theta)
+    vg2 = tc.backend.value_and_grad(forward2)
+    _, g2 = vg2(theta)
     assert np.allclose(tc.backend.numpy(g2), 0.199, atol=1e-2)
 
 
@@ -195,8 +195,8 @@ def test_noise_param_ad(backend):
         )
 
     theta = tc.num_to_tensor(0.1)
-    vag = tc.backend.value_and_grad(forward)
-    v, g = vag(theta)
+    vg = tc.backend.value_and_grad(forward)
+    v, g = vg(theta)
     assert np.allclose(v, -0.6, atol=1e-2)
     assert np.allclose(g, 4, atol=1e-2)
 

@@ -96,7 +96,7 @@ print(structures.shape)
 time0 = time.time()
 
 batch = 50
-tc_vag = tf.function(
+tc_vg = tf.function(
     tc.backend.vectorized_value_and_grad(vqe_forward, argnums=0, vectorized_argnums=1),
     input_signature=[
         tf.TensorSpec([2 * nlayers, nwires], tf.float32),
@@ -105,23 +105,23 @@ tc_vag = tf.function(
 )
 param = tf.Variable(tf.random.normal(stddev=0.1, shape=[2 * nlayers, nwires]))
 
-print(tc_vag(param, structures[:batch]))
+print(tc_vg(param, structures[:batch]))
 
 time1 = time.time()
 print("staging time: ", time1 - time0)
 
 try:
-    keras.save_func(tc_vag, "./funcs/%s_%s_10_tfim" % (nwires, nlayers))
+    keras.save_func(tc_vg, "./funcs/%s_%s_10_tfim" % (nwires, nlayers))
 except ValueError as e:
     print(e)  # keras.save_func now has issues to be resolved
 
 
 def train_step(param):
-    vag_list = []
+    vg_list = []
     for i in range(2):
-        vag_list.append(tc_vag(param, structures[i * nwires : i * nwires + nwires]))
-    loss = tc.backend.sum(vag_list[0][0] - vag_list[1][0])
-    gr = vag_list[0][1] - vag_list[1][1]
+        vg_list.append(tc_vg(param, structures[i * nwires : i * nwires + nwires]))
+    loss = tc.backend.sum(vg_list[0][0] - vg_list[1][0])
+    gr = vg_list[0][1] - vg_list[1][1]
     return loss, gr
 
 
