@@ -1,4 +1,4 @@
-__version__ = "0.0.220328"
+__version__ = "0.0.220402"
 __author__ = "refraction-ray"
 
 from .cons import (
@@ -29,3 +29,6 @@ try:
     from . import keras
 except ModuleNotFoundError:
     pass  # in case tf is not installed
+
+# just for fun
+from .asciiart import set_ascii
