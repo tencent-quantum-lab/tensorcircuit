@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://pennylane.ai">
-    <img width=80% src="docs/source/statics/logo.png">
+    <img width=80% src="docs/source/statics/logov2.jpg">
   </a>
 </p>
 

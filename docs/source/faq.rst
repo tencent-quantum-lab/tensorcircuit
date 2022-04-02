@@ -8,6 +8,30 @@ This is done directly through the ML backend. GPU support is totally determined 
 It is the users' responsibility to configure an GPU compatible environment for these ML packages. Please refer to the installation documentation for these ML packages and directly use official dockerfiles provided by TensorCircuit.
 With GPU compatible enviroment, we can switch the use of GPU or CPU by a backend agnostic environment variable ``CUDA_VISIBLE_DEVICES``.
 
+Which ML framework backend should I use?
+--------------------------------------------
+
+Since Numpy backend has no support for AD, if you want to evaluate the circuit gradient, you must set the backend as one of the ML framework beyond Numpy.
+
+Since PyTorch has very limited support for vectorization and jit while our package strongly depends on these features, it is not recommend to use. Though one can always wrap a quantum function on other backend using a PyTorch interface, say :py:meth:`tensorcircuit.interfaces.torch_interface`.
+
+In terms of the choice between TensorFlow and Jax backend, the better one may depend on the use cases and one may want to benchmark both to pick the better one. There is no one-for-all recommendation and this is why we maintain the backend agnostic form of our software.
+
+Some general rule of thumb:
+
+* On both CPU and GPU, the running time of jitted function is faster for jax backend.
+
+* But on GPU, jit staging time is usually much longer for jax backend.
+
+* For hybrid machine learning task, TensorFlow has a better ML ecosystem and reusable classical ML models.
+
+* Jax has some built-in advanced features that is lack in TensorFlow, such as checkpoint in AD and pmap for distributed computing.
+
+* Jax is much insensitive to dtype where type promotion is handled automatically which means easier debugging.
+
+* TensorFlow can cached the jitted function on the disk via SavedModel, which further amortize the staging time.
+
+
 What is the counterpart of ``QuantumLayer`` for PyTorch and Jax backend?
 ----------------------------------------------------------------------------
 
