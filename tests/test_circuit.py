@@ -54,7 +54,7 @@ def test_measure():
 
 
 def test_gates_in_circuit():
-    c = tc.Circuit(2, inputs=np.eye(2 ** 2))
+    c = tc.Circuit(2, inputs=np.eye(2**2))
     c.iswap(0, 1)
     ans = tc.gates.iswap_gate().tensor.reshape([4, 4])
     np.testing.assert_allclose(c.state().reshape([4, 4]), ans, atol=1e-5)
@@ -289,12 +289,12 @@ def universal_ad():
         return tc.backend.real(c.expectation((tc.gates.z(), [0])))
 
     gg = tc.backend.grad(forward)
-    vag = tc.backend.value_and_grad(forward)
+    vg = tc.backend.value_and_grad(forward)
     gg = tc.backend.jit(gg)
-    vag = tc.backend.jit(vag)
+    vg = tc.backend.jit(vg)
     theta = tc.gates.num_to_tensor(1.0)
     grad1 = gg(theta)
-    v2, grad2 = vag(theta)
+    v2, grad2 = vg(theta)
     assert grad1 == grad2
     return v2, grad2
 
@@ -395,6 +395,18 @@ def test_unitary():
     c.Y(1)
     answer = np.kron(tc.gates.x().tensor, tc.gates.y().tensor)
     assert np.allclose(c.wavefunction().reshape([4, 4]), answer, atol=1e-4)
+
+
+def test_expectation_ps():
+    c = tc.Circuit(2)
+    c.X(0)
+    r = c.expectation_ps(z=[0, 1])
+    np.testing.assert_allclose(r, -1, atol=1e-5)
+
+    c = tc.Circuit(2)
+    c.H(0)
+    r = c.expectation_ps(z=[1], x=[0])
+    np.testing.assert_allclose(r, 1, atol=1e-5)
 
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
@@ -527,6 +539,15 @@ def test_circuit_add_demo():
     assert np.allclose(c3.wavefunction(), answer, atol=1e-4)
 
 
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_circuit_matrix(backend):
+    c = tc.Circuit(2)
+    c.x(1)
+    c.cnot(0, 1)
+    np.testing.assert_allclose(c.matrix()[3], np.array([0.0, 0.0, 0.0, 1.0]), atol=1e-5)
+    np.testing.assert_allclose(c.state(), np.array([0, 1.0, 0, 0]), atol=1e-5)
+
+
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_circuit_split(backend):
     n = 4
@@ -580,12 +601,12 @@ def test_circuit_split(backend):
     # np.testing.assert_allclose(s1, s2, atol=1e-5)
     np.testing.assert_allclose(s1, s3, atol=1e-5)
 
-    f_vag = tc.backend.jit(
+    f_vg = tc.backend.jit(
         tc.backend.value_and_grad(f, argnums=0), static_argnums=(1, 2, 3)
     )
 
-    s1, g1 = f_vag(tc.backend.ones([4, n]))
-    s3, g3 = f_vag(tc.backend.ones([4, n]), max_singular_values=2, fixed_choice=1)
+    s1, g1 = f_vg(tc.backend.ones([4, n]))
+    s3, g3 = f_vg(tc.backend.ones([4, n]), max_singular_values=2, fixed_choice=1)
 
     np.testing.assert_allclose(s1, s3, atol=1e-5)
     # DONE(@refraction-ray): nan on jax backend?
@@ -705,7 +726,49 @@ def test_debug_contract():
         c = tc.templates.blocks.example_block(c, param, nlayers=d)
         return c.state()
 
-    np.testing.assert_allclose(small_tn(), np.zeros([2 ** n]), atol=1e-5)
+    np.testing.assert_allclose(small_tn(), np.zeros([2**n]), atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_teleportation(backend):
+    key = tc.backend.get_random_state(42)
+
+    @tc.backend.jit
+    def f(key):
+        tc.backend.set_random_state(key)
+        c = tc.Circuit(2)
+        c.H(0)
+        r = c.cond_measurement(0)
+        c.conditional_gate(r, [tc.gates.i(), tc.gates.x()], 1)
+        return r, c.expectation([tc.gates.z(), [1]])
+
+    keys = []
+    for _ in range(6):
+        key, subkey = tc.backend.random_split(key)
+        keys.append(subkey)
+    rs = [f(k) for k in keys]
+    for r, e in rs:
+        if tc.backend.numpy(r) > 0.5:
+            np.testing.assert_allclose(e, -1, atol=1e-5)
+        else:
+            np.testing.assert_allclose(e, 1, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_append_circuit(backend):
+    c = tc.Circuit(2)
+    c.cnot(0, 1)
+    c1 = tc.Circuit(2)
+    c1.x(0)
+    c.append(c1)
+    np.testing.assert_allclose(c.expectation_ps(z=[1]), 1.0)
+
+    c = tc.Circuit(2)
+    c.cnot(0, 1)
+    c1 = tc.Circuit(2)
+    c1.x(0)
+    c.prepend(c1)
+    np.testing.assert_allclose(c.expectation_ps(z=[1]), -1.0)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
@@ -758,7 +821,7 @@ def test_qir2qiskit():
         pytest.skip("qiskit is not installed")
 
     n = 6
-    c = tc.Circuit(n, inputs=np.eye(2 ** n))
+    c = tc.Circuit(n, inputs=np.eye(2**n))
     for i in range(n):
         c.H(i)
     zz = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
@@ -806,11 +869,11 @@ def test_qir2qiskit():
     c.multicontrol(0, 2, 1, ctrl=[0, 1], unitary=tc.gates._x_matrix, name="x")
 
     tc_unitary = c.wavefunction()
-    tc_unitary = np.reshape(tc_unitary, [2 ** n, 2 ** n])
+    tc_unitary = np.reshape(tc_unitary, [2**n, 2**n])
 
     qisc = c.to_qiskit()
     qis_unitary = qi.Operator(qisc)
-    qis_unitary = np.reshape(qis_unitary, [2 ** n, 2 ** n])
+    qis_unitary = np.reshape(qis_unitary, [2**n, 2**n])
 
     p_mat = perm_matrix(n)
     np.testing.assert_allclose(p_mat @ tc_unitary @ p_mat, qis_unitary, atol=1e-5)
@@ -865,10 +928,10 @@ def test_qiskit2tc():
     CCCRX = SwapGate().control(2, ctrl_state="01")
     qisc.append(CCCRX, [0, 1, 2, 3])
 
-    c = tc.Circuit.from_qiskit(qisc, n, np.eye(2 ** n))
+    c = tc.Circuit.from_qiskit(qisc, n, np.eye(2**n))
     tc_unitary = c.wavefunction()
-    tc_unitary = np.reshape(tc_unitary, [2 ** n, 2 ** n])
+    tc_unitary = np.reshape(tc_unitary, [2**n, 2**n])
     qis_unitary = qi.Operator(qisc)
-    qis_unitary = np.reshape(qis_unitary, [2 ** n, 2 ** n])
+    qis_unitary = np.reshape(qis_unitary, [2**n, 2**n])
     p_mat = perm_matrix(n)
     np.testing.assert_allclose(p_mat @ tc_unitary @ p_mat, qis_unitary, atol=1e-5)

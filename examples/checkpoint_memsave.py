@@ -97,7 +97,7 @@ def totallayer(s, param):
 
 
 def vqe_forward(param):
-    s = tc.backend.ones([2 ** nwires])
+    s = tc.backend.ones([2**nwires])
     s /= tc.backend.norm(s)
     s = totallayer(s, param)
     e = tc.expectation((tc.gates.x(), [1]), ket=s)
@@ -106,13 +106,13 @@ def vqe_forward(param):
 
 def profile(tries=3):
     time0 = time.time()
-    tc_vag = tc.backend.jit(tc.backend.value_and_grad(vqe_forward))
+    tc_vg = tc.backend.jit(tc.backend.value_and_grad(vqe_forward))
     param = tc.backend.cast(tc.backend.ones([nlayers, 2 * nwires]), "complex64")
-    print(tc_vag(param))
+    print(tc_vg(param))
 
     time1 = time.time()
     for _ in range(tries):
-        print(tc_vag(param)[0])
+        print(tc_vg(param)[0])
 
     time2 = time.time()
     print(time1 - time0, (time2 - time1) / tries)

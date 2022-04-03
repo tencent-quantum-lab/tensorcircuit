@@ -71,7 +71,7 @@ def test_dense(benchmark, tfb):
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_adaptive_vmap(backend):
     def f(x):
-        return x ** 2
+        return x**2
 
     x = tc.backend.ones([30, 2])
 

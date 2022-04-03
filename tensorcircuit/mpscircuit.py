@@ -85,6 +85,7 @@ class MPSCircuit:
     # gates on > 2 qubits like toffoli is not available
     # however they can be constructed from 1 and 2 qubit gates
     vgates = ["r", "cr", "rx", "ry", "rz", "any", "exp", "exp1"]
+    # TODO(@refraction-ray): gate list update
 
     def __init__(
         self,
@@ -276,7 +277,7 @@ class MPSCircuit:
             max_truncation_err=self.max_truncation_err,
             relative=self.relative,
         )
-        self._fidelity *= 1 - backend.real(backend.sum(err ** 2))
+        self._fidelity *= 1 - backend.real(backend.sum(err**2))
 
     def apply_double_gate(
         self,

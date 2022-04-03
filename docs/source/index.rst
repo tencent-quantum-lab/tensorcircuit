@@ -6,6 +6,7 @@ Guide to TensorCircuit
 
    quickstart.rst
    advance.rst
+   faq.rst
    infras.rst
    contribution.rst
    tutorials.rst

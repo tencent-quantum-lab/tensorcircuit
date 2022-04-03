@@ -151,3 +151,5 @@ And a more neat approach to achieve this is as follows:
     print(r(key1), r(key2))
 
 It is worth noting that since ``Circuit.unitary_kraus`` and ``Circuit.general_kraus`` calls ``implicit_rand*`` API, the correct usage of these APIs are the same as above.
+
+One may wonder why random numbers are dealt in such a complicated way, please refer `Jax design note <https://github.com/google/jax/blob/main/docs/design_notes/prng.md>`_ for some hints.

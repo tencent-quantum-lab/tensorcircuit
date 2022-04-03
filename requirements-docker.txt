@@ -28,7 +28,7 @@ pytest-cov
 pytest-benchmark
 pytest-xdist
 pytest-lazy-fixture
-black==21.9b0
+black==22.3.0
 sphinx>=4.0
 sphinx-intl
 sphinx-copybutton

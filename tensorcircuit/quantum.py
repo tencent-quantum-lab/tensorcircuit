@@ -129,7 +129,7 @@ def quantum_constructor(
 
 def identity(
     space: Sequence[int],
-    dtype: Any = np.float64,
+    dtype: Any = None,
 ) -> "QuOperator":
     """
     Construct a 'QuOperator' representing the identity on a given space.
@@ -160,11 +160,13 @@ def identity(
     :param space: A sequence of integers for the dimensions of the tensor product
         factors of the space (the edges in the tensor network).
     :type space: Sequence[int]
-    :param dtype: The data type (for conversion to dense).
+    :param dtype: The data type by np.* (for conversion to dense). defaults None to tc dtype.
     :type dtype: Any type
     :return: The desired identity operator.
     :rtype: QuOperator
     """
+    if dtype is None:
+        dtype = npdtype
     nodes = [CopyNode(2, d, dtype=dtype) for d in space]
     out_edges = [n[0] for n in nodes]
     in_edges = [n[1] for n in nodes]
@@ -1227,7 +1229,6 @@ try:
         )
         return tf.SparseTensor(indices=indices, values=values, dense_shape=(s, s))  # type: ignore
 
-
 except NameError:
     logger.warning(
         "tensorflow is not installed, and sparse Hamiltonian generation utilities are disabled"
@@ -1654,7 +1655,7 @@ def spin_by_basis(n: int, m: int, elements: Tuple[int, int] = (1, -1)) -> Tensor
         backend.cast(
             backend.convert_to_tensor(np.array([[elements[0]], [elements[1]]])), "int32"
         ),
-        [2 ** m, int(2 ** (n - m - 1))],
+        [2**m, int(2 ** (n - m - 1))],
     )
     return backend.reshape(s, [-1])
 

@@ -1,4 +1,8 @@
-<h1 align="center"> TENSORCIRCUIT </h1>
+<p align="center">
+  <a href="https://pennylane.ai">
+    <img width=80% src="docs/source/statics/logov2.jpg">
+  </a>
+</p>
 
 <p align="center">
   <!-- tests (GitHub actions) -->
@@ -70,7 +74,9 @@ print(g(theta))
 
 ## Install
 
-`pip install tensorcircuit`(Extra package installation may be required for some features.)
+`pip install tensorcircuit`.
+
+Extra package installation may be required for some features.
 
 ## Contributing
 

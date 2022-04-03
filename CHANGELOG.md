@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.0.220402
+
 ### Added
 
 - add `utils.append` to build function pipeline
@@ -9,6 +11,20 @@
 - add `mean` method on backends
 
 - add trigonometric methods on backends
+
+- add `conditional_gate` to support quantum ops based on previous measurment results
+
+- add `expectation_ps` as shortcut to get Pauli string expectation
+
+- add `append` and `prepend` to compose circuits
+
+- add `matrix` method to get the circuit unitary matrix
+
+### Changed
+
+- change the return information of `unitary_kraus` and `general_kraus` methods
+
+- add alias for any gate as unitary
 
 ## 0.0.220328
 
