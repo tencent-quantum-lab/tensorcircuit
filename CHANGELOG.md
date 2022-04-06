@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixed
+
+- With `Circuit.vis_tex`, for the Circuit has customized input state, the default visualization is psi instead of all zeros now.
+
 ## 0.0.220402
 
 ### Added

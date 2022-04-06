@@ -1554,7 +1554,14 @@ class Circuit:
         :return: Latex string that can be directly compiled via, e.g. latexit
         :rtype: str
         """
-        return qir2tex(self._qir, self._nqubits, **kws)  # type: ignore
+        if self.has_inputs:
+            init = ["" for _ in range(self._nqubits)]
+            init[self._nqubits // 2] = "\psi"
+            okws = {"init": init}
+        else:
+            okws = {"init": None}  # type: ignore
+        okws.update(kws)
+        return qir2tex(self._qir, self._nqubits, **okws)  # type: ignore
 
 
 Circuit._meta_apply()

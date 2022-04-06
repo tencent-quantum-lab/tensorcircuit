@@ -82,3 +82,51 @@ Inside TensorCircuit, we heavily utilize TensorNetwork-related APIs from the Ten
 - We borrow TensorNetwork's code in /quantum to our ``tc.quantum`` module, since TensorNetwork has no ``__init__.py`` file to export these MPO and MPS related objects. Of course, we have made substantial improvements since then.
 
 - We borrow the TensorNetwork's code in /matrixproductstates as ``tc.mps_base`` for bug fixing and jit/AD compatibility, so that we have better support for our MPS based quantum circuit simulator.
+
+
+QuOperator/QuVector and MPO/MPS
+---------------------------------------------------
+
+:py:class:`tensorcircuit.quantum.QuOperator`, :py:class:`tensorcircuit.quantum.QuVector` and :py:class:`tensorcircuit.quantum.QuAdjointVector` are classes adopted from TensorNetwork package.
+They behave like a matrix/vector (column or row) when interact with other ingredients while the inner structure is maintained by the tensornetwork for efficiency and compactness.
+
+We use code examples and associated tensor diagrams to illustrate these object abstractions.
+
+.. note::
+
+    ``QuOperator`` can express MPOs and ``QuVector`` can express MPSs, but they can express more than these fixed structured tensor networks.
+
+.. code-block:: python
+
+    import tensornetwork as tn
+
+    n1 = tn.Node(np.ones([2, 2, 2]))
+    n2 = tn.Node(np.ones([2, 2, 2]))
+    n3 = tn.Node(np.ones([2, 2]))
+    n1[2]^n2[2]
+    n2[1]^n3[0]
+
+    matrix = tc.quantum.QuOperator(out_edges=[n1[0], n2[0]], in_edges=[n1[1], n3[1]])
+
+    n4 = tn.Node(np.ones([2]))
+    n5 = tn.Node(np.ones([2]))
+
+    vector = tc.quantum.QuVector([n4[0], n5[0]])
+
+    nvector = matrix @ vector 
+
+    assert type(nvector) == tc.quantum.QuVector
+    nvector.eval_matrix() 
+    # array([[16.], [16.], [16.], [16.]])
+
+.. figure:: statics/quop.png
+    :scale: 50%
+
+Note how in this example, ``matrix`` is not a typical MPO but still can be expressed as ``QuOperator``. Indeed, any tensor network with two sets of dangling edges of the same dimension can be treated as ``QuOperator``. ``QuVector`` is even more flexible since we can treat all dangling edges as the vector dimension.
+
+Also note how ``^`` is overloaded as ``tn.connect`` to connect edges between different nodes in TensorNetwork. And indexing the node gives the edges of the node, eg. ``n1[0]`` means the first edge of node ``n1``.
+
+The convention to define the ``QuOperator`` is firstly giving ``out_edges`` (left index or row index of the matrix) and then giving ``in_edges`` (right index or column index of the matrix). The edges list contains edge object from TensorNetwork library.
+
+Such QuOperator/QuVector abstraction support various calculations only possible on matrix/vectors, such as matmul (``@``), adjoint (``.adjoint()``), scalar multiplication (``*``), tensor product (``|``) and partial trace (``.partial_trace(subsystems_to_trace_out)``).
+To extract the matrix information of these objects, we can use ``.eval()`` or ``.eval_matrix()``, the former keep the shape information of the tensor network while the latter gives the matrix representation with shape rank 2.
