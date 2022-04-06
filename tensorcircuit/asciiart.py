@@ -9,7 +9,7 @@ from typing import Any, Dict, Optional
 import numpy as np
 
 visible = False
-__passwd = {"7f935440a50f08f25354f5daa334282c"}
+__passwd = {"ce25e1867bc26a3209ab7f76d752fbbd"}
 thismodule = sys.modules[__name__]
 
 
@@ -175,6 +175,7 @@ def lucky() -> Any:
 def set_ascii(b: str = "", conf: Optional[Dict[str, str]] = None) -> None:
     global visible
     md5 = hashlib.md5()
+    b += "some pepper!!"
     md5.update(b.encode("utf-8"))
     if md5.hexdigest() in __passwd:
         print("Have fun!")
@@ -184,7 +185,7 @@ def set_ascii(b: str = "", conf: Optional[Dict[str, str]] = None) -> None:
         for g in gallery:
             s = getattr(thismodule, "__" + g + "__")
             # if s.find("%") > 0: # avoid % in the art
-            if s in ["__moonshot__"]:
+            if g in ["moonshot"]:
                 s = s % conf.get(g, "")
             setattr(
                 sys.modules["tensorcircuit"],
@@ -199,3 +200,66 @@ def set_ascii(b: str = "", conf: Optional[Dict[str, str]] = None) -> None:
     else:
         visible = False
         raise AttributeError("module 'tensorcircuit' has no attribute 'set_ascii'")
+
+
+def __get_url(key: str) -> str:
+    if visible:
+        from Cryptodome.Cipher import AES
+
+        def pad_key(key: str) -> str:
+            while len(key) % 16 != 0:
+                key += "1"
+            return key
+
+        aes = AES.new(pad_key(key).encode(), AES.MODE_ECB)
+        #
+        e = b"\xd8\xbcvw6G\xc4\xd7\xc3\x0f\xa7\xe4v\n\xcfcq-\x8b2\x90\xb5\x91\xbe\x8b\x7f\x96\x1df\xe1\xb1\x07,>\x8c\x99?\xa5\xeb\xc5se\xf0\xe0\xb3\xd5\x99<\xfa\xb2\x9c\xf6\x87\xc0el6\x88A\xb3\xeb\xfc\xe7AE\xe7\xca\xfc\xaf\x19!H\xb8\x8b\xba\xcd\xf7\xe7g\x83(U\xce\xf8n,\xfc\xd9\xa6\xe2\xf0#\x06\xe4\x0e\x04\xb7\x922\x18\x92(\x07O\x95p\xde\x95\xbb\x01\xeaZC\xa6\x8a\xc0\xa5\x11\x93\x00\xfe\xde\xdc\xba'\xb36\xef\xfa\x0fh\x9f\xf6\xa0\x02b\xe1:\xcb\x16\xec\xcc\xad\x94\xb1b\x92\xd3x\x16\xc4\x0cO%r\\\x9d\x11H\x13"  # pylint: disable = line-too-long
+        #
+        de = str(aes.decrypt(e), encoding="utf-8", errors="ignore")
+        return de.strip()[10:-10]
+    #
+    #
+
+    raise AttributeError("module 'tensorcircuit' has no attribute '__get_url'")
+
+
+def __encrypt(key: str, url: str) -> Any:
+    if visible:
+        from Cryptodome.Cipher import AES
+
+        def pad(text: str) -> str:
+            while len(text) % 16 != 0:
+                text += " "
+            return text
+
+        def pad_key(key: str) -> str:
+            while len(key) % 16 != 0:
+                key += "1"
+            return key
+
+        url = "salty!!!!!" + url + ">>>>><<<<<"
+
+        aes = AES.new(pad_key(key).encode(), AES.MODE_ECB)
+
+        encrypted_text = aes.encrypt(pad(url).encode())
+
+        return encrypted_text
+
+
+def get_message(key: str) -> str:
+    if visible:
+        from requests import get, RequestException
+
+        url = __get_url(key)
+
+        try:
+            r = get(url)
+        except RequestException:
+            print("Bro, what R U doin?")
+            return ""
+        return r.text
+
+    #
+    #
+
+    raise AttributeError("module 'tensorcircuit' has no attribute 'get_message'")
