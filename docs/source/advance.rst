@@ -62,6 +62,25 @@ This API corresponds to measure :math:`I_0Z_1Z_2I_3` where 0, 1, 2, 3 are for lo
 Sparse Matrix
 ----------------
 
+We only support COO format sparse matrix as most backends only support this format, and some common backend methods for sparse matrix are listed below:
+
+.. code-block:: python
+
+    def sparse_test():
+        m = tc.backend.coo_sparse_matrix(indices=np.array([[0, 1],[1, 0]]), values=np.array([1.0, 1.0]), shape=[2, 2])
+        n = tc.backend.convert_to_tensor(np.array([[1.0], [0.0]]))
+        print("is sparse: ", tc.backend.is_sparse(m), tc.backend.is_sparse(n))
+        print("sparse matmul: ", tc.backend.sparse_dense_matmul(m, n))
+
+    for K in ["tensorflow", "jax", "numpy"]:
+        with tc.runtime_backend(K):
+            print("using backend: ", K)
+            sparse_test()
+
+The sparse matrix are specifically useful to evaluate Hamiltonian expectation on the circuit, where sparse matrix representaion has good tradeoff between space and time.
+Please refer to :py:meth:`tensorcircuit.templates.measurements.sparse_expectation` for more detail.
+
+For different representation to evaluate Hamiltonian expectation in tensorcircuit, please refer to :doc:`tutorials/tfim_vqe_diffreph`.
 
 Randoms, Jit, Backend Agnostic, and Their Interplay
 --------------------------------------------------------
