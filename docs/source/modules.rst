@@ -2,6 +2,7 @@ tensorcircuit
 ==================================================
 .. toctree::
     ./api/applications.rst
+    ./api/asciiart.rst
     ./api/backends.rst
     ./api/channels.rst
     ./api/circuit.rst
