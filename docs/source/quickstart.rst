@@ -343,6 +343,20 @@ The QuVector forms a wavefunction w, which can also be fed into Circuit as the i
 
 - MPS as input state for circuit
 
+The MPS/QuVector representation of the input state has a more effcicent and compact form.
+
+.. code-block:: python
+
+    n = 3
+    nodes = [tc.gates.Gate(np.array([0.0, 1.0])) for _ in range(n)]
+    mps = tc.quantum.QuVector([nd[0] for nd in nodes])
+    c = tc.Circuit(n, mps_inputs=mps)
+    c.x(0)
+    c.expectation_ps(z=[0])
+    # 1.0
+
+- MPS as (uncomputed) output state for circuit
+
 For example, a quick way to calculate the wavefunction overlap without explicitly computing the state amplitude is given as below:
 
 .. code-block:: python
