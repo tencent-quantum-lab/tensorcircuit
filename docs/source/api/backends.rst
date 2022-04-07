@@ -5,5 +5,4 @@ tensorcircuit.backends
     backends/jax_backend.rst
     backends/numpy_backend.rst
     backends/pytorch_backend.rst
-    backends/pytorch_ops.rst
     backends/tensorflow_backend.rst
