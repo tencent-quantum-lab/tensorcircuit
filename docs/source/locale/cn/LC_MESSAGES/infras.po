@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-11 16:03+0800\n"
+"POT-Creation-Date: 2022-04-07 19:44+0800\n"
 "PO-Revision-Date: 2022-02-23 21:37+0800\n"
 "Last-Translator: \n"
 "Language: cn\n"
@@ -283,4 +283,66 @@ msgid ""
 msgstr ""
 "我们借用 /matrixproductstates 中 TensorNetwork 的代码作为 ``tc.mps_base`` "
 "用于错误修复和即时编译/自动微分兼容性，以便我们更好地支持基于 MPS 的量子电路模拟器。"
+
+#: ../../source/infras.rst:88
+msgid "QuOperator/QuVector and MPO/MPS"
+msgstr ""
+
+#: ../../source/infras.rst:90
+msgid ""
+":py:class:`tensorcircuit.quantum.QuOperator`, "
+":py:class:`tensorcircuit.quantum.QuVector` and "
+":py:class:`tensorcircuit.quantum.QuAdjointVector` are classes adopted "
+"from TensorNetwork package. They behave like a matrix/vector (column or "
+"row) when interact with other ingredients while the inner structure is "
+"maintained by the tensornetwork for efficiency and compactness."
+msgstr ""
+
+#: ../../source/infras.rst:93
+msgid ""
+"We use code examples and associated tensor diagrams to illustrate these "
+"object abstractions."
+msgstr ""
+
+#: ../../source/infras.rst:97
+msgid ""
+"``QuOperator`` can express MPOs and ``QuVector`` can express MPSs, but "
+"they can express more than these fixed structured tensor networks."
+msgstr ""
+
+#: ../../source/infras.rst:125
+msgid ""
+"Note how in this example, ``matrix`` is not a typical MPO but still can "
+"be expressed as ``QuOperator``. Indeed, any tensor network with two sets "
+"of dangling edges of the same dimension can be treated as ``QuOperator``."
+" ``QuVector`` is even more flexible since we can treat all dangling edges"
+" as the vector dimension."
+msgstr ""
+
+#: ../../source/infras.rst:127
+msgid ""
+"Also note how ``^`` is overloaded as ``tn.connect`` to connect edges "
+"between different nodes in TensorNetwork. And indexing the node gives the"
+" edges of the node, eg. ``n1[0]`` means the first edge of node ``n1``."
+msgstr ""
+
+#: ../../source/infras.rst:129
+msgid ""
+"The convention to define the ``QuOperator`` is firstly giving "
+"``out_edges`` (left index or row index of the matrix) and then giving "
+"``in_edges`` (right index or column index of the matrix). The edges list "
+"contains edge object from TensorNetwork library."
+msgstr ""
+
+#: ../../source/infras.rst:131
+msgid ""
+"Such QuOperator/QuVector abstraction support various calculations only "
+"possible on matrix/vectors, such as matmul (``@``), adjoint "
+"(``.adjoint()``), scalar multiplication (``*``), tensor product (``|``) "
+"and partial trace (``.partial_trace(subsystems_to_trace_out)``). To "
+"extract the matrix information of these objects, we can use ``.eval()`` "
+"or ``.eval_matrix()``, the former keep the shape information of the "
+"tensor network while the latter gives the matrix representation with "
+"shape rank 2."
+msgstr ""
 
