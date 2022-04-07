@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-23 21:05+0800\n"
+"POT-Creation-Date: 2022-03-11 16:03+0800\n"
 "PO-Revision-Date: 2022-02-23 21:37+0800\n"
 "Last-Translator: \n"
 "Language: cn\n"
@@ -193,26 +193,32 @@ msgid ":py:mod:`tensorcircuit.vis`: Visualization code for circuit drawing."
 msgstr ":py:mod:`tensorcircuit.vis`: 用于电路可视化的代码"
 
 #: ../../source/infras.rst:57
+msgid ""
+":py:mod:`tensorcircuit.translation`: Translate circuit object to circuit "
+"object in other quantum packages."
+msgstr ""
+
+#: ../../source/infras.rst:59
 msgid "**Shortcuts and Templates for Circuit Manipulation:**"
 msgstr "**电路操作的快捷方式和模板：**"
 
-#: ../../source/infras.rst:59
+#: ../../source/infras.rst:61
 msgid ""
 ":py:mod:`tensorcircuit.templates`: provide handy shortcuts functions for "
 "expectation or circuit building patterns."
 msgstr ":py:mod:`tensorcircuit.templates`: 为期望或电路构建模式提供方便的快捷函数。"
 
-#: ../../source/infras.rst:61
+#: ../../source/infras.rst:63
 msgid "**Applications:**"
 msgstr "**应用：**"
 
-#: ../../source/infras.rst:63
+#: ../../source/infras.rst:65
 msgid ""
 ":py:mod:`tensorcircuit.applications`: most code here is not maintained "
 "and deprecated, use at your own risk."
 msgstr ":py:mod:`tensorcircuit.applications`: 这里的大多数代码都没有维护并且被弃用了，使用风险自负。"
 
-#: ../../source/infras.rst:67
+#: ../../source/infras.rst:69
 msgid ""
 "Recommend reading order -- only read the part of code you care about on "
 "your purpose. If you want to get an overview of the codebase, please read"
@@ -221,11 +227,11 @@ msgstr ""
 "推荐阅读顺序——只阅读你关心的部分代码。如果您想了解代码库的概述，之后可以阅读 ``tc.circuit`` 后面的 ``tc.cons`` 和 "
 "``tc.gates``。"
 
-#: ../../source/infras.rst:72
+#: ../../source/infras.rst:74
 msgid "Relation between TensorCircuit and TensorNetwork"
 msgstr "TensorCircuit 和 TensorNetwork 之间的关系"
 
-#: ../../source/infras.rst:74
+#: ../../source/infras.rst:76
 msgid ""
 "TensorCircuit has a strong connection with the `TensorNetwork package "
 "<https://github.com/google/TensorNetwork>`_ released by Google. Since the"
@@ -239,7 +245,7 @@ msgstr ""
 "包的文档和教程很差，大多数时候，我们需要深入研究 TensorNetwork 的代码库来弄清楚发生了什么。换句话说，要阅读 "
 "TensorCircuit 代码库，可能需要经常参考 TensorNetwork 代码库。"
 
-#: ../../source/infras.rst:76
+#: ../../source/infras.rst:78
 msgid ""
 "Inside TensorCircuit, we heavily utilize TensorNetwork-related APIs from "
 "the TensorNetwork package and highly customized several modules from "
@@ -248,7 +254,7 @@ msgstr ""
 "在 TensorCircuit 内部，我们大量使用了 TensorNetwork 包中与 TensorNetwork 相关的 "
 "API，并通过继承和重写从 TensorNetwork 中高度定制了几个模块："
 
-#: ../../source/infras.rst:78
+#: ../../source/infras.rst:80
 msgid ""
 "We implement our own /backends from TensorNetwork's /backends by adding "
 "much more APIs and fixing lots of bugs in TensorNetwork's implementations"
@@ -258,7 +264,7 @@ msgstr ""
 "我们从 TensorNetwork 的后端实现我们自己的后端，方法是添加更多 API，并通过猴子补丁修复 TensorNetwork "
 "在某些后端的实现中的许多错误。（上游是不活跃的，反馈不够灵敏）"
 
-#: ../../source/infras.rst:80
+#: ../../source/infras.rst:82
 msgid ""
 "We borrow TensorNetwork's code in /quantum to our ``tc.quantum`` module, "
 "since TensorNetwork has no ``__init__.py`` file to export these MPO and "
@@ -269,7 +275,7 @@ msgstr ""
 "TensorNetwork 没有 ``__init__.py`` 文件来导出这些 MPO 和 MPS "
 "相关对象。当然，从那时起，我们已经取得了实质性的代码改进。"
 
-#: ../../source/infras.rst:82
+#: ../../source/infras.rst:84
 msgid ""
 "We borrow the TensorNetwork's code in /matrixproductstates as "
 "``tc.mps_base`` for bug fixing and jit/AD compatibility, so that we have "
@@ -277,10 +283,4 @@ msgid ""
 msgstr ""
 "我们借用 /matrixproductstates 中 TensorNetwork 的代码作为 ``tc.mps_base`` "
 "用于错误修复和即时编译/自动微分兼容性，以便我们更好地支持基于 MPS 的量子电路模拟器。"
-
-#~ msgid ""
-#~ ":py:mod:`tensorcircuit.translation`: Translate circuit "
-#~ "object to circuit object in other "
-#~ "quantum packages."
-#~ msgstr ""
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-21 15:26+0800\n"
+"POT-Creation-Date: 2022-03-11 16:03+0800\n"
 "PO-Revision-Date: 2022-02-21 15:30+0800\n"
 "Last-Translator: \n"
 "Language: cn\n"
@@ -200,10 +200,16 @@ msgid ""
 msgstr "因为可以在几个量子比特上测量一个 m，这种计算期望值的 API 相当灵活：``c.expectation([m, [0, 1, 2]])``。"
 
 #: ../../source/quickstart.rst:78
+msgid ""
+"We can also extract the unitary matrix underlying the whole circuit as "
+"follows:"
+msgstr ""
+
+#: ../../source/quickstart.rst:91
 msgid "**Circuit visualization:**"
 msgstr "**电路可视化**"
 
-#: ../../source/quickstart.rst:80
+#: ../../source/quickstart.rst:93
 msgid ""
 "``c.vis_tex()`` can generate tex code for circuit visualization based on "
 "LaTeX `quantikz <https://arxiv.org/abs/1809.03842>`__ package."
@@ -211,14 +217,14 @@ msgstr ""
 "``c.vis_tex()`` 可以基于  `quantikz <https://arxiv.org/abs/1809.03842>`__ "
 "package 生成用于电路可视化的 tex 代码。"
 
-#: ../../source/quickstart.rst:82
+#: ../../source/quickstart.rst:95
 msgid ""
 "There are also some automatic pipeline helper functions to directly "
 "generate figures from tex code, but they require extra installations in "
 "the environment."
 msgstr "还有一些自动辅助函数可以直接从 tex 代码生成图形，但它们需要在环境中进行额外安装。"
 
-#: ../../source/quickstart.rst:84
+#: ../../source/quickstart.rst:97
 msgid ""
 "``render_pdf(tex)`` function requires full installation of LaTeX locally."
 " And in Jupyter environment, we may prefer ``render_pdf(tex, "
@@ -230,18 +236,18 @@ msgstr ""
 "``render_pdf(tex, notebook=True)`` 来返回 jpg 图形，这需要安装 wand magicwand 库，请参阅 "
 "`这里 <https://docs.wand-py.org/en/latest/>`__ 。"
 
-#: ../../source/quickstart.rst:86
+#: ../../source/quickstart.rst:99
 msgid "**Circuit Intermediate Representation:**"
 msgstr "**电路中间表示:**"
 
-#: ../../source/quickstart.rst:88
+#: ../../source/quickstart.rst:101
 msgid ""
 "TensorCircuit provides its own circuit IR as a python list of dicts. This"
 " IR can be further utilized to run compiling, generate serialization qasm"
 " or render circuit figures."
 msgstr "TensorCircuit 提供自己的中间表示是元素是字典的列表。此中间表示可进一步用于运行编译、生成序列化 qasm 或渲染电路图。"
 
-#: ../../source/quickstart.rst:90
+#: ../../source/quickstart.rst:103
 msgid ""
 "The IR is given as a list, each element is a dict containing information "
 "on one gate that applied on the circuit. Note gate attr in the dict is "
@@ -250,18 +256,18 @@ msgstr ""
 "中间表示以列表形式给出，每个元素都是一个字典，其中包含应用于电路的一个量子门的信息。 注意字典中的gate "
 "atrr实际上是一个返回此量子门的节点的python函数。"
 
-#: ../../source/quickstart.rst:102
+#: ../../source/quickstart.rst:115
 msgid "Programming Paradigm"
 msgstr "编程范式"
 
-#: ../../source/quickstart.rst:104
+#: ../../source/quickstart.rst:117
 msgid ""
 "The most common case and the most typical programming paradigm for "
 "TensorCircuit is to evaluate the circuit output and the corresponding "
 "quantum gradients, which is common in variational quantum algorithms."
 msgstr "TensorCircuit 最常见的情况和最典型的编程范式是评估电路的输出以及相应的量子梯度，这在变分量子算法中很常见。"
 
-#: ../../source/quickstart.rst:131
+#: ../../source/quickstart.rst:144
 msgid ""
 "Also for a non-quantum example (linear regression) demonstrating the "
 "backend agnostic feature, variables with pytree support, AD/jit/vmap "
@@ -277,18 +283,18 @@ msgstr ""
 "dev/blob/master/examples/universal_lr.py>`_ 。 "
 "这个例子可能对机器学习的用户更友好，因为它纯粹是经典的，同时也展示了张量电路的主要特征和范式。"
 
-#: ../../source/quickstart.rst:134
+#: ../../source/quickstart.rst:147
 msgid ""
 "If the user has no intention to maintain the application code in a "
 "backend agnostic fashion, the API for ML frameworks can be more handily "
 "used and interleaved with the TensorCircuit API."
 msgstr "如果用户无意以与后端无关的方式维护应用程序代码，则可以更方便地使用用于机器学习框架的 API 并将其与 TensorCircuit API 连接。"
 
-#: ../../source/quickstart.rst:169
+#: ../../source/quickstart.rst:182
 msgid "Automatic differentiation, JIT and Vectorized Parallelism"
 msgstr "自动微分、即时编译和矢量化并行 "
 
-#: ../../source/quickstart.rst:171
+#: ../../source/quickstart.rst:184
 msgid ""
 "For concepts of AD, JIT and VMAP, please refer to `Jax documentation "
 "<https://jax.readthedocs.io/en/latest/jax-101/index.html>`__ ."
@@ -296,7 +302,7 @@ msgstr ""
 "关于自动微分、即时编译和向量并行化，请参考 `Jax 文档 "
 "<https://jax.readthedocs.io/en/latest/jax-101/index.html>`__ 。"
 
-#: ../../source/quickstart.rst:173
+#: ../../source/quickstart.rst:186
 msgid ""
 "The related API design in TensorCircuit closely follows the functional "
 "programming design pattern in Jax with some slight differences. So we "
@@ -306,21 +312,21 @@ msgstr ""
 "TensorCircuit 中的相关 API 设计与 Jax "
 "中的函数式编程的设计模式密切相关，但是略有不同。因此，我们强烈建议用户学习一些有关Jax 的基础知识，无论他们打算使用哪种机器学习后端。"
 
-#: ../../source/quickstart.rst:175
+#: ../../source/quickstart.rst:188
 msgid "**AD support:**"
 msgstr "**自动微分支持**"
 
-#: ../../source/quickstart.rst:177
+#: ../../source/quickstart.rst:190
 msgid ""
 "Gradients, vjps, jvps, natural gradients, Jacobians and Hessians. AD is "
 "the base for all modern machine learning libraries."
 msgstr "梯度、矢量雅可比乘积、自然梯度、 Jacobian 矩阵和 Hessian 矩阵。自动微分是所有现代机器学习库的基础。"
 
-#: ../../source/quickstart.rst:181
+#: ../../source/quickstart.rst:194
 msgid "**JIT support:**"
 msgstr "**即时编译支持**"
 
-#: ../../source/quickstart.rst:183
+#: ../../source/quickstart.rst:196
 msgid ""
 "Parameterized quantum circuits can run in a blink. Always use jit if the "
 "circuit will get evaluations multiple times, it can greatly boost the "
@@ -335,11 +341,11 @@ msgstr ""
 " 即时编译，否则，即时编译的函数可能会返回意外结果或每次在点击时都重新编译（浪费大量时间）。要了解更多关于即时编译机制的信息，可以参考关于 "
 "``tf.function`` 或 ``jax.jit`` 的文档或博客，即使这两者仍然存在细微差别。"
 
-#: ../../source/quickstart.rst:187
+#: ../../source/quickstart.rst:200
 msgid "**VMAP support:**"
 msgstr "**向量并行化支持**"
 
-#: ../../source/quickstart.rst:189
+#: ../../source/quickstart.rst:202
 msgid ""
 "Inputs, parameters, measurements, circuit structures, Monte Carlo noise "
 "can all be evaluated in parallel. To learn more about vmap mechanism, one"
@@ -349,11 +355,11 @@ msgstr ""
 "输入、参数、测量、电路结构、蒙特卡洛噪声都可以并行测算。 要了解有关矢量并行化机制的更多信息，可以参考 ``tf.vectorized_map``"
 " 或 ``jax.vmap`` 上的文档或博客。"
 
-#: ../../source/quickstart.rst:194
+#: ../../source/quickstart.rst:207
 msgid "Backend Agnosticism"
 msgstr "后端无关特性"
 
-#: ../../source/quickstart.rst:196
+#: ../../source/quickstart.rst:209
 msgid ""
 "TensorCircuit supports TensorFlow, Jax, and PyTorch backends. We "
 "recommend using TensorFlow or Jax backend since PyTorch lacks advanced "
@@ -362,7 +368,7 @@ msgstr ""
 "TensorCircuit 支持 TensorFlow、Jax 和 PyTorch 后端。 我们建议使用 TensorFlow 或 Jax "
 "后端，因为 PyTorch 缺乏高级 jit 和 vmap 功能。"
 
-#: ../../source/quickstart.rst:198
+#: ../../source/quickstart.rst:211
 msgid ""
 "The backend can be set as ``K=tc.set_backend(\"jax\")`` and ``K`` is the "
 "backend with a full set of APIs as a conventional ML framework, which can"
@@ -371,7 +377,7 @@ msgstr ""
 "后端可以设置为 `K=tc.set_backend(\"jax\")` ，`K`作为常规机器学习框架的全套API的后端，也可以通过`tc "
 ".backend`` 被访问。"
 
-#: ../../source/quickstart.rst:221
+#: ../../source/quickstart.rst:234
 msgid ""
 "The supported APIs in backend come from two sources, one part is "
 "implemented in `TensorNetwork package "
@@ -384,11 +390,11 @@ msgstr ""
 " 另一个来自 `TensorCircuit package <modules.html#module-"
 "tensorcircuit.backends>`__。"
 
-#: ../../source/quickstart.rst:226
+#: ../../source/quickstart.rst:239
 msgid "Switch the Dtype"
 msgstr "转换 dtype"
 
-#: ../../source/quickstart.rst:228
+#: ../../source/quickstart.rst:241
 msgid ""
 "TensorCircuit supports simulation using 32/64 bit precession. The default"
 " dtype is 32-bit as \"complex64\". Change this by "
@@ -398,24 +404,24 @@ msgstr ""
 "\"complex64\"。可以通过  ``tc.set_dtype(\"complex128\")`` 把 dtype 改为 \"complex"
 " 128\" 。"
 
-#: ../../source/quickstart.rst:231
+#: ../../source/quickstart.rst:244
 msgid ""
 "``tc.dtypestr`` always returns the current dtype string: either "
 "\"complex64\" or \"complex128\"."
 msgstr "``tc.dtypestr`` 总会返回当前的 dtype 字符串: 不是 \"complex64\" 就是 \"complex128\"."
 
-#: ../../source/quickstart.rst:235
+#: ../../source/quickstart.rst:248
 msgid "Setup the Contractor"
 msgstr "设置 contractor"
 
-#: ../../source/quickstart.rst:237
+#: ../../source/quickstart.rst:250
 msgid ""
 "TensorCircuit is a tensornetwork contraction based quantum circuit "
 "simulator. A contractor is for searching the optimal contraction path of "
 "the circuit tensornetwork."
 msgstr "TensorCircuit 是一个基于张量网络收缩的量子电路模拟器。 contractor 用于搜索电路张量网络的最佳收缩路径。"
 
-#: ../../source/quickstart.rst:239
+#: ../../source/quickstart.rst:252
 msgid ""
 "There are various advanced contractors provided by third-party packages, "
 "such as `opt-einsum <https://github.com/dgasmith/opt_einsum>`__ and "
@@ -425,7 +431,7 @@ msgstr ""
 "<https://github.com/dgasmith/opt_einsum>`__ 和 `cotengra "
 "<https://github.com/jcmgray/cotengra>`__ 。"
 
-#: ../../source/quickstart.rst:241
+#: ../../source/quickstart.rst:254
 msgid ""
 "`opt-einsum` is shipped with TensorNetwork package. To use cotengra, one "
 "need to pip install it; kahypar is also recommended to install with "
@@ -434,11 +440,11 @@ msgstr ""
 "`opt-einsum` 随 TensorNetwork 软件包一起。如要使用 cotengra，则需要 pip 安装它； 还建议使用 "
 "cotengra 安装 kahypar。"
 
-#: ../../source/quickstart.rst:243
+#: ../../source/quickstart.rst:256
 msgid "Some setup cases:"
 msgstr "一些设置案例："
 
-#: ../../source/quickstart.rst:269
+#: ../../source/quickstart.rst:282
 msgid ""
 "For advanced configurations on cotengra contractors, please refer to "
 "cotengra `doc "
@@ -452,25 +458,25 @@ msgstr ""
 "`contractor 教程 <https:// github.com/quclub/tensorcircuit-"
 "tutorials/blob/master/tutorials/contractors.ipynb>`__."
 
-#: ../../source/quickstart.rst:271
+#: ../../source/quickstart.rst:284
 msgid "**Setup in function or context level**"
 msgstr "**函数和上下文级别的设置**"
 
-#: ../../source/quickstart.rst:273
+#: ../../source/quickstart.rst:286
 msgid ""
 "Beside global level setup, we can also setup the backend, the dtype, and "
 "the contractor in function level or context manager level:"
 msgstr "除了全局级别设置，我们还可以在函数级别或上下文管理器级别设置后端、dtype 和contractor："
 
-#: ../../source/quickstart.rst:291
+#: ../../source/quickstart.rst:304
 msgid "Noisy Circuit Simulation"
 msgstr "噪声电路模拟"
 
-#: ../../source/quickstart.rst:293
+#: ../../source/quickstart.rst:306
 msgid "**Monte Carlo State Simulator:**"
 msgstr "**蒙特卡洛态模拟器**"
 
-#: ../../source/quickstart.rst:295
+#: ../../source/quickstart.rst:308
 msgid ""
 "For the Monte Carlo trajectory noise simulator, the unitary Kraus channel"
 " can be handled easily. TensorCircuit also supports fully jittable and "
@@ -479,11 +485,11 @@ msgstr ""
 "对于蒙特卡洛轨迹噪声模拟器，可以轻松处理单一的 Kraus 通道。 不过，TensorCircuit 还支持完全可即时编译和可微分的通用 "
 "Kraus 通道蒙特卡罗模拟。"
 
-#: ../../source/quickstart.rst:307
+#: ../../source/quickstart.rst:320
 msgid "**Density Matrix Simulator:**"
 msgstr "**密度矩阵模拟器**"
 
-#: ../../source/quickstart.rst:309
+#: ../../source/quickstart.rst:322
 msgid ""
 "Density matrix simulator ``tc.DMCircuit`` simulates the noise in a full "
 "form, but takes twice qubits to do noiseless simulation. The API is "
@@ -492,11 +498,11 @@ msgstr ""
 "密度矩阵模拟器``tc.DMCircuit`` 以完整形式模拟噪声，但需要两倍的量子比特来做无噪声模拟。 API 与 ``tc.Circuit``"
 " 基本相同。"
 
-#: ../../source/quickstart.rst:313
+#: ../../source/quickstart.rst:326
 msgid "MPS and MPO"
 msgstr "矩阵乘积状态和矩阵乘积算子"
 
-#: ../../source/quickstart.rst:315
+#: ../../source/quickstart.rst:328
 msgid ""
 "TensorCircuit has its own class for MPS and MPO originally defined in "
 "TensorNetwork as ``tc.QuVector``, ``tc.QuOperator``."
@@ -504,7 +510,7 @@ msgstr ""
 "TensorCircuit 有自己的 MPS 和 MPO 类，起初在 TensorNetwork 中定义为“tc.QuVector” 和 "
 "“tc.QuOperator”。"
 
-#: ../../source/quickstart.rst:317
+#: ../../source/quickstart.rst:330
 msgid ""
 "``tc.QuVector`` can be extracted from ``tc.Circuit`` as the tensor "
 "network form for the output state (uncontracted) by ``c.quvector()``."
@@ -512,7 +518,7 @@ msgstr ""
 "作为``c.quvector()`` 的输出状态（未收缩）的张量网络形式，``tc.QuVector`` 可以从``tc.Circuit`` "
 "中提取。"
 
-#: ../../source/quickstart.rst:319
+#: ../../source/quickstart.rst:332
 msgid ""
 "The QuVector forms a wavefunction w, which can also be fed into Circuit "
 "as the inputs state as ``c=tc.Circuit(n, mps_inputs=w)``."
@@ -520,21 +526,51 @@ msgstr ""
 "QuVector 形成一个波函数 w，它也可以作为 ``c=tc.Circuit(n, mps_inputs=w)`` 的输入状态输入到 "
 "Circuit 中。"
 
-#: ../../source/quickstart.rst:321
+#: ../../source/quickstart.rst:334
+msgid "MPS as input state for circuit"
+msgstr ""
+
+#: ../../source/quickstart.rst:336
 msgid ""
 "For example, a quick way to calculate the wavefunction overlap without "
 "explicitly computing the state amplitude is given as below:"
 msgstr "例如，在不显式计算状态幅度的情况下，计算波函数重叠的快速方法如下："
 
-#: ../../source/quickstart.rst:340
+#: ../../source/quickstart.rst:353
+msgid "MPO as the gate on circuit"
+msgstr ""
+
+#: ../../source/quickstart.rst:355
+msgid ""
+"Instead of common quantum gate in matrix/node format, we can directly "
+"apply gate in MPO/QuOperator format."
+msgstr ""
+
+#: ../../source/quickstart.rst:366
+msgid ""
+"The representative gate that defined in MPO format is ``multicontrol`` "
+"gate."
+msgstr ""
+
+#: ../../source/quickstart.rst:368
+msgid "MPO as the operator for expectation evaluation on circuit"
+msgstr ""
+
+#: ../../source/quickstart.rst:370
+msgid ""
+"We can also measure operator expectation on the circuit output state "
+"where the operator is in MPO/QuOperator format."
+msgstr ""
+
+#: ../../source/quickstart.rst:382
 msgid "Interfaces"
 msgstr "接口"
 
-#: ../../source/quickstart.rst:342
+#: ../../source/quickstart.rst:384
 msgid "**PyTorch interface to hybrid with PyTorch modules:**"
 msgstr "**与 PyTorch 模块混合的 PyTorch 接口：**"
 
-#: ../../source/quickstart.rst:344
+#: ../../source/quickstart.rst:386
 msgid ""
 "As we have mentioned in the backend section, the PyTorch backend may lack"
 " the advanced features. This doesn't mean we cannot hybrid advanced "
@@ -545,78 +581,45 @@ msgstr ""
 "正如我们在后端部分提到的，PyTorch 后端可能缺少高级功能。 这并不意味着我们不能将高级量子电路模块与 PyTorch 神经模块混合。 "
 "我们可以在 TensorFlow 或 Jax 后端运行量子函数，同时使用 Torch 接口包装它。 "
 
-#: ../../source/quickstart.rst:372
+#: ../../source/quickstart.rst:414
 msgid "**Scipy interface to utilize scipy optimizers:**"
 msgstr "**使用 scipy接口使用scipy优化器：**"
 
-#: ../../source/quickstart.rst:374
+#: ../../source/quickstart.rst:416
 msgid ""
 "Automatically transform quantum functions as scipy-compatible values and "
 "grad functions as provided for scipy interface with ``jac=True``."
 msgstr "为带有 jac=True 的 scipy 接口自动将量子函数转换为与 scipy 兼容的值和 grad 函数。"
 
-#: ../../source/quickstart.rst:400
+#: ../../source/quickstart.rst:442
 msgid "Templates as Shortcuts"
 msgstr "捷径模板"
 
-#: ../../source/quickstart.rst:402
+#: ../../source/quickstart.rst:444
 msgid "**Measurements:**"
 msgstr "**测量**"
 
-#: ../../source/quickstart.rst:404
+#: ../../source/quickstart.rst:446
 msgid "Ising type Hamiltonian defined on a general graph"
 msgstr "在一般图上定义的伊辛型哈密顿量"
 
-#: ../../source/quickstart.rst:406
+#: ../../source/quickstart.rst:448
 msgid ""
 "See "
 ":py:meth:`tensorcircuit.templates.measurements.spin_glass_measurements`"
 msgstr "参考 :py:meth:`tensorcircuit.templates.measurements.spin_glass_measurements`"
 
-#: ../../source/quickstart.rst:408
+#: ../../source/quickstart.rst:450
 msgid "Heisenberg Hamiltonian on a general graph with possible external fields"
 msgstr "具有可能存在的外场的一般图上的海森堡哈密顿量"
 
-#: ../../source/quickstart.rst:410
+#: ../../source/quickstart.rst:452
 msgid ""
 "See "
 ":py:meth:`tensorcircuit.templates.measurements.heisenberg_measurements`"
 msgstr "参考 :py:meth:`tensorcircuit.templates.measurements.heisenberg_measurements`"
 
-#: ../../source/quickstart.rst:412
+#: ../../source/quickstart.rst:454
 msgid "**Circuit blocks:**"
 msgstr "**电路块**"
-
-#~ msgid ""
-#~ "We can also extract the unitary "
-#~ "matrix underlying the whole circuit as"
-#~ " follows:"
-#~ msgstr ""
-
-#~ msgid "MPS as input state for circuit"
-#~ msgstr ""
-
-#~ msgid "MPO as the gate on circuit"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Instead of common quantum gate in "
-#~ "matrix/node format, we can directly "
-#~ "apply gate in MPO/QuOperator format."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The representative gate that defined in"
-#~ " MPO format is ``multicontrol`` gate."
-#~ msgstr ""
-
-#~ msgid "MPO as the operator for expectation evaluation on circuit"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "We can also measure operator expectation"
-#~ " on the circuit output state where"
-#~ " the operator is in MPO/QuOperator "
-#~ "format."
-#~ msgstr ""
 
