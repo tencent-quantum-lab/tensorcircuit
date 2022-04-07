@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://pennylane.ai">
+  <a href="">
     <img width=80% src="docs/source/statics/logov2.jpg">
   </a>
 </p>
