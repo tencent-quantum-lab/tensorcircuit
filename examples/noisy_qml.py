@@ -32,15 +32,23 @@ logfile = "qml_param_v2.npy"
 n = 9
 m = 4
 maxiter = 5000
+data_preparation = "v1"
 
 x_train, y_train = filter_pair(x_train, y_train, 0, 1)
-x_train_small = tf.image.resize(x_train, (3, 3)).numpy()
-x_train_bin = np.array(x_train_small > 0.5, dtype=np.float32)
-x_train_bin = np.squeeze(x_train_bin).reshape([-1, n])
+
+if data_preparation == "v1":
+    x_train = tf.image.resize(x_train, (int(np.sqrt(n)), int(np.sqrt(n)))).numpy()
+    x_train = np.array(x_train > 0.5, dtype=np.float32)
+    x_train = np.squeeze(x_train).reshape([-1, n])
+
+else:  # "v2"
+    from sklearn.decomposition import PCA
+
+    x_train = PCA(n).fit_transform(x_train.reshape([-1, 28 * 28]))
 
 
 mnist_data = (
-    tf.data.Dataset.from_tensor_slices((x_train_bin[:datapoints], y_train[:datapoints]))
+    tf.data.Dataset.from_tensor_slices((x_train[:datapoints], y_train[:datapoints]))
     .repeat(maxiter)
     .shuffle(datapoints)
     .batch(batch)
@@ -51,7 +59,10 @@ def f(param, seed, x, pn):
     c = tc.Circuit(n)
     px, py, pz = pn, pn, pn
     for i in range(n):
-        c.rx(i, theta=x[i] * np.pi / 2)
+        if data_preparation == "v1":
+            c.rx(i, theta=x[i] * np.pi / 2)
+        else:
+            c.rx(i, theta=K.atan(x[i]))
     for j in range(m):
         for i in range(n - 1):
             c.cx(i, i + 1)
@@ -152,7 +163,7 @@ def inference(param=None, scale=None, noise=0, noc=1, debug=False):
         param,
         scale,
         seeds,
-        tc.array_to_tensor(x_train_bin[:datapoints]),
+        tc.array_to_tensor(x_train[:datapoints]),
         tc.array_to_tensor(y_train[:datapoints]),
         pn,
     )
@@ -163,5 +174,5 @@ def inference(param=None, scale=None, noise=0, noc=1, debug=False):
 
 
 if __name__ == "__main__":
-    train(noise=0.005, scale=30, noc=500, fixed=False)
+    train(noise=0.005, scale=30, noc=100, fixed=False)
     # inference(noise=0.01, noc=1000, scale=40, debug=True)

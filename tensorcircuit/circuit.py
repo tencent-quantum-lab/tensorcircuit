@@ -732,6 +732,8 @@ class Circuit:
         self._nodes.append(mg2)
 
     mid_measure = mid_measurement
+    post_select = mid_measurement
+    post_selection = mid_measurement
 
     def cond_measurement(self, index: int) -> Tensor:
         """

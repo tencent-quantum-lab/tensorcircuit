@@ -9,7 +9,7 @@ Guide to TensorCircuit
    faq.rst
    infras.rst
    contribution.rst
-   tutorials_cn.rst
+   tutorial_cn.rst
 
 
 API References
