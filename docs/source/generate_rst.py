@@ -109,5 +109,12 @@ if __name__ == "__main__":
         "tensorcircuit",
         "./api",
         "../../tensorcircuit",
-        ["__init__", "abstract_backend", "tf_ops", "jax_ops"],
+        [
+            "__init__",
+            "abstract_backend",
+            "tf_ops",
+            "jax_ops",
+            "pytorch_ops",
+            "asciiart",
+        ],
     ).start()
