@@ -7,13 +7,13 @@ Install from GitHub
 
 For beta version usage, one needs to install tensorcircuit package from GitHub. For development and PR workflow, please refer to `contribution <contribution.html>`__ instead.
 
-For private tensorcircuit-dev repo, one needs to firstly configure the SSH key on GitHub and locally, please refer to `GitHub doc <https://docs.github.com/en/authentication/connecting-to-github-with-ssh>`__
+For private tensorcircuit-dev repo, one needs to first configure the SSH key on GitHub and locally, please refer to `GitHub doc <https://docs.github.com/en/authentication/connecting-to-github-with-ssh>`__
 
 Then try ``pip3 install --force-reinstall git+ssh://git@github.com/quclub/tensorcircuit-dev.git`` in shell.
 
-Depending on one's need, one may further pip install tensorflow (for tensorflow backend) or jax and jaxlib (for jax backend) or `cotengra <https://github.com/jcmgray/cotengra>`__ (for more advanced tensornetwork contraction path solver).
+Depending on one's need, one may further pip install tensorflow (for TensorFlow backend) or jax and jaxlib (for jax backend) or `cotengra <https://github.com/jcmgray/cotengra>`__ (for more advanced tensornetwork contraction path solver).
 
-If one needs circuit visualization on JupyterLab, python package `wand <https://docs.wand-py.org/en/0.6.7/>`__ and its binary bindings as well as LaTeX installation is required.
+If one needs circuit visualization on JupyterLab, python package `wand <https://docs.wand-py.org/en/0.6.7/>`__ and its binary bindings, as well as LaTeX installation, are required.
 
 
 Circuit Object
@@ -23,17 +23,17 @@ The basic object for TensorCircuit is ``tc.Circuit``.
 
 Initialize the circuit with the number of qubits ``c=tc.Circuit(n)``.
 
-**Input states:**
+**Input States:**
 
 The default input function for the circuit is :math:`\vert 0^n \rangle`. One can change this to other wavefunctions by directly feeding the inputs state vectors w: ``c=tc.Circuit(n, inputs=w)``.
 
 One can also feed matrix product states as input states for the circuit, but we leave MPS/MPO usage for future sections.
 
-**Quantum gates:**
+**Quantum Gates:**
 
 We can apply gates on circuit objects. For example, using ``c.H(1)`` or ``c.rx(2, theta=0.2)``, we can apply Hadamard gate on qubit 1 (0-based) or apply Rx gate on qubit 2 as :math:`e^{-i\theta/2 X}`.
 
-The same rule also apply to multi-qubit gates, such as ``c.cnot(0, 1)``.
+The same rule also applies to multi-qubit gates, such as ``c.cnot(0, 1)``.
 
 There are also highly customizable gates, two instances are:
 
@@ -51,9 +51,9 @@ For bitstring sampling, we have ``c.perfect_sampling()`` which returns the bitst
 
 To measure part of the qubits, we can use ``c.measure(0, 1)``, if we want to know the corresponding probability of the measurement output, try ``c.measure(0, 1, with_prob=True)``. The measure API is by default non-jittable, but we also have a jittable version as ``c.measure_jit(0, 1)``.
 
-The measurement and sampling utilize advanced algorithms based on tensornetwork and thus requires no knowledge or space for the full wavefunction.
+The measurement and sampling utilize advanced algorithms based on tensornetwork and thus require no knowledge or space for the full wavefunction.
 
-See example below:
+See the example below:
 
 .. code-block:: python
 
@@ -92,25 +92,25 @@ We can also extract the unitary matrix underlying the whole circuit as follows:
 
 We currently support transform ``tc.Circuit`` from and to Qiskit ``QuantumCircuit`` object.
 
-Export to Qiskit (possible for futher hardware experiment, compiling and visualization): ``c.to_qiskit()``.
+Export to Qiskit (possible for further hardware experiment, compiling, and visualization): ``c.to_qiskit()``.
 
 Import from Qiskit: ``c = tc.Circuit.from_qiskit(QuantumCircuit, n)``
 
-**Circuit visualization:** 
+**Circuit Visualization:** 
 
 ``c.vis_tex()`` can generate tex code for circuit visualization based on LaTeX `quantikz <https://arxiv.org/abs/1809.03842>`__ package.
 
 There are also some automatic pipeline helper functions to directly generate figures from tex code, but they require extra installations in the environment.
 
-``render_pdf(tex)`` function requires full installation of LaTeX locally. And in Jupyter environment, we may prefer ``render_pdf(tex, notebook=True)`` to return jpg figures, which further require wand magicwand library installed, see `here <https://docs.wand-py.org/en/latest/>`__.
+``render_pdf(tex)`` function requires full installation of LaTeX locally. And in the Jupyter environment, we may prefer ``render_pdf(tex, notebook=True)`` to return jpg figures, which further require wand magicwand library installed, see `here <https://docs.wand-py.org/en/latest/>`__.
 
 Or since we can transform ``tc.Circuit`` into QuantumCircuit easily, we have a simple pipeline to first transform ``tc.Circuit`` into Qiskit and then call the visualization built in Qiskit. Namely, we have ``c.draw()`` API.
 
 **Circuit Intermediate Representation:**
 
-TensorCircuit provides its own circuit IR as a python list of dicts. This IR can be further utilized to run compiling, generate serialization qasm or render circuit figures.
+TensorCircuit provides its own circuit IR as a python list of dicts. This IR can be further utilized to run compiling, generate serialization qasm, or render circuit figures.
 
-The IR is given as a list, each element is a dict containing information on one gate that applied on the circuit. Note gate attr in the dict is actually a python function that returns the gate's node.
+The IR is given as a list, each element is a dict containing information on one gate that is applied to the circuit. Note gate attr in the dict is a python function that returns the gate's node.
 
 .. code-block:: python
 
@@ -124,7 +124,7 @@ The IR is given as a list, each element is a dict containing information on one 
 Programming Paradigm
 -------------------------
 
-The most common case and the most typical programming paradigm for TensorCircuit is to evaluate the circuit output and the corresponding quantum gradients, which is common in variational quantum algorithms.
+The most common case and the most typical programming paradigm for TensorCircuit are to evaluate the circuit output and the corresponding quantum gradients, which is common in variational quantum algorithms.
 
 .. code-block:: python
 
@@ -152,7 +152,7 @@ The most common case and the most typical programming paradigm for TensorCircuit
     print(vgf(params, n))  # get the quantum loss and the gradient
 
 Also for a non-quantum example (linear regression) demonstrating the backend agnostic feature, variables with pytree support, AD/jit/vmap usage, and variational optimization loops. Please refer to the example script: `linear regression example <https://github.com/quclub/tensorcircuit-dev/blob/master/examples/universal_lr.py>`_.
-This example might be more friendly to machine learning community since it is purely classical while also showcasing the main features and paradigms of tensorcircuit.
+This example might be more friendly to the machine learning community since it is purely classical while also showcasing the main features and paradigms of tensorcircuit.
 
 If the user has no intention to maintain the application code in a backend agnostic fashion, the API for ML frameworks can be more handily used and interleaved with the TensorCircuit API.
 
@@ -188,28 +188,28 @@ If the user has no intention to maintain the application code in a backend agnos
     print(vgf(params, n))  # get the quantum loss and the gradient
 
 
-Automatic differentiation, JIT and Vectorized Parallelism
+Automatic Differentiation, JIT, and Vectorized Parallelism
 -------------------------------------------------------------
 
 For concepts of AD, JIT and VMAP, please refer to `Jax documentation <https://jax.readthedocs.io/en/latest/jax-101/index.html>`__ .
 
-The related API design in TensorCircuit closely follows the functional programming design pattern in Jax with some slight differences. So we strongly recommend users learning some basics about Jax no matter which ML backend they intend to use.
+The related API design in TensorCircuit closely follows the functional programming design pattern in Jax with some slight differences. So we strongly recommend users learn some basics about Jax no matter which ML backend they intend to use.
 
-**AD support:**
+**AD Support:**
 
-Gradients, vjps, jvps, natural gradients, Jacobians and Hessians.
+Gradients, vjps, jvps, natural gradients, Jacobians, and Hessians.
 AD is the base for all modern machine learning libraries.
 
 
-**JIT support:**
+**JIT Support:**
 
 Parameterized quantum circuits can run in a blink. Always use jit if the circuit will get evaluations multiple times, it can greatly boost the simulation with two or three order time reduction. But also be cautious, users need to be familiar with jit, otherwise, the jitted function may return unexpected results or recompile on every hit (wasting lots of time).
 To learn more about the jit mechanism, one can refer to documentation or blogs on ``tf.function`` or ``jax.jit``, though these two still have subtle differences.
 
 
-**VMAP support:**
+**VMAP Support:**
 
-Inputs, parameters, measurements, circuit structures, Monte Carlo noise can all be evaluated in parallel.
+Inputs, parameters, measurements, circuit structures, and Monte Carlo noise can all be evaluated in parallel.
 To learn more about vmap mechanism, one can refer to documentation or blogs on ``tf.vectorized_map`` or ``jax.vmap``.
 
 
@@ -241,7 +241,7 @@ The backend can be set as ``K=tc.set_backend("jax")`` and ``K`` is the backend w
     WARNING:absl:No GPU/TPU found, falling back to CPU. (Set TF_CPP_MIN_LOG_LEVEL=0 and rerun for more info.)
     DeviceArray([0.7400521], dtype=float32)
 
-The supported APIs in backend come from two sources, one part is implemented in `TensorNetwork package <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/abstract_backend.py>`__
+The supported APIs in the backend come from two sources, one part is implemented in `TensorNetwork package <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/abstract_backend.py>`__
 and the other part is implemented in `TensorCircuit package <modules.html#module-tensorcircuit.backends>`__.
 
 
@@ -257,11 +257,11 @@ Change this by ``tc.set_dtype("complex128")``.
 Setup the Contractor
 ------------------------
 
-TensorCircuit is a tensornetwork contraction based quantum circuit simulator. A contractor is for searching the optimal contraction path of the circuit tensornetwork.
+TensorCircuit is a tensornetwork contraction-based quantum circuit simulator. A contractor is for searching for the optimal contraction path of the circuit tensornetwork.
 
 There are various advanced contractors provided by third-party packages, such as `opt-einsum <https://github.com/dgasmith/opt_einsum>`__ and `cotengra <https://github.com/jcmgray/cotengra>`__.
 
-`opt-einsum` is shipped with TensorNetwork package. To use cotengra, one need to pip install it; kahypar is also recommended to install with cotengra.
+`opt-einsum` is shipped with TensorNetwork package. To use cotengra, one needs to pip install it; kahypar is also recommended to install with cotengra.
 
 Some setup cases:
 
@@ -269,7 +269,7 @@ Some setup cases:
 
     import tensorcircuit as tc
     
-    # 1. cotengra contractors, has better and consistent performance for large circuit simulation
+    # 1. cotengra contractors, have better and consistent performance for large circuit simulation
     import cotengra as ctg
 
     optr = ctg.ReusableHyperOptimizer(
@@ -291,9 +291,9 @@ Some setup cases:
 
 For advanced configurations on cotengra contractors, please refer to cotengra `doc <https://cotengra.readthedocs.io/en/latest/advanced.html>`__ and more fancy examples can be found at `contractor tutorial <https://github.com/quclub/tensorcircuit-tutorials/blob/master/tutorials/contractors.ipynb>`__.
 
-**Setup in function or context level**
+**Setup in Function or Context Level**
 
-Beside global level setup, we can also setup the backend, the dtype, and the contractor in function level or context manager level:
+Beside global level setup, we can also setup the backend, the dtype, and the contractor at the function level or context manager level:
 
 .. code-block:: python
 
@@ -329,13 +329,13 @@ For the Monte Carlo trajectory noise simulator, the unitary Kraus channel can be
 
 **Density Matrix Simulator:**
 
-Density matrix simulator ``tc.DMCircuit`` simulates the noise in a full form, but takes twice qubits to do noiseless simulation. The API is basically the same as ``tc.Circuit``.
+Density matrix simulator ``tc.DMCircuit`` simulates the noise in a full form, but takes twice qubits to do noiseless simulation. The API is the same as ``tc.Circuit``.
 
 
 MPS and MPO
 ----------------
 
-TensorCircuit has its own class for MPS and MPO originally defined in TensorNetwork as ``tc.QuVector``, ``tc.QuOperator``.
+TensorCircuit has its class for MPS and MPO originally defined in TensorNetwork as ``tc.QuVector``, ``tc.QuOperator``.
 
 ``tc.QuVector`` can be extracted from ``tc.Circuit`` as the tensor network form for the output state (uncontracted) by ``c.quvector()``.
 
@@ -343,7 +343,7 @@ The QuVector forms a wavefunction w, which can also be fed into Circuit as the i
 
 - MPS as input state for circuit
 
-The MPS/QuVector representation of the input state has a more effcicent and compact form.
+The MPS/QuVector representation of the input state has a more efficient and compact form.
 
 .. code-block:: python
 
@@ -374,9 +374,9 @@ For example, a quick way to calculate the wavefunction overlap without explicitl
     >>> (q2@q).eval_matrix()
     array([[0.9999998+0.j]], dtype=complex64)
 
-- MPO as the gate on circuit
+- MPO as the gate on the circuit
 
-Instead of common quantum gate in matrix/node format, we can directly apply gate in MPO/QuOperator format.
+Instead of a common quantum gate in matrix/node format, we can directly apply a gate in MPO/QuOperator format.
 
 .. code-block:: python
 
@@ -387,9 +387,9 @@ Instead of common quantum gate in matrix/node format, we can directly apply gate
     >>> c.state()
     array([0.+0.j, 0.+0.j, 0.+0.j, 1.+0.j], dtype=complex64)
 
-The representative gate that defined in MPO format is ``multicontrol`` gate.
+The representative gate defined in MPO format is the ``multicontrol`` gate.
 
-- MPO as the operator for expectation evaluation on circuit
+- MPO as the operator for expectation evaluation on a circuit
 
 We can also measure operator expectation on the circuit output state where the operator is in MPO/QuOperator format.
 
@@ -405,9 +405,9 @@ We can also measure operator expectation on the circuit output state where the o
 Interfaces
 -------------
 
-**PyTorch interface to hybrid with PyTorch modules:**
+**PyTorch Interface to Hybrid with PyTorch Modules:**
 
-As we have mentioned in the backend section, the PyTorch backend may lack the advanced features. This doesn't mean we cannot hybrid advanced circuit module with PyTorch neural module. We can run the quantum function on TensorFlow or Jax backend, while wrapping it with a Torch interface.
+As we have mentioned in the backend section, the PyTorch backend may lack advanced features. This doesn't mean we cannot hybrid the advanced circuit module with PyTorch neural module. We can run the quantum function on TensorFlow or Jax backend while wrapping it with a Torch interface.
 
 .. code-block:: python
 
@@ -435,7 +435,7 @@ As we have mentioned in the backend section, the PyTorch backend may lack the ad
     print(a.grad)
 
 
-**Scipy interface to utilize scipy optimizers:**
+**Scipy Interface to Utilize Scipy Optimizers:**
 
 Automatically transform quantum functions as scipy-compatible values and grad functions as provided for scipy interface with ``jac=True``.
 
@@ -475,7 +475,7 @@ See :py:meth:`tensorcircuit.templates.measurements.spin_glass_measurements`
 
 See :py:meth:`tensorcircuit.templates.measurements.heisenberg_measurements`
 
-**Circuit blocks:**
+**Circuit Blocks:**
 
 .. code-block:: python
 
