@@ -5,8 +5,10 @@ Quantum circuit class but with density matrix simulator: v2
 
 from typing import Any, Callable, Sequence
 
+import tensornetwork as tn
+
 from . import gates
-from .cons import backend
+from .cons import backend, dtypestr
 from .channels import kraus_to_super_gate
 from .densitymatrix import DMCircuit
 
@@ -26,6 +28,12 @@ class DMCircuit2(DMCircuit):
 
     def apply_general_kraus(self, kraus: Sequence[Gate], *index: int) -> None:  # type: ignore
         # incompatible API for now
+        kraus = [
+            k
+            if isinstance(k, tn.Node)
+            else Gate(backend.cast(backend.convert_to_tensor(k), dtypestr))
+            for k in kraus
+        ]
         self.check_kraus(kraus)
         if not isinstance(
             index[0], int
@@ -47,6 +55,8 @@ class DMCircuit2(DMCircuit):
             self._rfront[ind] = super_op.get_edge(i)
         self._nodes.append(super_op)
         setattr(self, "state_tensor", None)
+
+    general_kraus = apply_general_kraus  # type: ignore
 
     @staticmethod
     def apply_general_kraus_delayed(

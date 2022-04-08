@@ -226,3 +226,15 @@ def test_ad_channel(tfb):
         g = tape.gradient(loss, p)
     np.testing.assert_allclose(loss.numpy(), 0.7562, atol=1e-4)
     np.testing.assert_allclose(g.numpy(), -2.388, atol=1e-4)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])
+def test_inputs_pipeline(backend):
+    dm = 0.25 * np.eye(4)
+    c = tc.DMCircuit(2, dminputs=dm)
+    c.H(0)
+    c.general_kraus(
+        [np.sqrt(0.5) * tc.gates._i_matrix, np.sqrt(0.5) * tc.gates._x_matrix], 1
+    )
+    r = c.expectation_ps(z=[0])
+    np.testing.assert_allclose(r, 0.0, atol=1e-5)
