@@ -13,5 +13,6 @@ Jupyter Tutorials
     tutorials/gradient_benchmark.ipynb
     tutorials/contractors.ipynb
     tutorials/operator_spreading.ipynb
+    tutorials/optimization_and_expressibility.ipynb
     tutorials/vqex_mbl.ipynb
     tutorials/dqas.ipynb

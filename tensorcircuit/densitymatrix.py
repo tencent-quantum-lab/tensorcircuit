@@ -13,7 +13,7 @@ import tensornetwork as tn
 from . import gates
 from . import channels
 from .circuit import Circuit
-from .cons import backend, contractor, npdtype
+from .cons import backend, contractor, npdtype, dtypestr
 
 Gate = gates.Gate
 Tensor = Any
@@ -50,6 +50,8 @@ class DMCircuit:
                 lnodes.extend(nodes)
                 self._nodes = lnodes
             elif inputs is not None:
+                inputs = backend.convert_to_tensor(inputs)
+                inputs = backend.cast(inputs, dtype=dtypestr)
                 inputs = backend.reshape(inputs, [-1])
                 N = inputs.shape[0]
                 n = int(np.log(N) / np.log(2))
@@ -63,6 +65,8 @@ class DMCircuit:
                 lnodes.extend(nodes)
                 self._nodes = lnodes
             else:  # dminputs is not None
+                dminputs = backend.convert_to_tensor(dminputs)
+                dminputs = backend.cast(dminputs, dtype=dtypestr)
                 dminputs = backend.reshape(dminputs, [2 for _ in range(2 * nqubits)])
                 dminputs = Gate(dminputs)
                 nodes = [dminputs]
@@ -268,6 +272,40 @@ class DMCircuit:
     @staticmethod
     def check_density_matrix(dm: Tensor) -> None:
         assert np.allclose(backend.trace(dm), 1.0, atol=1e-5)
+
+    def expectation_ps(
+        self,
+        x: Optional[Sequence[int]] = None,
+        y: Optional[Sequence[int]] = None,
+        z: Optional[Sequence[int]] = None,
+        reuse: bool = True,
+    ) -> Tensor:
+        """
+        Shortcut for Pauli string expectation.
+        x, y, z list are for X, Y, Z positions
+
+        :param x: _description_, defaults to None
+        :type x: Optional[Sequence[int]], optional
+        :param y: _description_, defaults to None
+        :type y: Optional[Sequence[int]], optional
+        :param z: _description_, defaults to None
+        :type z: Optional[Sequence[int]], optional
+        :param reuse: whether to cache and reuse the wavefunction, defaults to True
+        :type reuse: bool, optional
+        :return: Expectation value
+        :rtype: Tensor
+        """
+        obs = []
+        if x is not None:
+            for i in x:
+                obs.append([gates.x(), [i]])  # type: ignore
+        if y is not None:
+            for i in y:
+                obs.append([gates.y(), [i]])  # type: ignore
+        if z is not None:
+            for i in z:
+                obs.append([gates.z(), [i]])  # type: ignore
+        return self.expectation(*obs)  # type: ignore
 
 
 DMCircuit._meta_apply()

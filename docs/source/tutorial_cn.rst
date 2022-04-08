@@ -13,5 +13,6 @@
     tutorials/gradient_benchmark_cn.ipynb
     tutorials/contractors_cn.ipynb
     tutorials/operator_spreading_cn.ipynb
+    tutorials/optimization_and_expressibility_cn.ipynb
     tutorials/vqex_mbl_cn.ipynb
     tutorials/dqas_cn.ipynb

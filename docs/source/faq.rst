@@ -40,6 +40,22 @@ For PyTorch, we can in pricinple wrap the corresponding quantum function into a 
 In terms of Jax backend, we highly suggested to keep the functional programming paradigm for such machine learning task.
 Besides, it is worthing noting that, jit and vmap is automatically taken care of in ``QuantumLayer``.
 
+When do I need to customize the contractor and how?
+------------------------------------------------------
+
+As a rule of thumb, for circuit with qubit count larger than 16 and circuit depth larger than 8, customized contraction may outperform the deafult built-in greedy contraction strategy.
+
+To setup or not setup the customized contractor is about a trade-off between the time on contraction path finding and the time on the real contraction via matmul.
+
+The customized contractor cost much more time than default contractor in terms of contraction path searching, and via the path it finds, the real contraction can take less time and space.
+
+If the circuit simulation time is the bottleneck of the whole workflow, one can always try customized contractor to see whether there is some performance improvement.
+
+We recommend to use `cotengra library <https://cotengra.readthedocs.io/en/latest/index.html>`_ to setup the contractor, since there are lots of interesting hyperparameters to tune, we can achieve better trade-off between the time on contraction path search and the time on the real tensor network contraction.
+
+It is also worth noting that for jitted function which we usually use, the contraction path search is only called at the first run of the function, which further amortize the time and favor the use of highly customized contractor.
+
+In terms of how-to on contractor setup, please refer to :ref:`quickstart:Setup the Contractor`.
 
 Is there some API less cumbersome than ``expectation`` for Pauli string?
 ----------------------------------------------------------------------------
