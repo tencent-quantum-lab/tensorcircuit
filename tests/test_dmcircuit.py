@@ -238,3 +238,21 @@ def test_inputs_pipeline(backend):
     )
     r = c.expectation_ps(z=[0])
     np.testing.assert_allclose(r, 0.0, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_measure(backend):
+    key = tc.backend.get_random_state(42)
+
+    @tc.backend.jit
+    def r(key):
+        tc.backend.set_random_state(key)
+        c = tc.DMCircuit(2)
+        c.depolarizing(0, px=0.2, py=0.2, pz=0.2)
+        rs = c.measure(0, with_prob=True)
+        return rs
+
+    key1, key2 = tc.backend.random_split(key)
+    rs1, rs2 = r(key1), r(key2)
+    assert rs1[0] != rs2[0]
+    assert np.allclose(rs1[1], 0.4, atol=1e-5) or np.allclose(rs2[1], 0.4, atol=1e-5)

@@ -273,6 +273,74 @@ class DMCircuit:
     def check_density_matrix(dm: Tensor) -> None:
         assert np.allclose(backend.trace(dm), 1.0, atol=1e-5)
 
+    def measure_jit(
+        self, *index: int, with_prob: bool = False
+    ) -> Tuple[Tensor, Tensor]:
+        """
+        Take measurement to the given quantum lines.
+
+        :param index: Measure on which quantum line.
+        :type index: int
+        :param with_prob: If true, theoretical probability is also returned.
+        :type with_prob: bool, optional
+        :return: The sample output and probability (optional) of the quantum line.
+        :rtype: Tuple[Tensor, Tensor]
+        """
+        # finally jit compatible ! and much faster than unjit version ! (100x)
+        sample: List[Tensor] = []
+        p = 1.0
+        p = backend.convert_to_tensor(p)
+        for k, j in enumerate(index):
+            newnodes, newfront = self._copy(self._nodes, self._lfront + self._rfront)
+            nfront = len(newfront) // 2
+            edge1 = newfront[nfront:]
+            edge2 = newfront[:nfront]
+            # _lfront is edge2
+            for i, e in enumerate(edge1):
+                if i != j:
+                    e ^ edge2[i]
+            for i in range(k):
+                m = (1 - sample[i]) * gates.array_to_tensor(np.array([1, 0])) + sample[
+                    i
+                ] * gates.array_to_tensor(np.array([0, 1]))
+                newnodes.append(Gate(m))
+                newnodes[-1].get_edge(0) ^ edge1[index[i]]
+                newnodes.append(tn.Node(m))
+                newnodes[-1].get_edge(0) ^ edge2[index[i]]
+            rho = (
+                1
+                / backend.cast(p, dtypestr)
+                * contractor(newnodes, output_edge_order=[edge1[j], edge2[j]]).tensor
+            )
+            pu = backend.real(rho[0, 0])
+            r = backend.implicit_randu()[0]
+            r = backend.real(backend.cast(r, dtypestr))
+            sign = backend.sign(r - pu) / 2 + 0.5
+            sign = backend.convert_to_tensor(sign)
+            sign_complex = backend.cast(sign, dtypestr)
+            sample.append(sign_complex)
+            p = p * (pu * (-1) ** sign + sign)
+
+        sample = backend.stack(sample)
+        sample = backend.real(sample)
+        if with_prob:
+            return sample, p
+        else:
+            return sample, -1.0
+
+    measure = measure_jit
+
+    def perfect_sampling(self) -> Tuple[str, float]:
+        """
+        Sampling bistrings from the circuit output based on quantum amplitudes.
+
+        :return: Sampled bit string and the corresponding theoretical probability.
+        :rtype: Tuple[str, float]
+        """
+        return self.measure_jit(*[i for i in range(self._nqubits)], with_prob=True)
+
+    sample = perfect_sampling
+
     def expectation_ps(
         self,
         x: Optional[Sequence[int]] = None,

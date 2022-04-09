@@ -6,6 +6,8 @@
 
 - Add `expectation_ps` method for `DMCircuit`
 
+- Add `measure` and `sample` for `DMCircuit`
+
 ### Fixed
 
 - With `Circuit.vis_tex`, for the Circuit has customized input state, the default visualization is psi instead of all zeros now
