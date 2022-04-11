@@ -1565,6 +1565,8 @@ class Circuit:
         okws.update(kws)
         return qir2tex(self._qir, self._nqubits, **okws)  # type: ignore
 
+    tex = vis_tex
+
 
 Circuit._meta_apply()
 
