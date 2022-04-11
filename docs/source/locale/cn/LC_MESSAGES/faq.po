@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tensorcircuit \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-07 19:44+0800\n"
+"POT-Creation-Date: 2022-04-08 21:05+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -121,38 +121,93 @@ msgid ""
 "that, jit and vmap is automatically taken care of in ``QuantumLayer``."
 msgstr ""
 
-#: ../../source/faq.rst:45
+#: ../../source/faq.rst:44
+msgid "When do I need to customize the contractor and how?"
+msgstr ""
+
+#: ../../source/faq.rst:46
+msgid ""
+"As a rule of thumb, for circuit with qubit count larger than 16 and "
+"circuit depth larger than 8, customized contraction may outperform the "
+"deafult built-in greedy contraction strategy."
+msgstr ""
+
+#: ../../source/faq.rst:48
+msgid ""
+"To setup or not setup the customized contractor is about a trade-off "
+"between the time on contraction path finding and the time on the real "
+"contraction via matmul."
+msgstr ""
+
+#: ../../source/faq.rst:50
+msgid ""
+"The customized contractor cost much more time than default contractor in "
+"terms of contraction path searching, and via the path it finds, the real "
+"contraction can take less time and space."
+msgstr ""
+
+#: ../../source/faq.rst:52
+msgid ""
+"If the circuit simulation time is the bottleneck of the whole workflow, "
+"one can always try customized contractor to see whether there is some "
+"performance improvement."
+msgstr ""
+
+#: ../../source/faq.rst:54
+msgid ""
+"We recommend to use `cotengra library "
+"<https://cotengra.readthedocs.io/en/latest/index.html>`_ to setup the "
+"contractor, since there are lots of interesting hyperparameters to tune, "
+"we can achieve better trade-off between the time on contraction path "
+"search and the time on the real tensor network contraction."
+msgstr ""
+
+#: ../../source/faq.rst:56
+msgid ""
+"It is also worth noting that for jitted function which we usually use, "
+"the contraction path search is only called at the first run of the "
+"function, which further amortize the time and favor the use of highly "
+"customized contractor."
+msgstr ""
+
+#: ../../source/faq.rst:58
+msgid ""
+"In terms of how-to on contractor setup, please refer to "
+":ref:`quickstart:Setup the Contractor`."
+msgstr ""
+
+#: ../../source/faq.rst:61
 msgid "Is there some API less cumbersome than ``expectation`` for Pauli string?"
 msgstr ""
 
-#: ../../source/faq.rst:47
+#: ../../source/faq.rst:63
 msgid ""
 "Say we want to measure something like :math:`\\langle X_0Z_1Y_2Z_4 "
 "\\rangle` for a six-qubit system, the general ``expectation`` API may "
 "seems to be cumbersome. So one can try one of the following options:"
 msgstr ""
 
-#: ../../source/faq.rst:50
+#: ../../source/faq.rst:66
 msgid "``c.expectation_ps(x=[0], y=[2], z=[1, 4])``"
 msgstr ""
 
-#: ../../source/faq.rst:52
+#: ../../source/faq.rst:68
 msgid ""
 "``tc.templates.measurements.parameterized_measurements(c, np.array([1, 3,"
 " 2, 0, 3, 0]), onehot=True)``"
 msgstr ""
 
-#: ../../source/faq.rst:55
+#: ../../source/faq.rst:71
 msgid ""
 "Can I apply quantum operation based on previous classical measurement "
 "result in TensorCircuit?"
 msgstr ""
 
-#: ../../source/faq.rst:57
+#: ../../source/faq.rst:73
 msgid "Try the following: (the pipeline is even fully jittable!)"
 msgstr ""
 
-#: ../../source/faq.rst:66
+#: ../../source/faq.rst:82
 msgid ""
 "``cond_measurement`` will return 0 or 1 based on the measurement result "
 "on z-basis, and ``conditional_gate`` applies gate_list[r] on the circuit."

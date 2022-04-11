@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tensorcircuit \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-07 19:44+0800\n"
+"POT-Creation-Date: 2022-04-08 21:05+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -47,28 +47,13 @@ msgstr ""
 #: tensorcircuit.applications.graphdata.reduced_ansatz
 #: tensorcircuit.applications.graphdata.split_ansatz
 #: tensorcircuit.applications.layers.generate_any_gate_layer
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer
-#: tensorcircuit.applications.layers.generate_cirq_any_gate_layer
-#: tensorcircuit.applications.layers.generate_cirq_gate_layer
 #: tensorcircuit.applications.layers.generate_gate_layer
-#: tensorcircuit.applications.utils.color_svg
-#: tensorcircuit.applications.utils.repr2array
 #: tensorcircuit.applications.vags.ave_func
 #: tensorcircuit.applications.vags.cvar tensorcircuit.applications.vags.energy
 #: tensorcircuit.applications.vags.evaluate_vag
-#: tensorcircuit.applications.vags.gapfilling
-#: tensorcircuit.applications.vags.heisenberg_measurements
-#: tensorcircuit.applications.vags.q
 #: tensorcircuit.applications.vags.qaoa_block_vag
 #: tensorcircuit.applications.vags.qaoa_block_vag_energy
 #: tensorcircuit.applications.vags.qaoa_train
-#: tensorcircuit.applications.vags.quantum_mp_qaoa_vag
-#: tensorcircuit.applications.vags.quantum_qaoa_vag
-#: tensorcircuit.applications.vags.tfim_measurements
-#: tensorcircuit.applications.vags.unitary_design
-#: tensorcircuit.applications.vags.unitary_design_block
-#: tensorcircuit.applications.vqes.VQNHE.evaluation
-#: tensorcircuit.applications.vqes.VQNHE.plain_evaluation
 #: tensorcircuit.backends.backend_factory.get_backend
 #: tensorcircuit.backends.jax_backend.JaxBackend.acos
 #: tensorcircuit.backends.jax_backend.JaxBackend.acosh
@@ -323,9 +308,10 @@ msgstr ""
 #: tensorcircuit.cons.runtime_dtype tensorcircuit.cons.set_contractor
 #: tensorcircuit.cons.set_dtype tensorcircuit.cons.set_function_backend
 #: tensorcircuit.cons.set_function_dtype
-#: tensorcircuit.cons.set_tensornetwork_backend tensorcircuit.gates.any_gate
-#: tensorcircuit.gates.bmatrix tensorcircuit.gates.cr_gate
-#: tensorcircuit.gates.exponential_gate
+#: tensorcircuit.cons.set_tensornetwork_backend
+#: tensorcircuit.densitymatrix.DMCircuit.expectation_ps
+#: tensorcircuit.gates.any_gate tensorcircuit.gates.bmatrix
+#: tensorcircuit.gates.cr_gate tensorcircuit.gates.exponential_gate
 #: tensorcircuit.gates.exponential_gate_unity tensorcircuit.gates.iswap_gate
 #: tensorcircuit.gates.matrix_for_gate tensorcircuit.gates.num_to_tensor
 #: tensorcircuit.gates.r_gate tensorcircuit.gates.rgate_theoretical
@@ -511,28 +497,13 @@ msgstr ""
 #: tensorcircuit.applications.graphdata.reduced_ansatz
 #: tensorcircuit.applications.graphdata.split_ansatz
 #: tensorcircuit.applications.layers.generate_any_gate_layer
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer
-#: tensorcircuit.applications.layers.generate_cirq_any_gate_layer
-#: tensorcircuit.applications.layers.generate_cirq_gate_layer
 #: tensorcircuit.applications.layers.generate_gate_layer
-#: tensorcircuit.applications.utils.color_svg
-#: tensorcircuit.applications.utils.repr2array
 #: tensorcircuit.applications.vags.ave_func
 #: tensorcircuit.applications.vags.cvar tensorcircuit.applications.vags.energy
 #: tensorcircuit.applications.vags.evaluate_vag
-#: tensorcircuit.applications.vags.gapfilling
-#: tensorcircuit.applications.vags.heisenberg_measurements
-#: tensorcircuit.applications.vags.q
 #: tensorcircuit.applications.vags.qaoa_block_vag
 #: tensorcircuit.applications.vags.qaoa_block_vag_energy
 #: tensorcircuit.applications.vags.qaoa_train
-#: tensorcircuit.applications.vags.quantum_mp_qaoa_vag
-#: tensorcircuit.applications.vags.quantum_qaoa_vag
-#: tensorcircuit.applications.vags.tfim_measurements
-#: tensorcircuit.applications.vags.unitary_design
-#: tensorcircuit.applications.vags.unitary_design_block
-#: tensorcircuit.applications.vqes.VQNHE.evaluation
-#: tensorcircuit.applications.vqes.VQNHE.plain_evaluation
 #: tensorcircuit.backends.backend_factory.get_backend
 #: tensorcircuit.backends.jax_backend.JaxBackend.acos
 #: tensorcircuit.backends.jax_backend.JaxBackend.acosh
@@ -773,9 +744,10 @@ msgstr ""
 #: tensorcircuit.cons.set_dtype tensorcircuit.cons.set_function_backend
 #: tensorcircuit.cons.set_function_contractor
 #: tensorcircuit.cons.set_function_dtype
-#: tensorcircuit.cons.set_tensornetwork_backend tensorcircuit.gates.any_gate
-#: tensorcircuit.gates.bmatrix tensorcircuit.gates.cr_gate
-#: tensorcircuit.gates.exponential_gate
+#: tensorcircuit.cons.set_tensornetwork_backend
+#: tensorcircuit.densitymatrix.DMCircuit.expectation_ps
+#: tensorcircuit.gates.any_gate tensorcircuit.gates.bmatrix
+#: tensorcircuit.gates.cr_gate tensorcircuit.gates.exponential_gate
 #: tensorcircuit.gates.exponential_gate_unity tensorcircuit.gates.iswap_gate
 #: tensorcircuit.gates.matrix_for_gate tensorcircuit.gates.num_to_tensor
 #: tensorcircuit.gates.r_gate tensorcircuit.gates.random_single_qubit_gate
@@ -895,8 +867,6 @@ msgstr ""
 #: tensorcircuit.applications.graphdata.graph1D
 #: tensorcircuit.applications.graphdata.reduced_ansatz
 #: tensorcircuit.applications.graphdata.split_ansatz
-#: tensorcircuit.applications.vqes.VQNHE.evaluation
-#: tensorcircuit.applications.vqes.VQNHE.plain_evaluation
 #: tensorcircuit.backends.backend_factory.get_backend
 #: tensorcircuit.backends.jax_backend.JaxBackend.acos
 #: tensorcircuit.backends.jax_backend.JaxBackend.acosh
@@ -1139,9 +1109,10 @@ msgstr ""
 #: tensorcircuit.cons.set_function_backend
 #: tensorcircuit.cons.set_function_contractor
 #: tensorcircuit.cons.set_function_dtype
-#: tensorcircuit.cons.set_tensornetwork_backend tensorcircuit.gates.any_gate
-#: tensorcircuit.gates.bmatrix tensorcircuit.gates.cr_gate
-#: tensorcircuit.gates.exponential_gate
+#: tensorcircuit.cons.set_tensornetwork_backend
+#: tensorcircuit.densitymatrix.DMCircuit.expectation_ps
+#: tensorcircuit.gates.any_gate tensorcircuit.gates.bmatrix
+#: tensorcircuit.gates.cr_gate tensorcircuit.gates.exponential_gate
 #: tensorcircuit.gates.exponential_gate_unity tensorcircuit.gates.iswap_gate
 #: tensorcircuit.gates.matrix_for_gate tensorcircuit.gates.num_to_tensor
 #: tensorcircuit.gates.r_gate tensorcircuit.gates.random_single_qubit_gate
@@ -1319,192 +1290,8 @@ msgstr ""
 msgid "Module for functions adding layers of circuits"
 msgstr ""
 
-#: of tensorcircuit.applications.layers.generate_cirq_gate_layer.<locals>.f:1
-msgid "Hlayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_gate_layer.<locals>.f:1
-msgid "anyrxlayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_gate_layer.<locals>.f:1
-msgid "anyrylayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_gate_layer.<locals>.f:1
-msgid "anyrzlayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer.<locals>.f:1
-msgid "anyswaplayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer.<locals>.f:1
-msgid "anyxxlayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer.<locals>.f:1
-msgid "anyxylayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer.<locals>.f:1
-msgid "anyxzlayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer.<locals>.f:1
-msgid "anyyxlayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer.<locals>.f:1
-msgid "anyyylayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer.<locals>.f:1
-msgid "anyyzlayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer.<locals>.f:1
-msgid "anyzxlayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer.<locals>.f:1
-msgid "anyzylayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer.<locals>.f:1
-msgid "anyzzlayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "cnotlayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_gate_layer.<locals>.f:1
-msgid "rxlayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_gate_layer.<locals>.f:1
-msgid "rylayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_gate_layer.<locals>.f:1
-msgid "rzlayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "swaplayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_double_gate.<locals>.f:1
-msgid "xxgate"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "xxlayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_double_gate.<locals>.f:1
-msgid "xygate"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "xylayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_double_gate.<locals>.f:1
-msgid "xzgate"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "xzlayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_double_gate.<locals>.f:1
-msgid "yxgate"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "yxlayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_double_gate.<locals>.f:1
-msgid "yygate"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "yylayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_double_gate.<locals>.f:1
-msgid "yzgate"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "yzlayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_double_gate.<locals>.f:1
-msgid "zxgate"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "zxlayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_double_gate.<locals>.f:1
-msgid "zygate"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "zylayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_double_gate.<locals>.f:1
-msgid "zzgate"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "zzlayer"
-msgstr ""
-
 #: of tensorcircuit.applications.layers.generate_any_gate_layer:1
 msgid "$$e^{-i     heta_i \\sigma}$$"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer:1
-msgid ""
-"The following function should be used to generate layers with special "
-"case. As its soundness depends on the nature of the task or problem, it "
-"doesn't always make sense."
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_any_gate_layer:1
-#: tensorcircuit.applications.layers.generate_cirq_gate_layer:1
-msgid "$$e^{-i heta \\sigma}$$"
 msgstr ""
 
 #: of tensorcircuit.applications.layers.generate_gate_layer:1
@@ -1513,35 +1300,6 @@ msgstr ""
 
 #: ../../source/api/applications/utils.rst:2
 msgid "tensorcircuit.applications.utils"
-msgstr ""
-
-#: of tensorcircuit.applications.utils:1
-msgid ""
-"A collection of useful function snippets that irrelevant with the main "
-"modules or await for further refactor"
-msgstr ""
-
-#: of tensorcircuit.applications.utils.FakeModule:1
-#: tensorcircuit.applications.vqes.VQNHE:1
-#: tensorcircuit.backends.jax_backend.optax_optimizer:1
-#: tensorcircuit.backends.tensorflow_backend.keras_optimizer:1
-#: tensorcircuit.circuit.Circuit:1 tensorcircuit.densitymatrix.DMCircuit:1
-#: tensorcircuit.gates.GateF:1 tensorcircuit.mpscircuit.MPSCircuit:1
-#: tensorcircuit.quantum.QuOperator:1
-#: tensorcircuit.templates.graphs.Grid2DCoord:1
-msgid "Bases: :py:class:`object`"
-msgstr ""
-
-#: of tensorcircuit.applications.utils.color_svg:1
-msgid "color cirq circuit SVG for given gates, a small tool to hack the cirq SVG"
-msgstr ""
-
-#: of tensorcircuit.applications.utils.color_svg:5
-msgid "integer coordinate which gate is colored"
-msgstr ""
-
-#: of tensorcircuit.applications.utils.repr2array:1
-msgid "transform repr form of an array to real numpy array"
 msgstr ""
 
 #: ../../source/api/applications/vags.rst:2
@@ -1578,7 +1336,6 @@ msgid "ranged from 0 to 2**n-1"
 msgstr ""
 
 #: of tensorcircuit.applications.vags.energy:4
-#: tensorcircuit.applications.vags.unitary_design:4
 msgid "number of qubits"
 msgstr ""
 
@@ -1607,18 +1364,6 @@ msgstr ""
 msgid "if as default 0, overlap will not compute in the process"
 msgstr ""
 
-#: of tensorcircuit.applications.vags.gapfilling:1
-msgid "Fill single qubit gates according to placeholder on circuit"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.heisenberg_measurements:1
-msgid "Hamiltonian measurements for Heisenberg model on graph lattice g"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.q:1
-msgid "short cut for ``cirq.LineQubit(i)``"
-msgstr ""
-
 #: of tensorcircuit.applications.vags.qaoa_block_vag:1
 #: tensorcircuit.applications.vags.qaoa_block_vag_energy:1
 msgid "QAOA block encoding kernel, support 2 params in one op"
@@ -1628,55 +1373,6 @@ msgstr ""
 msgid ""
 "training QAOA with only optimizing circuit parameters, can be well "
 "replaced with more general function `DQAS_search`"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.quantum_mp_qaoa_vag:1
-msgid "multi parameter for one layer"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.quantum_mp_qaoa_vag:7
-#: tensorcircuit.applications.vags.quantum_qaoa_vag:7
-msgid "kw arguments for measurements_func"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.quantum_mp_qaoa_vag:8
-msgid "loss function, gradient of nnp"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.quantum_qaoa_vag:1
-msgid ""
-"tensorflow quantum backend compare to qaoa_vag which is tensorcircuit "
-"backend"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.tfim_measurements:1
-msgid "Hamiltonian for tfim on lattice defined by graph g"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.tfim_measurements:8
-msgid "cirq.PauliSum as operators for tfq expectation layer"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.unitary_design:1
-msgid ""
-"generate random wavefunction from approximately Haar measure, reference:"
-"  https://doi.org/10.1063/1.4983266"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.unitary_design:5
-msgid "repetition of the blocks"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.unitary_design_block:1
-msgid "random Haar measure approximation"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.unitary_design_block:3
-msgid "cirq.Circuit, empty circuit"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.unitary_design_block:4
-msgid "# of qubit"
 msgstr ""
 
 #: ../../source/api/applications/van.rst:2
@@ -1720,18 +1416,17 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.applications.van.MADE.call:18
-#: tensorcircuit.applications.van.MaskedConv2D.build:11
+#: tensorcircuit.applications.van.MaskedConv2D.build:13
 #: tensorcircuit.applications.van.MaskedConv2D.call:37
 #: tensorcircuit.applications.van.MaskedLinear.call:37
 #: tensorcircuit.applications.van.NMF.call:18
 #: tensorcircuit.applications.van.PixelCNN.call:18
 #: tensorcircuit.applications.van.ResidualBlock.call:37
-#: tensorcircuit.applications.vqes.Linear.call:37
 #: tensorcircuit.backends.jax_backend.JaxBackend.eye:8
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.eye:8
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.eye:8
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.eye:8
-#: tensorcircuit.keras.QuantumLayer.build:11
+#: tensorcircuit.keras.QuantumLayer.build:13
 msgid "Args:"
 msgstr ""
 
@@ -1773,7 +1468,6 @@ msgstr ""
 #: tensorcircuit.applications.van.NMF.call:21
 #: tensorcircuit.applications.van.PixelCNN.call:21
 #: tensorcircuit.applications.van.ResidualBlock.call:39
-#: tensorcircuit.applications.vqes.Linear.call:39
 #: tensorcircuit.backends.jax_backend.JaxBackend.abs:4
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.abs:4
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.abs:4
@@ -1791,7 +1485,7 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D:1
 #: tensorcircuit.applications.van.MaskedLinear:1
 #: tensorcircuit.applications.van.ResidualBlock:1
-#: tensorcircuit.applications.vqes.Linear:1 tensorcircuit.keras.QuantumLayer:1
+#: tensorcircuit.keras.QuantumLayer:1
 msgid "Bases: :py:class:`keras.engine.base_layer.Layer`"
 msgstr ""
 
@@ -1805,21 +1499,24 @@ msgstr ""
 msgid ""
 "This is a method that implementers of subclasses of `Layer` or `Model` "
 "can override if they need a state-creation step in-between layer "
-"instantiation and layer call."
+"instantiation and layer call. It is invoked automatically before the "
+"first execution of `call()`."
 msgstr ""
 
-#: of tensorcircuit.applications.van.MaskedConv2D.build:7
-#: tensorcircuit.keras.QuantumLayer.build:7
-msgid "This is typically used to create the weights of `Layer` subclasses."
+#: of tensorcircuit.applications.van.MaskedConv2D.build:8
+#: tensorcircuit.keras.QuantumLayer.build:8
+msgid ""
+"This is typically used to create the weights of `Layer` subclasses (at "
+"the discretion of the subclass implementer)."
 msgstr ""
 
-#: of tensorcircuit.applications.van.MaskedConv2D.build:11
-#: tensorcircuit.keras.QuantumLayer.build:11
+#: of tensorcircuit.applications.van.MaskedConv2D.build:13
+#: tensorcircuit.keras.QuantumLayer.build:13
 msgid "input_shape: Instance of `TensorShape`, or list of instances of"
 msgstr ""
 
-#: of tensorcircuit.applications.van.MaskedConv2D.build:11
-#: tensorcircuit.keras.QuantumLayer.build:11
+#: of tensorcircuit.applications.van.MaskedConv2D.build:13
+#: tensorcircuit.keras.QuantumLayer.build:13
 msgid ""
 "`TensorShape` if the layer expects a list of inputs (one instance per "
 "input)."
@@ -1828,32 +1525,29 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:1
 #: tensorcircuit.applications.van.MaskedLinear.call:1
 #: tensorcircuit.applications.van.ResidualBlock.call:1
-#: tensorcircuit.applications.vqes.Linear.call:1
 msgid "This is where the layer's logic lives."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:3
 #: tensorcircuit.applications.van.MaskedLinear.call:3
 #: tensorcircuit.applications.van.ResidualBlock.call:3
-#: tensorcircuit.applications.vqes.Linear.call:3
 msgid ""
-"Note here that `call()` method in `tf.keras` is little bit different from"
-" `keras` API. In `keras` API, you can pass support masking for layers as "
-"additional arguments. Whereas `tf.keras` has `compute_mask()` method to "
-"support masking."
+"The `call()` method may not create state (except in its first invocation,"
+" wrapping the creation of variables or other resources in "
+"`tf.init_scope()`). It is recommended to create state in `__init__()`, or"
+" the `build()` method that is called automatically before `call()` "
+"executes the first time."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:24
 #: tensorcircuit.applications.van.MaskedLinear.call:24
 #: tensorcircuit.applications.van.ResidualBlock.call:24
-#: tensorcircuit.applications.vqes.Linear.call:24
 msgid "inputs: Input tensor, or dict/list/tuple of input tensors."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:10
 #: tensorcircuit.applications.van.MaskedLinear.call:10
 #: tensorcircuit.applications.van.ResidualBlock.call:10
-#: tensorcircuit.applications.vqes.Linear.call:10
 msgid ""
 "The first positional `inputs` argument is subject to special rules: - "
 "`inputs` must be explicitly passed. A layer cannot have zero"
@@ -1862,7 +1556,6 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:12
 #: tensorcircuit.applications.van.MaskedLinear.call:12
 #: tensorcircuit.applications.van.ResidualBlock.call:12
-#: tensorcircuit.applications.vqes.Linear.call:12
 msgid ""
 "arguments, and `inputs` cannot be provided via the default value of a "
 "keyword argument."
@@ -1871,21 +1564,18 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:14
 #: tensorcircuit.applications.van.MaskedLinear.call:14
 #: tensorcircuit.applications.van.ResidualBlock.call:14
-#: tensorcircuit.applications.vqes.Linear.call:14
 msgid "NumPy array or Python scalar values in `inputs` get cast as tensors."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:15
 #: tensorcircuit.applications.van.MaskedLinear.call:15
 #: tensorcircuit.applications.van.ResidualBlock.call:15
-#: tensorcircuit.applications.vqes.Linear.call:15
 msgid "Keras mask metadata is only collected from `inputs`."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:16
 #: tensorcircuit.applications.van.MaskedLinear.call:16
 #: tensorcircuit.applications.van.ResidualBlock.call:16
-#: tensorcircuit.applications.vqes.Linear.call:16
 msgid ""
 "Layers are built (`build(input_shape)` method) using shape info from "
 "`inputs` only."
@@ -1894,14 +1584,12 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:18
 #: tensorcircuit.applications.van.MaskedLinear.call:18
 #: tensorcircuit.applications.van.ResidualBlock.call:18
-#: tensorcircuit.applications.vqes.Linear.call:18
 msgid "`input_spec` compatibility is only checked against `inputs`."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:19
 #: tensorcircuit.applications.van.MaskedLinear.call:19
 #: tensorcircuit.applications.van.ResidualBlock.call:19
-#: tensorcircuit.applications.vqes.Linear.call:19
 msgid ""
 "Mixed precision input casting is only applied to `inputs`. If a layer has"
 " tensor arguments in `*args` or `**kwargs`, their casting behavior in "
@@ -1911,14 +1599,12 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:22
 #: tensorcircuit.applications.van.MaskedLinear.call:22
 #: tensorcircuit.applications.van.ResidualBlock.call:22
-#: tensorcircuit.applications.vqes.Linear.call:22
 msgid "The SavedModel input specification is generated using `inputs` only."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:23
 #: tensorcircuit.applications.van.MaskedLinear.call:23
 #: tensorcircuit.applications.van.ResidualBlock.call:23
-#: tensorcircuit.applications.vqes.Linear.call:23
 msgid ""
 "Integration with various ecosystem packages like TFMOT, TFLite, TF.js, "
 "etc is only supported for `inputs` and not for tensors in positional and "
@@ -1928,28 +1614,24 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:26
 #: tensorcircuit.applications.van.MaskedLinear.call:26
 #: tensorcircuit.applications.van.ResidualBlock.call:26
-#: tensorcircuit.applications.vqes.Linear.call:26
 msgid "*args: Additional positional arguments. May contain tensors, although"
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:27
 #: tensorcircuit.applications.van.MaskedLinear.call:27
 #: tensorcircuit.applications.van.ResidualBlock.call:27
-#: tensorcircuit.applications.vqes.Linear.call:27
 msgid "this is not recommended, for the reasons above."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:37
 #: tensorcircuit.applications.van.MaskedLinear.call:37
 #: tensorcircuit.applications.van.ResidualBlock.call:37
-#: tensorcircuit.applications.vqes.Linear.call:37
 msgid "**kwargs: Additional keyword arguments. May contain tensors, although"
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:29
 #: tensorcircuit.applications.van.MaskedLinear.call:29
 #: tensorcircuit.applications.van.ResidualBlock.call:29
-#: tensorcircuit.applications.vqes.Linear.call:29
 msgid ""
 "this is not recommended, for the reasons above. The following optional "
 "keyword arguments are reserved: - `training`: Boolean scalar tensor of "
@@ -1959,14 +1641,12 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:32
 #: tensorcircuit.applications.van.MaskedLinear.call:32
 #: tensorcircuit.applications.van.ResidualBlock.call:32
-#: tensorcircuit.applications.vqes.Linear.call:32
 msgid "whether the `call` is meant for training or inference."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:33
 #: tensorcircuit.applications.van.MaskedLinear.call:33
 #: tensorcircuit.applications.van.ResidualBlock.call:33
-#: tensorcircuit.applications.vqes.Linear.call:33
 msgid ""
 "`mask`: Boolean input mask. If the layer's `call()` method takes a `mask`"
 " argument, its default value will be set to the mask generated for "
@@ -1978,190 +1658,11 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:40
 #: tensorcircuit.applications.van.MaskedLinear.call:40
 #: tensorcircuit.applications.van.ResidualBlock.call:40
-#: tensorcircuit.applications.vqes.Linear.call:40
 msgid "A tensor or list/tuple of tensors."
 msgstr ""
 
 #: ../../source/api/applications/vqes.rst:2
 msgid "tensorcircuit.applications.vqes"
-msgstr ""
-
-#: of tensorcircuit.applications.vqes:1
-msgid "VQNHE application"
-msgstr ""
-
-#: of tensorcircuit.applications.vqes.JointSchedule:1
-msgid ""
-"Bases: "
-":py:class:`keras.optimizer_v2.learning_rate_schedule.LearningRateSchedule`"
-msgstr ""
-
-#: of tensorcircuit.applications.vqes.Linear:1
-msgid "Dense layer but with complex weights, used for building complex RBM"
-msgstr ""
-
-#: of tensorcircuit.applications.vqes.VQNHE.evaluation:1
-msgid "VQNHE"
-msgstr ""
-
-#: of tensorcircuit.applications.vqes.VQNHE.evaluation:3
-#: tensorcircuit.applications.vqes.VQNHE.evaluation:5
-#: tensorcircuit.applications.vqes.VQNHE.plain_evaluation:3
-#: tensorcircuit.applications.vqes.VQNHE.plain_evaluation:5
-#: tensorcircuit.backends.jax_backend.JaxBackend.argmax:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.argmax:7
-#: tensorcircuit.backends.jax_backend.JaxBackend.argmin:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.argmin:7
-#: tensorcircuit.backends.jax_backend.JaxBackend.concat:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.cond:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.cond:5
-#: tensorcircuit.backends.jax_backend.JaxBackend.cond:7
-#: tensorcircuit.backends.jax_backend.JaxBackend.cond:9
-#: tensorcircuit.backends.jax_backend.JaxBackend.coo_sparse_matrix:10
-#: tensorcircuit.backends.jax_backend.JaxBackend.cumsum:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.cumsum:8
-#: tensorcircuit.backends.jax_backend.JaxBackend.implicit_randc:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.implicit_randc:11
-#: tensorcircuit.backends.jax_backend.JaxBackend.implicit_randn:11
-#: tensorcircuit.backends.jax_backend.JaxBackend.implicit_randu:11
-#: tensorcircuit.backends.jax_backend.JaxBackend.max:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.max:7
-#: tensorcircuit.backends.jax_backend.JaxBackend.min:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.min:7
-#: tensorcircuit.backends.jax_backend.JaxBackend.random_split:6
-#: tensorcircuit.backends.jax_backend.JaxBackend.random_split:8
-#: tensorcircuit.backends.jax_backend.JaxBackend.scatter:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.scatter:5
-#: tensorcircuit.backends.jax_backend.JaxBackend.scatter:7
-#: tensorcircuit.backends.jax_backend.JaxBackend.scatter:9
-#: tensorcircuit.backends.jax_backend.JaxBackend.sigmoid:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.sigmoid:5
-#: tensorcircuit.backends.jax_backend.JaxBackend.stateful_randc:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.stateful_randc:11
-#: tensorcircuit.backends.jax_backend.JaxBackend.stateful_randn:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.stateful_randn:15
-#: tensorcircuit.backends.jax_backend.JaxBackend.stateful_randu:13
-#: tensorcircuit.backends.jax_backend.JaxBackend.stop_gradient:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.stop_gradient:5
-#: tensorcircuit.backends.jax_backend.JaxBackend.switch:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.switch:5
-#: tensorcircuit.backends.jax_backend.JaxBackend.switch:7
-#: tensorcircuit.backends.jax_backend.JaxBackend.tile:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.tile:7
-#: tensorcircuit.backends.jax_backend.JaxBackend.unique_with_counts:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.vectorized_value_and_grad:29
-#: tensorcircuit.backends.jax_backend.JaxBackend.vectorized_value_and_grad:36
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.argmax:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.argmax:7
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.argmin:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.argmin:7
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.concat:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.cond:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.cond:5
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.cond:7
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.cond:9
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.coo_sparse_matrix:10
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.cumsum:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.cumsum:8
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.max:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.max:7
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.min:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.min:7
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.scatter:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.scatter:5
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.scatter:7
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.scatter:9
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.sigmoid:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.sigmoid:5
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.stateful_randc:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.stateful_randc:11
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.stateful_randn:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.stateful_randn:15
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.stateful_randu:13
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.stop_gradient:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.stop_gradient:5
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.switch:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.switch:5
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.switch:7
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.tile:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.tile:7
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.unique_with_counts:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.vectorized_value_and_grad:29
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.vectorized_value_and_grad:36
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.argmax:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.argmax:7
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.argmin:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.argmin:7
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.concat:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cond:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cond:5
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cond:7
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cond:9
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cumsum:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cumsum:8
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.max:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.max:7
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.min:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.min:7
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.sigmoid:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.sigmoid:5
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.stop_gradient:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.stop_gradient:5
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.switch:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.switch:5
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.switch:7
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tile:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tile:7
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.unique_with_counts:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.vectorized_value_and_grad:29
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.vectorized_value_and_grad:36
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.argmax:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.argmax:7
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.argmin:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.argmin:7
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.concat:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cond:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cond:5
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cond:7
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cond:9
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.coo_sparse_matrix:10
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cumsum:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cumsum:8
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.max:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.max:7
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.min:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.min:7
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.scatter:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.scatter:5
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.scatter:7
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.scatter:9
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.sigmoid:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.sigmoid:5
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.stateful_randc:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.stateful_randc:11
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.stateful_randn:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.stateful_randn:15
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.stateful_randu:13
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.stop_gradient:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.stop_gradient:5
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.switch:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.switch:5
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.switch:7
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.tile:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.tile:7
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.unique_with_counts:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.vectorized_value_and_grad:29
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.vectorized_value_and_grad:36
-#: tensorcircuit.simplify.pseudo_contract_between:3
-#: tensorcircuit.simplify.pseudo_contract_between:5
-#: tensorcircuit.simplify.pseudo_contract_between:7
-#: tensorcircuit.templates.graphs.Line1D:3
-#: tensorcircuit.templates.graphs.Line1D:7
-msgid "[description]"
-msgstr ""
-
-#: of tensorcircuit.applications.vqes.VQNHE.plain_evaluation:1
-msgid "VQE"
 msgstr ""
 
 #: ../../source/api/backends.rst:2
@@ -2348,6 +1849,158 @@ msgstr ""
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.argmax:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.argmax:1
 msgid "Return the index of maximum of an array an axis."
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.argmax:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.argmax:7
+#: tensorcircuit.backends.jax_backend.JaxBackend.argmin:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.argmin:7
+#: tensorcircuit.backends.jax_backend.JaxBackend.concat:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.cond:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.cond:5
+#: tensorcircuit.backends.jax_backend.JaxBackend.cond:7
+#: tensorcircuit.backends.jax_backend.JaxBackend.cond:9
+#: tensorcircuit.backends.jax_backend.JaxBackend.coo_sparse_matrix:10
+#: tensorcircuit.backends.jax_backend.JaxBackend.cumsum:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.cumsum:8
+#: tensorcircuit.backends.jax_backend.JaxBackend.implicit_randc:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.implicit_randc:11
+#: tensorcircuit.backends.jax_backend.JaxBackend.implicit_randn:11
+#: tensorcircuit.backends.jax_backend.JaxBackend.implicit_randu:11
+#: tensorcircuit.backends.jax_backend.JaxBackend.max:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.max:7
+#: tensorcircuit.backends.jax_backend.JaxBackend.min:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.min:7
+#: tensorcircuit.backends.jax_backend.JaxBackend.random_split:6
+#: tensorcircuit.backends.jax_backend.JaxBackend.random_split:8
+#: tensorcircuit.backends.jax_backend.JaxBackend.scatter:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.scatter:5
+#: tensorcircuit.backends.jax_backend.JaxBackend.scatter:7
+#: tensorcircuit.backends.jax_backend.JaxBackend.scatter:9
+#: tensorcircuit.backends.jax_backend.JaxBackend.sigmoid:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.sigmoid:5
+#: tensorcircuit.backends.jax_backend.JaxBackend.stateful_randc:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.stateful_randc:11
+#: tensorcircuit.backends.jax_backend.JaxBackend.stateful_randn:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.stateful_randn:15
+#: tensorcircuit.backends.jax_backend.JaxBackend.stateful_randu:13
+#: tensorcircuit.backends.jax_backend.JaxBackend.stop_gradient:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.stop_gradient:5
+#: tensorcircuit.backends.jax_backend.JaxBackend.switch:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.switch:5
+#: tensorcircuit.backends.jax_backend.JaxBackend.switch:7
+#: tensorcircuit.backends.jax_backend.JaxBackend.tile:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.tile:7
+#: tensorcircuit.backends.jax_backend.JaxBackend.unique_with_counts:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.vectorized_value_and_grad:29
+#: tensorcircuit.backends.jax_backend.JaxBackend.vectorized_value_and_grad:36
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.argmax:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.argmax:7
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.argmin:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.argmin:7
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.concat:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.cond:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.cond:5
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.cond:7
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.cond:9
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.coo_sparse_matrix:10
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.cumsum:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.cumsum:8
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.max:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.max:7
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.min:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.min:7
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.scatter:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.scatter:5
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.scatter:7
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.scatter:9
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.sigmoid:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.sigmoid:5
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.stateful_randc:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.stateful_randc:11
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.stateful_randn:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.stateful_randn:15
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.stateful_randu:13
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.stop_gradient:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.stop_gradient:5
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.switch:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.switch:5
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.switch:7
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.tile:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.tile:7
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.unique_with_counts:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.vectorized_value_and_grad:29
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.vectorized_value_and_grad:36
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.argmax:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.argmax:7
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.argmin:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.argmin:7
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.concat:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cond:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cond:5
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cond:7
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cond:9
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cumsum:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cumsum:8
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.max:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.max:7
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.min:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.min:7
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.sigmoid:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.sigmoid:5
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.stop_gradient:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.stop_gradient:5
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.switch:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.switch:5
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.switch:7
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tile:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tile:7
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.unique_with_counts:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.vectorized_value_and_grad:29
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.vectorized_value_and_grad:36
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.argmax:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.argmax:7
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.argmin:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.argmin:7
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.concat:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cond:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cond:5
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cond:7
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cond:9
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.coo_sparse_matrix:10
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cumsum:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cumsum:8
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.max:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.max:7
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.min:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.min:7
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.scatter:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.scatter:5
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.scatter:7
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.scatter:9
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.sigmoid:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.sigmoid:5
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.stateful_randc:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.stateful_randc:11
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.stateful_randn:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.stateful_randn:15
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.stateful_randu:13
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.stop_gradient:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.stop_gradient:5
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.switch:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.switch:5
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.switch:7
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.tile:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.tile:7
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.unique_with_counts:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.vectorized_value_and_grad:29
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.vectorized_value_and_grad:36
+#: tensorcircuit.simplify.pseudo_contract_between:3
+#: tensorcircuit.simplify.pseudo_contract_between:5
+#: tensorcircuit.simplify.pseudo_contract_between:7
+#: tensorcircuit.templates.graphs.Line1D:3
+#: tensorcircuit.templates.graphs.Line1D:7
+msgid "[description]"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.argmax:5
@@ -3613,6 +3266,15 @@ msgstr ""
 msgid "Block-sparse behavior is currently not supported Args:"
 msgstr ""
 
+#: of tensorcircuit.backends.jax_backend.optax_optimizer:1
+#: tensorcircuit.backends.tensorflow_backend.keras_optimizer:1
+#: tensorcircuit.circuit.Circuit:1 tensorcircuit.densitymatrix.DMCircuit:1
+#: tensorcircuit.gates.GateF:1 tensorcircuit.mpscircuit.MPSCircuit:1
+#: tensorcircuit.quantum.QuOperator:1
+#: tensorcircuit.templates.graphs.Grid2DCoord:1
+msgid "Bases: :py:class:`object`"
+msgstr ""
+
 #: ../../source/api/backends/numpy_backend.rst:2
 msgid "tensorcircuit.backends.numpy_backend"
 msgstr ""
@@ -4598,6 +4260,7 @@ msgid "The tensor network for the expectation"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.expectation_ps:1
+#: tensorcircuit.densitymatrix.DMCircuit.expectation_ps:1
 msgid ""
 "Shortcut for Pauli string expectation. x, y, z list are for X, Y, Z "
 "positions"
@@ -4606,14 +4269,19 @@ msgstr ""
 #: of tensorcircuit.circuit.Circuit.expectation_ps:4
 #: tensorcircuit.circuit.Circuit.expectation_ps:6
 #: tensorcircuit.circuit.Circuit.expectation_ps:8
+#: tensorcircuit.densitymatrix.DMCircuit.expectation_ps:4
+#: tensorcircuit.densitymatrix.DMCircuit.expectation_ps:6
+#: tensorcircuit.densitymatrix.DMCircuit.expectation_ps:8
 msgid "_description_, defaults to None"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.expectation_ps:10
+#: tensorcircuit.densitymatrix.DMCircuit.expectation_ps:10
 msgid "whether to cache and reuse the wavefunction, defaults to True"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.expectation_ps:12
+#: tensorcircuit.densitymatrix.DMCircuit.expectation_ps:12
 msgid "Expectation value"
 msgstr ""
 
@@ -10190,5 +9858,14 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "The str indicating the form of the output wavefunction."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "A collection of useful function snippets"
+#~ " that irrelevant with the main "
+#~ "modules or await for further refactor"
+#~ msgstr ""
+
+#~ msgid "VQNHE application"
 #~ msgstr ""
 

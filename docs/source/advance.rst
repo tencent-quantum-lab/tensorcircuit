@@ -12,7 +12,7 @@ Split Two-qubit Gates
 
 The two-qubit gates applied on the circuit can be decomposed via SVD, which may further improve the optimality of the contraction pathfinding.
 
-`split` configuration can be set in circuit-level or gate-level.
+`split` configuration can be set at circuit-level or gate-level.
 
 .. code-block:: python
 
@@ -41,7 +41,7 @@ Jitted Function Save/Load
 
 To reuse the jitted function, we can save it on the disk via support from the TensorFlow `SavedModel <https://www.tensorflow.org/guide/saved_model>`_. That is to say, only jitted quantum function on the TensorFlow backend can be saved on the disk. 
 
-For jax-backend quantum function, one can first transform them into the tf-backend function via jax experimental support: `jax2tf <https://github.com/google/jax/tree/main/jax/experimental/jax2tf>`_.
+For the JAX-backend quantum function, one can first transform them into the tf-backend function via JAX experimental support: `jax2tf <https://github.com/google/jax/tree/main/jax/experimental/jax2tf>`_.
 
 We wrap the tf-backend `SavedModel` as very easy-to-use function :py:meth:`tensorcircuit.keras.save_func` and :py:meth:`tensorcircuit.keras.load_func`.
 
@@ -57,12 +57,12 @@ In some cases, we may want to tell the software what to measure but in a tensor 
     c = tc.Circuit(3)
     z1z2 = tc.templates.measurements.parameterized_measurements(c, tc.array_to_tensor([0, 3, 3, 0]), onehot=True) # 1
 
-This API corresponds to measure :math:`I_0Z_1Z_2I_3` where 0, 1, 2, 3 are for local I, X, Y, Z operators respectively.
+This API corresponds to measure :math:`I_0Z_1Z_2I_3` where 0, 1, 2, 3 are for local I, X, Y, and Z operators respectively.
 
 Sparse Matrix
 ----------------
 
-We only support COO format sparse matrix as most backends only support this format, and some common backend methods for sparse matrix are listed below:
+We support COO format sparse matrix as most backends only support this format, and some common backend methods for sparse matrices are listed below:
 
 .. code-block:: python
 
@@ -77,10 +77,10 @@ We only support COO format sparse matrix as most backends only support this form
             print("using backend: ", K)
             sparse_test()
 
-The sparse matrix are specifically useful to evaluate Hamiltonian expectation on the circuit, where sparse matrix representaion has good tradeoff between space and time.
+The sparse matrix is specifically useful to evaluate Hamiltonian expectation on the circuit, where sparse matrix representation has a good tradeoff between space and time.
 Please refer to :py:meth:`tensorcircuit.templates.measurements.sparse_expectation` for more detail.
 
-For different representation to evaluate Hamiltonian expectation in tensorcircuit, please refer to :doc:`tutorials/tfim_vqe_diffreph`.
+For different representations to evaluate Hamiltonian expectation in tensorcircuit, please refer to :doc:`tutorials/tfim_vqe_diffreph`.
 
 Randoms, Jit, Backend Agnostic, and Their Interplay
 --------------------------------------------------------
@@ -169,6 +169,6 @@ And a more neat approach to achieve this is as follows:
 
     print(r(key1), r(key2))
 
-It is worth noting that since ``Circuit.unitary_kraus`` and ``Circuit.general_kraus`` calls ``implicit_rand*`` API, the correct usage of these APIs are the same as above.
+It is worth noting that since ``Circuit.unitary_kraus`` and ``Circuit.general_kraus`` call ``implicit_rand*`` API, the correct usage of these APIs is the same as above.
 
-One may wonder why random numbers are dealt in such a complicated way, please refer `Jax design note <https://github.com/google/jax/blob/main/docs/design_notes/prng.md>`_ for some hints.
+One may wonder why random numbers are dealt in such a complicated way, please refer to the `Jax design note <https://github.com/google/jax/blob/main/docs/design_notes/prng.md>`_ for some hints.
