@@ -14,6 +14,8 @@
 
 - `general_kraus` is synced with `apply_general_kraus` for `DMCircuit`
 
+- Fix dtype incompatible issue in kraus methods between status and prob
+
 ## 0.0.220402
 
 ### Added

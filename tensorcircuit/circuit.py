@@ -972,6 +972,8 @@ class Circuit:
 
         if status is None:
             status = backend.implicit_randu()[0]
+        status = backend.real(status)
+        prob_cumsum = backend.cast(prob_cumsum, dtype=status.dtype)  # type: ignore
         r = step_function(status)
         if get_gate_from_index is None:
             raise ValueError("no `get_gate_from_index` implementation is provided")
