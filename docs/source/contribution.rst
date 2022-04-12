@@ -96,7 +96,7 @@ Extra packages may be required for specific development tasks.
 Checks
 --------------------
 
-The simplest way to ensure the codebase is ok with checks and tests, is to run one-in-all scripts ``./check_all.sh`` (you may need to ``chmod +x check_all.sh`` to grant permissions on this file).
+The simplest way to ensure the codebase is ok with checks and tests is to run one-in-all scripts ``./check_all.sh`` (you may need to ``chmod +x check_all.sh`` to grant permissions on this file).
 
 The scripts include the following components:
 
@@ -148,7 +148,7 @@ The source files for docs are .rst file in docs/source.
 
 For English docs, ``sphinx-build source build/html`` in docs dir is enough. The html version of the docs are in docs/build/html.
 
-**auto generation of API docs:**
+**Auto Generation of API Docs:**
 
 We utilize a python script to generate/refresh all API docs rst files under /docs/source/api based on the codebase /tensorcircuit.
 
@@ -159,7 +159,7 @@ We utilize a python script to generate/refresh all API docs rst files under /doc
 
 **i18n:**
 
-For Chinese docs, we refer to the standard i18n workflow provided by sphinx, see `here <https://www.sphinx-doc.org/en/master/usage/advanced/intl.html>`__.
+For Chinese docs, we refer to the standard i18n workflow provided by the sphinx, see `here <https://www.sphinx-doc.org/en/master/usage/advanced/intl.html>`__.
 
 To update the po file from updated English rst files, using
 
@@ -172,4 +172,4 @@ To update the po file from updated English rst files, using
 
 Edit these .po files to add translations (`poedit <https://poedit.net/>`__ recommended). These files are in docs/source/locale/cn/LC_MESSAGES.
 
-To generate Chinese version of the documentation: ``sphinx-build source -D language="cn" -D master_doc=index_cn build/html_cn`` which is in the separate directory ``.../build/html_cn/index_cn.html``, whereas English version is in the directory ``.../build/html/index.html``.
+To generate the Chinese version of the documentation: ``sphinx-build source -D language="cn" -D master_doc=index_cn build/html_cn`` which is in the separate directory ``.../build/html_cn/index_cn.html``, whereas English version is in the directory ``.../build/html/index.html``.

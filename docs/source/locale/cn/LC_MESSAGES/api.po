@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tensorcircuit \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-08 21:05+0800\n"
+"POT-Creation-Date: 2022-04-12 09:05+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -310,6 +310,7 @@ msgstr ""
 #: tensorcircuit.cons.set_function_dtype
 #: tensorcircuit.cons.set_tensornetwork_backend
 #: tensorcircuit.densitymatrix.DMCircuit.expectation_ps
+#: tensorcircuit.densitymatrix.DMCircuit.measure_jit
 #: tensorcircuit.gates.any_gate tensorcircuit.gates.bmatrix
 #: tensorcircuit.gates.cr_gate tensorcircuit.gates.exponential_gate
 #: tensorcircuit.gates.exponential_gate_unity tensorcircuit.gates.iswap_gate
@@ -746,6 +747,8 @@ msgstr ""
 #: tensorcircuit.cons.set_function_dtype
 #: tensorcircuit.cons.set_tensornetwork_backend
 #: tensorcircuit.densitymatrix.DMCircuit.expectation_ps
+#: tensorcircuit.densitymatrix.DMCircuit.measure_jit
+#: tensorcircuit.densitymatrix.DMCircuit.perfect_sampling
 #: tensorcircuit.gates.any_gate tensorcircuit.gates.bmatrix
 #: tensorcircuit.gates.cr_gate tensorcircuit.gates.exponential_gate
 #: tensorcircuit.gates.exponential_gate_unity tensorcircuit.gates.iswap_gate
@@ -1111,6 +1114,8 @@ msgstr ""
 #: tensorcircuit.cons.set_function_dtype
 #: tensorcircuit.cons.set_tensornetwork_backend
 #: tensorcircuit.densitymatrix.DMCircuit.expectation_ps
+#: tensorcircuit.densitymatrix.DMCircuit.measure_jit
+#: tensorcircuit.densitymatrix.DMCircuit.perfect_sampling
 #: tensorcircuit.gates.any_gate tensorcircuit.gates.bmatrix
 #: tensorcircuit.gates.cr_gate tensorcircuit.gates.exponential_gate
 #: tensorcircuit.gates.exponential_gate_unity tensorcircuit.gates.iswap_gate
@@ -4355,16 +4360,19 @@ msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.measure:16
 #: tensorcircuit.circuit.Circuit.measure_jit:4
+#: tensorcircuit.densitymatrix.DMCircuit.measure_jit:3
 msgid "Measure on which quantum line."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.measure:17
 #: tensorcircuit.circuit.Circuit.measure_jit:6
+#: tensorcircuit.densitymatrix.DMCircuit.measure_jit:5
 msgid "If true, theoretical probability is also returned."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.measure:18
 #: tensorcircuit.circuit.Circuit.measure_jit:8
+#: tensorcircuit.densitymatrix.DMCircuit.measure_jit:7
 msgid "The sample output and probability (optional) of the quantum line."
 msgstr ""
 
@@ -4397,6 +4405,7 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.perfect_sampling:4
+#: tensorcircuit.densitymatrix.DMCircuit.perfect_sampling:3
 msgid "Sampled bit string and the corresponding theoretical probability."
 msgstr ""
 
@@ -4427,6 +4436,14 @@ msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.wavefunction:6
 msgid "Tensor with the corresponding shape."
+msgstr ""
+
+#: of tensorcircuit.circuit.Circuit.vis_tex:1
+msgid "Generate latex string based on quantikz latex package"
+msgstr ""
+
+#: of tensorcircuit.circuit.Circuit.vis_tex:3
+msgid "Latex string that can be directly compiled via, e.g. latexit"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.to_qir:1
@@ -4463,14 +4480,6 @@ msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.unitary_kraus:9
 msgid "shape [] int dtype tensor indicates which kraus gate is actually applied"
-msgstr ""
-
-#: of tensorcircuit.circuit.Circuit.vis_tex:1
-msgid "Generate latex string based on quantikz latex package"
-msgstr ""
-
-#: of tensorcircuit.circuit.Circuit.vis_tex:3
-msgid "Latex string that can be directly compiled via, e.g. latexit"
 msgstr ""
 
 #: of tensorcircuit.circuit.expectation:1
@@ -4672,6 +4681,14 @@ msgstr ""
 
 #: of tensorcircuit.densitymatrix:1
 msgid "Quantum circuit class but with density matrix simulator"
+msgstr ""
+
+#: of tensorcircuit.densitymatrix.DMCircuit.measure_jit:1
+msgid "Take measurement to the given quantum lines."
+msgstr ""
+
+#: of tensorcircuit.densitymatrix.DMCircuit.perfect_sampling:1
+msgid "Sampling bistrings from the circuit output based on quantum amplitudes."
 msgstr ""
 
 #: ../../source/api/densitymatrix2.rst:2
