@@ -4,19 +4,20 @@
 # package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: tensorcircuit \n"
+"Project-Id-Version: tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-04-12 09:05+0800\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2022-04-13 14:58+0800\n"
+"Last-Translator: Xinghan Yang\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
+"Language: cn\n"
+"X-Generator: Poedit 1.6.11\n"
 
 #: ../../source/api/applications.rst:2
 msgid "tensorcircuit.applications"
@@ -383,10 +384,7 @@ msgid "Parameters"
 msgstr ""
 
 #: of tensorcircuit.applications.dqas.DQAS_search:3
-msgid ""
-"function with input of data instance, circuit parameters theta and "
-"structural paramter k, return tuple of objective value and gradient with "
-"respect to theta"
+msgid "function with input of data instance, circuit parameters theta and structural paramter k, return tuple of objective value and gradient with respect to theta"
 msgstr ""
 
 #: of tensorcircuit.applications.dqas.DQAS_search:5
@@ -402,9 +400,7 @@ msgid "the default layer number of the circuit ansatz"
 msgstr ""
 
 #: of tensorcircuit.applications.dqas.DQAS_search:8
-msgid ""
-"shape of circuit parameter pool, in general p_stp*l, where l is the max "
-"number of circuit parameters for op in the operator pool"
+msgid "shape of circuit parameter pool, in general p_stp*l, where l is the max number of circuit parameters for op in the operator pool"
 msgstr ""
 
 #: of tensorcircuit.applications.dqas.DQAS_search:10
@@ -444,9 +440,7 @@ msgid "cutoff probability to avoid peak distribution"
 msgstr ""
 
 #: of tensorcircuit.applications.dqas.DQAS_search:19
-msgid ""
-"function accepting list of objective values and return the baseline value"
-" used in the next round"
+msgid "function accepting list of objective values and return the baseline value used in the next round"
 msgstr ""
 
 #: of tensorcircuit.applications.dqas.DQAS_search:21
@@ -811,9 +805,7 @@ msgid "Returns"
 msgstr ""
 
 #: of tensorcircuit.applications.dqas.DQAS_search_pmb:1
-msgid ""
-"The probabilistic model based DQAS, can use extensively for DQAS case for"
-" ``NMF`` probabilistic model."
+msgid "The probabilistic model based DQAS, can use extensively for DQAS case for ``NMF`` probabilistic model."
 msgstr ""
 
 #: of tensorcircuit.applications.dqas.DQAS_search_pmb:3
@@ -853,9 +845,7 @@ msgid "derivative function for ``loss_func``"
 msgstr ""
 
 #: of tensorcircuit.applications.dqas.get_var:1
-msgid ""
-"Call in customized functions and grab variables within DQAS framework "
-"function by var name str."
+msgid "Call in customized functions and grab variables within DQAS framework function by var name str."
 msgstr ""
 
 #: of tensorcircuit.applications.dqas.get_var:3
@@ -1177,9 +1167,7 @@ msgid "Return type"
 msgstr ""
 
 #: of tensorcircuit.applications.dqas.get_weights:1
-msgid ""
-"This function works only when nnp has the same shape as stp, i.e. one "
-"parameter for each op."
+msgid "This function works only when nnp has the same shape as stp, i.e. one parameter for each op."
 msgstr ""
 
 #: of tensorcircuit.applications.dqas.parallel_kernel:1
@@ -1187,10 +1175,7 @@ msgid "The kernel for multiprocess to run parallel in DQAS function/"
 msgstr ""
 
 #: of tensorcircuit.applications.dqas.parallel_qaoa_train:1
-msgid ""
-"parallel variational parameter training and search to avoid local minimum"
-" not limited to qaoa setup as the function name indicates, as long as you"
-" provided suitable `vag_func`"
+msgid "parallel variational parameter training and search to avoid local minimum not limited to qaoa setup as the function name indicates, as long as you provided suitable `vag_func`"
 msgstr ""
 
 #: of tensorcircuit.applications.dqas.parallel_qaoa_train:6
@@ -1254,9 +1239,7 @@ msgid "all graphs with m edge out from g"
 msgstr ""
 
 #: of tensorcircuit.applications.graphdata.reduced_ansatz:1
-msgid ""
-"Generate a reduced graph with given ratio of edges compared to the "
-"original graph g."
+msgid "Generate a reduced graph with given ratio of edges compared to the original graph g."
 msgstr ""
 
 #: of tensorcircuit.applications.graphdata.reduced_ansatz:3
@@ -1345,9 +1328,7 @@ msgid "number of qubits"
 msgstr ""
 
 #: of tensorcircuit.applications.vags.entanglement_entropy:1
-msgid ""
-"deprecated as non tf and non flexible, use the combination of "
-"``reduced_density_matrix`` and ``entropy`` instead."
+msgid "deprecated as non tf and non flexible, use the combination of ``reduced_density_matrix`` and ``entropy`` instead."
 msgstr ""
 
 #: of tensorcircuit.applications.vags.entropy:1
@@ -1356,9 +1337,7 @@ msgid "deprecated, current version in tc.quantum"
 msgstr ""
 
 #: of tensorcircuit.applications.vags.evaluate_vag:1
-msgid ""
-"value and gradient, currently only tensorflow backend is supported jax "
-"and numpy seems to be slow in circuit simulation anyhow. *deprecated*"
+msgid "value and gradient, currently only tensorflow backend is supported jax and numpy seems to be slow in circuit simulation anyhow. *deprecated*"
 msgstr ""
 
 #: of tensorcircuit.applications.vags.evaluate_vag:8
@@ -1375,9 +1354,7 @@ msgid "QAOA block encoding kernel, support 2 params in one op"
 msgstr ""
 
 #: of tensorcircuit.applications.vags.qaoa_train:1
-msgid ""
-"training QAOA with only optimizing circuit parameters, can be well "
-"replaced with more general function `DQAS_search`"
+msgid "training QAOA with only optimizing circuit parameters, can be well replaced with more general function `DQAS_search`"
 msgstr ""
 
 #: ../../source/api/applications/van.rst:2
@@ -1385,9 +1362,7 @@ msgid "tensorcircuit.applications.van"
 msgstr ""
 
 #: of tensorcircuit.applications.van:1
-msgid ""
-"One-hot variational autoregressive models for multiple categorical "
-"choices beyond binary"
+msgid "One-hot variational autoregressive models for multiple categorical choices beyond binary"
 msgstr ""
 
 #: of tensorcircuit.applications.van.MADE:1
@@ -1405,19 +1380,13 @@ msgstr ""
 #: of tensorcircuit.applications.van.MADE.call:3
 #: tensorcircuit.applications.van.NMF.call:3
 #: tensorcircuit.applications.van.PixelCNN.call:3
-msgid ""
-"In this case `call()` just reapplies all ops in the graph to the new "
-"inputs (e.g. build a new computational graph from the provided inputs)."
+msgid "In this case `call()` just reapplies all ops in the graph to the new inputs (e.g. build a new computational graph from the provided inputs)."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MADE.call:7
 #: tensorcircuit.applications.van.NMF.call:7
 #: tensorcircuit.applications.van.PixelCNN.call:7
-msgid ""
-"Note: This method should not be called directly. It is only meant to be "
-"overridden when subclassing `tf.keras.Model`. To call a model on an "
-"input, always use the `__call__()` method, i.e. `model(inputs)`, which "
-"relies on the underlying `call()` method."
+msgid "Note: This method should not be called directly. It is only meant to be overridden when subclassing `tf.keras.Model`. To call a model on an input, always use the `__call__()` method, i.e. `model(inputs)`, which relies on the underlying `call()` method."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MADE.call:18
@@ -1438,9 +1407,7 @@ msgstr ""
 #: of tensorcircuit.applications.van.MADE.call:13
 #: tensorcircuit.applications.van.NMF.call:13
 #: tensorcircuit.applications.van.PixelCNN.call:13
-msgid ""
-"inputs: Input tensor, or dict/list/tuple of input tensors. training: "
-"Boolean or boolean scalar tensor, indicating whether to run"
+msgid "inputs: Input tensor, or dict/list/tuple of input tensors. training: Boolean or boolean scalar tensor, indicating whether to run"
 msgstr ""
 
 #: of tensorcircuit.applications.van.MADE.call:15
@@ -1482,9 +1449,7 @@ msgstr ""
 #: of tensorcircuit.applications.van.MADE.call:21
 #: tensorcircuit.applications.van.NMF.call:21
 #: tensorcircuit.applications.van.PixelCNN.call:21
-msgid ""
-"A tensor if there is a single output, or a list of tensors if there are "
-"more than one outputs."
+msgid "A tensor if there is a single output, or a list of tensors if there are more than one outputs."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D:1
@@ -1501,18 +1466,12 @@ msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.build:3
 #: tensorcircuit.keras.QuantumLayer.build:3
-msgid ""
-"This is a method that implementers of subclasses of `Layer` or `Model` "
-"can override if they need a state-creation step in-between layer "
-"instantiation and layer call. It is invoked automatically before the "
-"first execution of `call()`."
+msgid "This is a method that implementers of subclasses of `Layer` or `Model` can override if they need a state-creation step in-between layer instantiation and layer call. It is invoked automatically before the first execution of `call()`."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.build:8
 #: tensorcircuit.keras.QuantumLayer.build:8
-msgid ""
-"This is typically used to create the weights of `Layer` subclasses (at "
-"the discretion of the subclass implementer)."
+msgid "This is typically used to create the weights of `Layer` subclasses (at the discretion of the subclass implementer)."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.build:13
@@ -1522,9 +1481,7 @@ msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.build:13
 #: tensorcircuit.keras.QuantumLayer.build:13
-msgid ""
-"`TensorShape` if the layer expects a list of inputs (one instance per "
-"input)."
+msgid "`TensorShape` if the layer expects a list of inputs (one instance per input)."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:1
@@ -1536,12 +1493,7 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:3
 #: tensorcircuit.applications.van.MaskedLinear.call:3
 #: tensorcircuit.applications.van.ResidualBlock.call:3
-msgid ""
-"The `call()` method may not create state (except in its first invocation,"
-" wrapping the creation of variables or other resources in "
-"`tf.init_scope()`). It is recommended to create state in `__init__()`, or"
-" the `build()` method that is called automatically before `call()` "
-"executes the first time."
+msgid "The `call()` method may not create state (except in its first invocation, wrapping the creation of variables or other resources in `tf.init_scope()`). It is recommended to create state in `__init__()`, or the `build()` method that is called automatically before `call()` executes the first time."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:24
@@ -1553,17 +1505,13 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:10
 #: tensorcircuit.applications.van.MaskedLinear.call:10
 #: tensorcircuit.applications.van.ResidualBlock.call:10
-msgid ""
-"The first positional `inputs` argument is subject to special rules: - "
-"`inputs` must be explicitly passed. A layer cannot have zero"
+msgid "The first positional `inputs` argument is subject to special rules: - `inputs` must be explicitly passed. A layer cannot have zero"
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:12
 #: tensorcircuit.applications.van.MaskedLinear.call:12
 #: tensorcircuit.applications.van.ResidualBlock.call:12
-msgid ""
-"arguments, and `inputs` cannot be provided via the default value of a "
-"keyword argument."
+msgid "arguments, and `inputs` cannot be provided via the default value of a keyword argument."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:14
@@ -1581,9 +1529,7 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:16
 #: tensorcircuit.applications.van.MaskedLinear.call:16
 #: tensorcircuit.applications.van.ResidualBlock.call:16
-msgid ""
-"Layers are built (`build(input_shape)` method) using shape info from "
-"`inputs` only."
+msgid "Layers are built (`build(input_shape)` method) using shape info from `inputs` only."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:18
@@ -1595,10 +1541,7 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:19
 #: tensorcircuit.applications.van.MaskedLinear.call:19
 #: tensorcircuit.applications.van.ResidualBlock.call:19
-msgid ""
-"Mixed precision input casting is only applied to `inputs`. If a layer has"
-" tensor arguments in `*args` or `**kwargs`, their casting behavior in "
-"mixed precision should be handled manually."
+msgid "Mixed precision input casting is only applied to `inputs`. If a layer has tensor arguments in `*args` or `**kwargs`, their casting behavior in mixed precision should be handled manually."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:22
@@ -1610,10 +1553,7 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:23
 #: tensorcircuit.applications.van.MaskedLinear.call:23
 #: tensorcircuit.applications.van.ResidualBlock.call:23
-msgid ""
-"Integration with various ecosystem packages like TFMOT, TFLite, TF.js, "
-"etc is only supported for `inputs` and not for tensors in positional and "
-"keyword arguments."
+msgid "Integration with various ecosystem packages like TFMOT, TFLite, TF.js, etc is only supported for `inputs` and not for tensors in positional and keyword arguments."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:26
@@ -1637,10 +1577,7 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:29
 #: tensorcircuit.applications.van.MaskedLinear.call:29
 #: tensorcircuit.applications.van.ResidualBlock.call:29
-msgid ""
-"this is not recommended, for the reasons above. The following optional "
-"keyword arguments are reserved: - `training`: Boolean scalar tensor of "
-"Python boolean indicating"
+msgid "this is not recommended, for the reasons above. The following optional keyword arguments are reserved: - `training`: Boolean scalar tensor of Python boolean indicating"
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:32
@@ -1652,12 +1589,7 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:33
 #: tensorcircuit.applications.van.MaskedLinear.call:33
 #: tensorcircuit.applications.van.ResidualBlock.call:33
-msgid ""
-"`mask`: Boolean input mask. If the layer's `call()` method takes a `mask`"
-" argument, its default value will be set to the mask generated for "
-"`inputs` by the previous layer (if `input` did come from a layer that "
-"generated a corresponding mask, i.e. if it came from a Keras layer with "
-"masking support)."
+msgid "`mask`: Boolean input mask. If the layer's `call()` method takes a `mask` argument, its default value will be set to the mask generated for `inputs` by the previous layer (if `input` did come from a layer that generated a corresponding mask, i.e. if it came from a Keras layer with masking support)."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:40
@@ -1723,9 +1655,7 @@ msgid "Bases: :py:class:`tensornetwork.backends.jax.jax_backend.JaxBackend`"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend:1
-msgid ""
-"See the original backend API at `jax backend "
-"<https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/jax/jax_backend.py>`_"
+msgid "See the original backend API at `jax backend <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/jax/jax_backend.py>`_"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.abs:1
@@ -2145,9 +2075,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.cond:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cond:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cond:1
-msgid ""
-"The native cond for XLA compiling, wrapper for ``tf.cond`` and limited "
-"functionality of ``jax.lax.cond``."
+msgid "The native cond for XLA compiling, wrapper for ``tf.cond`` and limited functionality of ``jax.lax.cond``."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.convert_to_tensor:1
@@ -2157,9 +2085,7 @@ msgstr ""
 #: of tensorcircuit.backends.jax_backend.JaxBackend.coo_sparse_matrix:1
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.coo_sparse_matrix:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.coo_sparse_matrix:1
-msgid ""
-"Generate the coo format sparse matrix from indices and values, which is "
-"the only sparse format supported in different ML backends."
+msgid "Generate the coo format sparse matrix from indices and values, which is the only sparse format supported in different ML backends."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.coo_sparse_matrix:4
@@ -2237,9 +2163,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.cumsum:5
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cumsum:5
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cumsum:5
-msgid ""
-"The default behavior is the same as numpy, different from tf/torch as "
-"cumsum of the flatten 1D array, defaults to None"
+msgid "The default behavior is the same as numpy, different from tf/torch as cumsum of the flatten 1D array, defaults to None"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.expm:1
@@ -2260,19 +2184,14 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.eye:2
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.eye:2
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.eye:2
-msgid ""
-"Depending on specific backends, `dim` has to be either an int (numpy, "
-"torch, tensorflow) or a `ShapeType` object (for block-sparse backends). "
-"Block-sparse behavior is currently not supported"
+msgid "Depending on specific backends, `dim` has to be either an int (numpy, torch, tensorflow) or a `ShapeType` object (for block-sparse backends). Block-sparse behavior is currently not supported"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.eye:7
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.eye:7
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.eye:7
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.eye:7
-msgid ""
-"N (int): The dimension of the returned matrix. dtype: The dtype of the "
-"returned matrix. M (int): The dimension of the returned matrix."
+msgid "N (int): The dimension of the returned matrix. dtype: The dtype of the returned matrix. M (int): The dimension of the returned matrix."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.grad:1
@@ -2345,9 +2264,7 @@ msgstr ""
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.value_and_grad:15
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.grad:15
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.value_and_grad:15
-msgid ""
-"the position of args in ``f`` that are to be differentiated, defaults to "
-"be 0"
+msgid "the position of args in ``f`` that are to be differentiated, defaults to be 0"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.grad:17
@@ -2420,16 +2337,12 @@ msgstr ""
 #: tensorcircuit.backends.jax_backend.JaxBackend.stateful_randc:9
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.stateful_randc:9
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.stateful_randc:9
-msgid ""
-"probability for each option in a, defaults to None, as equal probability "
-"distribution"
+msgid "probability for each option in a, defaults to None, as equal probability distribution"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.implicit_randn:1
 #: tensorcircuit.backends.jax_backend.JaxBackend.implicit_randu:1
-msgid ""
-"Call the random normal function with the random state management behind "
-"the scene."
+msgid "Call the random normal function with the random state management behind the scene."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.implicit_randn:3
@@ -2514,9 +2427,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.jit:8
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.jit:8
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.jit:8
-msgid ""
-"whether open XLA compilation, only works for tensorflow backend, defaults"
-" False since several ops has no XLA correspondence"
+msgid "whether open XLA compilation, only works for tensorflow backend, defaults False since several ops has no XLA correspondence"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.jit:11
@@ -2530,9 +2441,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.jvp:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.jvp:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.jvp:1
-msgid ""
-"Function that computes a (forward-mode) Jacobian-vector product of ``f``."
-" Strictly speaking, this function is value_and_jvp."
+msgid "Function that computes a (forward-mode) Jacobian-vector product of ``f``. Strictly speaking, this function is value_and_jvp."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.jvp:4
@@ -2564,9 +2473,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.jvp:10
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.jvp:10
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.jvp:10
-msgid ""
-"(``f(*inputs)``, jvp_tensor), where jvp_tensor is the same shape as the "
-"output of ``f``"
+msgid "(``f(*inputs)``, jvp_tensor), where jvp_tensor is the same shape as the output of ``f``"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.kron:1
@@ -2650,9 +2557,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.numpy:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.numpy:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.numpy:1
-msgid ""
-"Return the numpy array of a tensor ``a``, but may not work in a jitted "
-"function."
+msgid "Return the numpy array of a tensor ``a``, but may not work in a jitted function."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.numpy:5
@@ -2666,10 +2571,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.onehot:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.onehot:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.onehot:1
-msgid ""
-"One-hot encodes the given ``a``. Each index in the input ``a`` is encoded"
-" as a vector of zeros of length ``num`` with the element at index set to "
-"one:"
+msgid "One-hot encodes the given ``a``. Each index in the input ``a`` is encoded as a vector of zeros of length ``num`` with the element at index set to one:"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.onehot:5
@@ -2697,11 +2599,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.ones:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.ones:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.ones:1
-msgid ""
-"Return an ones-matrix of dimension `dim` Depending on specific backends, "
-"`dim` has to be either an int (numpy, torch, tensorflow) or a `ShapeType`"
-" object (for block-sparse backends). Block-sparse behavior is currently "
-"not supported Args:"
+msgid "Return an ones-matrix of dimension `dim` Depending on specific backends, `dim` has to be either an int (numpy, torch, tensorflow) or a `ShapeType` object (for block-sparse backends). Block-sparse behavior is currently not supported Args:"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.ones:7
@@ -2712,17 +2610,11 @@ msgstr ""
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.zeros:8
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.ones:7
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.zeros:8
-msgid ""
-"shape (int): The dimension of the returned matrix. dtype: The dtype of "
-"the returned matrix."
+msgid "shape (int): The dimension of the returned matrix. dtype: The dtype of the returned matrix."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.random_split:1
-msgid ""
-"A jax like split API, but it doesn't split the key generator for other "
-"backends. It is just for a consistent interface of random code; make sure"
-" you know what the function actually does. This function is mainly a "
-"utility to write backend agnostic code instead of doing magic things."
+msgid "A jax like split API, but it doesn't split the key generator for other backends. It is just for a consistent interface of random code; make sure you know what the function actually does. This function is mainly a utility to write backend agnostic code instead of doing magic things."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.real:1
@@ -2743,9 +2635,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.relu:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.relu:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.relu:1
-msgid ""
-"Rectified linear unit activation function. Computes the element-wise "
-"function:"
+msgid "Rectified linear unit activation function. Computes the element-wise function:"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.relu:4
@@ -2772,9 +2662,7 @@ msgstr ""
 #: of tensorcircuit.backends.jax_backend.JaxBackend.scatter:1
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.scatter:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.scatter:1
-msgid ""
-"Roughly equivalent to operand[indices] = updates, indices only support "
-"shape with rank 2 for now."
+msgid "Roughly equivalent to operand[indices] = updates, indices only support shape with rank 2 for now."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.set_random_state:1
@@ -2792,9 +2680,7 @@ msgstr ""
 #: of tensorcircuit.backends.jax_backend.JaxBackend.set_random_state:5
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.set_random_state:5
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.set_random_state:5
-msgid ""
-"If set to be true, only get the random state in return instead of setting"
-" the state on the backend"
+msgid "If set to be true, only get the random state in return instead of setting the state on the backend"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.sigmoid:1
@@ -2850,9 +2736,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.softmax:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.softmax:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.softmax:1
-msgid ""
-"Softmax function. Computes the function which rescales elements to the "
-"range [0,1] such that the elements along axis sum to 1."
+msgid "Softmax function. Computes the function which rescales elements to the range [0,1] such that the elements along axis sum to 1."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.softmax:4
@@ -2873,9 +2757,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.softmax:11
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.softmax:11
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.softmax:11
-msgid ""
-"A dimension along which Softmax will be computed , defaults to None for "
-"all axis sum."
+msgid "A dimension along which Softmax will be computed , defaults to None for all axis sum."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.softmax:13
@@ -3073,9 +2955,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.unique_with_counts:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.unique_with_counts:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.unique_with_counts:1
-msgid ""
-"Find the unique elements and their corresponding counts of the given "
-"tensor ``a``."
+msgid "Find the unique elements and their corresponding counts of the given tensor ``a``."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.unique_with_counts:5
@@ -3096,35 +2976,21 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.value_and_grad:17
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.value_and_grad:17
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.value_and_grad:17
-msgid ""
-"the value and grad function of ``f`` with the same set of arguments as "
-"``f``"
+msgid "the value and grad function of ``f`` with the same set of arguments as ``f``"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.vectorized_value_and_grad:1
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.vectorized_value_and_grad:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.vectorized_value_and_grad:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.vectorized_value_and_grad:1
-msgid ""
-"Return the VVAG function of ``f``. The inputs for ``f`` is (args[0], "
-"args[1], args[2], ...), and the output of ``f`` is a scalar. Suppose "
-"VVAG(f) is a function with inputs in the form (vargs[0], args[1], "
-"args[2], ...), where vagrs[0] has one extra dimension than args[0] in the"
-" first axis and consistent with args[0] in shape for remaining "
-"dimensions, i.e. shape(vargs[0]) = [batch] + shape(args[0]). (We only "
-"cover cases where ``vectorized_argnums`` defaults to 0 here for "
-"demonstration). VVAG(f) returns a tuple as a value tensor with shape "
-"[batch, 1] and a gradient tuple with shape: ([batch]+shape(args[argnum]) "
-"for argnum in argnums). The gradient for argnums=k is defined as"
+msgid "Return the VVAG function of ``f``. The inputs for ``f`` is (args[0], args[1], args[2], ...), and the output of ``f`` is a scalar. Suppose VVAG(f) is a function with inputs in the form (vargs[0], args[1], args[2], ...), where vagrs[0] has one extra dimension than args[0] in the first axis and consistent with args[0] in shape for remaining dimensions, i.e. shape(vargs[0]) = [batch] + shape(args[0]). (We only cover cases where ``vectorized_argnums`` defaults to 0 here for demonstration). VVAG(f) returns a tuple as a value tensor with shape [batch, 1] and a gradient tuple with shape: ([batch]+shape(args[argnum]) for argnum in argnums). The gradient for argnums=k is defined as"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.vectorized_value_and_grad:9
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.vectorized_value_and_grad:9
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.vectorized_value_and_grad:9
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.vectorized_value_and_grad:9
-msgid ""
-"g^k = \\frac{\\partial \\sum_{i\\in batch} f(vargs[0][i], args[1], "
-"...)}{\\partial args[k]}"
+msgid "g^k = \\frac{\\partial \\sum_{i\\in batch} f(vargs[0][i], args[1], ...)}{\\partial args[k]}"
 msgstr ""
 
 #: of
@@ -3148,9 +3014,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.vectorized_value_and_grad:19
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.vectorized_value_and_grad:19
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.vectorized_value_and_grad:19
-msgid ""
-", which is specifically suitable for batched VQE optimization, where "
-"args[0] is the circuit parameters."
+msgid ", which is specifically suitable for batched VQE optimization, where args[0] is the circuit parameters."
 msgstr ""
 
 #: of
@@ -3167,8 +3031,7 @@ msgstr ""
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.vectorized_value_and_grad:23
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.vectorized_value_and_grad:23
 msgid ""
-"g^1_i = \\frac{\\partial \\sum_j f(vargs[0][j], args[1])}{\\partial "
-"args[1][i]}\n"
+"g^1_i = \\frac{\\partial \\sum_j f(vargs[0][j], args[1])}{\\partial args[1][i]}\n"
 "\n"
 msgstr ""
 
@@ -3177,10 +3040,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.vectorized_value_and_grad:26
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.vectorized_value_and_grad:26
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.vectorized_value_and_grad:26
-msgid ""
-", which is suitable for quantum machine learning scenarios, where ``f`` "
-"is the loss function, args[0] corresponds to the input data and args[1] "
-"corresponds to the weights in the QML model."
+msgid ", which is suitable for quantum machine learning scenarios, where ``f`` is the loss function, args[0] corresponds to the input data and args[1] corresponds to the weights in the QML model."
 msgstr ""
 
 #: of
@@ -3192,19 +3052,14 @@ msgstr ""
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.vmap:6
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.vectorized_value_and_grad:33
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.vmap:6
-msgid ""
-"the args to be vectorized, these arguments should share the same batch "
-"shape in the fist dimension"
+msgid "the args to be vectorized, these arguments should share the same batch shape in the fist dimension"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.vjp:1
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.vjp:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.vjp:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.vjp:1
-msgid ""
-"Function that computes the dot product between a vector v and the "
-"Jacobian of the given function at the point given by the inputs. (reverse"
-" mode AD relevant) Strictly speaking, this function is value_and_vjp."
+msgid "Function that computes the dot product between a vector v and the Jacobian of the given function at the point given by the inputs. (reverse mode AD relevant) Strictly speaking, this function is value_and_vjp."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.vjp:5
@@ -3218,9 +3073,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.vjp:9
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.vjp:9
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.vjp:9
-msgid ""
-"value vector or gradient from downstream in reverse mode AD the same "
-"shape as return of function ``f``"
+msgid "value vector or gradient from downstream in reverse mode AD the same shape as return of function ``f``"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.vjp:12
@@ -3234,10 +3087,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.vmap:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.vmap:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.vmap:1
-msgid ""
-"Return the vectorized map or batched version of ``f`` on the first extra "
-"axis. The general interface supports ``f`` with multiple arguments and "
-"broadcast in the fist dimension."
+msgid "Return the vectorized map or batched version of ``f`` on the first extra axis. The general interface supports ``f`` with multiple arguments and broadcast in the fist dimension."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.vmap:4
@@ -3258,10 +3108,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.zeros:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.zeros:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.zeros:1
-msgid ""
-"Return a zeros-matrix of dimension `dim` Depending on specific backends, "
-"`dim` has to be either an int (numpy, torch, tensorflow) or a `ShapeType`"
-" object (for block-sparse backends)."
+msgid "Return a zeros-matrix of dimension `dim` Depending on specific backends, `dim` has to be either an int (numpy, torch, tensorflow) or a `ShapeType` object (for block-sparse backends)."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.zeros:5
@@ -3293,9 +3140,7 @@ msgid "Bases: :py:class:`tensornetwork.backends.numpy.numpy_backend.NumPyBackend
 msgstr ""
 
 #: of tensorcircuit.backends.numpy_backend.NumpyBackend:1
-msgid ""
-"see the original backend API at `numpy backend "
-"<https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/numpy/numpy_backend.py>`_"
+msgid "see the original backend API at `numpy backend <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/numpy/numpy_backend.py>`_"
 msgstr ""
 
 #: ../../source/api/backends/pytorch_backend.rst:2
@@ -3307,21 +3152,15 @@ msgid "Backend magic inherited from tensornetwork: pytorch backend"
 msgstr ""
 
 #: of tensorcircuit.backends.pytorch_backend.PyTorchBackend:1
-msgid ""
-"Bases: "
-":py:class:`tensornetwork.backends.pytorch.pytorch_backend.PyTorchBackend`"
+msgid "Bases: :py:class:`tensornetwork.backends.pytorch.pytorch_backend.PyTorchBackend`"
 msgstr ""
 
 #: of tensorcircuit.backends.pytorch_backend.PyTorchBackend:1
-msgid ""
-"See the original backend API at `pytorch backend "
-"<https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/pytorch/pytorch_backend.py>`_"
+msgid "See the original backend API at `pytorch backend <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/pytorch/pytorch_backend.py>`_"
 msgstr ""
 
 #: of tensorcircuit.backends.pytorch_backend.PyTorchBackend:4
-msgid ""
-"Note the functionality provided by pytorch backend is incomplete, it "
-"currenly lacks native efficicent jit and vmap support."
+msgid "Note the functionality provided by pytorch backend is incomplete, it currenly lacks native efficicent jit and vmap support."
 msgstr ""
 
 #: ../../source/api/backends/tensorflow_backend.rst:2
@@ -3333,21 +3172,15 @@ msgid "Backend magic inherited from tensornetwork: tensorflow backend"
 msgstr ""
 
 #: of tensorcircuit.backends.tensorflow_backend.TensorFlowBackend:1
-msgid ""
-"Bases: "
-":py:class:`tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend`"
+msgid "Bases: :py:class:`tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend`"
 msgstr ""
 
 #: of tensorcircuit.backends.tensorflow_backend.TensorFlowBackend:1
-msgid ""
-"See the original backend API at `tensorflow backend "
-"<https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/tensorflow/tensorflow_backend.py>`_"
+msgid "See the original backend API at `tensorflow backend <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/tensorflow/tensorflow_backend.py>`_"
 msgstr ""
 
 #: of tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.gather1d:1
-msgid ""
-"Return ``operand[indices]``, both ``operand`` and ``indices`` are rank-1 "
-"tensor."
+msgid "Return ``operand[indices]``, both ``operand`` and ``indices`` are rank-1 tensor."
 msgstr ""
 
 #: of tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.gather1d:3
@@ -3371,9 +3204,7 @@ msgid "Some common noise quantum channels."
 msgstr ""
 
 #: of tensorcircuit.channels.amplitudedampingchannel:1
-msgid ""
-"Return an amplitude damping channel. Notice: Amplitude damping "
-"corrspondings to p = 1."
+msgid "Return an amplitude damping channel. Notice: Amplitude damping corrspondings to p = 1."
 msgstr ""
 
 #: of tensorcircuit.channels.amplitudedampingchannel:4
@@ -3572,11 +3403,7 @@ msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
-msgid ""
-"Qubit number than the gate applies on. The matrix for the gate is  .. "
-"math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\"
-"    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & "
-"1.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j \\end{bmatrix}"
+msgid "Qubit number than the gate applies on. The matrix for the gate is  .. math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
@@ -3586,10 +3413,7 @@ msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:6
-msgid ""
-"\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & "
-"1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j\\\\    "
-"0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j \\end{bmatrix}"
+msgid "\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of
@@ -3619,19 +3443,12 @@ msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
-msgid ""
-"Qubit number than the gate applies on. The matrix for the gate is  .. "
-"math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\"
-"    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & "
-"0.-1.j\\\\    0.+0.j & 0.+0.j & 0.+1.j & 0.+0.j \\end{bmatrix}"
+msgid "Qubit number than the gate applies on. The matrix for the gate is  .. math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.-1.j\\\\    0.+0.j & 0.+0.j & 0.+1.j & 0.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:6
-msgid ""
-"\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & "
-"1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.-1.j\\\\    "
-"0.+0.j & 0.+0.j & 0.+1.j & 0.+0.j \\end{bmatrix}"
+msgid "\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.-1.j\\\\    0.+0.j & 0.+0.j & 0.+1.j & 0.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
@@ -3641,19 +3458,12 @@ msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
-msgid ""
-"Qubit number than the gate applies on. The matrix for the gate is  .. "
-"math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\"
-"    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & "
-"0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & -1.+0.j \\end{bmatrix}"
+msgid "Qubit number than the gate applies on. The matrix for the gate is  .. math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & -1.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:6
-msgid ""
-"\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & "
-"1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\    "
-"0.+0.j & 0.+0.j & 0.+0.j & -1.+0.j \\end{bmatrix}"
+msgid "\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & -1.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of
@@ -3671,32 +3481,11 @@ msgid "Apply **FREDKIN** gate on the circuit."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
-msgid ""
-"Qubit number than the gate applies on. The matrix for the gate is  .. "
-"math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & "
-"0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & "
-"0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & "
-"1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & "
-"0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    "
-"0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\"
-"    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & "
-"0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & "
-"0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & "
-"0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
+msgid "Qubit number than the gate applies on. The matrix for the gate is  .. math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
-msgid ""
-"\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j &"
-" 0.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & "
-"0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & "
-"0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & "
-"1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & "
-"0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & "
-"0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\    "
-"0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\"
-"    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j"
-" \\end{bmatrix}"
+msgid "\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
@@ -3706,17 +3495,12 @@ msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
-msgid ""
-"Qubit number than the gate applies on. The matrix for the gate is  .. "
-"math::        \\begin{bmatrix}    0.70710677+0.j & 0.70710677+0.j\\\\    "
-"0.70710677+0.j & -0.70710677+0.j \\end{bmatrix}"
+msgid "Qubit number than the gate applies on. The matrix for the gate is  .. math::        \\begin{bmatrix}    0.70710677+0.j & 0.70710677+0.j\\\\    0.70710677+0.j & -0.70710677+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:6
-msgid ""
-"\\begin{bmatrix}    0.70710677+0.j & 0.70710677+0.j\\\\    0.70710677+0.j"
-" & -0.70710677+0.j \\end{bmatrix}"
+msgid "\\begin{bmatrix}    0.70710677+0.j & 0.70710677+0.j\\\\    0.70710677+0.j & -0.70710677+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
@@ -3726,10 +3510,7 @@ msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
-msgid ""
-"Qubit number than the gate applies on. The matrix for the gate is  .. "
-"math::        \\begin{bmatrix}    1.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j "
-"\\end{bmatrix}"
+msgid "Qubit number than the gate applies on. The matrix for the gate is  .. math::        \\begin{bmatrix}    1.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
@@ -3742,18 +3523,11 @@ msgid "Apply **ISWAP** gate on the circuit."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
-msgid ""
-"Qubit number than the gate applies on. The matrix for the gate is  .. "
-"math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\"
-"    0.+0.j & 0.+0.j & 0.+1.j & 0.+0.j\\\\    0.+0.j & 0.+1.j & 0.+0.j & "
-"0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
+msgid "Qubit number than the gate applies on. The matrix for the gate is  .. math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+1.j & 0.+0.j\\\\    0.+0.j & 0.+1.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
-msgid ""
-"\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & "
-"0.+0.j & 0.+1.j & 0.+0.j\\\\    0.+0.j & 0.+1.j & 0.+0.j & 0.+0.j\\\\    "
-"0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
+msgid "\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+1.j & 0.+0.j\\\\    0.+0.j & 0.+1.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of
@@ -3786,18 +3560,11 @@ msgid "Apply **OX** gate on the circuit."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
-msgid ""
-"Qubit number than the gate applies on. The matrix for the gate is  .. "
-"math::        \\begin{bmatrix}    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\"
-"    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & "
-"0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
+msgid "Qubit number than the gate applies on. The matrix for the gate is  .. math::        \\begin{bmatrix}    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
-msgid ""
-"\\begin{bmatrix}    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    1.+0.j & "
-"0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\    "
-"0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
+msgid "\\begin{bmatrix}    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
@@ -3805,18 +3572,11 @@ msgid "Apply **OY** gate on the circuit."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
-msgid ""
-"Qubit number than the gate applies on. The matrix for the gate is  .. "
-"math::        \\begin{bmatrix}    0.+0.j & 0.-1.j & 0.+0.j & 0.+0.j\\\\"
-"    0.+1.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & "
-"0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
+msgid "Qubit number than the gate applies on. The matrix for the gate is  .. math::        \\begin{bmatrix}    0.+0.j & 0.-1.j & 0.+0.j & 0.+0.j\\\\    0.+1.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
-msgid ""
-"\\begin{bmatrix}    0.+0.j & 0.-1.j & 0.+0.j & 0.+0.j\\\\    0.+1.j & "
-"0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\    "
-"0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
+msgid "\\begin{bmatrix}    0.+0.j & 0.-1.j & 0.+0.j & 0.+0.j\\\\    0.+1.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
@@ -3824,18 +3584,11 @@ msgid "Apply **OZ** gate on the circuit."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
-msgid ""
-"Qubit number than the gate applies on. The matrix for the gate is  .. "
-"math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\"
-"    0.+0.j & -1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & "
-"0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
+msgid "Qubit number than the gate applies on. The matrix for the gate is  .. math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & -1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
-msgid ""
-"\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & "
-"-1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\"
-"    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
+msgid "\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & -1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of
@@ -3865,10 +3618,7 @@ msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
-msgid ""
-"Qubit number than the gate applies on. The matrix for the gate is  .. "
-"math::        \\begin{bmatrix}    1.+0.j & 0.+0.j\\\\    0.+0.j & 0.+1.j "
-"\\end{bmatrix}"
+msgid "Qubit number than the gate applies on. The matrix for the gate is  .. math::        \\begin{bmatrix}    1.+0.j & 0.+0.j\\\\    0.+0.j & 0.+1.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
@@ -3881,10 +3631,7 @@ msgid "Apply **SD** gate on the circuit."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
-msgid ""
-"Qubit number than the gate applies on. The matrix for the gate is  .. "
-"math::        \\begin{bmatrix}    1.+0.j & 0.+0.j\\\\    0.+0.j & 0.-1.j "
-"\\end{bmatrix}"
+msgid "Qubit number than the gate applies on. The matrix for the gate is  .. math::        \\begin{bmatrix}    1.+0.j & 0.+0.j\\\\    0.+0.j & 0.-1.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
@@ -3898,19 +3645,12 @@ msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
-msgid ""
-"Qubit number than the gate applies on. The matrix for the gate is  .. "
-"math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\"
-"    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & "
-"0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
+msgid "Qubit number than the gate applies on. The matrix for the gate is  .. math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:6
-msgid ""
-"\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & "
-"0.+0.j & 1.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    "
-"0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
+msgid "\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
@@ -3920,17 +3660,12 @@ msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
-msgid ""
-"Qubit number than the gate applies on. The matrix for the gate is  .. "
-"math::        \\begin{bmatrix}    1. & +0.j & 0. & +0.j\\\\    0. & +0.j "
-"& 0.70710677+0.70710677j \\end{bmatrix}"
+msgid "Qubit number than the gate applies on. The matrix for the gate is  .. math::        \\begin{bmatrix}    1. & +0.j & 0. & +0.j\\\\    0. & +0.j & 0.70710677+0.70710677j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:6
-msgid ""
-"\\begin{bmatrix}    1. & +0.j & 0. & +0.j\\\\    0. & +0.j & "
-"0.70710677+0.70710677j \\end{bmatrix}"
+msgid "\\begin{bmatrix}    1. & +0.j & 0. & +0.j\\\\    0. & +0.j & 0.70710677+0.70710677j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
@@ -3938,16 +3673,11 @@ msgid "Apply **TD** gate on the circuit."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
-msgid ""
-"Qubit number than the gate applies on. The matrix for the gate is  .. "
-"math::        \\begin{bmatrix}    1. & +0.j & 0. & +0.j\\\\    0. & +0.j "
-"& 0.70710677-0.70710677j \\end{bmatrix}"
+msgid "Qubit number than the gate applies on. The matrix for the gate is  .. math::        \\begin{bmatrix}    1. & +0.j & 0. & +0.j\\\\    0. & +0.j & 0.70710677-0.70710677j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
-msgid ""
-"\\begin{bmatrix}    1. & +0.j & 0. & +0.j\\\\    0. & +0.j & "
-"0.70710677-0.70710677j \\end{bmatrix}"
+msgid "\\begin{bmatrix}    1. & +0.j & 0. & +0.j\\\\    0. & +0.j & 0.70710677-0.70710677j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
@@ -3955,32 +3685,11 @@ msgid "Apply **TOFFOLI** gate on the circuit."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
-msgid ""
-"Qubit number than the gate applies on. The matrix for the gate is  .. "
-"math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & "
-"0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & "
-"0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & "
-"1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & "
-"0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    "
-"0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\"
-"    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & "
-"0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & "
-"0.+0.j & 1.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & "
-"0.+0.j & 1.+0.j & 0.+0.j \\end{bmatrix}"
+msgid "Qubit number than the gate applies on. The matrix for the gate is  .. math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
-msgid ""
-"\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j &"
-" 0.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & "
-"0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & "
-"0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & "
-"1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & "
-"0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & "
-"0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    "
-"0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j\\\\"
-"    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j"
-" \\end{bmatrix}"
+msgid "\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
@@ -3990,17 +3699,12 @@ msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
-msgid ""
-"Qubit number than the gate applies on. The matrix for the gate is  .. "
-"math::        \\begin{bmatrix}    0.70710677+0.j & -0.5 & -0.5j\\\\    "
-"0.5 & -0.5j & 0.70710677+0.j \\end{bmatrix}"
+msgid "Qubit number than the gate applies on. The matrix for the gate is  .. math::        \\begin{bmatrix}    0.70710677+0.j & -0.5 & -0.5j\\\\    0.5 & -0.5j & 0.70710677+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:6
-msgid ""
-"\\begin{bmatrix}    0.70710677+0.j & -0.5 & -0.5j\\\\    0.5 & -0.5j & "
-"0.70710677+0.j \\end{bmatrix}"
+msgid "\\begin{bmatrix}    0.70710677+0.j & -0.5 & -0.5j\\\\    0.5 & -0.5j & 0.70710677+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
@@ -4010,10 +3714,7 @@ msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
-msgid ""
-"Qubit number than the gate applies on. The matrix for the gate is  .. "
-"math::        \\begin{bmatrix}    0.+0.j & 1.+0.j\\\\    1.+0.j & 0.+0.j "
-"\\end{bmatrix}"
+msgid "Qubit number than the gate applies on. The matrix for the gate is  .. math::        \\begin{bmatrix}    0.+0.j & 1.+0.j\\\\    1.+0.j & 0.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
@@ -4028,10 +3729,7 @@ msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
-msgid ""
-"Qubit number than the gate applies on. The matrix for the gate is  .. "
-"math::        \\begin{bmatrix}    0.+0.j & 0.-1.j\\\\    0.+1.j & 0.+0.j "
-"\\end{bmatrix}"
+msgid "Qubit number than the gate applies on. The matrix for the gate is  .. math::        \\begin{bmatrix}    0.+0.j & 0.-1.j\\\\    0.+1.j & 0.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
@@ -4046,10 +3744,7 @@ msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
-msgid ""
-"Qubit number than the gate applies on. The matrix for the gate is  .. "
-"math::        \\begin{bmatrix}    1.+0.j & 0.+0.j\\\\    0.+0.j & -1.+0.j"
-" \\end{bmatrix}"
+msgid "Qubit number than the gate applies on. The matrix for the gate is  .. math::        \\begin{bmatrix}    1.+0.j & 0.+0.j\\\\    0.+0.j & -1.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
@@ -4067,9 +3762,7 @@ msgid "The number of qubits in the circuit."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.__init__:5
-msgid ""
-"If not None, the initial state of the circuit is taken as ``inputs`` "
-"instead of :math:`\\vert 0\\rangle^n` qubits, defaults to None."
+msgid "If not None, the initial state of the circuit is taken as ``inputs`` instead of :math:`\\vert 0\\rangle^n` qubits, defaults to None."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.__init__:8
@@ -4078,9 +3771,7 @@ msgid "(Nodes, dangling Edges) for a MPS like initial wavefunction."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.__init__:10
-msgid ""
-"dict if two qubit gate is ready for split, including parameters for at "
-"least one of ``max_singular_values`` and ``max_truncation_err``."
+msgid "dict if two qubit gate is ready for split, including parameters for at least one of ``max_singular_values`` and ``max_truncation_err``."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.amplitude:1
@@ -4096,9 +3787,7 @@ msgid "The amplitude of the circuit."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.append_from_qir:1
-msgid ""
-"Apply the ciurict in form of quantum intermediate representation after "
-"the current cirucit."
+msgid "Apply the ciurict in form of quantum intermediate representation after the current cirucit."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.append_from_qir:18
@@ -4120,18 +3809,11 @@ msgid "The index of the bit to apply the Gate."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.general_kraus:1
-msgid ""
-"Monte Carlo trajectory simulation of general Kraus channel whose Kraus "
-"operators cannot be amplified to unitary operators. For unitary operators"
-" composed Kraus channel, :py:meth:`unitary_kraus` is much faster."
+msgid "Monte Carlo trajectory simulation of general Kraus channel whose Kraus operators cannot be amplified to unitary operators. For unitary operators composed Kraus channel, :py:meth:`unitary_kraus` is much faster."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.general_kraus:5
-msgid ""
-"This function is jittable in theory. But only jax+GPU combination is "
-"recommended for jit since the graph building time is too long for other "
-"backend options; though the running time of the function is very fast for"
-" every case."
+msgid "This function is jittable in theory. But only jax+GPU combination is recommended for jit since the graph building time is too long for other backend options; though the running time of the function is very fast for every case."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.general_kraus:9
@@ -4143,9 +3825,7 @@ msgid "The qubits index that Kraus channel is applied on."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.general_kraus:13
-msgid ""
-"Random tensor uniformly between 0 or 1, defaults to be None, when the "
-"random number will be generated automatically"
+msgid "Random tensor uniformly between 0 or 1, defaults to be None, when the random number will be generated automatically"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_single_gate:1
@@ -4157,10 +3837,7 @@ msgid "The Gate applied on the bit."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.cond_measurement:1
-msgid ""
-"Measurement on z basis at ``index`` qubit based on quantum amplitude (not"
-" post-selection). The highlight is that this method can return the "
-"measured result as a int Tensor and thus maintained a jittable pipeline."
+msgid "Measurement on z basis at ``index`` qubit based on quantum amplitude (not post-selection). The highlight is that this method can return the measured result as a int Tensor and thus maintained a jittable pipeline."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.cond_measurement:14
@@ -4188,10 +3865,7 @@ msgid "the qubit lines the gate applied on"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.depolarizing:1
-msgid ""
-"Apply depolarizing channel in a Monte Carlo way, i.e. for each call of "
-"this method, one of gates from X, Y, Z, I are applied on the circuit "
-"based on the probability indicated by ``px``, ``py``, ``pz``."
+msgid "Apply depolarizing channel in a Monte Carlo way, i.e. for each call of this method, one of gates from X, Y, Z, I are applied on the circuit based on the probability indicated by ``px``, ``py``, ``pz``."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.depolarizing:6
@@ -4219,10 +3893,7 @@ msgid "int Tensor, the element lookup: [0: x, 1: y, 2: z, 3: I]"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.draw:1
-msgid ""
-"Visualise the circuit. This method recevies the keywords as same as "
-"qiskit.circuit.QuantumCircuit.draw. More details can be found here: "
-"https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.draw.html."
+msgid "Visualise the circuit. This method recevies the keywords as same as qiskit.circuit.QuantumCircuit.draw. More details can be found here: https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.draw.html."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.expectation:1
@@ -4230,15 +3901,11 @@ msgid "Compute the expectation of corresponding operators."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.expectation:10
-msgid ""
-"Operator and its position on the circuit, eg. ``(tc.gates.z(), [1, ]), "
-"(tc.gates.x(), [2, ])`` is for operator :math:`Z_1X_2`."
+msgid "Operator and its position on the circuit, eg. ``(tc.gates.z(), [1, ]), (tc.gates.x(), [2, ])`` is for operator :math:`Z_1X_2`."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.expectation:13
-msgid ""
-"If True, then the wavefunction tensor is cached for further expectation "
-"evaluation, defaults to be true."
+msgid "If True, then the wavefunction tensor is cached for further expectation evaluation, defaults to be true."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.expectation:16
@@ -4251,9 +3918,7 @@ msgid "Tensor with one element"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.expectation_before:1
-msgid ""
-"Return the list of nodes that consititues the expectation value just "
-"before the contraction."
+msgid "Return the list of nodes that consititues the expectation value just before the contraction."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.expectation_before:3
@@ -4266,9 +3931,7 @@ msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.expectation_ps:1
 #: tensorcircuit.densitymatrix.DMCircuit.expectation_ps:1
-msgid ""
-"Shortcut for Pauli string expectation. x, y, z list are for X, Y, Z "
-"positions"
+msgid "Shortcut for Pauli string expectation. x, y, z list are for X, Y, Z positions"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.expectation_ps:4
@@ -4327,9 +3990,7 @@ msgid "The same circuit but as tensorcircuit object"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.get_quvector:1
-msgid ""
-"Get the representation of the output state in the form of ``QuVector`` "
-"while maintaining the circuit uncomputed"
+msgid "Get the representation of the output state in the form of ``QuVector`` while maintaining the circuit uncomputed"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.get_quvector:4
@@ -4345,9 +4006,7 @@ msgid "The bool indicating whether the circuit is legal"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.matrix:1
-msgid ""
-"Get the unitary matrix for the circuit irrespective with the circuit "
-"input state."
+msgid "Get the unitary matrix for the circuit irrespective with the circuit input state."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.matrix:3
@@ -4377,17 +4036,11 @@ msgid "The sample output and probability (optional) of the quantum line."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.measure_jit:1
-msgid ""
-"Take measurement to the given quantum lines. This method is jittable is "
-"and about 100 times faster than unjit version!"
+msgid "Take measurement to the given quantum lines. This method is jittable is and about 100 times faster than unjit version!"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.mid_measurement:1
-msgid ""
-"Middle measurement in z-basis on the circuit, note the wavefunction "
-"output is not normalized with ``mid_measurement`` involved, one should "
-"normalize the state manually if needed. This is a post-selection method "
-"as keep is provided as a prior."
+msgid "Middle measurement in z-basis on the circuit, note the wavefunction output is not normalized with ``mid_measurement`` involved, one should normalize the state manually if needed. This is a post-selection method as keep is provided as a prior."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.mid_measurement:5
@@ -4399,9 +4052,7 @@ msgid "0 for spin up, 1 for spin down, defaults to be 0."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.perfect_sampling:1
-msgid ""
-"Sampling bistrings from the circuit output based on quantum amplitudes. "
-"Reference: arXiv:1201.3974."
+msgid "Sampling bistrings from the circuit output based on quantum amplitudes. Reference: arXiv:1201.3974."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.perfect_sampling:4
@@ -4418,9 +4069,7 @@ msgid "Input wavefunction."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.replace_mps_inputs:1
-msgid ""
-"Replace the input state in MPS representation while keep the circuit "
-"structure unchanged."
+msgid "Replace the input state in MPS representation while keep the circuit structure unchanged."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.wavefunction:1
@@ -4429,9 +4078,7 @@ msgid "Compute the output wavefunction from the circuit."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.wavefunction:3
-msgid ""
-"The str indicating the form of the output wavefunction. \"default\": "
-"[-1], \"ket\": [-1, 1], \"bra\": [1, -1]"
+msgid "The str indicating the form of the output wavefunction. \"default\": [-1], \"ket\": [-1, 1], \"bra\": [1, -1]"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.wavefunction:6
@@ -4503,9 +4150,7 @@ msgid ":math:`bra`, defaults to None, which is the same as ``ket``."
 msgstr ""
 
 #: of tensorcircuit.circuit.expectation:46
-msgid ""
-":math:`bra` changes to the adjoint matrix of :math:`bra`, defaults to "
-"True."
+msgid ":math:`bra` changes to the adjoint matrix of :math:`bra`, defaults to True."
 msgstr ""
 
 #: of tensorcircuit.circuit.expectation:48
@@ -4517,10 +4162,7 @@ msgid "The result of :math:`\\langle bra\\vert ops \\vert ket\\rangle`."
 msgstr ""
 
 #: of tensorcircuit.circuit.to_graphviz:1
-msgid ""
-"Not an ideal visualization for quantum circuit, but reserve here as a "
-"general approach to show the tensornetwork [Deprecated, use "
-"``Circuit.vis_tex`` or ``Circuit.draw`` instead]"
+msgid "Not an ideal visualization for quantum circuit, but reserve here as a general approach to show the tensornetwork [Deprecated, use ``Circuit.vis_tex`` or ``Circuit.draw`` instead]"
 msgstr ""
 
 #: ../../source/api/cons.rst:2
@@ -4532,16 +4174,11 @@ msgid "Constants and setups"
 msgstr ""
 
 #: of tensorcircuit.cons.get_contractor:1 tensorcircuit.cons.set_contractor:1
-msgid ""
-"To set runtime contractor of the tensornetwork for a better contraction "
-"path. For more information on the usage of contractor, please refer to "
-"independent tutorial."
+msgid "To set runtime contractor of the tensornetwork for a better contraction path. For more information on the usage of contractor, please refer to independent tutorial."
 msgstr ""
 
 #: of tensorcircuit.cons.get_contractor:4 tensorcircuit.cons.set_contractor:4
-msgid ""
-"\"auto\", \"greedy\", \"branch\", \"plain\", \"tng\", \"custom\", "
-"\"custom_stateful\". defaults to None (\"auto\")"
+msgid "\"auto\", \"greedy\", \"branch\", \"plain\", \"tng\", \"custom\", \"custom_stateful\". defaults to None (\"auto\")"
 msgstr ""
 
 #: of tensorcircuit.cons.get_contractor:6 tensorcircuit.cons.set_contractor:6
@@ -4549,9 +4186,7 @@ msgid "Valid for \"custom\" or \"custom_stateful\" as method, defaults to None"
 msgstr ""
 
 #: of tensorcircuit.cons.get_contractor:8 tensorcircuit.cons.set_contractor:8
-msgid ""
-"It is not very useful, as ``memory_limit`` leads to ``branch`` "
-"contraction instead of ``greedy`` which is rather slow, defaults to None"
+msgid "It is not very useful, as ``memory_limit`` leads to ``branch`` contraction instead of ``greedy`` which is rather slow, defaults to None"
 msgstr ""
 
 #: of tensorcircuit.cons.get_contractor:11 tensorcircuit.cons.set_contractor:11
@@ -4571,9 +4206,7 @@ msgid "Set the global runtime numerical dtype of tensors."
 msgstr ""
 
 #: of tensorcircuit.cons.get_dtype:3 tensorcircuit.cons.set_dtype:3
-msgid ""
-"\"complex64\" or \"complex128\", defaults to None, which is equivalent to"
-" \"complex64\"."
+msgid "\"complex64\" or \"complex128\", defaults to None, which is equivalent to \"complex64\"."
 msgstr ""
 
 #: of tensorcircuit.cons.get_dtype:5 tensorcircuit.cons.set_dtype:5
@@ -4635,16 +4268,11 @@ msgid "To set the runtime backend of tensorcircuit."
 msgstr ""
 
 #: of tensorcircuit.cons.set_tensornetwork_backend:3
-msgid ""
-"Note: ``tc.set_backend`` and ``tc.cons.set_tensornetwork_backend`` are "
-"the same."
+msgid "Note: ``tc.set_backend`` and ``tc.cons.set_tensornetwork_backend`` are the same."
 msgstr ""
 
 #: of tensorcircuit.cons.set_tensornetwork_backend:27
-msgid ""
-"\"numpy\", \"tensorflow\", \"jax\", \"pytorch\". defaults to None, which "
-"gives the same behavior as "
-"``tensornetwork.backend_contextmanager.get_default_backend()``."
+msgid "\"numpy\", \"tensorflow\", \"jax\", \"pytorch\". defaults to None, which gives the same behavior as ``tensornetwork.backend_contextmanager.get_default_backend()``."
 msgstr ""
 
 #: of tensorcircuit.cons.set_tensornetwork_backend:30
@@ -4716,9 +4344,7 @@ msgid "tensorcircuit.gates"
 msgstr ""
 
 #: of tensorcircuit.gates:1
-msgid ""
-"Declarations of single-qubit and two-qubit gates and their corresponding "
-"matrix."
+msgid "Declarations of single-qubit and two-qubit gates and their corresponding matrix."
 msgstr ""
 
 #: of tensorcircuit.gates.Gate:1
@@ -4775,8 +4401,7 @@ msgstr ""
 
 #: of tensorcircuit.gates.bmatrix:15
 msgid ""
-"\\begin{bmatrix}    1.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j \\end{bmatrix}"
-"\n"
+"\\begin{bmatrix}    1.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j \\end{bmatrix}\n"
 "\n"
 msgstr ""
 
@@ -4793,9 +4418,7 @@ msgid ":math:`\\LaTeX`-formatted string for bmatrix of the array a"
 msgstr ""
 
 #: of tensorcircuit.gates.cr_gate:1
-msgid ""
-"Controlled rotation gate. When the control qubit is 1, `rgate` is applied"
-" to the target qubit."
+msgid "Controlled rotation gate. When the control qubit is 1, `rgate` is applied to the target qubit."
 msgstr ""
 
 #: of tensorcircuit.gates.cr_gate:3 tensorcircuit.gates.cr_gate:5
@@ -4815,9 +4438,7 @@ msgid "CR Gate"
 msgstr ""
 
 #: of tensorcircuit.gates.exponential_gate_unity:1
-msgid ""
-"Faster exponential gate directly implemented based on RHS. Only works "
-"when :math:`U^2 = I` is an identity matrix."
+msgid "Faster exponential gate directly implemented based on RHS. Only works when :math:`U^2 = I` is an identity matrix."
 msgstr ""
 
 #: of tensorcircuit.gates.exponential_gate_unity:3
@@ -4861,10 +4482,8 @@ msgid ""
 "\\textrm{iSwap}(\\theta) =\n"
 "\\begin{pmatrix}\n"
 "    1 & 0 & 0 & 0\\\\\n"
-"    0 & \\cos(\\frac{\\pi}{2} \\theta ) & j \\sin(\\frac{\\pi}{2} \\theta"
-" ) & 0\\\\\n"
-"    0 & j \\sin(\\frac{\\pi}{2} \\theta ) & \\cos(\\frac{\\pi}{2} \\theta"
-" ) & 0\\\\\n"
+"    0 & \\cos(\\frac{\\pi}{2} \\theta ) & j \\sin(\\frac{\\pi}{2} \\theta ) & 0\\\\\n"
+"    0 & j \\sin(\\frac{\\pi}{2} \\theta ) & \\cos(\\frac{\\pi}{2} \\theta ) & 0\\\\\n"
 "    0 & 0 & 0 & 1\\\\\n"
 "\\end{pmatrix}\n"
 "\n"
@@ -4887,9 +4506,7 @@ msgid "Corresponding Tensor"
 msgstr ""
 
 #: of tensorcircuit.gates.meta_gate:1
-msgid ""
-"Inner helper function to generate gate functions, such as ``z()`` from "
-"``_z_matrix``"
+msgid "Inner helper function to generate gate functions, such as ``z()`` from ``_z_matrix``"
 msgstr ""
 
 #: of tensorcircuit.gates.r_gate:1
@@ -4926,17 +4543,13 @@ msgid "A random two-qubit gate"
 msgstr ""
 
 #: of tensorcircuit.gates.rgate_theoretical:1
-msgid ""
-"Rotation gate implemented by matrix exponential. The output is the same "
-"as `rgate`."
+msgid "Rotation gate implemented by matrix exponential. The output is the same as `rgate`."
 msgstr ""
 
 #: of tensorcircuit.gates.rgate_theoretical:3
 msgid ""
-"R(\\theta, \\alpha, \\phi) = e^{-j \\theta \\left[\\sin(\\alpha) "
-"\\cos(\\phi) X\n"
-"                                           + \\sin(\\alpha) \\sin(\\phi) "
-"Y\n"
+"R(\\theta, \\alpha, \\phi) = e^{-j \\theta \\left[\\sin(\\alpha) \\cos(\\phi) X\n"
+"                                           + \\sin(\\alpha) \\sin(\\phi) Y\n"
 "                                           + \\cos(\\alpha) Z\\right]}\n"
 "\n"
 msgstr ""
@@ -5012,9 +4625,7 @@ msgid "whether to jit ``fun``, defaults to True"
 msgstr ""
 
 #: of tensorcircuit.interfaces.scipy_optimize_interface:41
-msgid ""
-"whether using gradient-based or gradient free scipy optimize interface, "
-"defaults to True"
+msgid "whether using gradient-based or gradient free scipy optimize interface, defaults to True"
 msgstr ""
 
 #: of tensorcircuit.interfaces.scipy_optimize_interface:44
@@ -5034,9 +4645,7 @@ msgid "whether to jit ``fun``, defaults to False"
 msgstr ""
 
 #: of tensorcircuit.interfaces.torch_interface:32
-msgid ""
-"The same quantum function but now with torch tensor in and torch tensor "
-"out while AD is also supported"
+msgid "The same quantum function but now with torch tensor in and torch tensor out while AD is also supported"
 msgstr ""
 
 #: ../../source/api/keras.rst:2
@@ -5048,9 +4657,7 @@ msgid "Keras layer for tc quantum function"
 msgstr ""
 
 #: of tensorcircuit.keras.QuantumLayer.__init__:1
-msgid ""
-"`QuantumLayer` wraps the quantum function `f` as a `keras.Layer` so that "
-"tensorcircuit is better integrated with tensorflow."
+msgid "`QuantumLayer` wraps the quantum function `f` as a `keras.Layer` so that tensorcircuit is better integrated with tensorflow."
 msgstr ""
 
 #: of tensorcircuit.keras.QuantumLayer.__init__:4
@@ -5066,28 +4673,19 @@ msgid "The initializer of the weights, defaults to \"glorot_uniform\""
 msgstr ""
 
 #: of tensorcircuit.keras.load_func:1
-msgid ""
-"Load function from the files in the ``tf.savedmodel`` format. We can load"
-" several functions at the same time, as they can be the same function of "
-"different input shapes."
+msgid "Load function from the files in the ``tf.savedmodel`` format. We can load several functions at the same time, as they can be the same function of different input shapes."
 msgstr ""
 
 #: of tensorcircuit.keras.load_func:24
-msgid ""
-"The fallback function when all functions loaded are failed, defaults to "
-"None"
+msgid "The fallback function when all functions loaded are failed, defaults to None"
 msgstr ""
 
 #: of tensorcircuit.keras.load_func:26
-msgid ""
-"When there is not legal loaded function of the input shape and no "
-"fallback callable."
+msgid "When there is not legal loaded function of the input shape and no fallback callable."
 msgstr ""
 
 #: of tensorcircuit.keras.load_func:27
-msgid ""
-"A function that tries all loaded function against the input until the "
-"first success one."
+msgid "A function that tries all loaded function against the input until the first success one."
 msgstr ""
 
 #: of tensorcircuit.keras.output_asis_loss:1
@@ -5131,10 +4729,7 @@ msgid "Bases: :py:class:`tensornetwork.matrixproductstates.finite_mps.FiniteMPS`
 msgstr ""
 
 #: of tensorcircuit.mps_base.FiniteMPS.apply_two_site_gate:1
-msgid ""
-"Apply a two-site gate to an MPS. This routine will in general destroy any"
-" canonical form of the state. If a canonical form is needed, the user can"
-" restore it using `FiniteMPS.position`."
+msgid "Apply a two-site gate to an MPS. This routine will in general destroy any canonical form of the state. If a canonical form is needed, the user can restore it using `FiniteMPS.position`."
 msgstr ""
 
 #: of tensorcircuit.mps_base.FiniteMPS.apply_two_site_gate:5
@@ -5164,14 +4759,7 @@ msgid "The maximum allowed truncation error."
 msgstr ""
 
 #: of tensorcircuit.mps_base.FiniteMPS.apply_two_site_gate:15
-msgid ""
-"An optional value to choose the MPS tensor at `center_position` to be "
-"isometric after the application of the gate. Defaults to `site1`. If the "
-"MPS is canonical (i.e.`BaseMPS.center_position != None`), and if the "
-"orthogonality center coincides with either `site1` or `site2`,  the "
-"orthogonality center will be shifted to `center_position` (`site1` by "
-"default). If the orthogonality center does not coincide with `(site1, "
-"site2)` then `MPS.center_position` is set to `None`."
+msgid "An optional value to choose the MPS tensor at `center_position` to be isometric after the application of the gate. Defaults to `site1`. If the MPS is canonical (i.e.`BaseMPS.center_position != None`), and if the orthogonality center coincides with either `site1` or `site2`,  the orthogonality center will be shifted to `center_position` (`site1` by default). If the orthogonality center does not coincide with `(site1, site2)` then `MPS.center_position` is set to `None`."
 msgstr ""
 
 #: of tensorcircuit.mps_base.FiniteMPS.apply_two_site_gate:24
@@ -5182,14 +4770,7 @@ msgid "Multiply `max_truncation_err` with the largest singular value."
 msgstr ""
 
 #: of tensorcircuit.mps_base.FiniteMPS.apply_two_site_gate:26
-msgid ""
-"\"rank of gate is {} but has to be 4\", \"site1 = {} is not between 0 <= "
-"site < N - 1 = {}\", \"site2 = {} is not between 1 <= site < N = "
-"{}\",\"Found site2 ={}, site1={}. Only nearest neighbor gates are "
-"currently supported\", \"f center_position = {center_position} not  f in "
-"{(site1, site2)} \", or \"center_position = {}, but gate is applied at "
-"sites {}, {}. Truncation should only be done if the gate is applied at "
-"the center position of the MPS.\""
+msgid "\"rank of gate is {} but has to be 4\", \"site1 = {} is not between 0 <= site < N - 1 = {}\", \"site2 = {} is not between 1 <= site < N = {}\",\"Found site2 ={}, site1={}. Only nearest neighbor gates are currently supported\", \"f center_position = {center_position} not  f in {(site1, site2)} \", or \"center_position = {}, but gate is applied at sites {}, {}. Truncation should only be done if the gate is applied at the center position of the MPS.\""
 msgstr ""
 
 #: of tensorcircuit.mps_base.FiniteMPS.apply_two_site_gate:32
@@ -5213,10 +4794,7 @@ msgid "measurements :math:`\\langle` `ops[n]`:math:`\\rangle` for n in `sites`"
 msgstr ""
 
 #: of tensorcircuit.mps_base.FiniteMPS.measure_two_body_correlator:1
-msgid ""
-"Compute the correlator :math:`\\langle` `op1[site1], "
-"op2[s]`:math:`\\rangle` between `site1` and all sites `s` in `sites2`. If"
-" `s == site1`, `op2[s]` will be applied first."
+msgid "Compute the correlator :math:`\\langle` `op1[site1], op2[s]`:math:`\\rangle` between `site1` and all sites `s` in `sites2`. If `s == site1`, `op2[s]` will be applied first."
 msgstr ""
 
 #: of tensorcircuit.mps_base.FiniteMPS.measure_two_body_correlator:6
@@ -5236,9 +4814,7 @@ msgid "Sites where operator `op2` acts."
 msgstr ""
 
 #: of tensorcircuit.mps_base.FiniteMPS.measure_two_body_correlator:14
-msgid ""
-"Correlator :math:`\\langle` `op1[site1], op2[s]`:math:`\\rangle` for `s` "
-":math:`\\in` `sites2`."
+msgid "Correlator :math:`\\langle` `op1[site1], op2[s]`:math:`\\rangle` for `s` :math:`\\in` `sites2`."
 msgstr ""
 
 #: ../../source/api/mpscircuit.rst:2
@@ -5303,9 +4879,7 @@ msgid "MPSCircuit object based on state simulator."
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.__init__:5
-msgid ""
-"If not None, the initial state of the circuit is taken as ``tensors`` "
-"instead of :math:`\\vert 0\\rangle^n` qubits, defaults to None"
+msgid "If not None, the initial state of the circuit is taken as ``tensors`` instead of :math:`\\vert 0\\rangle^n` qubits, defaults to None"
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.__init__:8
@@ -5331,9 +4905,7 @@ msgid "\"MPS does not support application of gate on > 2 qubits.\""
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.apply_adjacent_double_gate:1
-msgid ""
-"Apply a double qubit gate on adjacent qubits of Matrix Product States "
-"(MPS). Truncation rule is specified by `set_truncation_rule`."
+msgid "Apply a double qubit gate on adjacent qubits of Matrix Product States (MPS). Truncation rule is specified by `set_truncation_rule`."
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.apply_adjacent_double_gate:6
@@ -5351,15 +4923,11 @@ msgid "Center position of MPS, default is None"
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.apply_double_gate:1
-msgid ""
-"Apply a double qubit gate on MPS. Truncation rule is specified by "
-"`set_truncation_rule`."
+msgid "Apply a double qubit gate on MPS. Truncation rule is specified by `set_truncation_rule`."
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.apply_single_gate:1
-msgid ""
-"Apply a single qubit gate on MPS, and the gate must be unitary; no "
-"truncation is needed."
+msgid "Apply a single qubit gate on MPS, and the gate must be unitary; no truncation is needed."
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.apply_single_gate:3
@@ -5400,9 +4968,7 @@ msgid "qubit index of the gate"
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.expectation_single_gate:1
-msgid ""
-"Compute the expectation of the corresponding single qubit gate in the "
-"form of tensor."
+msgid "Compute the expectation of the corresponding single qubit gate in the form of tensor."
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.expectation_single_gate:3
@@ -5414,9 +4980,7 @@ msgid "The expectation of the corresponding single qubit gate"
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.expectation_two_gates_product:1
-msgid ""
-"Compute the expectation of the direct product of the corresponding two "
-"gates."
+msgid "Compute the expectation of the direct product of the corresponding two gates."
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.expectation_two_gates_product:3
@@ -5452,9 +5016,7 @@ msgid "Compute the expectation of corresponding operators in the form of tensor.
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.general_expectation:3
-msgid ""
-"Operator and its position on the circuit, eg. ``(gates.Z(), [1]), "
-"(gates.X(), [2])`` is for operator :math:`Z_1X_2`"
+msgid "Operator and its position on the circuit, eg. ``(gates.Z(), [1]), (gates.X(), [2])`` is for operator :math:`Z_1X_2`"
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.general_expectation:6
@@ -5486,10 +5048,7 @@ msgid "if true, theoretical probability is also returned"
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.mid_measurement:1
-msgid ""
-"Middle measurement in the z-basis on the circuit, note the wavefunction "
-"output is not normalized with ``mid_measurement`` involved, one should "
-"normalized the state manually if needed."
+msgid "Middle measurement in the z-basis on the circuit, note the wavefunction output is not normalized with ``mid_measurement`` involved, one should normalized the state manually if needed."
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.mid_measurement:4
@@ -5525,10 +5084,7 @@ msgid "The projection in form of tensor"
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.set_truncation_rule:1
-msgid ""
-"Set truncation rules when double qubit gates are applied. If nothing is "
-"specified, no truncation will take place and the bond dimension will keep"
-" growing. For more details, refer to `split_tensor`."
+msgid "Set truncation rules when double qubit gates are applied. If nothing is specified, no truncation will take place and the bond dimension will keep growing. For more details, refer to `split_tensor`."
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.wavefunction:3
@@ -5577,10 +5133,7 @@ msgid "Represents an adjoint (row) vector via a tensor network."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuAdjointVector.__init__:1
-msgid ""
-"Constructs a new `QuAdjointVector` from a tensor network. This "
-"encapsulates an existing tensor network, interpreting it as an adjoint "
-"vector (row vector)."
+msgid "Constructs a new `QuAdjointVector` from a tensor network. This encapsulates an existing tensor network, interpreting it as an adjoint vector (row vector)."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuAdjointVector.__init__:5
@@ -5591,9 +5144,7 @@ msgstr ""
 #: of tensorcircuit.quantum.QuAdjointVector.__init__:7
 #: tensorcircuit.quantum.QuOperator.__init__:11
 #: tensorcircuit.quantum.QuVector.__init__:6
-msgid ""
-"Nodes used to refer to parts of the tensor network that are not connected"
-" to any input or output edges (for example: a scalar factor)."
+msgid "Nodes used to refer to parts of the tensor network that are not connected to any input or output edges (for example: a scalar factor)."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuAdjointVector.__init__:10
@@ -5603,10 +5154,7 @@ msgid "Optional collection of edges to ignore when performing consistency checks
 msgstr ""
 
 #: of tensorcircuit.quantum.QuAdjointVector.from_tensor:1
-msgid ""
-"Construct a `QuAdjointVector` directly from a single tensor. This first "
-"wraps the tensor in a `Node`, then constructs the `QuAdjointVector` from "
-"that `Node`."
+msgid "Construct a `QuAdjointVector` directly from a single tensor. This first wraps the tensor in a `Node`, then constructs the `QuAdjointVector` from that `Node`."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuAdjointVector.from_tensor:27
@@ -5614,10 +5162,7 @@ msgid "The tensor for constructing an QuAdjointVector."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuAdjointVector.from_tensor:29
-msgid ""
-"Sequence of integer indices specifying the order in which to interpret "
-"the axes as subsystems (input edges). If not specified, the axes are "
-"taken in ascending order."
+msgid "Sequence of integer indices specifying the order in which to interpret the axes as subsystems (input edges). If not specified, the axes are taken in ascending order."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuAdjointVector.from_tensor:33
@@ -5625,23 +5170,11 @@ msgid "The new constructed QuAdjointVector give from the given tensor."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator:1
-msgid ""
-"Represents a linear operator via a tensor network. To interpret a tensor "
-"network as a linear operator, some of the dangling edges must be "
-"designated as `out_edges` (output edges) and the rest as `in_edges` "
-"(input edges). Considered as a matrix, the `out_edges` represent the row "
-"index and the `in_edges` represent the column index. The (right) action "
-"of the operator on another then consists of connecting the `in_edges` of "
-"the first operator to the `out_edges` of the second. Can be used to do "
-"simple linear algebra with tensor networks."
+msgid "Represents a linear operator via a tensor network. To interpret a tensor network as a linear operator, some of the dangling edges must be designated as `out_edges` (output edges) and the rest as `in_edges` (input edges). Considered as a matrix, the `out_edges` represent the row index and the `in_edges` represent the column index. The (right) action of the operator on another then consists of connecting the `in_edges` of the first operator to the `out_edges` of the second. Can be used to do simple linear algebra with tensor networks."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.__init__:1
-msgid ""
-"Creates a new `QuOperator` from a tensor network. This encapsulates an "
-"existing tensor network, interpreting it as a linear operator. The "
-"network is checked for consistency: All dangling edges must either be in "
-"`out_edges`, `in_edges`, or `ignore_edges`."
+msgid "Creates a new `QuOperator` from a tensor network. This encapsulates an existing tensor network, interpreting it as a linear operator. The network is checked for consistency: All dangling edges must either be in `out_edges`, `in_edges`, or `ignore_edges`."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.__init__:7
@@ -5650,22 +5183,15 @@ msgid "The edges of the network to be used as the output edges."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.__init__:15
-msgid ""
-"Optional collection of dangling edges to ignore when performing "
-"consistency checks."
+msgid "Optional collection of dangling edges to ignore when performing consistency checks."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.__init__:18
-msgid ""
-"At least one reference node is required to specify a scalar. None "
-"provided!"
+msgid "At least one reference node is required to specify a scalar. None provided!"
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.adjoint:1
-msgid ""
-"The adjoint of the operator. This creates a new `QuOperator` with "
-"complex-conjugate copies of all tensors in the network and with the input"
-" and output edges switched."
+msgid "The adjoint of the operator. This creates a new `QuOperator` with complex-conjugate copies of all tensors in the network and with the input and output edges switched."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.adjoint:5
@@ -5673,18 +5199,11 @@ msgid "The adjoint of the operator."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.check_network:1
-msgid ""
-"Check that the network has the expected dimensionality. This checks that "
-"all input and output edges are dangling and that there are no other "
-"dangling edges (except any specified in `ignore_edges`). If not, an "
-"exception is raised."
+msgid "Check that the network has the expected dimensionality. This checks that all input and output edges are dangling and that there are no other dangling edges (except any specified in `ignore_edges`). If not, an exception is raised."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.contract:1
-msgid ""
-"Contract the tensor network in place. This modifies the tensor network "
-"representation of the operator (or vector, or scalar), reducing it to a "
-"single tensor, without changing the value."
+msgid "Contract the tensor network in place. This modifies the tensor network representation of the operator (or vector, or scalar), reducing it to a single tensor, without changing the value."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.contract:5
@@ -5704,18 +5223,11 @@ msgid "The new copy of the operator."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.eval:1
-msgid ""
-"Contracts the tensor network in place and returns the final tensor. Note "
-"that this modifies the tensor network representing the operator. The "
-"default ordering for the axes of the final tensor is: `*out_edges, "
-"*in_edges`. If there are any \"ignored\" edges, their axes come first: "
-"`*ignored_edges, *out_edges, *in_edges`."
+msgid "Contracts the tensor network in place and returns the final tensor. Note that this modifies the tensor network representing the operator. The default ordering for the axes of the final tensor is: `*out_edges, *in_edges`. If there are any \"ignored\" edges, their axes come first: `*ignored_edges, *out_edges, *in_edges`."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.eval:8
-msgid ""
-"Manually specify the axis ordering of the final tensor. The default "
-"ordering is determined by `out_edges` and `in_edges` (see above)."
+msgid "Manually specify the axis ordering of the final tensor. The default ordering is determined by `out_edges` and `in_edges` (see above)."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.eval:11
@@ -5727,10 +5239,7 @@ msgid "The final tensor representing the operator."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.from_tensor:1
-msgid ""
-"Construct a `QuOperator` directly from a single tensor. This first wraps "
-"the tensor in a `Node`, then constructs the `QuOperator` from that "
-"`Node`."
+msgid "Construct a `QuOperator` directly from a single tensor. This first wraps the tensor in a `Node`, then constructs the `QuOperator` from that `Node`."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.from_tensor:28
@@ -5754,18 +5263,11 @@ msgid "All tensor-network nodes involved in the operator."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.norm:1
-msgid ""
-"The norm of the operator. This is the 2-norm (also known as the Frobenius"
-" or Hilbert-Schmidt norm)."
+msgid "The norm of the operator. This is the 2-norm (also known as the Frobenius or Hilbert-Schmidt norm)."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.partial_trace:1
-msgid ""
-"The partial trace of the operator. Subsystems to trace out are supplied "
-"as indices, so that dangling edges are connected to each other as: "
-"`out_edges[i] ^ in_edges[i] for i in subsystems_to_trace_out` This does "
-"not modify the original network. The original ordering of the remaining "
-"subsystems is maintained."
+msgid "The partial trace of the operator. Subsystems to trace out are supplied as indices, so that dangling edges are connected to each other as: `out_edges[i] ^ in_edges[i] for i in subsystems_to_trace_out` This does not modify the original network. The original ordering of the remaining subsystems is maintained."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.partial_trace:8
@@ -5777,13 +5279,7 @@ msgid "A new QuOperator or QuScalar representing the result."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.tensor_product:1
-msgid ""
-"Tensor product with another operator. Given two operators `A` and `B`, "
-"produces a new operator `AB` representing `A` ⊗ `B`. The `out_edges` "
-"(`in_edges`) of `AB` is simply the concatenation of the `out_edges` "
-"(`in_edges`) of `A.copy()` with that of `B.copy()`: `new_out_edges = "
-"[*out_edges_A_copy, *out_edges_B_copy]` `new_in_edges = "
-"[*in_edges_A_copy, *in_edges_B_copy]`"
+msgid "Tensor product with another operator. Given two operators `A` and `B`, produces a new operator `AB` representing `A` ⊗ `B`. The `out_edges` (`in_edges`) of `AB` is simply the concatenation of the `out_edges` (`in_edges`) of `A.copy()` with that of `B.copy()`: `new_out_edges = [*out_edges_A_copy, *out_edges_B_copy]` `new_in_edges = [*in_edges_A_copy, *in_edges_B_copy]`"
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.tensor_product:20
@@ -5803,21 +5299,15 @@ msgid "Represents a scalar via a tensor network."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuScalar.__init__:1
-msgid ""
-"Constructs a new `QuScalar` from a tensor network. This encapsulates an "
-"existing tensor network, interpreting it as a scalar."
+msgid "Constructs a new `QuScalar` from a tensor network. This encapsulates an existing tensor network, interpreting it as a scalar."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuScalar.__init__:4
-msgid ""
-"Nodes used to refer to the tensor network (need not be exhaustive - one "
-"node from each disconnected subnetwork is sufficient)."
+msgid "Nodes used to refer to the tensor network (need not be exhaustive - one node from each disconnected subnetwork is sufficient)."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuScalar.from_tensor:1
-msgid ""
-"Construct a `QuScalar` directly from a single tensor. This first wraps "
-"the tensor in a `Node`, then constructs the `QuScalar` from that `Node`."
+msgid "Construct a `QuScalar` directly from a single tensor. This first wraps the tensor in a `Node`, then constructs the `QuScalar` from that `Node`."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuScalar.from_tensor:22
@@ -5833,15 +5323,11 @@ msgid "Represents a (column) vector via a tensor network."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuVector.__init__:1
-msgid ""
-"Constructs a new `QuVector` from a tensor network. This encapsulates an "
-"existing tensor network, interpreting it as a (column) vector."
+msgid "Constructs a new `QuVector` from a tensor network. This encapsulates an existing tensor network, interpreting it as a (column) vector."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuVector.from_tensor:1
-msgid ""
-"Construct a `QuVector` directly from a single tensor. This first wraps "
-"the tensor in a `Node`, then constructs the `QuVector` from that `Node`."
+msgid "Construct a `QuVector` directly from a single tensor. This first wraps the tensor in a `Node`, then constructs the `QuVector` from that `Node`."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuVector.from_tensor:28
@@ -5849,10 +5335,7 @@ msgid "The tensor for constructing a \"QuVector\"."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuVector.from_tensor:30
-msgid ""
-"Sequence of integer indices specifying the order in which to interpret "
-"the axes as subsystems (output edges). If not specified, the axes are "
-"taken in ascending order."
+msgid "Sequence of integer indices specifying the order in which to interpret the axes as subsystems (output edges). If not specified, the axes are taken in ascending order."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuVector.from_tensor:34
@@ -5860,10 +5343,7 @@ msgid "The new constructed QuVector from the given tensor."
 msgstr ""
 
 #: of tensorcircuit.quantum.check_spaces:1
-msgid ""
-"Check the vector spaces represented by two lists of edges are compatible."
-" The number of edges must be the same and the dimensions of each pair of "
-"edges must match. Otherwise, an exception is raised."
+msgid "Check the vector spaces represented by two lists of edges are compatible. The number of edges must be the same and the dimensions of each pair of edges must match. Otherwise, an exception is raised."
 msgstr ""
 
 #: of tensorcircuit.quantum.check_spaces:5 tensorcircuit.quantum.check_spaces:7
@@ -5871,15 +5351,11 @@ msgid "List of edges representing a many-body Hilbert space."
 msgstr ""
 
 #: of tensorcircuit.quantum.check_spaces:10
-msgid ""
-"Hilbert-space mismatch: \"Cannot connect {} subsystems with {} "
-"subsystems\", or \"Input dimension {} != output dimension {}.\""
+msgid "Hilbert-space mismatch: \"Cannot connect {} subsystems with {} subsystems\", or \"Input dimension {} != output dimension {}.\""
 msgstr ""
 
 #: of tensorcircuit.quantum.correlation_from_counts:1
-msgid ""
-"Compute :math:`\\prod_{i\\in \\text{index}} s_i`, where the probability "
-"for each bitstring is given as a vector ``results``."
+msgid "Compute :math:`\\prod_{i\\in \\text{index}} s_i`, where the probability for each bitstring is given as a vector ``results``."
 msgstr ""
 
 #: of tensorcircuit.quantum.correlation_from_counts:12
@@ -5895,10 +5371,7 @@ msgid "Correlation expectation from measurement shots."
 msgstr ""
 
 #: of tensorcircuit.quantum.eliminate_identities:1
-msgid ""
-"Eliminates any connected CopyNodes that are identity matrices. This will "
-"modify the network represented by `nodes`. Only identities that are "
-"connected to other nodes are eliminated."
+msgid "Eliminates any connected CopyNodes that are identity matrices. This will modify the network represented by `nodes`. Only identities that are connected to other nodes are eliminated."
 msgstr ""
 
 #: of tensorcircuit.quantum.eliminate_identities:5
@@ -5906,9 +5379,7 @@ msgid "Collection of nodes to search."
 msgstr ""
 
 #: of tensorcircuit.quantum.eliminate_identities:7
-msgid ""
-"The Dictionary mapping remaining Nodes to any replacements, Dictionary "
-"specifying all dangling-edge replacements."
+msgid "The Dictionary mapping remaining Nodes to any replacements, Dictionary specifying all dangling-edge replacements."
 msgstr ""
 
 #: of tensorcircuit.quantum.entropy:1
@@ -5948,10 +5419,7 @@ msgid "The free energy of the given density matrix with the Hamiltonian operator
 msgstr ""
 
 #: of tensorcircuit.quantum.generate_local_hamiltonian:1
-msgid ""
-"Generate a local Hamiltonian operator based on the given sequence of "
-"Tensor. Note: further jit is recommended. For large Hilbert space, sparse"
-" Hamiltonian is recommended"
+msgid "Generate a local Hamiltonian operator based on the given sequence of Tensor. Note: further jit is recommended. For large Hilbert space, sparse Hamiltonian is recommended"
 msgstr ""
 
 #: of tensorcircuit.quantum.generate_local_hamiltonian:5
@@ -6011,22 +5479,15 @@ msgid "Hamiltonian measurements"
 msgstr ""
 
 #: of tensorcircuit.quantum.identity:1
-msgid ""
-"Construct a 'QuOperator' representing the identity on a given space. "
-"Internally, this is done by constructing 'CopyNode's for each edge, with "
-"dimension according to 'space'."
+msgid "Construct a 'QuOperator' representing the identity on a given space. Internally, this is done by constructing 'CopyNode's for each edge, with dimension according to 'space'."
 msgstr ""
 
 #: of tensorcircuit.quantum.identity:26
-msgid ""
-"A sequence of integers for the dimensions of the tensor product factors "
-"of the space (the edges in the tensor network)."
+msgid "A sequence of integers for the dimensions of the tensor product factors of the space (the edges in the tensor network)."
 msgstr ""
 
 #: of tensorcircuit.quantum.identity:29
-msgid ""
-"The data type by np.* (for conversion to dense). defaults None to tc "
-"dtype."
+msgid "The data type by np.* (for conversion to dense). defaults None to tc dtype."
 msgstr ""
 
 #: of tensorcircuit.quantum.identity:31
@@ -6034,15 +5495,11 @@ msgid "The desired identity operator."
 msgstr ""
 
 #: of tensorcircuit.quantum.measurement_counts:1
-msgid ""
-"Simulate the measuring of each qubit of ``p`` in the computational basis,"
-" thus producing output like that of ``qiskit``."
+msgid "Simulate the measuring of each qubit of ``p`` in the computational basis, thus producing output like that of ``qiskit``."
 msgstr ""
 
 #: of tensorcircuit.quantum.measurement_counts:14
-msgid ""
-"The quantum state, assumed to be normalized, as either a ket or density "
-"operator."
+msgid "The quantum state, assumed to be normalized, as either a ket or density operator."
 msgstr ""
 
 #: of tensorcircuit.quantum.measurement_counts:16
@@ -6050,10 +5507,7 @@ msgid "The number of counts to perform."
 msgstr ""
 
 #: of tensorcircuit.quantum.measurement_counts:18
-msgid ""
-"Defaults True. The bool indicating whether the return form is in the form"
-" of two array or one of the same length as the ``state`` (if "
-"``sparse=False``)."
+msgid "Defaults True. The bool indicating whether the return form is in the form of two array or one of the same length as the ``state`` (if ``sparse=False``)."
 msgstr ""
 
 #: of tensorcircuit.quantum.measurement_counts:21
@@ -6061,10 +5515,7 @@ msgid "The counts for each bit string measured."
 msgstr ""
 
 #: of tensorcircuit.quantum.quantum_constructor:1
-msgid ""
-"Constructs an appropriately specialized QuOperator. If there are no "
-"edges, creates a QuScalar. If the are only output (input) edges, creates "
-"a QuVector (QuAdjointVector). Otherwise creates a QuOperator."
+msgid "Constructs an appropriately specialized QuOperator. If there are no edges, creates a QuScalar. If the are only output (input) edges, creates a QuVector (QuAdjointVector). Otherwise creates a QuOperator."
 msgstr ""
 
 #: of tensorcircuit.quantum.quantum_constructor:48
@@ -6076,9 +5527,7 @@ msgid "A list of input edges."
 msgstr ""
 
 #: of tensorcircuit.quantum.quantum_constructor:52
-msgid ""
-"Reference nodes for the tensor network (needed if there is a. scalar "
-"component)."
+msgid "Reference nodes for the tensor network (needed if there is a. scalar component)."
 msgstr ""
 
 #: of tensorcircuit.quantum.quantum_constructor:55
@@ -6110,9 +5559,7 @@ msgid "The quantum state in form of Tensor or QuOperator."
 msgstr ""
 
 #: of tensorcircuit.quantum.reduced_density_matrix:5
-msgid ""
-"the index list that is traced out, if cut is a int, it indicates [0, cut]"
-" as the traced out region"
+msgid "the index list that is traced out, if cut is a int, it indicates [0, cut] as the traced out region"
 msgstr ""
 
 #: of tensorcircuit.quantum.reduced_density_matrix:8
@@ -6138,15 +5585,11 @@ msgid "The :math:`k` th order of Rényi entropy."
 msgstr ""
 
 #: of tensorcircuit.quantum.renyi_free_energy:1
-msgid ""
-"Compute the Rényi free energy of the corresponding density matrix and "
-"Hamiltonian."
+msgid "Compute the Rényi free energy of the corresponding density matrix and Hamiltonian."
 msgstr ""
 
 #: of tensorcircuit.quantum.spin_by_basis:1
-msgid ""
-"Generate all n-bitstrings as an array, each row is a bitstring basis. "
-"Return m-th col."
+msgid "Generate all n-bitstrings as an array, each row is a bitstring basis. Return m-th col."
 msgstr ""
 
 #: of tensorcircuit.quantum.spin_by_basis:9
@@ -6162,9 +5605,7 @@ msgid "the binary elements to generate, default is (1, -1)."
 msgstr ""
 
 #: of tensorcircuit.quantum.spin_by_basis:15
-msgid ""
-"The value for the m-th position in bitstring when going through all "
-"bitstring basis."
+msgid "The value for the m-th position in bitstring when going through all bitstring basis."
 msgstr ""
 
 #: of tensorcircuit.quantum.tn2qop:1
@@ -6196,9 +5637,7 @@ msgid "Tensornetwork Simplification"
 msgstr ""
 
 #: of tensorcircuit.simplify.infer_new_shape:1
-msgid ""
-"Get the new shape of two nodes, also supporting to return original shapes"
-" of two nodes."
+msgid "Get the new shape of two nodes, also supporting to return original shapes of two nodes."
 msgstr ""
 
 #: of tensorcircuit.simplify.infer_new_shape:13
@@ -6218,9 +5657,7 @@ msgid "The new shape of the two nodes."
 msgstr ""
 
 #: of tensorcircuit.simplify.pseudo_contract_between:1
-msgid ""
-"Contract between Node ``a`` and ``b``, with correct shape only and no "
-"calculation"
+msgid "Contract between Node ``a`` and ``b``, with correct shape only and no calculation"
 msgstr ""
 
 #: ../../source/api/templates.rst:2
@@ -6236,9 +5673,7 @@ msgid "Shortcuts for measurement patterns on circuit"
 msgstr ""
 
 #: of tensorcircuit.templates.blocks.Bell_pair_block:1
-msgid ""
-"For each pair in links, the input product state |00> is transformed as "
-"(01>-|10>)"
+msgid "For each pair in links, the input product state |00> is transformed as (01>-|10>)"
 msgstr ""
 
 #: of tensorcircuit.templates.blocks.Bell_pair_block:3
@@ -6246,9 +5681,7 @@ msgid "Circuit in"
 msgstr ""
 
 #: of tensorcircuit.templates.blocks.Bell_pair_block:5
-msgid ""
-"pairs indices for Bell pairs, defaults to None, corresponds to neighbor "
-"links"
+msgid "pairs indices for Bell pairs, defaults to None, corresponds to neighbor links"
 msgstr ""
 
 #: of tensorcircuit.templates.blocks.Bell_pair_block:7
@@ -6264,9 +5697,7 @@ msgid "Useful utilities for quantum chemistry related task"
 msgstr ""
 
 #: of tensorcircuit.templates.chems.get_ps:1
-msgid ""
-"Get Pauli string array and weights array for a qubit Hamiltonian as a sum"
-" of Pauli strings defined in openfermion QubitOperator."
+msgid "Get Pauli string array and weights array for a qubit Hamiltonian as a sum of Pauli strings defined in openfermion QubitOperator."
 msgstr ""
 
 #: of tensorcircuit.templates.chems.get_ps:4
@@ -6311,9 +5742,7 @@ msgid "tensorcircuit.templates.measurements"
 msgstr ""
 
 #: of tensorcircuit.templates.measurements.any_measurements:1
-msgid ""
-"This measurements pattern is specifically suitable for vmap. Parameterize"
-" the Pauli string to be measured."
+msgid "This measurements pattern is specifically suitable for vmap. Parameterize the Pauli string to be measured."
 msgstr ""
 
 #: of tensorcircuit.templates.measurements.any_measurements
@@ -6327,15 +5756,11 @@ msgid "The circuit to be measured"
 msgstr ""
 
 #: of tensorcircuit.templates.measurements.any_measurements:28
-msgid ""
-"parameter tensors determines what Pauli string to be measured, shape is "
-"[nwires, 4] if ``onehot`` is False and [nwires] if ``onehot`` is True."
+msgid "parameter tensors determines what Pauli string to be measured, shape is [nwires, 4] if ``onehot`` is False and [nwires] if ``onehot`` is True."
 msgstr ""
 
 #: of tensorcircuit.templates.measurements.any_measurements:31
-msgid ""
-"defaults to False. If set to be True, structures will first go through "
-"onehot procedure."
+msgid "defaults to False. If set to be True, structures will first go through onehot procedure."
 msgstr ""
 
 #: of tensorcircuit.templates.measurements.any_measurements:34
@@ -6343,16 +5768,12 @@ msgid "The expectation value of given Pauli string by the tensor ``structures``.
 msgstr ""
 
 #: of tensorcircuit.templates.measurements.heisenberg_measurements:1
-msgid ""
-"Evaluate Heisenberg energy expectation, whose Hamiltonian is defined on "
-"the lattice graph ``g`` as follows: (e are edges in graph ``g`` where e1 "
-"and e2 are two nodes for edge e and v are nodes in graph ``g``)"
+msgid "Evaluate Heisenberg energy expectation, whose Hamiltonian is defined on the lattice graph ``g`` as follows: (e are edges in graph ``g`` where e1 and e2 are two nodes for edge e and v are nodes in graph ``g``)"
 msgstr ""
 
 #: of tensorcircuit.templates.measurements.heisenberg_measurements:4
 msgid ""
-"H = \\sum_{e\\in g} w_e (h_{xx} X_{e1}X_{e2} + h_{yy} Y_{e1}Y_{e2} + "
-"h_{zz} Z_{e1}Z_{e2})\n"
+"H = \\sum_{e\\in g} w_e (h_{xx} X_{e1}X_{e2} + h_{yy} Y_{e1}Y_{e2} + h_{zz} Z_{e1}Z_{e2})\n"
 " + \\sum_{v\\in g} (h_x X_v + h_y Y_v + h_z Z_v)"
 msgstr ""
 
@@ -6381,9 +5802,7 @@ msgid "Value of Heisenberg energy"
 msgstr ""
 
 #: of tensorcircuit.templates.measurements.mpo_expectation:1
-msgid ""
-"Evaluate expectation of operator ``mpo`` defined in ``QuOperator`` MPO "
-"format with the output quantum state from circuit ``c``."
+msgid "Evaluate expectation of operator ``mpo`` defined in ``QuOperator`` MPO format with the output quantum state from circuit ``c``."
 msgstr ""
 
 #: of tensorcircuit.templates.measurements.mpo_expectation:4
@@ -6401,9 +5820,7 @@ msgid "a real and scalar tensor of shape [] as the expectation value"
 msgstr ""
 
 #: of tensorcircuit.templates.measurements.operator_expectation:1
-msgid ""
-"Evaluate Hamiltonian expectation where ``hamiltonian`` can be dense "
-"matrix, sparse matrix or MPO."
+msgid "Evaluate Hamiltonian expectation where ``hamiltonian`` can be dense matrix, sparse matrix or MPO."
 msgstr ""
 
 #: of tensorcircuit.templates.measurements.operator_expectation:3
@@ -6417,17 +5834,11 @@ msgid "Hamiltonian matrix in COO_sparse_matrix form"
 msgstr ""
 
 #: of tensorcircuit.templates.measurements.sparse_expectation:1
-msgid ""
-"Evaluate Hamiltonian expectation where ``hamiltonian`` is kept in sparse "
-"matrix form to save space"
+msgid "Evaluate Hamiltonian expectation where ``hamiltonian`` is kept in sparse matrix form to save space"
 msgstr ""
 
 #: of tensorcircuit.templates.measurements.spin_glass_measurements:1
-msgid ""
-"Compute spin glass energy defined on graph ``g`` expectation for output "
-"state of the circuit ``c``. The Hamiltonian to be evaluated is defined as"
-" (first term is determined by node weights while the second term is "
-"determined by edge weights of the graph):"
+msgid "Compute spin glass energy defined on graph ``g`` expectation for output state of the circuit ``c``. The Hamiltonian to be evaluated is defined as (first term is determined by node weights while the second term is determined by edge weights of the graph):"
 msgstr ""
 
 #: of tensorcircuit.templates.measurements.spin_glass_measurements:5
@@ -6443,9 +5854,7 @@ msgid "The graph for spin glass Hamiltonian definition"
 msgstr ""
 
 #: of tensorcircuit.templates.measurements.spin_glass_measurements:32
-msgid ""
-"Whether measure the circuit with reusing the wavefunction, defaults to "
-"True"
+msgid "Whether measure the circuit with reusing the wavefunction, defaults to True"
 msgstr ""
 
 #: of tensorcircuit.templates.measurements.spin_glass_measurements:34
@@ -6485,9 +5894,7 @@ msgid "The final results after function pipeline"
 msgstr ""
 
 #: of tensorcircuit.utils.return_partial:1
-msgid ""
-"Return a callable function for output ith parts of the original output "
-"along the first axis. Original output supports List and Tensor."
+msgid "Return a callable function for output ith parts of the original output along the first axis. Original output supports List and Tensor."
 msgstr ""
 
 #: of tensorcircuit.utils.return_partial:20
@@ -6515,10 +5922,7 @@ msgid "# TODO(@YHPeter): add examples"
 msgstr ""
 
 #: of tensorcircuit.vis.render_pdf:1
-msgid ""
-"Generate the PDF file with given latex string and filename. Latex command"
-" and file path can be specified. When notebook is True, convert the "
-"output PDF file to image and return a Image object."
+msgid "Generate the PDF file with given latex string and filename. Latex command and file path can be specified. When notebook is True, convert the output PDF file to image and return a Image object."
 msgstr ""
 
 #: of tensorcircuit.vis.render_pdf:15
@@ -9885,4 +9289,3 @@ msgstr ""
 
 #~ msgid "VQNHE application"
 #~ msgstr ""
-
