@@ -1,6 +1,7 @@
 """
 Some ascii art from https://www.asciiart.eu/, have fun!
 """
+# pylint: disable=invalid-name
 
 import hashlib
 import sys
