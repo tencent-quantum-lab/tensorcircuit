@@ -227,7 +227,6 @@ class Circuit:
             Apply **%s** gate on the circuit.
 
             :param index: Qubit number that the gate applied on.
-            
                 The matrix for the gate is
 
                 .. math::

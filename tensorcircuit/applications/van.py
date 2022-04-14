@@ -2,7 +2,7 @@
 One-hot variational autoregressive models for multiple categorical choices beyond binary
 """
 
-from typing import Union, List, Optional, Sequence, Text, Tuple, Callable
+from typing import Any, Optional, Union, List
 from xmlrpc.client import boolean
 import tensorflow as tf
 import numpy as np
@@ -11,7 +11,7 @@ import numpy as np
 
 
 class MaskedLinear(tf.keras.layers.Layer):
-    def __init__(self, input_space: int, output_space: int, spin_channel: int, mask: tf.Tensor = None , dtype: tf.DType = None):
+    def __init__(self, input_space: int, output_space: int, spin_channel: int, mask: Optional[tf.Tensor] = None , dtype: Optional[tf.DType] = None):
         super().__init__()
         if dtype is None:
             self._dtype = tf.float32
@@ -57,10 +57,10 @@ class MADE(tf.keras.Model):
         spin_channel: int,
         depth: int,
         evenly: boolean = True,
-        dtype: tf.DType = None,
-        activation: tf.keras.layers.Layer = None,
+        dtype: Optional[tf.DType] = None,
+        activation: Optional[tf.keras.layers.Layer] = None,
         nonmerge: boolean = True,
-        probamp: tf.Tensor = None,
+        probamp: Optional[tf.Tensor] = None,
     ):
         super().__init__()
         if not dtype:
@@ -229,7 +229,7 @@ class MADE(tf.keras.Model):
 
 
 class MaskedConv2D(tf.keras.layers.Layer):
-    def __init__(self, mask_type: str, **kwargs):
+    def __init__(self, mask_type: str, **kwargs: Any):
         super().__init__()
         assert mask_type in {"A", "B"}, "mask_type must be in A or B"
         self.mask_type = mask_type
@@ -338,7 +338,7 @@ class PixelCNN(tf.keras.Model):
 
 
 class NMF(tf.keras.Model):
-    def __init__(self, spin_channel: int, *dimensions: int, _dtype: tf.DType = tf.float32, probamp: tf.Tensor = None):
+    def __init__(self, spin_channel: int, *dimensions: int, _dtype: tf.DType = tf.float32, probamp: Optional[tf.Tensor] = None):
         super().__init__()
         self.w = self.add_weight(
             name="meanfield-parameter",
@@ -353,7 +353,7 @@ class NMF(tf.keras.Model):
         self.spin_channel = spin_channel
         self.probamp = probamp
 
-    def call(self, inputs: tf.Tensor = None):
+    def call(self, inputs: Optional[tf.Tensor] = None):
         # x = tf.keras.layers.Softmax(axis=-1)(self.w)
         if self.probamp is None:
             return self.w
