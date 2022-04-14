@@ -226,7 +226,8 @@ class Circuit:
             doc = """
             Apply **%s** gate on the circuit.
 
-            :param index: Qubit number than the gate applies on.
+            :param index: Qubit number that the gate applied on.
+            
                 The matrix for the gate is
 
                 .. math::
@@ -241,7 +242,7 @@ class Circuit:
             docs = """
             Apply **%s** gate on the circuit.
 
-            :param index: Qubit number than the gate applies on.
+            :param index: Qubit number that the gate applied on.
             :type index: int.
             """ % (
                 g.upper()
@@ -272,7 +273,7 @@ class Circuit:
             doc = """
             Apply **%s** gate with parameters on the circuit.
 
-            :param index: Qubit number than the gate applies on.
+            :param index: Qubit number that the gate applied on.
             :type index: int.
             :param vars: Parameters for the gate.
             :type vars: float.
@@ -300,7 +301,7 @@ class Circuit:
             doc = """
             Apply %s gate in MPO format on the circuit.
 
-            :param index: Qubit number than the gate applies on.
+            :param index: Qubit number that the gate applied on.
             :type index: int.
             :param vars: Parameters for the gate.
             :type vars: float.

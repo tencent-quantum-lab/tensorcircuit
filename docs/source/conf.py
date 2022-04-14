@@ -100,12 +100,12 @@ html_theme = "furo"
 # html_theme_options = {}
 # currently nature theme doesn't support these github related options (refraction-ray)
 html_theme_options = {
-    "github_user": "refraction-ray",
-    "github_repo": "tensorcircuit",
-    "github_button": "true",
-    "github_type": "star",
-    "github_banner": "true",
-    "show_powered_by": "false",
+    # "github_user": "refraction-ray",
+    # "github_repo": "tensorcircuit",
+    # "github_button": "true",
+    # "github_type": "star",
+    # "github_banner": "true",
+    # "show_powered_by": "false",
 }
 
 
