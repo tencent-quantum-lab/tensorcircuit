@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-04-13 15:28+0800\n"
-"PO-Revision-Date: 2022-04-13 22:27+0800\n"
+"PO-Revision-Date: 2022-04-14 11:26+0800\n"
 "Last-Translator: Xinghan Yang\n"
 "Language: cn\n"
 "Language-Team: cn <LL@li.org>\n"
@@ -21,7 +21,7 @@ msgstr ""
 
 #: ../../source/faq.rst:2
 msgid "Frequently Asked Questions"
-msgstr "常问问题"
+msgstr "常见问题"
 
 #: ../../source/faq.rst:5
 msgid "How can I run TensorCircuit on GPU?"
@@ -38,10 +38,10 @@ msgid ""
 "can switch the use of GPU or CPU by a backend agnostic environment variable "
 "``CUDA_VISIBLE_DEVICES``."
 msgstr ""
-"这是直接通过 ML 后端完成的。GPU 支持取决于 ML 库是否可以在 GPU 上运行，我们不"
-"在 tensorcircuit 中处理这个问题。为这些 ML 包配置与 GPU 兼容的环境是用户的责"
-"任。请参考这些 ML 包的安装文档，直接使用 TensorCircuit 提供的官方 "
-"dockerfile。在 GPU 兼容的环境下，我们可以通过后端不可知的环境变量 "
+"这是直接通过 ML 后端完成的。GPU 支持是直接取决于 ML 库是否可以在 GPU 上运行，"
+"我们不在 tensorcircuit 中处理这个问题。为这些 ML 包配置与 GPU 兼容的环境是用"
+"户的责任。请参考这些 ML 包的安装文档，或直接使用 TensorCircuit 提供的官方 "
+"dockerfile。在 GPU 兼容的环境下，我们可以通过后端无关的环境变量 "
 "``CUDA_VISIBLE_DEVICES`` 来切换使用 GPU 或 CPU。"
 
 #: ../../source/faq.rst:12
@@ -75,9 +75,9 @@ msgid ""
 "better one. There is no one-for-all recommendation and this is why we "
 "maintain the backend agnostic form of our software."
 msgstr ""
-"就 TensorFlow 和 Jax 后端之间的选择而言，后端的好坏可能取决于用例，并且希望对"
+"就 TensorFlow 和 Jax 后端之间的选择而言，后端的好坏可能取决于用例，并且需要对"
 "两者进行基准测试以可能选择更好的后端。没有一种万能的建议，这就是为什么我们维"
-"持我们的软件的后端不可知形式。"
+"持我们的软件支持不同的后端的形式。"
 
 #: ../../source/faq.rst:20
 msgid "Some general rules of thumb:"
@@ -91,7 +91,7 @@ msgstr "在 CPU 和 GPU 上，对于 jax 后端来说，jitted 函数的运行�
 
 #: ../../source/faq.rst:24
 msgid "But on GPU, jit staging time is usually much longer for jax backend."
-msgstr "但在 GPU 上，jax 后端的 jit 暂存时间通常要长得多。"
+msgstr "但在 GPU 上，jax 后端的 jit 时间通常要长得多。"
 
 #: ../../source/faq.rst:26
 msgid ""
@@ -120,7 +120,7 @@ msgid ""
 "TensorFlow can cache the jitted function on the disk via SavedModel, which "
 "further amortizes the staging time."
 msgstr ""
-"TensorFlow 可以通过 SavedModel 将 jitted 函数缓存在磁盘上，从而进一步摊销暂存"
+"TensorFlow 可以通过 SavedModel 将 jitted 函数缓存在磁盘上，从而进一步摊销编译"
 "时间。"
 
 #: ../../source/faq.rst:36
@@ -184,7 +184,7 @@ msgid ""
 "can always try customized contractors to see whether there is some "
 "performance improvement."
 msgstr ""
-"如果电路仿真时间是整个工作流程的瓶颈，可以随时尝试定制 contractor，看看是否有"
+"如果电路仿真时间是整个工作流程的瓶颈，总是可以尝试定制 contractor，看看是否有"
 "一些性能改进。"
 
 #: ../../source/faq.rst:54
@@ -206,8 +206,8 @@ msgid ""
 "which further amortizes the time and favors the use of a highly customized "
 "contractor."
 msgstr ""
-"\"“另外值得注意的是，对于我们通常使用的jitted函数，收缩路径搜索只在函数第一次"
-"运行时调用，这进一步摊销了时间，有利于使用高度定制的 contractor。"
+"\"“另外值得注意的是，对于我们通常使用的 jitted 函数，收缩路径搜索只在函数第一"
+"次运行时调用，这进一步摊销了时间，有利于使用高度定制的 contractor。"
 
 #: ../../source/faq.rst:58
 msgid ""
@@ -227,8 +227,8 @@ msgid ""
 "for a six-qubit system, the general ``expectation`` API may seem to be "
 "cumbersome. So one can try one of the following options:"
 msgstr ""
-"假设我们要为六量子位系统测量类似 :math:`\\langle X_0Z_1Y_2Z_4 \\rangle` 的东"
-"西，一般的 ``expectation`` API 可能看起来很麻烦。所以可以尝试以下选项之一 :"
+"假设我们要为六量子位系统测量  :math:`\\langle X_0Z_1Y_2Z_4 \\rangle` 的东西，"
+"一般的 ``expectation`` API 可能看起来很麻烦。所以可以尝试以下选项之一 :"
 
 #: ../../source/faq.rst:66
 msgid "``c.expectation_ps(x=[0], y=[2], z=[1, 4])``"
@@ -246,11 +246,11 @@ msgstr ""
 msgid ""
 "Can I apply quantum operation based on previous classical measurement "
 "results in TensorCircuit?"
-msgstr "我可以根据之前在 TensorCircuit 中的经典测量结果应用量子运算吗？"
+msgstr "我可以根据线路中的经典测量结果来决定后续的量子门操作吗？"
 
 #: ../../source/faq.rst:73
 msgid "Try the following: (the pipeline is even fully jittable!)"
-msgstr "尝试以下方法：（管道甚至完全可以即时编译！）"
+msgstr "尝试以下方法：（方法甚至完全可以即时编译！）"
 
 #: ../../source/faq.rst:82
 msgid ""
