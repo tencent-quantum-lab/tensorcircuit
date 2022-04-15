@@ -11,7 +11,7 @@ ctype, rtype = tc.set_dtype("complex64")
 K = tc.set_backend("tensorflow")
 
 n = 6
-nlayers = 4
+nlayers = 6
 
 
 def ansatz(structureo, structuret, preprocess="direct"):
@@ -107,63 +107,79 @@ def nmf_gradient(structures, oh):
 nmf_gradient_vmap = K.jit(K.vmap(nmf_gradient, vectorized_argnums=1))
 vf = K.jit(K.vmap(ansatz, vectorized_argnums=(0, 1)), static_argnums=2)
 
-so = K.implicit_randn([nlayers * n, 7], stddev=0.1)
-st = K.implicit_randn([nlayers * n, 3], stddev=0.1)
-verbose = False
-epochs = 2000
-debug_step = 50
-batch = 256
-lr = tf.keras.optimizers.schedules.ExponentialDecay(0.05, 600, 0.5)
-structure_opt = tc.backend.optimizer(tf.keras.optimizers.Adam(lr))
 
-avcost = 0
-avcost2 = 0
-for epoch in range(epochs):  # iteration to update strcuture param
-    batched_stuctureo = K.onehot(
-        sampling_from_structure(so, batch=batch),
-        num=so.shape[-1],
-    )
-    batched_stucturet = K.onehot(
-        sampling_from_structure(st, batch=batch),
-        num=st.shape[-1],
-    )
-    vs = vf(batched_stuctureo, batched_stucturet, "direct")
-    avcost = K.mean(vs)
-    go = nmf_gradient_vmap(so, batched_stuctureo)  # \nabla lnp
-    gt = nmf_gradient_vmap(st, batched_stucturet)  # \nabla lnp
-    go = K.mean(K.reshape(vs - avcost2, [-1, 1, 1]) * go, axis=0)
-    gt = K.mean(K.reshape(vs - avcost2, [-1, 1, 1]) * gt, axis=0)
+def main(stddev=0.05, lr=None, epochs=2000, debug_step=50, batch=256, verbose=False):
+    so = K.implicit_randn([nlayers * n, 7], stddev=stddev)
+    st = K.implicit_randn([nlayers * n, 3], stddev=stddev)
+    if lr is None:
+        lr = tf.keras.optimizers.schedules.ExponentialDecay(0.06, 1000, 0.5)
+    structure_opt = tc.backend.optimizer(tf.keras.optimizers.Adam(lr))
 
-    # go = [(vs[i] - avcost2) * go[i] for i in range(batch)]
-    # gt = [(vs[i] - avcost2) * gt[i] for i in range(batch)]
-    # go = tf.math.reduce_mean(go, axis=0)
-    # gt = tf.math.reduce_mean(gt, axis=0)
-    avcost2 = avcost
-
-    [so, st] = structure_opt.update([go, gt], [so, st])
-    # so -= K.reshape(K.mean(so, axis=-1), [-1, 1])
-    # st -= K.reshape(K.mean(st, axis=-1), [-1, 1])
-    if epoch % debug_step == 0 or epoch == epochs - 1:
-        print("----------epoch %s-----------" % epoch)
-        print(
-            "batched average loss: ",
-            np.mean(vs),
-            "minimum candidate loss: ",
-            np.min(vs),
+    avcost = 0
+    avcost2 = 0
+    for epoch in range(epochs):  # iteration to update strcuture param
+        batched_stuctureo = K.onehot(
+            sampling_from_structure(so, batch=batch),
+            num=so.shape[-1],
         )
-        if verbose:
-            print(gt)
-            print(st)
+        batched_stucturet = K.onehot(
+            sampling_from_structure(st, batch=batch),
+            num=st.shape[-1],
+        )
+        vs = vf(batched_stuctureo, batched_stucturet, "direct")
+        avcost = K.mean(vs)
+        go = nmf_gradient_vmap(so, batched_stuctureo)  # \nabla lnp
+        gt = nmf_gradient_vmap(st, batched_stucturet)  # \nabla lnp
+        go = K.mean(K.reshape(vs - avcost2, [-1, 1, 1]) * go, axis=0)
+        gt = K.mean(K.reshape(vs - avcost2, [-1, 1, 1]) * gt, axis=0)
+
+        # go = [(vs[i] - avcost2) * go[i] for i in range(batch)]
+        # gt = [(vs[i] - avcost2) * gt[i] for i in range(batch)]
+        # go = tf.math.reduce_mean(go, axis=0)
+        # gt = tf.math.reduce_mean(gt, axis=0)
+        avcost2 = avcost
+
+        [so, st] = structure_opt.update([go, gt], [so, st])
+        # so -= K.reshape(K.mean(so, axis=-1), [-1, 1])
+        # st -= K.reshape(K.mean(st, axis=-1), [-1, 1])
+        if epoch % debug_step == 0 or epoch == epochs - 1:
+            print("----------epoch %s-----------" % epoch)
             print(
-                "strcuture parameter: \n",
-                so.numpy(),
-                "\n",
-                st.numpy(),
+                "batched average loss: ",
+                np.mean(vs),
+                "minimum candidate loss: ",
+                np.min(vs),
             )
+            minp1 = tf.math.reduce_min(tf.math.reduce_max(tf.math.softmax(st), axis=-1))
+            minp2 = tf.math.reduce_min(tf.math.reduce_max(tf.math.softmax(so), axis=-1))
+            if minp1 > 0.3 and minp2 > 0.6:
+                print("probability converged")
+                break
 
-        cand_preseto = best_from_structure(so)
-        cand_presett = best_from_structure(st)
-        print(
-            K.reshape(cand_preseto, [nlayers, n]), K.reshape(cand_presett, [nlayers, n])
-        )
-        print("current recommendation loss: ", ansatz(so, st, "most"))
+            if verbose:
+                print(gt)
+                print(st)
+                print(
+                    "strcuture parameter: \n",
+                    so.numpy(),
+                    "\n",
+                    st.numpy(),
+                )
+
+            cand_preseto = best_from_structure(so)
+            cand_presett = best_from_structure(st)
+            print(
+                K.reshape(cand_preseto, [nlayers, n]),
+                K.reshape(cand_presett, [nlayers, n]),
+            )
+            print("current recommendation loss: ", ansatz(so, st, "most"))
+    return ansatz(so, st, "most"), so, st
+
+
+if __name__ == "__main__":
+    tries = 5
+    rs = []
+    for _ in range(tries):
+        ee, _, _ = main()
+        rs.append(-K.numpy(ee))
+    print(np.min(rs))
