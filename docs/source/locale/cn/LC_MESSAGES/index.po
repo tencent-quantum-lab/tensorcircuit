@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-02-17 23:02+0800\n"
-"PO-Revision-Date: 2022-02-21 15:30+0800\n"
+"PO-Revision-Date: 2022-04-16 22:37+0800\n"
 "Last-Translator: Xinghan Yang\n"
 "Language-Team: \n"
 "Language: cn\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
-"X-Generator: Poedit 3.0.1\n"
+"X-Generator: Poedit 1.6.11\n"
 
 #: ../../source/index.rst:2
 msgid "Guide to TensorCircuit"
@@ -33,12 +33,12 @@ msgstr "索引和表格"
 
 #: ../../source/index.rst:23
 msgid ":ref:`genindex`"
-msgstr ""
+msgstr ":ref:`genindex`"
 
 #: ../../source/index.rst:24
 msgid ":ref:`modindex`"
-msgstr ""
+msgstr ":ref:`modindex`"
 
 #: ../../source/index.rst:25
 msgid ":ref:`search`"
-msgstr ""
+msgstr ":ref:`搜索`"
