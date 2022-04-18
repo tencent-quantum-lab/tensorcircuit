@@ -41,4 +41,4 @@ msgstr ":ref:`modindex`"
 
 #: ../../source/index.rst:25
 msgid ":ref:`search`"
-msgstr ":ref:`搜索`"
+msgstr ":ref:`search`"
