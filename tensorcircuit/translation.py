@@ -20,6 +20,18 @@ Tensor = Any
 
 
 def perm_matrix(n: int) -> Tensor:
+    r"""
+    Generate a permutation matrix P.
+    Due to the different convention or qubits' order in qiskit and tensorcircuit, 
+    the unitary represented by the same circuit is different. They are related 
+    by this permutation matrix P:
+    P @ U_qiskit @ P = U_tc
+
+    :param n: # of qubits
+    :type n: int
+    :return: The permutation matrix P
+    :rtype: Tensor
+    """
     p_mat = np.zeros([2**n, 2**n])
     for i in range(2**n):
         bit = i
@@ -33,6 +45,27 @@ def perm_matrix(n: int) -> Tensor:
 
 
 def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
+    r"""
+    Generate a qiskit quantum circuit using the quantum intermediate 
+    representation (qir) in tensorcircuit.
+    
+    :Example:
+
+    >>> c = tc.Circuit(2)
+    >>> c.H(1)
+    >>> c.X(1)
+    >>> qisc = tc.translation.qir2qiskit(c.to_qir(), 2)
+    >>> qisc.data  
+    [(Instruction(name='h', num_qubits=1, num_clbits=0, params=[]), [Qubit(QuantumRegister(2, 'q'), 1)], []),
+     (Instruction(name='x', num_qubits=1, num_clbits=0, params=[]), [Qubit(QuantumRegister(2, 'q'), 1)], [])] 
+
+    :param gir: The quantum intermediate representation of a circuit.
+    :type qir: List[Dict[str, Any]]
+    :param n: # of qubits
+    :type n: int
+    :return: qiskit QuantumCircuit object
+    :rtype: Any
+    """
     qiskit_circ = QuantumCircuit(n)
     for gate_info in qir:
         index = gate_info["index"]
@@ -115,6 +148,27 @@ def ctrl_str2ctrl_state(ctrl_str: str, nctrl: int) -> List[int]:
 def qiskit2tc(
     qcdata: List[List[Any]], n: int, inputs: Optional[List[float]] = None
 ) -> Any:
+    r"""
+    Generate a tensorcircuit circuit using the quantum circuit data in qiskit.
+    
+    :Example:
+
+    >>> qisc = QuantumCircuit(2)
+    >>> qisc.h(0)
+    >>> qisc.x(1)
+    >>> qc = tc.translation.qiskit2tc(qisc.data, 2)
+    >>> qc.to_qir()[0]['gatef']
+    h
+
+    :param qcdata: Quantum circuit data from qiskit.
+    :type qir: List[List[Any]]
+    :param n: # of qubits
+    :type n: int
+    :param inputs: Input state of the circuit. Default is None.
+    :type inputs: Optional[List[float]]
+    :return: A quantum circuit in tensorcircuit 
+    :rtype: Any
+    """
     if inputs is None:
         tc_circuit: Any = Circuit(n)
     else:
