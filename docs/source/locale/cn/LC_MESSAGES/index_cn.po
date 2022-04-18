@@ -33,7 +33,7 @@ msgstr "索引和表格"
 
 #: ../../source/index_cn.rst:27
 msgid ":ref:`genindex`"
-msgstr ":ref:`基因索引`"
+msgstr ":ref:`genindex`"
 
 #: ../../source/index_cn.rst:28
 msgid ":ref:`modindex`"
@@ -41,4 +41,4 @@ msgstr ":ref:`modindex`"
 
 #: ../../source/index_cn.rst:29
 msgid ":ref:`search`"
-msgstr ":ref:`搜索`"
+msgstr ":ref:`search`"
