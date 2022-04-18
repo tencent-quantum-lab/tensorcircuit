@@ -972,6 +972,8 @@ class Circuit:
 
         if status is None:
             status = backend.implicit_randu()[0]
+        status = backend.real(status)
+        prob_cumsum = backend.cast(prob_cumsum, dtype=status.dtype)  # type: ignore
         r = step_function(status)
         if get_gate_from_index is None:
             raise ValueError("no `get_gate_from_index` implementation is provided")
@@ -1451,40 +1453,6 @@ class Circuit:
         nodes1 = self.expectation_before(*ops, reuse=reuse)
         return contractor(nodes1).tensor
 
-    def expectation_ps(
-        self,
-        x: Optional[Sequence[int]] = None,
-        y: Optional[Sequence[int]] = None,
-        z: Optional[Sequence[int]] = None,
-        reuse: bool = True,
-    ) -> Tensor:
-        """
-        Shortcut for Pauli string expectation.
-        x, y, z list are for X, Y, Z positions
-
-        :param x: _description_, defaults to None
-        :type x: Optional[Sequence[int]], optional
-        :param y: _description_, defaults to None
-        :type y: Optional[Sequence[int]], optional
-        :param z: _description_, defaults to None
-        :type z: Optional[Sequence[int]], optional
-        :param reuse: whether to cache and reuse the wavefunction, defaults to True
-        :type reuse: bool, optional
-        :return: Expectation value
-        :rtype: Tensor
-        """
-        obs = []
-        if x is not None:
-            for i in x:
-                obs.append([gates.x(), [i]])  # type: ignore
-        if y is not None:
-            for i in y:
-                obs.append([gates.y(), [i]])  # type: ignore
-        if z is not None:
-            for i in z:
-                obs.append([gates.z(), [i]])  # type: ignore
-        return self.expectation(*obs, reuse=reuse)  # type: ignore
-
     def to_qiskit(self) -> Any:
         """
         Translate ``tc.Circuit`` to a qiskit QuantumCircuit object.
@@ -1568,7 +1536,43 @@ class Circuit:
     tex = vis_tex
 
 
+def _expectation_ps(
+    c: Circuit,
+    x: Optional[Sequence[int]] = None,
+    y: Optional[Sequence[int]] = None,
+    z: Optional[Sequence[int]] = None,
+    reuse: bool = True,
+) -> Tensor:
+    """
+    Shortcut for Pauli string expectation.
+    x, y, z list are for X, Y, Z positions
+
+    :param x: _description_, defaults to None
+    :type x: Optional[Sequence[int]], optional
+    :param y: _description_, defaults to None
+    :type y: Optional[Sequence[int]], optional
+    :param z: _description_, defaults to None
+    :type z: Optional[Sequence[int]], optional
+    :param reuse: whether to cache and reuse the wavefunction, defaults to True
+    :type reuse: bool, optional
+    :return: Expectation value
+    :rtype: Tensor
+    """
+    obs = []
+    if x is not None:
+        for i in x:
+            obs.append([gates.x(), [i]])  # type: ignore
+    if y is not None:
+        for i in y:
+            obs.append([gates.y(), [i]])  # type: ignore
+    if z is not None:
+        for i in z:
+            obs.append([gates.z(), [i]])  # type: ignore
+    return c.expectation(*obs, reuse=reuse)  # type: ignore
+
+
 Circuit._meta_apply()
+Circuit.expectation_ps = _expectation_ps  # type: ignore
 
 
 def to_graphviz(

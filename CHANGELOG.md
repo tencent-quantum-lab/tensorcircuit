@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.0.220413
+
 ### Added
 
 - Add `expectation_ps` method for `DMCircuit`
@@ -13,6 +15,8 @@
 - With `Circuit.vis_tex`, for the Circuit has customized input state, the default visualization is psi instead of all zeros now
 
 - `general_kraus` is synced with `apply_general_kraus` for `DMCircuit`
+
+- Fix dtype incompatible issue in kraus methods between status and prob
 
 ## 0.0.220402
 

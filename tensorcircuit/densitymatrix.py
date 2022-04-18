@@ -12,7 +12,7 @@ import tensornetwork as tn
 
 from . import gates
 from . import channels
-from .circuit import Circuit
+from .circuit import Circuit, _expectation_ps
 from .cons import backend, contractor, npdtype, dtypestr
 
 Gate = gates.Gate
@@ -251,7 +251,10 @@ class DMCircuit:
 
     state = densitymatrix
 
-    def expectation(self, *ops: Tuple[tn.Node, List[int]]) -> tn.Node.tensor:
+    def expectation(
+        self, *ops: Tuple[tn.Node, List[int]], **kws: Any
+    ) -> tn.Node.tensor:
+        # kws is reserved for unsupported feature such as reuse arg
         newdm, newdang = self._copy(self._nodes, self._rfront + self._lfront)
         occupied = set()
         nodes = newdm
@@ -341,39 +344,6 @@ class DMCircuit:
 
     sample = perfect_sampling
 
-    def expectation_ps(
-        self,
-        x: Optional[Sequence[int]] = None,
-        y: Optional[Sequence[int]] = None,
-        z: Optional[Sequence[int]] = None,
-        reuse: bool = True,
-    ) -> Tensor:
-        """
-        Shortcut for Pauli string expectation.
-        x, y, z list are for X, Y, Z positions
-
-        :param x: _description_, defaults to None
-        :type x: Optional[Sequence[int]], optional
-        :param y: _description_, defaults to None
-        :type y: Optional[Sequence[int]], optional
-        :param z: _description_, defaults to None
-        :type z: Optional[Sequence[int]], optional
-        :param reuse: whether to cache and reuse the wavefunction, defaults to True
-        :type reuse: bool, optional
-        :return: Expectation value
-        :rtype: Tensor
-        """
-        obs = []
-        if x is not None:
-            for i in x:
-                obs.append([gates.x(), [i]])  # type: ignore
-        if y is not None:
-            for i in y:
-                obs.append([gates.y(), [i]])  # type: ignore
-        if z is not None:
-            for i in z:
-                obs.append([gates.z(), [i]])  # type: ignore
-        return self.expectation(*obs)  # type: ignore
-
 
 DMCircuit._meta_apply()
+DMCircuit.expectation_ps = _expectation_ps  # type: ignore
