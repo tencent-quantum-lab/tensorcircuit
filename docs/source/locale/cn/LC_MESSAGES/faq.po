@@ -227,7 +227,7 @@ msgid ""
 "for a six-qubit system, the general ``expectation`` API may seem to be "
 "cumbersome. So one can try one of the following options:"
 msgstr ""
-"假设我们要为六量子位系统测量  :math:`\\langle X_0Z_1Y_2Z_4 \\rangle` 的东西，"
+"假设我们要为六量子位系统测量  :math:`\\langle X_0Z_1Y_2Z_4 \\rangle` ，"
 "一般的 ``expectation`` API 可能看起来很麻烦。所以可以尝试以下选项之一 :"
 
 #: ../../source/faq.rst:66
