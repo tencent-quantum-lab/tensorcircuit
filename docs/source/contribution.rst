@@ -159,7 +159,7 @@ We utilize a python script to generate/refresh all API docs rst files under /doc
 
 **i18n:**
 
-For Chinese docs, we refer to the standard i18n workflow provided by the sphinx, see `here <https://www.sphinx-doc.org/en/master/usage/advanced/intl.html>`__.
+For Chinese docs, we refer to the standard i18n workflow provided by sphinx, see `here <https://www.sphinx-doc.org/en/master/usage/advanced/intl.html>`__.
 
 To update the po file from updated English rst files, using
 
