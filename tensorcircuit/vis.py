@@ -51,7 +51,7 @@ def qir2tex(
     >>> tc.vis.qir2tex(qir,2)
     '\\begin{quantikz}\n\\lstick{$\\ket{0}$}&\\gate{h} &\\qw \\\\\n\\lstick{$\\ket{0}$}&\\phase{} &\\qw \n\\end{quantikz}'
 
-    :param qir: The quantum intermediate representation of a circuit.
+    :param qir: The quantum intermediate representation of a circuit in tensorcircuit.
     :type qir: List[Dict[str, Any]]
     :param n: # of qubits
     :type n: int

@@ -59,7 +59,7 @@ def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
     [(Instruction(name='h', num_qubits=1, num_clbits=0, params=[]), [Qubit(QuantumRegister(2, 'q'), 1)], []),
      (Instruction(name='x', num_qubits=1, num_clbits=0, params=[]), [Qubit(QuantumRegister(2, 'q'), 1)], [])] 
 
-    :param gir: The quantum intermediate representation of a circuit.
+    :param qir: The quantum intermediate representation of a circuit.
     :type qir: List[Dict[str, Any]]
     :param n: # of qubits
     :type n: int
@@ -161,7 +161,7 @@ def qiskit2tc(
     h
 
     :param qcdata: Quantum circuit data from qiskit.
-    :type qir: List[List[Any]]
+    :type qcdata: List[List[Any]]
     :param n: # of qubits
     :type n: int
     :param inputs: Input state of the circuit. Default is None.
