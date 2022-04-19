@@ -56,7 +56,7 @@ def test_measure():
 
 
 def test_gates_in_circuit():
-    c = tc.Circuit(2, inputs=np.eye(2**2))
+    c = tc.Circuit(2, inputs=np.eye(2 ** 2))
     c.iswap(0, 1)
     ans = tc.gates.iswap_gate().tensor.reshape([4, 4])
     np.testing.assert_allclose(c.state().reshape([4, 4]), ans, atol=1e-5)
@@ -728,7 +728,7 @@ def test_debug_contract():
         c = tc.templates.blocks.example_block(c, param, nlayers=d)
         return c.state()
 
-    np.testing.assert_allclose(small_tn(), np.zeros([2**n]), atol=1e-5)
+    np.testing.assert_allclose(small_tn(), np.zeros([2 ** n]), atol=1e-5)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
@@ -821,9 +821,9 @@ def test_qir2qiskit():
         from tensorcircuit.translation import perm_matrix
     except ImportError:
         pytest.skip("qiskit is not installed")
-
+    # without backend
     n = 6
-    c = tc.Circuit(n, inputs=np.eye(2**n))
+    c = tc.Circuit(n, inputs=np.eye(2 ** n))
     for i in range(n):
         c.H(i)
     zz = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
@@ -871,11 +871,202 @@ def test_qir2qiskit():
     c.multicontrol(0, 2, 1, ctrl=[0, 1], unitary=tc.gates._x_matrix, name="x")
 
     tc_unitary = c.wavefunction()
-    tc_unitary = np.reshape(tc_unitary, [2**n, 2**n])
+    tc_unitary = np.reshape(tc_unitary, [2 ** n, 2 ** n])
 
     qisc = c.to_qiskit()
     qis_unitary = qi.Operator(qisc)
-    qis_unitary = np.reshape(qis_unitary, [2**n, 2**n])
+    qis_unitary = np.reshape(qis_unitary, [2 ** n, 2 ** n])
+
+    p_mat = perm_matrix(n)
+    np.testing.assert_allclose(p_mat @ tc_unitary @ p_mat, qis_unitary, atol=1e-5)
+
+    # tf backend
+    try:
+        import tensorflow as tf
+    except ImportError:
+        pytest.skip("tf is not installed")
+
+    tc.set_backend("tensorflow")
+    n = 6
+    c = tc.Circuit(n, inputs=tf.eye(2 ** n))
+
+    for i in range(n):
+        c.H(i)
+    zz = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
+    for i in range(n):
+        c.exp(
+            i,
+            (i + 1) % n,
+            theta=tf.constant(np.random.uniform()),
+            unitary=tf.Variable(zz, dtype=tf.complex64),
+            name="zz",
+        )
+    c.exp1(
+        1,
+        3,
+        theta=tf.constant(0.0j),
+        unitary=tf.Variable(zz, dtype=tf.complex64),
+        name="zz",
+    )
+    c.fredkin(1, 2, 3)
+    c.cswap(1, 2, 3)
+    c.ccnot(1, 2, 3)
+    c.cx(2, 3)
+    c.swap(0, 1)
+    c.iswap(0, 1)
+    c.toffoli(0, 1, 2)
+    c.s(1)
+    c.t(1)
+    c.sd(1)
+    c.td(1)
+    c.x(2)
+    c.y(2)
+    c.z(2)
+    c.wroot(3)
+    c.cnot(0, 1)
+    c.cy(0, 1)
+    c.cz(0, 1)
+    c.oy(4, 3)
+    c.oz(4, 3)
+    c.ox(4, 3)
+    c.oy(4, 3)
+    c.oz(4, 3)
+    c.ox(3, 4)
+    c.rx(1, theta=tf.constant(np.random.uniform()))
+    c.r(5, theta=tf.constant(np.random.uniform()))
+    c.cr(
+        1,
+        2,
+        theta=tf.constant(np.random.uniform()),
+        alpha=tf.constant(np.random.uniform()),
+        phi=tf.constant(np.random.uniform()),
+    )
+    c.ry(1, theta=tf.constant(np.random.uniform()))
+    c.rz(1, theta=tf.constant(np.random.uniform()))
+    c.crz(2, 3, theta=tf.constant(np.random.uniform()))
+    c.crx(5, 3, theta=tf.constant(np.random.uniform()))
+    c.cry(1, 3, theta=tf.constant(np.random.uniform()))
+    c.orx(5, 3, theta=tf.constant(np.random.uniform()))
+    c.ory(5, 3, theta=tf.constant(np.random.uniform()))
+    c.orz(5, 3, theta=tf.constant(np.random.uniform()))
+    c.any(1, 3, unitary=tf.constant(np.reshape(zz, [2, 2, 2, 2]), tf.complex64))
+    gate = tc.gates.multicontrol_gate(
+        tf.constant(tc.gates._x_matrix, tf.complex64), ctrl=[1, 0]
+    )
+    c.mpo(0, 1, 2, mpo=gate.copy())
+    c.multicontrol(
+        0,
+        2,
+        4,
+        1,
+        5,
+        ctrl=[0, 1, 0],
+        unitary=tf.constant(tc.gates._zz_matrix, tf.complex64),
+        name="zz",
+    )
+
+    tc_unitary = c.wavefunction()
+    tc_unitary = np.reshape(tc_unitary, [2 ** n, 2 ** n])
+
+    qisc = c.to_qiskit()
+    qis_unitary = qi.Operator(qisc)
+    qis_unitary = np.reshape(qis_unitary, [2 ** n, 2 ** n])
+
+    p_mat = perm_matrix(n)
+    np.testing.assert_allclose(p_mat @ tc_unitary @ p_mat, qis_unitary, atol=1e-5)
+
+    # jax backend
+    try:
+        import jax.numpy as jnp
+    except ImportError:
+        pytest.skip("jax is not installed")
+
+    tc.set_backend("jax")
+
+    n = 6
+    c = tc.Circuit(n, inputs=jnp.eye(2 ** n))
+
+    # for i in range(n):
+    #     c.H(i)
+    zz = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
+    for i in range(n):
+        c.exp(
+            i,
+            (i + 1) % n,
+            theta=jnp.array(np.random.uniform()),
+            unitary=jnp.array(zz, dtype=jnp.complex64),
+            name="zz",
+        )
+    c.exp1(
+        1,
+        3,
+        theta=jnp.array(np.random.uniform()),
+        unitary=jnp.array(zz, dtype=jnp.complex64),
+        name="zz",
+    )
+    c.fredkin(1, 2, 3)
+    c.cswap(1, 2, 3)
+    c.ccnot(1, 2, 3)
+    c.cx(2, 3)
+    c.swap(0, 1)
+    c.iswap(0, 1)
+    c.toffoli(0, 1, 2)
+    c.s(1)
+    c.t(1)
+    c.sd(1)
+    c.td(1)
+    c.x(2)
+    c.y(2)
+    c.z(2)
+    c.wroot(3)
+    c.cnot(0, 1)
+    c.cy(0, 1)
+    c.cz(0, 1)
+    c.oy(4, 3)
+    c.oz(4, 3)
+    c.ox(4, 3)
+    c.oy(4, 3)
+    c.oz(4, 3)
+    c.ox(3, 4)
+    c.rx(1, theta=jnp.array(np.random.uniform()))
+    c.r(5, theta=jnp.array(np.random.uniform()))
+    c.cr(
+        1,
+        2,
+        theta=jnp.array(np.random.uniform()),
+        alpha=tf.constant(np.random.uniform()),
+        phi=tf.constant(np.random.uniform()),
+    )
+    c.ry(1, theta=jnp.array(np.random.uniform(), dtype=jnp.complex64))
+    c.rz(1, theta=jnp.array(np.random.uniform()))
+    c.crz(2, 3, theta=jnp.array(np.random.uniform()))
+    c.crx(5, 3, theta=jnp.array(np.random.uniform()))
+    c.cry(1, 3, theta=jnp.array(np.random.uniform()))
+    c.orx(5, 3, theta=jnp.array(np.random.uniform()))
+    c.ory(5, 3, theta=jnp.array(np.random.uniform()))
+    c.orz(5, 3, theta=jnp.array(np.random.uniform()))
+    c.any(1, 3, unitary=jnp.array(np.reshape(zz, [2, 2, 2, 2]), jnp.complex64))
+    gate = tc.gates.multicontrol_gate(
+        jnp.array(tc.gates._x_matrix, jnp.complex64), ctrl=[1, 0]
+    )
+    c.mpo(0, 1, 2, mpo=gate.copy())
+    c.multicontrol(
+        0,
+        2,
+        4,
+        1,
+        5,
+        ctrl=[0, 1, 0],
+        unitary=jnp.array(tc.gates._zz_matrix, jnp.complex64),
+        name="zz",
+    )
+
+    tc_unitary = c.wavefunction()
+    tc_unitary = np.reshape(tc_unitary, [2 ** n, 2 ** n])
+
+    qisc = c.to_qiskit()
+    qis_unitary = qi.Operator(qisc)
+    qis_unitary = np.reshape(qis_unitary, [2 ** n, 2 ** n])
 
     p_mat = perm_matrix(n)
     np.testing.assert_allclose(p_mat @ tc_unitary @ p_mat, qis_unitary, atol=1e-5)
@@ -930,10 +1121,10 @@ def test_qiskit2tc():
     CCCRX = SwapGate().control(2, ctrl_state="01")
     qisc.append(CCCRX, [0, 1, 2, 3])
 
-    c = tc.Circuit.from_qiskit(qisc, n, np.eye(2**n))
+    c = tc.Circuit.from_qiskit(qisc, n, np.eye(2 ** n))
     tc_unitary = c.wavefunction()
-    tc_unitary = np.reshape(tc_unitary, [2**n, 2**n])
+    tc_unitary = np.reshape(tc_unitary, [2 ** n, 2 ** n])
     qis_unitary = qi.Operator(qisc)
-    qis_unitary = np.reshape(qis_unitary, [2**n, 2**n])
+    qis_unitary = np.reshape(qis_unitary, [2 ** n, 2 ** n])
     p_mat = perm_matrix(n)
     np.testing.assert_allclose(p_mat @ tc_unitary @ p_mat, qis_unitary, atol=1e-5)
