@@ -16,3 +16,4 @@ Jupyter Tutorials
     tutorials/optimization_and_expressibility.ipynb
     tutorials/vqex_mbl.ipynb
     tutorials/dqas.ipynb
+    tutorials/barren_plateaus.ipynb
