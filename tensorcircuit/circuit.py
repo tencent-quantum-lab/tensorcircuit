@@ -225,6 +225,8 @@ class Circuit:
             matrix = gates.bmatrix(matrix)
             doc = """
             Apply **%s** gate on the circuit.
+            See :py:meth:`tensorcircuit.gates.%s_gate`.
+
 
             :param index: Qubit number than the gate applies on.
                 The matrix for the gate is
@@ -236,6 +238,7 @@ class Circuit:
             :type index: int.
             """ % (
                 g.upper(),
+                g,
                 matrix,
             )
             docs = """
@@ -271,13 +274,16 @@ class Circuit:
             )
             doc = """
             Apply **%s** gate with parameters on the circuit.
+            See :py:meth:`tensorcircuit.gates.%s_gate`.
+
 
             :param index: Qubit number than the gate applies on.
             :type index: int.
             :param vars: Parameters for the gate.
             :type vars: float.
             """ % (
-                g.upper()
+                g.upper(),
+                g,
             )
             getattr(cls, g).__doc__ = doc
             getattr(cls, g.upper()).__doc__ = doc
@@ -309,6 +315,7 @@ class Circuit:
             )
             getattr(cls, g).__doc__ = doc
             getattr(cls, g.upper()).__doc__ = doc
+
         for gate_alias in cls.gate_alias_list:
             present_gate = gate_alias[0]
             for alias_gate in gate_alias[1:]:

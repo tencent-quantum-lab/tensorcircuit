@@ -97,6 +97,8 @@ class DMCircuit:
                 g.upper(),
                 cls.apply_general_gate_delayed(getattr(gates, g), name=g),
             )
+            getattr(cls, g).__doc__ = getattr(Circuit, g).__doc__
+            getattr(cls, g.upper()).__doc__ = getattr(Circuit, g).__doc__
 
         for g in Circuit.vgates:
             setattr(
@@ -109,6 +111,8 @@ class DMCircuit:
                 g.upper(),
                 cls.apply_general_variable_gate_delayed(getattr(gates, g), name=g),
             )
+            getattr(cls, g).__doc__ = getattr(Circuit, g).__doc__
+            getattr(cls, g.upper()).__doc__ = getattr(Circuit, g).__doc__
 
         for k in channels.channels:
             setattr(
@@ -116,6 +120,24 @@ class DMCircuit:
                 k,
                 cls.apply_general_kraus_delayed(getattr(channels, k + "channel")),
             )
+            doc = """
+            Apply %s quantum channel on the circuit.
+            See :py:meth:`tensorcircuit.channels.%schannel`
+
+            :param index: Qubit number that the gate applies on.
+            :type index: int.
+            :param vars: Parameters for the channel.
+            :type vars: float.
+            """ % (
+                k,
+                k,
+            )
+            getattr(cls, k).__doc__ = doc
+
+        for gate_alias in Circuit.gate_alias_list:
+            present_gate = gate_alias[0]
+            for alias_gate in gate_alias[1:]:
+                setattr(cls, alias_gate, getattr(cls, present_gate))
 
     def _copy(
         self,
