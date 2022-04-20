@@ -27,6 +27,18 @@ class DMCircuit:
         inputs: Optional[Tensor] = None,
         dminputs: Optional[Tensor] = None,
     ) -> None:
+        """
+        The density matrix simulator based on tensornetwork engine.
+
+        :param nqubits: Number of qubits
+        :type nqubits: int
+        :param empty: if True, nothing initialized, only for internal use, defaults to False
+        :type empty: bool, optional
+        :param inputs: the state input for the circuit, defaults to None
+        :type inputs: Optional[Tensor], optional
+        :param dminputs: the density matrix input for the circuit, defaults to None
+        :type dminputs: Optional[Tensor], optional
+        """
         if not empty:
             _prefix = "qb-"
             if (inputs is None) and (dminputs is None):
@@ -239,7 +251,17 @@ class DMCircuit:
 
         return apply
 
-    def densitymatrix(self, check: bool = False, reuse: bool = True) -> tn.Node.tensor:
+    def densitymatrix(self, check: bool = False, reuse: bool = True) -> Tensor:
+        """
+        Return the output density matrix of the circuit.
+
+        :param check: check whether the final return is a legal density matrix, defaults to False
+        :type check: bool, optional
+        :param reuse: whether to reuse previous results, defaults to True
+        :type reuse: bool, optional
+        :return: The output densitymatrix in 2D shape tensor form
+        :rtype: Tensor
+        """
         nodes, _ = self._copy_dm_tensor(conj=False, reuse=reuse)
         # t = contractor(nodes, output_edge_order=d_edges)
         dm = backend.reshape(
@@ -254,6 +276,15 @@ class DMCircuit:
     def expectation(
         self, *ops: Tuple[tn.Node, List[int]], **kws: Any
     ) -> tn.Node.tensor:
+        """
+        Compute the expectation of corresponding operators.
+
+        :param ops: Operator and its position on the circuit,
+            eg. ``(tc.gates.z(), [1, ]), (tc.gates.x(), [2, ])`` is for operator :math:`Z_1X_2`.
+        :type ops: Tuple[tn.Node, List[int]]
+        :return: Tensor with one element
+        :rtype: Tensor
+        """
         # kws is reserved for unsupported feature such as reuse arg
         newdm, newdang = self._copy(self._nodes, self._rfront + self._lfront)
         occupied = set()

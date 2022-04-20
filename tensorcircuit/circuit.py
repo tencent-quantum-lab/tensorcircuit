@@ -912,6 +912,7 @@ class Circuit:
     ) -> Tensor:
         """
         Apply unitary gates in ``kraus`` randomly based on corresponding ``prob``.
+        If ``prob`` is ``None``, this is reduced to kraus channel language.
 
         :param kraus: List of ``tc.gates.Gate`` or just Tensors
         :type kraus: Sequence[Gate]
@@ -1546,6 +1547,14 @@ def _expectation_ps(
     """
     Shortcut for Pauli string expectation.
     x, y, z list are for X, Y, Z positions
+
+    :Example:
+
+    >>> c = tc.Circuit(2)
+    >>> c.X(0)
+    >>> c.H(1)
+    >>> c.expectation_ps(x=[1], z=[0])
+    array(-0.99999994+0.j, dtype=complex64)
 
     :param x: _description_, defaults to None
     :type x: Optional[Sequence[int]], optional

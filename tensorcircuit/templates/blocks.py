@@ -20,6 +20,16 @@ Graph = Any
 
 
 def state_centric(f: Callable[..., Circuit]) -> Callable[..., Tensor]:
+    """
+    Function decorator wraps the function with the first input and output in the format of circuit,
+    the wrapped function has the first input and the output as the state tensor.
+
+    :param f: Function with the fist input and the output as ``Circuit`` object.
+    :type f: Callable[..., Circuit]
+    :return: Wrapped function with the first input and the output as the state tensor correspondingly.
+    :rtype: Callable[..., Tensor]
+    """
+
     @wraps(f)
     def wrapper(s: Tensor, *args: Any, **kws: Any) -> Tensor:
         n = backend.sizen(s)
@@ -97,6 +107,23 @@ def QAOA_block(
 def example_block(
     c: Circuit, param: Tensor, nlayers: int = 2, is_split: bool = False
 ) -> Circuit:
+    r"""
+    The circuit ansatz is firstly one layer of Hadamard gates and
+    then we have ``nlayers`` blocks of :math:`e^{i\theta Z_iZ_{i+1}}` two-qubit gate in ladder layout,
+    following rx gate.
+
+    :param c: The circuit
+    :type c: Circuit
+    :param param: paramter tensor with 2*nlayer*n elements
+    :type param: Tensor
+    :param nlayers: number of ZZ+RX blocks, defaults to 2
+    :type nlayers: int, optional
+    :param is_split: whether use SVD split to reduce ZZ gate bond dimension,
+        defaults to False
+    :type is_split: bool, optional
+    :return: The circuit with example ansatz attached
+    :rtype: Circuit
+    """
     # used for test and demonstrations
     if is_split:
         split_conf = {

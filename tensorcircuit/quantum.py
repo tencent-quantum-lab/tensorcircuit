@@ -1119,6 +1119,18 @@ try:
         weight: Optional[Sequence[float]] = None,
         numpy: bool = False,
     ) -> Tensor:
+        """
+        Generate tensorflow dense matrix from Pauli string sum
+
+        :param ls: 2D Tensor, each row is for a Pauli string,
+            e.g. [1, 0, 0, 3, 2] is for :math:`X_0Z_3Y_4`
+        :type ls: Sequence[Sequence[int]]
+        :param weight: 1D Tensor, each element corresponds the weight for each Pauli string
+            defaults to None (all Pauli strings weight 1.0)
+        :type weight: Optional[Sequence[float]], optional
+        :return: the tensorflow dense matrix
+        :rtype: Tensor
+        """
         sparsem = PauliStringSum2COO_numpy(ls, weight)
         if numpy:
             return sparsem.todense()
@@ -1143,6 +1155,18 @@ try:
     def PauliStringSum2COO_numpy(
         ls: Sequence[Sequence[int]], weight: Optional[Sequence[float]] = None
     ) -> Tensor:
+        """
+        Generate scipy sparse matrix from Pauli string sum
+
+        :param ls: 2D Tensor, each row is for a Pauli string,
+            e.g. [1, 0, 0, 3, 2] is for :math:`X_0Z_3Y_4`
+        :type ls: Sequence[Sequence[int]]
+        :param weight: 1D Tensor, each element corresponds the weight for each Pauli string
+            defaults to None (all Pauli strings weight 1.0)
+        :type weight: Optional[Sequence[float]], optional
+        :return: the scipy coo sparse matrix
+        :rtype: Tensor
+        """
         # numpy version is 3* faster!
 
         nterms = len(ls)
@@ -1165,6 +1189,18 @@ try:
     def PauliStringSum2COO(
         ls: Sequence[Sequence[int]], weight: Optional[Sequence[float]] = None
     ) -> Tensor:
+        """
+        Generate tensorflow sparse matrix from Pauli string sum
+
+        :param ls: 2D Tensor, each row is for a Pauli string,
+            e.g. [1, 0, 0, 3, 2] is for :math:`X_0Z_3Y_4`
+        :type ls: Sequence[Sequence[int]]
+        :param weight: 1D Tensor, each element corresponds the weight for each Pauli string
+            defaults to None (all Pauli strings weight 1.0)
+        :type weight: Optional[Sequence[float]], optional
+        :return: the tensorflow coo sparse matrix
+        :rtype: Tensor
+        """
         nterms = len(ls)
         n = len(ls[0])
         s = 0b1 << n
@@ -1184,6 +1220,18 @@ try:
 
     @compiled_jit
     def PauliString2COO(l: Sequence[int], weight: Optional[float] = None) -> Tensor:
+        """
+        Generate tensorflow sparse matrix from Pauli string sum
+
+        :param l: 1D Tensor representing for a Pauli string,
+            e.g. [1, 0, 0, 3, 2] is for :math:`X_0Z_3Y_4`
+        :type l: Sequence[int]
+        :param weight: the weight for the Pauli string
+            defaults to None (all Pauli strings weight 1.0)
+        :type weight: Optional[float], optional
+        :return: the tensorflow sparse matrix
+        :rtype: Tensor
+        """
         n = len(l)
         one = tf.constant(0b1, dtype=tf.int64)
         idx_x = tf.constant(0b0, dtype=tf.int64)
