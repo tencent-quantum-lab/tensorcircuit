@@ -1,3 +1,7 @@
+"""
+Compute the circuit gradient with single qubit random Haar averaged to
+demonstrate the gradient vanishing, aka, barren plateau.
+"""
 import numpy as np
 from tqdm import tqdm
 import tensorcircuit as tc

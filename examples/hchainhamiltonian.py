@@ -1,5 +1,5 @@
 """
-Get molecule qubit format Hamiltonian from open fermion.
+Get molecule qubit format Hamiltonian from openfermion.
 """
 
 import time

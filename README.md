@@ -37,7 +37,7 @@ For more information and introductions, please refer to helpful [example scripts
 
 The following are some minimal demos.
 
-Circuit manipulation:
+- Circuit manipulation:
 
 ```python
 import tensorcircuit as tc
@@ -50,7 +50,7 @@ print(c.expectation_ps(z=[0, 1]))
 print(c.sample())
 ```
 
-Runtime behavior customization:
+- Runtime behavior customization:
 
 ```python
 tc.set_backend("tensorflow")
@@ -58,7 +58,7 @@ tc.set_dtype("complex128")
 tc.set_contractor("greedy")
 ```
 
-Automatic differentiations with jit:
+- Automatic differentiations with jit:
 
 ```python
 def forward(theta):
