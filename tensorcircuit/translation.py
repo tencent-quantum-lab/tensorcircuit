@@ -15,6 +15,7 @@ except ImportError:
 
 from . import gates
 from .circuit import Circuit
+from .cons import backend
 
 Tensor = Any
 
@@ -102,20 +103,25 @@ def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
         elif gate_name == "wroot":
             wroot_op = qi.Operator(
                 np.reshape(
-                    gate_info["gatef"](**parameters).tensor,
+                    backend.numpy(gate_info["gatef"](**parameters).tensor),
                     [2 ** len(index), 2 ** len(index)],
                 )
             )
             qiskit_circ.unitary(wroot_op, index, label=qis_name)
         elif gate_name in ["rx", "ry", "rz", "crx", "cry", "crz"]:
-            getattr(qiskit_circ, gate_name)(parameters["theta"], *index)
+            getattr(qiskit_circ, gate_name)(
+                np.real(backend.numpy(parameters["theta"])), *index
+            )
         elif gate_name in ["orx", "ory", "orz"]:
             getattr(qiskit_circ, "c" + gate_name[1:])(
-                parameters["theta"], *index, ctrl_state=0
+                np.real(backend.numpy(parameters["theta"])), *index, ctrl_state=0
             )
         elif gate_name in ["exp", "exp1"]:
-            unitary = parameters["unitary"]
-            theta = parameters["theta"]
+            unitary = backend.numpy(parameters["unitary"])
+            theta = backend.numpy(parameters["theta"])
+            theta = np.array(np.real(theta)).astype(
+                np.float64
+            )  # cast theta to real, since qiskit only support unitary. Error can be presented if theta is actually complex in this procedure.
             exp_op = qi.Operator(unitary)
             index_reversed = [x for x in index[::-1]]
             qiskit_circ.hamiltonian(
@@ -124,7 +130,7 @@ def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
         elif gate_name in ["mpo", "multicontrol"]:
             qop = qi.Operator(
                 np.reshape(
-                    gate_info["gatef"](**parameters).eval_matrix(),
+                    backend.numpy(gate_info["gatef"](**parameters).eval_matrix()),
                     [2 ** len(index), 2 ** len(index)],
                 )
             )
@@ -132,7 +138,7 @@ def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
         else:  # r cr any gate
             qop = qi.Operator(
                 np.reshape(
-                    gate_info["gatef"](**parameters).tensor,
+                    backend.numpy(gate_info["gatef"](**parameters).tensor),
                     [2 ** len(index), 2 ** len(index)],
                 )
             )
