@@ -11,7 +11,7 @@ from tensorcircuit.applications.vqes import VQNHE, JointSchedule, construct_matr
 tc.set_backend("tensorflow")
 tc.set_dtype("complex128")
 
-h6h = np.load("./H6_hamiltonian.npy")  # reported in 0.99 A
+h6h = np.load("./h6_hamiltonian.npy")  # reported in 0.99 A
 hamiltonian = construct_matrix_v3(h6h.tolist())
 
 

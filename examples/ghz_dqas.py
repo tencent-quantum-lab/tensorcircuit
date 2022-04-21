@@ -1,3 +1,6 @@
+"""
+DQAS for GHZ state preparation circuit, deprecated DQAS implementation
+"""
 import sys
 
 sys.path.insert(0, "../")

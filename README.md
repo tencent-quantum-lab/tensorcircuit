@@ -37,7 +37,7 @@ For more information and introductions, please refer to helpful [example scripts
 
 The following are some minimal demos.
 
-Circuit manipulation:
+- Circuit manipulation:
 
 ```python
 import tensorcircuit as tc
@@ -46,11 +46,11 @@ c.H(0)
 c.CNOT(0,1)
 c.rx(1, theta=0.2)
 print(c.wavefunction())
-print(c.expectation((tc.gates.z(), [1])))
-print(c.perfect_sampling())
+print(c.expectation_ps(z=[0, 1]))
+print(c.sample())
 ```
 
-Runtime behavior customization:
+- Runtime behavior customization:
 
 ```python
 tc.set_backend("tensorflow")
@@ -58,31 +58,35 @@ tc.set_dtype("complex128")
 tc.set_contractor("greedy")
 ```
 
-Automatic differentiations with jit:
+- Automatic differentiations with jit:
 
 ```python
 def forward(theta):
-    c = tc.Circuit(n=2)
+    c = tc.Circuit(2)
     c.R(0, theta=theta, alpha=0.5, phi=0.8)
     return tc.backend.real(c.expectation((tc.gates.z(), [0])))
 
 g = tc.backend.grad(forward)
 g = tc.backend.jit(g)
-theta = tc.gates.num_to_tensor(1.0)
+theta = tc.array_to_tensor(1.0)
 print(g(theta))
 ```
 
 ## Install
 
-`pip install tensorcircuit`.
+The package is purely written in python and can be obtained via pip as:
 
-Extra package installation may be required for some features.
+```python
+pip install tensorcircuit
+```
+
+We also have [Docker support](/docker).
 
 ## Contributing
 
 For contribution guidelines and notes, see [CONTRIBUTING](/CONTRIBUTING.md).
 
-For developers, we suggest first configuring a good conda environment. The versions of dependence packages may vary in terms of development requirements. The minimum requirement is the [TensorNetwork](https://github.com/google/TensorNetwork) package. [Dockerfile](/docker) is also provided.
+We welcome issues, PRs and discussions from everyone, and these are all hosted on GitHub.
 
 ## Researches and applications
 

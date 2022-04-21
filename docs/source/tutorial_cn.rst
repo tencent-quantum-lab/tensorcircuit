@@ -16,3 +16,4 @@
     tutorials/optimization_and_expressibility_cn.ipynb
     tutorials/vqex_mbl_cn.ipynb
     tutorials/dqas_cn.ipynb
+    tutorials/barren_plateaus_cn.ipynb

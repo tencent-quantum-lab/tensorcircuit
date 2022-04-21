@@ -815,7 +815,8 @@ def test_apply_multicontrol_gate():
     np.testing.assert_allclose(c.expectation([tc.gates.z(), [3]]), -1, atol=1e-5)
 
 
-def test_qir2qiskit():
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_qir2qiskit(backend):
     try:
         import qiskit.quantum_info as qi
         from tensorcircuit.translation import perm_matrix
@@ -823,53 +824,79 @@ def test_qir2qiskit():
         pytest.skip("qiskit is not installed")
 
     n = 6
-    c = tc.Circuit(n, inputs=np.eye(2**n))
+    c = tc.Circuit(n, inputs=tc.array_to_tensor(np.eye(2**n)))
+
     for i in range(n):
         c.H(i)
     zz = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
     for i in range(n):
-        c.exp(i, (i + 1) % n, theta=np.random.uniform(), unitary=zz, name="zz")
-    c.exp1(1, 3, theta=0.2, unitary=zz, name="zz")
+        c.exp(
+            i,
+            (i + 1) % n,
+            theta=tc.array_to_tensor(np.random.uniform()),
+            unitary=tc.array_to_tensor(zz),
+            name="zz",
+        )
+    c.exp1(
+        1, 3, theta=tc.array_to_tensor(0.0j), unitary=tc.array_to_tensor(zz), name="zz"
+    )
     c.fredkin(1, 2, 3)
+    c.cswap(1, 2, 3)
+    c.ccnot(1, 2, 3)
+    c.cx(2, 3)
     c.swap(0, 1)
     c.iswap(0, 1)
     c.toffoli(0, 1, 2)
     c.s(1)
     c.t(1)
-    c.sd(2)
-    c.td(2)
-    c.x(3)
-    c.y(3)
-    c.z(3)
-    c.wroot(4)
+    c.sd(1)
+    c.td(1)
+    c.x(2)
+    c.y(2)
+    c.z(2)
+    c.wroot(3)
     c.cnot(0, 1)
     c.cy(0, 1)
     c.cz(0, 1)
-    c.oy(3, 4)
-    c.oz(3, 4)
+    c.oy(4, 3)
+    c.oz(4, 3)
+    c.ox(4, 3)
+    c.oy(4, 3)
+    c.oz(4, 3)
     c.ox(3, 4)
-    c.rx(1, theta=np.random.uniform())
-    c.r(5, theta=np.random.uniform())
+    c.rx(1, theta=tc.array_to_tensor(np.random.uniform()))
+    c.r(5, theta=tc.array_to_tensor(np.random.uniform()))
     c.cr(
         1,
         2,
-        theta=np.random.uniform(),
-        alpha=np.random.uniform(),
-        phi=np.random.uniform(),
+        theta=tc.array_to_tensor(np.random.uniform()),
+        alpha=tc.array_to_tensor(np.random.uniform()),
+        phi=tc.array_to_tensor(np.random.uniform()),
     )
-    c.ry(1, theta=np.random.uniform())
-    c.rz(1, theta=np.random.uniform())
-    c.crz(2, 3, theta=np.random.uniform())
-    c.crx(5, 3, theta=np.random.uniform())
-    c.cry(1, 3, theta=np.random.uniform())
-    c.orx(5, 3, theta=np.random.uniform())
-    c.ory(5, 3, theta=np.random.uniform())
-    c.orz(5, 3, theta=np.random.uniform())
-    c.any(1, 3, unitary=np.reshape(zz, [2, 2, 2, 2]))
-    gate = tc.gates.multicontrol_gate(tc.gates._x_matrix, ctrl=[1, 0])
-    c.mpo(0, 1, 2, mpo=gate.copy())
-    c.multicontrol(0, 2, 1, ctrl=[0, 1], unitary=tc.gates._x_matrix, name="x")
+    c.ry(1, theta=tc.array_to_tensor(np.random.uniform()))
+    c.rz(1, theta=tc.array_to_tensor(np.random.uniform()))
+    c.crz(2, 3, theta=tc.array_to_tensor(np.random.uniform()))
+    c.crx(5, 3, theta=tc.array_to_tensor(np.random.uniform()))
+    c.cry(1, 3, theta=tc.array_to_tensor(np.random.uniform()))
+    c.orx(5, 3, theta=tc.array_to_tensor(np.random.uniform()))
+    c.ory(5, 3, theta=tc.array_to_tensor(np.random.uniform()))
+    c.orz(5, 3, theta=tc.array_to_tensor(np.random.uniform()))
 
+    c.any(1, 3, unitary=tc.array_to_tensor(np.reshape(zz, [2, 2, 2, 2])))
+    gate = tc.gates.multicontrol_gate(
+        tc.array_to_tensor(tc.gates._x_matrix), ctrl=[1, 0]
+    )
+    c.mpo(0, 1, 2, mpo=gate.copy())
+    c.multicontrol(
+        0,
+        2,
+        4,
+        1,
+        5,
+        ctrl=[0, 1, 0],
+        unitary=tc.array_to_tensor(tc.gates._zz_matrix),
+        name="zz",
+    )
     tc_unitary = c.wavefunction()
     tc_unitary = np.reshape(tc_unitary, [2**n, 2**n])
 
