@@ -201,8 +201,7 @@ class MADE(Model):  # type: ignore
         x = tf.keras.layers.Input(shape=(self.input_space, self.spin_channel))
         return tf.keras.Model(inputs=[x], outputs=self.call(x))
 
-    # TODO: return type not sure
-    def regularization(self, lbd_w: float = 1.0, lbd_b: float = 1.0) -> float:
+    def regularization(self, lbd_w: float = 1.0, lbd_b: float = 1.0) -> tf.Tensor:
         loss = 0.0
         for l in self.ml_layer:
             loss += l.regularization(lbd_w=lbd_w, lbd_b=lbd_b)
