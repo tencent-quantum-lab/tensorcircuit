@@ -1,0 +1,226 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, The TensorCircuit Authors
+# This file is distributed under the same license as the tensorcircuit
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: tensorcircuit \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-04-18 20:36+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../source/whitepaper/contraction.ipynb:9
+msgid "Customized Contraction"
+msgstr ""
+
+#: ../../source/whitepaper/contraction.ipynb:21
+#: ../../source/whitepaper/vmaps.ipynb:21
+msgid "Overview"
+msgstr ""
+
+#: ../../source/whitepaper/contraction.ipynb:23
+msgid ""
+"If the simulated circuit has large qubit counts, we recommend users try "
+"customized contraction setup instead of the default one, which is greedy."
+msgstr ""
+
+#: ../../source/whitepaper/contraction.ipynb:35
+#: ../../source/whitepaper/vmaps.ipynb:43
+msgid "Setup"
+msgstr ""
+
+#: ../../source/whitepaper/contraction.ipynb:37
+msgid ""
+"Please refer to the `installation documentation "
+"<https://cotengra.readthedocs.io/en/latest/installation.html>`__ for "
+"cotengra, which cannot simply obtained by pip install since it is not "
+"uploaded to PyPI. The most easy way for installation is ``pip install -U "
+"git+https://github.com/jcmgray/cotengra.git``."
+msgstr ""
+
+#: ../../source/whitepaper/contraction.ipynb:60
+msgid ""
+"We use the following example as a testbed for the contraction, the real "
+"contraction is invoked for ``Circuit.expectation`` API, and there are two"
+" stages for the contraction. The first one is contraction path searching "
+"which is used to find better contraction path in terms of space and time."
+" The second stage is the real contraction, where matrix multiplication is"
+" called using ML backend API. In this note, we focus on the performance "
+"of the first stage. And the contraction path solver can be customized "
+"with any type of `opt-einsum compatible path solver <https://optimized-"
+"einsum.readthedocs.io/en/stable/custom_paths.html>`__."
+msgstr ""
+
+#: ../../source/whitepaper/contraction.ipynb:89
+msgid ""
+"There are several contractor optimizers provided by opt-einsum and "
+"shipped with the TensorNetwork package. Since TensorCircuit is built on "
+"top of TensorNetwork, we can use these simple contractor optimizers. "
+"Though for any moderate system, only greedy optimizer works, other "
+"optimizers come with exponential scaling and fail in circuit simulation "
+"scenarios."
+msgstr ""
+
+#: ../../source/whitepaper/contraction.ipynb:91
+msgid ""
+"We always set ``contraction_info=True`` (default is ``False``) for the "
+"contractor system in this note, which will print contraction information "
+"summary including contraction size, flops, and writes. For the definition"
+" of these metrics, also refer to cotengra docs and `the corresponding "
+"paper <https://quantum-journal.org/papers/q-2021-03-15-410/>`__."
+msgstr ""
+
+#: ../../source/whitepaper/contraction.ipynb:93
+msgid ""
+"Also, we will enable ``debug_level=2`` in ``set_contractor`` (never use "
+"this option in real computation!) By enabling this, the second stage of "
+"the contraction, i.e. the real contraction will not happen, so that we "
+"can focus on the contraction path information which demonstrates the "
+"difference between different customized contractor."
+msgstr ""
+
+#: ../../source/whitepaper/contraction.ipynb:167
+msgid ""
+"**cotengra optimizer**: for hyperparameters tuning, see the "
+"`documentation "
+"<https://cotengra.readthedocs.io/en/latest/advanced.html>`__."
+msgstr ""
+
+#: ../../source/whitepaper/contraction.ipynb:278
+msgid ""
+"We can even include contraction reconfigure after path searching, which "
+"further greatly boost the space efficency for the contraction path"
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:9
+msgid "Utilizing vmap in quantum circuit simulations"
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:23
+msgid ""
+"We introduce vmap, the advanced feature of modern machine learning "
+"library, to quantum circuit simulations. By vmapping different "
+"ingredients of quantum circuit simulaion, we can implement variational "
+"quantum algorithms with high efficiency."
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:25
+msgid ""
+"It is worth noting that in the following use cases, vmap is supported "
+"together with jit and AD which renders highly efficient differentiable "
+"simulation."
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:27
+msgid ""
+"The ingredients support vmap paradigm are show in the following figure. "
+"|vmap ingredients|"
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:31
+msgid "vmap ingredients"
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:29
+msgid ""
+"We have two different types of APIs for vmap, the first one is ``vmap`` "
+"while the second one is ``vectorized_value_and_grad``, aka, ``vvag``. The"
+" latter one can also return the gradient information over a batch of "
+"different circuit."
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:96
+msgid "vmap the input states"
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:98
+msgid ""
+"Use case: batch processing of input states in quantum machine learning "
+"task."
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:100
+msgid ""
+"For applications of batched input state processing, please see `MNIST QML"
+" tutorial <../tutorials/mnist_qml.ipynb>`__."
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:112
+#: ../../source/whitepaper/vmaps.ipynb:228
+#: ../../source/whitepaper/vmaps.ipynb:539
+#: ../../source/whitepaper/vmaps.ipynb:664
+#: ../../source/whitepaper/vmaps.ipynb:846
+msgid "Minimal example"
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:212
+msgid "vmap the circuit weights"
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:214
+msgid ""
+"Use case: batched VQE, where different random initialization parameters "
+"are optimized simutaneously."
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:216
+msgid ""
+"For application on batched VQE, please refer `TFIM VQE tutorial "
+"<../tutorials/tfim_vqe.ipynb>`__."
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:523
+msgid "vmap the quantum noise"
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:525
+msgid "Use case: parallel Monte Carlo noise simulation."
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:527
+msgid ""
+"For applications that combines vmapped Monte Carlo noise simulation and "
+"quantum machine learning task, please see `noisy QML script "
+"<../../../examples/noisy_qml.py>`__."
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:648
+msgid "vmap the circuit structure"
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:650
+msgid "Use case: differentiable quantum architecture search (DQAS)."
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:652
+msgid ""
+"For more detail on DQAS application, see `DQAS tutorial "
+"<../tutorials/dqas.ipynb>`__."
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:830
+msgid "vmap the circuit measurements"
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:832
+msgid ""
+"Use case: accelerating evaluation of Pauli string sum by parallel the "
+"parameterized measurment."
+msgstr ""
+
+#: ../../source/whitepaper/vmaps.ipynb:834
+msgid ""
+"For applications on evaluation of parameterized measurements via vmap on "
+"large-scale systems, see `large-scale vqe example script "
+"<../../../examples/vqe_extra.py>`__."
+msgstr ""
+

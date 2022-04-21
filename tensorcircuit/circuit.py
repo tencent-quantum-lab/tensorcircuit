@@ -225,6 +225,8 @@ class Circuit:
             matrix = gates.bmatrix(matrix)
             doc = """
             Apply **%s** gate on the circuit.
+            See :py:meth:`tensorcircuit.gates.%s_gate`.
+
 
             :param index: Qubit number that the gate applied on.
                 The matrix for the gate is
@@ -236,6 +238,7 @@ class Circuit:
             :type index: int.
             """ % (
                 g.upper(),
+                g,
                 matrix,
             )
             docs = """
@@ -271,13 +274,16 @@ class Circuit:
             )
             doc = """
             Apply **%s** gate with parameters on the circuit.
+            See :py:meth:`tensorcircuit.gates.%s_gate`.
+
 
             :param index: Qubit number that the gate applied on.
             :type index: int.
             :param vars: Parameters for the gate.
             :type vars: float.
             """ % (
-                g.upper()
+                g.upper(),
+                g,
             )
             getattr(cls, g).__doc__ = doc
             getattr(cls, g.upper()).__doc__ = doc
@@ -309,6 +315,7 @@ class Circuit:
             )
             getattr(cls, g).__doc__ = doc
             getattr(cls, g.upper()).__doc__ = doc
+
         for gate_alias in cls.gate_alias_list:
             present_gate = gate_alias[0]
             for alias_gate in gate_alias[1:]:
@@ -912,6 +919,7 @@ class Circuit:
     ) -> Tensor:
         """
         Apply unitary gates in ``kraus`` randomly based on corresponding ``prob``.
+        If ``prob`` is ``None``, this is reduced to kraus channel language.
 
         :param kraus: List of ``tc.gates.Gate`` or just Tensors
         :type kraus: Sequence[Gate]
@@ -1546,6 +1554,14 @@ def _expectation_ps(
     """
     Shortcut for Pauli string expectation.
     x, y, z list are for X, Y, Z positions
+
+    :Example:
+
+    >>> c = tc.Circuit(2)
+    >>> c.X(0)
+    >>> c.H(1)
+    >>> c.expectation_ps(x=[1], z=[0])
+    array(-0.99999994+0.j, dtype=complex64)
 
     :param x: _description_, defaults to None
     :type x: Optional[Sequence[int]], optional

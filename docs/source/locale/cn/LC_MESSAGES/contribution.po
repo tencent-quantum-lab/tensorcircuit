@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  TensorCircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-07 19:44+0800\n"
-"PO-Revision-Date: 2022-02-18 00:05+0800\n"
-"Last-Translator: \n"
+"POT-Creation-Date: 2022-04-18 20:36+0800\n"
+"PO-Revision-Date: 2022-04-12 09:18+0800\n"
+"Last-Translator: Xinghan Yang\n"
 "Language: zh\n"
 "Language-Team: \n"
 "Plural-Forms: nplurals=1; plural=0\n"
@@ -175,8 +175,8 @@ msgstr "检查"
 
 #: ../../source/contribution.rst:99
 msgid ""
-"The simplest way to ensure the codebase is ok with checks and tests, is "
-"to run one-in-all scripts ``./check_all.sh`` (you may need to ``chmod +x "
+"The simplest way to ensure the codebase is ok with checks and tests is to"
+" run one-in-all scripts ``./check_all.sh`` (you may need to ``chmod +x "
 "check_all.sh`` to grant permissions on this file)."
 msgstr ""
 "确保代码库可以进行检查和测试的最简单方法是运行一体化脚本  ``./check_all.sh`` （你可能需要 ``chmod +x "
@@ -285,20 +285,23 @@ msgstr ""
 "``docs/build/html`` 文件夹中。"
 
 #: ../../source/contribution.rst:151
-msgid "**auto generation of API docs:**"
-msgstr ""
+msgid "**Auto Generation of API Docs:**"
+msgstr "**自动生成 API 文档：**"
 
 #: ../../source/contribution.rst:153
 msgid ""
 "We utilize a python script to generate/refresh all API docs rst files "
 "under /docs/source/api based on the codebase /tensorcircuit."
 msgstr ""
+"我们利用 python 脚本根据代码库 /tensorcircuit 生成/刷新 /docs/source/api 下的所有 API rst "
+"文档文件。"
 
 #: ../../source/contribution.rst:160
 msgid "**i18n:**"
 msgstr "**国际化**"
 
 #: ../../source/contribution.rst:162
+#, fuzzy
 msgid ""
 "For Chinese docs, we refer to the standard i18n workflow provided by "
 "sphinx, see `here <https://www.sphinx-"
@@ -321,12 +324,11 @@ msgstr ""
 "``docs/source/locale/cn/LC_MESSAGES`` 中。"
 
 #: ../../source/contribution.rst:175
-#, fuzzy
 msgid ""
-"To generate Chinese version of the documentation: ``sphinx-build source "
-"-D language=\"cn\" -D master_doc=index_cn build/html_cn`` which is in the"
-" separate directory ``.../build/html_cn/index_cn.html``, whereas English "
-"version is in the directory ``.../build/html/index.html``."
+"To generate the Chinese version of the documentation: ``sphinx-build "
+"source -D language=\"cn\" -D master_doc=index_cn build/html_cn`` which is"
+" in the separate directory ``.../build/html_cn/index_cn.html``, whereas "
+"English version is in the directory ``.../build/html/index.html``."
 msgstr ""
 "生成简体中文文档： ``sphinx-build source -D language=\"cn\" build/html_cn`` "
 "储存在单独的文件夹 ``.../build/html_cn`` 中, 而英文版本则储存在 ``.../build/html`` 文件夹中。"

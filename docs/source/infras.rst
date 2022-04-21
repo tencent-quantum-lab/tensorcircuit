@@ -66,7 +66,7 @@ Overview of Modules
 
 .. note::
 
-    Recommend reading order -- only read the part of code you care about on your purpose. 
+    Recommend reading order -- only read the part of code you care about for your purpose. 
     If you want to get an overview of the codebase, please read ``tc.circuit`` followed by ``tc.cons`` and ``tc.gates``.
 
 
@@ -88,7 +88,7 @@ QuOperator/QuVector and MPO/MPS
 ---------------------------------------------------
 
 :py:class:`tensorcircuit.quantum.QuOperator`, :py:class:`tensorcircuit.quantum.QuVector` and :py:class:`tensorcircuit.quantum.QuAdjointVector` are classes adopted from TensorNetwork package.
-They behave like a matrix/vector (column or row) when interact with other ingredients while the inner structure is maintained by the tensornetwork for efficiency and compactness.
+They behave like a matrix/vector (column or row) when interacting with other ingredients while the inner structure is maintained by the tensornetwork for efficiency and compactness.
 
 We use code examples and associated tensor diagrams to illustrate these object abstractions.
 
@@ -124,9 +124,9 @@ We use code examples and associated tensor diagrams to illustrate these object a
 
 Note how in this example, ``matrix`` is not a typical MPO but still can be expressed as ``QuOperator``. Indeed, any tensor network with two sets of dangling edges of the same dimension can be treated as ``QuOperator``. ``QuVector`` is even more flexible since we can treat all dangling edges as the vector dimension.
 
-Also note how ``^`` is overloaded as ``tn.connect`` to connect edges between different nodes in TensorNetwork. And indexing the node gives the edges of the node, eg. ``n1[0]`` means the first edge of node ``n1``.
+Also, note how ``^`` is overloaded as ``tn.connect`` to connect edges between different nodes in TensorNetwork. And indexing the node gives the edges of the node, eg. ``n1[0]`` means the first edge of node ``n1``.
 
-The convention to define the ``QuOperator`` is firstly giving ``out_edges`` (left index or row index of the matrix) and then giving ``in_edges`` (right index or column index of the matrix). The edges list contains edge object from TensorNetwork library.
+The convention to define the ``QuOperator`` is firstly giving ``out_edges`` (left index or row index of the matrix) and then giving ``in_edges`` (right index or column index of the matrix). The edges list contains edge objects from the TensorNetwork library.
 
-Such QuOperator/QuVector abstraction support various calculations only possible on matrix/vectors, such as matmul (``@``), adjoint (``.adjoint()``), scalar multiplication (``*``), tensor product (``|``) and partial trace (``.partial_trace(subsystems_to_trace_out)``).
-To extract the matrix information of these objects, we can use ``.eval()`` or ``.eval_matrix()``, the former keep the shape information of the tensor network while the latter gives the matrix representation with shape rank 2.
+Such QuOperator/QuVector abstraction support various calculations only possible on matrix/vectors, such as matmul (``@``), adjoint (``.adjoint()``), scalar multiplication (``*``), tensor product (``|``), and partial trace (``.partial_trace(subsystems_to_trace_out)``).
+To extract the matrix information of these objects, we can use ``.eval()`` or ``.eval_matrix()``, the former keeps the shape information of the tensor network while the latter gives the matrix representation with shape rank 2.

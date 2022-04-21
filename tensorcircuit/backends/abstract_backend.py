@@ -1156,11 +1156,9 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         """
         Compute the Jacobian of ``f`` using the forward mode AD.
 
-        :param self: [description]
-        :type self: Any
-        :param f: [description]
+        :param f: the function whose Jacobian is required
         :type f: Callable[..., Any]
-        :param argnums: [description], defaults to 0
+        :param argnums: the position of the arg as Jacobian input, defaults to 0
         :type argnums: Union[int, Sequence[int]], optional
         :return: outer tuple for input args, inner tuple for outputs
         :rtype: Tensor
@@ -1220,11 +1218,9 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         """
         Compute the Jacobian of ``f`` using reverse mode AD.
 
-        :param self: [description]
-        :type self: Any
-        :param f: [description]
+        :param f: The function whose Jacobian is required
         :type f: Callable[..., Any]
-        :param argnums: [description], defaults to 0
+        :param argnums: the position of the arg as Jacobian input, defaults to 0
         :type argnums: Union[int, Sequence[int]], optional
         :return: outer tuple for output, inner tuple for input args
         :rtype: Tensor

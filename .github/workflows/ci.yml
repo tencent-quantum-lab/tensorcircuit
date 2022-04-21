@@ -45,8 +45,6 @@ jobs:
           python mcnoise_boost.py
           python quantumng.py
           python universal_lr.py
-      #   python GHZ_DQAS.py
-      #   python QEM_DQAS.py
       - name: setup build
         run: |
           python3 setup.py build

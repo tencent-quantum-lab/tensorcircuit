@@ -59,7 +59,18 @@ Odd1D = partial(Even1D, s=1)
 
 
 class Grid2DCoord:
+    """
+    Two-dimensional grid lattice
+    """
+
     def __init__(self, n: int, m: int):
+        """
+
+        :param n: number of rows
+        :type n: int
+        :param m: number of cols
+        :type m: int
+        """
         # row first
         self.m = m
         self.n = n
@@ -74,6 +85,15 @@ class Grid2DCoord:
         return x * self.n + y
 
     def all_rows(self, pbc: bool = False) -> Sequence[Tuple[int, int]]:
+        """
+        return all row edge with 1d index encoding
+
+        :param pbc: whether to include pbc edges (periodic boundary condition),
+            defaults to False
+        :type pbc: bool, optional
+        :return: list of row edge
+        :rtype: Sequence[Tuple[int, int]]
+        """
         r = []
         for i in range(self.mn):
             if (i + 1) % self.n != 0:
@@ -83,6 +103,15 @@ class Grid2DCoord:
         return r
 
     def all_cols(self, pbc: bool = False) -> Sequence[Tuple[int, int]]:
+        """
+        return all col edge with 1d index encoding
+
+        :param pbc: whether to include pbc edges (periodic boundary condition),
+            defaults to False
+        :type pbc: bool, optional
+        :return: list of col edge
+        :rtype: Sequence[Tuple[int, int]]
+        """
         r = []
         for i in range(self.mn):
             if i + self.n < self.mn:
@@ -92,6 +121,15 @@ class Grid2DCoord:
         return r
 
     def lattice_graph(self, pbc: bool = True) -> Graph:
+        """
+        Get the 2D grid lattice in ``nx.Graph`` format
+
+        :param pbc: whether to include pbc edges (periodic boundary condition),
+            defaults to True
+        :type pbc: bool, optional
+        :return: _description_
+        :rtype: Graph
+        """
         g = nx.Graph()
         for i in range(self.mn):
             g.add_node(i, weight=0)

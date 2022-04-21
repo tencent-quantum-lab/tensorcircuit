@@ -4,5 +4,4 @@ include HISTORY.md
 include LICENSE
 include CHANGELOG.md
 include docs/source/*
-include examples/*
 include tests/*

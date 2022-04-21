@@ -16,6 +16,7 @@ def amplitude_encoding(
     fig: Tensor, nqubits: int, index: Optional[Sequence[int]] = None
 ) -> Tensor:
     # non-batch version
+    # [WIP]
     fig = backend.reshape(fig, shape=[-1])
     norm = backend.norm(fig)
     fig = fig / norm
