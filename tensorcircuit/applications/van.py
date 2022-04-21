@@ -2,8 +2,8 @@
 One-hot variational autoregressive models for multiple categorical choices beyond binary
 """
 
-from typing import Any, Optional, Union, List
-from xmlrpc.client import boolean
+from typing import Any, Optional, Tuple, Union, List
+from sympy import N
 import tensorflow as tf
 import numpy as np
 
@@ -11,7 +11,14 @@ import numpy as np
 
 
 class MaskedLinear(tf.keras.layers.Layer):
-    def __init__(self, input_space: int, output_space: int, spin_channel: int, mask: Optional[tf.Tensor] = None , dtype: Optional[tf.DType] = None):
+    def __init__(
+        self,
+        input_space: int,
+        output_space: int,
+        spin_channel: int,
+        mask: Optional[tf.Tensor] = None,
+        dtype: Optional[tf.DType] = None,
+    ):
         super().__init__()
         if dtype is None:
             self._dtype = tf.float32
@@ -40,12 +47,12 @@ class MaskedLinear(tf.keras.layers.Layer):
         else:
             self.mask = tf.ones([output_space, spin_channel, input_space, spin_channel])
 
-    def call(self, inputs: tf.Tensor):
+    def call(self, inputs: tf.Tensor) -> tf.Tensor:
         w_mask = tf.multiply(self.mask, self.w)
         return tf.tensordot(inputs, w_mask, axes=[[-2, -1], [2, 3]]) + self.b
 
-    def regularization(self, lbd_w: int = 1.0, lbd_b: int = 1.0):
-        return lbd_w * tf.reduce_sum(self.w**2) + lbd_b * tf.reduce_sum(self.b**2)
+    def regularization(self, lbd_w: float = 1.0, lbd_b: float = 1.0) -> tf.Tensor:
+        return lbd_w * tf.reduce_sum(self.w ** 2) + lbd_b * tf.reduce_sum(self.b ** 2)
 
 
 class MADE(tf.keras.Model):
@@ -56,10 +63,10 @@ class MADE(tf.keras.Model):
         hidden_space: int,
         spin_channel: int,
         depth: int,
-        evenly: boolean = True,
+        evenly: bool = True,
         dtype: Optional[tf.DType] = None,
-        activation: Optional[tf.keras.layers.Layer] = None,
-        nonmerge: boolean = True,
+        activation: Optional[Any] = None,
+        nonmerge: bool = True,
         probamp: Optional[tf.Tensor] = None,
     ):
         super().__init__()
@@ -67,9 +74,9 @@ class MADE(tf.keras.Model):
             self._dtype = tf.float32
         else:
             self._dtype = dtype
-        self._m = []
+        self._m: List[np.array] = []
         self._masks = []
-        self.ml_layer = []
+        self.ml_layer: List[Any] = []
         self.input_space = input_space
         self.spin_channel = spin_channel
         self._build_masks(
@@ -86,8 +93,14 @@ class MADE(tf.keras.Model):
         self.probamp = probamp
 
     def _build_masks(
-        self, input_space: int, output_space: int, hidden_space: int, spin_channel: int, depth: int, evenly: boolean
-    ):
+        self,
+        input_space: int,
+        output_space: int,
+        hidden_space: int,
+        spin_channel: int,
+        depth: int,
+        evenly: bool,
+    ) -> None:
         self._m.append(np.arange(1, input_space + 1))
         for i in range(1, depth + 1):
             if i == depth:  # the last layer
@@ -164,10 +177,10 @@ class MADE(tf.keras.Model):
                     )
                 )
 
-    def _check_masks(self):
+    def _check_masks(self) -> None:
         pass
 
-    def call(self, inputs: tf.Tensor):
+    def call(self, inputs: tf.Tensor) -> tf.Tensor:
         if self.nonmerge:
             nonmerge_block = tf.roll(inputs, axis=-2, shift=1) * -10.0
             # PBC here
@@ -183,17 +196,18 @@ class MADE(tf.keras.Model):
         outputs = tf.keras.layers.Softmax()(inputs)
         return outputs
 
-    def model(self):
+    def model(self) -> Any:
         x = tf.keras.layers.Input(shape=(self.input_space, self.spin_channel))
         return tf.keras.Model(inputs=[x], outputs=self.call(x))
 
-    def regularization(self, lbd_w: float = 1.0, lbd_b: float = 1.0):
+    # TODO: return type not sure
+    def regularization(self, lbd_w: float = 1.0, lbd_b: float = 1.0) -> float:
         loss = 0.0
         for l in self.ml_layer:
             loss += l.regularization(lbd_w=lbd_w, lbd_b=lbd_b)
         return loss
 
-    def sample(self, batch_size: int):
+    def sample(self, batch_size: int) -> Tuple[np.array, tf.Tensor]:
         eps = 1e-10
         sample = np.zeros(
             [batch_size, self.input_space, self.spin_channel], dtype=np.float32
@@ -214,17 +228,16 @@ class MADE(tf.keras.Model):
 
         return sample, x_hat
 
-    def _log_prob(self, sample: tf.Tensor, x_hat: tf.Tensor):
+    def _log_prob(self, sample: tf.Tensor, x_hat: tf.Tensor) -> tf.Tensor:
         eps = 1e-10
         probm = tf.multiply(x_hat, sample)
         probm = tf.reduce_sum(probm, axis=-1)
         lnprobm = tf.math.log(probm + eps)
         return tf.reduce_sum(lnprobm, axis=-1)
 
-    def log_prob(self, sample: tf.Tensor):
+    def log_prob(self, sample: tf.Tensor) -> tf.Tensor:
         x_hat = self.call(sample)
         log_prob = self._log_prob(sample, x_hat)
-
         return log_prob
 
 
@@ -235,7 +248,7 @@ class MaskedConv2D(tf.keras.layers.Layer):
         self.mask_type = mask_type
         self.conv = tf.keras.layers.Conv2D(**kwargs)
 
-    def build(self, input_shape: Union[List[tf.TensorShape], tf.TensorShape]):
+    def build(self, input_shape: Union[List[tf.TensorShape], tf.TensorShape]) -> None:
         # Build the conv2d layer to initialize kernel variables
         self.conv.build(input_shape)
         # Use the initialized kernel to create the mask
@@ -249,18 +262,18 @@ class MaskedConv2D(tf.keras.layers.Layer):
         if self.mask_type == "B":
             self.mask[kernel_shape[0] // 2, kernel_shape[1] // 2, ...] = 1.0
 
-    def call(self, inputs: tf.Tensor):
+    def call(self, inputs: tf.Tensor) -> tf.Tensor:
         self.conv.kernel = self.kernel * self.mask
         self.conv.bias = self.bias
         return self.conv(inputs)
 
 
 class ResidualBlock(tf.keras.layers.Layer):
-    def __init__(self, layers: int):
+    def __init__(self, layers: List[Any]):
         super().__init__()
         self.layers = layers
 
-    def call(self, inputs: tf.Tensor):
+    def call(self, inputs: tf.Tensor) -> tf.Tensor:
         y = inputs
         for layer in self.layers:
             y = layer(y)
@@ -296,7 +309,7 @@ class PixelCNN(tf.keras.Model):
         self.depth = depth
         self.spin_channel = spin_channel
 
-    def call(self, inputs: tf.Tensor):
+    def call(self, inputs: tf.Tensor) -> tf.Tensor:
         x = self.rb0(inputs)
         x = self.relu(x)
         for i in range(self.depth - 1):
@@ -305,7 +318,7 @@ class PixelCNN(tf.keras.Model):
         x = tf.keras.layers.Softmax(axis=-1)(x)
         return x
 
-    def sample(self, batch_size: int, h: int, w: int):
+    def sample(self, batch_size: int, h: int, w: int) -> Tuple[np.array, tf.Tensor]:
         eps = 1e-10
         sample = np.zeros([batch_size, h, w, self.spin_channel], dtype=np.float32)
         for i in range(h):
@@ -322,7 +335,7 @@ class PixelCNN(tf.keras.Model):
 
         return sample, x_hat
 
-    def _log_prob(self, sample: tf.Tensor, x_hat: tf.Tensor):
+    def _log_prob(self, sample: tf.Tensor, x_hat: tf.Tensor) -> tf.Tensor:
         eps = 1e-10
         probm = tf.multiply(x_hat, sample)
         probm = tf.reduce_sum(probm, axis=-1)
@@ -330,15 +343,20 @@ class PixelCNN(tf.keras.Model):
 
         return tf.reduce_sum(lnprobm, axis=[-1, -2])
 
-    def log_prob(self, sample: tf.Tensor):
+    def log_prob(self, sample: tf.Tensor) -> tf.Tensor:
         x_hat = self.call(sample)
         log_prob = self._log_prob(sample, x_hat)
-
         return log_prob
 
 
 class NMF(tf.keras.Model):
-    def __init__(self, spin_channel: int, *dimensions: int, _dtype: tf.DType = tf.float32, probamp: Optional[tf.Tensor] = None):
+    def __init__(
+        self,
+        spin_channel: int,
+        *dimensions: int,
+        _dtype: tf.DType = tf.float32,
+        probamp: Optional[tf.Tensor] = None
+    ):
         super().__init__()
         self.w = self.add_weight(
             name="meanfield-parameter",
@@ -353,14 +371,14 @@ class NMF(tf.keras.Model):
         self.spin_channel = spin_channel
         self.probamp = probamp
 
-    def call(self, inputs: Optional[tf.Tensor] = None):
+    def call(self, inputs: Optional[tf.Tensor] = None) -> tf.Tensor:
         # x = tf.keras.layers.Softmax(axis=-1)(self.w)
         if self.probamp is None:
             return self.w
         else:
             return self.w + self.probamp
 
-    def sample(self, batch_size: int):
+    def sample(self, batch_size: int) -> tf.Tensor:
         x_hat = self.call()
         x_hat = x_hat[tf.newaxis, :]
         tile_shape = tuple([batch_size] + [1 for _ in range(self.D + 1)])
@@ -376,16 +394,14 @@ class NMF(tf.keras.Model):
         x_hat = tf.keras.layers.Softmax(axis=-1)(x_hat)
         return sample, x_hat
 
-    def _log_prob(self, sample: tf.Tensor, x_hat: tf.Tensor):
+    def _log_prob(self, sample: tf.Tensor, x_hat: tf.Tensor) -> tf.Tensor:
         eps = 1e-10
         probm = tf.multiply(x_hat, sample)
         probm = tf.reduce_sum(probm, axis=-1)
         lnprobm = tf.math.log(probm + eps)
-
         return tf.reduce_sum(lnprobm, axis=[-i - 1 for i in range(self.D)])
 
-    def log_prob(self, sample: tf.Tensor):
+    def log_prob(self, sample: tf.Tensor) -> tf.Tensor:
         x_hat = self.call(sample)
         log_prob = self._log_prob(sample, x_hat)
-
         return log_prob
