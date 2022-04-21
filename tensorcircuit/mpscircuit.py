@@ -175,7 +175,7 @@ class MPSCircuit:
             doc = """
             Apply **%s** gate on the circuit.
 
-            :param index: Qubit number that the gate applied on.
+            :param index: Qubit number that the gate applies on.
                 The matrix for the gate is
 
                 .. math::
@@ -190,7 +190,7 @@ class MPSCircuit:
             docs = """
             Apply **%s** gate on the circuit.
 
-            :param index: Qubit number that the gate applied on.
+            :param index: Qubit number that the gate applies on.
             :type index: int.
             """ % (
                 g.upper()
@@ -217,7 +217,7 @@ class MPSCircuit:
             doc = """
             Apply %s gate with parameters on the circuit.
 
-            :param index: Qubit number that the gate applied on.
+            :param index: Qubit number that the gate applies on.
             :type index: int.
             :param vars: Parameters for the gate
             :type vars: float.

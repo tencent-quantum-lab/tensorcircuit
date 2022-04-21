@@ -228,7 +228,7 @@ class Circuit:
             See :py:meth:`tensorcircuit.gates.%s_gate`.
 
 
-            :param index: Qubit number that the gate applied on.
+            :param index: Qubit number that the gate applies on.
                 The matrix for the gate is
 
                 .. math::
@@ -244,7 +244,7 @@ class Circuit:
             docs = """
             Apply **%s** gate on the circuit.
 
-            :param index: Qubit number that the gate applied on.
+            :param index: Qubit number that the gate applies on.
             :type index: int.
             """ % (
                 g.upper()
@@ -277,7 +277,7 @@ class Circuit:
             See :py:meth:`tensorcircuit.gates.%s_gate`.
 
 
-            :param index: Qubit number that the gate applied on.
+            :param index: Qubit number that the gate applies on.
             :type index: int.
             :param vars: Parameters for the gate.
             :type vars: float.
@@ -306,7 +306,7 @@ class Circuit:
             doc = """
             Apply %s gate in MPO format on the circuit.
 
-            :param index: Qubit number that the gate applied on.
+            :param index: Qubit number that the gate applies on.
             :type index: int.
             :param vars: Parameters for the gate.
             :type vars: float.
