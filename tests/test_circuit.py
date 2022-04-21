@@ -823,10 +823,6 @@ def test_qir2qiskit(backend):
     except ImportError:
         pytest.skip("qiskit is not installed")
 
-    if tc.backend.name == "tensorflow":
-        import tensorflow as tf
-    elif tc.backend.name == "jax":
-        import jax
     n = 6
     c = tc.Circuit(n, inputs=tc.array_to_tensor(np.eye(2**n)))
 

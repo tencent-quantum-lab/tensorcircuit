@@ -119,9 +119,9 @@ def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
         elif gate_name in ["exp", "exp1"]:
             unitary = backend.numpy(parameters["unitary"])
             theta = backend.numpy(parameters["theta"])
-            theta = np.array(np.real(theta)).astype(
-                np.float64
-            )  # cast theta to real, since qiskit only support unitary. Error can be presented if theta is actually complex in this procedure.
+            theta = np.array(np.real(theta)).astype(np.float64)
+            # cast theta to real, since qiskit only support unitary.
+            # Error can be presented if theta is actually complex in this procedure.
             exp_op = qi.Operator(unitary)
             index_reversed = [x for x in index[::-1]]
             qiskit_circ.hamiltonian(

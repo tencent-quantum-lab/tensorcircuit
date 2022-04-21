@@ -184,6 +184,7 @@ def qng2(
 
 
 def dynamics_rhs(f: Callable[..., Any], h: Tensor) -> Callable[..., Any]:
+    # compute :math:`\langle \psi \vert H \vert \partial \psi \rangle`
     def wrapper(params: Tensor, **kws: Any) -> Tensor:
         def energy(params: Tensor) -> Tensor:
             w = f(params, **kws)
