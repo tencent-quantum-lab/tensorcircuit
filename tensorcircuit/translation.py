@@ -15,7 +15,7 @@ except ImportError:
 
 from . import gates
 from .circuit import Circuit
-from . import backend
+from .cons import backend
 
 Tensor = Any
 
@@ -33,8 +33,8 @@ def perm_matrix(n: int) -> Tensor:
     :return: The permutation matrix P
     :rtype: Tensor
     """
-    p_mat = np.zeros([2 ** n, 2 ** n])
-    for i in range(2 ** n):
+    p_mat = np.zeros([2**n, 2**n])
+    for i in range(2**n):
         bit = i
         revs_i = 0
         for j in range(n):
