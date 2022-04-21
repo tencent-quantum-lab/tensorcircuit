@@ -97,7 +97,7 @@ def totallayer(s, param):
 
 
 def vqe_forward(param):
-    s = tc.backend.ones([2**nwires])
+    s = tc.backend.ones([2 ** nwires])
     s /= tc.backend.norm(s)
     s = totallayer(s, param)
     e = tc.expectation((tc.gates.x(), [1]), ket=s)

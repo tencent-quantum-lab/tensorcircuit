@@ -26,7 +26,7 @@ D = 100
 
 def get_test_circuits(full):
     def reproducible_unitary(n):
-        A = np.arange(n**2).reshape((n, n))
+        A = np.arange(n ** 2).reshape((n, n))
         A = A + np.sin(A) * 1j
         A = A - A.conj().T
         return scipy.linalg.expm(A).astype(tc.dtypestr)
@@ -166,7 +166,7 @@ def do_test_expectation(test_circucits):
 
 def external_wavefunction():
     # create a fixed wavefunction and create the corresponding MPS
-    w_external = np.abs(np.sin(np.arange(2**N) % np.exp(1))).astype(
+    w_external = np.abs(np.sin(np.arange(2 ** N) % np.exp(1))).astype(
         tc.dtypestr
     )  # Just want to find a function that is so strange that the correlation is strong enough
     w_external /= np.linalg.norm(w_external)

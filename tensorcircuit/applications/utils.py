@@ -54,11 +54,11 @@ def amplitude_encoding(
     norm = tf.linalg.norm(fig, axis=1)
     norm = norm[..., tf.newaxis]
     fig = fig / norm
-    if fig.shape[1] < 2**qubits:
+    if fig.shape[1] < 2 ** qubits:
         fig = tf.concat(
             [
                 fig,
-                tf.zeros([fig.shape[0], 2**qubits - fig.shape[1]], dtype=tf.float64),
+                tf.zeros([fig.shape[0], 2 ** qubits - fig.shape[1]], dtype=tf.float64),
             ],
             axis=1,
         )
@@ -205,7 +205,7 @@ def train_qml_vag(
     with tf.GradientTape() as tape:
         tape.watch(nnp)
         cnnp = tf.cast(nnp, dtype=tf.complex64)
-        c = Circuit(nqubits, inputs=np.ones([1024], dtype=np.complex64) / 2**5)
+        c = Circuit(nqubits, inputs=np.ones([1024], dtype=np.complex64) / 2 ** 5)
         for epoch in range(epochs):
             for i in range(nqubits):
                 c.rz(i, theta=cnnp[3 * epoch, i])  # type: ignore
@@ -275,7 +275,7 @@ def validate_qml_vag(
 ) -> Any:
     xs, ys = gdata
     cnnp = tf.cast(nnp, dtype=tf.complex64)
-    c = Circuit(nqubits, inputs=np.ones([1024], dtype=np.complex64) / 2**5)
+    c = Circuit(nqubits, inputs=np.ones([1024], dtype=np.complex64) / 2 ** 5)
     for epoch in range(epochs):
         for i in range(nqubits):
             c.rz(i, theta=cnnp[3 * epoch, i])  # type: ignore
@@ -401,7 +401,7 @@ def TFIM1Denergy(
         Jzz *= 4
     for i in range(L):
         q = np.pi * (2 * i - (1 + (-1) ** L) / 2) / L
-        e -= np.abs(Jx) / 2 * np.sqrt(1 + Jzz**2 / 4 / Jx**2 - Jzz / Jx * np.cos(q))
+        e -= np.abs(Jx) / 2 * np.sqrt(1 + Jzz ** 2 / 4 / Jx ** 2 - Jzz / Jx * np.cos(q))
     return e
 
 

@@ -135,10 +135,13 @@ def test_mult_qubit_kraus(backend):
     xx = np.array(
         [[0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0], [1, 0, 0, 0]], dtype=np.complex64
     ) / np.sqrt(2)
-    yz = np.array(
-        [[0, 0, -1.0j, 0], [0, 0, 0, 1.0j], [1.0j, 0, 0, 0], [0, -1.0j, 0, 0]],
-        dtype=np.complex64,
-    ) / np.sqrt(2)
+    yz = (
+        np.array(
+            [[0, 0, -1.0j, 0], [0, 0, 0, 1.0j], [1.0j, 0, 0, 0], [0, -1.0j, 0, 0]],
+            dtype=np.complex64,
+        )
+        / np.sqrt(2)
+    )
 
     def forward(theta):
         c = tc.DMCircuit_reference(3)

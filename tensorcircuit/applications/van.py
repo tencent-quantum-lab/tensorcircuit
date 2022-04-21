@@ -3,14 +3,15 @@ One-hot variational autoregressive models for multiple categorical choices beyon
 """
 
 from typing import Any, Optional, Tuple, Union, List
-from sympy import N
 import tensorflow as tf
+from tensorflow.keras.layers import Layer
+from tensorflow.keras.models import Model
 import numpy as np
 
 # TODO(@refraction-ray): Add type annotation in this module some time.
 
 
-class MaskedLinear(tf.keras.layers.Layer):
+class MaskedLinear(Layer):  # type: ignore
     def __init__(
         self,
         input_space: int,
@@ -55,7 +56,7 @@ class MaskedLinear(tf.keras.layers.Layer):
         return lbd_w * tf.reduce_sum(self.w ** 2) + lbd_b * tf.reduce_sum(self.b ** 2)
 
 
-class MADE(tf.keras.Model):
+class MADE(Model):  # type: ignore
     def __init__(
         self,
         input_space: int,
@@ -75,7 +76,7 @@ class MADE(tf.keras.Model):
         else:
             self._dtype = dtype
         self._m: List[np.array] = []
-        self._masks = []
+        self._masks: List[tf.Tensor] = []
         self.ml_layer: List[Any] = []
         self.input_space = input_space
         self.spin_channel = spin_channel
@@ -241,7 +242,7 @@ class MADE(tf.keras.Model):
         return log_prob
 
 
-class MaskedConv2D(tf.keras.layers.Layer):
+class MaskedConv2D(Layer):  # type: ignore
     def __init__(self, mask_type: str, **kwargs: Any):
         super().__init__()
         assert mask_type in {"A", "B"}, "mask_type must be in A or B"
@@ -268,7 +269,7 @@ class MaskedConv2D(tf.keras.layers.Layer):
         return self.conv(inputs)
 
 
-class ResidualBlock(tf.keras.layers.Layer):
+class ResidualBlock(Layer):  # type: ignore
     def __init__(self, layers: List[Any]):
         super().__init__()
         self.layers = layers
@@ -280,7 +281,7 @@ class ResidualBlock(tf.keras.layers.Layer):
         return y + inputs
 
 
-class PixelCNN(tf.keras.Model):
+class PixelCNN(Model):  # type: ignore
     def __init__(self, spin_channel: int, depth: int, filters: int):
         super().__init__()
         self.rb = []
@@ -340,7 +341,6 @@ class PixelCNN(tf.keras.Model):
         probm = tf.multiply(x_hat, sample)
         probm = tf.reduce_sum(probm, axis=-1)
         lnprobm = tf.math.log(probm + eps)
-
         return tf.reduce_sum(lnprobm, axis=[-1, -2])
 
     def log_prob(self, sample: tf.Tensor) -> tf.Tensor:
@@ -349,7 +349,7 @@ class PixelCNN(tf.keras.Model):
         return log_prob
 
 
-class NMF(tf.keras.Model):
+class NMF(Model):  # type: ignore
     def __init__(
         self,
         spin_channel: int,
@@ -378,7 +378,7 @@ class NMF(tf.keras.Model):
         else:
             return self.w + self.probamp
 
-    def sample(self, batch_size: int) -> tf.Tensor:
+    def sample(self, batch_size: int) -> Tuple[tf.Tensor, tf.Tensor]:
         x_hat = self.call()
         x_hat = x_hat[tf.newaxis, :]
         tile_shape = tuple([batch_size] + [1 for _ in range(self.D + 1)])

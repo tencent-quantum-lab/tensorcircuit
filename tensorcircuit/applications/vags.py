@@ -54,7 +54,7 @@ def GHZ_vag(
     gdata: Any, nnp: Tensor, preset: Sequence[int], verbose: bool = False, n: int = 3
 ) -> Tuple[Tensor, Tensor]:
     # gdata = None
-    reference_state = np.zeros([2**n])
+    reference_state = np.zeros([2 ** n])
     #     W states benchmarks
     #     for i in range(n):
     #         reference_state[2**(i)] = 1/np.sqrt(n)
@@ -80,7 +80,7 @@ def GHZ_vag(
         s = circuit.wavefunction()
         s = tf.reshape(
             s,
-            [2**n],
+            [2 ** n],
         )
         loss = tf.math.reduce_sum(
             tf.math.abs(s - reference_state)
@@ -1052,6 +1052,7 @@ try:
             gmatrix[i, j, :] = gr[i, :]
         gmatrix = tf.constant(gmatrix)
         return loss[0], gmatrix
+
 
 except NameError as e:
     logger.warning(e)

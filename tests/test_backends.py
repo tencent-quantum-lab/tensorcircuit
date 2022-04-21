@@ -344,7 +344,7 @@ def vqe_energy(inputs, param, n, nlayers):
 def test_vvag(backend):
     n = 4
     nlayers = 3
-    inp = tc.backend.ones([2**n]) / 2 ** (n / 2)
+    inp = tc.backend.ones([2 ** n]) / 2 ** (n / 2)
     param = tc.backend.ones([2 * nlayers, n])
     inp = tc.backend.cast(inp, "complex64")
     param = tc.backend.cast(param, "complex64")
@@ -355,7 +355,7 @@ def test_vvag(backend):
     v0, (g00, g01) = vg(inp, param)
 
     batch = 8
-    inps = tc.backend.ones([batch, 2**n]) / 2 ** (n / 2)
+    inps = tc.backend.ones([batch, 2 ** n]) / 2 ** (n / 2)
     inps = tc.backend.cast(inps, "complex64")
 
     pvag = tc.backend.vvag(vqe_energy_p, argnums=(0, 1))
@@ -382,7 +382,7 @@ def test_vvag_dict(backend):
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])
 def test_vjp(backend):
     def f(x):
-        return x**2
+        return x ** 2
 
     inputs = tc.backend.ones([2, 2])
     v, g = tc.backend.vjp(f, inputs, inputs)
@@ -410,7 +410,7 @@ def test_vjp_complex(backend):
     np.testing.assert_allclose(tc.backend.numpy(g), np.ones([1]), atol=1e-5)
 
     def f2(x):
-        return x**2
+        return x ** 2
 
     inputs = tc.backend.ones([1]) + 1.0j * tc.backend.ones([1])
     v = tc.backend.ones([1], dtype="complex64")  # + 1.0j * tc.backend.ones([1])
@@ -440,7 +440,7 @@ def test_vjp_pytree(backend):
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])
 def test_jvp(backend):
     def f(x):
-        return x**2
+        return x ** 2
 
     inputs = tc.backend.ones([2, 2])
     v, g = tc.backend.jvp(f, inputs, inputs)
@@ -469,7 +469,7 @@ def test_jvp_complex(backend):
     np.testing.assert_allclose(tc.backend.numpy(g), np.ones([1]), atol=1e-5)
 
     def f2(x):
-        return x**2
+        return x ** 2
 
     inputs = tc.backend.ones([1]) + 1.0j * tc.backend.ones([1])
     v = tc.backend.ones([1]) + 1.0j * tc.backend.ones([1])
@@ -496,27 +496,27 @@ def test_jac(backend, mode):
     backend_jac = getattr(tc.backend, mode)
 
     def f(x):
-        return x**2
+        return x ** 2
 
     x = tc.backend.ones([3])
     jacf = backend_jac(f)
     np.testing.assert_allclose(jacf(x), 2 * np.eye(3), atol=1e-5)
 
     def f2(x):
-        return x**2, x
+        return x ** 2, x
 
     jacf2 = backend_jac(f2)
     np.testing.assert_allclose(jacf2(x)[1], np.eye(3), atol=1e-5)
     np.testing.assert_allclose(jacf2(x)[0], 2 * np.eye(3), atol=1e-5)
 
     def f3(x, y):
-        return x + y**2
+        return x + y ** 2
 
     jacf3 = backend_jac(f3, argnums=(0, 1))
     np.testing.assert_allclose(jacf3(x, x)[1], 2 * np.eye(3), atol=1e-5)
 
     def f4(x, y):
-        return x**2, y
+        return x ** 2, y
 
     # note the subtle difference of two tuples order in jacrev and jacfwd for current API
     # the value happen to be the same here, though
@@ -531,7 +531,7 @@ def test_jac_md_input(backend, mode):
     backend_jac = getattr(tc.backend, mode)
 
     def f(x):
-        return x**2
+        return x ** 2
 
     x = tc.backend.ones([2, 3])
     jacf = backend_jac(f)
@@ -565,7 +565,7 @@ def test_jac_tall(backend, mode):
 def test_vvag_has_aux(backend):
     def f(x):
         y = tc.backend.sum(x)
-        return tc.backend.real(y**2), y
+        return tc.backend.real(y ** 2), y
 
     fvvag = tc.backend.vvag(f, has_aux=True)
     (_, v1), _ = fvvag(tc.backend.ones([10, 2]))
@@ -741,7 +741,7 @@ def test_with_level_set_return(backend):
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])
 def test_grad_has_aux(backend):
     def f(x):
-        return tc.backend.real(x**2), x**3
+        return tc.backend.real(x ** 2), x ** 3
 
     vg = tc.backend.value_and_grad(f, has_aux=True)
 
@@ -750,7 +750,7 @@ def test_grad_has_aux(backend):
     )
 
     def f2(x):
-        return tc.backend.real(x**2), (x**3, tc.backend.ones([3]))
+        return tc.backend.real(x ** 2), (x ** 3, tc.backend.ones([3]))
 
     gs = tc.backend.grad(f2, has_aux=True)
     np.testing.assert_allclose(gs(tc.backend.ones([]))[0], 2.0, atol=1e-5)
@@ -833,7 +833,7 @@ def test_optimizers(backend):
 def test_hessian(backend):
     # hessian support is now very fragile and especially has potential issues on tf backend
     def f(param):
-        return tc.backend.sum(param**2)
+        return tc.backend.sum(param ** 2)
 
     hf = tc.backend.hessian(f)
     param = tc.backend.ones([2])
