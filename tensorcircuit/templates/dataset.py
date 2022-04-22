@@ -20,12 +20,12 @@ def amplitude_encoding(
     fig = backend.reshape(fig, shape=[-1])
     norm = backend.norm(fig)
     fig = fig / norm
-    if backend.shape_tuple(fig)[0] < 2 ** nqubits:
+    if backend.shape_tuple(fig)[0] < 2**nqubits:
         fig = backend.concat(
             [
                 fig,
                 backend.zeros(
-                    [2 ** nqubits - backend.shape_tuple(fig)[0]], dtype=fig.dtype
+                    [2**nqubits - backend.shape_tuple(fig)[0]], dtype=fig.dtype
                 ),
             ],
         )

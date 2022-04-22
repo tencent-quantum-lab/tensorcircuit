@@ -277,7 +277,7 @@ class MPSCircuit:
             max_truncation_err=self.max_truncation_err,
             relative=self.relative,
         )
-        self._fidelity *= 1 - backend.real(backend.sum(err ** 2))
+        self._fidelity *= 1 - backend.real(backend.sum(err**2))
 
     def apply_double_gate(
         self,
