@@ -75,7 +75,7 @@ class MADE(Model):  # type: ignore
             self._dtype = tf.float32
         else:
             self._dtype = dtype
-        self._m: List[np.array] = []
+        self._m: List[np.array] = []  # type: ignore
         self._masks: List[tf.Tensor] = []
         self.ml_layer: List[Any] = []
         self.input_space = input_space
@@ -127,10 +127,10 @@ class MADE(Model):  # type: ignore
                 else:
                     self._m.append(np.random.randint(1, input_space, size=hidden_space))
             if i == depth:
-                mask = self._m[i][None, :] > self._m[i - 1][:, None]
+                mask = self._m[i][None, :] > self._m[i - 1][:, None]  # type: ignore
             else:
                 # input to hidden & hidden to hidden
-                mask = self._m[i][None, :] >= self._m[i - 1][:, None]
+                mask = self._m[i][None, :] >= self._m[i - 1][:, None]  # type: ignore
             # add two spin channel axis into mask
             mask = mask.T
             mask = mask[:, np.newaxis, :, np.newaxis]
@@ -207,7 +207,7 @@ class MADE(Model):  # type: ignore
             loss += l.regularization(lbd_w=lbd_w, lbd_b=lbd_b)
         return loss
 
-    def sample(self, batch_size: int) -> Tuple[np.array, tf.Tensor]:
+    def sample(self, batch_size: int) -> Tuple[np.array, tf.Tensor]:  # type: ignore
         eps = 1e-10
         sample = np.zeros(
             [batch_size, self.input_space, self.spin_channel], dtype=np.float32
@@ -318,7 +318,7 @@ class PixelCNN(Model):  # type: ignore
         x = tf.keras.layers.Softmax(axis=-1)(x)
         return x
 
-    def sample(self, batch_size: int, h: int, w: int) -> Tuple[np.array, tf.Tensor]:
+    def sample(self, batch_size: int, h: int, w: int) -> Tuple[np.array, tf.Tensor]:  # type: ignore
         eps = 1e-10
         sample = np.zeros([batch_size, h, w, self.spin_channel], dtype=np.float32)
         for i in range(h):
