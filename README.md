@@ -82,6 +82,24 @@ pip install tensorcircuit
 
 We also have [Docker support](/docker).
 
+## Advantages
+
+* Tensor network simulation engine based
+
+* JIT, AD, vectorized parallelism compatible, GPU support
+
+* Efficiency
+
+  * Time: 10 to 10^6 times acceleration compared to tfq or qiskit
+
+  * Space: 600+ qubits 1D VQE workflow (converged energy inaccuracy: < 1%)
+
+* Elegance
+
+  * Flexibility: customized contraction, multiple ML backend/interface choices, multiple dtype precisions
+
+  * API design: quantum for humans, less code, more power
+
 ## Contributing
 
 For contribution guidelines and notes, see [CONTRIBUTING](/CONTRIBUTING.md).
