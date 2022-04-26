@@ -90,7 +90,7 @@ We also have [Docker support](/docker).
 
 * Efficiency
 
-  * Time: 10 to 10^6 times acceleration compared to tfq or qiskit
+  * Time: 10 to 10^6 times acceleration compared to the tfq or qiskit
 
   * Space: 600+ qubits 1D VQE workflow (converged energy inaccuracy: < 1%)
 
@@ -104,9 +104,9 @@ We also have [Docker support](/docker).
 
 For contribution guidelines and notes, see [CONTRIBUTING](/CONTRIBUTING.md).
 
-We welcome issues, PRs and discussions from everyone, and these are all hosted on GitHub.
+We welcome issues, PRs, and discussions from everyone, and these are all hosted on GitHub.
 
-## Researches and applications
+## Researches and Applications
 
 ### DQAS
 
@@ -122,3 +122,4 @@ Reference paper: https://arxiv.org/pdf/2106.05105.pdf and https://arxiv.org/pdf/
 
 For the application of VQEX on MBL phase identification, see the [tutorial](https://github.com/quclub/tensorcircuit-tutorials/blob/master/tutorials/vqex_mbl.ipynb).
 Reference paper: https://arxiv.org/pdf/2111.13719.pdf.
+
