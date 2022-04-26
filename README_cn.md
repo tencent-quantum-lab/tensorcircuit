@@ -21,7 +21,7 @@
 
 <p align="center"> <a href="README.md">English</a> |  简体中文 </p>
 
-TensorCircuit 是下一代量子电路模拟器，支持自动微分、即时编译、硬件加速和矢量化并行。
+TensorCircuit 是下一代量子电路模拟器，支持自动微分、即时编译、硬件加速和向量并行化。
 
 TensorCircuit 建立在现代机器学习框架之上，并且与机器学习后端无关。 它特别适用于量子经典混合范式和变分量子算法的高效模拟。
 
@@ -70,7 +70,7 @@ print(g(theta))
 
 ## 安装
 
-该包纯粹是用python编写的，可以通过pip获取：
+该包纯粹是用 Python 编写的，可以通过 pip 获取：
 
 ```python
 pip install tensorcircuit
@@ -80,25 +80,25 @@ pip install tensorcircuit
 
 ## 优势
 
-* 基于张量网络仿真引擎
+* 基于张量网络模拟引擎
 
-* JIT、AD、矢量化并行兼容，GPU 支持
+* 即时编译、自动微分、向量并行化兼容，GPU 支持
 
 * 效率
 
    * 时间：与 tfq 或 qiskit 相比，加速 10 到 10^6 倍
 
-   * 空间：600+ qubits 1D VQE 工作流程（融合能量不准确度：< 1%）
+   * 空间：600+ qubits 1D VQE 工作流（收敛能量误差：< 1%）
 
 * 优雅
 
-   * 灵活性：自定义收缩、多种 ML 后端/接口选择、多种 dtype 精度
+   * 灵活性：自定义张量收缩、多种 ML 后端/接口选择、多种 dtype 精度
 
    * API 设计：人类可理解的量子，更少的代码，更多的力量
 
 ## 贡献
 
-有关贡献指南和说明，请参阅 [贡献](/CONTRIBUTING.md)。
+有关贡献指南和说明，请参阅 [贡献](/CONTRIBUTING_cn.md)。
 
 我们欢迎大家提出问题、PR 和讨论，这些都托管在 GitHub 上。
 

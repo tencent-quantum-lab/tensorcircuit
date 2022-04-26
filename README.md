@@ -74,7 +74,7 @@ print(g(theta))
 
 ## Install
 
-The package is purely written in python and can be obtained via pip as:
+The package is purely written in Python and can be obtained via pip as:
 
 ```python
 pip install tensorcircuit
@@ -90,7 +90,7 @@ We also have [Docker support](/docker).
 
 * Efficiency
 
-  * Time: 10 to 10^6 times acceleration compared to the tfq or qiskit
+  * Time: 10 to 10^6 times acceleration compared to tfq or qiskit
 
   * Space: 600+ qubits 1D VQE workflow (converged energy inaccuracy: < 1%)
 
