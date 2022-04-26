@@ -80,3 +80,42 @@ Try the following: (the pipeline is even fully jittable!)
     c.conditional_gate(r, [tc.gates.i(), tc.gates.x()], 1)
 
 ``cond_measurement`` will return 0 or 1 based on the measurement result on z-basis, and ``conditional_gate`` applies gate_list[r] on the circuit.
+
+How to understand the difference between different measurement methods for ``Circuit``?
+----------------------------------------------------------------------------------------------------
+
+* :py:meth:`tensorcircuit.circuit.Circuit.measure` : used at the end of the circuit execution, return bitstring based on quantum amplitude probability (can also with the probability), the circuit and the output state are unaffected (no collapse). The jittable version is ``measure_jit``.
+
+* :py:meth:`tensorcircuit.circuit.Circuit.cond_measure`: also with alias ``cond_measurement``, usually used in the middle of the circuit execution. Apply a POVM on z basis on the given qubit, the state is collapsed and nomarlized based on the measurement projection. The method returns an integer Tensor indicating the measurement result 0 or 1 based on the quantum amplitude probability. 
+
+* :py:meth:`tensorcircuit.circuit.Circuit.post_select`: also with alia ``mid_measurement``, usually used in the middle of the circuit execution. The measurement result is fixed as given from ``keep`` arg of this method. The state is collapsed but unnormalized based on the given measurement projection.
+
+Please refer to the following demos:
+
+.. code-block:: python
+
+    c = tc.Circuit(2)
+    c.H(0)
+    c.H(1)
+    print(c.measure(0, 1))
+    # ('01', -1.0)
+    print(c.measure(0, with_prob=True))
+    # ('0', (0.4999999657714588+0j))
+    print(c.state()) # unaffected
+    # [0.49999998+0.j 0.49999998+0.j 0.49999998+0.j 0.49999998+0.j]
+
+    c = tc.Circuit(2)
+    c.H(0)
+    c.H(1)
+    print(c.cond_measure(0))  # measure the first qubit return +z
+    # 0
+    print(c.state())  # collapsed and normalized
+    # [0.70710678+0.j 0.70710678+0.j 0.        +0.j 0.        +0.j]
+
+    c = tc.Circuit(2)
+    c.H(0)
+    c.H(1)
+    print(c.post_select(0, keep=1))  # measure the first qubit and it is guranteed to return -z
+    # 1
+    print(c.state())  # collapsed but unnormalized
+    # [0.        +0.j 0.        +0.j 0.49999998+0.j 0.49999998+0.j]

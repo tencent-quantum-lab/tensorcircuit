@@ -700,7 +700,7 @@ class Circuit:
         """
         self._apply_qir(self, qir)
 
-    def mid_measurement(self, index: int, keep: int = 0) -> None:
+    def mid_measurement(self, index: int, keep: int = 0) -> Tensor:
         """
         Middle measurement in z-basis on the circuit, note the wavefunction output is not normalized
         with ``mid_measurement`` involved, one should normalize the state manually if needed.
@@ -712,8 +712,8 @@ class Circuit:
         :type keep: int, optional
         """
         # normalization not guaranteed
-        assert keep in [0, 1]
-        if keep == 0:
+        # assert keep in [0, 1]
+        if keep < 0.5:
             gate = np.array(
                 [
                     [1.0],
@@ -737,6 +737,9 @@ class Circuit:
         self._front[index] = mg2.get_edge(0)
         self._nodes.append(mg1)
         self._nodes.append(mg2)
+        r = backend.convert_to_tensor(keep)
+        r = backend.cast(r, "int32")
+        return r
 
     mid_measure = mid_measurement
     post_select = mid_measurement
