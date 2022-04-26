@@ -74,7 +74,7 @@ print(g(theta))
 
 ## Install
 
-The package is purely written in python and can be obtained via pip as:
+The package is purely written in Python and can be obtained via pip as:
 
 ```python
 pip install tensorcircuit
@@ -104,9 +104,9 @@ We also have [Docker support](/docker).
 
 For contribution guidelines and notes, see [CONTRIBUTING](/CONTRIBUTING.md).
 
-We welcome issues, PRs and discussions from everyone, and these are all hosted on GitHub.
+We welcome issues, PRs, and discussions from everyone, and these are all hosted on GitHub.
 
-## Researches and applications
+## Researches and Applications
 
 ### DQAS
 
@@ -122,3 +122,4 @@ Reference paper: https://arxiv.org/pdf/2106.05105.pdf and https://arxiv.org/pdf/
 
 For the application of VQEX on MBL phase identification, see the [tutorial](https://github.com/quclub/tensorcircuit-tutorials/blob/master/tutorials/vqex_mbl.ipynb).
 Reference paper: https://arxiv.org/pdf/2111.13719.pdf.
+
