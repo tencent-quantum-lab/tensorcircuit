@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Added
+
+- Add `eigvalsh` method on backend
+
+### Changed
+
+- `post_select` method return the measurement result int tensor now, consistent with `cond_measure`
+
 ## 0.0.220413
 
 ### Added

@@ -314,6 +314,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     def size(self, a: Tensor) -> Tensor:
         return tf.size(a)
 
+    def eigvalsh(self, a: Tensor) -> Tensor:
+        return tf.linalg.eigvalsh(a)
+
     def kron(self, a: Tensor, b: Tensor) -> Tensor:
         # array more than 2d consistency is not guranteed for different backends
         return tf.reshape(

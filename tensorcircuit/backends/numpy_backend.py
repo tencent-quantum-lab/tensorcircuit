@@ -128,6 +128,9 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def size(self, a: Tensor) -> Tensor:
         return a.size
 
+    def eigvalsh(self, a: Tensor) -> Tensor:
+        return np.linalg.eigvalsh(a)
+
     def kron(self, a: Tensor, b: Tensor) -> Tensor:
         return np.kron(a, b)
 

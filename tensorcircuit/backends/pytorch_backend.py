@@ -253,6 +253,9 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
     def size(self, a: Tensor) -> Tensor:
         return a.size()
 
+    def eigvalsh(self, a: Tensor) -> Tensor:
+        return torchlib.linalg.eigvalsh(a)
+
     def kron(self, a: Tensor, b: Tensor) -> Tensor:
         return torchlib.kron(a, b)
 
