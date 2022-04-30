@@ -818,7 +818,7 @@ class QuVector(QuOperator):
         
         .. math::
         
-            \rho_{AA^\dagger}
+            \\rho_{AA^\\dagger}
         
         :return: The projector of the operator.
         :rtype: QuOperator
@@ -833,7 +833,7 @@ class QuVector(QuOperator):
         
         .. math::
         
-            \rho_{A} = \mathrm{Tr}_{subsystems}(\rho_{AA^\dagger})
+            \\rho_{A} = \\mathrm{Tr}_{subsystems}(\\rho_{AA^\\dagger})
         
         Firstly, take the projector of the operator, then trace out the subsystems 
         to trace out are supplied as indices, so that dangling edges are connected 
@@ -941,7 +941,7 @@ class QuAdjointVector(QuOperator):
         
         .. math::
         
-            \rho_{A^\daggerA}
+            \\rho_{A^\\daggerA}
         
         :return: The projector of the operator.
         :rtype: QuOperator
@@ -956,7 +956,7 @@ class QuAdjointVector(QuOperator):
         
         .. math::
         
-            \rho_{A} = \mathrm{Tr}_{subsystems}(\rho_{AA^\dagger})
+            \\rho_{A} = \\mathrm{Tr}_{subsystems}(\\rho_{AA^\\dagger})
         
         Firstly, take the projector of the operator, then trace out the subsystems 
         to trace out are supplied as indices, so that dangling edges are connected 
@@ -1732,7 +1732,7 @@ def gibbs_state(h: Tensor, beta: float = 1) -> Tensor:
     :type h: Tensor
     :param beta: Constant for the optimization, default is 1.
     :type beta: float, optional
-    :return: _description_
+    :return: The Gibbs state of ``h`` with the given ``beta``.
     :rtype: Tensor
     """
     rho = backend.expm(-beta * h)
@@ -1749,7 +1749,7 @@ def double_state(h: Tensor, beta: float = 1) -> Tensor:
     :type h: Tensor
     :param beta: Constant for the optimization, default is 1.
     :type beta: float, optional
-    :return: _description_
+    :return: The double state of ``h`` with the given ``beta``.
     :rtype: Tensor
     """
     rho = backend.expm(-beta / 2 * h)
