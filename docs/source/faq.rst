@@ -119,3 +119,11 @@ Please refer to the following demos:
     # 1
     print(c.state())  # collapsed but unnormalized
     # [0.        +0.j 0.        +0.j 0.49999998+0.j 0.49999998+0.j]
+
+
+How to arange the circuit gate placement in visualization from ``c.tex()``?
+----------------------------------------------------------------------------------------------------
+
+Try ``lcompress=True`` or ``rcompress=True`` option in :py:meth:`tensorcircuit.circuit.Circuit.tex` API to make the circuit align from left or from right.
+
+Or try ``c.unitary(0, unitary=tc.backend.eye(2), name="invisible")`` to add placeholder on the circuit which is invisible for circuit visualization.

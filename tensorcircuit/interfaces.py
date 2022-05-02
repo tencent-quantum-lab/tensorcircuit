@@ -254,3 +254,6 @@ def scipy_optimize_interface(
         return scipy_vs
 
     return scipy_v
+
+
+scipy_interface = scipy_optimize_interface
