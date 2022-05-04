@@ -829,7 +829,7 @@ class QuVector(QuOperator):
 
         .. math::
 
-            \\rho_{A} = \\mathrm{Tr}_{subsystems}(\\rho_{AA^\\dagger})
+            \\mathrm{Tr}_{subsystems}(A A^\\dagger)
 
         Firstly, take the projector of the operator, then trace out the subsystems
         to trace out are supplied as indices, so that dangling edges are connected
@@ -948,7 +948,7 @@ class QuAdjointVector(QuOperator):
 
         .. math::
 
-            \\rho_{A} = \\mathrm{Tr}_{subsystems}(\\rho_{AA^\\dagger})
+            \\mathrm{Tr}_{subsystems}(A^\\dagger A)
 
         Firstly, take the projector of the operator, then trace out the subsystems
         to trace out are supplied as indices, so that dangling edges are connected
@@ -1704,11 +1704,11 @@ def trace_distance(rho: Tensor, rho0: Tensor, eps: float = 1e-12) -> Tensor:
 @partial(op2tensor, op_argnums=(0, 1))
 def fidelity(rho: Tensor, rho0: Tensor) -> Tensor:
     """
-    Return the sqrtm of a Hermitian matrix ``a``.
+    Return fidelity scalar between two states rho and rho0.
 
     .. math::
 
-        \\operatorname{Re}(\\operatorname{Tr}(\\sqrt{\\sqrt{rho} ⊗ rho_0 ⊗ \\sqrt{rho}}))
+        \\operatorname{Tr}(\\sqrt{\\sqrt{rho} rho_0 \\sqrt{rho}})
 
     :param rho: The density matrix in form of Tensor.
     :type rho: Tensor
