@@ -813,13 +813,9 @@ class QuVector(QuOperator):
         """
         The projector of the operator.
         The operator, as a linear operator, on the adjoint of the operator.
-        
-        Set :math:`A` is the operator in matrix form, then the projector of operator is defined as:
-        
-        .. math::
-        
-            {\\rho_{AA^\\dagger}} = A \times A^\\dagger
-        
+
+        Set :math:`A` is the operator in matrix form, then the projector of operator is defined as: :math:`A A^\\dagger`
+
         :return: The projector of the operator.
         :rtype: QuOperator
         """
@@ -828,15 +824,15 @@ class QuVector(QuOperator):
     def reduced_density(self, subsystems_to_trace_out: Collection[int]) -> "QuOperator":
         """
         The reduced density of the operator.
-        
+
         Set :math:`A` is the matrix of the operator, then the reduced density is defined as:
-        
+
         .. math::
-        
+
             \\rho_{A} = \\mathrm{Tr}_{subsystems}(\\rho_{AA^\\dagger})
-        
-        Firstly, take the projector of the operator, then trace out the subsystems 
-        to trace out are supplied as indices, so that dangling edges are connected 
+
+        Firstly, take the projector of the operator, then trace out the subsystems
+        to trace out are supplied as indices, so that dangling edges are connected
         to each other as:
         `out_edges[i] ^ in_edges[i] for i in subsystems_to_trace_out`
         This does not modify the original network. The original ordering of the
@@ -936,13 +932,9 @@ class QuAdjointVector(QuOperator):
         """
         The projector of the operator.
         The operator, as a linear operator, on the adjoint of the operator.
-        
-        Set :math:`A` is the operator in matrix form, then the projector of operator is defined as:
-        
-        .. math::
-        
-            {\\rho_{AA^\\dagger}} = A^\\dagger \times A
-        
+
+        Set :math:`A` is the operator in matrix form, then the projector of operator is defined as: :math:`A^\\dagger A`
+
         :return: The projector of the operator.
         :rtype: QuOperator
         """
@@ -951,15 +943,15 @@ class QuAdjointVector(QuOperator):
     def reduced_density(self, subsystems_to_trace_out: Collection[int]) -> "QuOperator":
         """
         The reduced density of the operator.
-        
+
         Set :math:`A` is the matrix of the operator, then the reduced density is defined as:
-        
+
         .. math::
-        
+
             \\rho_{A} = \\mathrm{Tr}_{subsystems}(\\rho_{AA^\\dagger})
-        
-        Firstly, take the projector of the operator, then trace out the subsystems 
-        to trace out are supplied as indices, so that dangling edges are connected 
+
+        Firstly, take the projector of the operator, then trace out the subsystems
+        to trace out are supplied as indices, so that dangling edges are connected
         to each other as:
         `out_edges[i] ^ in_edges[i] for i in subsystems_to_trace_out`
         This does not modify the original network. The original ordering of the
@@ -1713,11 +1705,11 @@ def trace_distance(rho: Tensor, rho0: Tensor, eps: float = 1e-12) -> Tensor:
 def fidelity(rho: Tensor, rho0: Tensor) -> Tensor:
     """
     Return the sqrtm of a Hermitian matrix ``a``.
-    
+
     .. math::
 
         \\operatorname{Re}(\\operatorname{Tr}(\\sqrt{\\sqrt{rho} ⊗ rho_0 ⊗ \\sqrt{rho}}))
-        
+
     :param rho: The density matrix in form of Tensor.
     :type rho: Tensor
     :param rho0: The density matrix in form of Tensor.
