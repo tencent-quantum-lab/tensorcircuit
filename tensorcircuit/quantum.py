@@ -818,7 +818,7 @@ class QuVector(QuOperator):
         
         .. math::
         
-            {\\rho_{AA^\\dagger}} = A \otimes A^\\dagger
+            {\\rho_{AA^\\dagger}} = A \times A^\\dagger
         
         :return: The projector of the operator.
         :rtype: QuOperator
@@ -941,7 +941,7 @@ class QuAdjointVector(QuOperator):
         
         .. math::
         
-            {\\rho_{AA^\\dagger}} = A^\\dagger \otimes A
+            {\\rho_{AA^\\dagger}} = A^\\dagger \times A
         
         :return: The projector of the operator.
         :rtype: QuOperator
