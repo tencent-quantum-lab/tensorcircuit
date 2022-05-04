@@ -400,12 +400,24 @@ class QuOperator:
         return [e.dimension for e in self.out_edges]
 
     def is_scalar(self) -> bool:
+        """
+        Returns a bool indicating if QuOperator is a scalar.
+        Examples can be found in the `QuOperator.from_tensor`.
+        """
         return len(self.out_edges) == 0 and len(self.in_edges) == 0
 
     def is_vector(self) -> bool:
+        """
+        Returns a bool indicating if QuOperator is a vector.
+        Examples can be found in the `QuOperator.from_tensor`.
+        """
         return len(self.out_edges) > 0 and len(self.in_edges) == 0
 
     def is_adjoint_vector(self) -> bool:
+        """
+        Returns a bool indicating if QuOperator is an adjoint vector.
+        Examples can be found in the `QuOperator.from_tensor`.
+        """
         return len(self.out_edges) == 0 and len(self.in_edges) > 0
 
     def check_network(self) -> None:
@@ -590,7 +602,7 @@ class QuOperator:
         """
         Tensor product with another operator.
         Given two operators `A` and `B`, produces a new operator `AB` representing
-        `A` ⊗ `B`. The `out_edges` (`in_edges`) of `AB` is simply the
+        :math:`A ⊗ B`. The `out_edges` (`in_edges`) of `AB` is simply the
         concatenation of the `out_edges` (`in_edges`) of `A.copy()` with that of
         `B.copy()`:
         `new_out_edges = [*out_edges_A_copy, *out_edges_B_copy]`
@@ -697,6 +709,19 @@ class QuOperator:
         return list(nodes)[0].tensor
 
     def eval_matrix(self, final_edge_order: Optional[Sequence[Edge]] = None) -> Tensor:
+        """
+        Contracts the tensor network in place and returns the final tensor
+        in two dimentional matrix.
+        The default ordering for the axes of the final tensor is:
+        (:math:`\prod` dimension of out_edges, :math:`\prod` dimension of in_edges)
+
+        :param final_edge_order: Manually specify the axis ordering of the final tensor.
+            The default ordering is determined by `out_edges` and `in_edges` (see above).
+        :type final_edge_order: Optional[Sequence[Edge]], optional
+        :raises ValueError: Node count '{}' > 1 after contraction!
+        :return: The two-dimentional tensor representing the operator.
+        :rtype: Tensor
+        """
         t = self.eval(final_edge_order)
         shape1 = reduce(mul, [e.dimension for e in self.out_edges] + [1])
         shape2 = reduce(mul, [e.dimension for e in self.in_edges] + [1])
@@ -785,9 +810,39 @@ class QuVector(QuOperator):
         return self.out_space
 
     def projector(self) -> "QuOperator":
+        """
+        The projector of the operator.
+        The operator, as a linear operator, on the adjoint of the operator.
+
+        Set :math:`A` is the operator in matrix form, then the projector of operator is defined as: :math:`A A^\\dagger`
+
+        :return: The projector of the operator.
+        :rtype: QuOperator
+        """
         return self @ self.adjoint()
 
     def reduced_density(self, subsystems_to_trace_out: Collection[int]) -> "QuOperator":
+        """
+        The reduced density of the operator.
+
+        Set :math:`A` is the matrix of the operator, then the reduced density is defined as:
+
+        .. math::
+
+            \\mathrm{Tr}_{subsystems}(A A^\\dagger)
+
+        Firstly, take the projector of the operator, then trace out the subsystems
+        to trace out are supplied as indices, so that dangling edges are connected
+        to each other as:
+        `out_edges[i] ^ in_edges[i] for i in subsystems_to_trace_out`
+        This does not modify the original network. The original ordering of the
+        remaining subsystems is maintained.
+
+        :param subsystems_to_trace_out: Indices of subsystems to trace out.
+        :type subsystems_to_trace_out: Collection[int]
+        :return: The QuOperator of the reduced density of the operator with given subsystems.
+        :rtype: QuOperator
+        """
         rho = self.projector()
         return rho.partial_trace(subsystems_to_trace_out)
 
@@ -874,9 +929,39 @@ class QuAdjointVector(QuOperator):
         return self.in_space
 
     def projector(self) -> "QuOperator":
+        """
+        The projector of the operator.
+        The operator, as a linear operator, on the adjoint of the operator.
+
+        Set :math:`A` is the operator in matrix form, then the projector of operator is defined as: :math:`A^\\dagger A`
+
+        :return: The projector of the operator.
+        :rtype: QuOperator
+        """
         return self.adjoint() @ self
 
     def reduced_density(self, subsystems_to_trace_out: Collection[int]) -> "QuOperator":
+        """
+        The reduced density of the operator.
+
+        Set :math:`A` is the matrix of the operator, then the reduced density is defined as:
+
+        .. math::
+
+            \\mathrm{Tr}_{subsystems}(A^\\dagger A)
+
+        Firstly, take the projector of the operator, then trace out the subsystems
+        to trace out are supplied as indices, so that dangling edges are connected
+        to each other as:
+        `out_edges[i] ^ in_edges[i] for i in subsystems_to_trace_out`
+        This does not modify the original network. The original ordering of the
+        remaining subsystems is maintained.
+
+        :param subsystems_to_trace_out: Indices of subsystems to trace out.
+        :type subsystems_to_trace_out: Collection[int]
+        :return: The QuOperator of the reduced density of the operator with given subsystems.
+        :rtype: QuOperator
+        """
         rho = self.projector()
         return rho.partial_trace(subsystems_to_trace_out)
 
@@ -1356,7 +1441,7 @@ def trace_product(*o: Union[Tensor, QuOperator]) -> Tensor:
 
     .. math ::
 
-        \\mathrm{Tr}(\\prod_i O_i)
+        \\operatorname{Tr}(\\prod_i O_i)
 
     :Example:
 
@@ -1550,6 +1635,16 @@ def renyi_free_energy(
 
 
 def taylorlnm(x: Tensor, k: int) -> Tensor:
+    """
+    Taylor expansion of :math:`ln(x+1)`.
+
+    :param x: The density matrix in form of Tensor.
+    :type x: Tensor
+    :param k: The :math:`k` th order, default is 2.
+    :type k: int, optional
+    :return: The :math:`k` th order of Taylor expansion of :math:`ln(x+1)`.
+    :rtype: Tensor
+    """
     dtype = x.dtype
     s = x.shape[-1]
     y = 1 / k * (-1) ** (k + 1) * backend.eye(s, dtype=dtype)
@@ -1563,6 +1658,20 @@ def taylorlnm(x: Tensor, k: int) -> Tensor:
 def truncated_free_energy(
     rho: Tensor, h: Tensor, beta: float = 1, k: int = 2
 ) -> Tensor:
+    """
+    Compute the truncated free energy from the given density matrix ``rho``.
+
+    :param rho: The density matrix in form of Tensor.
+    :type rho: Tensor
+    :param h: Hamiltonian operator in form of Tensor.
+    :type h: Tensor
+    :param beta: Constant for the optimization, default is 1.
+    :type beta: float, optional
+    :param k: The :math:`k` th order, defaults to 2
+    :type k: int, optional
+    :return: The :math:`k` th order of the truncated free energy.
+    :rtype: Tensor
+    """
     dtype = rho.dtype
     s = rho.shape[-1]
     tyexpand = rho @ taylorlnm(rho - backend.eye(s, dtype=dtype), k - 1)
@@ -1573,6 +1682,18 @@ def truncated_free_energy(
 
 @partial(op2tensor, op_argnums=(0, 1))
 def trace_distance(rho: Tensor, rho0: Tensor, eps: float = 1e-12) -> Tensor:
+    """
+    Compute the trace distance between two density matrix ``rho`` and ``rho2``.
+
+    :param rho: The density matrix in form of Tensor.
+    :type rho: Tensor
+    :param rho0: The density matrix in form of Tensor.
+    :type rho0: Tensor
+    :param eps: Epsilon, defaults to 1e-12
+    :type eps: float, optional
+    :return: The trace distance between two density matrix ``rho`` and ``rho2``.
+    :rtype: Tensor
+    """
     d2 = rho - rho0
     d2 = backend.adjoint(d2) @ d2
     lbds = backend.real(backend.eigh(d2)[0])
@@ -1582,12 +1703,36 @@ def trace_distance(rho: Tensor, rho0: Tensor, eps: float = 1e-12) -> Tensor:
 
 @partial(op2tensor, op_argnums=(0, 1))
 def fidelity(rho: Tensor, rho0: Tensor) -> Tensor:
+    """
+    Return fidelity scalar between two states rho and rho0.
+
+    .. math::
+
+        \\operatorname{Tr}(\\sqrt{\\sqrt{rho} rho_0 \\sqrt{rho}})
+
+    :param rho: The density matrix in form of Tensor.
+    :type rho: Tensor
+    :param rho0: The density matrix in form of Tensor.
+    :type rho0: Tensor
+    :return: The sqrtm of a Hermitian matrix ``a``.
+    :rtype: Tensor
+    """
     rhosqrt = backend.sqrtmh(rho)
     return backend.real(backend.trace(backend.sqrtmh(rhosqrt @ rho0 @ rhosqrt)) ** 2)
 
 
 @op2tensor
 def gibbs_state(h: Tensor, beta: float = 1) -> Tensor:
+    """
+    Compute the Gibbs state of the given Hamiltonian operator ``h``.
+
+    :param h: Hamiltonian operator in form of Tensor.
+    :type h: Tensor
+    :param beta: Constant for the optimization, default is 1.
+    :type beta: float, optional
+    :return: The Gibbs state of ``h`` with the given ``beta``.
+    :rtype: Tensor
+    """
     rho = backend.expm(-beta * h)
     rho /= backend.trace(rho)
     return rho
@@ -1595,6 +1740,16 @@ def gibbs_state(h: Tensor, beta: float = 1) -> Tensor:
 
 @op2tensor
 def double_state(h: Tensor, beta: float = 1) -> Tensor:
+    """
+    Compute the double state of the given Hamiltonian operator ``h``.
+
+    :param h: Hamiltonian operator in form of Tensor.
+    :type h: Tensor
+    :param beta: Constant for the optimization, default is 1.
+    :type beta: float, optional
+    :return: The double state of ``h`` with the given ``beta``.
+    :rtype: Tensor
+    """
     rho = backend.expm(-beta / 2 * h)
     state = backend.reshape(rho, [-1])
     norm = backend.norm(state)
@@ -1603,6 +1758,16 @@ def double_state(h: Tensor, beta: float = 1) -> Tensor:
 
 @op2tensor
 def mutual_information(s: Tensor, cut: Union[int, List[int]]) -> Tensor:
+    """
+    Mutual information between AB subsystem described by ``cut``.
+
+    :param s: The density matrix in form of Tensor.
+    :type s: Tensor
+    :param cut: The AB subsystem.
+    :type cut: Union[int, List[int]]
+    :return: The mutual information between AB subsystem described by ``cut``.
+    :rtype: Tensor
+    """
     if isinstance(cut, list) or isinstance(cut, tuple) or isinstance(cut, set):
         traceout = list(cut)
     else:
