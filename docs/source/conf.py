@@ -197,3 +197,7 @@ texinfo_documents = [
 
 locale_dirs = ["locale/"]  # path is example but recommended.
 # -- Extension configuration -------------------------------------------------
+
+# sphinx-copybutton
+copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: "
+copybutton_prompt_is_regexp = True

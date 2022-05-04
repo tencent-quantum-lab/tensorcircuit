@@ -602,7 +602,7 @@ class QuOperator:
         """
         Tensor product with another operator.
         Given two operators `A` and `B`, produces a new operator `AB` representing
-        `A` ⊗ `B`. The `out_edges` (`in_edges`) of `AB` is simply the
+        :math:`A ⊗ B`. The `out_edges` (`in_edges`) of `AB` is simply the
         concatenation of the `out_edges` (`in_edges`) of `A.copy()` with that of
         `B.copy()`:
         `new_out_edges = [*out_edges_A_copy, *out_edges_B_copy]`
@@ -818,7 +818,7 @@ class QuVector(QuOperator):
         
         .. math::
         
-            \\rho_{AA^\\dagger}
+            {\\rho_{AA^\\dagger}} = A \otimes A^\\dagger
         
         :return: The projector of the operator.
         :rtype: QuOperator
@@ -941,7 +941,7 @@ class QuAdjointVector(QuOperator):
         
         .. math::
         
-            \\rho_{A^\\daggerA}
+            {\\rho_{AA^\\dagger}} = A^\\dagger \otimes A
         
         :return: The projector of the operator.
         :rtype: QuOperator
@@ -1449,7 +1449,7 @@ def trace_product(*o: Union[Tensor, QuOperator]) -> Tensor:
 
     .. math ::
 
-        \\mathrm{Tr}(\\prod_i O_i)
+        \\operatorname{Tr}(\\prod_i O_i)
 
     :Example:
 
@@ -1643,13 +1643,14 @@ def renyi_free_energy(
 
 
 def taylorlnm(x: Tensor, k: int) -> Tensor:
-    """_summary_
+    """
+    Taylor expansion of :math:`ln(x+1)`.
 
-    :param x: _description_
+    :param x: The density matrix in form of Tensor.
     :type x: Tensor
     :param k: The :math:`k` th order, default is 2.
     :type k: int, optional
-    :return: _description_
+    :return: The :math:`k` th order of Taylor expansion of :math:`ln(x+1)`.
     :rtype: Tensor
     """
     dtype = x.dtype
@@ -1710,13 +1711,18 @@ def trace_distance(rho: Tensor, rho0: Tensor, eps: float = 1e-12) -> Tensor:
 
 @partial(op2tensor, op_argnums=(0, 1))
 def fidelity(rho: Tensor, rho0: Tensor) -> Tensor:
-    """_summary_
+    """
+    Return the sqrtm of a Hermitian matrix ``a``.
+    
+    .. math::
 
+        \\operatorname{Re}(\\operatorname{Tr}(\\sqrt{\\sqrt{rho} ⊗ rho_0 ⊗ \\sqrt{rho}}))
+        
     :param rho: The density matrix in form of Tensor.
     :type rho: Tensor
     :param rho0: The density matrix in form of Tensor.
     :type rho0: Tensor
-    :return: _description_
+    :return: The sqrtm of a Hermitian matrix ``a``.
     :rtype: Tensor
     """
     rhosqrt = backend.sqrtmh(rho)
@@ -1760,13 +1766,14 @@ def double_state(h: Tensor, beta: float = 1) -> Tensor:
 
 @op2tensor
 def mutual_information(s: Tensor, cut: Union[int, List[int]]) -> Tensor:
-    """_summary_
+    """
+    Mutual information between AB subsystem described by ``cut``.
 
-    :param s: _description_
+    :param s: The density matrix in form of Tensor.
     :type s: Tensor
-    :param cut: _description_
+    :param cut: The AB subsystem.
     :type cut: Union[int, List[int]]
-    :return: _description_
+    :return: The mutual information between AB subsystem described by ``cut``.
     :rtype: Tensor
     """
     if isinstance(cut, list) or isinstance(cut, tuple) or isinstance(cut, set):
