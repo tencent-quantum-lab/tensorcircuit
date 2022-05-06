@@ -115,10 +115,10 @@ hamiltonian_sparse = K.coo_sparse_matrix(
         np.stack([hamiltonian_sparse_numpy.row, hamiltonian_sparse_numpy.col])
     ),
     hamiltonian_sparse_numpy.data,
-    shape=(2**n, 2**n),
+    shape=(2 ** n, 2 ** n),
 )
 
-if enable_dense == True:
+if enable_dense is True:
 
     hamiltonian_dense = K.to_dense(hamiltonian_sparse)
 
