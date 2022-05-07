@@ -54,19 +54,19 @@ def tensorcircuit_benchmark(
             progbar=True,
         )
 
-        def opt_reconf(inputs, output, size, **kws):
-            tree = opt0.search(inputs, output, size)
-            tree_r = tree.subtree_reconfigure_forest(
-                progbar=True,
-                num_trees=20,
-                num_restarts=10,
-                subtree_weight_what=("flops",),
-            )
-            return tree_r.get_path()
+        # def opt_reconf(inputs, output, size, **kws):
+        #     tree = opt0.search(inputs, output, size)
+        #     tree_r = tree.subtree_reconfigure_forest(
+        #         progbar=True,
+        #         num_trees=20,
+        #         num_restarts=10,
+        #         subtree_weight_what=("flops",),
+        #     )
+        #     return tree_r.get_path()
 
         tc.set_contractor(
             "custom",
-            optimizer=opt_reconf,
+            optimizer=opt0,
             contraction_info=True,
             preprocessing=True,
         )
@@ -155,7 +155,7 @@ def tensorcircuit_benchmark(
         # paramx = tc.backend.convert_to_tensor(paramx)
         # paramzz = tc.backend.convert_to_tensor(paramzz)
         (value, f), grads = energy_raw(paramx, paramzz)
-        print(tc.backend.numpy(f))
+        print(tc.backend.numpy(f), tc.backend.numpy(value))
         # value = tc.backend.numpy(tc.backend.real(value))
         # grads = [tc.backend.numpy(tc.backend.real(g)) for g in grads]
         return value, grads

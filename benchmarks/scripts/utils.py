@@ -139,14 +139,15 @@ def mnist_data_preprocessing(PCA_components=10):
             train_img = train_img.reshape([-1, 28 * 28])
             test_img = test_img.reshape([-1, 28 * 28])
         else:
-            mnist = fetch_openml("mnist_784")
+            mnist = fetch_openml("mnist_784", cache=True)
+            print("finish downloading data")
             train_img, test_img, train_lbl, test_lbl = train_test_split(
                 mnist.data, mnist.target, test_size=2 / 10, random_state=0
             )
-            # train_img = train_img.values
-            # test_img = test_img.values
-            # train_lbl = train_lbl.values
-            # test_lbl = test_lbl.values
+            train_img = train_img.values
+            test_img = test_img.values
+            train_lbl = train_lbl.values
+            test_lbl = test_lbl.values
             # very slow, but anyway, tired of modify the preprocessing code
 
         def processing(train_img, test_img, train_lbl, test_lbl):
@@ -154,7 +155,6 @@ def mnist_data_preprocessing(PCA_components=10):
             test_img_ = []
             train_lbl_ = []
             test_lbl_ = []
-
             for i in range(np.size(train_lbl)):
                 if (
                     (train_lbl[i] == "3")
@@ -276,4 +276,4 @@ class Opt:
         if self.tuning:
             grad = [tf.convert_to_tensor(g) for g in grad]
             self.adam.apply_gradients(zip(grad, self.params))
-            return e[()]
+        return e[()]
