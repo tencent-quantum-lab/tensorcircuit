@@ -42,8 +42,35 @@ def tensorcircuit_benchmark(
         tc.set_dtype("complex128")
         dtype = "complex128"
         vtype = "float64"
-    if contractor != "auto":
+    if contractor not in ["auto", "cotengra"]:
         tc.set_contractor(contractor)
+    elif contractor == "cotengra":
+        import cotengra as ctg
+
+        opt0 = ctg.ReusableHyperOptimizer(
+            minimize="combo",
+            max_repeats=512,
+            max_time=90,
+            progbar=True,
+        )
+
+        def opt_reconf(inputs, output, size, **kws):
+            tree = opt0.search(inputs, output, size)
+            tree_r = tree.subtree_reconfigure_forest(
+                progbar=True,
+                num_trees=20,
+                num_restarts=10,
+                subtree_weight_what=("flops",),
+            )
+            return tree_r.get_path()
+
+        tc.set_contractor(
+            "custom",
+            optimizer=opt_reconf,
+            contraction_info=True,
+            preprocessing=True,
+        )
+
     meta["contractor"] = contractor
 
     def tfi_energy(c, n, j=1.0, h=-1.0):
@@ -85,8 +112,8 @@ def tensorcircuit_benchmark(
     )
     meta["Results"] = {}
 
-    paramx = np.ones(nlayer * n, dtype=vtype)
-    paramzz = np.ones(nlayer * n, dtype=vtype)
+    paramx = tc.backend.ones(nlayer * n, dtype=vtype)
+    paramzz = tc.backend.ones(nlayer * n, dtype=vtype)
 
     def energy_raw(paramx, paramzz):
         if mpsd is None:
@@ -125,15 +152,15 @@ def tensorcircuit_benchmark(
     energy_raw = tc.backend.jit(energy_raw)
 
     def energy(paramx, paramzz):
-        paramx = tc.backend.convert_to_tensor(paramx)
-        paramzz = tc.backend.convert_to_tensor(paramzz)
+        # paramx = tc.backend.convert_to_tensor(paramx)
+        # paramzz = tc.backend.convert_to_tensor(paramzz)
         (value, f), grads = energy_raw(paramx, paramzz)
         print(tc.backend.numpy(f))
-        value = tc.backend.numpy(tc.backend.real(value))
-        grads = [tc.backend.numpy(tc.backend.real(g)) for g in grads]
+        # value = tc.backend.numpy(tc.backend.real(value))
+        # grads = [tc.backend.numpy(tc.backend.real(g)) for g in grads]
         return value, grads
 
-    opt = utils.Opt(energy, [paramx, paramzz])
+    opt = utils.Opt(energy, [paramx, paramzz], tuning=False)
     ct, it, Nitrs = utils.timing(opt.step, nitrs, timeLimit)
     meta["Results"]["with jit"] = {
         "Construction time": ct,

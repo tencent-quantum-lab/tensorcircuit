@@ -265,13 +265,15 @@ def qml_timing(f, nbatch, nitrs, timeLimit, tfq=False):
 
 
 class Opt:
-    def __init__(self, f, params, lr=0.01):
+    def __init__(self, f, params, lr=0.01, tuning=True):
         self.f = f
-        self.params = [tf.Variable(param) for param in params]
+        self.params = params
         self.adam = tf.keras.optimizers.Adam(lr)
+        self.tuning = tuning
 
     def step(self):
         e, grad = self.f(*self.params)
-        grad = [tf.convert_to_tensor(g) for g in grad]
-        self.adam.apply_gradients(zip(grad, self.params))
-        return e[()]
+        if self.tuning:
+            grad = [tf.convert_to_tensor(g) for g in grad]
+            self.adam.apply_gradients(zip(grad, self.params))
+            return e[()]
