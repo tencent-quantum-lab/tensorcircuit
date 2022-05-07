@@ -1,108 +1,153 @@
-# Run TensorCircuit on Windows Machine with Docker
-This note is only a step-by-step tutorial to help you build and run a Docker Container for Windows Machine users with the given dockerfile. 
-If you want to have a deeper dive in to Docker, please check the official [Docker Orientation](https://docs.docker.com/get-started/)
-and free courses on YouTube.
-## Why We Can't Run TensorCircuit on Windows Machine
+Run TensorCircuit on Windows Machine with Docker
+============================
+(For linux machines, please review the `Docker README for linux <https://github.com/quclub/tensorcircuit-dev/blob/master/docker/README.md>`_ )
 
-Due to the compatability issue with the [JAX](https://jax.readthedocs.io/en/latest/index.html) backend on Windows,
-we could not directly use most of TensorCircuit features on Windows machines. Please be aware that it is possible to [install 
-JAX on Windows](https://jax.readthedocs.io/en/latest/developer.html), but it is very tricky and not recommended unless
+This note is only a step-by-step tutorial to help you build and run a Docker Container for Windows Machine users with the given dockerfile. 
+If you want to have a deeper dive in to Docker, please check the official `Docker Orientation <https://docs.docker.com/get-started/>`_
+and free courses on `YouTube <https://www.youtube.com/results?search_query=docker+tutorial>`_.
+
+Why We Can't Run TensorCircuit on Windows Machine
+---------------------------------------------------------------
+
+Due to the compatability issue with the `JAX <https://jax.readthedocs.io/en/latest/index.html>`_ backend on Windows,
+we could not directly use most of TensorCircuit features on Windows machines. Please be aware that it is possible to `install
+JAX on Windows <https://jax.readthedocs.io/en/latest/developer.html>`_, but it is very tricky and not recommended unless
 you have solid understanding of Windows environment and C++ tools. Virtual machine is also an option for development if
 you are familiar with it. In this tutorial we would discuss the deployment of Docker for TensorCircuit since it us 
 the most convenient and workable solution for most beginners.
 
-## What Is Docker
-Docker is an open platform for developing, shipping, and running applications. Docker enables you to separate your applications from your infrastructure so you can deliver software quickly. With Docker, you can manage your infrastructure in the same ways you manage your applications. By taking advantage of Docker’s methodologies for shipping, testing, and deploying code quickly, you can significantly reduce the delay between writing code and running it in production.
+What Is Docker
+---------
+
+Docker is an open platform for developing, shipping, and running applications. Docker enables you to separate your applications from your infrastructure so you can deliver software quickly.
+With Docker, you can manage your infrastructure in the same ways you manage your applications. By taking advantage of Docker's methodologies for shipping, testing, and deploying code quickly, you can significantly reduce the delay between writing code and running it in production.
 
 (Source: https://docs.docker.com/get-started/overview/) 
 
-For more information and tutorials on Docker, you could check the [Docker Documentation](https://docs.docker.com/get-started/overview/).
+For more information and tutorials on Docker, you could check the `Docker Documentation <https://docs.docker.com/get-started/overview/>`_.
 
-## Install Docker and Docker Desktop
-[Download Docker Desktop]() for Windows and install it by following its instructions.
-- Circuit manipulation:
+Install Docker and Docker Desktop
+---------
 
-```python
-import tensorcircuit as tc
-c = tc.Circuit(2)
-c.H(0)
-c.CNOT(0,1)
-c.rx(1, theta=0.2)
-print(c.wavefunction())
-print(c.expectation_ps(z=[0, 1]))
-print(c.sample())
-```
+`Download Docker Desktop for Windows <https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe>`_ for and install it by following its instructions.
 
-- Runtime behavior customization:
+*Following information is from the official Docker Doc: https://docs.docker.com/desktop/windows/install/*
 
-```python
-tc.set_backend("tensorflow")
-tc.set_dtype("complex128")
-tc.set_contractor("greedy")
-```
+**Install interactively**
 
-- Automatic differentiations with jit:
+- If you haven't already downloaded the installer (Docker Desktop Installer.exe), you can get it from Docker Hub. It typically downloads to your Downloads folder, or you can run it from the recent downloads bar at the bottom of your web browser.
 
-```python
-def forward(theta):
-    c = tc.Circuit(2)
-    c.R(0, theta=theta, alpha=0.5, phi=0.8)
-    return tc.backend.real(c.expectation((tc.gates.z(), [0])))
+- When prompted, ensure the Use WSL 2 instead of Hyper-V option on the Configuration page is selected or not depending on your choice of backend.
 
-g = tc.backend.grad(forward)
-g = tc.backend.jit(g)
-theta = tc.array_to_tensor(1.0)
-print(g(theta))
-```
+- If your system only supports one of the two options, you will not be able to select which backend to use.
 
-## Install
+- Follow the instructions on the installation wizard to authorize the installer and proceed with the install.
 
-The package is purely written in Python and can be obtained via pip as:
+- When the installation is successful, click Close to complete the installation process.
 
-```python
-pip install tensorcircuit
-```
+- If your admin account is different to your user account, you must add the user to the docker-users group.
+Run Computer Management as an administrator and navigate to Local Users and Groups > Groups > docker-users. Right-click to add the user to the group. Log out and log back in for the changes to take effect.
 
-We also have [Docker support](/docker).
+**Install from the command line**
 
-## Advantages
+After downloading Docker Desktop Installer.exe, run the following command in a terminal to install Docker Desktop:
 
-* Tensor network simulation engine based
+.. code-block:: bash
 
-* JIT, AD, vectorized parallelism compatible, GPU support
+    "Docker Desktop Installer.exe" install
 
-* Efficiency
+If you're using PowerShell you should run it as:
 
-  * Time: 10 to 10^6 times acceleration compared to tfq or qiskit
+.. code-block:: bash
 
-  * Space: 600+ qubits 1D VQE workflow (converged energy inaccuracy: < 1%)
+    Start-Process '.\win\build\Docker Desktop Installer.exe' -Wait install
 
-* Elegance
+If using the Windows Command Prompt:
 
-  * Flexibility: customized contraction, multiple ML backend/interface choices, multiple dtype precisions
+.. code-block:: bash
 
-  * API design: quantum for humans, less code, more power
+    start /w "" "Docker Desktop Installer.exe" install
 
-## Contributing
+Build Image in through PyCharm or Command Line Interface
+--------------------------------------------------------
 
-For contribution guidelines and notes, see [CONTRIBUTING](/CONTRIBUTING.md).
+**First of all**, run docker desktop.
 
-We welcome issues, PRs, and discussions from everyone, and these are all hosted on GitHub.
+**For CLI command:**
 
-## Researches and Applications
+Go to your local ``./tensorcircuit-dev/docker`` directory, then open your local CLI.
 
-### DQAS
+.. code-block:: bash
 
-For the application of Differentiable Quantum Architecture Search, see [applications](/tensorcircuit/applications).
-Reference paper: https://arxiv.org/pdf/2010.08561.pdf.
+    cd ./tensorcircuit-dev/docker
 
-### VQNHE
+Use the command:
 
-For the application of Variational Quantum-Neural Hybrid Eigensolver, see [applications](/tensorcircuit/applications).
-Reference paper: https://arxiv.org/pdf/2106.05105.pdf and https://arxiv.org/pdf/2112.10380.pdf.
+.. code-block:: bash
 
-### VQEX - MBL
+    docker build .
 
-For the application of VQEX on MBL phase identification, see the [tutorial](https://github.com/quclub/tensorcircuit-tutorials/blob/master/tutorials/vqex_mbl.ipynb).
-Reference paper: https://arxiv.org/pdf/2111.13719.pdf.
+It could take more than fifteen minutes to build the docker image, depending on your internet and computer hardware.
+Please keep your computer active while building the docker image. You need to build the image again from scratch if
+there is any interruption during the building.
 
+**For PyCharm:**
+
+Install the docker plugin within Pycharm, than open the dockerfile in the ``./tensorcircuit-dev/docker`` directory.
+Choose Dockerfile to be the configuration, then run the dockerfile.
+Please keep your computer active while building the docker image. You need to build the image again from scratch if
+there is any interruption during the building.
+
+Run Docker Image and Some Example in TensorCircuit
+--------------------------------------------------------
+
+Open your CLI
+
+Find your local images by:
+
+.. code-block:: bash
+
+    docker images
+
+Run image as a container by:
+
+.. code-block:: bash
+
+    docker run [image name]
+
+List existing containers by:
+
+.. code-block:: bash
+
+    docker ps
+
+Then, open docker desktop and open docker CLI:
+
+.. code-block:: bash
+
+    ls
+
+You would see all files and directories in ``./tensorcircuit-dev/`` listed.
+
+Go to the dir where all examples are:
+
+.. code-block:: bash
+
+    cd examples
+
+Again, to see all the examples:
+
+.. code-block:: bash
+
+    ls
+
+We would run noisy_qml.py to see what would happen:
+
+.. code-block:: bash
+
+    python noisy_qml.py
+
+See the result and play with other example for a while. Latter you could start developing your own projects within
+the docker container we just built. Enjoy your time with TensorCircuit.
+
+*Please don't hesitate to create a New issue in GitHub if you find problems or have anything for discussion with other contributors*
