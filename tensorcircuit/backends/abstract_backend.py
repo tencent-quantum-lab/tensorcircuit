@@ -71,6 +71,19 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         e = self.sqrt(e)
         return v @ self.diagflat(e) @ self.adjoint(v)
 
+    def eigvalsh(self: Any, a: Tensor) -> Tensor:
+        """
+        Get the eigenvalues of matrix ``a``.
+
+        :param a: tensor in matrix form
+        :type a: Tensor
+        :return: eigenvalues of ``a``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `eigvalsh`.".format(self.name)
+        )
+
     def sin(self: Any, a: Tensor) -> Tensor:
         """
         Return the  elementwise sine of a tensor ``a``.

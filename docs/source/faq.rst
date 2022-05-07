@@ -8,6 +8,16 @@ This is done directly through the ML backend. GPU support is determined by wheth
 It is the users' responsibility to configure a GPU-compatible environment for these ML packages. Please refer to the installation documentation for these ML packages and directly use the official dockerfiles provided by TensorCircuit.
 With GPU compatible environment, we can switch the use of GPU or CPU by a backend agnostic environment variable ``CUDA_VISIBLE_DEVICES``.
 
+
+When should I use GPU for the quantum simulation?
+----------------------------------------------------
+
+
+When should I jit the function?
+----------------------------------------------------
+
+
+
 Which ML framework backend should I use?
 --------------------------------------------
 
@@ -80,3 +90,72 @@ Try the following: (the pipeline is even fully jittable!)
     c.conditional_gate(r, [tc.gates.i(), tc.gates.x()], 1)
 
 ``cond_measurement`` will return 0 or 1 based on the measurement result on z-basis, and ``conditional_gate`` applies gate_list[r] on the circuit.
+
+How to understand the difference between different measurement methods for ``Circuit``?
+----------------------------------------------------------------------------------------------------
+
+* :py:meth:`tensorcircuit.circuit.Circuit.measure` : used at the end of the circuit execution, return bitstring based on quantum amplitude probability (can also with the probability), the circuit and the output state are unaffected (no collapse). The jittable version is ``measure_jit``.
+
+* :py:meth:`tensorcircuit.circuit.Circuit.cond_measure`: also with alias ``cond_measurement``, usually used in the middle of the circuit execution. Apply a POVM on z basis on the given qubit, the state is collapsed and nomarlized based on the measurement projection. The method returns an integer Tensor indicating the measurement result 0 or 1 based on the quantum amplitude probability. 
+
+* :py:meth:`tensorcircuit.circuit.Circuit.post_select`: also with alia ``mid_measurement``, usually used in the middle of the circuit execution. The measurement result is fixed as given from ``keep`` arg of this method. The state is collapsed but unnormalized based on the given measurement projection.
+
+Please refer to the following demos:
+
+.. code-block:: python
+
+    c = tc.Circuit(2)
+    c.H(0)
+    c.H(1)
+    print(c.measure(0, 1))
+    # ('01', -1.0)
+    print(c.measure(0, with_prob=True))
+    # ('0', (0.4999999657714588+0j))
+    print(c.state()) # unaffected
+    # [0.49999998+0.j 0.49999998+0.j 0.49999998+0.j 0.49999998+0.j]
+
+    c = tc.Circuit(2)
+    c.H(0)
+    c.H(1)
+    print(c.cond_measure(0))  # measure the first qubit return +z
+    # 0
+    print(c.state())  # collapsed and normalized
+    # [0.70710678+0.j 0.70710678+0.j 0.        +0.j 0.        +0.j]
+
+    c = tc.Circuit(2)
+    c.H(0)
+    c.H(1)
+    print(c.post_select(0, keep=1))  # measure the first qubit and it is guranteed to return -z
+    # 1
+    print(c.state())  # collapsed but unnormalized
+    # [0.        +0.j 0.        +0.j 0.49999998+0.j 0.49999998+0.j]
+
+
+How to arange the circuit gate placement in visualization from ``c.tex()``?
+----------------------------------------------------------------------------------------------------
+
+Try ``lcompress=True`` or ``rcompress=True`` option in :py:meth:`tensorcircuit.circuit.Circuit.tex` API to make the circuit align from left or from right.
+
+Or try ``c.unitary(0, unitary=tc.backend.eye(2), name="invisible")`` to add placeholder on the circuit which is invisible for circuit visualization.
+
+How to get the entanglement entropy of from the circuit output?
+--------------------------------------------------------------------
+
+Try the following:
+
+.. code-block:: python
+
+    c = tc.Circuit(4)
+    # omit circuit construction
+
+    rho = tc.quantum.reduced_density_matrix(s, cut=[0, 1, 2])
+    # get the redueced density matrix, where cut list is the index to be traced out
+
+    rho.shape
+    # (2, 2)
+
+    ee = tc.quantum.entropy(rho)
+    # get the entanglement entropy
+
+    renyi_ee = tc.quantum.renyi_entropy(rho, k=2)
+    # get the k-th order renyi entropy

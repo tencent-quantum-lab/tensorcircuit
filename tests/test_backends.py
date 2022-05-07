@@ -242,6 +242,9 @@ def test_backend_methods_2(backend):
         np.sinh(0.5 * tc.backend.ones([2])),
         atol=1e-5,
     )
+    np.testing.assert_allclose(
+        tc.backend.eigvalsh(tc.backend.ones([2, 2])), np.array([0, 2]), atol=1e-5
+    )
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])

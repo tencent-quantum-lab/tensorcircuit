@@ -52,7 +52,7 @@ def test_measure():
     c.H(0)
     c.h(1)
     c.toffoli(0, 1, 2)
-    assert c.measure(2)[0] in ["0", "1"]
+    assert c.measure(2)[0] in [0, 1]
 
 
 def test_gates_in_circuit():

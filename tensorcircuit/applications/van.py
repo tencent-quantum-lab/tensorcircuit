@@ -8,8 +8,6 @@ from tensorflow.keras.layers import Layer
 from tensorflow.keras.models import Model
 import numpy as np
 
-# TODO(@refraction-ray): Add type annotation in this module some time.
-
 
 class MaskedLinear(Layer):  # type: ignore
     def __init__(

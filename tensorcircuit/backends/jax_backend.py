@@ -283,6 +283,9 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     def size(self, a: Tensor) -> Tensor:
         return jnp.size(a)
 
+    def eigvalsh(self, a: Tensor) -> Tensor:
+        return jnp.linalg.eigvalsh(a)
+
     def kron(self, a: Tensor, b: Tensor) -> Tensor:
         return jnp.kron(a, b)
 

@@ -1,0 +1,10 @@
+pennylane==0.18
+tensorflow==2.4.1
+tensorflow-quantum==0.5.1
+tensornetwork==0.4.5
+#jaxlib==0.1.71
+jax==0.2.21
+networkx
+sympy
+py-cpuinfo
+scikit-learn
