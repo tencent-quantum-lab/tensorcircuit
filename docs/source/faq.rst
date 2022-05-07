@@ -8,6 +8,16 @@ This is done directly through the ML backend. GPU support is determined by wheth
 It is the users' responsibility to configure a GPU-compatible environment for these ML packages. Please refer to the installation documentation for these ML packages and directly use the official dockerfiles provided by TensorCircuit.
 With GPU compatible environment, we can switch the use of GPU or CPU by a backend agnostic environment variable ``CUDA_VISIBLE_DEVICES``.
 
+
+When should I use GPU for the quantum simulation?
+----------------------------------------------------
+
+
+When should I jit the function?
+----------------------------------------------------
+
+
+
 Which ML framework backend should I use?
 --------------------------------------------
 
@@ -127,3 +137,25 @@ How to arange the circuit gate placement in visualization from ``c.tex()``?
 Try ``lcompress=True`` or ``rcompress=True`` option in :py:meth:`tensorcircuit.circuit.Circuit.tex` API to make the circuit align from left or from right.
 
 Or try ``c.unitary(0, unitary=tc.backend.eye(2), name="invisible")`` to add placeholder on the circuit which is invisible for circuit visualization.
+
+How to get the entanglement entropy of from the circuit output?
+--------------------------------------------------------------------
+
+Try the following:
+
+.. code-block:: python
+
+    c = tc.Circuit(4)
+    # omit circuit construction
+
+    rho = tc.quantum.reduced_density_matrix(s, cut=[0, 1, 2])
+    # get the redueced density matrix, where cut list is the index to be traced out
+
+    rho.shape
+    # (2, 2)
+
+    ee = tc.quantum.entropy(rho)
+    # get the entanglement entropy
+
+    renyi_ee = tc.quantum.renyi_entropy(rho, k=2)
+    # get the k-th order renyi entropy
