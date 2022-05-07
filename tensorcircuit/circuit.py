@@ -1268,7 +1268,9 @@ class Circuit:
         no.extend(ms)
         return contractor(no).tensor
 
-    def measure(self, *index: int, with_prob: bool = False) -> Tuple[str, float]:
+    def measure_reference(
+        self, *index: int, with_prob: bool = False
+    ) -> Tuple[str, float]:
         """
         Take measurement on the given quantum lines by ``index``.
 
@@ -1381,6 +1383,8 @@ class Circuit:
             return sample, p
         else:
             return sample, -1.0
+
+    measure = measure_jit
 
     def perfect_sampling(self) -> Tuple[str, float]:
         """

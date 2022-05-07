@@ -10,6 +10,8 @@
 
 - `post_select` method return the measurement result int tensor now, consistent with `cond_measure`
 
+- `Circuit.measure` now point to `measure_jit`
+
 ## 0.0.220413
 
 ### Added
