@@ -1,0 +1,11 @@
+=================================
+Whitepaper Tutorials
+=================================
+
+.. toctree::
+
+    whitepaper/6-2-pauli-string-expectation.ipynb
+    whitepaper/6-3-vmap.ipynb
+    whitepaper/6-4-quoperator.ipynb
+    whitepaper/6-5-custom-contraction.ipynb
+    whitepaper/6-6-advanced-automatic-differentiation.ipynb

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tensorcircuit \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-18 20:36+0800\n"
+"POT-Creation-Date: 2022-05-09 17:10+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,27 +18,368 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 
-#: ../../source/whitepaper/contraction.ipynb:9
-msgid "Customized Contraction"
+#: ../../source/whitepaper/6-2-pauli-string-expectation.ipynb:9
+msgid "Evaluation on Pauli string sum"
 msgstr ""
 
-#: ../../source/whitepaper/contraction.ipynb:21
-#: ../../source/whitepaper/vmaps.ipynb:21
+#: ../../source/whitepaper/6-2-pauli-string-expectation.ipynb:21
+#: ../../source/whitepaper/6-3-vmap.ipynb:21
+#: ../../source/whitepaper/6-4-quoperator.ipynb:21
+#: ../../source/whitepaper/6-5-custom-contraction.ipynb:21
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:21
 msgid "Overview"
 msgstr ""
 
-#: ../../source/whitepaper/contraction.ipynb:23
+#: ../../source/whitepaper/6-2-pauli-string-expectation.ipynb:32
+msgid ""
+"We need to evaluate the sum of many Pauli string terms on the circuit in "
+"variaous quantum algorithoms, the ground state preparation of a "
+"Hamiltonian :math:`H` in VQE is an typical example. We need to calculate "
+"the expectation value of Hamiltonian :math:`H`, i.e., :math:`\\langle 0^N"
+" \\vert U^{\\dagger}(\\theta) H U(\\theta) \\vert 0^N \\rangle` and "
+"update the parameters :math:`\\theta` in :math:`U(\\theta)` based on "
+"gradient descent in VQE workflow. In this tutorial, we will demonstrate "
+"five arpproaches supported in ``TensorCircuit`` to calculate "
+":math:`\\langle H \\rangle`:"
+msgstr ""
+
+#: ../../source/whitepaper/6-2-pauli-string-expectation.ipynb:35
+msgid ""
+":math:`\\langle H \\rangle = \\sum_{i} \\langle h_{i} \\rangle`, where "
+":math:`h_{i}` are the Pauli-string operators;"
+msgstr ""
+
+#: ../../source/whitepaper/6-2-pauli-string-expectation.ipynb:37
+msgid "Similar to 1, but we evaluate the sum of Pauli string via ``vmap``;"
+msgstr ""
+
+#: ../../source/whitepaper/6-2-pauli-string-expectation.ipynb:39
+msgid ":math:`\\langle H \\rangle` where :math:`H` is a sparse matrix;"
+msgstr ""
+
+#: ../../source/whitepaper/6-2-pauli-string-expectation.ipynb:41
+msgid ":math:`\\langle H \\rangle` where :math:`H` is a dense matrix;"
+msgstr ""
+
+#: ../../source/whitepaper/6-2-pauli-string-expectation.ipynb:43
+msgid "expectation value of the Matrix Product Operator (MPO) for :math:`H`."
+msgstr ""
+
+#: ../../source/whitepaper/6-2-pauli-string-expectation.ipynb:45
+msgid ""
+"We consider transverse field ising model (TFIM) as the example, which "
+"reads"
+msgstr ""
+
+#: ../../source/whitepaper/6-2-pauli-string-expectation.ipynb:47
+msgid ""
+"H = \\sum_{i} \\sigma_{i}^{x} \\sigma_{i+1}^{x} - \\sum_{i} "
+"\\sigma_{i}^{z},"
+msgstr ""
+
+#: ../../source/whitepaper/6-2-pauli-string-expectation.ipynb:52
+msgid ""
+"where :math:`\\sigma_{i}^{x,z}` are Pauli matrices of the :math:`i`-th "
+"qubit."
+msgstr ""
+
+#: ../../source/whitepaper/6-2-pauli-string-expectation.ipynb:64
+#: ../../source/whitepaper/6-3-vmap.ipynb:43
+#: ../../source/whitepaper/6-4-quoperator.ipynb:48
+#: ../../source/whitepaper/6-5-custom-contraction.ipynb:35
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:37
+msgid "Setup"
+msgstr ""
+
+#: ../../source/whitepaper/6-2-pauli-string-expectation.ipynb:107
+msgid "Parameterized Quantum Circuits"
+msgstr ""
+
+#: ../../source/whitepaper/6-2-pauli-string-expectation.ipynb:157
+msgid "Main Optimization Loop"
+msgstr ""
+
+#: ../../source/whitepaper/6-2-pauli-string-expectation.ipynb:159
+msgid "VQE train loop (value and grad function agnostic)"
+msgstr ""
+
+#: ../../source/whitepaper/6-2-pauli-string-expectation.ipynb:203
+msgid "1. Pauli-string Operators Sum"
+msgstr ""
+
+#: ../../source/whitepaper/6-2-pauli-string-expectation.ipynb:313
+msgid "2. Vmap the Paui-string Operators Sum"
+msgstr ""
+
+#: ../../source/whitepaper/6-2-pauli-string-expectation.ipynb:521
+msgid "3. Sparse Matrix"
+msgstr ""
+
+#: ../../source/whitepaper/6-2-pauli-string-expectation.ipynb:681
+msgid "4. Dense Matrix"
+msgstr ""
+
+#: ../../source/whitepaper/6-2-pauli-string-expectation.ipynb:780
+msgid "5. MPO"
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:9
+msgid "Utilizing vmap in quantum circuit simulations"
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:23
+msgid ""
+"We introduce vmap, the advanced feature of modern machine learning "
+"library, to quantum circuit simulations. By vmapping different "
+"ingredients of quantum circuit simulaion, we can implement variational "
+"quantum algorithms with high efficiency."
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:25
+msgid ""
+"It is worth noting that in the following use cases, vmap is supported "
+"together with jit and AD which renders highly efficient differentiable "
+"simulation."
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:27
+msgid ""
+"The ingredients support vmap paradigm are show in the following figure. "
+"|vmap ingredients|"
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:31
+msgid "vmap ingredients"
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:29
+msgid ""
+"We have two different types of APIs for vmap, the first one is ``vmap`` "
+"while the second one is ``vectorized_value_and_grad``, aka, ``vvag``. The"
+" latter one can also return the gradient information over a batch of "
+"different circuit."
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:96
+msgid "vmap the input states"
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:98
+msgid ""
+"Use case: batch processing of input states in quantum machine learning "
+"task."
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:100
+msgid ""
+"For applications of batched input state processing, please see `MNIST QML"
+" tutorial <../tutorials/mnist_qml.ipynb>`__."
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:112
+#: ../../source/whitepaper/6-3-vmap.ipynb:228
+#: ../../source/whitepaper/6-3-vmap.ipynb:539
+#: ../../source/whitepaper/6-3-vmap.ipynb:664
+#: ../../source/whitepaper/6-3-vmap.ipynb:846
+msgid "Minimal example"
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:212
+msgid "vmap the circuit weights"
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:214
+msgid ""
+"Use case: batched VQE, where different random initialization parameters "
+"are optimized simutaneously."
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:216
+msgid ""
+"For application on batched VQE, please refer `TFIM VQE tutorial "
+"<../tutorials/tfim_vqe.ipynb>`__."
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:523
+msgid "vmap the quantum noise"
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:525
+msgid "Use case: parallel Monte Carlo noise simulation."
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:527
+msgid ""
+"For applications that combines vmapped Monte Carlo noise simulation and "
+"quantum machine learning task, please see `noisy QML script "
+"<../../../examples/noisy_qml.py>`__."
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:648
+msgid "vmap the circuit structure"
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:650
+msgid "Use case: differentiable quantum architecture search (DQAS)."
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:652
+msgid ""
+"For more detail on DQAS application, see `DQAS tutorial "
+"<../tutorials/dqas.ipynb>`__."
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:830
+msgid "vmap the circuit measurements"
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:832
+msgid ""
+"Use case: accelerating evaluation of Pauli string sum by parallel the "
+"parameterized measurment."
+msgstr ""
+
+#: ../../source/whitepaper/6-3-vmap.ipynb:834
+msgid ""
+"For applications on evaluation of parameterized measurements via vmap on "
+"large-scale systems, see `large-scale vqe example script "
+"<../../../examples/vqe_extra.py>`__."
+msgstr ""
+
+#: ../../source/whitepaper/6-4-quoperator.ipynb:9
+msgid "QuOperator in TensorCircuit"
+msgstr ""
+
+#: ../../source/whitepaper/6-4-quoperator.ipynb:32
+msgid ""
+"``tensorcircuit.quantum.QuOperator``, ``tensorcircuit.quantum.QuVector`` "
+"and ``tensorcircuit.quantum.QuAdjointVector`` are classes adopted from "
+"TensorNetwork package. They behave like a matrix/vector (column or row) "
+"when interacting with other ingredients while the inner structure is "
+"maintained by the tensornetwork for efficiency and compactness."
+msgstr ""
+
+#: ../../source/whitepaper/6-4-quoperator.ipynb:34
+msgid ""
+"``QuOperator``/``QuVector`` can represent any MPO/MPS, but they can "
+"express more flexible tensor network structures. Indeed, any tensor "
+"network with two sets of dangling edges of the same dimension can be "
+"treated as ``QuOperator``. ``QuVector`` is even more flexible since we "
+"can treat all dangling edges as the vector dimension."
+msgstr ""
+
+#: ../../source/whitepaper/6-4-quoperator.ipynb:36
+msgid ""
+"In this note, we will show how such tensor network backend matrix/vector "
+"data structure is more efficient and compact in several scenarios and how"
+" these structures integrated with quantum circuit simulation tasks "
+"seamlessly as different circuit ingredients."
+msgstr ""
+
+#: ../../source/whitepaper/6-4-quoperator.ipynb:97
+msgid "Introduction to QuOperator/QuVector"
+msgstr ""
+
+#: ../../source/whitepaper/6-4-quoperator.ipynb:315
+msgid ""
+"Note how in this example, ``matrix`` is not a typical MPO but still can "
+"be expressed as ``QuOperator``. Indeed, any tensor network with two sets "
+"of dangling edges of the same dimension can be treated as ``QuOperator``."
+" ``QuVector`` is even more flexible since we can treat all dangling edges"
+" as the vector dimension."
+msgstr ""
+
+#: ../../source/whitepaper/6-4-quoperator.ipynb:317
+msgid ""
+"Also, note how ``^`` is overloaded as ``tn.connect`` to connect edges "
+"between different nodes in TensorNetwork. And indexing the node gives the"
+" edges of the node, eg. ``n1[0]`` means the first edge of node ``n1``."
+msgstr ""
+
+#: ../../source/whitepaper/6-4-quoperator.ipynb:319
+msgid ""
+"The convention to define the ``QuOperator`` is firstly giving "
+"``out_edges`` (left index or row index of the matrix) and then giving "
+"``in_edges`` (right index or column index of the matrix). The edges list "
+"contains edge objects from the TensorNetwork library."
+msgstr ""
+
+#: ../../source/whitepaper/6-4-quoperator.ipynb:321
+msgid ""
+"Such QuOperator/QuVector abstraction support various calculations only "
+"possible on matrix/vectors, such as matmul (``@``), adjoint "
+"(``.adjoint()``), scalar multiplication (``*``), tensor product (``|``), "
+"and partial trace (``.partial_trace(subsystems_to_trace_out)``). To "
+"extract the matrix information of these objects, we can use ``.eval()`` "
+"or ``.eval_matrix()``, the former keeps the shape information of the "
+"tensor network while the latter gives the matrix representation with "
+"shape rank 2."
+msgstr ""
+
+#: ../../source/whitepaper/6-4-quoperator.ipynb:332
+msgid "The workflow here can also be summarized and visualized as |image1|"
+msgstr ""
+
+#: ../../source/whitepaper/6-4-quoperator.ipynb:334
+msgid "image1"
+msgstr ""
+
+#: ../../source/whitepaper/6-4-quoperator.ipynb:346
+msgid "QuVector as input state for the circuit"
+msgstr ""
+
+#: ../../source/whitepaper/6-4-quoperator.ipynb:348
+msgid ""
+"Since ``QuVector`` behaves like a real vector with more compact "
+"representation, we can feed the circuit input states in the form of "
+"``QuVector`` instead of plain numpy array vector."
+msgstr ""
+
+#: ../../source/whitepaper/6-4-quoperator.ipynb:401
+msgid "QuVector as output state of the circuit"
+msgstr ""
+
+#: ../../source/whitepaper/6-4-quoperator.ipynb:403
+msgid ""
+"The tensor network representation of the circuit can be regarded as a "
+"``QuVector``, namely we can manipulate the circuit as a vector before the"
+" real contraction. This is also how we do circuit composition internally."
+msgstr ""
+
+#: ../../source/whitepaper/6-4-quoperator.ipynb:531
+msgid "QuOperator as operator to be evaluated on the circuit"
+msgstr ""
+
+#: ../../source/whitepaper/6-4-quoperator.ipynb:533
+msgid ""
+"The matrix to be evaluated over the output state of the circuit can also "
+"be represented by QuOperator, which is very powerful and efficient for "
+"some lattic model Hamiltonian."
+msgstr ""
+
+#: ../../source/whitepaper/6-4-quoperator.ipynb:586
+msgid "QuOperator as the quantum gate applied on the circuit"
+msgstr ""
+
+#: ../../source/whitepaper/6-4-quoperator.ipynb:588
+msgid ""
+"Since quantum gates are also unitary matrix, we can also use QuOperator "
+"for quantum gates. In some cases, QuOperator representation for quantum "
+"gates is much more compact, such as in multi control gate case, where the"
+" bond dimension can be reduced to 2 for neighboring qubits."
+msgstr ""
+
+#: ../../source/whitepaper/6-5-custom-contraction.ipynb:9
+msgid "Customized Contraction"
+msgstr ""
+
+#: ../../source/whitepaper/6-5-custom-contraction.ipynb:23
 msgid ""
 "If the simulated circuit has large qubit counts, we recommend users try "
 "customized contraction setup instead of the default one, which is greedy."
 msgstr ""
 
-#: ../../source/whitepaper/contraction.ipynb:35
-#: ../../source/whitepaper/vmaps.ipynb:43
-msgid "Setup"
-msgstr ""
-
-#: ../../source/whitepaper/contraction.ipynb:37
+#: ../../source/whitepaper/6-5-custom-contraction.ipynb:37
 msgid ""
 "Please refer to the `installation documentation "
 "<https://cotengra.readthedocs.io/en/latest/installation.html>`__ for "
@@ -47,7 +388,7 @@ msgid ""
 "git+https://github.com/jcmgray/cotengra.git``."
 msgstr ""
 
-#: ../../source/whitepaper/contraction.ipynb:60
+#: ../../source/whitepaper/6-5-custom-contraction.ipynb:60
 msgid ""
 "We use the following example as a testbed for the contraction, the real "
 "contraction is invoked for ``Circuit.expectation`` API, and there are two"
@@ -60,7 +401,7 @@ msgid ""
 "einsum.readthedocs.io/en/stable/custom_paths.html>`__."
 msgstr ""
 
-#: ../../source/whitepaper/contraction.ipynb:89
+#: ../../source/whitepaper/6-5-custom-contraction.ipynb:89
 msgid ""
 "There are several contractor optimizers provided by opt-einsum and "
 "shipped with the TensorNetwork package. Since TensorCircuit is built on "
@@ -70,7 +411,7 @@ msgid ""
 "scenarios."
 msgstr ""
 
-#: ../../source/whitepaper/contraction.ipynb:91
+#: ../../source/whitepaper/6-5-custom-contraction.ipynb:91
 msgid ""
 "We always set ``contraction_info=True`` (default is ``False``) for the "
 "contractor system in this note, which will print contraction information "
@@ -79,7 +420,7 @@ msgid ""
 "paper <https://quantum-journal.org/papers/q-2021-03-15-410/>`__."
 msgstr ""
 
-#: ../../source/whitepaper/contraction.ipynb:93
+#: ../../source/whitepaper/6-5-custom-contraction.ipynb:93
 msgid ""
 "Also, we will enable ``debug_level=2`` in ``set_contractor`` (never use "
 "this option in real computation!) By enabling this, the second stage of "
@@ -88,139 +429,151 @@ msgid ""
 "difference between different customized contractor."
 msgstr ""
 
-#: ../../source/whitepaper/contraction.ipynb:167
+#: ../../source/whitepaper/6-5-custom-contraction.ipynb:167
 msgid ""
 "**cotengra optimizer**: for hyperparameters tuning, see the "
 "`documentation "
 "<https://cotengra.readthedocs.io/en/latest/advanced.html>`__."
 msgstr ""
 
-#: ../../source/whitepaper/contraction.ipynb:278
+#: ../../source/whitepaper/6-5-custom-contraction.ipynb:278
 msgid ""
 "We can even include contraction reconfigure after path searching, which "
 "further greatly boost the space efficency for the contraction path"
 msgstr ""
 
-#: ../../source/whitepaper/vmaps.ipynb:9
-msgid "Utilizing vmap in quantum circuit simulations"
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:9
+msgid "Advanced Automatic Differentiation"
 msgstr ""
 
-#: ../../source/whitepaper/vmaps.ipynb:23
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:23
 msgid ""
-"We introduce vmap, the advanced feature of modern machine learning "
-"library, to quantum circuit simulations. By vmapping different "
-"ingredients of quantum circuit simulaion, we can implement variational "
-"quantum algorithms with high efficiency."
+"In this section, we review some advanced AD tricks especially their "
+"application on circuit simulations. With these advanced AD tricks, we can"
+" evaluate some quantum quantities more efficiently."
 msgstr ""
 
-#: ../../source/whitepaper/vmaps.ipynb:25
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:25
 msgid ""
-"It is worth noting that in the following use cases, vmap is supported "
-"together with jit and AD which renders highly efficient differentiable "
-"simulation."
+"The advanced AD is possible in TensorCircuit, as we have implement "
+"several AD related API in backend agnostic way, the implementation of "
+"them closely follow the design philosophy of `jax AD implementation "
+"<https://jax.readthedocs.io/en/latest/notebooks/autodiff_cookbook.html>`__."
 msgstr ""
 
-#: ../../source/whitepaper/vmaps.ipynb:27
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:72
+msgid "Backend agnostic AD related APIs include the following"
+msgstr ""
+
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:587
+msgid "Forward AD"
+msgstr ""
+
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:589
 msgid ""
-"The ingredients support vmap paradigm are show in the following figure. "
-"|vmap ingredients|"
+"Using Jacobian vector product (``jvp``), we can compute the circuit "
+"gradient in the forward AD mode, which is more suitable when the number "
+"of output elements is much larger than the input."
 msgstr ""
 
-#: ../../source/whitepaper/vmaps.ipynb:31
-msgid "vmap ingredients"
-msgstr ""
-
-#: ../../source/whitepaper/vmaps.ipynb:29
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:591
 msgid ""
-"We have two different types of APIs for vmap, the first one is ``vmap`` "
-"while the second one is ``vectorized_value_and_grad``, aka, ``vvag``. The"
-" latter one can also return the gradient information over a batch of "
-"different circuit."
+"Suppose we are going to evaluate :math:`\\partial \\vert \\psi(\\theta) "
+"\\rangle`, where :math:`\\psi(\\theta) = U(\\theta)\\vert 0\\rangle` is "
+"the output state of some parameterized quantum circuit."
 msgstr ""
 
-#: ../../source/whitepaper/vmaps.ipynb:96
-msgid "vmap the input states"
-msgstr ""
-
-#: ../../source/whitepaper/vmaps.ipynb:98
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:638
 msgid ""
-"Use case: batch processing of input states in quantum machine learning "
-"task."
+"We thus obtain :math:`\\frac{\\partial \\psi}{\\partial \\theta_0}`, "
+"since the tangent takes one in the first place and zero in other "
+"positions."
 msgstr ""
 
-#: ../../source/whitepaper/vmaps.ipynb:100
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:684
+msgid "Jacobian"
+msgstr ""
+
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:686
 msgid ""
-"For applications of batched input state processing, please see `MNIST QML"
-" tutorial <../tutorials/mnist_qml.ipynb>`__."
+"We can compute the Jacobian row by row or col by col using vmap together "
+"with reverse mode or forward mode AD."
 msgstr ""
 
-#: ../../source/whitepaper/vmaps.ipynb:112
-#: ../../source/whitepaper/vmaps.ipynb:228
-#: ../../source/whitepaper/vmaps.ipynb:539
-#: ../../source/whitepaper/vmaps.ipynb:664
-#: ../../source/whitepaper/vmaps.ipynb:846
-msgid "Minimal example"
-msgstr ""
-
-#: ../../source/whitepaper/vmaps.ipynb:212
-msgid "vmap the circuit weights"
-msgstr ""
-
-#: ../../source/whitepaper/vmaps.ipynb:214
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:688
 msgid ""
-"Use case: batched VQE, where different random initialization parameters "
-"are optimized simutaneously."
+"We still use the above example, to calculate Jacobian "
+":math:`J_{ij}=\\frac{\\partial \\psi_i}{\\partial \\theta_j}`."
 msgstr ""
 
-#: ../../source/whitepaper/vmaps.ipynb:216
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:780
+msgid "We can also use reverse mode AD to obtain Jacobian."
+msgstr ""
+
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:880
 msgid ""
-"For application on batched VQE, please refer `TFIM VQE tutorial "
-"<../tutorials/tfim_vqe.ipynb>`__."
+"It is worth noting that forward mode AD Jacobian is faster since the "
+"result Jacobian is a tall matrix."
 msgstr ""
 
-#: ../../source/whitepaper/vmaps.ipynb:523
-msgid "vmap the quantum noise"
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:892
+msgid "Quantum Fisher Information"
 msgstr ""
 
-#: ../../source/whitepaper/vmaps.ipynb:525
-msgid "Use case: parallel Monte Carlo noise simulation."
-msgstr ""
-
-#: ../../source/whitepaper/vmaps.ipynb:527
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:894
 msgid ""
-"For applications that combines vmapped Monte Carlo noise simulation and "
-"quantum machine learning task, please see `noisy QML script "
-"<../../../examples/noisy_qml.py>`__."
+"Quantum Fisher Information is a very important quantity in quantum "
+"computation, which can be utilized in so-called quantum natural gradient "
+"descent optimization as well as variational quantum dynamics. See "
+"`reference paper <https://arxiv.org/abs/1909.02108>`__ for more details."
 msgstr ""
 
-#: ../../source/whitepaper/vmaps.ipynb:648
-msgid "vmap the circuit structure"
-msgstr ""
-
-#: ../../source/whitepaper/vmaps.ipynb:650
-msgid "Use case: differentiable quantum architecture search (DQAS)."
-msgstr ""
-
-#: ../../source/whitepaper/vmaps.ipynb:652
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:896
 msgid ""
-"For more detail on DQAS application, see `DQAS tutorial "
-"<../tutorials/dqas.ipynb>`__."
+"There are several variants of QFI like object, and the core to evaluate "
+"is all related to :math:`\\langle \\partial \\psi \\vert \\partial "
+"\\psi\\rangle - \\langle \\partial \\psi \\vert \\psi\\rangle\\langle "
+"\\psi \\vert \\partial \\psi\\rangle`. Such quantity is easily obtained "
+"with advanced AD framework by first getting the Jacobian for the state "
+"and then vmap the inner product over Jacobian rows. The detailed "
+"implementation can be found at the codebase "
+"``tensorcircuit/experimental.py``. We directly call the corresponding API"
+" in this note."
 msgstr ""
 
-#: ../../source/whitepaper/vmaps.ipynb:830
-msgid "vmap the circuit measurements"
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:1012
+msgid "Hessian"
 msgstr ""
 
-#: ../../source/whitepaper/vmaps.ipynb:832
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:1014
 msgid ""
-"Use case: accelerating evaluation of Pauli string sum by parallel the "
-"parameterized measurment."
+"Hessian is defined as :math:`\\partial_{ij} \\langle \\psi(\\theta)\\vert"
+" H\\vert \\psi(\\theta)\\rangle`, where :math:`ij` is shorthand for "
+":math:`\\theta_i\\theta_j`."
 msgstr ""
 
-#: ../../source/whitepaper/vmaps.ipynb:834
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:1016
+msgid "In the following examples, we use :math:`H=Z_0` for simplicity."
+msgstr ""
+
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:1078
+msgid ":math:`\\langle \\psi \\vert H \\vert \\partial \\psi \\rangle`"
+msgstr ""
+
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:1080
 msgid ""
-"For applications on evaluation of parameterized measurements via vmap on "
-"large-scale systems, see `large-scale vqe example script "
-"<../../../examples/vqe_extra.py>`__."
+"This quantity is very common as the RHS of the variational quantum "
+"dynamics equation. And there is no good way to compute this quantity "
+"besides constructing corresponding Hadamard test circuit."
+msgstr ""
+
+#: ../../source/whitepaper/6-6-advanced-automatic-differentiation.ipynb:1082
+msgid ""
+"However, we can easily obtain this in AD framework, as long as "
+"``stop_gradint`` API exists, which is the case for TensorCircuit. Namely,"
+" this quantity is obtained as :math:`\\partial (\\langle \\psi \\vert "
+"H\\vert \\bot(\\psi)\\rangle)`, where the outside :math:`\\partial` is "
+"automatically implemented by AD and :math:`\\bot` is for "
+"``stop_gradient`` op which stop the backpropagation."
 msgstr ""
 

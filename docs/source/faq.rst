@@ -12,10 +12,30 @@ With GPU compatible environment, we can switch the use of GPU or CPU by a backen
 When should I use GPU for the quantum simulation?
 ----------------------------------------------------
 
+In general, for circuit with qubit count larger than 16 or for circuit simulation with large batch dimension more than 16, GPU simulation will be faster than CPU simulation.
+That is to say, for very small circuit and very small batch dimension of vectorization, GPU may show worse performance than CPU.
+But one have to carry out detailed benchmarks on the hardware choice, since the performance is determined by the hardware and task details.
+
 
 When should I jit the function?
 ----------------------------------------------------
 
+For function with "tensor in and tensor out", wrap it with jit will greatly accelerate the evaluation. Since the first time of evaluation takes longer time (staging time), jit is only good for functions which has to be evaluated frequently.
+
+
+.. Warning::
+
+    Be caution that jit can be easily misused if the users are not familiar with jit mechnism, which may lead to:
+    
+        1. very slow performance due to recompiling/staging for each run, 
+        2. error when run function with jit, 
+        3. or wrong results without any warning.
+
+    The most possible reasons for each problem are:
+    
+        1. function input are not all in the tensor form,
+        2. the output shape of all ops in the function may require the knowledge of the input value more than the input shape, or use mixed ops from numpy and ML framework
+        3. subtle interplay between random number generation and jit (see :ref:`advance:Randoms, Jit, Backend Agnostic, and Their Interplay` for the correct solution), respectively.
 
 
 Which ML framework backend should I use?
