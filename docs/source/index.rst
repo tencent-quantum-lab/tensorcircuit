@@ -10,6 +10,7 @@ Guide to TensorCircuit
    infras.rst
    contribution.rst
    tutorial.rst
+   whitepapertoc.rst
 
 
 API References
