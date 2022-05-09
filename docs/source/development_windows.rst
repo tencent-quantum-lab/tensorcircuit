@@ -1,5 +1,5 @@
 Run TensorCircuit on Windows Machine with Docker
-============================
+========================================================
 (For linux machines, please review the `Docker README for linux <https://github.com/quclub/tensorcircuit-dev/blob/master/docker/README.md>`_ )
 
 This note is only a step-by-step tutorial to help you build and run a Docker Container for Windows Machine users with the given dockerfile. 
@@ -17,7 +17,7 @@ you are familiar with it. In this tutorial we would discuss the deployment of Do
 the most convenient and workable solution for most beginners.
 
 What Is Docker
----------
+------------------
 
 Docker is an open platform for developing, shipping, and running applications. Docker enables you to separate your applications from your infrastructure so you can deliver software quickly.
 With Docker, you can manage your infrastructure in the same ways you manage your applications. By taking advantage of Docker's methodologies for shipping, testing, and deploying code quickly, you can significantly reduce the delay between writing code and running it in production.
@@ -27,7 +27,7 @@ With Docker, you can manage your infrastructure in the same ways you manage your
 For more information and tutorials on Docker, you could check the `Docker Documentation <https://docs.docker.com/get-started/overview/>`_.
 
 Install Docker and Docker Desktop
----------
+---------------------------------------------
 
 `Download Docker Desktop for Windows <https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe>`_ for and install it by following its instructions.
 
