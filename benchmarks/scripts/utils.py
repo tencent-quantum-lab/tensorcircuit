@@ -124,7 +124,7 @@ def mnist_data_preprocessing(PCA_components=10):
     from sklearn.decomposition import PCA
 
     if qml_data == {}:
-        if Path("../dataset/mnist.npz").exists():
+        if Path("mnist.npz").exists():
             print("load local dataset")
             # from https://www.kaggle.com/vikramtiwari/mnist-numpy
             def load_data(path):
@@ -133,9 +133,7 @@ def mnist_data_preprocessing(PCA_components=10):
                     x_test, y_test = f["x_test"], f["y_test"]
                     return (x_train, y_train), (x_test, y_test)
 
-            (train_img, train_lbl), (test_img, test_lbl) = load_data(
-                "../dataset/mnist.npz"
-            )
+            (train_img, train_lbl), (test_img, test_lbl) = load_data("mnist.npz")
             train_img = train_img.reshape([-1, 28 * 28])
             test_img = test_img.reshape([-1, 28 * 28])
         else:

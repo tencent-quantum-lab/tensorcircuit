@@ -1,4 +1,6 @@
 .idea/
+dataset
+*.outdated
 *.disable
 *.mo
 develop
