@@ -33,7 +33,7 @@ TensorCircuit 建立在现代机器学习框架之上，并且与机器学习后
 
 以下是一些最简易的演示。
 
-- 电路操纵:
+- 电路操作:
 
 ```python
 import tensorcircuit as tc
@@ -54,7 +54,7 @@ tc.set_dtype("complex128")
 tc.set_contractor("greedy")
 ```
 
-- 使用 jit 进行自动微分:
+- 使用即时编译 + 自动微分:
 
 ```python
 def forward(theta):
@@ -70,7 +70,7 @@ print(g(theta))
 
 ## 安装
 
-该包纯粹是用 Python 编写的，可以通过 pip 获取：
+该包是用纯 Python 编写的，可以通过 pip 直接获取：
 
 ```python
 pip install tensorcircuit
@@ -80,25 +80,25 @@ pip install tensorcircuit
 
 ## 优势
 
-* 基于张量网络模拟引擎
+- 基于张量网络模拟引擎
 
-* 即时编译、自动微分、向量并行化兼容，GPU 支持
+- 即时编译、自动微分、向量并行化兼容，GPU 支持
 
-* 效率
+- 效率
 
-   * 时间：与 tfq 或 qiskit 相比，加速 10 到 10^6 倍
+  - 时间：与 TFQ 或 Qiskit 相比，加速 10 到 10^6 倍
 
-   * 空间：600+ qubits 1D VQE 工作流（收敛能量误差：< 1%）
+  - 空间：600+ qubits 1D VQE 工作流（收敛能量误差：< 1%）
 
-* 优雅
+- 优雅
 
-   * 灵活性：自定义张量收缩、多种 ML 后端/接口选择、多种 dtype 精度
+  - 灵活性：自定义张量收缩、多种 ML 后端/接口选择、多种数值精度
 
-   * API 设计：人类可理解的量子，更少的代码，更多的力量
+  - API 设计：人类可理解的量子，更少的代码，更多的可能
 
 ## 贡献
 
-有关贡献指南和说明，请参阅 [贡献](/CONTRIBUTING_cn.md)。
+有关贡献指南和说明，请参阅 [贡献](/CONTRIBUTING.md)。
 
 我们欢迎大家提出问题、PR 和讨论，这些都托管在 GitHub 上。
 
@@ -118,4 +118,3 @@ pip install tensorcircuit
 
 VQEX 在 MBL 相位识别上的应用见 [教程](https://github.com/quclub/tensorcircuit-tutorials/blob/master/tutorials/vqex_mbl.ipynb)。
 参考论文: https://arxiv.org/pdf/2111.13719.pdf 。
-
