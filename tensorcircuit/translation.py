@@ -117,8 +117,8 @@ def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
                 np.real(backend.numpy(parameters["theta"])), *index, ctrl_state=0
             )
         elif gate_name in ["exp", "exp1"]:
-            unitary = backend.numpy(parameters["unitary"])
-            theta = backend.numpy(parameters["theta"])
+            unitary = backend.numpy(backend.convert_to_tensor(parameters["unitary"]))
+            theta = backend.numpy(backend.convert_to_tensor(parameters["theta"]))
             theta = np.array(np.real(theta)).astype(np.float64)
             # cast theta to real, since qiskit only support unitary.
             # Error can be presented if theta is actually complex in this procedure.

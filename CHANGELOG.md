@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixed
+
+- fix translation issue to qiskit when the input parameter is in numpy form
+
 ## 0.0.220509
 
 ### Added
