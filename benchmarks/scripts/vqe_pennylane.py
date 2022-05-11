@@ -2,13 +2,12 @@ import sys
 import pennylane as qml
 import tensorflow as tf
 import numpy as np
-import utils
-import time
 import cpuinfo
 import datetime
 import os
 import jax
 import uuid
+import utils
 
 
 def H_tfim(J, h, nwires, bc=True):

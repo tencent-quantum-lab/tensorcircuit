@@ -3,12 +3,11 @@ import tensorflow as tf
 import cirq
 import sympy
 import numpy as np
-import utils
-import time
 import datetime
 import cpuinfo
 import os
 import uuid
+import utils
 
 
 def tfquantum_benchmark(

@@ -1,13 +1,12 @@
 import tensorflow as tf
 import numpy as np
-import time
-import utils
 import datetime
 import cpuinfo
 import os
 import sys
 import uuid
 import tensorcircuit as tc
+import utils
 
 
 def tensorcircuit_tf_benchmark(

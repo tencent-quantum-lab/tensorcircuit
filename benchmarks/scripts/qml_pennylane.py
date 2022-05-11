@@ -2,14 +2,13 @@ import sys
 import pennylane as qml
 import tensorflow as tf
 import numpy as np
-import utils
-import time
 import cpuinfo
 import datetime
 import os
 import jax
 import uuid
 import tensorcircuit as tc
+import utils
 
 tc.set_backend("tensorflow")
 

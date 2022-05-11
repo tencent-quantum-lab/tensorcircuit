@@ -252,7 +252,7 @@ def qml_timing(f, nbatch, nitrs, timeLimit, tfq=False):
             img_t[(i % batch) * nbatch : (i % batch + 1) * nbatch],
             lbl_t[(i % batch) * nbatch : (i % batch + 1) * nbatch],
         )
-        if a != None:
+        if a is not None:
             print(a)
         if time.time() - t1 > timeLimit:
             break

@@ -1,22 +1,15 @@
 import os
-from functools import lru_cache
-from itertools import product
-from datetime import datetime
 import tensorflow as tf
 import numpy as np
 import sys
-from jax.config import config
-import utils
 import jax
 from jax import numpy as jnp
-
 import tensorcircuit as tc
-import time
-
 import cpuinfo
 import datetime
 import sys
 import uuid
+import utils
 
 
 def tensorcircuit_jax_benchmark(
