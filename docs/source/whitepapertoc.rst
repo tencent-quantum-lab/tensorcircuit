@@ -4,6 +4,7 @@ Whitepaper Tutorials
 
 .. toctree::
 
+    whitepaper/3-circuits-gates.ipynb
     whitepaper/4-gradient-optimization.ipynb
     whitepaper/5-density-matrix.ipynb
     whitepaper/6-1-conditional-measurements-post-selection
