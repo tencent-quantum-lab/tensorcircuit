@@ -13,7 +13,7 @@ import tensornetwork as tn
 from . import gates
 from . import channels
 from .circuit import Circuit, _expectation_ps
-from .cons import backend, contractor, npdtype, dtypestr
+from .cons import backend, contractor, npdtype, dtypestr, rdtypestr
 
 Gate = gates.Gate
 Tensor = Any
@@ -312,6 +312,13 @@ class DMCircuit:
         occupied = set()
         nodes = newdm
         for op, index in ops:
+            if not isinstance(op, tn.Node):
+                # op is only a matrix
+                op = backend.reshape2(op)
+                op = backend.cast(op, dtype=dtypestr)
+                op = gates.Gate(op)
+            if isinstance(index, int):
+                index = [index]
             noe = len(index)
             for j, e in enumerate(index):
                 if e in occupied:
@@ -346,6 +353,7 @@ class DMCircuit:
         sample: List[Tensor] = []
         p = 1.0
         p = backend.convert_to_tensor(p)
+        p = backend.cast(p, dtype=rdtypestr)
         for k, j in enumerate(index):
             newnodes, newfront = self._copy(self._nodes, self._lfront + self._rfront)
             nfront = len(newfront) // 2
@@ -373,6 +381,7 @@ class DMCircuit:
             r = backend.real(backend.cast(r, dtypestr))
             sign = backend.sign(r - pu) / 2 + 0.5
             sign = backend.convert_to_tensor(sign)
+            sign = backend.cast(sign, dtype=rdtypestr)
             sign_complex = backend.cast(sign, dtypestr)
             sample.append(sign_complex)
             p = p * (pu * (-1) ** sign + sign)

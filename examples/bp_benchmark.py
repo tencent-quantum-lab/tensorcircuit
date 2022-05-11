@@ -30,23 +30,21 @@ def tfq_approach(n_qubits=10, depth=10, n_circuits=100):
         circuit = cirq.Circuit()
         for qubit in qubits:
             circuit += cirq.ry(np.pi / 4.0)(qubit)
-
-        for d in range(depth):
+        j = 0
+        for _ in range(depth):
             # Add a series of single qubit rotations.
-            for i, qubit in enumerate(qubits):
+            for qubit in qubits:
                 random_n = np.random.uniform()
-                random_rot = (
-                    np.random.uniform() * 2.0 * np.pi if i != 0 or d != 0 else symbol
-                )
                 if random_n > 2.0 / 3.0:
                     # Add a Z.
-                    circuit += cirq.rz(random_rot)(qubit)
+                    circuit += cirq.rz(symbol[j])(qubit)
                 elif random_n > 1.0 / 3.0:
                     # Add a Y.
-                    circuit += cirq.ry(random_rot)(qubit)
+                    circuit += cirq.ry(symbol[j])(qubit)
                 else:
                     # Add a X.
-                    circuit += cirq.rx(random_rot)(qubit)
+                    circuit += cirq.rx(symbol[j])(qubit)
+                j += 1
 
             # Add CZ ladder.
             for src, dest in zip(qubits, qubits[1:]):
@@ -62,7 +60,7 @@ def tfq_approach(n_qubits=10, depth=10, n_circuits=100):
         # Prep the inputs as tensors
         circuit_tensor = tfq.convert_to_tensor(circuits)
         values_tensor = tf.convert_to_tensor(
-            np.random.uniform(0, 2 * np.pi, (n_circuits, 1)).astype(np.float32)
+            np.random.uniform(0, 2 * np.pi, (n_circuits, 100)).astype(np.float32)
         )
 
         # Use TensorFlow GradientTape to track gradients.
@@ -71,7 +69,7 @@ def tfq_approach(n_qubits=10, depth=10, n_circuits=100):
             forward = expectation(
                 circuit_tensor,
                 operators=op,
-                symbol_names=[symbol],
+                symbol_names=symbol,
                 symbol_values=values_tensor,
             )
 
@@ -81,7 +79,7 @@ def tfq_approach(n_qubits=10, depth=10, n_circuits=100):
         return grad_var.numpy()[0]
 
     qubits = cirq.GridQubit.rect(1, n_qubits)
-    symbol = sympy.Symbol("theta")
+    symbol = sympy.symbols("theta_{0:100}")
     circuits = [generate_random_qnn(qubits, symbol, depth) for _ in range(n_circuits)]
     op = cirq.Z(qubits[0]) * cirq.Z(qubits[1])
     theta_var = process_batch(circuits, symbol, op)
@@ -144,10 +142,3 @@ def tc_approach(n_qubits=10, depth=10, n_circuits=100):
 
 
 benchmark(tc_approach)
-
-# tfq mac cpu: 4.43
-# jax mac cpu: 98.25, 0.078
-# tf mac cpu: 132.93, 0.21
-# tfq t4 cpu: 3.97
-# tf mac gpu T4: 158, 0.15
-# jax mac gpu T4: 53.8, 0.022

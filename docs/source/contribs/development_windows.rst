@@ -1,5 +1,8 @@
 Run TensorCircuit on Windows Machine with Docker
 ========================================================
+
+Contributed by `SexyCarrots <https://github.com/SexyCarrots>`_ (Xinghan Yang)
+
 (For linux machines, please review the `Docker README for linux <https://github.com/quclub/tensorcircuit-dev/blob/master/docker/README.md>`_ )
 
 This note is only a step-by-step tutorial to help you build and run a Docker Container for Windows Machine users with the given dockerfile. 
@@ -10,17 +13,17 @@ Why We Can't Run TensorCircuit on Windows Machine
 ---------------------------------------------------------------
 
 Due to the compatability issue with the `JAX <https://jax.readthedocs.io/en/latest/index.html>`_ backend on Windows,
-we could not directly use most of TensorCircuit features on Windows machines. Please be aware that it is possible to `install
-JAX on Windows <https://jax.readthedocs.io/en/latest/developer.html>`_, but it is very tricky and not recommended unless
+we could not directly use jax backend for TensorCircuit on Windows machines. Please be aware that it is possible to `install
+JAX on Windows <https://jax.readthedocs.io/en/latest/developer.html>`_, but it is tricky and not recommended unless
 you have solid understanding of Windows environment and C++ tools. Virtual machine is also an option for development if
-you are familiar with it. In this tutorial we would discuss the deployment of Docker for TensorCircuit since it us 
-the most convenient and workable solution for most beginners.
+you are familiar with it. In this tutorial we would discuss the deployment of Docker for TensorCircuit since it use 
+the most convenient and workable solution for beginners.
 
 What Is Docker
 ------------------
 
 Docker is an open platform for developing, shipping, and running applications. Docker enables you to separate your applications from your infrastructure so you can deliver software quickly.
-With Docker, you can manage your infrastructure in the same ways you manage your applications. By taking advantage of Docker's methodologies for shipping, testing, and deploying code quickly, you can significantly reduce the delay between writing code and running it in production.
+With Docker, you can manage your infrastructure in the same way as you manage your applications. By taking advantage of Docker's methodologies for shipping, testing, and deploying code quickly, you can significantly reduce the delay between writing code and running it in production.
 
 (Source: https://docs.docker.com/get-started/overview/) 
 
@@ -98,7 +101,7 @@ Choose Dockerfile to be the configuration, then run the dockerfile.
 Please keep your computer active while building the docker image. You need to build the image again from scratch if
 there is any interruption during the building.
 
-Run Docker Image and Some Example in TensorCircuit
+Run Docker Image and Examples in TensorCircuit
 --------------------------------------------------------
 
 Open your CLI
