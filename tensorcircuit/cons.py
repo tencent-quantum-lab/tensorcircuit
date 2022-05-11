@@ -54,6 +54,7 @@ modules = [
 
 thismodule = sys.modules[__name__]
 dtypestr = "complex64"
+rdtypestr = "float32"
 npdtype = np.complex64
 backend = get_backend("numpy")
 contractor = tn.contractors.auto

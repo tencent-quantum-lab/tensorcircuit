@@ -12,7 +12,7 @@ import numpy as np
 import tensornetwork as tn
 
 from . import gates
-from .cons import backend, contractor, dtypestr, npdtype
+from .cons import backend, contractor, dtypestr, rdtypestr, npdtype
 from .quantum import QuVector, QuOperator, identity
 from .simplify import _split_two_qubit_gate
 from .vis import qir2tex
@@ -1348,6 +1348,7 @@ class Circuit:
         sample: List[Tensor] = []
         p = 1.0
         p = backend.convert_to_tensor(p)
+        p = backend.cast(p, dtype=rdtypestr)
         for k, j in enumerate(index):
             nodes1, edge1 = self._copy()
             nodes2, edge2 = self._copy(conj=True)
@@ -1373,6 +1374,7 @@ class Circuit:
             r = backend.real(backend.cast(r, dtypestr))
             sign = backend.sign(r - pu) / 2 + 0.5
             sign = backend.convert_to_tensor(sign)
+            sign = backend.cast(sign, dtype=rdtypestr)
             sign_complex = backend.cast(sign, dtypestr)
             sample.append(sign_complex)
             p = p * (pu * (-1) ** sign + sign)
@@ -1420,6 +1422,7 @@ class Circuit:
             if not isinstance(op, tn.Node):
                 # op is only a matrix
                 op = backend.reshape2(op)
+                op = backend.cast(op, dtype=dtypestr)
                 op = gates.Gate(op)
             if isinstance(index, int):
                 index = [index]
