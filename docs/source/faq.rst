@@ -12,15 +12,15 @@ With GPU compatible environment, we can switch the use of GPU or CPU by a backen
 When should I use GPU for the quantum simulation?
 ----------------------------------------------------
 
-In general, for circuit with qubit count larger than 16 or for circuit simulation with large batch dimension more than 16, GPU simulation will be faster than CPU simulation.
-That is to say, for very small circuit and very small batch dimension of vectorization, GPU may show worse performance than CPU.
+In general, for a circuit with qubit count larger than 16 or for circuit simulation with large batch dimension more than 16, GPU simulation will be faster than CPU simulation.
+That is to say, for very small circuits and the very small batch dimensions of vectorization, GPU may show worse performance than CPU.
 But one have to carry out detailed benchmarks on the hardware choice, since the performance is determined by the hardware and task details.
 
 
 When should I jit the function?
 ----------------------------------------------------
 
-For function with "tensor in and tensor out", wrap it with jit will greatly accelerate the evaluation. Since the first time of evaluation takes longer time (staging time), jit is only good for functions which has to be evaluated frequently.
+For a function with "tensor in and tensor out", wrapping it with jit will greatly accelerate the evaluation. Since the first time of evaluation takes longer time (staging time), jit is only good for functions which have to be evaluated frequently.
 
 
 .. Warning::
@@ -151,14 +151,14 @@ Please refer to the following demos:
     # [0.        +0.j 0.        +0.j 0.49999998+0.j 0.49999998+0.j]
 
 
-How to arange the circuit gate placement in visualization from ``c.tex()``?
+How to arrange the circuit gate placement in the visualization from ``c.tex()``?
 ----------------------------------------------------------------------------------------------------
 
-Try ``lcompress=True`` or ``rcompress=True`` option in :py:meth:`tensorcircuit.circuit.Circuit.tex` API to make the circuit align from left or from right.
+Try ``lcompress=True`` or ``rcompress=True`` option in :py:meth:`tensorcircuit.circuit.Circuit.tex` API to make the circuit align from the left or from the right.
 
 Or try ``c.unitary(0, unitary=tc.backend.eye(2), name="invisible")`` to add placeholder on the circuit which is invisible for circuit visualization.
 
-How to get the entanglement entropy of from the circuit output?
+How to get the entanglement entropy from the circuit output?
 --------------------------------------------------------------------
 
 Try the following:
