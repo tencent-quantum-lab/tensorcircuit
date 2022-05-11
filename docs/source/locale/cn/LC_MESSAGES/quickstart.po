@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-09 17:10+0800\n"
+"POT-Creation-Date: 2022-04-08 21:05+0800\n"
 "PO-Revision-Date: 2022-04-11 08:23+0800\n"
 "Last-Translator: Xinghan Yang\n"
 "Language: cn\n"
@@ -417,19 +417,18 @@ msgid ""
 "implemented in `TensorNetwork package "
 "<https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/abstract_backend.py>`__"
 " and the other part is implemented in `TensorCircuit package "
-"<modules.html#module-tensorcircuit.backends>`__. To see all the backend "
-"agnostic APIs, try:"
+"<modules.html#module-tensorcircuit.backends>`__."
 msgstr ""
 "在后端支持的 APIs 有两个来源 , 一个来自 `TensorNetwork "
 "<https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/abstract_backend.py>`__"
 " 另一个来自 `TensorCircuit package <modules.html#module-"
 "tensorcircuit.backends>`__。"
 
-#: ../../source/quickstart.rst:384
+#: ../../source/quickstart.rst:249
 msgid "Switch the Dtype"
 msgstr "转换 dtype"
 
-#: ../../source/quickstart.rst:386
+#: ../../source/quickstart.rst:251
 msgid ""
 "TensorCircuit supports simulation using 32/64 bit precession. The default"
 " dtype is 32-bit as \"complex64\". Change this by "
@@ -439,24 +438,24 @@ msgstr ""
 "\"complex64\"。可以通过  ``tc.set_dtype(\"complex128\")`` 把 dtype 改为 \"complex"
 " 128\" 。"
 
-#: ../../source/quickstart.rst:389
+#: ../../source/quickstart.rst:254
 msgid ""
 "``tc.dtypestr`` always returns the current dtype string: either "
 "\"complex64\" or \"complex128\"."
 msgstr "``tc.dtypestr`` 总会返回当前的 dtype 字符串: 不是 \"complex64\" 就是 \"complex128\"."
 
-#: ../../source/quickstart.rst:393
+#: ../../source/quickstart.rst:258
 msgid "Setup the Contractor"
 msgstr "设置 contractor"
 
-#: ../../source/quickstart.rst:395
+#: ../../source/quickstart.rst:260
 msgid ""
 "TensorCircuit is a tensornetwork contraction-based quantum circuit "
 "simulator. A contractor is for searching for the optimal contraction path"
 " of the circuit tensornetwork."
 msgstr "TensorCircuit 是一个基于张量网络收缩的量子电路模拟器。 contractor 用于搜索电路张量网络的最佳收缩路径。"
 
-#: ../../source/quickstart.rst:397
+#: ../../source/quickstart.rst:262
 msgid ""
 "There are various advanced contractors provided by third-party packages, "
 "such as `opt-einsum <https://github.com/dgasmith/opt_einsum>`__ and "
@@ -466,7 +465,7 @@ msgstr ""
 "<https://github.com/dgasmith/opt_einsum>`__ 和 `cotengra "
 "<https://github.com/jcmgray/cotengra>`__ 。"
 
-#: ../../source/quickstart.rst:399
+#: ../../source/quickstart.rst:264
 msgid ""
 "`opt-einsum` is shipped with TensorNetwork package. To use cotengra, one "
 "needs to pip install it; kahypar is also recommended to install with "
@@ -475,11 +474,11 @@ msgstr ""
 "`opt-einsum` 随 TensorNetwork 软件包一起。如要使用 cotengra，则需要 pip 安装它； 还建议安装 "
 "cotengra 随 kahypar 一起使用。"
 
-#: ../../source/quickstart.rst:401
+#: ../../source/quickstart.rst:266
 msgid "Some setup cases:"
 msgstr "一些设置案例："
 
-#: ../../source/quickstart.rst:427
+#: ../../source/quickstart.rst:292
 msgid ""
 "For advanced configurations on cotengra contractors, please refer to "
 "cotengra `doc "
@@ -493,25 +492,25 @@ msgstr ""
 "`contractor 教程 <https:// github.com/quclub/tensorcircuit-"
 "tutorials/blob/master/tutorials/contractors.ipynb>`__."
 
-#: ../../source/quickstart.rst:429
+#: ../../source/quickstart.rst:294
 msgid "**Setup in Function or Context Level**"
 msgstr "**函数和上下文级别的设置**"
 
-#: ../../source/quickstart.rst:431
+#: ../../source/quickstart.rst:296
 msgid ""
 "Beside global level setup, we can also setup the backend, the dtype, and "
 "the contractor at the function level or context manager level:"
 msgstr "除了全局级别设置，我们还可以在函数级别或上下文管理器级别设置后端、dtype 和contractor："
 
-#: ../../source/quickstart.rst:449
+#: ../../source/quickstart.rst:314
 msgid "Noisy Circuit Simulation"
 msgstr "噪声电路模拟"
 
-#: ../../source/quickstart.rst:451
+#: ../../source/quickstart.rst:316
 msgid "**Monte Carlo State Simulator:**"
 msgstr "**蒙特卡洛态模拟器**"
 
-#: ../../source/quickstart.rst:453
+#: ../../source/quickstart.rst:318
 msgid ""
 "For the Monte Carlo trajectory noise simulator, the unitary Kraus channel"
 " can be handled easily. TensorCircuit also supports fully jittable and "
@@ -520,22 +519,22 @@ msgstr ""
 "对于蒙特卡洛轨迹噪声模拟器，可以轻松处理幺正的 Kraus 通道。 不过，TensorCircuit 还支持完全可即时编译和可微分的通用 "
 "Kraus 通道蒙特卡罗模拟。"
 
-#: ../../source/quickstart.rst:465
+#: ../../source/quickstart.rst:330
 msgid "**Density Matrix Simulator:**"
 msgstr "**密度矩阵模拟器**"
 
-#: ../../source/quickstart.rst:467
+#: ../../source/quickstart.rst:332
 msgid ""
 "Density matrix simulator ``tc.DMCircuit`` simulates the noise in a full "
 "form, but takes twice qubits to do noiseless simulation. The API is the "
 "same as ``tc.Circuit``."
 msgstr "密度矩阵模拟器``tc.DMCircuit`` 以完整形式模拟噪声，但需要两倍的量子比特。API 与 ``tc.Circuit`` 基本相同。"
 
-#: ../../source/quickstart.rst:471
+#: ../../source/quickstart.rst:336
 msgid "MPS and MPO"
 msgstr "矩阵乘积状态和矩阵乘积算子"
 
-#: ../../source/quickstart.rst:473
+#: ../../source/quickstart.rst:338
 msgid ""
 "TensorCircuit has its class for MPS and MPO originally defined in "
 "TensorNetwork as ``tc.QuVector``, ``tc.QuOperator``."
@@ -543,7 +542,7 @@ msgstr ""
 "TensorCircuit 有自己的 MPS 和 MPO 类，起初在 TensorNetwork 中定义为“tc.QuVector” 和 "
 "“tc.QuOperator”。"
 
-#: ../../source/quickstart.rst:475
+#: ../../source/quickstart.rst:340
 msgid ""
 "``tc.QuVector`` can be extracted from ``tc.Circuit`` as the tensor "
 "network form for the output state (uncontracted) by ``c.quvector()``."
@@ -551,7 +550,7 @@ msgstr ""
 "作为``c.quvector()`` 的输出状态（未收缩）的张量网络形式，``tc.QuVector`` 可以从``tc.Circuit`` "
 "中提取。"
 
-#: ../../source/quickstart.rst:477
+#: ../../source/quickstart.rst:342
 msgid ""
 "The QuVector forms a wavefunction w, which can also be fed into Circuit "
 "as the inputs state as ``c=tc.Circuit(n, mps_inputs=w)``."
@@ -559,61 +558,61 @@ msgstr ""
 "QuVector 形成一个波函数 w，它也可以作为 ``c=tc.Circuit(n, mps_inputs=w)`` 的输入状态输入到 "
 "Circuit 中。"
 
-#: ../../source/quickstart.rst:479
+#: ../../source/quickstart.rst:344
 msgid "MPS as input state for circuit"
 msgstr "MPS 作为电路的输入状态"
 
-#: ../../source/quickstart.rst:481
+#: ../../source/quickstart.rst:346
 msgid ""
 "The MPS/QuVector representation of the input state has a more efficient "
 "and compact form."
 msgstr "输入状态的 MPS/QuVector 表示具有更高效和紧凑的形式。"
 
-#: ../../source/quickstart.rst:493
+#: ../../source/quickstart.rst:358
 msgid "MPS as (uncomputed) output state for circuit"
 msgstr "MPS 作为电路的（未计算的）输出状态"
 
-#: ../../source/quickstart.rst:495
+#: ../../source/quickstart.rst:360
 msgid ""
 "For example, a quick way to calculate the wavefunction overlap without "
 "explicitly computing the state amplitude is given as below:"
 msgstr "例如，在不显式计算状态幅度的情况下，计算波函数重叠的快速方法如下："
 
-#: ../../source/quickstart.rst:512
+#: ../../source/quickstart.rst:377
 msgid "MPO as the gate on the circuit"
 msgstr "MPO 作为电路上的门"
 
-#: ../../source/quickstart.rst:514
+#: ../../source/quickstart.rst:379
 msgid ""
 "Instead of a common quantum gate in matrix/node format, we can directly "
 "apply a gate in MPO/QuOperator format."
 msgstr "代替矩阵/节点格式的普通量子门，我们可以直接应用 MPO/QuOperator 格式的门。"
 
-#: ../../source/quickstart.rst:525
+#: ../../source/quickstart.rst:390
 msgid ""
 "The representative gate defined in MPO format is the ``multicontrol`` "
 "gate."
 msgstr "以 MPO 格式定义的代表门是 ``multicontrol`` 门。"
 
-#: ../../source/quickstart.rst:527
+#: ../../source/quickstart.rst:392
 msgid "MPO as the operator for expectation evaluation on a circuit"
 msgstr "MPO作为电路期望估测算子"
 
-#: ../../source/quickstart.rst:529
+#: ../../source/quickstart.rst:394
 msgid ""
 "We can also measure operator expectation on the circuit output state "
 "where the operator is in MPO/QuOperator format."
 msgstr "我们还可以测量运算符对 MPO/QuOperator 格式的电路输出状态的期望。"
 
-#: ../../source/quickstart.rst:541
+#: ../../source/quickstart.rst:406
 msgid "Interfaces"
 msgstr "接口"
 
-#: ../../source/quickstart.rst:543
+#: ../../source/quickstart.rst:408
 msgid "**PyTorch Interface to Hybrid with PyTorch Modules:**"
 msgstr "**与 PyTorch 模块混合的 PyTorch 接口：**"
 
-#: ../../source/quickstart.rst:545
+#: ../../source/quickstart.rst:410
 msgid ""
 "As we have mentioned in the backend section, the PyTorch backend may lack"
 " advanced features. This doesn't mean we cannot hybrid the advanced "
@@ -624,45 +623,45 @@ msgstr ""
 "正如我们在后端部分提到的，PyTorch 后端可能缺少高级功能。 这并不意味着我们不能将高级量子电路模块与 PyTorch 神经模块混合。 "
 "我们可以在 TensorFlow 或 Jax 后端运行量子函数，同时使用 Torch 接口包装它。 "
 
-#: ../../source/quickstart.rst:573
+#: ../../source/quickstart.rst:438
 msgid "**Scipy Interface to Utilize Scipy Optimizers:**"
 msgstr "**使用 scipy接口使用scipy优化器：**"
 
-#: ../../source/quickstart.rst:575
+#: ../../source/quickstart.rst:440
 msgid ""
 "Automatically transform quantum functions as scipy-compatible values and "
 "grad functions as provided for scipy interface with ``jac=True``."
 msgstr "为带有 jac=True 的 scipy 接口自动将量子函数转换为与 scipy 兼容的 value 和 grad 函数。"
 
-#: ../../source/quickstart.rst:601
+#: ../../source/quickstart.rst:466
 msgid "Templates as Shortcuts"
 msgstr "捷径模板"
 
-#: ../../source/quickstart.rst:603
+#: ../../source/quickstart.rst:468
 msgid "**Measurements:**"
 msgstr "**测量**"
 
-#: ../../source/quickstart.rst:605
+#: ../../source/quickstart.rst:470
 msgid "Ising type Hamiltonian defined on a general graph"
 msgstr "在一般图上定义的伊辛型哈密顿量"
 
-#: ../../source/quickstart.rst:607
+#: ../../source/quickstart.rst:472
 msgid ""
 "See "
 ":py:meth:`tensorcircuit.templates.measurements.spin_glass_measurements`"
 msgstr "参考 :py:meth:`tensorcircuit.templates.measurements.spin_glass_measurements`"
 
-#: ../../source/quickstart.rst:609
+#: ../../source/quickstart.rst:474
 msgid "Heisenberg Hamiltonian on a general graph with possible external fields"
 msgstr "具有可能存在的外场的一般图上的海森堡哈密顿量"
 
-#: ../../source/quickstart.rst:611
+#: ../../source/quickstart.rst:476
 msgid ""
 "See "
 ":py:meth:`tensorcircuit.templates.measurements.heisenberg_measurements`"
 msgstr "参考 :py:meth:`tensorcircuit.templates.measurements.heisenberg_measurements`"
 
-#: ../../source/quickstart.rst:613
+#: ../../source/quickstart.rst:478
 msgid "**Circuit Blocks:**"
 msgstr "**电路块**"
 

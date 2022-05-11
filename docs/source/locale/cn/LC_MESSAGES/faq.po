@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-09 17:10+0800\n"
-"PO-Revision-Date: 2022-04-14 11:26+0800\n"
-"Last-Translator: Xinghan Yang\n"
+"POT-Creation-Date: 2022-04-13 15:28+0800\n"
+"PO-Revision-Date: 2022-05-11 17:52+0800\n"
+"Last-Translator: Xinghan Yang <yang-xinghan@outlook.com>\n"
 "Language: cn\n"
 "Language-Team: cn <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -42,85 +42,18 @@ msgstr ""
 "提供的官方 dockerfile。在 GPU 兼容的环境下，我们可以通过后端无关的环境变量 ``CUDA_VISIBLE_DEVICES`` "
 "来切换使用 GPU 或 CPU。"
 
-#: ../../source/faq.rst:13
-msgid "When should I use GPU for the quantum simulation?"
-msgstr ""
-
-#: ../../source/faq.rst:15
-msgid ""
-"In general, for circuit with qubit count larger than 16 or for circuit "
-"simulation with large batch dimension more than 16, GPU simulation will "
-"be faster than CPU simulation. That is to say, for very small circuit and"
-" very small batch dimension of vectorization, GPU may show worse "
-"performance than CPU. But one have to carry out detailed benchmarks on "
-"the hardware choice, since the performance is determined by the hardware "
-"and task details."
-msgstr ""
-
-#: ../../source/faq.rst:21
-msgid "When should I jit the function?"
-msgstr ""
-
-#: ../../source/faq.rst:23
-msgid ""
-"For function with \"tensor in and tensor out\", wrap it with jit will "
-"greatly accelerate the evaluation. Since the first time of evaluation "
-"takes longer time (staging time), jit is only good for functions which "
-"has to be evaluated frequently."
-msgstr ""
-
-#: ../../source/faq.rst:28
-msgid ""
-"Be caution that jit can be easily misused if the users are not familiar "
-"with jit mechnism, which may lead to:"
-msgstr ""
-
-#: ../../source/faq.rst:30
-msgid "very slow performance due to recompiling/staging for each run,"
-msgstr ""
-
-#: ../../source/faq.rst:31
-msgid "error when run function with jit,"
-msgstr ""
-
-#: ../../source/faq.rst:32
-msgid "or wrong results without any warning."
-msgstr ""
-
-#: ../../source/faq.rst:34
-msgid "The most possible reasons for each problem are:"
-msgstr ""
-
-#: ../../source/faq.rst:36
-msgid "function input are not all in the tensor form,"
-msgstr ""
-
-#: ../../source/faq.rst:37
-msgid ""
-"the output shape of all ops in the function may require the knowledge of "
-"the input value more than the input shape, or use mixed ops from numpy "
-"and ML framework"
-msgstr ""
-
-#: ../../source/faq.rst:38
-msgid ""
-"subtle interplay between random number generation and jit (see "
-":ref:`advance:Randoms, Jit, Backend Agnostic, and Their Interplay` for "
-"the correct solution), respectively."
-msgstr ""
-
-#: ../../source/faq.rst:42
+#: ../../source/faq.rst:12
 msgid "Which ML framework backend should I use?"
 msgstr "我应该使用哪个 ML 框架后端？"
 
-#: ../../source/faq.rst:44
+#: ../../source/faq.rst:14
 msgid ""
 "Since the Numpy backend has no support for AD, if you want to evaluate "
 "the circuit gradient, you must set the backend as one of the ML "
 "frameworks beyond Numpy."
 msgstr "由于 Numpy 后端不支持自动微分，如果要评估电路梯度，必须将后端设置为 Numpy 之外的 ML 框架之一。"
 
-#: ../../source/faq.rst:46
+#: ../../source/faq.rst:16
 msgid ""
 "Since PyTorch has very limited support for vectorization and jit while "
 "our package strongly depends on these features, it is not recommended to "
@@ -131,7 +64,7 @@ msgstr ""
 "由于 PyTorch 对矢量化和 jit 的支持非常有限，而我们的包强烈依赖于这些特性，因此不建议使用它。尽管总是可以使用 PyTorch "
 "接口将量子函数包装在另一个后端，例如：py:meth:` 张量电路.interfaces.torch_interface`。"
 
-#: ../../source/faq.rst:48
+#: ../../source/faq.rst:18
 msgid ""
 "In terms of the choice between TensorFlow and Jax backend, the better one"
 " may depend on the use cases and one may want to benchmark both to pick "
@@ -141,49 +74,49 @@ msgstr ""
 "就 TensorFlow 和 Jax "
 "后端之间的选择而言，后端的好坏可能取决于用例，并且需要对两者进行基准测试以可能选择更好的后端。没有一种万能的建议，这就是为什么我们维持我们的软件支持不同的后端的形式。"
 
-#: ../../source/faq.rst:50
+#: ../../source/faq.rst:20
 msgid "Some general rules of thumb:"
 msgstr "一些一般的经验法则："
 
-#: ../../source/faq.rst:52
+#: ../../source/faq.rst:22
 msgid ""
 "On both CPU and GPU, the running time of a jitted function is faster for "
 "jax backend."
 msgstr "在 CPU 和 GPU 上，对于 jax 后端来说，jitted 函数的运行时间更快。"
 
-#: ../../source/faq.rst:54
+#: ../../source/faq.rst:24
 msgid "But on GPU, jit staging time is usually much longer for jax backend."
 msgstr "但在 GPU 上，jax 后端的 jit 时间通常要长得多。"
 
-#: ../../source/faq.rst:56
+#: ../../source/faq.rst:26
 msgid ""
 "For hybrid machine learning tasks, TensorFlow has a better ML ecosystem "
 "and reusable classical ML models."
 msgstr "对于混合机器学习任务，TensorFlow 拥有更好的 ML 生态系统和可重用的经典 ML 模型。"
 
-#: ../../source/faq.rst:58
+#: ../../source/faq.rst:28
 msgid ""
 "Jax has some built-in advanced features that are lacking in TensorFlow, "
 "such as checkpoint in AD and pmap for distributed computing."
 msgstr "Jax 具有一些 TensorFlow 所缺乏的内置高级功能，例如自动微分中的检查点和用于分布式计算的 pmap。"
 
-#: ../../source/faq.rst:60
+#: ../../source/faq.rst:30
 msgid ""
 "Jax is much insensitive to dtype where type promotion is handled "
 "automatically which means easier debugging."
 msgstr "Jax 对自动处理类型提升的 dtype 非常不敏感，这意味着更容易调试。"
 
-#: ../../source/faq.rst:62
+#: ../../source/faq.rst:32
 msgid ""
 "TensorFlow can cache the jitted function on the disk via SavedModel, "
 "which further amortizes the staging time."
 msgstr "TensorFlow 可以通过 SavedModel 将 jitted 函数缓存在磁盘上，从而进一步摊销编译时间。"
 
-#: ../../source/faq.rst:66
+#: ../../source/faq.rst:36
 msgid "What is the counterpart of ``QuantumLayer`` for PyTorch and Jax backend?"
 msgstr "PyTorch 和 Jax 后端的 QuantumLayer 对应的是什么？"
 
-#: ../../source/faq.rst:68
+#: ../../source/faq.rst:38
 msgid ""
 "Since PyTorch doesn't have mature vmap and jit support and Jax doesn't "
 "have native classical ML layers, we highly recommend TensorFlow as the "
@@ -201,25 +134,25 @@ msgstr ""
 "后端方面，我们强烈建议保留函数式编程范式来处理此类机器学习任务。此外，值得注意的是，jit 和 vmap 在 QuantumLayer "
 "中是自动处理的。"
 
-#: ../../source/faq.rst:74
+#: ../../source/faq.rst:44
 msgid "When do I need to customize the contractor and how?"
 msgstr "我什么时候需要定制 contractor 以及如何定制？"
 
-#: ../../source/faq.rst:76
+#: ../../source/faq.rst:46
 msgid ""
 "As a rule of thumb, for the circuit with qubit counts larger than 16 and "
 "circuit depth larger than 8, customized contraction may outperform the "
 "default built-in greedy contraction strategy."
 msgstr "根据经验，对于量子比特数大于 16 且电路深度大于 8 的电路，自定义收缩可能优于默认的内置贪婪收缩策略。"
 
-#: ../../source/faq.rst:78
+#: ../../source/faq.rst:48
 msgid ""
 "To set up or not set up the customized contractor is about a trade-off "
 "between the time on contraction pathfinding and the time on the real "
 "contraction via matmul."
 msgstr "设置或不设置定制 contractor 是在收缩寻路时间和通过 matmul 实际收缩时间之间进行权衡。"
 
-#: ../../source/faq.rst:80
+#: ../../source/faq.rst:50
 msgid ""
 "The customized contractor costs much more time than the default "
 "contractor in terms of contraction path searching, and via the path it "
@@ -228,14 +161,14 @@ msgstr ""
 "在收缩路径搜索方面，定制 contractor 比默认 contractor "
 "花费的时间要多得多。并且通过它找到的路径比真正的收缩找到的路径花费更少的时间和空间。"
 
-#: ../../source/faq.rst:82
+#: ../../source/faq.rst:52
 msgid ""
 "If the circuit simulation time is the bottleneck of the whole workflow, "
 "one can always try customized contractors to see whether there is some "
 "performance improvement."
 msgstr "如果电路仿真时间是整个工作流程的瓶颈，总是可以尝试定制 contractor，看看是否有一些性能改进。"
 
-#: ../../source/faq.rst:84
+#: ../../source/faq.rst:54
 msgid ""
 "We recommend to using `cotengra library "
 "<https://cotengra.readthedocs.io/en/latest/index.html>`_ to set up the "
@@ -247,7 +180,7 @@ msgstr ""
 "<https://cotengra.readthedocs.io/en/latest/index.html>`_ 来设置 "
 "contractor，因为有很多有趣的超参数需要调整，我们可以实现更好的收缩路径搜索时间和真实张量网络收缩时间之间的权衡。"
 
-#: ../../source/faq.rst:86
+#: ../../source/faq.rst:56
 msgid ""
 "It is also worth noting that for jitted function which we usually use, "
 "the contraction path search is only called at the first run of the "
@@ -257,17 +190,17 @@ msgstr ""
 "\"“另外值得注意的是，对于我们通常使用的 jitted 函数，收缩路径搜索只在函数第一次运行时调用，这进一步摊销了时间，有利于使用高度定制的 "
 "contractor。"
 
-#: ../../source/faq.rst:88
+#: ../../source/faq.rst:58
 msgid ""
 "In terms of how-to on contractor setup, please refer to "
 ":ref:`quickstart:Setup the Contractor`."
 msgstr "关于如何设置 contractor，请参阅 :ref:`quickstart:Setup the Contractor`。"
 
-#: ../../source/faq.rst:91
+#: ../../source/faq.rst:61
 msgid "Is there some API less cumbersome than ``expectation`` for Pauli string?"
 msgstr "对于 Pauli 字符串，有没有比 ``expectation`` 更简单的 API？"
 
-#: ../../source/faq.rst:93
+#: ../../source/faq.rst:63
 msgid ""
 "Say we want to measure something like :math:`\\langle X_0Z_1Y_2Z_4 "
 "\\rangle` for a six-qubit system, the general ``expectation`` API may "
@@ -276,11 +209,11 @@ msgstr ""
 "假设我们要为六量子位系统测量  :math:`\\langle X_0Z_1Y_2Z_4 \\rangle` ，一般的 "
 "``expectation`` API 可能看起来很麻烦。所以可以尝试以下选项之一 :"
 
-#: ../../source/faq.rst:96
+#: ../../source/faq.rst:66
 msgid "``c.expectation_ps(x=[0], y=[2], z=[1, 4])``"
 msgstr "``c.expectation_ps(x=[0], y=[2], z=[1, 4])``"
 
-#: ../../source/faq.rst:98
+#: ../../source/faq.rst:68
 msgid ""
 "``tc.templates.measurements.parameterized_measurements(c, np.array([1, 3,"
 " 2, 0, 3, 0]), onehot=True)``"
@@ -288,17 +221,17 @@ msgstr ""
 "``tc.templates.measurements.parameterized_measurements(c, np.array([1, 3,"
 " 2, 0, 3, 0]), onehot=True)``"
 
-#: ../../source/faq.rst:101
+#: ../../source/faq.rst:71
 msgid ""
 "Can I apply quantum operation based on previous classical measurement "
 "results in TensorCircuit?"
 msgstr "我可以根据线路中的经典测量结果来决定后续的量子门操作吗？"
 
-#: ../../source/faq.rst:103
+#: ../../source/faq.rst:73
 msgid "Try the following: (the pipeline is even fully jittable!)"
 msgstr "尝试以下方法：（方法甚至完全可以即时编译！）"
 
-#: ../../source/faq.rst:112
+#: ../../source/faq.rst:82
 msgid ""
 "``cond_measurement`` will return 0 or 1 based on the measurement result "
 "on z-basis, and ``conditional_gate`` applies gate_list[r] on the circuit."
@@ -306,69 +239,166 @@ msgstr ""
 "``cond_measurement`` 将根据 z 基础上的测量结果返回 0 或 1，并且 ``conditional_gate`` "
 "在电路上应用 gate_list[r]。"
 
-#: ../../source/faq.rst:115
-msgid ""
-"How to understand the difference between different measurement methods "
-"for ``Circuit``?"
-msgstr ""
+#~ msgid "When should I use GPU for the quantum simulation?"
+#~ msgstr "我什么时候应该使用 GPU 进行量子模拟？"
 
-#: ../../source/faq.rst:117
-msgid ""
-":py:meth:`tensorcircuit.circuit.Circuit.measure` : used at the end of the"
-" circuit execution, return bitstring based on quantum amplitude "
-"probability (can also with the probability), the circuit and the output "
-"state are unaffected (no collapse). The jittable version is "
-"``measure_jit``."
-msgstr ""
+#~ msgid ""
+#~ "In general, for circuit with qubit "
+#~ "count larger than 16 or for "
+#~ "circuit simulation with large batch "
+#~ "dimension more than 16, GPU simulation"
+#~ " will be faster than CPU simulation."
+#~ " That is to say, for very small"
+#~ " circuit and very small batch "
+#~ "dimension of vectorization, GPU may show"
+#~ " worse performance than CPU. But one"
+#~ " have to carry out detailed "
+#~ "benchmarks on the hardware choice, since"
+#~ " the performance is determined by the"
+#~ " hardware and task details."
+#~ msgstr ""
+#~ "一般来说，对于量子比特数大于 16 的电路，或者对于大批量维度大于 16 的电路仿真，GPU"
+#~ " 仿真会比 CPU 仿真快。也就是说，对于非常小的电路和非常小的批量维度的向量化 "
+#~ "，GPU可能表现出比CPU更差的性能。但是因为性能是由硬件和任务细节决定的，所有必须对硬件选择进行详细的基准测试。"
 
-#: ../../source/faq.rst:119
-msgid ""
-":py:meth:`tensorcircuit.circuit.Circuit.cond_measure`: also with alias "
-"``cond_measurement``, usually used in the middle of the circuit "
-"execution. Apply a POVM on z basis on the given qubit, the state is "
-"collapsed and nomarlized based on the measurement projection. The method "
-"returns an integer Tensor indicating the measurement result 0 or 1 based "
-"on the quantum amplitude probability."
-msgstr ""
+#~ msgid "When should I jit the function?"
+#~ msgstr "我应该什么时候即时编译函数？"
 
-#: ../../source/faq.rst:121
-msgid ""
-":py:meth:`tensorcircuit.circuit.Circuit.post_select`: also with alia "
-"``mid_measurement``, usually used in the middle of the circuit execution."
-" The measurement result is fixed as given from ``keep`` arg of this "
-"method. The state is collapsed but unnormalized based on the given "
-"measurement projection."
-msgstr ""
+#~ msgid ""
+#~ "For function with \"tensor in and "
+#~ "tensor out\", wrap it with jit "
+#~ "will greatly accelerate the evaluation. "
+#~ "Since the first time of evaluation "
+#~ "takes longer time (staging time), jit"
+#~ " is only good for functions which "
+#~ "has to be evaluated frequently."
+#~ msgstr ""
+#~ "对于一个有 “tensor in and tensor out” "
+#~ "的函数，用 jit 包裹起来会大大加快求值速度。由于第一次求值时间较长（staging "
+#~ "time），jit只适用于需要频繁地求值的函数。"
 
-#: ../../source/faq.rst:123
-msgid "Please refer to the following demos:"
-msgstr ""
+#~ msgid ""
+#~ "Be caution that jit can be easily"
+#~ " misused if the users are not "
+#~ "familiar with jit mechnism, which may"
+#~ " lead to:"
+#~ msgstr "请注意，如果用户不熟悉 jit 机制，jit 很容易被滥用，这可能导致："
 
-#: ../../source/faq.rst:155
-msgid ""
-"How to arange the circuit gate placement in visualization from "
-"``c.tex()``?"
-msgstr ""
+#~ msgid "very slow performance due to recompiling/staging for each run,"
+#~ msgstr "由于每次运行都重新编译/暂存，性能非常慢，"
 
-#: ../../source/faq.rst:157
-msgid ""
-"Try ``lcompress=True`` or ``rcompress=True`` option in "
-":py:meth:`tensorcircuit.circuit.Circuit.tex` API to make the circuit "
-"align from left or from right."
-msgstr ""
+#~ msgid "error when run function with jit,"
+#~ msgstr "使用 jit 运行函数时出错"
 
-#: ../../source/faq.rst:159
-msgid ""
-"Or try ``c.unitary(0, unitary=tc.backend.eye(2), name=\"invisible\")`` to"
-" add placeholder on the circuit which is invisible for circuit "
-"visualization."
-msgstr ""
+#~ msgid "or wrong results without any warning."
+#~ msgstr "或没有任何警告的错误结果。"
 
-#: ../../source/faq.rst:162
-msgid "How to get the entanglement entropy of from the circuit output?"
-msgstr ""
+#~ msgid "The most possible reasons for each problem are:"
+#~ msgstr "每个问题最可能的原因是："
 
-#: ../../source/faq.rst:164
-msgid "Try the following:"
-msgstr ""
+#~ msgid "function input are not all in the tensor form,"
+#~ msgstr "函数输入不都是张量形式，"
+
+#~ msgid ""
+#~ "the output shape of all ops in "
+#~ "the function may require the knowledge"
+#~ " of the input value more than "
+#~ "the input shape, or use mixed ops"
+#~ " from numpy and ML framework"
+#~ msgstr "函数中所有操作的输出形状可能需要比输入形状更多的输入值知识，或者使用来自 numpy 和 ML 框架的混合操作"
+
+#~ msgid ""
+#~ "subtle interplay between random number "
+#~ "generation and jit (see :ref:`advance:Randoms,"
+#~ " Jit, Backend Agnostic, and Their "
+#~ "Interplay` for the correct solution), "
+#~ "respectively."
+#~ msgstr ""
+#~ "随机数生成和 jit 之间的微妙相互作用（分别参见 :ref:`advance:Randoms, "
+#~ "Jit, Backend Agnostic, and their "
+#~ "Interplay`  以获得正确的解决方案）。"
+
+#~ msgid ""
+#~ "How to understand the difference between"
+#~ " different measurement methods for "
+#~ "``Circuit``?"
+#~ msgstr "如何理解 ``电路`` 不同测量方式的区别？"
+
+#~ msgid ""
+#~ ":py:meth:`tensorcircuit.circuit.Circuit.measure` : used"
+#~ " at the end of the circuit "
+#~ "execution, return bitstring based on "
+#~ "quantum amplitude probability (can also "
+#~ "with the probability), the circuit and"
+#~ " the output state are unaffected (no"
+#~ " collapse). The jittable version is "
+#~ "``measure_jit``."
+#~ msgstr ""
+#~ ":py:meth:`tensorcircuit.circuit.Circuit.measure` : "
+#~ "在电路执行结束时使用，根据量子幅度概率返回bitstring（也可以带概率），电路和输出状态不受影响（无崩溃）。 "
+#~ "可即时编译的版本是 ``measure_jit``。"
+
+#~ msgid ""
+#~ ":py:meth:`tensorcircuit.circuit.Circuit.cond_measure`: also "
+#~ "with alias ``cond_measurement``, usually used"
+#~ " in the middle of the circuit "
+#~ "execution. Apply a POVM on z basis"
+#~ " on the given qubit, the state "
+#~ "is collapsed and nomarlized based on "
+#~ "the measurement projection. The method "
+#~ "returns an integer Tensor indicating the"
+#~ " measurement result 0 or 1 based "
+#~ "on the quantum amplitude probability."
+#~ msgstr ""
+#~ ":py:meth:`tensorcircuit.circuit.Circuit.cond_measure`: 也有别名 "
+#~ "`cond_measurement`，通常用在电路执行的中间。在给定的量子比特上基于 z 应用一个 "
+#~ "POVM，状态被折叠并基于测量投影进行归一化。该方法返回一个整数张量，表示基于量子幅度概率的测量结果 0 或 "
+#~ "1。"
+
+#~ msgid ""
+#~ ":py:meth:`tensorcircuit.circuit.Circuit.post_select`: also "
+#~ "with alia ``mid_measurement``, usually used"
+#~ " in the middle of the circuit "
+#~ "execution. The measurement result is "
+#~ "fixed as given from ``keep`` arg "
+#~ "of this method. The state is "
+#~ "collapsed but unnormalized based on the"
+#~ " given measurement projection."
+#~ msgstr ""
+#~ ":py:meth:`tensorcircuit.circuit.Circuit.post_select`: 也有别名 "
+#~ "``mid_measurement`，通常用于电路执行的中间。测量结果是固定的，由 ``keep`` arg "
+#~ "给出 这种方法。根据给定的测量投影，状态已折叠但未归一化。"
+
+#~ msgid "Please refer to the following demos:"
+#~ msgstr "请参考以下演示："
+
+#~ msgid ""
+#~ "How to arange the circuit gate "
+#~ "placement in visualization from ``c.tex()``?"
+#~ msgstr "如何在 ``c.tex()`` 的可视化中安排电路门布局？"
+
+#~ msgid ""
+#~ "Try ``lcompress=True`` or ``rcompress=True`` "
+#~ "option in :py:meth:`tensorcircuit.circuit.Circuit.tex` "
+#~ "API to make the circuit align from"
+#~ " left or from right."
+#~ msgstr ""
+#~ "尝试 ``lcompress=True`` 或 ``rcompress=True`` 选项在"
+#~ " :py:meth:`tensorcircuit.circuit.Circuit.tex` API "
+#~ "中使电路从左对齐或从右对齐。"
+
+#~ msgid ""
+#~ "Or try ``c.unitary(0, unitary=tc.backend.eye(2), "
+#~ "name=\"invisible\")`` to add placeholder on"
+#~ " the circuit which is invisible for"
+#~ " circuit visualization."
+#~ msgstr ""
+#~ "或者尝试 ``c.unitary(0, unitary=tc.backend.eye(2), "
+#~ "name=\"invisible\")`` 在电路上添加占位符，这对于电路可视化来说是不可见的。"
+
+#~ msgid "How to get the entanglement entropy of from the circuit output?"
+#~ msgstr "如何从电路输出中得到纠缠熵？"
+
+#~ msgid "Try the following:"
+#~ msgstr "尝试以下方法："
 

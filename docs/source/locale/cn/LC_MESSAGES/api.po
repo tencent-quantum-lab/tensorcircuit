@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-09 17:10+0800\n"
+"POT-Creation-Date: 2022-04-18 20:36+0800\n"
 "PO-Revision-Date: 2022-04-13 14:58+0800\n"
 "Last-Translator: Xinghan Yang\n"
 "Language: cn\n"
@@ -47,28 +47,13 @@ msgstr ""
 #: tensorcircuit.applications.graphdata.reduced_ansatz
 #: tensorcircuit.applications.graphdata.split_ansatz
 #: tensorcircuit.applications.layers.generate_any_gate_layer
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer
-#: tensorcircuit.applications.layers.generate_cirq_any_gate_layer
-#: tensorcircuit.applications.layers.generate_cirq_gate_layer
 #: tensorcircuit.applications.layers.generate_gate_layer
-#: tensorcircuit.applications.utils.color_svg
-#: tensorcircuit.applications.utils.repr2array
 #: tensorcircuit.applications.vags.ave_func
 #: tensorcircuit.applications.vags.cvar tensorcircuit.applications.vags.energy
 #: tensorcircuit.applications.vags.evaluate_vag
-#: tensorcircuit.applications.vags.gapfilling
-#: tensorcircuit.applications.vags.heisenberg_measurements
-#: tensorcircuit.applications.vags.q
 #: tensorcircuit.applications.vags.qaoa_block_vag
 #: tensorcircuit.applications.vags.qaoa_block_vag_energy
 #: tensorcircuit.applications.vags.qaoa_train
-#: tensorcircuit.applications.vags.quantum_mp_qaoa_vag
-#: tensorcircuit.applications.vags.quantum_qaoa_vag
-#: tensorcircuit.applications.vags.tfim_measurements
-#: tensorcircuit.applications.vags.unitary_design
-#: tensorcircuit.applications.vags.unitary_design_block
-#: tensorcircuit.applications.vqes.VQNHE.evaluation
-#: tensorcircuit.applications.vqes.VQNHE.plain_evaluation
 #: tensorcircuit.backends.backend_factory.get_backend
 #: tensorcircuit.backends.jax_backend.JaxBackend.acos
 #: tensorcircuit.backends.jax_backend.JaxBackend.acosh
@@ -86,7 +71,6 @@ msgstr ""
 #: tensorcircuit.backends.jax_backend.JaxBackend.cos
 #: tensorcircuit.backends.jax_backend.JaxBackend.cosh
 #: tensorcircuit.backends.jax_backend.JaxBackend.cumsum
-#: tensorcircuit.backends.jax_backend.JaxBackend.eigvalsh
 #: tensorcircuit.backends.jax_backend.JaxBackend.expm
 #: tensorcircuit.backends.jax_backend.JaxBackend.grad
 #: tensorcircuit.backends.jax_backend.JaxBackend.i
@@ -147,7 +131,6 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.cos
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.cosh
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.cumsum
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.eigvalsh
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.expm
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.grad
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.i
@@ -203,7 +186,6 @@ msgstr ""
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cos
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cosh
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cumsum
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.eigvalsh
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.expm
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.grad
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.i
@@ -252,7 +234,6 @@ msgstr ""
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cos
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cosh
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cumsum
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.eigvalsh
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.expm
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.gather1d
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.grad
@@ -313,8 +294,8 @@ msgstr ""
 #: tensorcircuit.circuit.Circuit.from_qir
 #: tensorcircuit.circuit.Circuit.from_qiskit
 #: tensorcircuit.circuit.Circuit.general_kraus
+#: tensorcircuit.circuit.Circuit.measure
 #: tensorcircuit.circuit.Circuit.measure_jit
-#: tensorcircuit.circuit.Circuit.measure_reference
 #: tensorcircuit.circuit.Circuit.mid_measurement
 #: tensorcircuit.circuit.Circuit.replace_inputs
 #: tensorcircuit.circuit.Circuit.replace_mps_inputs
@@ -328,14 +309,7 @@ msgstr ""
 #: tensorcircuit.cons.set_dtype tensorcircuit.cons.set_function_backend
 #: tensorcircuit.cons.set_function_dtype
 #: tensorcircuit.cons.set_tensornetwork_backend
-#: tensorcircuit.densitymatrix.DMCircuit.__init__
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_kraus_delayed.<locals>.apply
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply
-#: tensorcircuit.densitymatrix.DMCircuit.densitymatrix
-#: tensorcircuit.densitymatrix.DMCircuit.expectation
 #: tensorcircuit.densitymatrix.DMCircuit.measure_jit
-#: tensorcircuit.densitymatrix2.DMCircuit2.apply_general_kraus_delayed.<locals>.apply
 #: tensorcircuit.gates.any_gate tensorcircuit.gates.bmatrix
 #: tensorcircuit.gates.cr_gate tensorcircuit.gates.exponential_gate
 #: tensorcircuit.gates.exponential_gate_unity tensorcircuit.gates.iswap_gate
@@ -368,17 +342,12 @@ msgstr ""
 #: tensorcircuit.mpscircuit.MPSCircuit.proj_with_mps
 #: tensorcircuit.mpscircuit.MPSCircuit.set_truncation_rule
 #: tensorcircuit.mpscircuit.MPSCircuit.wavefunction
-#: tensorcircuit.mpscircuit.split_tensor tensorcircuit.quantum.PauliString2COO
-#: tensorcircuit.quantum.PauliStringSum2COO
-#: tensorcircuit.quantum.PauliStringSum2COO_numpy
-#: tensorcircuit.quantum.PauliStringSum2Dense
+#: tensorcircuit.mpscircuit.split_tensor
 #: tensorcircuit.quantum.QuAdjointVector.__init__
 #: tensorcircuit.quantum.QuAdjointVector.from_tensor
-#: tensorcircuit.quantum.QuAdjointVector.reduced_density
 #: tensorcircuit.quantum.QuOperator.__init__
 #: tensorcircuit.quantum.QuOperator.contract
 #: tensorcircuit.quantum.QuOperator.eval
-#: tensorcircuit.quantum.QuOperator.eval_matrix
 #: tensorcircuit.quantum.QuOperator.from_tensor
 #: tensorcircuit.quantum.QuOperator.partial_trace
 #: tensorcircuit.quantum.QuOperator.tensor_product
@@ -386,44 +355,29 @@ msgstr ""
 #: tensorcircuit.quantum.QuScalar.from_tensor
 #: tensorcircuit.quantum.QuVector.__init__
 #: tensorcircuit.quantum.QuVector.from_tensor
-#: tensorcircuit.quantum.QuVector.reduced_density
 #: tensorcircuit.quantum.check_spaces
 #: tensorcircuit.quantum.correlation_from_counts
-#: tensorcircuit.quantum.double_state
 #: tensorcircuit.quantum.eliminate_identities tensorcircuit.quantum.entropy
-#: tensorcircuit.quantum.fidelity tensorcircuit.quantum.free_energy
+#: tensorcircuit.quantum.free_energy
 #: tensorcircuit.quantum.generate_local_hamiltonian
-#: tensorcircuit.quantum.gibbs_state
 #: tensorcircuit.quantum.heisenberg_hamiltonian tensorcircuit.quantum.identity
 #: tensorcircuit.quantum.measurement_counts
-#: tensorcircuit.quantum.mutual_information
 #: tensorcircuit.quantum.quantum_constructor tensorcircuit.quantum.quimb2qop
 #: tensorcircuit.quantum.reduced_density_matrix
 #: tensorcircuit.quantum.renyi_entropy tensorcircuit.quantum.renyi_free_energy
-#: tensorcircuit.quantum.spin_by_basis tensorcircuit.quantum.taylorlnm
-#: tensorcircuit.quantum.tn2qop tensorcircuit.quantum.trace_distance
-#: tensorcircuit.quantum.truncated_free_energy
+#: tensorcircuit.quantum.spin_by_basis tensorcircuit.quantum.tn2qop
 #: tensorcircuit.simplify.infer_new_shape
 #: tensorcircuit.simplify.pseudo_contract_between
 #: tensorcircuit.templates.blocks.Bell_pair_block
-#: tensorcircuit.templates.blocks.example_block
-#: tensorcircuit.templates.blocks.state_centric
-#: tensorcircuit.templates.chems.get_ps
-#: tensorcircuit.templates.graphs.Grid2DCoord.__init__
-#: tensorcircuit.templates.graphs.Grid2DCoord.all_cols
-#: tensorcircuit.templates.graphs.Grid2DCoord.all_rows
-#: tensorcircuit.templates.graphs.Grid2DCoord.lattice_graph
-#: tensorcircuit.templates.graphs.Line1D
+#: tensorcircuit.templates.chems.get_ps tensorcircuit.templates.graphs.Line1D
 #: tensorcircuit.templates.measurements.any_measurements
 #: tensorcircuit.templates.measurements.heisenberg_measurements
 #: tensorcircuit.templates.measurements.mpo_expectation
 #: tensorcircuit.templates.measurements.operator_expectation
 #: tensorcircuit.templates.measurements.sparse_expectation
 #: tensorcircuit.templates.measurements.spin_glass_measurements
-#: tensorcircuit.translation.perm_matrix tensorcircuit.translation.qir2qiskit
-#: tensorcircuit.translation.qiskit2tc tensorcircuit.utils.append
-#: tensorcircuit.utils.return_partial tensorcircuit.vis.gate_name_trans
-#: tensorcircuit.vis.qir2tex tensorcircuit.vis.render_pdf
+#: tensorcircuit.utils.append tensorcircuit.utils.return_partial
+#: tensorcircuit.vis.render_pdf
 msgid "Parameters"
 msgstr ""
 
@@ -543,28 +497,13 @@ msgstr ""
 #: tensorcircuit.applications.graphdata.reduced_ansatz
 #: tensorcircuit.applications.graphdata.split_ansatz
 #: tensorcircuit.applications.layers.generate_any_gate_layer
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer
-#: tensorcircuit.applications.layers.generate_cirq_any_gate_layer
-#: tensorcircuit.applications.layers.generate_cirq_gate_layer
 #: tensorcircuit.applications.layers.generate_gate_layer
-#: tensorcircuit.applications.utils.color_svg
-#: tensorcircuit.applications.utils.repr2array
 #: tensorcircuit.applications.vags.ave_func
 #: tensorcircuit.applications.vags.cvar tensorcircuit.applications.vags.energy
 #: tensorcircuit.applications.vags.evaluate_vag
-#: tensorcircuit.applications.vags.gapfilling
-#: tensorcircuit.applications.vags.heisenberg_measurements
-#: tensorcircuit.applications.vags.q
 #: tensorcircuit.applications.vags.qaoa_block_vag
 #: tensorcircuit.applications.vags.qaoa_block_vag_energy
 #: tensorcircuit.applications.vags.qaoa_train
-#: tensorcircuit.applications.vags.quantum_mp_qaoa_vag
-#: tensorcircuit.applications.vags.quantum_qaoa_vag
-#: tensorcircuit.applications.vags.tfim_measurements
-#: tensorcircuit.applications.vags.unitary_design
-#: tensorcircuit.applications.vags.unitary_design_block
-#: tensorcircuit.applications.vqes.VQNHE.evaluation
-#: tensorcircuit.applications.vqes.VQNHE.plain_evaluation
 #: tensorcircuit.backends.backend_factory.get_backend
 #: tensorcircuit.backends.jax_backend.JaxBackend.acos
 #: tensorcircuit.backends.jax_backend.JaxBackend.acosh
@@ -581,7 +520,6 @@ msgstr ""
 #: tensorcircuit.backends.jax_backend.JaxBackend.cos
 #: tensorcircuit.backends.jax_backend.JaxBackend.cosh
 #: tensorcircuit.backends.jax_backend.JaxBackend.cumsum
-#: tensorcircuit.backends.jax_backend.JaxBackend.eigvalsh
 #: tensorcircuit.backends.jax_backend.JaxBackend.expm
 #: tensorcircuit.backends.jax_backend.JaxBackend.grad
 #: tensorcircuit.backends.jax_backend.JaxBackend.i
@@ -640,7 +578,6 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.cos
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.cosh
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.cumsum
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.eigvalsh
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.expm
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.grad
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.i
@@ -694,7 +631,6 @@ msgstr ""
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cos
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cosh
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cumsum
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.eigvalsh
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.expm
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.grad
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.i
@@ -742,7 +678,6 @@ msgstr ""
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cos
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cosh
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cumsum
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.eigvalsh
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.expm
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.gather1d
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.grad
@@ -796,8 +731,8 @@ msgstr ""
 #: tensorcircuit.circuit.Circuit.from_qiskit
 #: tensorcircuit.circuit.Circuit.get_quvector
 #: tensorcircuit.circuit.Circuit.is_valid tensorcircuit.circuit.Circuit.matrix
+#: tensorcircuit.circuit.Circuit.measure
 #: tensorcircuit.circuit.Circuit.measure_jit
-#: tensorcircuit.circuit.Circuit.measure_reference
 #: tensorcircuit.circuit.Circuit.perfect_sampling
 #: tensorcircuit.circuit.Circuit.to_qir tensorcircuit.circuit.Circuit.to_qiskit
 #: tensorcircuit.circuit.Circuit.unitary_kraus
@@ -810,8 +745,6 @@ msgstr ""
 #: tensorcircuit.cons.set_function_contractor
 #: tensorcircuit.cons.set_function_dtype
 #: tensorcircuit.cons.set_tensornetwork_backend
-#: tensorcircuit.densitymatrix.DMCircuit.densitymatrix
-#: tensorcircuit.densitymatrix.DMCircuit.expectation
 #: tensorcircuit.densitymatrix.DMCircuit.measure_jit
 #: tensorcircuit.densitymatrix.DMCircuit.perfect_sampling
 #: tensorcircuit.gates.any_gate tensorcircuit.gates.bmatrix
@@ -840,59 +773,37 @@ msgstr ""
 #: tensorcircuit.mpscircuit.MPSCircuit.measure
 #: tensorcircuit.mpscircuit.MPSCircuit.proj_with_mps
 #: tensorcircuit.mpscircuit.MPSCircuit.wavefunction
-#: tensorcircuit.mpscircuit.split_tensor tensorcircuit.quantum.PauliString2COO
-#: tensorcircuit.quantum.PauliStringSum2COO
-#: tensorcircuit.quantum.PauliStringSum2COO_numpy
-#: tensorcircuit.quantum.PauliStringSum2Dense
+#: tensorcircuit.mpscircuit.split_tensor
 #: tensorcircuit.quantum.QuAdjointVector.from_tensor
-#: tensorcircuit.quantum.QuAdjointVector.projector
-#: tensorcircuit.quantum.QuAdjointVector.reduced_density
 #: tensorcircuit.quantum.QuOperator.adjoint
 #: tensorcircuit.quantum.QuOperator.contract
 #: tensorcircuit.quantum.QuOperator.copy tensorcircuit.quantum.QuOperator.eval
-#: tensorcircuit.quantum.QuOperator.eval_matrix
 #: tensorcircuit.quantum.QuOperator.from_tensor
 #: tensorcircuit.quantum.QuOperator.partial_trace
 #: tensorcircuit.quantum.QuOperator.tensor_product
 #: tensorcircuit.quantum.QuScalar.from_tensor
 #: tensorcircuit.quantum.QuVector.from_tensor
-#: tensorcircuit.quantum.QuVector.projector
-#: tensorcircuit.quantum.QuVector.reduced_density
 #: tensorcircuit.quantum.correlation_from_counts
-#: tensorcircuit.quantum.double_state
 #: tensorcircuit.quantum.eliminate_identities tensorcircuit.quantum.entropy
-#: tensorcircuit.quantum.fidelity tensorcircuit.quantum.free_energy
+#: tensorcircuit.quantum.free_energy
 #: tensorcircuit.quantum.generate_local_hamiltonian
-#: tensorcircuit.quantum.gibbs_state
 #: tensorcircuit.quantum.heisenberg_hamiltonian tensorcircuit.quantum.identity
 #: tensorcircuit.quantum.measurement_counts
-#: tensorcircuit.quantum.mutual_information
 #: tensorcircuit.quantum.quantum_constructor tensorcircuit.quantum.quimb2qop
 #: tensorcircuit.quantum.reduced_density_matrix
 #: tensorcircuit.quantum.renyi_entropy tensorcircuit.quantum.renyi_free_energy
-#: tensorcircuit.quantum.spin_by_basis tensorcircuit.quantum.taylorlnm
-#: tensorcircuit.quantum.tn2qop tensorcircuit.quantum.trace_distance
-#: tensorcircuit.quantum.trace_product
-#: tensorcircuit.quantum.truncated_free_energy
-#: tensorcircuit.simplify.infer_new_shape
+#: tensorcircuit.quantum.spin_by_basis tensorcircuit.quantum.tn2qop
+#: tensorcircuit.quantum.trace_product tensorcircuit.simplify.infer_new_shape
 #: tensorcircuit.simplify.pseudo_contract_between
 #: tensorcircuit.templates.blocks.Bell_pair_block
-#: tensorcircuit.templates.blocks.example_block
-#: tensorcircuit.templates.blocks.state_centric
-#: tensorcircuit.templates.chems.get_ps
-#: tensorcircuit.templates.graphs.Grid2DCoord.all_cols
-#: tensorcircuit.templates.graphs.Grid2DCoord.all_rows
-#: tensorcircuit.templates.graphs.Grid2DCoord.lattice_graph
-#: tensorcircuit.templates.graphs.Line1D
+#: tensorcircuit.templates.chems.get_ps tensorcircuit.templates.graphs.Line1D
 #: tensorcircuit.templates.measurements.any_measurements
 #: tensorcircuit.templates.measurements.heisenberg_measurements
 #: tensorcircuit.templates.measurements.mpo_expectation
 #: tensorcircuit.templates.measurements.operator_expectation
 #: tensorcircuit.templates.measurements.sparse_expectation
 #: tensorcircuit.templates.measurements.spin_glass_measurements
-#: tensorcircuit.translation.perm_matrix tensorcircuit.translation.qir2qiskit
-#: tensorcircuit.translation.qiskit2tc tensorcircuit.utils.append
-#: tensorcircuit.utils.return_partial tensorcircuit.vis.gate_name_trans
+#: tensorcircuit.utils.append tensorcircuit.utils.return_partial
 #: tensorcircuit.vis.render_pdf
 msgid "Returns"
 msgstr ""
@@ -957,8 +868,6 @@ msgstr ""
 #: tensorcircuit.applications.graphdata.graph1D
 #: tensorcircuit.applications.graphdata.reduced_ansatz
 #: tensorcircuit.applications.graphdata.split_ansatz
-#: tensorcircuit.applications.vqes.VQNHE.evaluation
-#: tensorcircuit.applications.vqes.VQNHE.plain_evaluation
 #: tensorcircuit.backends.backend_factory.get_backend
 #: tensorcircuit.backends.jax_backend.JaxBackend.acos
 #: tensorcircuit.backends.jax_backend.JaxBackend.acosh
@@ -975,7 +884,6 @@ msgstr ""
 #: tensorcircuit.backends.jax_backend.JaxBackend.cos
 #: tensorcircuit.backends.jax_backend.JaxBackend.cosh
 #: tensorcircuit.backends.jax_backend.JaxBackend.cumsum
-#: tensorcircuit.backends.jax_backend.JaxBackend.eigvalsh
 #: tensorcircuit.backends.jax_backend.JaxBackend.expm
 #: tensorcircuit.backends.jax_backend.JaxBackend.grad
 #: tensorcircuit.backends.jax_backend.JaxBackend.i
@@ -1034,7 +942,6 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.cos
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.cosh
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.cumsum
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.eigvalsh
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.expm
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.grad
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.i
@@ -1088,7 +995,6 @@ msgstr ""
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cos
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cosh
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cumsum
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.eigvalsh
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.expm
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.grad
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.i
@@ -1136,7 +1042,6 @@ msgstr ""
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cos
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cosh
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cumsum
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.eigvalsh
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.expm
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.gather1d
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.grad
@@ -1190,8 +1095,8 @@ msgstr ""
 #: tensorcircuit.circuit.Circuit.from_qiskit
 #: tensorcircuit.circuit.Circuit.get_quvector
 #: tensorcircuit.circuit.Circuit.is_valid tensorcircuit.circuit.Circuit.matrix
+#: tensorcircuit.circuit.Circuit.measure
 #: tensorcircuit.circuit.Circuit.measure_jit
-#: tensorcircuit.circuit.Circuit.measure_reference
 #: tensorcircuit.circuit.Circuit.perfect_sampling
 #: tensorcircuit.circuit.Circuit.to_qir
 #: tensorcircuit.circuit.Circuit.unitary_kraus
@@ -1206,8 +1111,6 @@ msgstr ""
 #: tensorcircuit.cons.set_function_contractor
 #: tensorcircuit.cons.set_function_dtype
 #: tensorcircuit.cons.set_tensornetwork_backend
-#: tensorcircuit.densitymatrix.DMCircuit.densitymatrix
-#: tensorcircuit.densitymatrix.DMCircuit.expectation
 #: tensorcircuit.densitymatrix.DMCircuit.measure_jit
 #: tensorcircuit.densitymatrix.DMCircuit.perfect_sampling
 #: tensorcircuit.gates.any_gate tensorcircuit.gates.bmatrix
@@ -1235,59 +1138,37 @@ msgstr ""
 #: tensorcircuit.mpscircuit.MPSCircuit.is_valid
 #: tensorcircuit.mpscircuit.MPSCircuit.proj_with_mps
 #: tensorcircuit.mpscircuit.MPSCircuit.wavefunction
-#: tensorcircuit.mpscircuit.split_tensor tensorcircuit.quantum.PauliString2COO
-#: tensorcircuit.quantum.PauliStringSum2COO
-#: tensorcircuit.quantum.PauliStringSum2COO_numpy
-#: tensorcircuit.quantum.PauliStringSum2Dense
+#: tensorcircuit.mpscircuit.split_tensor
 #: tensorcircuit.quantum.QuAdjointVector.from_tensor
-#: tensorcircuit.quantum.QuAdjointVector.projector
-#: tensorcircuit.quantum.QuAdjointVector.reduced_density
 #: tensorcircuit.quantum.QuOperator.adjoint
 #: tensorcircuit.quantum.QuOperator.contract
 #: tensorcircuit.quantum.QuOperator.copy tensorcircuit.quantum.QuOperator.eval
-#: tensorcircuit.quantum.QuOperator.eval_matrix
 #: tensorcircuit.quantum.QuOperator.from_tensor
 #: tensorcircuit.quantum.QuOperator.partial_trace
 #: tensorcircuit.quantum.QuOperator.tensor_product
 #: tensorcircuit.quantum.QuScalar.from_tensor
 #: tensorcircuit.quantum.QuVector.from_tensor
-#: tensorcircuit.quantum.QuVector.projector
-#: tensorcircuit.quantum.QuVector.reduced_density
 #: tensorcircuit.quantum.correlation_from_counts
-#: tensorcircuit.quantum.double_state
 #: tensorcircuit.quantum.eliminate_identities tensorcircuit.quantum.entropy
-#: tensorcircuit.quantum.fidelity tensorcircuit.quantum.free_energy
+#: tensorcircuit.quantum.free_energy
 #: tensorcircuit.quantum.generate_local_hamiltonian
-#: tensorcircuit.quantum.gibbs_state
 #: tensorcircuit.quantum.heisenberg_hamiltonian tensorcircuit.quantum.identity
 #: tensorcircuit.quantum.measurement_counts
-#: tensorcircuit.quantum.mutual_information
 #: tensorcircuit.quantum.quantum_constructor tensorcircuit.quantum.quimb2qop
 #: tensorcircuit.quantum.reduced_density_matrix
 #: tensorcircuit.quantum.renyi_entropy tensorcircuit.quantum.renyi_free_energy
-#: tensorcircuit.quantum.spin_by_basis tensorcircuit.quantum.taylorlnm
-#: tensorcircuit.quantum.tn2qop tensorcircuit.quantum.trace_distance
-#: tensorcircuit.quantum.trace_product
-#: tensorcircuit.quantum.truncated_free_energy
-#: tensorcircuit.simplify.infer_new_shape
+#: tensorcircuit.quantum.spin_by_basis tensorcircuit.quantum.tn2qop
+#: tensorcircuit.quantum.trace_product tensorcircuit.simplify.infer_new_shape
 #: tensorcircuit.simplify.pseudo_contract_between
 #: tensorcircuit.templates.blocks.Bell_pair_block
-#: tensorcircuit.templates.blocks.example_block
-#: tensorcircuit.templates.blocks.state_centric
-#: tensorcircuit.templates.chems.get_ps
-#: tensorcircuit.templates.graphs.Grid2DCoord.all_cols
-#: tensorcircuit.templates.graphs.Grid2DCoord.all_rows
-#: tensorcircuit.templates.graphs.Grid2DCoord.lattice_graph
-#: tensorcircuit.templates.graphs.Line1D
+#: tensorcircuit.templates.chems.get_ps tensorcircuit.templates.graphs.Line1D
 #: tensorcircuit.templates.measurements.any_measurements
 #: tensorcircuit.templates.measurements.heisenberg_measurements
 #: tensorcircuit.templates.measurements.mpo_expectation
 #: tensorcircuit.templates.measurements.operator_expectation
 #: tensorcircuit.templates.measurements.sparse_expectation
 #: tensorcircuit.templates.measurements.spin_glass_measurements
-#: tensorcircuit.translation.perm_matrix tensorcircuit.translation.qir2qiskit
-#: tensorcircuit.translation.qiskit2tc tensorcircuit.utils.append
-#: tensorcircuit.utils.return_partial tensorcircuit.vis.gate_name_trans
+#: tensorcircuit.utils.append tensorcircuit.utils.return_partial
 #: tensorcircuit.vis.render_pdf
 msgid "Return type"
 msgstr ""
@@ -1411,192 +1292,8 @@ msgstr ""
 msgid "Module for functions adding layers of circuits"
 msgstr ""
 
-#: of tensorcircuit.applications.layers.generate_cirq_gate_layer.<locals>.f:1
-msgid "Hlayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_gate_layer.<locals>.f:1
-msgid "anyrxlayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_gate_layer.<locals>.f:1
-msgid "anyrylayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_gate_layer.<locals>.f:1
-msgid "anyrzlayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer.<locals>.f:1
-msgid "anyswaplayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer.<locals>.f:1
-msgid "anyxxlayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer.<locals>.f:1
-msgid "anyxylayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer.<locals>.f:1
-msgid "anyxzlayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer.<locals>.f:1
-msgid "anyyxlayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer.<locals>.f:1
-msgid "anyyylayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer.<locals>.f:1
-msgid "anyyzlayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer.<locals>.f:1
-msgid "anyzxlayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer.<locals>.f:1
-msgid "anyzylayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer.<locals>.f:1
-msgid "anyzzlayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "cnotlayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_gate_layer.<locals>.f:1
-msgid "rxlayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_gate_layer.<locals>.f:1
-msgid "rylayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_gate_layer.<locals>.f:1
-msgid "rzlayer"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "swaplayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_double_gate.<locals>.f:1
-msgid "xxgate"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "xxlayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_double_gate.<locals>.f:1
-msgid "xygate"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "xylayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_double_gate.<locals>.f:1
-msgid "xzgate"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "xzlayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_double_gate.<locals>.f:1
-msgid "yxgate"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "yxlayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_double_gate.<locals>.f:1
-msgid "yygate"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "yylayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_double_gate.<locals>.f:1
-msgid "yzgate"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "yzlayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_double_gate.<locals>.f:1
-msgid "zxgate"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "zxlayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_double_gate.<locals>.f:1
-msgid "zygate"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "zylayer"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_double_gate.<locals>.f:1
-msgid "zzgate"
-msgstr ""
-
-#: of
-#: tensorcircuit.applications.layers.generate_cirq_double_gate_layer.<locals>.f:1
-msgid "zzlayer"
-msgstr ""
-
 #: of tensorcircuit.applications.layers.generate_any_gate_layer:1
 msgid "$$e^{-i     heta_i \\sigma}$$"
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_any_double_gate_layer:1
-msgid ""
-"The following function should be used to generate layers with special "
-"case. As its soundness depends on the nature of the task or problem, it "
-"doesn't always make sense."
-msgstr ""
-
-#: of tensorcircuit.applications.layers.generate_cirq_any_gate_layer:1
-#: tensorcircuit.applications.layers.generate_cirq_gate_layer:1
-msgid "$$e^{-i heta \\sigma}$$"
 msgstr ""
 
 #: of tensorcircuit.applications.layers.generate_gate_layer:1
@@ -1605,35 +1302,6 @@ msgstr ""
 
 #: ../../source/api/applications/utils.rst:2
 msgid "tensorcircuit.applications.utils"
-msgstr ""
-
-#: of tensorcircuit.applications.utils:1
-msgid ""
-"A collection of useful function snippets that irrelevant with the main "
-"modules or await for further refactor"
-msgstr ""
-
-#: of tensorcircuit.applications.utils.FakeModule:1
-#: tensorcircuit.applications.vqes.VQNHE:1
-#: tensorcircuit.backends.jax_backend.optax_optimizer:1
-#: tensorcircuit.backends.tensorflow_backend.keras_optimizer:1
-#: tensorcircuit.circuit.Circuit:1 tensorcircuit.densitymatrix.DMCircuit:1
-#: tensorcircuit.gates.GateF:1 tensorcircuit.mpscircuit.MPSCircuit:1
-#: tensorcircuit.quantum.QuOperator:1
-#: tensorcircuit.templates.graphs.Grid2DCoord:1
-msgid "Bases: :py:class:`object`"
-msgstr ""
-
-#: of tensorcircuit.applications.utils.color_svg:1
-msgid "color cirq circuit SVG for given gates, a small tool to hack the cirq SVG"
-msgstr ""
-
-#: of tensorcircuit.applications.utils.color_svg:5
-msgid "integer coordinate which gate is colored"
-msgstr ""
-
-#: of tensorcircuit.applications.utils.repr2array:1
-msgid "transform repr form of an array to real numpy array"
 msgstr ""
 
 #: ../../source/api/applications/vags.rst:2
@@ -1670,7 +1338,6 @@ msgid "ranged from 0 to 2**n-1"
 msgstr ""
 
 #: of tensorcircuit.applications.vags.energy:4
-#: tensorcircuit.applications.vags.unitary_design:4
 msgid "number of qubits"
 msgstr ""
 
@@ -1699,18 +1366,6 @@ msgstr ""
 msgid "if as default 0, overlap will not compute in the process"
 msgstr ""
 
-#: of tensorcircuit.applications.vags.gapfilling:1
-msgid "Fill single qubit gates according to placeholder on circuit"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.heisenberg_measurements:1
-msgid "Hamiltonian measurements for Heisenberg model on graph lattice g"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.q:1
-msgid "short cut for ``cirq.LineQubit(i)``"
-msgstr ""
-
 #: of tensorcircuit.applications.vags.qaoa_block_vag:1
 #: tensorcircuit.applications.vags.qaoa_block_vag_energy:1
 msgid "QAOA block encoding kernel, support 2 params in one op"
@@ -1720,55 +1375,6 @@ msgstr ""
 msgid ""
 "training QAOA with only optimizing circuit parameters, can be well "
 "replaced with more general function `DQAS_search`"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.quantum_mp_qaoa_vag:1
-msgid "multi parameter for one layer"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.quantum_mp_qaoa_vag:7
-#: tensorcircuit.applications.vags.quantum_qaoa_vag:7
-msgid "kw arguments for measurements_func"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.quantum_mp_qaoa_vag:8
-msgid "loss function, gradient of nnp"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.quantum_qaoa_vag:1
-msgid ""
-"tensorflow quantum backend compare to qaoa_vag which is tensorcircuit "
-"backend"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.tfim_measurements:1
-msgid "Hamiltonian for tfim on lattice defined by graph g"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.tfim_measurements:8
-msgid "cirq.PauliSum as operators for tfq expectation layer"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.unitary_design:1
-msgid ""
-"generate random wavefunction from approximately Haar measure, reference:"
-"  https://doi.org/10.1063/1.4983266"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.unitary_design:5
-msgid "repetition of the blocks"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.unitary_design_block:1
-msgid "random Haar measure approximation"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.unitary_design_block:3
-msgid "cirq.Circuit, empty circuit"
-msgstr ""
-
-#: of tensorcircuit.applications.vags.unitary_design_block:4
-msgid "# of qubit"
 msgstr ""
 
 #: ../../source/api/applications/van.rst:2
@@ -1812,18 +1418,17 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.applications.van.MADE.call:18
-#: tensorcircuit.applications.van.MaskedConv2D.build:11
+#: tensorcircuit.applications.van.MaskedConv2D.build:13
 #: tensorcircuit.applications.van.MaskedConv2D.call:37
 #: tensorcircuit.applications.van.MaskedLinear.call:37
 #: tensorcircuit.applications.van.NMF.call:18
 #: tensorcircuit.applications.van.PixelCNN.call:18
 #: tensorcircuit.applications.van.ResidualBlock.call:37
-#: tensorcircuit.applications.vqes.Linear.call:37
 #: tensorcircuit.backends.jax_backend.JaxBackend.eye:8
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.eye:8
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.eye:8
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.eye:8
-#: tensorcircuit.keras.QuantumLayer.build:11
+#: tensorcircuit.keras.QuantumLayer.build:13
 msgid "Args:"
 msgstr ""
 
@@ -1865,7 +1470,6 @@ msgstr ""
 #: tensorcircuit.applications.van.NMF.call:21
 #: tensorcircuit.applications.van.PixelCNN.call:21
 #: tensorcircuit.applications.van.ResidualBlock.call:39
-#: tensorcircuit.applications.vqes.Linear.call:39
 #: tensorcircuit.backends.jax_backend.JaxBackend.abs:4
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.abs:4
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.abs:4
@@ -1883,7 +1487,7 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D:1
 #: tensorcircuit.applications.van.MaskedLinear:1
 #: tensorcircuit.applications.van.ResidualBlock:1
-#: tensorcircuit.applications.vqes.Linear:1 tensorcircuit.keras.QuantumLayer:1
+#: tensorcircuit.keras.QuantumLayer:1
 msgid "Bases: :py:class:`keras.engine.base_layer.Layer`"
 msgstr ""
 
@@ -1897,21 +1501,24 @@ msgstr ""
 msgid ""
 "This is a method that implementers of subclasses of `Layer` or `Model` "
 "can override if they need a state-creation step in-between layer "
-"instantiation and layer call."
+"instantiation and layer call. It is invoked automatically before the "
+"first execution of `call()`."
 msgstr ""
 
-#: of tensorcircuit.applications.van.MaskedConv2D.build:7
-#: tensorcircuit.keras.QuantumLayer.build:7
-msgid "This is typically used to create the weights of `Layer` subclasses."
+#: of tensorcircuit.applications.van.MaskedConv2D.build:8
+#: tensorcircuit.keras.QuantumLayer.build:8
+msgid ""
+"This is typically used to create the weights of `Layer` subclasses (at "
+"the discretion of the subclass implementer)."
 msgstr ""
 
-#: of tensorcircuit.applications.van.MaskedConv2D.build:11
-#: tensorcircuit.keras.QuantumLayer.build:11
+#: of tensorcircuit.applications.van.MaskedConv2D.build:13
+#: tensorcircuit.keras.QuantumLayer.build:13
 msgid "input_shape: Instance of `TensorShape`, or list of instances of"
 msgstr ""
 
-#: of tensorcircuit.applications.van.MaskedConv2D.build:11
-#: tensorcircuit.keras.QuantumLayer.build:11
+#: of tensorcircuit.applications.van.MaskedConv2D.build:13
+#: tensorcircuit.keras.QuantumLayer.build:13
 msgid ""
 "`TensorShape` if the layer expects a list of inputs (one instance per "
 "input)."
@@ -1920,32 +1527,29 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:1
 #: tensorcircuit.applications.van.MaskedLinear.call:1
 #: tensorcircuit.applications.van.ResidualBlock.call:1
-#: tensorcircuit.applications.vqes.Linear.call:1
 msgid "This is where the layer's logic lives."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:3
 #: tensorcircuit.applications.van.MaskedLinear.call:3
 #: tensorcircuit.applications.van.ResidualBlock.call:3
-#: tensorcircuit.applications.vqes.Linear.call:3
 msgid ""
-"Note here that `call()` method in `tf.keras` is little bit different from"
-" `keras` API. In `keras` API, you can pass support masking for layers as "
-"additional arguments. Whereas `tf.keras` has `compute_mask()` method to "
-"support masking."
+"The `call()` method may not create state (except in its first invocation,"
+" wrapping the creation of variables or other resources in "
+"`tf.init_scope()`). It is recommended to create state in `__init__()`, or"
+" the `build()` method that is called automatically before `call()` "
+"executes the first time."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:24
 #: tensorcircuit.applications.van.MaskedLinear.call:24
 #: tensorcircuit.applications.van.ResidualBlock.call:24
-#: tensorcircuit.applications.vqes.Linear.call:24
 msgid "inputs: Input tensor, or dict/list/tuple of input tensors."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:10
 #: tensorcircuit.applications.van.MaskedLinear.call:10
 #: tensorcircuit.applications.van.ResidualBlock.call:10
-#: tensorcircuit.applications.vqes.Linear.call:10
 msgid ""
 "The first positional `inputs` argument is subject to special rules: - "
 "`inputs` must be explicitly passed. A layer cannot have zero"
@@ -1954,7 +1558,6 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:12
 #: tensorcircuit.applications.van.MaskedLinear.call:12
 #: tensorcircuit.applications.van.ResidualBlock.call:12
-#: tensorcircuit.applications.vqes.Linear.call:12
 msgid ""
 "arguments, and `inputs` cannot be provided via the default value of a "
 "keyword argument."
@@ -1963,21 +1566,18 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:14
 #: tensorcircuit.applications.van.MaskedLinear.call:14
 #: tensorcircuit.applications.van.ResidualBlock.call:14
-#: tensorcircuit.applications.vqes.Linear.call:14
 msgid "NumPy array or Python scalar values in `inputs` get cast as tensors."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:15
 #: tensorcircuit.applications.van.MaskedLinear.call:15
 #: tensorcircuit.applications.van.ResidualBlock.call:15
-#: tensorcircuit.applications.vqes.Linear.call:15
 msgid "Keras mask metadata is only collected from `inputs`."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:16
 #: tensorcircuit.applications.van.MaskedLinear.call:16
 #: tensorcircuit.applications.van.ResidualBlock.call:16
-#: tensorcircuit.applications.vqes.Linear.call:16
 msgid ""
 "Layers are built (`build(input_shape)` method) using shape info from "
 "`inputs` only."
@@ -1986,14 +1586,12 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:18
 #: tensorcircuit.applications.van.MaskedLinear.call:18
 #: tensorcircuit.applications.van.ResidualBlock.call:18
-#: tensorcircuit.applications.vqes.Linear.call:18
 msgid "`input_spec` compatibility is only checked against `inputs`."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:19
 #: tensorcircuit.applications.van.MaskedLinear.call:19
 #: tensorcircuit.applications.van.ResidualBlock.call:19
-#: tensorcircuit.applications.vqes.Linear.call:19
 msgid ""
 "Mixed precision input casting is only applied to `inputs`. If a layer has"
 " tensor arguments in `*args` or `**kwargs`, their casting behavior in "
@@ -2003,14 +1601,12 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:22
 #: tensorcircuit.applications.van.MaskedLinear.call:22
 #: tensorcircuit.applications.van.ResidualBlock.call:22
-#: tensorcircuit.applications.vqes.Linear.call:22
 msgid "The SavedModel input specification is generated using `inputs` only."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:23
 #: tensorcircuit.applications.van.MaskedLinear.call:23
 #: tensorcircuit.applications.van.ResidualBlock.call:23
-#: tensorcircuit.applications.vqes.Linear.call:23
 msgid ""
 "Integration with various ecosystem packages like TFMOT, TFLite, TF.js, "
 "etc is only supported for `inputs` and not for tensors in positional and "
@@ -2020,28 +1616,24 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:26
 #: tensorcircuit.applications.van.MaskedLinear.call:26
 #: tensorcircuit.applications.van.ResidualBlock.call:26
-#: tensorcircuit.applications.vqes.Linear.call:26
 msgid "*args: Additional positional arguments. May contain tensors, although"
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:27
 #: tensorcircuit.applications.van.MaskedLinear.call:27
 #: tensorcircuit.applications.van.ResidualBlock.call:27
-#: tensorcircuit.applications.vqes.Linear.call:27
 msgid "this is not recommended, for the reasons above."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:37
 #: tensorcircuit.applications.van.MaskedLinear.call:37
 #: tensorcircuit.applications.van.ResidualBlock.call:37
-#: tensorcircuit.applications.vqes.Linear.call:37
 msgid "**kwargs: Additional keyword arguments. May contain tensors, although"
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:29
 #: tensorcircuit.applications.van.MaskedLinear.call:29
 #: tensorcircuit.applications.van.ResidualBlock.call:29
-#: tensorcircuit.applications.vqes.Linear.call:29
 msgid ""
 "this is not recommended, for the reasons above. The following optional "
 "keyword arguments are reserved: - `training`: Boolean scalar tensor of "
@@ -2051,14 +1643,12 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:32
 #: tensorcircuit.applications.van.MaskedLinear.call:32
 #: tensorcircuit.applications.van.ResidualBlock.call:32
-#: tensorcircuit.applications.vqes.Linear.call:32
 msgid "whether the `call` is meant for training or inference."
 msgstr ""
 
 #: of tensorcircuit.applications.van.MaskedConv2D.call:33
 #: tensorcircuit.applications.van.MaskedLinear.call:33
 #: tensorcircuit.applications.van.ResidualBlock.call:33
-#: tensorcircuit.applications.vqes.Linear.call:33
 msgid ""
 "`mask`: Boolean input mask. If the layer's `call()` method takes a `mask`"
 " argument, its default value will be set to the mask generated for "
@@ -2070,7 +1660,6 @@ msgstr ""
 #: of tensorcircuit.applications.van.MaskedConv2D.call:40
 #: tensorcircuit.applications.van.MaskedLinear.call:40
 #: tensorcircuit.applications.van.ResidualBlock.call:40
-#: tensorcircuit.applications.vqes.Linear.call:40
 msgid "A tensor or list/tuple of tensors."
 msgstr ""
 
@@ -2078,29 +1667,193 @@ msgstr ""
 msgid "tensorcircuit.applications.vqes"
 msgstr ""
 
-#: of tensorcircuit.applications.vqes:1
-msgid "VQNHE application"
+#: ../../source/api/backends.rst:2
+msgid "tensorcircuit.backends"
 msgstr ""
 
-#: of tensorcircuit.applications.vqes.JointSchedule:1
+#: ../../source/api/backends/backend_factory.rst:2
+msgid "tensorcircuit.backends.backend_factory"
+msgstr ""
+
+#: of tensorcircuit.backends.backend_factory:1
+msgid "Backend register"
+msgstr ""
+
+#: of tensorcircuit.backends.backend_factory.get_backend:1
+msgid "Get the `tc.backend` object."
+msgstr ""
+
+#: of tensorcircuit.backends.backend_factory.get_backend:3
+msgid "\"numpy\", \"tensorflow\", \"jax\", \"pytorch\""
+msgstr ""
+
+#: of tensorcircuit.backends.backend_factory.get_backend
+#: tensorcircuit.circuit.Circuit.expectation tensorcircuit.circuit.expectation
+#: tensorcircuit.cons.get_contractor tensorcircuit.cons.set_contractor
+#: tensorcircuit.gates.bmatrix tensorcircuit.keras.load_func
+#: tensorcircuit.mps_base.FiniteMPS.apply_two_site_gate
+#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate
+#: tensorcircuit.quantum.QuOperator.__init__
+#: tensorcircuit.quantum.QuOperator.eval tensorcircuit.quantum.check_spaces
+msgid "Raises"
+msgstr ""
+
+#: of tensorcircuit.backends.backend_factory.get_backend:5
+msgid "Backend doesn't exist for `backend` argument."
+msgstr ""
+
+#: of tensorcircuit.backends.backend_factory.get_backend:6
+#: tensorcircuit.cons.set_tensornetwork_backend:32
+msgid "The `tc.backend` object that with all registered universal functions."
+msgstr ""
+
+#: ../../source/api/backends/jax_backend.rst:2
+msgid "tensorcircuit.backends.jax_backend"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend:1
+msgid "Backend magic inherited from tensornetwork: jax backend"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend:1
+msgid "Bases: :py:class:`tensornetwork.backends.jax.jax_backend.JaxBackend`"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend:1
 msgid ""
-"Bases: "
-":py:class:`keras.optimizer_v2.learning_rate_schedule.LearningRateSchedule`"
+"See the original backend API at `jax backend "
+"<https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/jax/jax_backend.py>`_"
 msgstr ""
 
-#: of tensorcircuit.applications.vqes.Linear:1
-msgid "Dense layer but with complex weights, used for building complex RBM"
+#: of tensorcircuit.backends.jax_backend.JaxBackend.abs:1
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.abs:1
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.abs:1
+msgid "Returns the elementwise absolute value of tensor. Args:"
 msgstr ""
 
-#: of tensorcircuit.applications.vqes.VQNHE.evaluation:1
-msgid "VQNHE"
+#: of tensorcircuit.backends.jax_backend.JaxBackend.abs:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.abs:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.abs:3
+msgid "tensor: An input tensor."
 msgstr ""
 
-#: of tensorcircuit.applications.vqes.VQNHE.evaluation:3
-#: tensorcircuit.applications.vqes.VQNHE.evaluation:5
-#: tensorcircuit.applications.vqes.VQNHE.plain_evaluation:3
-#: tensorcircuit.applications.vqes.VQNHE.plain_evaluation:5
-#: tensorcircuit.backends.jax_backend.JaxBackend.argmax:3
+#: of tensorcircuit.backends.jax_backend.JaxBackend.abs:5
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.abs:5
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.abs:5
+msgid "tensor: Its elementwise absolute value."
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.acos:1
+#: tensorcircuit.backends.jax_backend.JaxBackend.asin:1
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.acos:1
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.asin:1
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.acos:1
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.asin:1
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.acos:1
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.asin:1
+msgid "Return the acos of a tensor ``a``."
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.acos:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.acosh:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.asin:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.asinh:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.atan:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.atan2:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.copy:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.cos:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.cosh:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.expm:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.kron:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.kron:5
+#: tensorcircuit.backends.jax_backend.JaxBackend.numpy:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.sin:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.sinh:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.tan:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.tanh:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.acos:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.acosh:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.asin:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.asinh:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.atan:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.atan2:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.copy:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.cos:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.cosh:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.expm:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.kron:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.kron:5
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.numpy:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.sin:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.sinh:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.tan:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.tanh:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.acos:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.acosh:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.asin:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.asinh:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.atan:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.atan2:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.copy:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cos:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cosh:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.expm:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.kron:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.kron:5
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.numpy:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.sin:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.sinh:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tan:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tanh:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.acos:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.acosh:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.asin:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.asinh:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.atan:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.atan2:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.copy:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cos:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cosh:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.expm:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.kron:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.kron:5
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.numpy:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.sin:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.sinh:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.tan:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.tanh:3
+msgid "tensor in matrix form"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.acos:5
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.acos:5
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.acos:5
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.acos:5
+msgid "acos of ``a``"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.acosh:1
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.acosh:1
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.acosh:1
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.acosh:1
+msgid "Return the acosh of a tensor ``a``."
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.acosh:5
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.acosh:5
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.acosh:5
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.acosh:5
+msgid "acosh of ``a``"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.argmax:1
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.argmax:1
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.argmax:1
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.argmax:1
+msgid "Return the index of maximum of an array an axis."
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.argmax:3
 #: tensorcircuit.backends.jax_backend.JaxBackend.argmax:7
 #: tensorcircuit.backends.jax_backend.JaxBackend.argmin:3
 #: tensorcircuit.backends.jax_backend.JaxBackend.argmin:7
@@ -2250,202 +2003,6 @@ msgstr ""
 #: tensorcircuit.templates.graphs.Line1D:3
 #: tensorcircuit.templates.graphs.Line1D:7
 msgid "[description]"
-msgstr ""
-
-#: of tensorcircuit.applications.vqes.VQNHE.plain_evaluation:1
-msgid "VQE"
-msgstr ""
-
-#: ../../source/api/backends.rst:2
-msgid "tensorcircuit.backends"
-msgstr ""
-
-#: ../../source/api/backends/backend_factory.rst:2
-msgid "tensorcircuit.backends.backend_factory"
-msgstr ""
-
-#: of tensorcircuit.backends.backend_factory:1
-msgid "Backend register"
-msgstr ""
-
-#: of tensorcircuit.backends.backend_factory.get_backend:1
-msgid "Get the `tc.backend` object."
-msgstr ""
-
-#: of tensorcircuit.backends.backend_factory.get_backend:3
-msgid "\"numpy\", \"tensorflow\", \"jax\", \"pytorch\""
-msgstr ""
-
-#: of tensorcircuit.backends.backend_factory.get_backend
-#: tensorcircuit.circuit.Circuit.expectation tensorcircuit.circuit.expectation
-#: tensorcircuit.cons.get_contractor tensorcircuit.cons.set_contractor
-#: tensorcircuit.gates.bmatrix tensorcircuit.keras.load_func
-#: tensorcircuit.mps_base.FiniteMPS.apply_two_site_gate
-#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate
-#: tensorcircuit.quantum.QuOperator.__init__
-#: tensorcircuit.quantum.QuOperator.eval
-#: tensorcircuit.quantum.QuOperator.eval_matrix
-#: tensorcircuit.quantum.check_spaces
-msgid "Raises"
-msgstr ""
-
-#: of tensorcircuit.backends.backend_factory.get_backend:5
-msgid "Backend doesn't exist for `backend` argument."
-msgstr ""
-
-#: of tensorcircuit.backends.backend_factory.get_backend:6
-#: tensorcircuit.cons.set_tensornetwork_backend:32
-msgid "The `tc.backend` object that with all registered universal functions."
-msgstr ""
-
-#: ../../source/api/backends/jax_backend.rst:2
-msgid "tensorcircuit.backends.jax_backend"
-msgstr ""
-
-#: of tensorcircuit.backends.jax_backend:1
-msgid "Backend magic inherited from tensornetwork: jax backend"
-msgstr ""
-
-#: of tensorcircuit.backends.jax_backend.JaxBackend:1
-msgid "Bases: :py:class:`tensornetwork.backends.jax.jax_backend.JaxBackend`"
-msgstr ""
-
-#: of tensorcircuit.backends.jax_backend.JaxBackend:1
-msgid ""
-"See the original backend API at `jax backend "
-"<https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/jax/jax_backend.py>`_"
-msgstr ""
-
-#: of tensorcircuit.backends.jax_backend.JaxBackend.abs:1
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.abs:1
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.abs:1
-msgid "Returns the elementwise absolute value of tensor. Args:"
-msgstr ""
-
-#: of tensorcircuit.backends.jax_backend.JaxBackend.abs:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.abs:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.abs:3
-msgid "tensor: An input tensor."
-msgstr ""
-
-#: of tensorcircuit.backends.jax_backend.JaxBackend.abs:5
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.abs:5
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.abs:5
-msgid "tensor: Its elementwise absolute value."
-msgstr ""
-
-#: of tensorcircuit.backends.jax_backend.JaxBackend.acos:1
-#: tensorcircuit.backends.jax_backend.JaxBackend.asin:1
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.acos:1
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.asin:1
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.acos:1
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.asin:1
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.acos:1
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.asin:1
-msgid "Return the acos of a tensor ``a``."
-msgstr ""
-
-#: of tensorcircuit.backends.jax_backend.JaxBackend.acos:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.acosh:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.asin:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.asinh:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.atan:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.atan2:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.copy:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.cos:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.cosh:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.eigvalsh:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.expm:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.kron:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.kron:5
-#: tensorcircuit.backends.jax_backend.JaxBackend.numpy:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.sin:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.sinh:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.tan:3
-#: tensorcircuit.backends.jax_backend.JaxBackend.tanh:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.acos:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.acosh:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.asin:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.asinh:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.atan:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.atan2:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.copy:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.cos:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.cosh:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.eigvalsh:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.expm:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.kron:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.kron:5
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.numpy:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.sin:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.sinh:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.tan:3
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.tanh:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.acos:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.acosh:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.asin:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.asinh:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.atan:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.atan2:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.copy:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cos:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.cosh:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.eigvalsh:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.expm:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.kron:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.kron:5
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.numpy:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.sin:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.sinh:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tan:3
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tanh:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.acos:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.acosh:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.asin:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.asinh:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.atan:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.atan2:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.copy:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cos:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.cosh:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.eigvalsh:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.expm:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.kron:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.kron:5
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.numpy:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.sin:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.sinh:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.tan:3
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.tanh:3
-msgid "tensor in matrix form"
-msgstr ""
-
-#: of tensorcircuit.backends.jax_backend.JaxBackend.acos:5
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.acos:5
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.acos:5
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.acos:5
-msgid "acos of ``a``"
-msgstr ""
-
-#: of tensorcircuit.backends.jax_backend.JaxBackend.acosh:1
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.acosh:1
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.acosh:1
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.acosh:1
-msgid "Return the acosh of a tensor ``a``."
-msgstr ""
-
-#: of tensorcircuit.backends.jax_backend.JaxBackend.acosh:5
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.acosh:5
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.acosh:5
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.acosh:5
-msgid "acosh of ``a``"
-msgstr ""
-
-#: of tensorcircuit.backends.jax_backend.JaxBackend.argmax:1
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.argmax:1
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.argmax:1
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.argmax:1
-msgid "Return the index of maximum of an array an axis."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.argmax:5
@@ -2682,20 +2239,6 @@ msgid ""
 "cumsum of the flatten 1D array, defaults to None"
 msgstr ""
 
-#: of tensorcircuit.backends.jax_backend.JaxBackend.eigvalsh:1
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.eigvalsh:1
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.eigvalsh:1
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.eigvalsh:1
-msgid "Get the eigenvalues of matrix ``a``."
-msgstr ""
-
-#: of tensorcircuit.backends.jax_backend.JaxBackend.eigvalsh:5
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.eigvalsh:5
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.eigvalsh:5
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.eigvalsh:5
-msgid "eigenvalues of ``a``"
-msgstr ""
-
 #: of tensorcircuit.backends.jax_backend.JaxBackend.expm:1
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.expm:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.expm:1
@@ -2755,9 +2298,9 @@ msgstr ""
 #: tensorcircuit.circuit.Circuit.draw tensorcircuit.circuit.Circuit.expectation
 #: tensorcircuit.circuit.Circuit.from_qir
 #: tensorcircuit.circuit.Circuit.from_qiskit
-#: tensorcircuit.circuit.Circuit.measure_reference
+#: tensorcircuit.circuit.Circuit.measure
 #: tensorcircuit.circuit.Circuit.replace_mps_inputs
-#: tensorcircuit.circuit.Circuit.to_qir tensorcircuit.circuit._expectation_ps
+#: tensorcircuit.circuit.Circuit.to_qir
 #: tensorcircuit.cons.set_tensornetwork_backend tensorcircuit.gates.bmatrix
 #: tensorcircuit.gates.matrix_for_gate tensorcircuit.gates.num_to_tensor
 #: tensorcircuit.interfaces.scipy_optimize_interface
@@ -2775,10 +2318,8 @@ msgstr ""
 #: tensorcircuit.quantum.quantum_constructor
 #: tensorcircuit.quantum.renyi_free_energy tensorcircuit.quantum.spin_by_basis
 #: tensorcircuit.quantum.trace_product tensorcircuit.simplify.infer_new_shape
-#: tensorcircuit.translation.qir2qiskit tensorcircuit.translation.qiskit2tc
 #: tensorcircuit.utils.append tensorcircuit.utils.return_partial
-#: tensorcircuit.vis.gate_name_trans tensorcircuit.vis.qir2tex
-#: tensorcircuit.vis.render_pdf
+#: tensorcircuit.vis.qir2tex tensorcircuit.vis.render_pdf
 msgid "Example"
 msgstr ""
 
@@ -3092,7 +2633,6 @@ msgstr ""
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.mean:9
 #: tensorcircuit.cons.runtime_contractor:3
 #: tensorcircuit.cons.set_function_contractor:3
-#: tensorcircuit.templates.graphs.Grid2DCoord.lattice_graph:6
 msgid "_description_"
 msgstr ""
 
@@ -3728,6 +3268,15 @@ msgstr ""
 msgid "Block-sparse behavior is currently not supported Args:"
 msgstr ""
 
+#: of tensorcircuit.backends.jax_backend.optax_optimizer:1
+#: tensorcircuit.backends.tensorflow_backend.keras_optimizer:1
+#: tensorcircuit.circuit.Circuit:1 tensorcircuit.densitymatrix.DMCircuit:1
+#: tensorcircuit.gates.GateF:1 tensorcircuit.mpscircuit.MPSCircuit:1
+#: tensorcircuit.quantum.QuOperator:1
+#: tensorcircuit.templates.graphs.Grid2DCoord:1
+msgid "Bases: :py:class:`object`"
+msgstr ""
+
 #: ../../source/api/backends/numpy_backend.rst:2
 msgid "tensorcircuit.backends.numpy_backend"
 msgstr ""
@@ -3999,54 +3548,40 @@ msgstr ""
 
 #: of
 #: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **ANY** gate with parameters on the circuit. See "
-":py:meth:`tensorcircuit.gates.any_gate`."
+msgid "Apply **ANY** gate with parameters on the circuit."
 msgstr ""
 
 #: of
 #: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:3
-#: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_kraus_delayed.<locals>.apply:4
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix2.DMCircuit2.apply_general_kraus_delayed.<locals>.apply:4
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_variable_gate_delayed.<locals>.apply:3
-msgid "Qubit number that the gate applies on."
+msgid "Qubit number than the gate applies on."
 msgstr ""
 
 #: of
 #: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:5
-#: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:7
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:7
 msgid "Parameters for the gate."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **CNOT** gate on the circuit. See "
-":py:meth:`tensorcircuit.gates.cnot_gate`."
+#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
+msgid "Apply **CNOT** gate on the circuit."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
 msgid ""
-"Qubit number that the gate applies on. The matrix for the gate is  .. "
+"Qubit number than the gate applies on. The matrix for the gate is  .. "
 "math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\"
 "    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & "
 "1.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j \\end{bmatrix}"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
-msgid "Qubit number that the gate applies on. The matrix for the gate is"
+msgid "Qubit number than the gate applies on. The matrix for the gate is"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:8
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:8
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:6
 msgid ""
 "\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & "
@@ -4056,55 +3591,39 @@ msgstr ""
 
 #: of
 #: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **CR** gate with parameters on the circuit. See "
-":py:meth:`tensorcircuit.gates.cr_gate`."
+msgid "Apply **CR** gate with parameters on the circuit."
 msgstr ""
 
 #: of
 #: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **CRX** gate with parameters on the circuit. See "
-":py:meth:`tensorcircuit.gates.crx_gate`."
+msgid "Apply **CRX** gate with parameters on the circuit."
 msgstr ""
 
 #: of
 #: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **CRY** gate with parameters on the circuit. See "
-":py:meth:`tensorcircuit.gates.cry_gate`."
+msgid "Apply **CRY** gate with parameters on the circuit."
 msgstr ""
 
 #: of
 #: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **CRZ** gate with parameters on the circuit. See "
-":py:meth:`tensorcircuit.gates.crz_gate`."
+msgid "Apply **CRZ** gate with parameters on the circuit."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **CY** gate on the circuit. See "
-":py:meth:`tensorcircuit.gates.cy_gate`."
+#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
+msgid "Apply **CY** gate on the circuit."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
 msgid ""
-"Qubit number that the gate applies on. The matrix for the gate is  .. "
+"Qubit number than the gate applies on. The matrix for the gate is  .. "
 "math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\"
 "    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & "
 "0.-1.j\\\\    0.+0.j & 0.+0.j & 0.+1.j & 0.+0.j \\end{bmatrix}"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:8
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:8
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:6
 msgid ""
 "\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & "
@@ -4113,24 +3632,20 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **CZ** gate on the circuit. See "
-":py:meth:`tensorcircuit.gates.cz_gate`."
+#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
+msgid "Apply **CZ** gate on the circuit."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
 msgid ""
-"Qubit number that the gate applies on. The matrix for the gate is  .. "
+"Qubit number than the gate applies on. The matrix for the gate is  .. "
 "math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\"
 "    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & "
 "0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & -1.+0.j \\end{bmatrix}"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:8
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:8
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:6
 msgid ""
 "\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & "
@@ -4140,31 +3655,21 @@ msgstr ""
 
 #: of
 #: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **EXP** gate with parameters on the circuit. See "
-":py:meth:`tensorcircuit.gates.exp_gate`."
+msgid "Apply **EXP** gate with parameters on the circuit."
 msgstr ""
 
 #: of
 #: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **EXP1** gate with parameters on the circuit. See "
-":py:meth:`tensorcircuit.gates.exp1_gate`."
+msgid "Apply **EXP1** gate with parameters on the circuit."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **FREDKIN** gate on the circuit. See "
-":py:meth:`tensorcircuit.gates.fredkin_gate`."
+msgid "Apply **FREDKIN** gate on the circuit."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 msgid ""
-"Qubit number that the gate applies on. The matrix for the gate is  .. "
+"Qubit number than the gate applies on. The matrix for the gate is  .. "
 "math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & "
 "0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & "
 "0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & "
@@ -4177,8 +3682,7 @@ msgid ""
 "0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:8
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:8
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 msgid ""
 "\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j &"
 " 0.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & "
@@ -4193,23 +3697,19 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **H** gate on the circuit. See "
-":py:meth:`tensorcircuit.gates.h_gate`."
+#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
+msgid "Apply **H** gate on the circuit."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
 msgid ""
-"Qubit number that the gate applies on. The matrix for the gate is  .. "
+"Qubit number than the gate applies on. The matrix for the gate is  .. "
 "math::        \\begin{bmatrix}    0.70710677+0.j & 0.70710677+0.j\\\\    "
 "0.70710677+0.j & -0.70710677+0.j \\end{bmatrix}"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:8
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:8
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:6
 msgid ""
 "\\begin{bmatrix}    0.70710677+0.j & 0.70710677+0.j\\\\    0.70710677+0.j"
@@ -4217,45 +3717,36 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **I** gate on the circuit. See "
-":py:meth:`tensorcircuit.gates.i_gate`."
+#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
+msgid "Apply **I** gate on the circuit."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
 msgid ""
-"Qubit number that the gate applies on. The matrix for the gate is  .. "
+"Qubit number than the gate applies on. The matrix for the gate is  .. "
 "math::        \\begin{bmatrix}    1.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j "
 "\\end{bmatrix}"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:8
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:8
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:6
 msgid "\\begin{bmatrix}    1.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **ISWAP** gate on the circuit. See "
-":py:meth:`tensorcircuit.gates.iswap_gate`."
+msgid "Apply **ISWAP** gate on the circuit."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 msgid ""
-"Qubit number that the gate applies on. The matrix for the gate is  .. "
+"Qubit number than the gate applies on. The matrix for the gate is  .. "
 "math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\"
 "    0.+0.j & 0.+0.j & 0.+1.j & 0.+0.j\\\\    0.+0.j & 0.+1.j & 0.+0.j & "
 "0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:8
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:8
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 msgid ""
 "\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & "
 "0.+0.j & 0.+1.j & 0.+0.j\\\\    0.+0.j & 0.+1.j & 0.+0.j & 0.+0.j\\\\    "
@@ -4274,46 +3765,32 @@ msgstr ""
 
 #: of
 #: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **ORX** gate with parameters on the circuit. See "
-":py:meth:`tensorcircuit.gates.orx_gate`."
+msgid "Apply **ORX** gate with parameters on the circuit."
 msgstr ""
 
 #: of
 #: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **ORY** gate with parameters on the circuit. See "
-":py:meth:`tensorcircuit.gates.ory_gate`."
+msgid "Apply **ORY** gate with parameters on the circuit."
 msgstr ""
 
 #: of
 #: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **ORZ** gate with parameters on the circuit. See "
-":py:meth:`tensorcircuit.gates.orz_gate`."
+msgid "Apply **ORZ** gate with parameters on the circuit."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **OX** gate on the circuit. See "
-":py:meth:`tensorcircuit.gates.ox_gate`."
+msgid "Apply **OX** gate on the circuit."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 msgid ""
-"Qubit number that the gate applies on. The matrix for the gate is  .. "
+"Qubit number than the gate applies on. The matrix for the gate is  .. "
 "math::        \\begin{bmatrix}    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\"
 "    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & "
 "0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:8
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:8
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 msgid ""
 "\\begin{bmatrix}    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j\\\\    1.+0.j & "
 "0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\    "
@@ -4321,23 +3798,18 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **OY** gate on the circuit. See "
-":py:meth:`tensorcircuit.gates.oy_gate`."
+msgid "Apply **OY** gate on the circuit."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 msgid ""
-"Qubit number that the gate applies on. The matrix for the gate is  .. "
+"Qubit number than the gate applies on. The matrix for the gate is  .. "
 "math::        \\begin{bmatrix}    0.+0.j & 0.-1.j & 0.+0.j & 0.+0.j\\\\"
 "    0.+1.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & "
 "0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:8
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:8
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 msgid ""
 "\\begin{bmatrix}    0.+0.j & 0.-1.j & 0.+0.j & 0.+0.j\\\\    0.+1.j & "
 "0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\    "
@@ -4345,23 +3817,18 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **OZ** gate on the circuit. See "
-":py:meth:`tensorcircuit.gates.oz_gate`."
+msgid "Apply **OZ** gate on the circuit."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 msgid ""
-"Qubit number that the gate applies on. The matrix for the gate is  .. "
+"Qubit number than the gate applies on. The matrix for the gate is  .. "
 "math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\"
 "    0.+0.j & -1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & "
 "0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:8
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:8
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 msgid ""
 "\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & "
 "-1.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\"
@@ -4370,97 +3837,72 @@ msgstr ""
 
 #: of
 #: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **R** gate with parameters on the circuit. See "
-":py:meth:`tensorcircuit.gates.r_gate`."
+msgid "Apply **R** gate with parameters on the circuit."
 msgstr ""
 
 #: of
 #: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **RX** gate with parameters on the circuit. See "
-":py:meth:`tensorcircuit.gates.rx_gate`."
+msgid "Apply **RX** gate with parameters on the circuit."
 msgstr ""
 
 #: of
 #: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **RY** gate with parameters on the circuit. See "
-":py:meth:`tensorcircuit.gates.ry_gate`."
+msgid "Apply **RY** gate with parameters on the circuit."
 msgstr ""
 
 #: of
 #: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **RZ** gate with parameters on the circuit. See "
-":py:meth:`tensorcircuit.gates.rz_gate`."
+msgid "Apply **RZ** gate with parameters on the circuit."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **S** gate on the circuit. See "
-":py:meth:`tensorcircuit.gates.s_gate`."
+#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
+msgid "Apply **S** gate on the circuit."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
 msgid ""
-"Qubit number that the gate applies on. The matrix for the gate is  .. "
+"Qubit number than the gate applies on. The matrix for the gate is  .. "
 "math::        \\begin{bmatrix}    1.+0.j & 0.+0.j\\\\    0.+0.j & 0.+1.j "
 "\\end{bmatrix}"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:8
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:8
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:6
 msgid "\\begin{bmatrix}    1.+0.j & 0.+0.j\\\\    0.+0.j & 0.+1.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **SD** gate on the circuit. See "
-":py:meth:`tensorcircuit.gates.sd_gate`."
+msgid "Apply **SD** gate on the circuit."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 msgid ""
-"Qubit number that the gate applies on. The matrix for the gate is  .. "
+"Qubit number than the gate applies on. The matrix for the gate is  .. "
 "math::        \\begin{bmatrix}    1.+0.j & 0.+0.j\\\\    0.+0.j & 0.-1.j "
 "\\end{bmatrix}"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:8
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:8
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 msgid "\\begin{bmatrix}    1.+0.j & 0.+0.j\\\\    0.+0.j & 0.-1.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **SWAP** gate on the circuit. See "
-":py:meth:`tensorcircuit.gates.swap_gate`."
+#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
+msgid "Apply **SWAP** gate on the circuit."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
 msgid ""
-"Qubit number that the gate applies on. The matrix for the gate is  .. "
+"Qubit number than the gate applies on. The matrix for the gate is  .. "
 "math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\"
 "    0.+0.j & 0.+0.j & 1.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & "
 "0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j & 1.+0.j \\end{bmatrix}"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:8
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:8
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:6
 msgid ""
 "\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & "
@@ -4469,23 +3911,19 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **T** gate on the circuit. See "
-":py:meth:`tensorcircuit.gates.t_gate`."
+#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
+msgid "Apply **T** gate on the circuit."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
 msgid ""
-"Qubit number that the gate applies on. The matrix for the gate is  .. "
+"Qubit number than the gate applies on. The matrix for the gate is  .. "
 "math::        \\begin{bmatrix}    1. & +0.j & 0. & +0.j\\\\    0. & +0.j "
 "& 0.70710677+0.70710677j \\end{bmatrix}"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:8
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:8
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:6
 msgid ""
 "\\begin{bmatrix}    1. & +0.j & 0. & +0.j\\\\    0. & +0.j & "
@@ -4493,38 +3931,29 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **TD** gate on the circuit. See "
-":py:meth:`tensorcircuit.gates.td_gate`."
+msgid "Apply **TD** gate on the circuit."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 msgid ""
-"Qubit number that the gate applies on. The matrix for the gate is  .. "
+"Qubit number than the gate applies on. The matrix for the gate is  .. "
 "math::        \\begin{bmatrix}    1. & +0.j & 0. & +0.j\\\\    0. & +0.j "
 "& 0.70710677-0.70710677j \\end{bmatrix}"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:8
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:8
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 msgid ""
 "\\begin{bmatrix}    1. & +0.j & 0. & +0.j\\\\    0. & +0.j & "
 "0.70710677-0.70710677j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **TOFFOLI** gate on the circuit. See "
-":py:meth:`tensorcircuit.gates.toffoli_gate`."
+msgid "Apply **TOFFOLI** gate on the circuit."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 msgid ""
-"Qubit number that the gate applies on. The matrix for the gate is  .. "
+"Qubit number than the gate applies on. The matrix for the gate is  .. "
 "math::        \\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & "
 "0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & "
 "0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j & 0.+0.j & "
@@ -4537,8 +3966,7 @@ msgid ""
 "0.+0.j & 1.+0.j & 0.+0.j \\end{bmatrix}"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:8
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:8
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 msgid ""
 "\\begin{bmatrix}    1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j &"
 " 0.+0.j & 0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j & "
@@ -4553,23 +3981,19 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **WROOT** gate on the circuit. See "
-":py:meth:`tensorcircuit.gates.wroot_gate`."
+#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
+msgid "Apply **WROOT** gate on the circuit."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
 msgid ""
-"Qubit number that the gate applies on. The matrix for the gate is  .. "
+"Qubit number than the gate applies on. The matrix for the gate is  .. "
 "math::        \\begin{bmatrix}    0.70710677+0.j & -0.5 & -0.5j\\\\    "
 "0.5 & -0.5j & 0.70710677+0.j \\end{bmatrix}"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:8
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:8
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:6
 msgid ""
 "\\begin{bmatrix}    0.70710677+0.j & -0.5 & -0.5j\\\\    0.5 & -0.5j & "
@@ -4577,67 +4001,55 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **X** gate on the circuit. See "
-":py:meth:`tensorcircuit.gates.x_gate`."
+#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
+msgid "Apply **X** gate on the circuit."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
 msgid ""
-"Qubit number that the gate applies on. The matrix for the gate is  .. "
+"Qubit number than the gate applies on. The matrix for the gate is  .. "
 "math::        \\begin{bmatrix}    0.+0.j & 1.+0.j\\\\    1.+0.j & 0.+0.j "
 "\\end{bmatrix}"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:8
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:8
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:6
 msgid "\\begin{bmatrix}    0.+0.j & 1.+0.j\\\\    1.+0.j & 0.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **Y** gate on the circuit. See "
-":py:meth:`tensorcircuit.gates.y_gate`."
+#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
+msgid "Apply **Y** gate on the circuit."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
 msgid ""
-"Qubit number that the gate applies on. The matrix for the gate is  .. "
+"Qubit number than the gate applies on. The matrix for the gate is  .. "
 "math::        \\begin{bmatrix}    0.+0.j & 0.-1.j\\\\    0.+1.j & 0.+0.j "
 "\\end{bmatrix}"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:8
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:8
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:6
 msgid "\\begin{bmatrix}    0.+0.j & 0.-1.j\\\\    0.+1.j & 0.+0.j \\end{bmatrix}"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid ""
-"Apply **Z** gate on the circuit. See "
-":py:meth:`tensorcircuit.gates.z_gate`."
+#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
+msgid "Apply **Z** gate on the circuit."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:5
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:5
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:3
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:3
 msgid ""
-"Qubit number that the gate applies on. The matrix for the gate is  .. "
+"Qubit number than the gate applies on. The matrix for the gate is  .. "
 "math::        \\begin{bmatrix}    1.+0.j & 0.+0.j\\\\    0.+0.j & -1.+0.j"
 " \\end{bmatrix}"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:8
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_gate_delayed.<locals>.apply:8
+#: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:6
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:6
 msgid "\\begin{bmatrix}    1.+0.j & 0.+0.j\\\\    0.+0.j & -1.+0.j \\end{bmatrix}"
 msgstr ""
@@ -4811,12 +4223,10 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.expectation:1
-#: tensorcircuit.densitymatrix.DMCircuit.expectation:1
 msgid "Compute the expectation of corresponding operators."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.expectation:10
-#: tensorcircuit.densitymatrix.DMCircuit.expectation:3
 msgid ""
 "Operator and its position on the circuit, eg. ``(tc.gates.z(), [1, ]), "
 "(tc.gates.x(), [2, ])`` is for operator :math:`Z_1X_2`."
@@ -4834,7 +4244,6 @@ msgid "\"Cannot measure two operators in one index\""
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.expectation:17
-#: tensorcircuit.densitymatrix.DMCircuit.expectation:6
 msgid "Tensor with one element"
 msgstr ""
 
@@ -4858,17 +4267,17 @@ msgid ""
 "positions"
 msgstr ""
 
-#: of tensorcircuit.circuit._expectation_ps:12
-#: tensorcircuit.circuit._expectation_ps:14
-#: tensorcircuit.circuit._expectation_ps:16
+#: of tensorcircuit.circuit._expectation_ps:4
+#: tensorcircuit.circuit._expectation_ps:6
+#: tensorcircuit.circuit._expectation_ps:8
 msgid "_description_, defaults to None"
 msgstr ""
 
-#: of tensorcircuit.circuit._expectation_ps:18
+#: of tensorcircuit.circuit._expectation_ps:10
 msgid "whether to cache and reuse the wavefunction, defaults to True"
 msgstr ""
 
-#: of tensorcircuit.circuit._expectation_ps:20
+#: of tensorcircuit.circuit._expectation_ps:12
 msgid "Expectation value"
 msgstr ""
 
@@ -4877,7 +4286,6 @@ msgid "Restore the circuit from the quantum intermediate representation."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.from_qir:21
-#: tensorcircuit.translation.qir2qiskit:14
 msgid "The quantum intermediate representation of a circuit."
 msgstr ""
 
@@ -4937,32 +4345,32 @@ msgstr ""
 msgid "The circuit unitary matrix"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.measure_jit:1
-msgid ""
-"Take measurement to the given quantum lines. This method is jittable is "
-"and about 100 times faster than unjit version!"
+#: of tensorcircuit.circuit.Circuit.measure:1
+msgid "Take measurement on the given quantum lines by ``index``."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.measure_jit:4
-#: tensorcircuit.circuit.Circuit.measure_reference:16
+#: of tensorcircuit.circuit.Circuit.measure:16
+#: tensorcircuit.circuit.Circuit.measure_jit:4
 #: tensorcircuit.densitymatrix.DMCircuit.measure_jit:3
 msgid "Measure on which quantum line."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.measure_jit:6
-#: tensorcircuit.circuit.Circuit.measure_reference:17
+#: of tensorcircuit.circuit.Circuit.measure:17
+#: tensorcircuit.circuit.Circuit.measure_jit:6
 #: tensorcircuit.densitymatrix.DMCircuit.measure_jit:5
 msgid "If true, theoretical probability is also returned."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.measure_jit:8
-#: tensorcircuit.circuit.Circuit.measure_reference:18
+#: of tensorcircuit.circuit.Circuit.measure:18
+#: tensorcircuit.circuit.Circuit.measure_jit:8
 #: tensorcircuit.densitymatrix.DMCircuit.measure_jit:7
 msgid "The sample output and probability (optional) of the quantum line."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.measure_reference:1
-msgid "Take measurement on the given quantum lines by ``index``."
+#: of tensorcircuit.circuit.Circuit.measure_jit:1
+msgid ""
+"Take measurement to the given quantum lines. This method is jittable is "
+"and about 100 times faster than unjit version!"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.mid_measurement:1
@@ -5046,25 +4454,22 @@ msgid "A qiskit object of this circuit."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.unitary_kraus:1
-msgid ""
-"Apply unitary gates in ``kraus`` randomly based on corresponding "
-"``prob``. If ``prob`` is ``None``, this is reduced to kraus channel "
-"language."
+msgid "Apply unitary gates in ``kraus`` randomly based on corresponding ``prob``."
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.unitary_kraus:4
+#: of tensorcircuit.circuit.Circuit.unitary_kraus:3
 msgid "List of ``tc.gates.Gate`` or just Tensors"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.unitary_kraus:6
+#: of tensorcircuit.circuit.Circuit.unitary_kraus:5
 msgid "prob list with the same size as ``kraus``, defaults to None"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.unitary_kraus:8
+#: of tensorcircuit.circuit.Circuit.unitary_kraus:7
 msgid "random seed between 0 to 1, defaults to None"
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.unitary_kraus:10
+#: of tensorcircuit.circuit.Circuit.unitary_kraus:9
 msgid "shape [] int dtype tensor indicates which kraus gate is actually applied"
 msgstr ""
 
@@ -5269,88 +4674,12 @@ msgstr ""
 msgid "Quantum circuit class but with density matrix simulator"
 msgstr ""
 
-#: of tensorcircuit.densitymatrix.DMCircuit.__init__:1
-msgid "The density matrix simulator based on tensornetwork engine."
-msgstr ""
-
-#: of tensorcircuit.densitymatrix.DMCircuit.__init__:3
-msgid "Number of qubits"
-msgstr ""
-
-#: of tensorcircuit.densitymatrix.DMCircuit.__init__:5
-msgid "if True, nothing initialized, only for internal use, defaults to False"
-msgstr ""
-
-#: of tensorcircuit.densitymatrix.DMCircuit.__init__:7
-msgid "the state input for the circuit, defaults to None"
-msgstr ""
-
-#: of tensorcircuit.densitymatrix.DMCircuit.__init__:9
-msgid "the density matrix input for the circuit, defaults to None"
-msgstr ""
-
-#: of
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_kraus_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix2.DMCircuit2.apply_general_kraus_delayed.<locals>.apply:1
-msgid ""
-"Apply amplitudedamping quantum channel on the circuit. See "
-":py:meth:`tensorcircuit.channels.amplitudedampingchannel`"
-msgstr ""
-
-#: of
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_kraus_delayed.<locals>.apply:6
-#: tensorcircuit.densitymatrix2.DMCircuit2.apply_general_kraus_delayed.<locals>.apply:6
-msgid "Parameters for the channel."
-msgstr ""
-
-#: of tensorcircuit.densitymatrix.DMCircuit.densitymatrix:1
-msgid "Return the output density matrix of the circuit."
-msgstr ""
-
-#: of tensorcircuit.densitymatrix.DMCircuit.densitymatrix:3
-msgid ""
-"check whether the final return is a legal density matrix, defaults to "
-"False"
-msgstr ""
-
-#: of tensorcircuit.densitymatrix.DMCircuit.densitymatrix:5
-msgid "whether to reuse previous results, defaults to True"
-msgstr ""
-
-#: of tensorcircuit.densitymatrix.DMCircuit.densitymatrix:7
-msgid "The output densitymatrix in 2D shape tensor form"
-msgstr ""
-
-#: of
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_kraus_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix2.DMCircuit2.apply_general_kraus_delayed.<locals>.apply:1
-msgid ""
-"Apply depolarizing quantum channel on the circuit. See "
-":py:meth:`tensorcircuit.channels.depolarizingchannel`"
-msgstr ""
-
 #: of tensorcircuit.densitymatrix.DMCircuit.measure_jit:1
 msgid "Take measurement to the given quantum lines."
 msgstr ""
 
 #: of tensorcircuit.densitymatrix.DMCircuit.perfect_sampling:1
 msgid "Sampling bistrings from the circuit output based on quantum amplitudes."
-msgstr ""
-
-#: of
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_kraus_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix2.DMCircuit2.apply_general_kraus_delayed.<locals>.apply:1
-msgid ""
-"Apply phasedamping quantum channel on the circuit. See "
-":py:meth:`tensorcircuit.channels.phasedampingchannel`"
-msgstr ""
-
-#: of
-#: tensorcircuit.densitymatrix.DMCircuit.apply_general_kraus_delayed.<locals>.apply:1
-#: tensorcircuit.densitymatrix2.DMCircuit2.apply_general_kraus_delayed.<locals>.apply:1
-msgid ""
-"Apply reset quantum channel on the circuit. See "
-":py:meth:`tensorcircuit.channels.resetchannel`"
 msgstr ""
 
 #: ../../source/api/densitymatrix2.rst:2
@@ -5926,23 +5255,8 @@ msgid "Parameters for the gate"
 msgstr ""
 
 #: of
-#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid "Apply **CNOT** gate on the circuit."
-msgstr ""
-
-#: of
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
 msgid "Apply cr gate with parameters on the circuit."
-msgstr ""
-
-#: of
-#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid "Apply **CY** gate on the circuit."
-msgstr ""
-
-#: of
-#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid "Apply **CZ** gate on the circuit."
 msgstr ""
 
 #: of
@@ -5953,16 +5267,6 @@ msgstr ""
 #: of
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
 msgid "Apply exp1 gate with parameters on the circuit."
-msgstr ""
-
-#: of
-#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid "Apply **H** gate on the circuit."
-msgstr ""
-
-#: of
-#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid "Apply **I** gate on the circuit."
 msgstr ""
 
 #: of
@@ -5983,41 +5287,6 @@ msgstr ""
 #: of
 #: tensorcircuit.mpscircuit.MPSCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
 msgid "Apply rz gate with parameters on the circuit."
-msgstr ""
-
-#: of
-#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid "Apply **S** gate on the circuit."
-msgstr ""
-
-#: of
-#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid "Apply **SWAP** gate on the circuit."
-msgstr ""
-
-#: of
-#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid "Apply **T** gate on the circuit."
-msgstr ""
-
-#: of
-#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid "Apply **WROOT** gate on the circuit."
-msgstr ""
-
-#: of
-#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid "Apply **X** gate on the circuit."
-msgstr ""
-
-#: of
-#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid "Apply **Y** gate on the circuit."
-msgstr ""
-
-#: of
-#: tensorcircuit.mpscircuit.MPSCircuit.apply_general_gate_delayed.<locals>.apply:1
-msgid "Apply **Z** gate on the circuit."
 msgstr ""
 
 #: of tensorcircuit.mpscircuit.MPSCircuit.__init__:1
@@ -6289,63 +5558,6 @@ msgstr ""
 msgid "IMPORT"
 msgstr ""
 
-#: of tensorcircuit.quantum.PauliString2COO:1
-#: tensorcircuit.quantum.PauliStringSum2COO:1
-msgid "Generate tensorflow sparse matrix from Pauli string sum"
-msgstr ""
-
-#: of tensorcircuit.quantum.PauliString2COO:3
-msgid ""
-"1D Tensor representing for a Pauli string, e.g. [1, 0, 0, 3, 2] is for "
-":math:`X_0Z_3Y_4`"
-msgstr ""
-
-#: of tensorcircuit.quantum.PauliString2COO:6
-msgid ""
-"the weight for the Pauli string defaults to None (all Pauli strings "
-"weight 1.0)"
-msgstr ""
-
-#: of tensorcircuit.quantum.PauliString2COO:9
-msgid "the tensorflow sparse matrix"
-msgstr ""
-
-#: of tensorcircuit.quantum.PauliStringSum2COO:3
-#: tensorcircuit.quantum.PauliStringSum2COO_numpy:3
-#: tensorcircuit.quantum.PauliStringSum2Dense:3
-msgid ""
-"2D Tensor, each row is for a Pauli string, e.g. [1, 0, 0, 3, 2] is for "
-":math:`X_0Z_3Y_4`"
-msgstr ""
-
-#: of tensorcircuit.quantum.PauliStringSum2COO:6
-#: tensorcircuit.quantum.PauliStringSum2COO_numpy:6
-#: tensorcircuit.quantum.PauliStringSum2Dense:6
-msgid ""
-"1D Tensor, each element corresponds the weight for each Pauli string "
-"defaults to None (all Pauli strings weight 1.0)"
-msgstr ""
-
-#: of tensorcircuit.quantum.PauliStringSum2COO:9
-msgid "the tensorflow coo sparse matrix"
-msgstr ""
-
-#: of tensorcircuit.quantum.PauliStringSum2COO_numpy:1
-msgid "Generate scipy sparse matrix from Pauli string sum"
-msgstr ""
-
-#: of tensorcircuit.quantum.PauliStringSum2COO_numpy:9
-msgid "the scipy coo sparse matrix"
-msgstr ""
-
-#: of tensorcircuit.quantum.PauliStringSum2Dense:1
-msgid "Generate tensorflow dense matrix from Pauli string sum"
-msgstr ""
-
-#: of tensorcircuit.quantum.PauliStringSum2Dense:9
-msgid "the tensorflow dense matrix"
-msgstr ""
-
 #: of tensorcircuit.quantum.QuAdjointVector:1 tensorcircuit.quantum.QuScalar:1
 #: tensorcircuit.quantum.QuVector:1
 msgid "Bases: :py:class:`tensorcircuit.quantum.QuOperator`"
@@ -6401,63 +5613,6 @@ msgstr ""
 
 #: of tensorcircuit.quantum.QuAdjointVector.from_tensor:33
 msgid "The new constructed QuAdjointVector give from the given tensor."
-msgstr ""
-
-#: of tensorcircuit.quantum.QuAdjointVector.projector:1
-#: tensorcircuit.quantum.QuVector.projector:1
-msgid ""
-"The projector of the operator. The operator, as a linear operator, on the"
-" adjoint of the operator."
-msgstr ""
-
-#: of tensorcircuit.quantum.QuAdjointVector.projector:4
-msgid ""
-"Set :math:`A` is the operator in matrix form, then the projector of "
-"operator is defined as: :math:`A^\\dagger A`"
-msgstr ""
-
-#: of tensorcircuit.quantum.QuAdjointVector.projector:6
-#: tensorcircuit.quantum.QuVector.projector:6
-msgid "The projector of the operator."
-msgstr ""
-
-#: of tensorcircuit.quantum.QuAdjointVector.reduced_density:1
-#: tensorcircuit.quantum.QuVector.reduced_density:1
-msgid "The reduced density of the operator."
-msgstr ""
-
-#: of tensorcircuit.quantum.QuAdjointVector.reduced_density:3
-#: tensorcircuit.quantum.QuVector.reduced_density:3
-msgid ""
-"Set :math:`A` is the matrix of the operator, then the reduced density is "
-"defined as:"
-msgstr ""
-
-#: of tensorcircuit.quantum.QuAdjointVector.reduced_density:5
-msgid "\\mathrm{Tr}_{subsystems}(A^\\dagger A)"
-msgstr ""
-
-#: of tensorcircuit.quantum.QuAdjointVector.reduced_density:9
-#: tensorcircuit.quantum.QuVector.reduced_density:9
-msgid ""
-"Firstly, take the projector of the operator, then trace out the "
-"subsystems to trace out are supplied as indices, so that dangling edges "
-"are connected to each other as: `out_edges[i] ^ in_edges[i] for i in "
-"subsystems_to_trace_out` This does not modify the original network. The "
-"original ordering of the remaining subsystems is maintained."
-msgstr ""
-
-#: of tensorcircuit.quantum.QuAdjointVector.reduced_density:16
-#: tensorcircuit.quantum.QuOperator.partial_trace:8
-#: tensorcircuit.quantum.QuVector.reduced_density:16
-msgid "Indices of subsystems to trace out."
-msgstr ""
-
-#: of tensorcircuit.quantum.QuAdjointVector.reduced_density:18
-#: tensorcircuit.quantum.QuVector.reduced_density:18
-msgid ""
-"The QuOperator of the reduced density of the operator with given "
-"subsystems."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator:1
@@ -6549,31 +5704,17 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.eval:8
-#: tensorcircuit.quantum.QuOperator.eval_matrix:6
 msgid ""
 "Manually specify the axis ordering of the final tensor. The default "
 "ordering is determined by `out_edges` and `in_edges` (see above)."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.eval:11
-#: tensorcircuit.quantum.QuOperator.eval_matrix:9
 msgid "Node count '{}' > 1 after contraction!"
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.eval:12
 msgid "The final tensor representing the operator."
-msgstr ""
-
-#: of tensorcircuit.quantum.QuOperator.eval_matrix:1
-msgid ""
-"Contracts the tensor network in place and returns the final tensor in two"
-" dimentional matrix. The default ordering for the axes of the final "
-"tensor is: (:math:`\\prod` dimension of out_edges, :math:`\\prod` "
-"dimension of in_edges)"
-msgstr ""
-
-#: of tensorcircuit.quantum.QuOperator.eval_matrix:10
-msgid "The two-dimentional tensor representing the operator."
 msgstr ""
 
 #: of tensorcircuit.quantum.QuOperator.from_tensor:1
@@ -6599,24 +5740,6 @@ msgstr ""
 msgid "The new operator."
 msgstr ""
 
-#: of tensorcircuit.quantum.QuOperator.is_adjoint_vector:1
-msgid ""
-"Returns a bool indicating if QuOperator is an adjoint vector. Examples "
-"can be found in the `QuOperator.from_tensor`."
-msgstr ""
-
-#: of tensorcircuit.quantum.QuOperator.is_scalar:1
-msgid ""
-"Returns a bool indicating if QuOperator is a scalar. Examples can be "
-"found in the `QuOperator.from_tensor`."
-msgstr ""
-
-#: of tensorcircuit.quantum.QuOperator.is_vector:1
-msgid ""
-"Returns a bool indicating if QuOperator is a vector. Examples can be "
-"found in the `QuOperator.from_tensor`."
-msgstr ""
-
 #: of tensorcircuit.quantum.QuOperator.nodes:1
 msgid "All tensor-network nodes involved in the operator."
 msgstr ""
@@ -6636,6 +5759,10 @@ msgid ""
 "subsystems is maintained."
 msgstr ""
 
+#: of tensorcircuit.quantum.QuOperator.partial_trace:8
+msgid "Indices of subsystems to trace out."
+msgstr ""
+
 #: of tensorcircuit.quantum.QuOperator.partial_trace:10
 msgid "A new QuOperator or QuScalar representing the result."
 msgstr ""
@@ -6643,7 +5770,7 @@ msgstr ""
 #: of tensorcircuit.quantum.QuOperator.tensor_product:1
 msgid ""
 "Tensor product with another operator. Given two operators `A` and `B`, "
-"produces a new operator `AB` representing :math:`A ⊗ B`. The `out_edges` "
+"produces a new operator `AB` representing `A` ⊗ `B`. The `out_edges` "
 "(`in_edges`) of `AB` is simply the concatenation of the `out_edges` "
 "(`in_edges`) of `A.copy()` with that of `B.copy()`: `new_out_edges = "
 "[*out_edges_A_copy, *out_edges_B_copy]` `new_in_edges = "
@@ -6723,16 +5850,6 @@ msgstr ""
 msgid "The new constructed QuVector from the given tensor."
 msgstr ""
 
-#: of tensorcircuit.quantum.QuVector.projector:4
-msgid ""
-"Set :math:`A` is the operator in matrix form, then the projector of "
-"operator is defined as: :math:`A A^\\dagger`"
-msgstr ""
-
-#: of tensorcircuit.quantum.QuVector.reduced_density:5
-msgid "\\mathrm{Tr}_{subsystems}(A A^\\dagger)"
-msgstr ""
-
 #: of tensorcircuit.quantum.check_spaces:1
 msgid ""
 "Check the vector spaces represented by two lists of edges are compatible."
@@ -6766,26 +5883,6 @@ msgstr ""
 
 #: of tensorcircuit.quantum.correlation_from_counts:16
 msgid "Correlation expectation from measurement shots."
-msgstr ""
-
-#: of tensorcircuit.quantum.double_state:1
-msgid "Compute the double state of the given Hamiltonian operator ``h``."
-msgstr ""
-
-#: of tensorcircuit.quantum.double_state:3 tensorcircuit.quantum.gibbs_state:3
-#: tensorcircuit.quantum.truncated_free_energy:5
-msgid "Hamiltonian operator in form of Tensor."
-msgstr ""
-
-#: of tensorcircuit.quantum.double_state:5 tensorcircuit.quantum.free_energy:17
-#: tensorcircuit.quantum.gibbs_state:5
-#: tensorcircuit.quantum.renyi_free_energy:16
-#: tensorcircuit.quantum.truncated_free_energy:7
-msgid "Constant for the optimization, default is 1."
-msgstr ""
-
-#: of tensorcircuit.quantum.double_state:7
-msgid "The double state of ``h`` with the given ``beta``."
 msgstr ""
 
 #: of tensorcircuit.quantum.eliminate_identities:1
@@ -6823,26 +5920,6 @@ msgstr ""
 msgid "Entropy on the given density matrix."
 msgstr ""
 
-#: of tensorcircuit.quantum.fidelity:1
-msgid "Return fidelity scalar between two states rho and rho0."
-msgstr ""
-
-#: of tensorcircuit.quantum.fidelity:3
-msgid "\\operatorname{Tr}(\\sqrt{\\sqrt{rho} rho_0 \\sqrt{rho}})"
-msgstr ""
-
-#: of tensorcircuit.quantum.fidelity:7 tensorcircuit.quantum.fidelity:9
-#: tensorcircuit.quantum.mutual_information:3 tensorcircuit.quantum.taylorlnm:3
-#: tensorcircuit.quantum.trace_distance:3
-#: tensorcircuit.quantum.trace_distance:5
-#: tensorcircuit.quantum.truncated_free_energy:3
-msgid "The density matrix in form of Tensor."
-msgstr ""
-
-#: of tensorcircuit.quantum.fidelity:11
-msgid "The sqrtm of a Hermitian matrix ``a``."
-msgstr ""
-
 #: of tensorcircuit.quantum.free_energy:1
 msgid "Compute the free energy of the given density matrix."
 msgstr ""
@@ -6850,6 +5927,11 @@ msgstr ""
 #: of tensorcircuit.quantum.free_energy:15
 #: tensorcircuit.quantum.renyi_free_energy:14
 msgid "Hamiltonian operator in form of Tensor or QuOperator."
+msgstr ""
+
+#: of tensorcircuit.quantum.free_energy:17
+#: tensorcircuit.quantum.renyi_free_energy:16
+msgid "Constant for the optimization, default is 1."
 msgstr ""
 
 #: of tensorcircuit.quantum.free_energy:22
@@ -6873,14 +5955,6 @@ msgstr ""
 
 #: of tensorcircuit.quantum.generate_local_hamiltonian:9
 msgid "The Hamiltonian operator in form of QuOperator or matrix."
-msgstr ""
-
-#: of tensorcircuit.quantum.gibbs_state:1
-msgid "Compute the Gibbs state of the given Hamiltonian operator ``h``."
-msgstr ""
-
-#: of tensorcircuit.quantum.gibbs_state:7
-msgid "The Gibbs state of ``h`` with the given ``beta``."
 msgstr ""
 
 #: of tensorcircuit.quantum.heisenberg_hamiltonian:1
@@ -6975,18 +6049,6 @@ msgstr ""
 
 #: of tensorcircuit.quantum.measurement_counts:21
 msgid "The counts for each bit string measured."
-msgstr ""
-
-#: of tensorcircuit.quantum.mutual_information:1
-msgid "Mutual information between AB subsystem described by ``cut``."
-msgstr ""
-
-#: of tensorcircuit.quantum.mutual_information:5
-msgid "The AB subsystem."
-msgstr ""
-
-#: of tensorcircuit.quantum.mutual_information:7
-msgid "The mutual information between AB subsystem described by ``cut``."
 msgstr ""
 
 #: of tensorcircuit.quantum.quantum_constructor:1
@@ -7096,18 +6158,6 @@ msgid ""
 "bitstring basis."
 msgstr ""
 
-#: of tensorcircuit.quantum.taylorlnm:1
-msgid "Taylor expansion of :math:`ln(x+1)`."
-msgstr ""
-
-#: of tensorcircuit.quantum.taylorlnm:5
-msgid "The :math:`k` th order, default is 2."
-msgstr ""
-
-#: of tensorcircuit.quantum.taylorlnm:7
-msgid "The :math:`k` th order of Taylor expansion of :math:`ln(x+1)`."
-msgstr ""
-
 #: of tensorcircuit.quantum.tn2qop:1
 msgid "Convert MPO in TensorNetwork package to QuOperator."
 msgstr ""
@@ -7116,42 +6166,16 @@ msgstr ""
 msgid "MPO in the form of TensorNetwork package"
 msgstr ""
 
-#: of tensorcircuit.quantum.trace_distance:1
-msgid ""
-"Compute the trace distance between two density matrix ``rho`` and "
-"``rho2``."
-msgstr ""
-
-#: of tensorcircuit.quantum.trace_distance:7
-msgid "Epsilon, defaults to 1e-12"
-msgstr ""
-
-#: of tensorcircuit.quantum.trace_distance:9
-msgid "The trace distance between two density matrix ``rho`` and ``rho2``."
-msgstr ""
-
 #: of tensorcircuit.quantum.trace_product:1
 msgid "Compute the trace of several inputs ``o`` as tensor or ``QuOperator``."
 msgstr ""
 
 #: of tensorcircuit.quantum.trace_product:3
-msgid "\\operatorname{Tr}(\\prod_i O_i)"
+msgid "\\mathrm{Tr}(\\prod_i O_i)"
 msgstr ""
 
 #: of tensorcircuit.quantum.trace_product:22
 msgid "The trace of several inputs."
-msgstr ""
-
-#: of tensorcircuit.quantum.truncated_free_energy:1
-msgid "Compute the truncated free energy from the given density matrix ``rho``."
-msgstr ""
-
-#: of tensorcircuit.quantum.truncated_free_energy:9
-msgid "The :math:`k` th order, defaults to 2"
-msgstr ""
-
-#: of tensorcircuit.quantum.truncated_free_energy:11
-msgid "The :math:`k` th order of the truncated free energy."
 msgstr ""
 
 #: ../../source/api/simplify.rst:2
@@ -7222,50 +6246,6 @@ msgstr ""
 msgid "Circuit out"
 msgstr ""
 
-#: of tensorcircuit.templates.blocks.example_block:1
-msgid ""
-"The circuit ansatz is firstly one layer of Hadamard gates and then we "
-"have ``nlayers`` blocks of :math:`e^{i\\theta Z_iZ_{i+1}}` two-qubit gate"
-" in ladder layout, following rx gate."
-msgstr ""
-
-#: of tensorcircuit.templates.blocks.example_block:5
-msgid "The circuit"
-msgstr ""
-
-#: of tensorcircuit.templates.blocks.example_block:7
-msgid "paramter tensor with 2*nlayer*n elements"
-msgstr ""
-
-#: of tensorcircuit.templates.blocks.example_block:9
-msgid "number of ZZ+RX blocks, defaults to 2"
-msgstr ""
-
-#: of tensorcircuit.templates.blocks.example_block:11
-msgid "whether use SVD split to reduce ZZ gate bond dimension, defaults to False"
-msgstr ""
-
-#: of tensorcircuit.templates.blocks.example_block:14
-msgid "The circuit with example ansatz attached"
-msgstr ""
-
-#: of tensorcircuit.templates.blocks.state_centric:1
-msgid ""
-"Function decorator wraps the function with the first input and output in "
-"the format of circuit, the wrapped function has the first input and the "
-"output as the state tensor."
-msgstr ""
-
-#: of tensorcircuit.templates.blocks.state_centric:4
-msgid "Function with the fist input and the output as ``Circuit`` object."
-msgstr ""
-
-#: of tensorcircuit.templates.blocks.state_centric:6
-msgid ""
-"Wrapped function with the first input and the output as the state tensor "
-"correspondingly."
-msgstr ""
-
 #: ../../source/api/templates/chems.rst:2
 msgid "tensorcircuit.templates.chems"
 msgstr ""
@@ -7306,51 +6286,6 @@ msgstr ""
 
 #: of tensorcircuit.templates.graphs:1
 msgid "Some common graphs and lattices"
-msgstr ""
-
-#: of tensorcircuit.templates.graphs.Grid2DCoord:1
-msgid "Two-dimensional grid lattice"
-msgstr ""
-
-#: of tensorcircuit.templates.graphs.Grid2DCoord.__init__:1
-msgid "number of rows"
-msgstr ""
-
-#: of tensorcircuit.templates.graphs.Grid2DCoord.__init__:3
-msgid "number of cols"
-msgstr ""
-
-#: of tensorcircuit.templates.graphs.Grid2DCoord.all_cols:1
-msgid "return all col edge with 1d index encoding"
-msgstr ""
-
-#: of tensorcircuit.templates.graphs.Grid2DCoord.all_cols:3
-#: tensorcircuit.templates.graphs.Grid2DCoord.all_rows:3
-msgid ""
-"whether to include pbc edges (periodic boundary condition), defaults to "
-"False"
-msgstr ""
-
-#: of tensorcircuit.templates.graphs.Grid2DCoord.all_cols:6
-msgid "list of col edge"
-msgstr ""
-
-#: of tensorcircuit.templates.graphs.Grid2DCoord.all_rows:1
-msgid "return all row edge with 1d index encoding"
-msgstr ""
-
-#: of tensorcircuit.templates.graphs.Grid2DCoord.all_rows:6
-msgid "list of row edge"
-msgstr ""
-
-#: of tensorcircuit.templates.graphs.Grid2DCoord.lattice_graph:1
-msgid "Get the 2D grid lattice in ``nx.Graph`` format"
-msgstr ""
-
-#: of tensorcircuit.templates.graphs.Grid2DCoord.lattice_graph:3
-msgid ""
-"whether to include pbc edges (periodic boundary condition), defaults to "
-"True"
 msgstr ""
 
 #: of tensorcircuit.templates.graphs.Line1D:1
@@ -7516,50 +6451,6 @@ msgstr ""
 msgid "Circuit object translation in different packages"
 msgstr ""
 
-#: of tensorcircuit.translation.perm_matrix:1
-msgid ""
-"Generate a permutation matrix P. Due to the different convention or "
-"qubits' order in qiskit and tensorcircuit, the unitary represented by the"
-" same circuit is different. They are related by this permutation matrix "
-"P: P @ U_qiskit @ P = U_tc"
-msgstr ""
-
-#: of tensorcircuit.translation.perm_matrix:7
-#: tensorcircuit.translation.qir2qiskit:16
-#: tensorcircuit.translation.qiskit2tc:14 tensorcircuit.vis.qir2tex:12
-msgid "# of qubits"
-msgstr ""
-
-#: of tensorcircuit.translation.perm_matrix:9
-msgid "The permutation matrix P"
-msgstr ""
-
-#: of tensorcircuit.translation.qir2qiskit:1
-msgid ""
-"Generate a qiskit quantum circuit using the quantum intermediate "
-"representation (qir) in tensorcircuit."
-msgstr ""
-
-#: of tensorcircuit.translation.qir2qiskit:18
-msgid "qiskit QuantumCircuit object"
-msgstr ""
-
-#: of tensorcircuit.translation.qiskit2tc:1
-msgid "Generate a tensorcircuit circuit using the quantum circuit data in qiskit."
-msgstr ""
-
-#: of tensorcircuit.translation.qiskit2tc:12
-msgid "Quantum circuit data from qiskit."
-msgstr ""
-
-#: of tensorcircuit.translation.qiskit2tc:16
-msgid "Input state of the circuit. Default is None."
-msgstr ""
-
-#: of tensorcircuit.translation.qiskit2tc:18
-msgid "A quantum circuit in tensorcircuit"
-msgstr ""
-
 #: ../../source/api/utils.rst:2
 msgid "tensorcircuit.utils"
 msgstr ""
@@ -7610,55 +6501,8 @@ msgstr ""
 msgid "Visualization on circuits"
 msgstr ""
 
-#: of tensorcircuit.vis.gate_name_trans:1
-msgid ""
-"Translating from the gate name to gate information including the number "
-"of control qubits and the reduced gate name."
-msgstr ""
-
-#: of tensorcircuit.vis.gate_name_trans:10
-msgid "String of gate name"
-msgstr ""
-
-#: of tensorcircuit.vis.gate_name_trans:12
-msgid "# of control qubits, reduced gate name"
-msgstr ""
-
-#: of tensorcircuit.vis.qir2tex:1
-msgid ""
-"Generate Tex code from 'qir' string to illustrate the circuit structure. "
-"This visualization is based on quantikz package."
-msgstr ""
-
-#: of tensorcircuit.vis.qir2tex:10
-msgid "The quantum intermediate representation of a circuit in tensorcircuit."
-msgstr ""
-
-#: of tensorcircuit.vis.qir2tex:14
-msgid "Initial state, default is an all zero state '000...000'."
-msgstr ""
-
-#: of tensorcircuit.vis.qir2tex:16
-msgid "Measurement Basis, default is None which means no"
-msgstr ""
-
-#: of tensorcircuit.vis.qir2tex:17
-msgid ""
-"measurement in the end of the circuit. :type measure: Optional[List[str]]"
-" :param rcompress: If true, a right compression of the circuit will be "
-"conducted. A right compression means we will try to shift gates from "
-"right to left if possible. Default is false. :type rcompress: bool :param"
-" lcompress: If true, a left compression of the circuit will be conducted."
-" A left compression means we will try to shift gates from left to right "
-"if possible. Default is false. :type lcompress: bool :param standalone: "
-"If true, the tex code will be designed to generate a standalone document."
-" Default is false which means the generated tex code is just a quantikz "
-"code block. :type standalone: bool :param return_string_table: If true, a"
-" string table of tex code will also be returned. Default is false. :type "
-"return_string_table: bool :return: Tex code of circuit visualization "
-"based on quantikz package. If return_string_table is true, a string table"
-" of tex code will also be returned. :rtype: Union[str, Tuple[str, "
-"List[List[str]]]]"
+#: of tensorcircuit.vis.qir2tex:2
+msgid "# TODO(@YHPeter): add examples"
 msgstr ""
 
 #: of tensorcircuit.vis.render_pdf:1
@@ -11161,5 +10005,879 @@ msgstr ""
 #~ msgid ""
 #~ "Apply unitary gates in ``kraus`` "
 #~ "randomly based on corresponding ``prob``."
+#~ msgstr ""
+
+#~ msgid "Get the eigenvalues of matrix ``a``."
+#~ msgstr ""
+
+#~ msgid "eigenvalues of ``a``"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **ANY** gate with parameters on"
+#~ " the circuit. See "
+#~ ":py:meth:`tensorcircuit.gates.any_gate`."
+#~ msgstr ""
+
+#~ msgid "Qubit number that the gate applies on."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **CNOT** gate on the circuit. "
+#~ "See :py:meth:`tensorcircuit.gates.cnot_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Qubit number that the gate applies "
+#~ "on. The matrix for the gate is"
+#~ "  .. math::        \\begin{bmatrix}    1.+0.j "
+#~ "& 0.+0.j & 0.+0.j & 0.+0.j\\\\    "
+#~ "0.+0.j & 1.+0.j & 0.+0.j & "
+#~ "0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j"
+#~ " & 1.+0.j\\\\    0.+0.j & 0.+0.j &"
+#~ " 1.+0.j & 0.+0.j \\end{bmatrix}"
+#~ msgstr ""
+
+#~ msgid "Qubit number that the gate applies on. The matrix for the gate is"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **CR** gate with parameters on "
+#~ "the circuit. See "
+#~ ":py:meth:`tensorcircuit.gates.cr_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **CRX** gate with parameters on"
+#~ " the circuit. See "
+#~ ":py:meth:`tensorcircuit.gates.crx_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **CRY** gate with parameters on"
+#~ " the circuit. See "
+#~ ":py:meth:`tensorcircuit.gates.cry_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **CRZ** gate with parameters on"
+#~ " the circuit. See "
+#~ ":py:meth:`tensorcircuit.gates.crz_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **CY** gate on the circuit. "
+#~ "See :py:meth:`tensorcircuit.gates.cy_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Qubit number that the gate applies "
+#~ "on. The matrix for the gate is"
+#~ "  .. math::        \\begin{bmatrix}    1.+0.j "
+#~ "& 0.+0.j & 0.+0.j & 0.+0.j\\\\    "
+#~ "0.+0.j & 1.+0.j & 0.+0.j & "
+#~ "0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j"
+#~ " & 0.-1.j\\\\    0.+0.j & 0.+0.j &"
+#~ " 0.+1.j & 0.+0.j \\end{bmatrix}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **CZ** gate on the circuit. "
+#~ "See :py:meth:`tensorcircuit.gates.cz_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Qubit number that the gate applies "
+#~ "on. The matrix for the gate is"
+#~ "  .. math::        \\begin{bmatrix}    1.+0.j "
+#~ "& 0.+0.j & 0.+0.j & 0.+0.j\\\\    "
+#~ "0.+0.j & 1.+0.j & 0.+0.j & "
+#~ "0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j"
+#~ " & 0.+0.j\\\\    0.+0.j & 0.+0.j &"
+#~ " 0.+0.j & -1.+0.j \\end{bmatrix}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **EXP** gate with parameters on"
+#~ " the circuit. See "
+#~ ":py:meth:`tensorcircuit.gates.exp_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **EXP1** gate with parameters on"
+#~ " the circuit. See "
+#~ ":py:meth:`tensorcircuit.gates.exp1_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **FREDKIN** gate on the circuit."
+#~ " See :py:meth:`tensorcircuit.gates.fredkin_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Qubit number that the gate applies "
+#~ "on. The matrix for the gate is"
+#~ "  .. math::        \\begin{bmatrix}    1.+0.j "
+#~ "& 0.+0.j & 0.+0.j & 0.+0.j & "
+#~ "0.+0.j & 0.+0.j & 0.+0.j & "
+#~ "0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j"
+#~ " & 0.+0.j & 0.+0.j & 0.+0.j &"
+#~ " 0.+0.j & 0.+0.j\\\\    0.+0.j & "
+#~ "0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j"
+#~ " & 0.+0.j & 0.+0.j & 0.+0.j\\\\"
+#~ "    0.+0.j & 0.+0.j & 0.+0.j & "
+#~ "1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j"
+#~ " & 0.+0.j\\\\    0.+0.j & 0.+0.j &"
+#~ " 0.+0.j & 0.+0.j & 1.+0.j & "
+#~ "0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j"
+#~ " & 0.+0.j & 0.+0.j & 0.+0.j &"
+#~ " 0.+0.j & 0.+0.j & 1.+0.j & "
+#~ "0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j"
+#~ " & 0.+0.j & 0.+0.j & 1.+0.j &"
+#~ " 0.+0.j & 0.+0.j\\\\    0.+0.j & "
+#~ "0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j"
+#~ " & 0.+0.j & 0.+0.j & 1.+0.j "
+#~ "\\end{bmatrix}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **H** gate on the circuit. "
+#~ "See :py:meth:`tensorcircuit.gates.h_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Qubit number that the gate applies "
+#~ "on. The matrix for the gate is"
+#~ "  .. math::        \\begin{bmatrix}    "
+#~ "0.70710677+0.j & 0.70710677+0.j\\\\    "
+#~ "0.70710677+0.j & -0.70710677+0.j \\end{bmatrix}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **I** gate on the circuit. "
+#~ "See :py:meth:`tensorcircuit.gates.i_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Qubit number that the gate applies "
+#~ "on. The matrix for the gate is"
+#~ "  .. math::        \\begin{bmatrix}    1.+0.j "
+#~ "& 0.+0.j\\\\    0.+0.j & 1.+0.j "
+#~ "\\end{bmatrix}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **ISWAP** gate on the circuit. "
+#~ "See :py:meth:`tensorcircuit.gates.iswap_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Qubit number that the gate applies "
+#~ "on. The matrix for the gate is"
+#~ "  .. math::        \\begin{bmatrix}    1.+0.j "
+#~ "& 0.+0.j & 0.+0.j & 0.+0.j\\\\    "
+#~ "0.+0.j & 0.+0.j & 0.+1.j & "
+#~ "0.+0.j\\\\    0.+0.j & 0.+1.j & 0.+0.j"
+#~ " & 0.+0.j\\\\    0.+0.j & 0.+0.j &"
+#~ " 0.+0.j & 1.+0.j \\end{bmatrix}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **ORX** gate with parameters on"
+#~ " the circuit. See "
+#~ ":py:meth:`tensorcircuit.gates.orx_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **ORY** gate with parameters on"
+#~ " the circuit. See "
+#~ ":py:meth:`tensorcircuit.gates.ory_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **ORZ** gate with parameters on"
+#~ " the circuit. See "
+#~ ":py:meth:`tensorcircuit.gates.orz_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **OX** gate on the circuit. "
+#~ "See :py:meth:`tensorcircuit.gates.ox_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Qubit number that the gate applies "
+#~ "on. The matrix for the gate is"
+#~ "  .. math::        \\begin{bmatrix}    0.+0.j "
+#~ "& 1.+0.j & 0.+0.j & 0.+0.j\\\\    "
+#~ "1.+0.j & 0.+0.j & 0.+0.j & "
+#~ "0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j"
+#~ " & 0.+0.j\\\\    0.+0.j & 0.+0.j &"
+#~ " 0.+0.j & 1.+0.j \\end{bmatrix}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **OY** gate on the circuit. "
+#~ "See :py:meth:`tensorcircuit.gates.oy_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Qubit number that the gate applies "
+#~ "on. The matrix for the gate is"
+#~ "  .. math::        \\begin{bmatrix}    0.+0.j "
+#~ "& 0.-1.j & 0.+0.j & 0.+0.j\\\\    "
+#~ "0.+1.j & 0.+0.j & 0.+0.j & "
+#~ "0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j"
+#~ " & 0.+0.j\\\\    0.+0.j & 0.+0.j &"
+#~ " 0.+0.j & 1.+0.j \\end{bmatrix}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **OZ** gate on the circuit. "
+#~ "See :py:meth:`tensorcircuit.gates.oz_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Qubit number that the gate applies "
+#~ "on. The matrix for the gate is"
+#~ "  .. math::        \\begin{bmatrix}    1.+0.j "
+#~ "& 0.+0.j & 0.+0.j & 0.+0.j\\\\    "
+#~ "0.+0.j & -1.+0.j & 0.+0.j & "
+#~ "0.+0.j\\\\    0.+0.j & 0.+0.j & 1.+0.j"
+#~ " & 0.+0.j\\\\    0.+0.j & 0.+0.j &"
+#~ " 0.+0.j & 1.+0.j \\end{bmatrix}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **R** gate with parameters on "
+#~ "the circuit. See "
+#~ ":py:meth:`tensorcircuit.gates.r_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **RX** gate with parameters on "
+#~ "the circuit. See "
+#~ ":py:meth:`tensorcircuit.gates.rx_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **RY** gate with parameters on "
+#~ "the circuit. See "
+#~ ":py:meth:`tensorcircuit.gates.ry_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **RZ** gate with parameters on "
+#~ "the circuit. See "
+#~ ":py:meth:`tensorcircuit.gates.rz_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **S** gate on the circuit. "
+#~ "See :py:meth:`tensorcircuit.gates.s_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Qubit number that the gate applies "
+#~ "on. The matrix for the gate is"
+#~ "  .. math::        \\begin{bmatrix}    1.+0.j "
+#~ "& 0.+0.j\\\\    0.+0.j & 0.+1.j "
+#~ "\\end{bmatrix}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **SD** gate on the circuit. "
+#~ "See :py:meth:`tensorcircuit.gates.sd_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Qubit number that the gate applies "
+#~ "on. The matrix for the gate is"
+#~ "  .. math::        \\begin{bmatrix}    1.+0.j "
+#~ "& 0.+0.j\\\\    0.+0.j & 0.-1.j "
+#~ "\\end{bmatrix}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **SWAP** gate on the circuit. "
+#~ "See :py:meth:`tensorcircuit.gates.swap_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Qubit number that the gate applies "
+#~ "on. The matrix for the gate is"
+#~ "  .. math::        \\begin{bmatrix}    1.+0.j "
+#~ "& 0.+0.j & 0.+0.j & 0.+0.j\\\\    "
+#~ "0.+0.j & 0.+0.j & 1.+0.j & "
+#~ "0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j"
+#~ " & 0.+0.j\\\\    0.+0.j & 0.+0.j &"
+#~ " 0.+0.j & 1.+0.j \\end{bmatrix}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **T** gate on the circuit. "
+#~ "See :py:meth:`tensorcircuit.gates.t_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Qubit number that the gate applies "
+#~ "on. The matrix for the gate is"
+#~ "  .. math::        \\begin{bmatrix}    1. &"
+#~ " +0.j & 0. & +0.j\\\\    0. &"
+#~ " +0.j & 0.70710677+0.70710677j \\end{bmatrix}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **TD** gate on the circuit. "
+#~ "See :py:meth:`tensorcircuit.gates.td_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Qubit number that the gate applies "
+#~ "on. The matrix for the gate is"
+#~ "  .. math::        \\begin{bmatrix}    1. &"
+#~ " +0.j & 0. & +0.j\\\\    0. &"
+#~ " +0.j & 0.70710677-0.70710677j \\end{bmatrix}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **TOFFOLI** gate on the circuit."
+#~ " See :py:meth:`tensorcircuit.gates.toffoli_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Qubit number that the gate applies "
+#~ "on. The matrix for the gate is"
+#~ "  .. math::        \\begin{bmatrix}    1.+0.j "
+#~ "& 0.+0.j & 0.+0.j & 0.+0.j & "
+#~ "0.+0.j & 0.+0.j & 0.+0.j & "
+#~ "0.+0.j\\\\    0.+0.j & 1.+0.j & 0.+0.j"
+#~ " & 0.+0.j & 0.+0.j & 0.+0.j &"
+#~ " 0.+0.j & 0.+0.j\\\\    0.+0.j & "
+#~ "0.+0.j & 1.+0.j & 0.+0.j & 0.+0.j"
+#~ " & 0.+0.j & 0.+0.j & 0.+0.j\\\\"
+#~ "    0.+0.j & 0.+0.j & 0.+0.j & "
+#~ "1.+0.j & 0.+0.j & 0.+0.j & 0.+0.j"
+#~ " & 0.+0.j\\\\    0.+0.j & 0.+0.j &"
+#~ " 0.+0.j & 0.+0.j & 1.+0.j & "
+#~ "0.+0.j & 0.+0.j & 0.+0.j\\\\    0.+0.j"
+#~ " & 0.+0.j & 0.+0.j & 0.+0.j &"
+#~ " 0.+0.j & 1.+0.j & 0.+0.j & "
+#~ "0.+0.j\\\\    0.+0.j & 0.+0.j & 0.+0.j"
+#~ " & 0.+0.j & 0.+0.j & 0.+0.j &"
+#~ " 0.+0.j & 1.+0.j\\\\    0.+0.j & "
+#~ "0.+0.j & 0.+0.j & 0.+0.j & 0.+0.j"
+#~ " & 0.+0.j & 1.+0.j & 0.+0.j "
+#~ "\\end{bmatrix}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **WROOT** gate on the circuit. "
+#~ "See :py:meth:`tensorcircuit.gates.wroot_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Qubit number that the gate applies "
+#~ "on. The matrix for the gate is"
+#~ "  .. math::        \\begin{bmatrix}    "
+#~ "0.70710677+0.j & -0.5 & -0.5j\\\\    0.5"
+#~ " & -0.5j & 0.70710677+0.j \\end{bmatrix}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **X** gate on the circuit. "
+#~ "See :py:meth:`tensorcircuit.gates.x_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Qubit number that the gate applies "
+#~ "on. The matrix for the gate is"
+#~ "  .. math::        \\begin{bmatrix}    0.+0.j "
+#~ "& 1.+0.j\\\\    1.+0.j & 0.+0.j "
+#~ "\\end{bmatrix}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **Y** gate on the circuit. "
+#~ "See :py:meth:`tensorcircuit.gates.y_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Qubit number that the gate applies "
+#~ "on. The matrix for the gate is"
+#~ "  .. math::        \\begin{bmatrix}    0.+0.j "
+#~ "& 0.-1.j\\\\    0.+1.j & 0.+0.j "
+#~ "\\end{bmatrix}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply **Z** gate on the circuit. "
+#~ "See :py:meth:`tensorcircuit.gates.z_gate`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Qubit number that the gate applies "
+#~ "on. The matrix for the gate is"
+#~ "  .. math::        \\begin{bmatrix}    1.+0.j "
+#~ "& 0.+0.j\\\\    0.+0.j & -1.+0.j "
+#~ "\\end{bmatrix}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply unitary gates in ``kraus`` "
+#~ "randomly based on corresponding ``prob``. "
+#~ "If ``prob`` is ``None``, this is "
+#~ "reduced to kraus channel language."
+#~ msgstr ""
+
+#~ msgid "The density matrix simulator based on tensornetwork engine."
+#~ msgstr ""
+
+#~ msgid "Number of qubits"
+#~ msgstr ""
+
+#~ msgid "if True, nothing initialized, only for internal use, defaults to False"
+#~ msgstr ""
+
+#~ msgid "the state input for the circuit, defaults to None"
+#~ msgstr ""
+
+#~ msgid "the density matrix input for the circuit, defaults to None"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply amplitudedamping quantum channel on "
+#~ "the circuit. See "
+#~ ":py:meth:`tensorcircuit.channels.amplitudedampingchannel`"
+#~ msgstr ""
+
+#~ msgid "Parameters for the channel."
+#~ msgstr ""
+
+#~ msgid "Return the output density matrix of the circuit."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "check whether the final return is "
+#~ "a legal density matrix, defaults to "
+#~ "False"
+#~ msgstr ""
+
+#~ msgid "whether to reuse previous results, defaults to True"
+#~ msgstr ""
+
+#~ msgid "The output densitymatrix in 2D shape tensor form"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply depolarizing quantum channel on "
+#~ "the circuit. See "
+#~ ":py:meth:`tensorcircuit.channels.depolarizingchannel`"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply phasedamping quantum channel on "
+#~ "the circuit. See "
+#~ ":py:meth:`tensorcircuit.channels.phasedampingchannel`"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Apply reset quantum channel on the "
+#~ "circuit. See "
+#~ ":py:meth:`tensorcircuit.channels.resetchannel`"
+#~ msgstr ""
+
+#~ msgid "Generate tensorflow sparse matrix from Pauli string sum"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "1D Tensor representing for a Pauli "
+#~ "string, e.g. [1, 0, 0, 3, 2] "
+#~ "is for :math:`X_0Z_3Y_4`"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "the weight for the Pauli string "
+#~ "defaults to None (all Pauli strings "
+#~ "weight 1.0)"
+#~ msgstr ""
+
+#~ msgid "the tensorflow sparse matrix"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "2D Tensor, each row is for a "
+#~ "Pauli string, e.g. [1, 0, 0, 3,"
+#~ " 2] is for :math:`X_0Z_3Y_4`"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "1D Tensor, each element corresponds the"
+#~ " weight for each Pauli string "
+#~ "defaults to None (all Pauli strings "
+#~ "weight 1.0)"
+#~ msgstr ""
+
+#~ msgid "the tensorflow coo sparse matrix"
+#~ msgstr ""
+
+#~ msgid "Generate scipy sparse matrix from Pauli string sum"
+#~ msgstr ""
+
+#~ msgid "the scipy coo sparse matrix"
+#~ msgstr ""
+
+#~ msgid "Generate tensorflow dense matrix from Pauli string sum"
+#~ msgstr ""
+
+#~ msgid "the tensorflow dense matrix"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The projector of the operator. The "
+#~ "operator, as a linear operator, on "
+#~ "the adjoint of the operator."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Set :math:`A` is the operator in "
+#~ "matrix form, then the projector of "
+#~ "operator is defined as: :math:`A^\\dagger "
+#~ "A`"
+#~ msgstr ""
+
+#~ msgid "The projector of the operator."
+#~ msgstr ""
+
+#~ msgid "The reduced density of the operator."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Set :math:`A` is the matrix of the"
+#~ " operator, then the reduced density "
+#~ "is defined as:"
+#~ msgstr ""
+
+#~ msgid "\\mathrm{Tr}_{subsystems}(A^\\dagger A)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Firstly, take the projector of the "
+#~ "operator, then trace out the subsystems"
+#~ " to trace out are supplied as "
+#~ "indices, so that dangling edges are "
+#~ "connected to each other as: "
+#~ "`out_edges[i] ^ in_edges[i] for i in "
+#~ "subsystems_to_trace_out` This does not modify"
+#~ " the original network. The original "
+#~ "ordering of the remaining subsystems is"
+#~ " maintained."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The QuOperator of the reduced density"
+#~ " of the operator with given "
+#~ "subsystems."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Contracts the tensor network in place"
+#~ " and returns the final tensor in "
+#~ "two dimentional matrix. The default "
+#~ "ordering for the axes of the final"
+#~ " tensor is: (:math:`\\prod` dimension of"
+#~ " out_edges, :math:`\\prod` dimension of "
+#~ "in_edges)"
+#~ msgstr ""
+
+#~ msgid "The two-dimentional tensor representing the operator."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Returns a bool indicating if QuOperator"
+#~ " is an adjoint vector. Examples can"
+#~ " be found in the `QuOperator.from_tensor`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Returns a bool indicating if QuOperator"
+#~ " is a scalar. Examples can be "
+#~ "found in the `QuOperator.from_tensor`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Returns a bool indicating if QuOperator"
+#~ " is a vector. Examples can be "
+#~ "found in the `QuOperator.from_tensor`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Tensor product with another operator. "
+#~ "Given two operators `A` and `B`, "
+#~ "produces a new operator `AB` "
+#~ "representing :math:`A ⊗ B`. The "
+#~ "`out_edges` (`in_edges`) of `AB` is "
+#~ "simply the concatenation of the "
+#~ "`out_edges` (`in_edges`) of `A.copy()` with"
+#~ " that of `B.copy()`: `new_out_edges = "
+#~ "[*out_edges_A_copy, *out_edges_B_copy]` `new_in_edges "
+#~ "= [*in_edges_A_copy, *in_edges_B_copy]`"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Set :math:`A` is the operator in "
+#~ "matrix form, then the projector of "
+#~ "operator is defined as: :math:`A "
+#~ "A^\\dagger`"
+#~ msgstr ""
+
+#~ msgid "\\mathrm{Tr}_{subsystems}(A A^\\dagger)"
+#~ msgstr ""
+
+#~ msgid "Compute the double state of the given Hamiltonian operator ``h``."
+#~ msgstr ""
+
+#~ msgid "Hamiltonian operator in form of Tensor."
+#~ msgstr ""
+
+#~ msgid "The double state of ``h`` with the given ``beta``."
+#~ msgstr ""
+
+#~ msgid "Return fidelity scalar between two states rho and rho0."
+#~ msgstr ""
+
+#~ msgid "\\operatorname{Tr}(\\sqrt{\\sqrt{rho} rho_0 \\sqrt{rho}})"
+#~ msgstr ""
+
+#~ msgid "The density matrix in form of Tensor."
+#~ msgstr ""
+
+#~ msgid "The sqrtm of a Hermitian matrix ``a``."
+#~ msgstr ""
+
+#~ msgid "Compute the Gibbs state of the given Hamiltonian operator ``h``."
+#~ msgstr ""
+
+#~ msgid "The Gibbs state of ``h`` with the given ``beta``."
+#~ msgstr ""
+
+#~ msgid "Mutual information between AB subsystem described by ``cut``."
+#~ msgstr ""
+
+#~ msgid "The AB subsystem."
+#~ msgstr ""
+
+#~ msgid "The mutual information between AB subsystem described by ``cut``."
+#~ msgstr ""
+
+#~ msgid "Taylor expansion of :math:`ln(x+1)`."
+#~ msgstr ""
+
+#~ msgid "The :math:`k` th order, default is 2."
+#~ msgstr ""
+
+#~ msgid "The :math:`k` th order of Taylor expansion of :math:`ln(x+1)`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Compute the trace distance between two"
+#~ " density matrix ``rho`` and ``rho2``."
+#~ msgstr ""
+
+#~ msgid "Epsilon, defaults to 1e-12"
+#~ msgstr ""
+
+#~ msgid "The trace distance between two density matrix ``rho`` and ``rho2``."
+#~ msgstr ""
+
+#~ msgid "\\operatorname{Tr}(\\prod_i O_i)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Compute the truncated free energy from"
+#~ " the given density matrix ``rho``."
+#~ msgstr ""
+
+#~ msgid "The :math:`k` th order, defaults to 2"
+#~ msgstr ""
+
+#~ msgid "The :math:`k` th order of the truncated free energy."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The circuit ansatz is firstly one "
+#~ "layer of Hadamard gates and then "
+#~ "we have ``nlayers`` blocks of "
+#~ ":math:`e^{i\\theta Z_iZ_{i+1}}` two-qubit gate"
+#~ " in ladder layout, following rx gate."
+#~ msgstr ""
+
+#~ msgid "The circuit"
+#~ msgstr ""
+
+#~ msgid "paramter tensor with 2*nlayer*n elements"
+#~ msgstr ""
+
+#~ msgid "number of ZZ+RX blocks, defaults to 2"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "whether use SVD split to reduce ZZ"
+#~ " gate bond dimension, defaults to "
+#~ "False"
+#~ msgstr ""
+
+#~ msgid "The circuit with example ansatz attached"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Function decorator wraps the function "
+#~ "with the first input and output in"
+#~ " the format of circuit, the wrapped"
+#~ " function has the first input and "
+#~ "the output as the state tensor."
+#~ msgstr ""
+
+#~ msgid "Function with the fist input and the output as ``Circuit`` object."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Wrapped function with the first input"
+#~ " and the output as the state "
+#~ "tensor correspondingly."
+#~ msgstr ""
+
+#~ msgid "Two-dimensional grid lattice"
+#~ msgstr ""
+
+#~ msgid "number of rows"
+#~ msgstr ""
+
+#~ msgid "number of cols"
+#~ msgstr ""
+
+#~ msgid "return all col edge with 1d index encoding"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "whether to include pbc edges (periodic"
+#~ " boundary condition), defaults to False"
+#~ msgstr ""
+
+#~ msgid "list of col edge"
+#~ msgstr ""
+
+#~ msgid "return all row edge with 1d index encoding"
+#~ msgstr ""
+
+#~ msgid "list of row edge"
+#~ msgstr ""
+
+#~ msgid "Get the 2D grid lattice in ``nx.Graph`` format"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "whether to include pbc edges (periodic"
+#~ " boundary condition), defaults to True"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Generate a permutation matrix P. Due "
+#~ "to the different convention or qubits'"
+#~ " order in qiskit and tensorcircuit, "
+#~ "the unitary represented by the same "
+#~ "circuit is different. They are related"
+#~ " by this permutation matrix P: P "
+#~ "@ U_qiskit @ P = U_tc"
+#~ msgstr ""
+
+#~ msgid "# of qubits"
+#~ msgstr ""
+
+#~ msgid "The permutation matrix P"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Generate a qiskit quantum circuit using"
+#~ " the quantum intermediate representation "
+#~ "(qir) in tensorcircuit."
+#~ msgstr ""
+
+#~ msgid "qiskit QuantumCircuit object"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Generate a tensorcircuit circuit using "
+#~ "the quantum circuit data in qiskit."
+#~ msgstr ""
+
+#~ msgid "Quantum circuit data from qiskit."
+#~ msgstr ""
+
+#~ msgid "Input state of the circuit. Default is None."
+#~ msgstr ""
+
+#~ msgid "A quantum circuit in tensorcircuit"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Translating from the gate name to "
+#~ "gate information including the number of"
+#~ " control qubits and the reduced gate"
+#~ " name."
+#~ msgstr ""
+
+#~ msgid "String of gate name"
+#~ msgstr ""
+
+#~ msgid "# of control qubits, reduced gate name"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Generate Tex code from 'qir' string "
+#~ "to illustrate the circuit structure. "
+#~ "This visualization is based on quantikz"
+#~ " package."
+#~ msgstr ""
+
+#~ msgid "The quantum intermediate representation of a circuit in tensorcircuit."
+#~ msgstr ""
+
+#~ msgid "Initial state, default is an all zero state '000...000'."
+#~ msgstr ""
+
+#~ msgid "Measurement Basis, default is None which means no"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "measurement in the end of the "
+#~ "circuit. :type measure: Optional[List[str]] "
+#~ ":param rcompress: If true, a right "
+#~ "compression of the circuit will be "
+#~ "conducted. A right compression means we"
+#~ " will try to shift gates from "
+#~ "right to left if possible. Default "
+#~ "is false. :type rcompress: bool :param"
+#~ " lcompress: If true, a left "
+#~ "compression of the circuit will be "
+#~ "conducted. A left compression means we"
+#~ " will try to shift gates from "
+#~ "left to right if possible. Default "
+#~ "is false. :type lcompress: bool :param"
+#~ " standalone: If true, the tex code"
+#~ " will be designed to generate a "
+#~ "standalone document. Default is false "
+#~ "which means the generated tex code "
+#~ "is just a quantikz code block. "
+#~ ":type standalone: bool :param "
+#~ "return_string_table: If true, a string "
+#~ "table of tex code will also be "
+#~ "returned. Default is false. :type "
+#~ "return_string_table: bool :return: Tex code"
+#~ " of circuit visualization based on "
+#~ "quantikz package. If return_string_table is"
+#~ " true, a string table of tex "
+#~ "code will also be returned. :rtype: "
+#~ "Union[str, Tuple[str, List[List[str]]]]"
 #~ msgstr ""
 
