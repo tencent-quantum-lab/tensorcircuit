@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Added
+
+- `DMCircuit` also supports array instead of gate as the operator
+
+### Fixed
+
+- fix translation issue to qiskit when the input parameter is in numpy form
+
+- type conversion in measure API when high precision is set
+
 ## 0.0.220509
 
 ### Added
