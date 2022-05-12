@@ -12,6 +12,8 @@
 
 - type conversion in measure API when high precision is set
 
+- fix bug in to_qiskit with new version qiskit
+
 ## 0.0.220509
 
 ### Added

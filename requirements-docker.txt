@@ -1,6 +1,6 @@
 numpy
 scipy
-cirq==0.11
+cirq
 tensorflow==2.7
 tensornetwork==0.4.6
 graphviz
@@ -23,7 +23,7 @@ quimb
 openfermionpyscf
 # below is for development
 mypy==0.782
-pytest==6.2.4
+pytest
 pytest-cov
 pytest-benchmark
 pytest-xdist
@@ -34,7 +34,7 @@ sphinx-intl
 sphinx-copybutton
 nbsphinx
 furo
-pylint==2.11.1
+pylint
 ray
 pennylane
 tensorflow_quantum==0.6.1

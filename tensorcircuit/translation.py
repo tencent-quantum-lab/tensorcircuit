@@ -110,11 +110,11 @@ def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
             qiskit_circ.unitary(wroot_op, index, label=qis_name)
         elif gate_name in ["rx", "ry", "rz", "crx", "cry", "crz"]:
             getattr(qiskit_circ, gate_name)(
-                np.real(backend.numpy(parameters["theta"])), *index
+                np.real(backend.numpy(parameters["theta"])).item(), *index
             )
         elif gate_name in ["orx", "ory", "orz"]:
             getattr(qiskit_circ, "c" + gate_name[1:])(
-                np.real(backend.numpy(parameters["theta"])), *index, ctrl_state=0
+                np.real(backend.numpy(parameters["theta"])).item(), *index, ctrl_state=0
             )
         elif gate_name in ["exp", "exp1"]:
             unitary = backend.numpy(backend.convert_to_tensor(parameters["unitary"]))

@@ -6,10 +6,10 @@ import os
 os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
 import time
 import tensorflow as tf
-import tensorflow_quantum as tfq
 import cirq
 import sympy
 import numpy as np
+import tensorflow_quantum as tfq
 import tensorcircuit as tc
 
 
