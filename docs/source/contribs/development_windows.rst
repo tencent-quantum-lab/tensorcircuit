@@ -3,7 +3,7 @@ Run TensorCircuit on Windows Machine with Docker
 
 Contributed by `SexyCarrots <https://github.com/SexyCarrots>`_ (Xinghan Yang)
 
-(For linux machines, please review the `Docker README for linux <https://github.com/quclub/tensorcircuit-dev/blob/master/docker/README.md>`_ )
+(For linux machines, please review the `Docker README for linux <https://github.com/tencent-quantum-lab/tensorcircuit/blob/master/docker/README.md>`_ )
 
 This note is only a step-by-step tutorial to help you build and run a Docker Container for Windows Machine users with the given dockerfile. 
 If you want to have a deeper dive in to Docker, please check the official `Docker Orientation <https://docs.docker.com/get-started/>`_
@@ -78,11 +78,11 @@ Build Image in through PyCharm or Command Line Interface
 
 **For CLI command:**
 
-Go to your local ``./tensorcircuit-dev/docker`` directory, then open your local CLI.
+Go to your local ``./tensorcircuit/docker`` directory, then open your local CLI.
 
 .. code-block:: bash
 
-    cd ./tensorcircuit-dev/docker
+    cd ./tensorcircuit/docker
 
 Use the command:
 
@@ -96,7 +96,7 @@ there is any interruption during the building.
 
 **For PyCharm:**
 
-Install the docker plugin within Pycharm, than open the dockerfile in the ``./tensorcircuit-dev/docker`` directory.
+Install the docker plugin within Pycharm, than open the dockerfile in the ``./tensorcircuit/docker`` directory.
 Choose Dockerfile to be the configuration, then run the dockerfile.
 Please keep your computer active while building the docker image. You need to build the image again from scratch if
 there is any interruption during the building.
@@ -130,7 +130,7 @@ Then, open docker desktop and open docker CLI:
 
     ls
 
-You would see all files and directories in ``./tensorcircuit-dev/`` listed.
+You would see all files and directories in ``./tensorcircuit/`` listed.
 
 Go to the dir where all examples are:
 

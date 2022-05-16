@@ -138,7 +138,7 @@ The most common case and the most typical programming paradigm for TensorCircuit
     params = K.implicit_randn([2, n])
     print(vgf(params, n))  # get the quantum loss and the gradient
 
-Also for a non-quantum example (linear regression) demonstrating the backend agnostic feature, variables with pytree support, AD/jit/vmap usage, and variational optimization loops. Please refer to the example script: `linear regression example <https://github.com/quclub/tensorcircuit-dev/blob/master/examples/universal_lr.py>`_.
+Also for a non-quantum example (linear regression) demonstrating the backend agnostic feature, variables with pytree support, AD/jit/vmap usage, and variational optimization loops. Please refer to the example script: `linear regression example <https://github.com/tencent-quantum-lab/tensorcircuit/blob/master/examples/universal_lr.py>`_.
 This example might be more friendly to the machine learning community since it is purely classical while also showcasing the main features and paradigms of tensorcircuit.
 
 If the user has no intention to maintain the application code in a backend agnostic fashion, the API for ML frameworks can be more handily used and interleaved with the TensorCircuit API.
@@ -411,7 +411,7 @@ Some setup cases:
     # 3. state simulator like contractor provided by tensorcircuit, maybe better when there is ring topology for two-qubit gate layout
     tc.set_contractor("plain-experimental")
 
-For advanced configurations on cotengra contractors, please refer to cotengra `doc <https://cotengra.readthedocs.io/en/latest/advanced.html>`__ and more fancy examples can be found at `contractor tutorial <https://github.com/quclub/tensorcircuit-tutorials/blob/master/tutorials/contractors.ipynb>`__.
+For advanced configurations on cotengra contractors, please refer to cotengra `doc <https://cotengra.readthedocs.io/en/latest/advanced.html>`__ and more fancy examples can be found at `contractor tutorial <https://github.com/tencent-quantum-lab/tensorcircuit-tutorials/blob/master/tutorials/contractors.ipynb>`__.
 
 **Setup in Function or Context Level**
 

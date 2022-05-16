@@ -2,8 +2,8 @@
 
 <p align="center">
   <!-- tests (GitHub actions) -->
-  <a href="https://github.com/quclub/tensorcircuit-dev/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/workflow/status/quclub/tensorcircuit-dev/ci/master?logo=github&style=flat-square&logo=github" />
+  <a href="https://github.com/tencent-quantum-lab/tensorcircuit/actions/workflows/ci.yml">
+    <img src="https://img.shields.io/github/workflow/status/tencent-quantum-lab/tensorcircuit/ci/master?logo=github&style=flat-square&logo=github" />
   </a>
   <!-- docs -->
   <a href="">
@@ -116,5 +116,5 @@ pip install tensorcircuit
 
 ### VQEX - MBL
 
-VQEX 在 MBL 相位识别上的应用见 [教程](https://github.com/quclub/tensorcircuit-tutorials/blob/master/tutorials/vqex_mbl.ipynb)。
+VQEX 在 MBL 相位识别上的应用见 [教程](/docs/source/tutorials/vqex_mbl.ipynb)。
 参考论文: https://arxiv.org/pdf/2111.13719.pdf 。

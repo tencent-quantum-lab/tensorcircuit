@@ -6,8 +6,8 @@
 
 <p align="center">
   <!-- tests (GitHub actions) -->
-  <a href="https://github.com/quclub/tensorcircuit-dev/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/workflow/status/quclub/tensorcircuit-dev/ci/master?logo=github&style=flat-square&logo=github" />
+  <a href="https://github.com/tencent-quantum-lab/tensorcircuit/actions/workflows/ci.yml">
+    <img src="https://img.shields.io/github/workflow/status/tencent-quantum-lab/tensorcircuit/ci/master?logo=github&style=flat-square&logo=github" />
   </a>
   <!-- docs -->
   <a href="">
@@ -84,21 +84,21 @@ We also have [Docker support](/docker).
 
 ## Advantages
 
-* Tensor network simulation engine based
+- Tensor network simulation engine based
 
-* JIT, AD, vectorized parallelism compatible, GPU support
+- JIT, AD, vectorized parallelism compatible, GPU support
 
-* Efficiency
+- Efficiency
 
-  * Time: 10 to 10^6 times acceleration compared to tfq or qiskit
+  - Time: 10 to 10^6 times acceleration compared to tfq or qiskit
 
-  * Space: 600+ qubits 1D VQE workflow (converged energy inaccuracy: < 1%)
+  - Space: 600+ qubits 1D VQE workflow (converged energy inaccuracy: < 1%)
 
-* Elegance
+- Elegance
 
-  * Flexibility: customized contraction, multiple ML backend/interface choices, multiple dtype precisions
+  - Flexibility: customized contraction, multiple ML backend/interface choices, multiple dtype precisions
 
-  * API design: quantum for humans, less code, more power
+  - API design: quantum for humans, less code, more power
 
 ## Contributing
 
@@ -120,6 +120,5 @@ Reference paper: https://arxiv.org/pdf/2106.05105.pdf and https://arxiv.org/pdf/
 
 ### VQEX - MBL
 
-For the application of VQEX on MBL phase identification, see the [tutorial](https://github.com/quclub/tensorcircuit-tutorials/blob/master/tutorials/vqex_mbl.ipynb).
+For the application of VQEX on MBL phase identification, see the [tutorial](/docs/source/tutorials/vqex_mbl.ipynb).
 Reference paper: https://arxiv.org/pdf/2111.13719.pdf.
-
