@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.0
+
 ### Added
 
 - `DMCircuit` also supports array instead of gate as the operator

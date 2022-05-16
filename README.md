@@ -31,9 +31,9 @@ TensorCircuit is built on top of modern machine learning frameworks and is machi
 
 ## Getting Started
 
-Please begin with [Quick Start](/docs/source/quickstart.rst) and [Jupyter Tutorials](/docs/source/tutorials).
+Please begin with [Quick Start](/docs/source/quickstart.rst).
 
-For more information and introductions, please refer to helpful [example scripts](/examples) and [full documentation](/docs/source). API docstrings and test cases in [tests](/tests) are also informative.
+For more information and introductions, please refer to helpful [example scripts](/examples) and [full documentation](https://tensorcircuit.readthedocs.io/). API docstrings and test cases in [tests](/tests) are also informative.
 
 The following are some minimal demos.
 

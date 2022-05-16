@@ -1,5 +1,6 @@
-__version__ = "0.0.220509"
+__version__ = "0.1.0"
 __author__ = "TensorCircuit Authors"
+__creator__ = "refraction-ray"
 
 from .cons import (
     set_backend,
