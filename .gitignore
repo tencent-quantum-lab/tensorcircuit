@@ -6,6 +6,7 @@ dataset
 develop
 .coverage*
 tutorials.po
+whitepaper.po
 *.result
 .vscode/
 .pytest_cache/

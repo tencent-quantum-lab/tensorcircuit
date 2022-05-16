@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  TensorCircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-16 15:04+0800\n"
+"POT-Creation-Date: 2022-05-16 19:39+0800\n"
 "PO-Revision-Date: 2022-04-12 09:18+0800\n"
 "Last-Translator: Xinghan Yang\n"
 "Language: zh\n"
@@ -316,18 +316,20 @@ msgid "To update the po file from updated English rst files, using"
 msgstr "为从更新的英文 rst 文件中更新 .po 文件，使用"
 
 #: ../../source/contribution.rst:173
+#, fuzzy
 msgid ""
 "Edit these .po files to add translations (`poedit "
 "<https://poedit.net/>`__ recommended). These files are in "
-"docs/source/locale/cn/LC_MESSAGES."
+"docs/source/locale/zh/LC_MESSAGES."
 msgstr ""
 "通过编辑这些 .po 文件来翻译文档，推荐使用 (`poedit <https://poedit.net/>`__ )。 这些文件在 "
 "``docs/source/locale/cn/LC_MESSAGES`` 中。"
 
 #: ../../source/contribution.rst:175
+#, fuzzy
 msgid ""
 "To generate the Chinese version of the documentation: ``sphinx-build "
-"source -D language=\"cn\" -D master_doc=index_cn build/html_cn`` which is"
+"source -D language=\"zh\" -D master_doc=index_cn build/html_cn`` which is"
 " in the separate directory ``.../build/html_cn/index_cn.html``, whereas "
 "English version is in the directory ``.../build/html/index.html``."
 msgstr ""
