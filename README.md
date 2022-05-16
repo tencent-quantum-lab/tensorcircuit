@@ -1,6 +1,6 @@
 <p align="center">
   <a href="">
-    <img width=80% src="docs/source/statics/logov2.jpg">
+    <img width=90% src="docs/source/statics/logov2.jpg">
   </a>
 </p>
 
