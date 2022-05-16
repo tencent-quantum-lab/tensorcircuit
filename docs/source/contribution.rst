@@ -43,8 +43,8 @@ The following git workflow is recommended for contribution by PR:
 
 .. code-block:: bash
 
-    pip install -r requirements.txt
-    pip install -r requirements-dev.txt
+    pip install -r requirements/requirements.txt
+    pip install -r requirements/requirements-dev.txt
 
 Extra packages may be required for specific development tasks.
 

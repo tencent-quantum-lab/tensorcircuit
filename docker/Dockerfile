@@ -29,7 +29,7 @@ RUN conda install -y  \
     pip \
     python=3.8
 
-COPY requirements-docker.txt /app/requirements-docker.txt
+COPY requirements/requirements-docker.txt /app/requirements-docker.txt
 
 RUN pip install -r /app/requirements-docker.txt
   

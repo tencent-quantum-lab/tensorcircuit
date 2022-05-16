@@ -10,7 +10,7 @@
     <img src="https://img.shields.io/github/workflow/status/tencent-quantum-lab/tensorcircuit/ci/master?logo=github&style=flat-square&logo=github" />
   </a>
   <!-- docs -->
-  <a href="">
+  <a href="https://tensorcircuit.readthedocs.io/">
     <img src="https://img.shields.io/badge/docs-link-green.svg?style=flat-square&logo=read-the-docs"/>
   </a>
   <!-- PyPI -->

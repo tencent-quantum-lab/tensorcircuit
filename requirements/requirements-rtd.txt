@@ -8,6 +8,7 @@ networkx
 jax
 optax
 sphinx>=4.0
+ipykernel
 furo
 sphinx-copybutton
 nbsphinx
