@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  TensorCircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-18 20:36+0800\n"
+"POT-Creation-Date: 2022-05-16 15:04+0800\n"
 "PO-Revision-Date: 2022-04-12 09:18+0800\n"
 "Last-Translator: Xinghan Yang\n"
 "Language: zh\n"
@@ -24,10 +24,11 @@ msgid "Guide for Contributors"
 msgstr "开发者指南"
 
 #: ../../source/contribution.rst:4
+#, fuzzy
 msgid ""
 "We welcome everyone’s contributions! The development of TensorCircuit is "
-"open-sourced and centered on `GitHub <https://github.com/quclub"
-"/tensorcircuit-dev>`_."
+"open-sourced and centered on `GitHub <https://github.com/tencent-quantum-"
+"lab/tensorcircuit>`_."
 msgstr ""
 "我们欢迎每一位贡献者！TensorCircuit 的开发是开源的，并以 `GitHub <https://github.com/quclub"
 "/tensorcircuit-dev>`_ 为中心。"
@@ -332,4 +333,35 @@ msgid ""
 msgstr ""
 "生成简体中文文档： ``sphinx-build source -D language=\"cn\" build/html_cn`` "
 "储存在单独的文件夹 ``.../build/html_cn`` 中, 而英文版本则储存在 ``.../build/html`` 文件夹中。"
+
+#: ../../source/contribution.rst:179
+msgid "Releases"
+msgstr ""
+
+#: ../../source/contribution.rst:181
+msgid ""
+"Firstly, ensure that the version numbers in __init__.py and CHANGELOG are"
+" correctly updated."
+msgstr ""
+
+#: ../../source/contribution.rst:183
+#, fuzzy
+msgid "**GitHub Release**"
+msgstr "**Fixtures:**"
+
+#: ../../source/contribution.rst:191
+msgid "And from GitHub page choose draft a release from tag."
+msgstr ""
+
+#: ../../source/contribution.rst:193
+msgid "**PyPI Release**"
+msgstr ""
+
+#: ../../source/contribution.rst:202
+msgid "**DockerHub Release**"
+msgstr ""
+
+#: ../../source/contribution.rst:204
+msgid "Make sure the DockerHub account is logged in via ``docker login``."
+msgstr ""
 

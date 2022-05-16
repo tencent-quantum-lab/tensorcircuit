@@ -35,6 +35,5 @@ sphinx-copybutton
 nbsphinx
 furo
 pylint
-ray
 pennylane
 tensorflow_quantum==0.6.1

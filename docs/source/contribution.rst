@@ -173,3 +173,38 @@ To update the po file from updated English rst files, using
 Edit these .po files to add translations (`poedit <https://poedit.net/>`__ recommended). These files are in docs/source/locale/cn/LC_MESSAGES.
 
 To generate the Chinese version of the documentation: ``sphinx-build source -D language="cn" -D master_doc=index_cn build/html_cn`` which is in the separate directory ``.../build/html_cn/index_cn.html``, whereas English version is in the directory ``.../build/html/index.html``.
+
+
+Releases
+------------
+
+Firstly, ensure that the version numbers in __init__.py and CHANGELOG are correctly updated.
+
+**GitHub Release**
+
+.. code-block:: bash
+
+    git tag v0.x.y 
+    git push origin v0.x.y
+    # assume origin is the upstream name
+
+And from GitHub page choose draft a release from tag.
+
+**PyPI Release**
+
+.. code-block:: bash
+
+    python setup.py sdist bdist_wheel
+    export VERSION=0.x.y
+    twine upload dist/tensorcircuit-${VERSION}-py3-none-any.whl dist/tensorcircuit-${VERSION}.tar.gz
+
+
+**DockerHub Release**
+
+Make sure the DockerHub account is logged in via ``docker login``.
+
+.. code-block:: bash
+
+    sudo docker build . -f docker/Dockerfile -t tensorcircuit
+    sudo docker tag tensorcircuit:latest tensorcircuit/tensorcircuit:0.x.y
+    sudo docker push tensorcircuit/tensorcircuit:0.x.y
