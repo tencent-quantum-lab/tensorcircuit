@@ -1,0 +1,13 @@
+numpy
+scipy
+cirq
+tensorflow
+tensornetwork
+graphviz
+networkx
+jax
+optax
+sphinx>=4.0
+furo
+sphinx-copybutton
+nbsphinx
