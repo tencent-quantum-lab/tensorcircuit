@@ -172,7 +172,7 @@ To update the po file from updated English rst files, using
 
 Edit these .po files to add translations (`poedit <https://poedit.net/>`__ recommended). These files are in docs/source/locale/zh/LC_MESSAGES.
 
-To generate the Chinese version of the documentation: ``sphinx-build source -D language="zh" -D master_doc=index_cn build/html_cn`` which is in the separate directory ``.../build/html_cn/index_cn.html``, whereas English version is in the directory ``.../build/html/index.html``.
+To generate the Chinese version of the documentation: ``sphinx-build source -D language="zh" build/html_cn`` which is in the separate directory ``.../build/html_cn/index.html``, whereas English version is in the directory ``.../build/html/index.html``.
 
 
 Releases

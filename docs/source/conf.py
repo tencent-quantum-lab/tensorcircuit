@@ -44,6 +44,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
     "sphinx.ext.autosectionlabel",
+    "sphinx.ext.ifconfig",
     "sphinx_copybutton",
     "nbsphinx",
 ]
@@ -127,7 +128,7 @@ html_static_path = ["_static"]
 # rtd github link config
 html_context = {
     "display_github": True,  # Integrate GitHub
-    "github_user": "refraction-ray",  # Username
+    "github_user": "tencent-quantum-lab",  # Username
     "github_repo": "tensorcircuit",  # Repo name
     "github_version": "master",  # Version
     "conf_py_path": "/source/",  # Path in the checkout to the docs root

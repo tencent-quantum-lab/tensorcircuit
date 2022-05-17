@@ -6,39 +6,90 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: tensorcircuit\n"
+"Project-Id-Version:  tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-17 23:02+0800\n"
+"POT-Creation-Date: 2022-05-17 16:24+0800\n"
 "PO-Revision-Date: 2022-04-16 22:37+0800\n"
 "Last-Translator: Xinghan Yang\n"
-"Language-Team: \n"
 "Language: cn\n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
-"X-Generator: Poedit 1.6.11\n"
 
 #: ../../source/index.rst:2
 msgid "Guide to TensorCircuit"
 msgstr "TensorCircuit 指南"
 
+#: ../../source/index.rst:7
+msgid ""
+"TensorCircuit is an open source quantum circuit and algorithm simulation "
+"framework."
+msgstr "TensorCircuit 是开源的量子线路和量子算法模拟软件框架。"
+
+#: ../../source/index.rst:9
+msgid "It is built for human beings. 👽"
+msgstr "适合人类。👽"
+
+#: ../../source/index.rst:11
+msgid "It is designed for speed, flexibility and elegance. 🚀"
+msgstr "速度，灵活，优雅。🚀"
+
 #: ../../source/index.rst:13
+msgid "It is empowered by advanced tensor network simulator engine. 🔋"
+msgstr "先进张量网络引擎赋能。🔋"
+
+#: ../../source/index.rst:15
+msgid ""
+"It is implemented with industry-standard machine learning frameworks: "
+"TensorFlow, JAX, and PyTorch. 🤖"
+msgstr "业界标准机器学习框架 TensorFlow，JAX，PyTorch 实现。🤖"
+
+#: ../../source/index.rst:17
+msgid ""
+"It is compatible with machine learning engineering paradigms: automatic "
+"differentiation, just-in-time compilation, vectorized parallelism and GPU"
+" acceleration. 🛠"
+msgstr "与机器学习工程实践兼容：自动微分，即时编译，向量并行化和 GPU 加速。🛠"
+
+#: ../../source/index.rst:22
+msgid "Reference Documentation"
+msgstr "参考文档"
+
+#: ../../source/index.rst:24
+msgid ""
+"The following documentation sections briefly introduce TensorCircuit to "
+"the users and developpers."
+msgstr "以下文档向用户和开发者简要介绍了 TensorCircuit 软件。"
+
+#: ../../source/index.rst:36
+msgid "Tutorials"
+msgstr "教程"
+
+#: ../../source/index.rst:38
+msgid ""
+"The following documentation sections include integrated examples in the "
+"form of Jupyter Notebook."
+msgstr "以下 Jupyter Notebook 格式的文档包括了一系列使用 TensorCircuit 的集成案例。"
+
+#: ../../source/index.rst:57
 msgid "API References"
 msgstr "API 参考"
 
-#: ../../source/index.rst:21
+#: ../../source/index.rst:66
 msgid "Indices and Tables"
 msgstr "索引和表格"
 
-#: ../../source/index.rst:23
+#: ../../source/index.rst:68
 msgid ":ref:`genindex`"
 msgstr ":ref:`genindex`"
 
-#: ../../source/index.rst:24
+#: ../../source/index.rst:69
 msgid ":ref:`modindex`"
 msgstr ":ref:`modindex`"
 
-#: ../../source/index.rst:25
+#: ../../source/index.rst:70
 msgid ":ref:`search`"
 msgstr ":ref:`search`"
+

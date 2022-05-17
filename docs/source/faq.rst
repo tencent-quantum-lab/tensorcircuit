@@ -25,7 +25,7 @@ For a function with "tensor in and tensor out", wrapping it with jit will greatl
 
 .. Warning::
 
-    Be caution that jit can be easily misused if the users are not familiar with jit mechnism, which may lead to:
+    Be caution that jit can be easily misused if the users are not familiar with jit mechanism, which may lead to:
     
         1. very slow performance due to recompiling/staging for each run, 
         2. error when run function with jit, 
