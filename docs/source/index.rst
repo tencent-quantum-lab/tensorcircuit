@@ -37,20 +37,12 @@ Tutorials
 
 The following documentation sections include integrated examples in the form of Jupyter Notebook.
 
-.. ifconfig:: language == "en"
+.. toctree-filt::
+   :maxdepth: 2
 
-   .. toctree::
-      :maxdepth: 2
-
-      tutorial.rst
-      whitepapertoc.rst
-
-.. ifconfig:: language == "zh"
-
-   .. toctree::
-      :maxdepth: 2
-
-      tutorial_cn.rst
+   :zh:tutorial.rst
+   :zh:whitepapertoc.rst
+   :en:tutorial_cn.rst
 
 
 API References
