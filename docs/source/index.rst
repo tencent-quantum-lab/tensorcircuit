@@ -43,6 +43,8 @@ The following documentation sections include integrated examples in the form of 
    :zh:tutorial.rst
    :zh:whitepapertoc.rst
    :en:tutorial_cn.rst
+   :en:whitepapertoc_cn.rst
+
 
 
 API References
