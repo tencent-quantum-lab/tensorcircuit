@@ -816,6 +816,20 @@ def test_apply_multicontrol_gate():
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_circuit_quoperator(backend):
+    c = tc.Circuit(3)
+    c.x(0)
+    c.cnot(0, 1)
+    c.cz(1, 2)
+    c.y(2)
+    c.exp1(0, 2, theta=1.0, unitary=tc.gates._xx_matrix)
+    c.H(1)
+    c.multicontrol(0, 2, 1, ctrl=[1, 0], unitary=tc.gates.z())
+    qo = c.quoperator()
+    np.testing.assert_allclose(qo.eval_matrix(), c.matrix(), atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_qir2qiskit(backend):
     try:
         import qiskit.quantum_info as qi

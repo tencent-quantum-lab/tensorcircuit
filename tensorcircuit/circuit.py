@@ -1216,6 +1216,23 @@ class Circuit:
 
     state = wavefunction
 
+    def get_quoperator(self) -> QuOperator:
+        """
+        Get the ``QuOperator`` MPO like representation of the circuit unitary without contraction.
+
+        :return: ``QuOperator`` object for the circuit unitary (open indices for the input state)
+        :rtype: QuOperator
+        """
+        mps = identity([2 for _ in range(self._nqubits)])
+        c = Circuit(self._nqubits)
+        ns, es = self._copy()
+        c._nodes = ns
+        c._front = es
+        c.replace_mps_inputs(mps)
+        return QuOperator(c._front[: self._nqubits], c._front[self._nqubits :])
+
+    quoperator = get_quoperator
+
     def matrix(self) -> Tensor:
         """
         Get the unitary matrix for the circuit irrespective with the circuit input state.

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add `quoperator` method to get `QuOperator` representation of the circuit unitary
+
 ## 0.1.0
 
 ### Added
