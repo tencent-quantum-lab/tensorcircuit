@@ -96,11 +96,17 @@ pip install tensorcircuit
 
   - API 设计：人类可理解的量子，更少的代码，更多的可能
 
+## 引用
+
+该项目由腾讯量子实验室发布，现阶段由 [Shi-Xin Zhang](https://github.com/refraction-ray) 维护。
+
+如果该软件对您的研究有帮助, 请引用我们的白皮书文章: [TensorCircuit: a Quantum Software Framework for the NISQ Era](https://arxiv.org/abs/2205.10091).
+
 ## 贡献
 
 有关贡献指南和说明，请参阅 [贡献](/CONTRIBUTING.md)。
 
-我们欢迎大家提出问题、PR 和讨论，这些都托管在 GitHub 上。
+我们欢迎大家提出问题（Issue）、PR 和讨论（Discussion），这些都托管在 GitHub 上。
 
 ## 研究和应用
 

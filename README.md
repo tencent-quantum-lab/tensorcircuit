@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="">
+  <a href="https://github.com/tencent-quantum-lab/tensorcircuit">
     <img width=90% src="docs/source/statics/logov2.jpg">
   </a>
 </p>
@@ -99,6 +99,12 @@ We also have [Docker support](/docker).
   - Flexibility: customized contraction, multiple ML backend/interface choices, multiple dtype precisions
 
   - API design: quantum for humans, less code, more power
+
+## Citing TensorCircuit
+
+This project is released by Tencent Quantum Lab and is currently maintained by [Shi-Xin Zhang](https://github.com/refraction-ray) with contributions from the lab and open source community.
+
+If this project helps in your research, please cite our software whitepaper: [TensorCircuit: a Quantum Software Framework for the NISQ Era](https://arxiv.org/abs/2205.10091), which is also a good introduction for the software.
 
 ## Contributing
 
