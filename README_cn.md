@@ -3,19 +3,23 @@
 <p align="center">
   <!-- tests (GitHub actions) -->
   <a href="https://github.com/tencent-quantum-lab/tensorcircuit/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/workflow/status/tencent-quantum-lab/tensorcircuit/ci/master?logo=github&style=flat-square&logo=github" />
+    <img src="https://img.shields.io/github/workflow/status/tencent-quantum-lab/tensorcircuit/ci/master?logo=github&logo=github" />
   </a>
   <!-- docs -->
   <a href="https://tensorcircuit.readthedocs.io/">
-    <img src="https://img.shields.io/badge/docs-link-green.svg?style=flat-square&logo=read-the-docs"/>
+    <img src="https://img.shields.io/badge/docs-link-green.svg?logo=read-the-docs"/>
   </a>
   <!-- PyPI -->
   <a href="https://pypi.org/project/tensorcircuit/">
-    <img src="https://img.shields.io/pypi/v/tensorcircuit.svg?style=flat-square&logo=pypi"/>
+    <img src="https://img.shields.io/pypi/v/tensorcircuit.svg?logo=pypi"/>
+  </a>
+  <!-- binder -->
+  <a href="https://mybinder.org/v2/gh/refraction-ray/tc-env/master?urlpath=git-pull%3Frepo%3Dhttps%253A%252F%252Fgithub.com%252Ftencent-quantum-lab%252Ftensorcircuit%26urlpath%3Dlab%252Ftree%252Ftensorcircuit%252F%26branch%3Dmaster">
+    <img src="https://mybinder.org/badge_logo.svg"/>
   </a>
   <!-- License -->
   <a href="./LICENSE">
-    <img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=flat-square&logo=apache"/>
+    <img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg?logo=apache"/>
   </a>
 </p>
 
