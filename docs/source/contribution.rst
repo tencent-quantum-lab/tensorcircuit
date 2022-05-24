@@ -208,3 +208,8 @@ Make sure the DockerHub account is logged in via ``docker login``.
     sudo docker build . -f docker/Dockerfile -t tensorcircuit
     sudo docker tag tensorcircuit:latest tensorcircuit/tensorcircuit:0.x.y
     sudo docker push tensorcircuit/tensorcircuit:0.x.y
+
+**Binder Release**
+
+One may need to update the tensorcirucit version for binder environment by pushing new commit in refraction-ray/tc-env repo with new version update in its ``requriements.txt``.
+See `mybind setup <https://discourse.jupyter.org/t/tip-speed-up-binder-launches-by-pulling-github-content-in-a-binder-link-with-nbgitpuller/922>`_ for speed up via nbgitpuller. 

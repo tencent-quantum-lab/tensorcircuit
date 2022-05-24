@@ -31,7 +31,11 @@ jobs:
           pylint tensorcircuit tests
       - name: test scripts
         run: |
-          pytest --cov=tensorcircuit -svv --benchmark-skip
+          pytest --cov=tensorcircuit --cov-report=xml -svv --benchmark-skip
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          verbose: true
       - name: build docs
         run: |
           cd docs
