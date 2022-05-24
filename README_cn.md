@@ -33,7 +33,7 @@ TensorCircuit 建立在现代机器学习框架之上，并且与机器学习后
 
 请从 [快速上手](/docs/source/quickstart.rst) 和 [Jupyter 教程](/docs/source/tutorials) 开始。
 
-有关更多信息和介绍，请参阅有用的 [示例脚本](/examples) 和 [完整文档](/docs/source)。 [测试](/tests) 中的 API docstring 和测试用例也提供了丰富的信息。
+有关更多信息和介绍，请参阅有用的 [示例脚本](/examples) 和 [完整文档](https://tensorcircuit.readthedocs.io/zh/latest/)。 [测试](/tests) 中的 API docstring 和测试用例也提供了丰富的信息。
 
 以下是一些最简易的演示。
 
@@ -102,15 +102,17 @@ pip install tensorcircuit
 
 ## 引用
 
-该项目由腾讯量子实验室发布，现阶段由 [Shi-Xin Zhang](https://github.com/refraction-ray) 维护。
+该项目由[腾讯量子实验室](https://quantum.tencent.com/)发布，现阶段由 [Shi-Xin Zhang](https://github.com/refraction-ray) 维护。
 
-如果该软件对您的研究有帮助, 请引用我们的白皮书文章: [TensorCircuit: a Quantum Software Framework for the NISQ Era](https://arxiv.org/abs/2205.10091).
+如果该软件对您的研究有帮助, 请引用我们的白皮书文章:
+
+[TensorCircuit: a Quantum Software Framework for the NISQ Era](https://arxiv.org/abs/2205.10091).
 
 ## 贡献
 
 有关贡献指南和说明，请参阅 [贡献](/CONTRIBUTING.md)。
 
-我们欢迎大家提出问题（Issue）、PR 和讨论（Discussion），这些都托管在 GitHub 上。
+我们欢迎大家提出 [issues](https://github.com/tencent-quantum-lab/tensorcircuit/issues), [PR](https://github.com/tencent-quantum-lab/tensorcircuit/pulls), 和 [讨论](https://github.com/tencent-quantum-lab/tensorcircuit/discussions)，这些都托管在 GitHub 上。
 
 ## 研究和应用
 

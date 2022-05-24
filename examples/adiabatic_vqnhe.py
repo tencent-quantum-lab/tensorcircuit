@@ -81,8 +81,8 @@ def adiabatic_range(hm, history):
         tries=2,
         maxiter=150,  # 10000
         threshold=0.2 * 1e-8,
-        learn_q=learn_q,  # JointSchedule(2800, 0.009, 800, 0.002, 100),
-        learn_c=learn_c,
+        optq=learn_q,  # JointSchedule(2800, 0.009, 800, 0.002, 100),
+        optc=learn_c,
         initialization_func=partial(initial_param, last=last, lastlast=lastlast),
     )
     print(
