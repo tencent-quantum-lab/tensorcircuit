@@ -13,3 +13,4 @@ sphinx-copybutton
 nbsphinx
 # extra dependencies for ci
 qiskit
+pytorch

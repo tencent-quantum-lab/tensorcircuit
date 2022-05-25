@@ -1,2 +1,2 @@
 ignore:
-    - "tensorcircuit/applications"
+  - "applications"
