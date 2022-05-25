@@ -11,6 +11,3 @@ numpy==1.21.5
 furo
 sphinx-copybutton
 nbsphinx
-# extra dependencies for ci
-qiskit
-pytorch
