@@ -34,6 +34,7 @@ jobs:
         run: |
           pytest --cov=tensorcircuit --cov-report=xml -svv --benchmark-skip
       - name: Upload coverage to Codecov
+        if: matrix.os == 'ubuntu-18.04'
         uses: codecov/codecov-action@v2
         with:
           verbose: true
