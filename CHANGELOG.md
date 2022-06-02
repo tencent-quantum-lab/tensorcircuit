@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixed
+
+- Fix installation issue with tensorflow requirements on MACOS with M1 chip
+
 ## 0.1.1
 
 ### Added

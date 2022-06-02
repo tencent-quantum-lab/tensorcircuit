@@ -1377,11 +1377,10 @@ try:
         )
         return tf.SparseTensor(indices=indices, values=values, dense_shape=(s, s))  # type: ignore
 
-except NameError:
+except (NameError, ImportError):
     logger.warning(
         "tensorflow is not installed, and sparse Hamiltonian generation utilities are disabled"
     )
-    # TODO(@refraction-ray): backend agnostic sparse matrix generation?
 
 # some quantum quatities below
 
