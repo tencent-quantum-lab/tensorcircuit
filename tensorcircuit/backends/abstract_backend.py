@@ -936,7 +936,6 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `scatter`.".format(self.name)
         )
 
-    # TODO(@refraction-ray): coo attributes
     def coo_sparse_matrix(
         self: Any, indices: Tensor, values: Tensor, shape: Tensor
     ) -> Tensor:

@@ -112,9 +112,6 @@ class QuantumLayer(Layer):  # type: ignore
     #     return dict(list(base_config.items()) + list(config.items()))
 
 
-# TODO(@refraction-ray): more specific keras layer as provided by tfq
-
-
 def output_asis_loss(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
     """
     The keras loss function that directly taking the model output as the loss.

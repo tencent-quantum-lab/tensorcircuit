@@ -51,9 +51,6 @@ class keras_optimizer:
             return TensorFlowBackend.tree_map(None, tf.convert_to_tensor, params)
         return params
 
-    # TODO(@refraction-ray): complex compatible for opt interface
-    # (better not use complex variables though)
-
 
 def _tensordot_tf(
     self: Any, a: Tensor, b: Tensor, axes: Union[int, Sequence[Sequence[int]]]
