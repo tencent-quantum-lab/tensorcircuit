@@ -373,8 +373,8 @@ def test_tn2qop(backend):
     h1 = qu_mpo.eval_matrix()
     g = tc.templates.graphs.Line1D(nwires, pbc=False)
     h2 = tc.quantum.heisenberg_hamiltonian(
-        g, hzz=0, hxx=1, hyy=0, hz=1, hx=0, hy=0, sparse=False
-    ).numpy()
+        g, hzz=0, hxx=1, hyy=0, hz=1, hx=0, hy=0, sparse=False, numpy=True
+    )
     np.testing.assert_allclose(h1, h2, atol=1e-5)
 
 
@@ -390,8 +390,8 @@ def test_qb2qop(backend):
     h1 = qu_mpo.eval_matrix()
     g = tc.templates.graphs.Line1D(nwires, pbc=True)
     h2 = tc.quantum.heisenberg_hamiltonian(
-        g, hzz=1, hxx=0, hyy=0, hz=0, hx=-1, hy=0, sparse=False
-    ).numpy()
+        g, hzz=1, hxx=0, hyy=0, hz=0, hx=-1, hy=0, sparse=False, numpy=True
+    )
     np.testing.assert_allclose(h1, h2, atol=1e-5)
 
     # in out edge order test
@@ -404,6 +404,6 @@ def test_qb2qop(backend):
     m1 = h.eval_matrix()
     g = tc.templates.graphs.Line1D(3, pbc=False)
     m2 = tc.quantum.heisenberg_hamiltonian(
-        g, hzz=0, hxx=0, hyy=0, hz=0, hy=0.5, hx=0.5, sparse=False
-    ).numpy()
+        g, hzz=0, hxx=0, hyy=0, hz=0, hy=0.5, hx=0.5, sparse=False, numpy=True
+    )
     np.testing.assert_allclose(m1, m2, atol=1e-5)

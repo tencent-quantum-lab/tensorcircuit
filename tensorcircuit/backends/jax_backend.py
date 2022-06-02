@@ -8,6 +8,7 @@ import logging
 from typing import Any, Callable, Optional, Sequence, Tuple, Union
 
 import numpy as np
+from scipy.sparse import coo_matrix
 import tensornetwork
 from tensornetwork.backends.jax import jax_backend
 
@@ -290,6 +291,10 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
         return jnp.kron(a, b)
 
     def numpy(self, a: Tensor) -> Tensor:
+        if self.is_sparse(a):
+            return coo_matrix(
+                (a.data, (a.indices[:, 0], a.indices[:, 1])), shape=a.shape
+            )
         return np.array(a)
 
     def i(self, dtype: Any = None) -> Tensor:

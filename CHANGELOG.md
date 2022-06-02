@@ -6,6 +6,14 @@
 
 - Add `quoperator` method to get `QuOperator` representation of the circuit unitary
 
+- Add `coo_sparse_matrix_from_numpy` method on backend, where the scipy coo matrix is converted to sparse tensor in corresponding backend
+
+- Add sparse tensor to scipy coo matrix implementation in `numpy` method
+
+### Changed
+
+- `tc.quantum.PauliStringSum2COO`, `tc.quantum.PauliStringSum2Dense`, and `tc.quantum.heisenberg_hamiltonian` now return the tensor in current backend format if `numpy` option sets to False. (Breaking change: previously, the return are fixed in TensorFlow format)
+
 ## 0.1.0
 
 ### Added

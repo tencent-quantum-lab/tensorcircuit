@@ -1104,7 +1104,7 @@ def quimb2qop(qb_mpo: Any) -> QuOperator:
 
 try:
     compiled_jit = partial(get_backend("tensorflow").jit, jit_compile=True)
-    # TODO(@refraction-ray): at least make the final returned sparse tensor backend agnostic?
+
     def heisenberg_hamiltonian(
         g: Graph,
         hzz: float = 1.0,
@@ -1196,7 +1196,7 @@ try:
             r = PauliStringSum2COO_numpy(ls, weight)
             if numpy:
                 return r
-            return _numpy2tf_sparse(r)
+            return backend.coo_sparse_matrix_from_numpy(r)
         return PauliStringSum2Dense(ls, weight, numpy=numpy)
 
     def PauliStringSum2Dense(
@@ -1205,7 +1205,7 @@ try:
         numpy: bool = False,
     ) -> Tensor:
         """
-        Generate tensorflow dense matrix from Pauli string sum
+        Generate dense matrix from Pauli string sum
 
         :param ls: 2D Tensor, each row is for a Pauli string,
             e.g. [1, 0, 0, 3, 2] is for :math:`X_0Z_3Y_4`
@@ -1213,35 +1213,42 @@ try:
         :param weight: 1D Tensor, each element corresponds the weight for each Pauli string
             defaults to None (all Pauli strings weight 1.0)
         :type weight: Optional[Sequence[float]], optional
+        :param numpy: default False. If True, return numpy coo
+            else return backend compatible sparse tensor
+        :type numpy: bool
         :return: the tensorflow dense matrix
         :rtype: Tensor
         """
         sparsem = PauliStringSum2COO_numpy(ls, weight)
         if numpy:
             return sparsem.todense()
-        sparsem = _numpy2tf_sparse(sparsem)
-        densem = get_backend("tensorflow").to_dense(sparsem)
+        sparsem = backend.coo_sparse_matrix_from_numpy(sparsem)
+        densem = backend.to_dense(sparsem)
         return densem
 
-    def _tf2numpy_sparse(a: Tensor) -> Tensor:
-        return get_backend("numpy").coo_sparse_matrix(
-            indices=a.indices,
-            values=a.values,
-            shape=a.get_shape(),
-        )
+    # already implemented as backend method
+    #
+    # def _tf2numpy_sparse(a: Tensor) -> Tensor:
+    #     return get_backend("numpy").coo_sparse_matrix(
+    #         indices=a.indices,
+    #         values=a.values,
+    #         shape=a.get_shape(),
+    #     )
 
-    def _numpy2tf_sparse(a: Tensor) -> Tensor:
-        return get_backend("tensorflow").coo_sparse_matrix(
-            indices=np.array([a.row, a.col]).T,
-            values=a.data,
-            shape=a.shape,
-        )
+    # def _numpy2tf_sparse(a: Tensor) -> Tensor:
+    #     return get_backend("tensorflow").coo_sparse_matrix(
+    #         indices=np.array([a.row, a.col]).T,
+    #         values=a.data,
+    #         shape=a.shape,
+    #     )
 
-    def PauliStringSum2COO_numpy(
-        ls: Sequence[Sequence[int]], weight: Optional[Sequence[float]] = None
+    def PauliStringSum2COO(
+        ls: Sequence[Sequence[int]],
+        weight: Optional[Sequence[float]] = None,
+        numpy: bool = False,
     ) -> Tensor:
         """
-        Generate scipy sparse matrix from Pauli string sum
+        Generate sparse tensor from Pauli string sum
 
         :param ls: 2D Tensor, each row is for a Pauli string,
             e.g. [1, 0, 0, 3, 2] is for :math:`X_0Z_3Y_4`
@@ -1249,6 +1256,9 @@ try:
         :param weight: 1D Tensor, each element corresponds the weight for each Pauli string
             defaults to None (all Pauli strings weight 1.0)
         :type weight: Optional[Sequence[float]], optional
+        :param numpy: default False. If True, return numpy coo
+            else return backend compatible sparse tensor
+        :type numpy: bool
         :return: the scipy coo sparse matrix
         :rtype: Tensor
         """
@@ -1267,11 +1277,16 @@ try:
             shape=(s, s),
         )
         for i in range(nterms):
-            rsparse += _tf2numpy_sparse(PauliString2COO(ls[i], weight[i]))  # type: ignore
+            rsparse += get_backend("tensorflow").numpy(PauliString2COO(ls[i], weight[i]))  # type: ignore
             # auto transformed into csr format!!
-        return rsparse.tocoo()
+        rsparse = rsparse.tocoo()
+        if numpy:
+            return rsparse
+        return backend.coo_sparse_matrix_from_numpy(rsparse)
 
-    def PauliStringSum2COO(
+    PauliStringSum2COO_numpy = partial(PauliStringSum2COO, numpy=True)
+
+    def PauliStringSum2COO_tf(
         ls: Sequence[Sequence[int]], weight: Optional[Sequence[float]] = None
     ) -> Tensor:
         """
