@@ -936,7 +936,6 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `scatter`.".format(self.name)
         )
 
-    # TODO(@refraction-ray): coo attributes
     def coo_sparse_matrix(
         self: Any, indices: Tensor, values: Tensor, shape: Tensor
     ) -> Tensor:
@@ -955,6 +954,21 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         """
         raise NotImplementedError(
             "Backend '{}' has not implemented `coo`.".format(self.name)
+        )
+
+    def coo_sparse_matrix_from_numpy(self: Any, a: Tensor) -> Tensor:
+        """
+        Generate the coo format sparse matrix from scipy coo sparse matrix.
+
+        :param a: Scipy coo format sparse matrix
+        :type a: Tensor
+        :return: SparseTensor in backend format
+        :rtype: Tensor
+        """
+        return self.coo_sparse_matrix(
+            indices=np.array([a.row, a.col]).T,
+            values=a.data,
+            shape=a.shape,
         )
 
     def sparse_dense_matmul(

@@ -7,6 +7,7 @@ from functools import reduce, partial
 from operator import mul
 from typing import Any, Callable, Optional, Sequence, Tuple, Union
 
+from scipy.sparse import coo_matrix
 import tensornetwork
 from tensornetwork.backends.tensorflow import tensorflow_backend
 
@@ -49,9 +50,6 @@ class keras_optimizer:
         if not self.is_variable:
             return TensorFlowBackend.tree_map(None, tf.convert_to_tensor, params)
         return params
-
-    # TODO(@refraction-ray): complex compatible for opt interface
-    # (better not use complex variables though)
 
 
 def _tensordot_tf(
@@ -326,6 +324,11 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
         )
 
     def numpy(self, a: Tensor) -> Tensor:
+        if self.is_sparse(a):
+            return coo_matrix(
+                (a.values, (a.indices[:, 0], a.indices[:, 1])), shape=a.get_shape()
+            )
+
         return a.numpy()  # only valid in eager mode
 
     def i(self, dtype: Any = None) -> Tensor:

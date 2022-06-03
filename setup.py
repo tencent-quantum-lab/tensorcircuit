@@ -1,10 +1,17 @@
 import setuptools
+import platform
+
 from tensorcircuit import __version__, __author__
 
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+install_requires = ["numpy", "scipy", "tensornetwork", "networkx"]
+
+if platform.processor() != "arm":
+    install_requires.append("tensorflow")
+    # avoid the embarassing macos M1 chip case, where the package is called tensorflow-macos
 
 setuptools.setup(
     name="tensorcircuit",
@@ -17,7 +24,7 @@ setuptools.setup(
     url="https://github.com/refraction-ray/tensorcircuit",
     packages=setuptools.find_packages(),
     include_package_data=True,
-    install_requires=["numpy", "scipy", "tensornetwork", "networkx", "tensorflow"],
+    install_requires=install_requires,
     tests_require=[
         "pytest",
         "pytest-lazy-fixture",
@@ -25,8 +32,8 @@ setuptools.setup(
         "pytest-benchmark",
         "pytest-xdist",
     ],
-    classifiers=(
+    classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
-    ),
+    ],
 )

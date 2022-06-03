@@ -7,6 +7,7 @@ Jupyter Tutorials
     tutorials/circuit_basics.ipynb
     tutorials/tfim_vqe.ipynb
     tutorials/mnist_qml.ipynb
+    tutorials/torch_qml.ipynb
     tutorials/qml_scenarios.ipynb
     tutorials/vqe_h2o.ipynb
     tutorials/tfim_vqe_diffreph.ipynb

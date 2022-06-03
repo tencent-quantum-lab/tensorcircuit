@@ -639,18 +639,26 @@ def test_sparse_methods(backend):
     indices = tc.backend.cast(indices, "int64")
     spa = tc.backend.coo_sparse_matrix(indices, values, shape=[4, 4])
     vec = tc.backend.ones([4, 1])
+    da = np.array(
+        [[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], dtype=np.complex64
+    )
     assert tc.backend.is_sparse(spa) is True
     assert tc.backend.is_sparse(vec) is False
     np.testing.assert_allclose(
         tc.backend.to_dense(spa),
-        np.array(
-            [[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], dtype=np.complex64
-        ),
+        da,
         atol=1e-5,
     )
     np.testing.assert_allclose(
         tc.backend.sparse_dense_matmul(spa, vec),
         np.array([[1], [2], [0], [0]], dtype=np.complex64),
+        atol=1e-5,
+    )
+    spa_np = tc.backend.numpy(spa)
+    np.testing.assert_allclose(spa_np.todense(), da, atol=1e-6)
+    np.testing.assert_allclose(
+        tc.backend.to_dense(tc.backend.coo_sparse_matrix_from_numpy(spa_np)),
+        da,
         atol=1e-5,
     )
 
