@@ -1,19 +1,16 @@
 import setuptools
-import platform
 
 from tensorcircuit import __version__, __author__
-
+from tensorcircuit.utils import is_m1mac
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 install_requires = ["numpy", "scipy", "tensornetwork", "networkx"]
 
-if platform.processor() != "arm":
+if not is_m1mac():
     install_requires.append("tensorflow")
     # avoid the embarassing macos M1 chip case, where the package is called tensorflow-macos
-
-# TODO(@refraction-ray): add better check_m1 function
 
 setuptools.setup(
     name="tensorcircuit",

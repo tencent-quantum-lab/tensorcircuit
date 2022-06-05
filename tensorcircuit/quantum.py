@@ -37,6 +37,7 @@ except ImportError:
 
 from .cons import backend, contractor, dtypestr, npdtype
 from .backends import get_backend  # type: ignore
+from .utils import is_m1mac
 
 Tensor = Any
 Graph = Any
@@ -1103,7 +1104,10 @@ def quimb2qop(qb_mpo: Any) -> QuOperator:
 
 
 try:
-    compiled_jit = partial(get_backend("tensorflow").jit, jit_compile=True)
+    if is_m1mac():
+        compiled_jit = lambda x: x
+    else:
+        compiled_jit = partial(get_backend("tensorflow").jit, jit_compile=True)
 
     def heisenberg_hamiltonian(
         g: Graph,
