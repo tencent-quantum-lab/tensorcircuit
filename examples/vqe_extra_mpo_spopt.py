@@ -53,7 +53,7 @@ tc.set_backend("jax")
 
 dtype = np.complex64
 
-nwires, nlayers = 8, 2
+nwires, nlayers = 8, 2  # 600, 7
 
 
 Jx = np.array([1.0 for _ in range(nwires - 1)])  # strength of xx interaction (OBC)

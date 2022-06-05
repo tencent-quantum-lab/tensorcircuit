@@ -51,7 +51,7 @@ tc.set_backend("tensorflow")
 
 dtype = np.complex64
 
-nwires, nlayers = 150, 7
+nwires, nlayers = 150, 7  # 600, 7
 
 
 Jx = np.array([1.0 for _ in range(nwires - 1)])  # strength of xx interaction (OBC)

@@ -13,6 +13,8 @@ if platform.processor() != "arm":
     install_requires.append("tensorflow")
     # avoid the embarassing macos M1 chip case, where the package is called tensorflow-macos
 
+# TODO(@refraction-ray): add better check_m1 function
+
 setuptools.setup(
     name="tensorcircuit",
     version=__version__,
