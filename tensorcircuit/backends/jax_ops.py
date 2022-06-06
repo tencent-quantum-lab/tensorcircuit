@@ -31,6 +31,8 @@ def jaxsvd_bwd(r: Sequence[Array], tangents: Sequence[Array]) -> Tuple[Array]:
     du, ds, dv = tangents
     v = jnp.conj(jnp.transpose(v))
     dv = jnp.conj(jnp.transpose(dv))
+    m = u.shape[-2]
+    n = v.shape[-2]
 
     F = s * s - (s * s)[:, None]
     F = _safe_reciprocal(F) - jnp.diag(jnp.diag(_safe_reciprocal(F)))
@@ -48,21 +50,19 @@ def jaxsvd_bwd(r: Sequence[Array], tangents: Sequence[Array]) -> Tuple[Array]:
     L = jnp.diag(jnp.diag(jnp.transpose(v) @ dv)) @ Sinv
     dAc = 1 / 2.0 * jnp.conj(u) @ (jnp.conj(L) - L) @ jnp.transpose(v)
 
-    dAu += (
-        (jnp.eye(jnp.size(u[:, 1])) - jnp.conj(u) @ jnp.transpose(u))
-        @ du
-        @ Sinv
-        @ jnp.transpose(v)
-    )
-
-    dAv += (
-        jnp.conj(u)
-        @ Sinv
-        @ jnp.transpose(dv)
-        @ (jnp.eye(jnp.size(v[:, 1])) - jnp.conj(v) @ jnp.transpose(v))
-    )
-
     grad_a = dAv + dAu + dAs + dAc
+
+    if m > n:
+        grad_a += (du - jnp.conj(u) @ jnp.transpose(u) @ du) @ Sinv @ jnp.transpose(v)
+    elif m < n:
+        grad_a += (
+            jnp.conj(u)
+            @ Sinv
+            @ jnp.transpose(jnp.conj(dv))
+            @ (jnp.eye(n) - jnp.conj(v) @ jnp.transpose(v))
+        )
+    # m=n do nothing
+
     return (grad_a,)
 
 

@@ -7,7 +7,7 @@ graphviz
 networkx
 jax
 optax
-sphinx>=4.0
+sphinx==5.0.0
 ipykernel
 furo
 sphinx-copybutton

@@ -6,6 +6,10 @@
 
 - Fix installation issue with tensorflow requirements on MACOS with M1 chip
 
+- Improve M1 macOS compayibility with unjit tensorflow ops
+
+- Fixed SVD backprop bug on jax backend of wide matrix
+
 ## 0.1.1
 
 ### Added

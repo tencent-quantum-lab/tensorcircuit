@@ -20,7 +20,7 @@ setuptools.setup(
     description="Quantum circuits on top of tensor network",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/refraction-ray/tensorcircuit",
+    url="https://github.com/tencent-quantum-lab/tensorcircuit",
     packages=setuptools.find_packages(),
     include_package_data=True,
     install_requires=install_requires,
