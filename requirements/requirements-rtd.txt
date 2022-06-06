@@ -9,6 +9,6 @@ jax
 optax
 sphinx==4.3.2
 ipykernel
-furo
+furo==2022.4.7
 sphinx-copybutton
 nbsphinx
