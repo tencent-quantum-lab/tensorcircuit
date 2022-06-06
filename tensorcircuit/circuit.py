@@ -117,7 +117,9 @@ class Circuit:
             nodes = [inputs]
             self._front = [inputs.get_edge(i) for i in range(n)]
         else:  # mps_inputs is not None
-            mps_nodes = mps_inputs.nodes  # type: ignore
+            mps_nodes = list(mps_inputs.nodes)  # type: ignore
+            for i, n in enumerate(mps_nodes):
+                mps_nodes[i].tensor = backend.cast(n.tensor, dtypestr)  # type: ignore
             mps_edges = mps_inputs.out_edges + mps_inputs.in_edges  # type: ignore
             ndict, edict = tn.copy(mps_nodes)
             new_nodes = []

@@ -10,6 +10,8 @@
 
 - Fixed SVD backprop bug on jax backend of wide matrix
 
+- `mps_input` dtype auto correction enabled
+
 ## 0.1.1
 
 ### Added
