@@ -29,6 +29,7 @@ The following documentation sections briefly introduce TensorCircuit to the user
    quickstart.rst
    advance.rst
    faq.rst
+   sharpbits.rst
    infras.rst
    contribution.rst
 
