@@ -1104,8 +1104,12 @@ def quimb2qop(qb_mpo: Any) -> QuOperator:
 
 
 try:
+
+    def _id(x: Any) -> Any:
+        return x
+
     if is_m1mac():
-        compiled_jit = lambda x: x
+        compiled_jit = _id
     else:
         compiled_jit = partial(get_backend("tensorflow").jit, jit_compile=True)
 
