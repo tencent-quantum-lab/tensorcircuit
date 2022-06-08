@@ -96,7 +96,7 @@ def pennylane_benchmark(uuid, nwires, nlayer, nitrs, timeLimit, isgpu, minus=1):
         "# of actual iterations": Nitrs,
     }
 
-    ## tf device below
+    # tf device below
 
     dev = qml.device("default.qubit.tf", wires=nwires)
 
@@ -129,7 +129,7 @@ def pennylane_benchmark(uuid, nwires, nlayer, nitrs, timeLimit, isgpu, minus=1):
         "# of actual iterations": Nitrs,
     }
 
-    ##using tf interface and expvalcost
+    # using tf interface and expvalcost
     # params.assign(np.random.normal(size=[nlayer * 2 * nwires]))
     # cost_fn_tf = qml.ExpvalCost(circuit, Htfim, dev, interface="tf")
 

@@ -1,7 +1,7 @@
 source:
   # internal usage to filter code scan
   test_source:
-    filepath_regex: [".*/examples/.*"]
+    filepath_regex: [".*/examples/.*", ".*/benchmarks/scripts/.*"]
   auto_generate_source:
     filepath_regex: [".*/setup.py"]
   third_party_source:

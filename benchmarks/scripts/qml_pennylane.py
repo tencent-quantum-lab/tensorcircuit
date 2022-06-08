@@ -127,7 +127,7 @@ def pennylane_benchmark(
 
     print(meta)  # in case OOM in tf case
 
-    ## tf device below
+    # tf device below
 
     dev = qml.device("default.qubit.tf", wires=nwires)
 

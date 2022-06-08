@@ -110,7 +110,7 @@ def tfquantum_benchmark(
         "# of actual iterations": Nitrs,
     }
 
-    ##using keras layer interface
+    # using keras layer interface
     qubits = [cirq.GridQubit(0, i) for i in range(nwires)]
     my_symbol = sympy.symbols("params_0:" + str(nwires * 2 * nlayer))
     circuit = cirq.Circuit()
@@ -148,7 +148,7 @@ def tfquantum_benchmark(
         dtype=tf.float32  # , differentiator=tfq.differentiators.ParameterShift()
     )
     opt_tf = tf.keras.optimizers.Adam(learning_rate=0.1)
-    ## tfq.convert_to_tensor is very time consuming, thus shall be done out of iteration loops
+    # tfq.convert_to_tensor is very time consuming, thus shall be done out of iteration loops
     cc = tfq.convert_to_tensor([circuit])
 
     @tf.function
