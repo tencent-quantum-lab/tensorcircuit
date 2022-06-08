@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add `rxx`, `ryy` and `rzz` gate
+
 ### Fixed
 
 - Fix installation issue with tensorflow requirements on MACOS with M1 chip

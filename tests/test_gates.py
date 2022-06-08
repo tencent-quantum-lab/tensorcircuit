@@ -76,3 +76,15 @@ def test_adjoint_gate():
         tc.gates.sd().tensor, tc.backend.adjoint(tc.gates._s_matrix)
     )
     assert tc.gates.td.n == "td"
+
+
+def test_rxx_gate():
+    c1 = tc.Circuit(3)
+    c1.rxx(0, 1, theta=1.0)
+    c1.ryy(0, 2, theta=0.5)
+    c1.rzz(0, 1, theta=-0.5)
+    c2 = tc.Circuit(3)
+    c2.exp1(0, 1, theta=1.0, unitary=tc.gates._xx_matrix)
+    c2.exp1(0, 2, theta=0.5, unitary=tc.gates._yy_matrix)
+    c2.exp1(0, 1, theta=-0.5, unitary=tc.gates._zz_matrix)
+    np.testing.assert_allclose(c1.state(), c2.state(), atol=1e-5)

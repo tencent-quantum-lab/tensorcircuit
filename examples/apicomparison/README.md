@@ -1,5 +1,11 @@
 API comparison on the same standard variational circuit evaluation task demonstrating the advantage of TensorCircuit API design.
 
-- Lines of code: 47 vs. 20 (tc)
+* QML subtask refers building a keras model of quantum circuit.
 
-- Number of imported package: 5 vs. 1 (tc)
+* VQE subtask refers getting energy and circuit gradients.
+
+| # Lines (# Packages) | TensorFlow Quantum | Pennylane | TensorCircuit |
+| :------------------: | :----------------: | :-------: | :-----------: |
+|     QML subtask      |       32 (5)       |  18 (2)   |    16 (1)     |
+|     VQE subtask      |       47 (5)       |  29 (2)   |    20 (1)     |
+

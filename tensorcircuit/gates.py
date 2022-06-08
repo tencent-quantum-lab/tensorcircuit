@@ -4,7 +4,7 @@ Declarations of single-qubit and two-qubit gates and their corresponding matrix.
 
 import sys
 from copy import deepcopy
-from functools import reduce
+from functools import reduce, partial
 from typing import Any, Callable, Optional, Sequence, List, Union
 from operator import mul
 
@@ -701,6 +701,9 @@ def exponential_gate_unity(unitary: Tensor, theta: float, name: str = "none") ->
 
 exp1_gate = exponential_gate_unity
 # exp1 = exponential_gate_unity
+rzz_gate = partial(exp1_gate, unitary=_zz_matrix)
+rxx_gate = partial(exp1_gate, unitary=_xx_matrix)
+ryy_gate = partial(exp1_gate, unitary=_yy_matrix)
 
 
 def multicontrol_gate(unitary: Tensor, ctrl: Union[int, Sequence[int]] = 1) -> Operator:
@@ -767,7 +770,20 @@ def mpo_gate(mpo: Operator, name: str = "mpo") -> Operator:
 
 
 def meta_vgate() -> None:
-    for f in ["r", "rx", "ry", "rz", "iswap", "any", "exp", "exp1", "cr"]:
+    for f in [
+        "r",
+        "rx",
+        "ry",
+        "rz",
+        "iswap",
+        "any",
+        "exp",
+        "exp1",
+        "cr",
+        "rzz",
+        "rxx",
+        "ryy",
+    ]:
         setattr(thismodule, f, GateVF(getattr(thismodule, f + "_gate"), f))
     for f in ["crx", "cry", "crz"]:
         setattr(thismodule, f, getattr(thismodule, f[1:]).controlled())
