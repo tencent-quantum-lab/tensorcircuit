@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.2
+
 ### Added
 
 - Add `rxx`, `ryy` and `rzz` gate
