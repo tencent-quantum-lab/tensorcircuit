@@ -634,6 +634,7 @@ def any_gate(unitary: Tensor, name: str = "any") -> Gate:
     """
     # deepcopy roadblocks tf.function, pls take care of the unitary outside
     if isinstance(unitary, Gate):
+        unitary.tensor = backend.cast(unitary.tensor, dtypestr)
         return unitary
     unitary = backend.reshape2(unitary)
     # nleg = int(np.log2(backend.sizen(unitary)))

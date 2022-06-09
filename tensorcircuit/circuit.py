@@ -1445,6 +1445,8 @@ class Circuit:
                 op = backend.reshape2(op)
                 op = backend.cast(op, dtype=dtypestr)
                 op = gates.Gate(op)
+            else:
+                op.tensor = backend.cast(op.tensor, dtype=dtypestr)
             if isinstance(index, int):
                 index = [index]
             noe = len(index)

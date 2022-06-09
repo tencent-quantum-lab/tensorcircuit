@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add more type auto conversion for `tc.gates.Gate` as inputs
+
 ## 0.1.2
 
 ### Added
