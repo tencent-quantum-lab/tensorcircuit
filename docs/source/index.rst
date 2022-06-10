@@ -45,6 +45,7 @@ The following documentation sections include integrated examples in the form of 
    :zh:whitepapertoc.rst
    :en:tutorial_cn.rst
    :en:whitepapertoc_cn.rst
+   :en:textbooktoc.rst
 
 
 
