@@ -60,9 +60,9 @@ def QAOAansatz(gamma, beta, g=example_graph):
     # calculate the loss function, max cut
     loss = 0.0
     for e in g.edges:
-        loss += c.expectation([tc.gates.z(), [e[0]]], [tc.gates.z(), [e[1]]])
+        loss += c.expectation_ps(z=[e[0], e[1]])
 
-    return loss
+    return K.real(loss)
 
 
 # 3. get compiled function for QAOA ansatz and its gradient
@@ -72,8 +72,8 @@ QAOA_vg = K.jit(K.value_and_grad(QAOAansatz, argnums=(0, 1)), static_argnums=2)
 
 # 4. optimization loop
 
-beta = tf.Variable(tf.random.normal(shape=[nlayers], stddev=0.1))
-gamma = tf.Variable(tf.random.normal(shape=[nlayers], stddev=0.1))
+beta = K.implicit_randn(shape=[nlayers], stddev=0.1)
+gamma = K.implicit_randn(shape=[nlayers], stddev=0.1)
 opt = K.optimizer(tf.keras.optimizers.Adam(1e-2))
 
 for i in range(100):
