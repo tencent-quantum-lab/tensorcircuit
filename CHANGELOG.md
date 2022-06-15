@@ -6,6 +6,18 @@
 
 - Add more type auto conversion for `tc.gates.Gate` as inputs
 
+- Add `tree_flatten` and `tree_unflatten` method on backends
+
+- Add torch optimizer to the backend agnostic optimizer abstraction
+
+### Changed
+
+- Refactor the tree utils, add native torch support for pytree utils
+
+### Fixed
+
+- grad in torch backend now support pytrees
+
 ## 0.1.2
 
 ### Added

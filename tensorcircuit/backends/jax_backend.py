@@ -378,6 +378,15 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     def solve(self, A: Tensor, b: Tensor, assume_a: str = "gen") -> Tensor:
         return jsp.linalg.solve(A, b, assume_a)
 
+    def tree_map(self, f: Callable[..., Any], *pytrees: Any) -> Any:
+        return libjax.tree_map(f, *pytrees)
+
+    def tree_flatten(self: Any, pytree: Any) -> Tuple[Any, Any]:
+        return libjax.tree_flatten(pytree)  # type: ignore
+
+    def tree_unflatten(self: Any, treedef: Any, leaves: Any) -> Any:
+        return libjax.tree_unflatten(treedef, leaves)
+
     def set_random_state(
         self, seed: Optional[Union[int, PRNGKeyArray]] = None, get_only: bool = False
     ) -> Any:

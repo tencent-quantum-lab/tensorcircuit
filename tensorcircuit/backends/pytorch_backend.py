@@ -23,6 +23,7 @@ except ImportError:
 
 dtypestr: str
 Tensor = Any
+pytree = Any
 
 torchlib: Any
 
@@ -32,6 +33,28 @@ logger = logging.getLogger(__name__)
 # TODO(@refraction-ray): lack scatter impl for now
 # TODO(@refraction-ray): lack sparse relevant methods for now
 # To be added once pytorch backend is ready
+
+
+class torch_optimizer:
+    def __init__(self, optimizer: Any) -> None:
+        self.optimizer = optimizer
+        self.is_init = False
+
+    def update(self, grads: pytree, params: pytree) -> pytree:
+        # flatten grad and param
+        params, treedef = PyTorchBackend.tree_flatten(None, params)
+        grads, _ = PyTorchBackend.tree_flatten(None, grads)
+        if self.is_init is False:
+            self.optimizer = self.optimizer(params)
+            self.is_init = True
+        with torchlib.no_grad():
+            for g, p in zip(grads, params):
+                p.grad = g
+        self.optimizer.step()
+        self.optimizer.zero_grad()
+        # reorg the param
+        params = PyTorchBackend.tree_unflatten(None, treedef, params)
+        return params
 
 
 def _conj_torch(self: Any, tensor: Tensor) -> Tensor:
@@ -355,6 +378,16 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
     def solve(self, A: Tensor, b: Tensor, **kws: Any) -> Tensor:
         return torchlib.linalg.solve(A, b)
 
+    def tree_map(self, f: Callable[..., Any], *pytrees: Any) -> Any:
+        # TODO(@refraction-ray): torch not support multiple pytree args
+        return torchlib.utils._pytree.tree_map(f, *pytrees)
+
+    def tree_flatten(self: Any, pytree: Any) -> Tuple[Any, Any]:
+        return torchlib.utils._pytree.tree_flatten(pytree)  # type: ignore
+
+    def tree_unflatten(self: Any, treedef: Any, leaves: Any) -> Any:
+        return torchlib.utils._pytree.tree_unflatten(leaves, treedef)
+
     def cond(
         self,
         pred: bool,
@@ -413,6 +446,13 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         argnums: Union[int, Sequence[int]] = 0,
         has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
+        def ask_require(t: Tensor) -> Any:
+            t.requires_grad_(True)
+            return t
+
+        def get_grad(t: Tensor) -> Tensor:
+            return t.grad
+
         def wrapper(*args: Any, **kws: Any) -> Any:
             x = []
             if isinstance(argnums, int):
@@ -423,7 +463,7 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
                 argnumsl = argnums  # type: ignore
             for i, arg in enumerate(args):
                 if i in argnumsl:
-                    x.append(arg.requires_grad_(True))
+                    x.append(self.tree_map(ask_require, arg))
                 else:
                     x.append(arg)
             y = f(*x, **kws)
@@ -431,7 +471,7 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
                 y[0].backward()
             else:
                 y.backward()
-            gs = [x[i].grad for i in argnumsl]
+            gs = [self.tree_map(get_grad, x[i]) for i in argnumsl]
             if len(gs) == 1:
                 gs = gs[0]
             return y, gs
@@ -532,3 +572,5 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         return f
 
     vvag = vectorized_value_and_grad
+
+    optimizer = torch_optimizer

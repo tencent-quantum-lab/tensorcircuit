@@ -40,14 +40,11 @@ def jaxb():
 def torchb():
     try:
         tc.set_backend("pytorch")
-        tc.set_dtype("float64")
         yield
         tc.set_backend("numpy")
-        tc.set_dtype("complex64")
     except ImportError as e:
         print(e)
         tc.set_backend("numpy")
-        tc.set_dtype("complex64")
         pytest.skip("****** No torch backend found, skipping test suit *******")
 
 

@@ -779,13 +779,28 @@ def test_solve(backend):
     np.testing.assert_allclose(xp, x[:, 0], atol=1e-5)
 
 
-@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])
+def test_treeutils(backend):
+    d0 = {"a": np.ones([2]), "b": [tc.backend.zeros([]), tc.backend.ones([1, 1])]}
+    leaves, treedef = tc.backend.tree_flatten(d0)
+    d1 = tc.backend.tree_unflatten(treedef, leaves)
+    d2 = tc.backend.tree_map(lambda x: 2 * x, d1)
+    np.testing.assert_allclose(2 * np.ones([1, 1]), d2["b"][1])
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])
 def test_optimizers(backend):
     if tc.backend.name == "jax":
         try:
             import optax
         except ImportError:
             pytest.skip("optax is not installed")
+
+    if tc.backend.name == "pytorch":
+        try:
+            import torch
+        except ImportError:
+            pytest.skip("torch is not installed")
 
     def f(params, n):
         c = tc.Circuit(n)
@@ -802,6 +817,9 @@ def test_optimizers(backend):
         elif tc.backend.name == "jax":
             optimizer2 = optax.adam(5e-2)
             opt = tc.backend.optimizer(optimizer2)
+        elif tc.backend.name == "pytorch":
+            optimizer3 = partial(torch.optim.Adam, lr=5e-2)
+            opt = tc.backend.optimizer(optimizer3)
         else:
             raise ValueError("%s doesn't support optimizer interface" % tc.backend.name)
         return opt
@@ -810,8 +828,8 @@ def test_optimizers(backend):
     opt = get_opt()
 
     params = {
-        "a": tc.backend.implicit_randn([4, n]),
-        "b": tc.backend.implicit_randn([4, n]),
+        "a": tc.backend.ones([4, n], dtype="float32"),
+        "b": tc.backend.ones([4, n], dtype="float32"),
     }
 
     for _ in range(20):
@@ -828,12 +846,11 @@ def test_optimizers(backend):
 
     vgs2 = tc.backend.jit(tc.backend.value_and_grad(f2, argnums=0), static_argnums=1)
 
-    params = tc.backend.implicit_randn([4, n])
+    params = tc.backend.ones([4, n], dtype="float32")
     opt = get_opt()
 
     for _ in range(20):
         loss, grads = vgs2(params, n)
-        print(grads, params)
         params = opt.update(grads, params)
         print(loss)
 

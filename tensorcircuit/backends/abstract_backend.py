@@ -672,26 +672,52 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         :rtype: Any
         """
         try:
-            import jax as libjax
+            import tensorflow as tf
 
-            has_jax = True
         except ImportError:
-            has_jax = False
-            try:
-                import tensorflow as tf
+            raise NotImplementedError("No installed ML backend for `tree_map`")
 
-                has_tf = True
-            except ImportError:
-                has_tf = False
+        return tf.nest.map_structure(f, *pytrees)
 
-        if has_jax:
-            r = libjax.tree_map(f, *pytrees)
-        elif has_tf:
-            r = tf.nest.map_structure(f, *pytrees)
-        else:
-            raise NotImplementedError("Only tensorflow and jax support `tree_map`")
+    def tree_flatten(self: Any, pytree: Any) -> Tuple[Any, Any]:
+        """
+        Flatten python structure to 1D list
 
-        return r
+        :param pytree: python structure to be flattened
+        :type pytree: Any
+        :return: The 1D list of flattened structure and treedef
+            which can be used for later unflatten
+        :rtype: Tuple[Any, Any]
+        """
+        try:
+            import tensorflow as tf
+
+        except ImportError:
+            raise NotImplementedError("No installed ML backend for `tree_flatten`")
+
+        leaves = tf.nest.flatten(pytree)
+        treedef = pytree
+
+        return leaves, treedef
+
+    def tree_unflatten(self: Any, treedef: Any, leaves: Any) -> Any:
+        """
+        Pack 1D list to pytree defined via ``treedef``
+
+        :param treedef: Def of pytree structure, the second return from ``tree_flatten``
+        :type treedef: Any
+        :param leaves: the 1D list of flattened data structure
+        :type leaves: Any
+        :return: Packed pytree
+        :rtype: Any
+        """
+        try:
+            import tensorflow as tf
+
+        except ImportError:
+            raise NotImplementedError("No installed ML backend for `tree_unflatten`")
+
+        return tf.nest.pack_sequence_as(treedef, leaves)
 
     def set_random_state(
         self: Any, seed: Optional[int] = None, get_only: bool = False
