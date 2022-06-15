@@ -18,6 +18,8 @@
 
 - grad in torch backend now support pytrees
 
+- fix float parameter issue in translation to qiskit circuit (#19)
+
 ## 0.1.2
 
 ### Added
