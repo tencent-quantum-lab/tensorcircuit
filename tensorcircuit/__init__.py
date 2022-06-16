@@ -31,5 +31,10 @@ try:
 except ModuleNotFoundError:
     pass  # in case tf is not installed
 
+try:
+    from . import torchnn
+except ModuleNotFoundError:
+    pass  # in case torch is not installed
+
 # just for fun
 from .asciiart import set_ascii

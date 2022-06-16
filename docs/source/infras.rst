@@ -34,6 +34,8 @@ Overview of Modules
 
 - :py:mod:`tensorcircuit.keras`: Provide TensorFlow Keras layers, as well as wrappers of jitted function, save/load from tf side.
 
+- :py:mod:`tensorcircuit.torchnn`: Provide PyTorch nn Modules.
+
 **MPS and MPO Utiliy Modules:**
 
 - :py:mod:`tensorcircuit.quantum`: Provide definition and classes for Matrix Product States as well as Matrix Product Operators, we also include various quantum physics and quantum information quantities in this module.

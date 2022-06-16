@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add PyTorch nn Module wrapper in `torchnn`
+
 ## 0.1.3
 
 ### Added
@@ -32,7 +36,7 @@
 
 - Fix installation issue with tensorflow requirements on MACOS with M1 chip
 
-- Improve M1 macOS compayibility with unjit tensorflow ops
+- Improve M1 macOS compatibility with unjit tensorflow ops
 
 - Fixed SVD backprop bug on jax backend of wide matrix
 

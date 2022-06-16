@@ -31,6 +31,7 @@ modules = [
     "tensorcircuit.densitymatrix2",
     "tensorcircuit.channels",
     "tensorcircuit.keras",
+    "tensorcircuit.torchnn",
     "tensorcircuit.quantum",
     "tensorcircuit.simplify",
     "tensorcircuit.interfaces",
