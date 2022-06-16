@@ -17,6 +17,7 @@ tensorcircuit
     ./api/quantum.rst
     ./api/simplify.rst
     ./api/templates.rst
+    ./api/torchnn.rst
     ./api/translation.rst
     ./api/utils.rst
     ./api/vis.rst
