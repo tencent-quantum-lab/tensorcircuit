@@ -28,7 +28,7 @@ for n in [8, 10, 12, 14, 16]:
         time0 = time.time()
         s = c.state()
         time1 = time.time()
-        smp = bin(np.random.choice(range(2 ** n), p=np.abs(K.numpy(s)) ** 2))
+        smp = bin(np.random.choice(range(2**n), p=np.abs(K.numpy(s)) ** 2))
         # print(smp)
         print("state sampling time: ", time1 - time0)
         time0 = time.time()
