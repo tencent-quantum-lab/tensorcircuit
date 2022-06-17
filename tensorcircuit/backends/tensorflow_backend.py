@@ -198,8 +198,9 @@ def _rq_tf(
         phases = tf.math.sign(tf.linalg.diag_part(r))
         q = q * phases
         r = phases[:, None] * r
-    r, q = tf.math.conj(tf.transpose(r)), tf.math.conj(
-        tf.transpose(q)
+    r, q = (
+        tf.math.conj(tf.transpose(r)),
+        tf.math.conj(tf.transpose(q)),
     )  # M=r*q at this point
     center_dim = tf.shape(r)[1]
     r = tf.reshape(r, tf.concat([left_dims, [center_dim]], axis=-1))
