@@ -17,7 +17,8 @@ def construct_circuit(n, nlayers):
         c.H(i)
     for _ in range(nlayers):
         for i in range(n):
-            c.cnot(i, (i + nlayers - 1) % n)
+            r = np.random.randint(n - 1) + 1
+            c.cnot(i, (i + r) % n)
     return c
 
 
