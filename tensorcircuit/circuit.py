@@ -1419,7 +1419,70 @@ class Circuit:
         """
         return self.measure_jit(*[i for i in range(self._nqubits)], with_prob=True)
 
-    sample = perfect_sampling
+    # sample = perfect_sampling
+
+    def sample(
+        self,
+        batch: Optional[int] = None,
+        allow_state: bool = False,
+        status: Optional[Tensor] = None,
+    ) -> Any:
+        """
+        batched sampling from state or circuit tensor network directly
+
+        :param batch: number of samples, defaults to None
+        :type batch: Optional[int], optional
+        :param allow_state: if true, we sample from the final state
+            if memory allsows, True is prefered, defaults to False
+        :type allow_state: bool, optional
+        :param status: random generator,  defaults to None
+        :type status: Optional[Tensor], optional
+        :return: List (if batch) of tuple (binary configuration tensor and correponding probability)
+        :rtype: Any
+        """
+        # allow_state = False is compatibility issue
+        if not allow_state:
+            if batch is None:
+                return self.perfect_sampling()
+
+            @backend.jit  # type: ignore
+            def perfect_sampling(key: Any) -> Any:
+                backend.set_random_state(key)
+                return self.perfect_sampling()
+
+            r = []
+            if status is None:
+                status = backend.get_random_state()
+            subkey = status
+            for _ in range(batch):
+                key, subkey = backend.random_split(subkey)
+                r.append(perfect_sampling(key))
+
+            return r
+
+        if batch is None:
+            nbatch = 1
+        else:
+            nbatch = batch
+        s = self.state()
+        p = backend.abs(s) ** 2
+        if status is None:
+            ch = backend.implicit_randc(a=2**self._nqubits, shape=[nbatch], p=p)
+        else:
+            ch = backend.stateful_randc(
+                status, a=2**self._nqubits, shape=[nbatch], p=p
+            )
+        prob = backend.gather1d(p, ch)
+        confg = backend.mod(
+            backend.right_shift(
+                ch[..., None], backend.reverse(backend.arange(self._nqubits))
+            ),
+            2,
+        )
+        r = list(zip(confg, prob))
+        if batch is None:
+            r = r[0]
+        return r
 
     # TODO(@refraction-ray): more _before function like state_before? and better API?
 

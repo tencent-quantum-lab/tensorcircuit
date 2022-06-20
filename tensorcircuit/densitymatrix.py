@@ -407,5 +407,7 @@ class DMCircuit:
     sample = perfect_sampling
 
 
+# TODO(@refraction-ray): new sampling API as Circuit
+
 DMCircuit._meta_apply()
 DMCircuit.expectation_ps = _expectation_ps  # type: ignore

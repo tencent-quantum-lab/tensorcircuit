@@ -414,6 +414,20 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
             return tf.cast(a, dtype=getattr(tf, dtype))
         return tf.cast(a, dtype=dtype)
 
+    def arange(self, start: int, stop: Optional[int] = None, step: int = 1) -> Tensor:
+        if stop is None:
+            return tf.range(start=0, limit=start, delta=step)
+        return tf.range(start=start, limit=stop, delta=step)
+
+    def mod(self, x: Tensor, y: Tensor) -> Tensor:
+        return tf.math.mod(x, y)
+
+    def right_shift(self, x: Tensor, y: Tensor) -> Tensor:
+        return tf.bitwise.right_shift(x, y)
+
+    def left_shift(self, x: Tensor, y: Tensor) -> Tensor:
+        return tf.bitwise.left_shift(x, y)
+
     def solve(self, A: Tensor, b: Tensor, **kws: Any) -> Tensor:
         if b.shape[-1] == A.shape[-1]:
             b = b[..., tf.newaxis]

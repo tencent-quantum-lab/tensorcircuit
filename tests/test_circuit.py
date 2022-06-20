@@ -978,3 +978,16 @@ def test_qiskit2tc():
     qis_unitary = np.reshape(qis_unitary, [2**n, 2**n])
     p_mat = perm_matrix(n)
     np.testing.assert_allclose(p_mat @ tc_unitary @ p_mat, qis_unitary, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_batch_sample(backend):
+    c = tc.Circuit(3)
+    c.H(0)
+    c.cnot(0, 1)
+    print(c.sample())
+    print(c.sample(batch=8))
+    print(c.sample(status=tc.backend.get_random_state(42)))
+    print(c.sample(allow_state=True))
+    print(c.sample(batch=8, allow_state=True))
+    print(c.sample(batch=8, allow_state=True, status=tc.backend.get_random_state(42)))

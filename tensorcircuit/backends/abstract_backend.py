@@ -644,6 +644,81 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `cast`.".format(self.name)
         )
 
+    def mod(self: Any, x: Tensor, y: Tensor) -> Tensor:
+        """
+        Compute y-mod of x (negative number behavior is not guaranteed to be consistent)
+
+        :param x: input values
+        :type x: Tensor
+        :param y: mod ``y``
+        :type y: Tensor
+        :return: results
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `mod`.".format(self.name)
+        )
+
+    def reverse(self: Any, a: Tensor) -> Tensor:
+        """
+        return ``a[::-1]``, only 1D tensor is guaranteed for consistent behavior
+
+        :param a: 1D tensor
+        :type a: Tensor
+        :return: 1D tensor in reverse order
+        :rtype: Tensor
+        """
+        return a[::-1]
+
+    def right_shift(self: Any, x: Tensor, y: Tensor) -> Tensor:
+        """
+        Shift the bits of an integer x to the right y bits.
+
+        :param x: input values
+        :type x: Tensor
+        :param y: Number of bits shift to ``x``
+        :type y: Tensor
+        :return: result with the same shape as ``x``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `right_shift`.".format(self.name)
+        )
+
+    def left_shift(self: Any, x: Tensor, y: Tensor) -> Tensor:
+        """
+        Shift the bits of an integer x to the left y bits.
+
+        :param x: input values
+        :type x: Tensor
+        :param y: Number of bits shift to ``x``
+        :type y: Tensor
+        :return: result with the same shape as ``x``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `left_shift`.".format(self.name)
+        )
+
+    def arange(
+        self: Any, start: int, stop: Optional[int] = None, step: int = 1
+    ) -> Tensor:
+        """
+        Values are generated within the half-open interval [start, stop)
+
+        :param start: start index
+        :type start: int
+        :param stop: end index, defaults to None
+        :type stop: Optional[int], optional
+        :param step: steps, defaults to 1
+        :type step: Optional[int], optional
+        :return: _description_
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `arange`.".format(self.name)
+        )
+
     def solve(self: Any, A: Tensor, b: Tensor, **kws: Any) -> Tensor:
         """
         Solve the linear system Ax=b and return the solution x.

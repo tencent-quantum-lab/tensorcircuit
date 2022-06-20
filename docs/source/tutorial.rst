@@ -5,6 +5,7 @@ Jupyter Tutorials
 .. toctree::
 
     tutorials/circuit_basics.ipynb
+    tutorials/qaoa.ipynb
     tutorials/tfim_vqe.ipynb
     tutorials/mnist_qml.ipynb
     tutorials/torch_qml.ipynb

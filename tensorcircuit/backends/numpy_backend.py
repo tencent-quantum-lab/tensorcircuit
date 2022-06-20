@@ -211,6 +211,20 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
             return a.astype(getattr(np, dtype))
         return a.astype(dtype)
 
+    def arange(self, start: int, stop: Optional[int] = None, step: int = 1) -> Tensor:
+        if stop is None:
+            return np.arange(start=0, stop=start, step=step)
+        return np.arange(start=start, stop=stop, step=step)
+
+    def mod(self, x: Tensor, y: Tensor) -> Tensor:
+        return np.mod(x, y)
+
+    def right_shift(self, x: Tensor, y: Tensor) -> Tensor:
+        return np.right_shift(x, y)
+
+    def left_shift(self, x: Tensor, y: Tensor) -> Tensor:
+        return np.left_shift(x, y)
+
     def solve(self, A: Tensor, b: Tensor, assume_a: str = "gen") -> Tensor:
         # gen, sym, her, pos
         # https://stackoverflow.com/questions/44672029/difference-between-numpy-linalg-solve-and-numpy-linalg-lu-solve/44710451

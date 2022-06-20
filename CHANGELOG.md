@@ -6,6 +6,18 @@
 
 - Add PyTorch nn Module wrapper in `torchnn`
 
+- Add `reverse`, `mod`, `left_shift`, `right_shift`, `arange` methods on backend
+
+- Brand new `sample` API with batch support and sampling from state support
+
+### Fixed
+
+- Fixed bug in merge single gates when all gates are single-qubit ones
+
+### Changed
+
+- The default contractor enable preprocessing feature where single-qubit gates are merged firstly
+
 ## 0.1.3
 
 ### Added

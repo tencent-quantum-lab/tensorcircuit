@@ -262,9 +262,17 @@ def _merge_single_gates(
     queue = [n for n in nodes if len(n.tensor.shape) <= 2]
     while queue:
         n0 = queue[0]
+        try:
+            n0[0]
+        except IndexError:
+            queue = _multi_remove(queue, [0])
+            continue
         if n0[0].is_dangling():
             try:
                 e0 = n0[1]
+                if e0.is_dangling():
+                    queue = _multi_remove(queue, [0])
+                    continue
             except IndexError:
                 queue = _multi_remove(queue, [0])
                 continue
@@ -272,7 +280,6 @@ def _merge_single_gates(
             e0 = n0[0]
         njs = [i for i, n in enumerate(nodes) if id(n) in [id(e0.node1), id(e0.node2)]]
         qjs = [i for i, n in enumerate(queue) if id(n) in [id(e0.node1), id(e0.node2)]]
-
         new_node = tn.contract(e0)
         total_size += _sizen(new_node)  # type: ignore
 
@@ -280,8 +287,11 @@ def _merge_single_gates(
             _sizen(new_node, is_log=True),
         )
         queue = _multi_remove(queue, qjs)
-        nodes[njs[1]] = new_node
-        nodes = _multi_remove(nodes, [njs[0]])
+        if len(njs) > 1:
+            nodes[njs[1]] = new_node
+            nodes = _multi_remove(nodes, [njs[0]])
+        else:  # trace edge?
+            nodes[njs[0]] = new_node
         if len(new_node.tensor.shape) <= 2:
             # queue.append(new_node)
             queue.insert(0, new_node)
@@ -808,7 +818,7 @@ def set_contractor(
     return cf
 
 
-set_contractor()
+set_contractor("greedy", preprocessing=True)
 
 get_contractor = partial(set_contractor, set_global=False)
 

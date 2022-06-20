@@ -245,6 +245,35 @@ def test_backend_methods_2(backend):
     np.testing.assert_allclose(
         tc.backend.eigvalsh(tc.backend.ones([2, 2])), np.array([0, 2]), atol=1e-5
     )
+    np.testing.assert_allclose(
+        tc.backend.left_shift(
+            tc.backend.convert_to_tensor(np.array([4, 3])),
+            tc.backend.convert_to_tensor(np.array([1, 1])),
+        ),
+        np.array([8, 6]),
+    )
+    np.testing.assert_allclose(
+        tc.backend.right_shift(
+            tc.backend.convert_to_tensor(np.array([4, 3])),
+            tc.backend.convert_to_tensor(np.array([1, 1])),
+        ),
+        np.array([2, 1]),
+    )
+    np.testing.assert_allclose(
+        tc.backend.mod(
+            tc.backend.convert_to_tensor(np.array([4, 3])),
+            tc.backend.convert_to_tensor(np.array([2, 2])),
+        ),
+        np.array([0, 1]),
+    )
+    np.testing.assert_allclose(
+        tc.backend.arange(3),
+        np.array([0, 1, 2]),
+    )
+    np.testing.assert_allclose(
+        tc.backend.arange(1, 5, 2),
+        np.array([1, 3]),
+    )
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])

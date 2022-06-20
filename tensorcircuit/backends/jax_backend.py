@@ -315,6 +315,20 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
             return a.astype(getattr(jnp, dtype))
         return a.astype(dtype)
 
+    def arange(self, start: int, stop: Optional[int] = None, step: int = 1) -> Tensor:
+        if stop is None:
+            return jnp.arange(start=0, stop=start, step=step)
+        return jnp.arange(start=start, stop=stop, step=step)
+
+    def mod(self, x: Tensor, y: Tensor) -> Tensor:
+        return jnp.mod(x, y)
+
+    def right_shift(self, x: Tensor, y: Tensor) -> Tensor:
+        return jnp.right_shift(x, y)
+
+    def left_shift(self, x: Tensor, y: Tensor) -> Tensor:
+        return jnp.left_shift(x, y)
+
     def expm(self, a: Tensor) -> Tensor:
         return jsp.linalg.expm(a)
         # currently expm in jax doesn't support AD, it will raise an AssertError,

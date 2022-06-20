@@ -375,8 +375,25 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
             return a.type(getattr(torchlib, dtype))
         return a.type(dtype)
 
+    def arange(self, start: int, stop: Optional[int] = None, step: int = 1) -> Tensor:
+        if stop is None:
+            return torchlib.arange(start=0, end=start, step=step)
+        return torchlib.arange(start=start, end=stop, step=step)
+
+    def mod(self, x: Tensor, y: Tensor) -> Tensor:
+        return torchlib.fmod(x, y)
+
+    def right_shift(self, x: Tensor, y: Tensor) -> Tensor:
+        return torchlib.bitwise_right_shift(x, y)
+
+    def left_shift(self, x: Tensor, y: Tensor) -> Tensor:
+        return torchlib.bitwise_left_shift(x, y)
+
     def solve(self, A: Tensor, b: Tensor, **kws: Any) -> Tensor:
         return torchlib.linalg.solve(A, b)
+
+    def reverse(self, a: Tensor) -> Tensor:
+        return torchlib.flip(a, dims=(-1,))
 
     def tree_map(self, f: Callable[..., Any], *pytrees: Any) -> Any:
         # TODO(@refraction-ray): torch not support multiple pytree args
