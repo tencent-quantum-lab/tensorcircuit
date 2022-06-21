@@ -41,7 +41,7 @@ def test_quantumnet(backend):
     else:
         use_interface = True
 
-    ql = tc.torchnn.QuantumNet(
+    ql = tc.TorchLayer(
         qpred, weights_shape=[2 * nlayers, n], use_interface=use_interface
     )
 

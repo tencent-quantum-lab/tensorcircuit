@@ -1,4 +1,4 @@
-__version__ = "0.1.3"
+__version__ = "0.2.0"
 __author__ = "TensorCircuit Authors"
 __creator__ = "refraction-ray"
 
@@ -25,14 +25,17 @@ from .vis import qir2tex, render_pdf
 from . import interfaces
 from . import templates
 from . import quantum
+from .quantum import QuOperator, QuVector, QuAdjointVector, QuScalar
 
 try:
     from . import keras
+    from .keras import QuantumLayer as KerasLayer
 except ModuleNotFoundError:
     pass  # in case tf is not installed
 
 try:
     from . import torchnn
+    from .torchnn import QuantumNet as TorchLayer
 except ModuleNotFoundError:
     pass  # in case torch is not installed
 

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.0
+
 ### Added
 
 - Add PyTorch nn Module wrapper in `torchnn`
@@ -9,6 +11,8 @@
 - Add `reverse`, `mod`, `left_shift`, `right_shift`, `arange` methods on backend
 
 - Brand new `sample` API with batch support and sampling from state support
+
+- add more methods in global namespace, and add alias `KerasLayer`/`TorchLayer`
 
 ### Fixed
 
