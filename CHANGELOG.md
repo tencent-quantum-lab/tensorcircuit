@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.1
+
 ### Added
 
 - Add `enable_lightcone` option in circuit `expectation` method, where only gates within casual lightcone of local observable is contracted.
