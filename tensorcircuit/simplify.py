@@ -204,9 +204,8 @@ def _full_rank_simplify(nodes: List[Any]) -> List[Any]:
 
 def _light_cone_cancel(nodes: List[Any]) -> Tuple[List[Any], bool]:
     is_changed = False
-    for n in nodes:
-        if getattr(n, "is_dagger", None) is None:
-            break
+    for ind in range(len(nodes) // 2, 0, -1):
+        n = nodes[ind]
         if n.is_dagger is True:
             continue
         noe = len(n.shape)
@@ -216,8 +215,6 @@ def _light_cone_cancel(nodes: List[Any]) -> Tuple[List[Any], bool]:
         n1, n2 = e.node1, e.node2  # one of them is n itself
         if n1 is None or n2 is None:
             continue
-        if getattr(n2, "is_dagger", None) is None:
-            break
         if n1.is_dagger == n2.is_dagger:
             continue
         if n1.id != n2.id:
@@ -276,6 +273,9 @@ def _full_light_cone_cancel(nodes: List[Any]) -> List[Any]:
     :return: _description_
     :rtype: List[Any]
     """
+    for n in nodes:
+        if getattr(n, "is_dagger", None) is None:
+            return nodes
     nodes, is_changed = _light_cone_cancel(nodes)
     while is_changed:
         nodes, is_changed = _light_cone_cancel(nodes)

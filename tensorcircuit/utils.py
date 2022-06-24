@@ -2,9 +2,10 @@
 Helper functions
 """
 
-from typing import Any, Callable, Union, Sequence
+from typing import Any, Callable, Union, Sequence, Tuple
 from functools import wraps
 import platform
+import time
 
 
 def return_partial(
@@ -96,3 +97,33 @@ def is_m1mac() -> bool:
     if not platform.platform().startswith("macOS"):
         return False
     return True
+
+
+def benchmark(
+    f: Any, *args: Any, tries: int = 5, verbose: bool = True
+) -> Tuple[Any, float, float]:
+    """
+    benchmark jittable function with staging time and running time
+
+    :param f: _description_
+    :type f: Any
+    :param tries: _description_, defaults to 5
+    :type tries: int, optional
+    :param verbose: _description_, defaults to True
+    :type verbose: bool, optional
+    :return: _description_
+    :rtype: Tuple[Any, float, float]
+    """
+    time0 = time.time()
+    r = f(*args)
+    time1 = time.time()
+    for _ in range(tries):
+        r = f(*args)
+    time2 = time.time()
+    if tries == 0:
+        rt = 0
+    else:
+        rt = (time2 - time1) / tries  # type: ignore
+    if verbose:
+        print("staging time: ", time1 - time0, "running time: ", rt)
+    return r, time1 - time0, rt

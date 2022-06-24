@@ -443,6 +443,8 @@ class Circuit:
         mpo: bool = False,
         ir_dict: Optional[Dict[str, Any]] = None,
     ) -> None:
+        if name is None:
+            name = ""
         gate_dict = {
             "gate": gate,
             "index": index,
