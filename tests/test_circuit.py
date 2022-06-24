@@ -473,8 +473,7 @@ def test_mixed_measurement_circuit(backend):
     n = 4
 
     def f(params, structures):
-        structuresc = tc.backend.softmax(structures, axis=-1)
-        structuresc = tc.backend.cast(structuresc, dtype="complex64")
+        structuresc = tc.backend.cast(structures, dtype="complex64")
         c = tc.Circuit(n)
         for i in range(n):
             c.H(i)
@@ -512,17 +511,17 @@ def test_mixed_measurement_circuit(backend):
         v,
         np.array(
             [
-                0.015747,
-                0.026107,
-                0.019598,
-                0.025447,
+                0.157729,
+                0.157729,
+                0.157728,
+                0.085221,
             ]
         ),
         atol=1e-5,
     )
     np.testing.assert_allclose(
         g[0],
-        np.array([-0.038279, 0.065810, -0.0018669, 0.035806]),
+        np.array([-0.378372, -0.624019, -0.491295, -0.378372]),
         atol=1e-5,
     )
 
@@ -991,3 +990,30 @@ def test_batch_sample(backend):
     print(c.sample(allow_state=True))
     print(c.sample(batch=8, allow_state=True))
     print(c.sample(batch=8, allow_state=True, status=tc.backend.get_random_state(42)))
+
+
+def test_expectation_y_bug():
+    c = tc.Circuit(1, inputs=1 / np.sqrt(2) * np.array([-1, 1.0j]))
+    m = c.expectation_ps(y=[0])
+    np.testing.assert_allclose(m, -1, atol=1e-5)
+
+
+def test_lightcone_expectation():
+    def construct_c(pbc=True):
+        n = 4
+        ns = n
+        if pbc is False:
+            ns -= 1
+        c = tc.Circuit(n)
+        for j in range(2):
+            for i in range(n):
+                c.rx(i, theta=0.2, name="rx" + str(j) + "-" + str(i))
+            for i in range(ns):
+                c.cnot(i, (i + 1) % n, name="cnot" + str(j) + "-" + str(i))
+        return c
+
+    for b in [True, False]:
+        c = construct_c(b)
+        m1 = c.expectation_ps(z=[0], enable_lightcone=True)
+        m2 = c.expectation_ps(z=[0])
+        np.testing.assert_allclose(m1, m2, atol=1e-5)

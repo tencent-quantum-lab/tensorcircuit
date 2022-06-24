@@ -112,6 +112,9 @@ class QuantumLayer(Layer):  # type: ignore
     #     return dict(list(base_config.items()) + list(config.items()))
 
 
+KerasLayer = QuantumLayer
+
+
 def output_asis_loss(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
     """
     The keras loss function that directly taking the model output as the loss.

@@ -86,3 +86,6 @@ class QuantumNet(torch.nn.Module):  # type: ignore
     def forward(self, inputs: Tensor) -> Tensor:
         ypred = self.f(inputs, *self.q_weights)
         return ypred
+
+
+TorchLayer = QuantumNet

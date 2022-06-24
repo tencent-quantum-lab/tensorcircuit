@@ -14,7 +14,7 @@ import tensornetwork as tn
 from . import gates
 from .cons import backend, contractor, dtypestr, rdtypestr, npdtype
 from .quantum import QuVector, QuOperator, identity
-from .simplify import _split_two_qubit_gate
+from .simplify import _split_two_qubit_gate, _full_light_cone_cancel
 from .vis import qir2tex
 
 Gate = gates.Gate
@@ -135,7 +135,12 @@ class Circuit:
             self._front = new_front
 
         self._nqubits = nqubits
+        for node in nodes:
+            node.is_dagger = False
+            node.flag = "inputs"
+            node.id = id(node)
         self._nodes = nodes
+
         self._start_index = len(nodes)
         # self._start = nodes
         # self._meta_apply()
@@ -210,6 +215,10 @@ class Circuit:
                         new_front[j] ^ other[0][other[1]]
         j += 1
         self._front += new_front[j:]
+        for n in new_nodes:
+            n.is_dagger = False
+            n.flag = "inputs"
+            n.id = id(n)
         self._nodes = new_nodes + self._nodes[self._start_index :]
         self._start_index = len(new_nodes)
 
@@ -388,6 +397,9 @@ class Circuit:
 
         gate.get_edge(1) ^ self._front[index]  # pay attention on the rank index here
         self._front[index] = gate.get_edge(0)
+        gate.flag = "gate"
+        gate.is_dagger = False
+        gate.id = id(gate)
         self._nodes.append(gate)
 
     def apply_double_gate(self, gate: Gate, index1: int, index2: int) -> None:
@@ -414,6 +426,9 @@ class Circuit:
         gate.get_edge(3) ^ self._front[index2]
         self._front[index1] = gate.get_edge(0)
         self._front[index2] = gate.get_edge(1)
+        gate.flag = "gate"
+        gate.is_dagger = False
+        gate.id = id(gate)
         self._nodes.append(gate)
 
         # actually apply single and double gate never directly used in the Circuit class
@@ -455,7 +470,14 @@ class Circuit:
                 # max_err cannot be jax jitted
                 if results is not None:
                     n1, n2, is_swap = results
-
+                    n1.flag = "gate"
+                    n1.is_dagger = False
+                    n1.name = name
+                    n1.id = id(n1)
+                    n2.flag = "gate"
+                    n2.is_dagger = False
+                    n2.id = id(n2)
+                    n2.name = name
                     if is_swap is False:
                         n1[1] ^ self._front[index[0]]
                         n2[2] ^ self._front[index[1]]
@@ -476,6 +498,10 @@ class Circuit:
                 for i, ind in enumerate(index):
                     gate.get_edge(i + noe) ^ self._front[ind]
                     self._front[ind] = gate.get_edge(i)
+                gate.name = name
+                gate.flag = "gate"
+                gate.is_dagger = False
+                gate.id = id(gate)
                 self._nodes.append(gate)
 
         else:  # gate in MPO format
@@ -484,6 +510,11 @@ class Circuit:
             for i, ind in enumerate(index):
                 gatec.in_edges[i] ^ self._front[ind]
                 self._front[ind] = gatec.out_edges[i]
+            for n in gatec.nodes:
+                n.flag = "gate"
+                n.is_dagger = False
+                n.id = id(gate)
+                n.name = name
 
         self.state_tensor = None  # refresh the state cache
         # if name:
@@ -736,6 +767,12 @@ class Circuit:
 
         mg1 = tn.Node(gate)
         mg2 = tn.Node(gate)
+        mg1.flag = "post-select"
+        mg1.is_dagger = False
+        mg1.id = id(mg1)
+        mg2.flag = "post-select"
+        mg2.is_dagger = False
+        mg2.id = id(mg2)
         mg1.get_edge(0) ^ self._front[index]
         mg1.get_edge(1) ^ mg2.get_edge(1)
         self._front[index] = mg2.get_edge(0)
@@ -1173,6 +1210,10 @@ class Circuit:
         ndict, edict = tn.copy(self._nodes, conjugate=conj)
         newnodes = []
         for n in self._nodes:
+            newn = ndict[n]
+            newn.is_dagger = conj
+            newn.flag = getattr(n, "flag", "") + "copy"
+            newn.id = getattr(n, "id", id(n))
             newnodes.append(ndict[n])
         newfront = []
         for e in self._front:
@@ -1285,7 +1326,10 @@ class Circuit:
                 )
         for i, _ in enumerate(l):
             d_edges[i] ^ ms[i].get_edge(0)
-
+        for n in ms:
+            n.flag = "measurement"
+            n.is_dagger = False
+            n.id = id(n)
         no.extend(ms)
         return contractor(no).tensor
 
@@ -1381,8 +1425,14 @@ class Circuit:
                     i
                 ] * gates.array_to_tensor(np.array([0, 1]))
                 nodes1.append(Gate(m))
+                nodes1[-1].id = id(nodes1[-1])
+                nodes1[-1].is_dagger = False
+                nodes1[-1].flag = "measurement"
                 nodes1[-1].get_edge(0) ^ edge1[index[i]]
-                nodes2.append(tn.Node(m))
+                nodes2.append(Gate(m))
+                nodes2[-1].id = id(nodes2[-1])
+                nodes2[-1].is_dagger = True
+                nodes2[-1].flag = "measurement"
                 nodes2[-1].get_edge(0) ^ edge2[index[i]]
             nodes1.extend(nodes2)
             rho = (
@@ -1487,7 +1537,9 @@ class Circuit:
     # TODO(@refraction-ray): more _before function like state_before? and better API?
 
     def expectation_before(
-        self, *ops: Tuple[tn.Node, List[int]], reuse: bool = True
+        self,
+        *ops: Tuple[tn.Node, List[int]],
+        reuse: bool = True,
     ) -> List[tn.Node]:
         """
         Return the list of nodes that consititues the expectation value just before the contraction.
@@ -1516,9 +1568,13 @@ class Circuit:
             for j, e in enumerate(index):
                 if e in occupied:
                     raise ValueError("Cannot measure two operators in one index")
-                edge1[e] ^ op.get_edge(j)
-                edge2[e] ^ op.get_edge(j + noe)
+                edge2[e] ^ op.get_edge(j)
+                edge1[e] ^ op.get_edge(j + noe)
+                # bug?
                 occupied.add(e)
+            op.flag = "operator"
+            op.is_dagger = False
+            op.id = id(op)
             nodes1.append(op)
         for j in range(self._nqubits):
             if j not in occupied:  # edge1[j].is_dangling invalid here!
@@ -1526,7 +1582,10 @@ class Circuit:
         return nodes1
 
     def expectation(
-        self, *ops: Tuple[tn.Node, List[int]], reuse: bool = True
+        self,
+        *ops: Tuple[tn.Node, List[int]],
+        reuse: bool = True,
+        enable_lightcone: bool = False,
     ) -> Tensor:
         """
         Compute the expectation of corresponding operators.
@@ -1544,6 +1603,8 @@ class Circuit:
         :param reuse: If True, then the wavefunction tensor is cached for further expectation evaluation,
             defaults to be true.
         :type reuse: bool, optional
+        :param enable_lightcone: whether enable light cone simplification, defaults to False
+        :type enable_lightcone: bool, optional
         :raises ValueError: "Cannot measure two operators in one index"
         :return: Tensor with one element
         :rtype: Tensor
@@ -1554,7 +1615,11 @@ class Circuit:
         # else:  # reuse
 
         # self._nodes = nodes1
+        if enable_lightcone:
+            reuse = False
         nodes1 = self.expectation_before(*ops, reuse=reuse)
+        if enable_lightcone:
+            nodes1 = _full_light_cone_cancel(nodes1)
         return contractor(nodes1).tensor
 
     def to_qiskit(self) -> Any:
@@ -1646,6 +1711,7 @@ def _expectation_ps(
     y: Optional[Sequence[int]] = None,
     z: Optional[Sequence[int]] = None,
     reuse: bool = True,
+    **kws: Any,
 ) -> Tensor:
     """
     Shortcut for Pauli string expectation.
@@ -1680,7 +1746,7 @@ def _expectation_ps(
     if z is not None:
         for i in z:
             obs.append([gates.z(), [i]])  # type: ignore
-    return c.expectation(*obs, reuse=reuse)  # type: ignore
+    return c.expectation(*obs, reuse=reuse, **kws)  # type: ignore
 
 
 Circuit._meta_apply()

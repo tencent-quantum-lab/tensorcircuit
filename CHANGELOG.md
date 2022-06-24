@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Added
+
+- Add `enable_lightcone` option in circuit `expectation` method, where only gates within casual lightcone of local observable is contracted.
+
+### Fixed
+
+- Fixed a vital bug on circuit expectation evaluation, a wrongly transposed operator connection is fixed.
+
+- Name passed in gate application now works as Node name
+
 ## 0.2.0
 
 ### Added

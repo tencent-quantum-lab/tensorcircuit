@@ -16,6 +16,7 @@ import tensornetwork as tn
 from tensornetwork.backend_contextmanager import get_default_backend
 
 from .backends import get_backend  # type: ignore
+from .simplify import _multi_remove
 
 logger = logging.getLogger(__name__)
 
@@ -238,11 +239,6 @@ def runtime_dtype(dtype: Optional[str] = None) -> Iterator[Tuple[str, str]]:
 
 # here below comes other contractors (just works,
 # but correctness has not been extensively tested for some of them)
-
-
-def _multi_remove(elems: List[Any], indices: List[int]) -> List[Any]:
-    """Remove multiple indices from a list for one time."""
-    return [i for j, i in enumerate(elems) if j not in indices]
 
 
 def _sizen(node: tn.Node, is_log: bool = False) -> int:
@@ -665,6 +661,7 @@ def custom(
 
     total_size = None
     if kws.get("preprocessing", None):
+        # nodes = _full_light_cone_cancel(nodes)
         nodes, total_size = _merge_single_gates(nodes)
     if not isinstance(optimizer, list):
         alg = partial(optimizer, memory_limit=memory_limit)

@@ -13,8 +13,6 @@ from typing import Any, List, Optional, Tuple
 import numpy as np
 import tensornetwork as tn
 
-from .cons import _multi_remove, backend
-
 
 def infer_new_size(a: tn.Node, b: tn.Node, include_old: bool = True) -> Any:
     shared_edges = tn.get_shared_edges(a, b)
@@ -74,6 +72,8 @@ def pseudo_contract_between(a: tn.Node, b: tn.Node, **kws: Any) -> tn.Node:
     :return: [description]
     :rtype: tn.Node
     """
+    from .cons import backend
+
     shared_edges = tn.get_shared_edges(a, b)
     new_shape = tuple(
         ([e.dimension for e in a if e not in shared_edges])
@@ -82,6 +82,11 @@ def pseudo_contract_between(a: tn.Node, b: tn.Node, **kws: Any) -> tn.Node:
     new_node = tn.Node(backend.zeros(new_shape))
     tn.network_components._remove_edges(shared_edges, a, b, new_node)
     return new_node
+
+
+def _multi_remove(elems: List[Any], indices: List[int]) -> List[Any]:
+    """Remove multiple indices from a list for one time."""
+    return [i for j, i in enumerate(elems) if j not in indices]
 
 
 def _split_two_qubit_gate(
@@ -194,6 +199,86 @@ def _full_rank_simplify(nodes: List[Any]) -> List[Any]:
     nodes, is_changed = _rank_simplify(nodes)
     while is_changed:
         nodes, is_changed = _rank_simplify(nodes)
+    return nodes
+
+
+def _light_cone_cancel(nodes: List[Any]) -> Tuple[List[Any], bool]:
+    is_changed = False
+    for n in nodes:
+        if getattr(n, "is_dagger", None) is None:
+            break
+        if n.is_dagger is True:
+            continue
+        noe = len(n.shape)
+        if noe % 2 != 0:
+            continue
+        e = n[0]
+        n1, n2 = e.node1, e.node2  # one of them is n itself
+        if n1 is None or n2 is None:
+            continue
+        if getattr(n2, "is_dagger", None) is None:
+            break
+        if n1.is_dagger == n2.is_dagger:
+            continue
+        if n1.id != n2.id:
+            continue
+        if e.axis1 != e.axis2:
+            continue
+        for i in range(noe // 2):
+            e = n[i]
+            n3, n4 = e.node1, e.node2  # should also be n1 and n2
+            if n3 is None or n4 is None:
+                break
+            if sorted([id(n3), id(n4)]) != sorted([id(n1), id(n2)]):
+                break
+            if e.axis1 != e.axis2:
+                break
+        else:
+            if id(n1) != id(n):
+                n1, n2 = n2, n1  # make sure n1 is n dagger is False
+
+            # contract
+            njs = [i for i, n in enumerate(nodes) if id(n) in [id(n1), id(n2)]]
+            # new_node = tn.contract_between(e.node1, e.node2)
+            # contract(e) is not enough for multi edges between two tensors
+            for i in range(noe // 2):
+                e = n1[noe // 2 + i]
+                m1, m3 = e.node1, e.node2
+                i1, i3 = e.axis1, e.axis2
+                if id(m1) != id(n1):
+                    m1, m3 = m3, m1  # m1 is n1, m3 is the one behind m1
+                    i1, i3 = i3, i1
+                e.disconnect()
+                e = n2[noe // 2 + i]
+                m2, m4 = e.node1, e.node2
+                i2, i4 = e.axis1, e.axis2
+                if id(m2) != id(n2):
+                    m2, m4 = m4, m2  # m1 is n1, m3 is the one behind m1
+                    i2, i4 = i4, i2
+                e.disconnect()
+                m3[i3] ^ m4[i4]
+            nodes = _multi_remove(nodes, njs)
+
+            is_changed = True
+            break  # switch to the next node
+    return nodes, is_changed
+
+
+# TODO(@refraction-ray): better light cone cancellation in terms of MPO gates (three legs one)
+
+
+def _full_light_cone_cancel(nodes: List[Any]) -> List[Any]:
+    """
+    Simplify the list of tc.Nodes using casual lightcone structure.
+
+    :param nodes: _description_
+    :type nodes: List[Any]
+    :return: _description_
+    :rtype: List[Any]
+    """
+    nodes, is_changed = _light_cone_cancel(nodes)
+    while is_changed:
+        nodes, is_changed = _light_cone_cancel(nodes)
     return nodes
 
 
