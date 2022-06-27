@@ -139,3 +139,40 @@ Similarly, conditional gate application must be takend carefully.
 
     f()
     # <tf.Tensor: shape=(2,), dtype=complex64, numpy=array([0.99999994+0.j, 0.        +0.j], dtype=complex64)>
+
+
+AD Consistency
+---------------------
+
+TF and JAX backend manage the differentiation rules differently for complex-valued function (actually up to a complex conjuagte). See issue discussion `tensorflow issue <https://github.com/tensorflow/tensorflow/issues/3348>`_.
+
+In TensorCircuit, currently we make the difference in AD transparent, namely, when switching the backend, the AD behavior and result for complex valued function can be different and determined by the nature behavior of the corresponding backend framework.
+All AD relevant ops such as ``grad`` or ``jacrev`` may be affected. Therefore, the user must be careful when dealing with AD on complex valued function in a backend agnostic way in TensorCircuit.
+
+See example script on computing Jacobian with different modes on different backends: `jacobian_cal.py <https://github.com/tencent-quantum-lab/tensorcircuit/blob/master/examples/jacobian_cal.py>`_.
+Also see the code below for a reference:
+
+.. code-block:: python
+
+    bks = ["tensorflow", "jax"]
+    n = 2
+    for bk in bks:
+        print(bk, "backend")
+        with tc.runtime_backend(bk) as K:
+            def wfn(params):
+                c = tc.Circuit(n)
+                for i in range(n):
+                    c.H(i)
+                for i in range(n):
+                    c.rz(i, theta=params[i])
+                    c.rx(i, theta=params[i])
+                return K.real(c.expectation_ps(z=[0])+c.expectation_ps(z=[1]))
+            print(K.grad(wfn)(K.ones([n], dtype="complex64"))) # default
+            print(K.grad(wfn)(K.ones([n], dtype="float32")))
+
+    # tensorflow backend
+    # tf.Tensor([0.90929717+0.9228758j 0.90929717+0.9228758j], shape=(2,), dtype=complex64)
+    # tf.Tensor([0.90929717 0.90929717], shape=(2,), dtype=float32)
+    # jax backend
+    # [0.90929747-0.9228759j 0.90929747-0.9228759j]
+    # [0.90929747 0.90929747]
