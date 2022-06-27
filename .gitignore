@@ -22,3 +22,6 @@ dist
 __pycache__
 .ipynb_checkpoints
 examples/Unified AD model.ipynb
+docs/source/locale/zh/LC_MESSAGES/textbook.po
+docs/source/locale/zh/LC_MESSAGES/whitepapertoc_cn.po
+docs/source/locale/zh/LC_MESSAGES/textbooktoc.po

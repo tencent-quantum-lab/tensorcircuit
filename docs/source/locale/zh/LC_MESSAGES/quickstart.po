@@ -28,11 +28,11 @@ msgstr "电路对象"
 
 #: ../../source/quickstart.rst:9
 msgid "The basic object for TensorCircuit is ``tc.Circuit``."
-msgstr "TensorCircuit的基本对象是 “tc.Circuit\"。"
+msgstr "TensorCircuit的基本对象是 ``tc.Circuit``。"
 
 #: ../../source/quickstart.rst:11
 msgid "Initialize the circuit with the number of qubits ``c=tc.Circuit(n)``."
-msgstr "用量子比特数(n) “c=tc.Circuit(n)” 来初始化电路。"
+msgstr "用量子比特数(n) ``c=tc.Circuit(n)`` 来初始化电路。"
 
 #: ../../source/quickstart.rst:13
 msgid "**Input States:**"

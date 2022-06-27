@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-09 17:10+0800\n"
+"POT-Creation-Date: 2022-06-27 20:10+0800\n"
 "PO-Revision-Date: 2022-04-13 14:58+0800\n"
 "Last-Translator: Xinghan Yang\n"
 "Language: cn\n"
@@ -72,6 +72,7 @@ msgstr ""
 #: tensorcircuit.backends.backend_factory.get_backend
 #: tensorcircuit.backends.jax_backend.JaxBackend.acos
 #: tensorcircuit.backends.jax_backend.JaxBackend.acosh
+#: tensorcircuit.backends.jax_backend.JaxBackend.arange
 #: tensorcircuit.backends.jax_backend.JaxBackend.argmax
 #: tensorcircuit.backends.jax_backend.JaxBackend.argmin
 #: tensorcircuit.backends.jax_backend.JaxBackend.asin
@@ -99,14 +100,17 @@ msgstr ""
 #: tensorcircuit.backends.jax_backend.JaxBackend.jit
 #: tensorcircuit.backends.jax_backend.JaxBackend.jvp
 #: tensorcircuit.backends.jax_backend.JaxBackend.kron
+#: tensorcircuit.backends.jax_backend.JaxBackend.left_shift
 #: tensorcircuit.backends.jax_backend.JaxBackend.max
 #: tensorcircuit.backends.jax_backend.JaxBackend.mean
 #: tensorcircuit.backends.jax_backend.JaxBackend.min
+#: tensorcircuit.backends.jax_backend.JaxBackend.mod
 #: tensorcircuit.backends.jax_backend.JaxBackend.numpy
 #: tensorcircuit.backends.jax_backend.JaxBackend.onehot
 #: tensorcircuit.backends.jax_backend.JaxBackend.random_split
 #: tensorcircuit.backends.jax_backend.JaxBackend.real
 #: tensorcircuit.backends.jax_backend.JaxBackend.relu
+#: tensorcircuit.backends.jax_backend.JaxBackend.right_shift
 #: tensorcircuit.backends.jax_backend.JaxBackend.scatter
 #: tensorcircuit.backends.jax_backend.JaxBackend.set_random_state
 #: tensorcircuit.backends.jax_backend.JaxBackend.sigmoid
@@ -126,6 +130,9 @@ msgstr ""
 #: tensorcircuit.backends.jax_backend.JaxBackend.tanh
 #: tensorcircuit.backends.jax_backend.JaxBackend.tile
 #: tensorcircuit.backends.jax_backend.JaxBackend.to_dense
+#: tensorcircuit.backends.jax_backend.JaxBackend.tree_flatten
+#: tensorcircuit.backends.jax_backend.JaxBackend.tree_map
+#: tensorcircuit.backends.jax_backend.JaxBackend.tree_unflatten
 #: tensorcircuit.backends.jax_backend.JaxBackend.unique_with_counts
 #: tensorcircuit.backends.jax_backend.JaxBackend.value_and_grad
 #: tensorcircuit.backends.jax_backend.JaxBackend.vectorized_value_and_grad
@@ -133,6 +140,7 @@ msgstr ""
 #: tensorcircuit.backends.jax_backend.JaxBackend.vmap
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.acos
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.acosh
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.arange
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.argmax
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.argmin
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.asin
@@ -157,13 +165,16 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.jit
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.jvp
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.kron
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.left_shift
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.max
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.mean
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.min
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.mod
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.numpy
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.onehot
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.real
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.relu
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.right_shift
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.scatter
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.set_random_state
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.sigmoid
@@ -190,6 +201,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.vmap
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.acos
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.acosh
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.arange
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.argmax
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.argmin
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.asin
@@ -212,13 +224,17 @@ msgstr ""
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.jit
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.jvp
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.kron
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.left_shift
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.max
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.mean
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.min
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.mod
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.numpy
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.onehot
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.real
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.relu
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.reverse
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.right_shift
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.sigmoid
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.sin
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.sinh
@@ -231,6 +247,9 @@ msgstr ""
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tan
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tanh
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tile
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_flatten
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_map
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_unflatten
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.unique_with_counts
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.value_and_grad
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.vectorized_value_and_grad
@@ -238,6 +257,7 @@ msgstr ""
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.vmap
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.acos
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.acosh
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.arange
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.argmax
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.argmin
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.asin
@@ -263,13 +283,16 @@ msgstr ""
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.jit
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.jvp
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.kron
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.left_shift
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.max
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.mean
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.min
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.mod
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.numpy
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.onehot
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.real
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.relu
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.right_shift
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.scatter
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.set_random_state
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.sigmoid
@@ -318,6 +341,7 @@ msgstr ""
 #: tensorcircuit.circuit.Circuit.mid_measurement
 #: tensorcircuit.circuit.Circuit.replace_inputs
 #: tensorcircuit.circuit.Circuit.replace_mps_inputs
+#: tensorcircuit.circuit.Circuit.sample
 #: tensorcircuit.circuit.Circuit.select_gate
 #: tensorcircuit.circuit.Circuit.unitary_kraus
 #: tensorcircuit.circuit.Circuit.wavefunction
@@ -341,8 +365,9 @@ msgstr ""
 #: tensorcircuit.gates.exponential_gate_unity tensorcircuit.gates.iswap_gate
 #: tensorcircuit.gates.matrix_for_gate tensorcircuit.gates.num_to_tensor
 #: tensorcircuit.gates.r_gate tensorcircuit.gates.rgate_theoretical
-#: tensorcircuit.gates.rx_gate tensorcircuit.gates.ry_gate
-#: tensorcircuit.gates.rz_gate
+#: tensorcircuit.gates.rx_gate tensorcircuit.gates.rxx_gate
+#: tensorcircuit.gates.ry_gate tensorcircuit.gates.ryy_gate
+#: tensorcircuit.gates.rz_gate tensorcircuit.gates.rzz_gate
 #: tensorcircuit.interfaces.scipy_optimize_interface
 #: tensorcircuit.interfaces.torch_interface
 #: tensorcircuit.keras.QuantumLayer.__init__ tensorcircuit.keras.load_func
@@ -371,6 +396,7 @@ msgstr ""
 #: tensorcircuit.mpscircuit.split_tensor tensorcircuit.quantum.PauliString2COO
 #: tensorcircuit.quantum.PauliStringSum2COO
 #: tensorcircuit.quantum.PauliStringSum2COO_numpy
+#: tensorcircuit.quantum.PauliStringSum2COO_tf
 #: tensorcircuit.quantum.PauliStringSum2Dense
 #: tensorcircuit.quantum.QuAdjointVector.__init__
 #: tensorcircuit.quantum.QuAdjointVector.from_tensor
@@ -420,10 +446,12 @@ msgstr ""
 #: tensorcircuit.templates.measurements.operator_expectation
 #: tensorcircuit.templates.measurements.sparse_expectation
 #: tensorcircuit.templates.measurements.spin_glass_measurements
+#: tensorcircuit.torchnn.QuantumNet.__init__
 #: tensorcircuit.translation.perm_matrix tensorcircuit.translation.qir2qiskit
 #: tensorcircuit.translation.qiskit2tc tensorcircuit.utils.append
-#: tensorcircuit.utils.return_partial tensorcircuit.vis.gate_name_trans
-#: tensorcircuit.vis.qir2tex tensorcircuit.vis.render_pdf
+#: tensorcircuit.utils.benchmark tensorcircuit.utils.return_partial
+#: tensorcircuit.vis.gate_name_trans tensorcircuit.vis.qir2tex
+#: tensorcircuit.vis.render_pdf
 msgid "Parameters"
 msgstr ""
 
@@ -568,6 +596,7 @@ msgstr ""
 #: tensorcircuit.backends.backend_factory.get_backend
 #: tensorcircuit.backends.jax_backend.JaxBackend.acos
 #: tensorcircuit.backends.jax_backend.JaxBackend.acosh
+#: tensorcircuit.backends.jax_backend.JaxBackend.arange
 #: tensorcircuit.backends.jax_backend.JaxBackend.argmax
 #: tensorcircuit.backends.jax_backend.JaxBackend.argmin
 #: tensorcircuit.backends.jax_backend.JaxBackend.asin
@@ -594,14 +623,17 @@ msgstr ""
 #: tensorcircuit.backends.jax_backend.JaxBackend.jit
 #: tensorcircuit.backends.jax_backend.JaxBackend.jvp
 #: tensorcircuit.backends.jax_backend.JaxBackend.kron
+#: tensorcircuit.backends.jax_backend.JaxBackend.left_shift
 #: tensorcircuit.backends.jax_backend.JaxBackend.max
 #: tensorcircuit.backends.jax_backend.JaxBackend.mean
 #: tensorcircuit.backends.jax_backend.JaxBackend.min
+#: tensorcircuit.backends.jax_backend.JaxBackend.mod
 #: tensorcircuit.backends.jax_backend.JaxBackend.numpy
 #: tensorcircuit.backends.jax_backend.JaxBackend.onehot
 #: tensorcircuit.backends.jax_backend.JaxBackend.random_split
 #: tensorcircuit.backends.jax_backend.JaxBackend.real
 #: tensorcircuit.backends.jax_backend.JaxBackend.relu
+#: tensorcircuit.backends.jax_backend.JaxBackend.right_shift
 #: tensorcircuit.backends.jax_backend.JaxBackend.scatter
 #: tensorcircuit.backends.jax_backend.JaxBackend.sigmoid
 #: tensorcircuit.backends.jax_backend.JaxBackend.sin
@@ -620,6 +652,9 @@ msgstr ""
 #: tensorcircuit.backends.jax_backend.JaxBackend.tanh
 #: tensorcircuit.backends.jax_backend.JaxBackend.tile
 #: tensorcircuit.backends.jax_backend.JaxBackend.to_dense
+#: tensorcircuit.backends.jax_backend.JaxBackend.tree_flatten
+#: tensorcircuit.backends.jax_backend.JaxBackend.tree_map
+#: tensorcircuit.backends.jax_backend.JaxBackend.tree_unflatten
 #: tensorcircuit.backends.jax_backend.JaxBackend.unique_with_counts
 #: tensorcircuit.backends.jax_backend.JaxBackend.value_and_grad
 #: tensorcircuit.backends.jax_backend.JaxBackend.vectorized_value_and_grad
@@ -627,6 +662,7 @@ msgstr ""
 #: tensorcircuit.backends.jax_backend.JaxBackend.vmap
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.acos
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.acosh
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.arange
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.argmax
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.argmin
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.asin
@@ -650,13 +686,16 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.jit
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.jvp
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.kron
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.left_shift
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.max
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.mean
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.min
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.mod
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.numpy
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.onehot
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.real
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.relu
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.right_shift
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.scatter
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.sigmoid
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.sin
@@ -682,6 +721,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.vmap
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.acos
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.acosh
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.arange
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.argmax
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.argmin
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.asin
@@ -703,13 +743,17 @@ msgstr ""
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.jit
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.jvp
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.kron
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.left_shift
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.max
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.mean
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.min
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.mod
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.numpy
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.onehot
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.real
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.relu
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.reverse
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.right_shift
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.sigmoid
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.sin
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.sinh
@@ -722,6 +766,9 @@ msgstr ""
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tan
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tanh
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tile
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_flatten
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_map
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_unflatten
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.unique_with_counts
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.value_and_grad
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.vectorized_value_and_grad
@@ -729,6 +776,7 @@ msgstr ""
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.vmap
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.acos
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.acosh
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.arange
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.argmax
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.argmin
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.asin
@@ -753,13 +801,16 @@ msgstr ""
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.jit
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.jvp
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.kron
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.left_shift
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.max
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.mean
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.min
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.mod
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.numpy
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.onehot
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.real
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.relu
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.right_shift
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.scatter
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.sigmoid
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.sin
@@ -794,12 +845,14 @@ msgstr ""
 #: tensorcircuit.circuit.Circuit.expectation_before
 #: tensorcircuit.circuit.Circuit.from_qir
 #: tensorcircuit.circuit.Circuit.from_qiskit
+#: tensorcircuit.circuit.Circuit.get_quoperator
 #: tensorcircuit.circuit.Circuit.get_quvector
 #: tensorcircuit.circuit.Circuit.is_valid tensorcircuit.circuit.Circuit.matrix
 #: tensorcircuit.circuit.Circuit.measure_jit
 #: tensorcircuit.circuit.Circuit.measure_reference
 #: tensorcircuit.circuit.Circuit.perfect_sampling
-#: tensorcircuit.circuit.Circuit.to_qir tensorcircuit.circuit.Circuit.to_qiskit
+#: tensorcircuit.circuit.Circuit.sample tensorcircuit.circuit.Circuit.to_qir
+#: tensorcircuit.circuit.Circuit.to_qiskit
 #: tensorcircuit.circuit.Circuit.unitary_kraus
 #: tensorcircuit.circuit.Circuit.vis_tex
 #: tensorcircuit.circuit.Circuit.wavefunction
@@ -821,7 +874,9 @@ msgstr ""
 #: tensorcircuit.gates.r_gate tensorcircuit.gates.random_single_qubit_gate
 #: tensorcircuit.gates.random_two_qubit_gate
 #: tensorcircuit.gates.rgate_theoretical tensorcircuit.gates.rx_gate
-#: tensorcircuit.gates.ry_gate tensorcircuit.gates.rz_gate
+#: tensorcircuit.gates.rxx_gate tensorcircuit.gates.ry_gate
+#: tensorcircuit.gates.ryy_gate tensorcircuit.gates.rz_gate
+#: tensorcircuit.gates.rzz_gate
 #: tensorcircuit.interfaces.scipy_optimize_interface
 #: tensorcircuit.interfaces.torch_interface tensorcircuit.keras.load_func
 #: tensorcircuit.keras.output_asis_loss
@@ -843,6 +898,7 @@ msgstr ""
 #: tensorcircuit.mpscircuit.split_tensor tensorcircuit.quantum.PauliString2COO
 #: tensorcircuit.quantum.PauliStringSum2COO
 #: tensorcircuit.quantum.PauliStringSum2COO_numpy
+#: tensorcircuit.quantum.PauliStringSum2COO_tf
 #: tensorcircuit.quantum.PauliStringSum2Dense
 #: tensorcircuit.quantum.QuAdjointVector.from_tensor
 #: tensorcircuit.quantum.QuAdjointVector.projector
@@ -892,6 +948,7 @@ msgstr ""
 #: tensorcircuit.templates.measurements.spin_glass_measurements
 #: tensorcircuit.translation.perm_matrix tensorcircuit.translation.qir2qiskit
 #: tensorcircuit.translation.qiskit2tc tensorcircuit.utils.append
+#: tensorcircuit.utils.benchmark tensorcircuit.utils.is_m1mac
 #: tensorcircuit.utils.return_partial tensorcircuit.vis.gate_name_trans
 #: tensorcircuit.vis.render_pdf
 msgid "Returns"
@@ -962,6 +1019,7 @@ msgstr ""
 #: tensorcircuit.backends.backend_factory.get_backend
 #: tensorcircuit.backends.jax_backend.JaxBackend.acos
 #: tensorcircuit.backends.jax_backend.JaxBackend.acosh
+#: tensorcircuit.backends.jax_backend.JaxBackend.arange
 #: tensorcircuit.backends.jax_backend.JaxBackend.argmax
 #: tensorcircuit.backends.jax_backend.JaxBackend.argmin
 #: tensorcircuit.backends.jax_backend.JaxBackend.asin
@@ -988,14 +1046,17 @@ msgstr ""
 #: tensorcircuit.backends.jax_backend.JaxBackend.jit
 #: tensorcircuit.backends.jax_backend.JaxBackend.jvp
 #: tensorcircuit.backends.jax_backend.JaxBackend.kron
+#: tensorcircuit.backends.jax_backend.JaxBackend.left_shift
 #: tensorcircuit.backends.jax_backend.JaxBackend.max
 #: tensorcircuit.backends.jax_backend.JaxBackend.mean
 #: tensorcircuit.backends.jax_backend.JaxBackend.min
+#: tensorcircuit.backends.jax_backend.JaxBackend.mod
 #: tensorcircuit.backends.jax_backend.JaxBackend.numpy
 #: tensorcircuit.backends.jax_backend.JaxBackend.onehot
 #: tensorcircuit.backends.jax_backend.JaxBackend.random_split
 #: tensorcircuit.backends.jax_backend.JaxBackend.real
 #: tensorcircuit.backends.jax_backend.JaxBackend.relu
+#: tensorcircuit.backends.jax_backend.JaxBackend.right_shift
 #: tensorcircuit.backends.jax_backend.JaxBackend.scatter
 #: tensorcircuit.backends.jax_backend.JaxBackend.sigmoid
 #: tensorcircuit.backends.jax_backend.JaxBackend.sin
@@ -1014,6 +1075,9 @@ msgstr ""
 #: tensorcircuit.backends.jax_backend.JaxBackend.tanh
 #: tensorcircuit.backends.jax_backend.JaxBackend.tile
 #: tensorcircuit.backends.jax_backend.JaxBackend.to_dense
+#: tensorcircuit.backends.jax_backend.JaxBackend.tree_flatten
+#: tensorcircuit.backends.jax_backend.JaxBackend.tree_map
+#: tensorcircuit.backends.jax_backend.JaxBackend.tree_unflatten
 #: tensorcircuit.backends.jax_backend.JaxBackend.unique_with_counts
 #: tensorcircuit.backends.jax_backend.JaxBackend.value_and_grad
 #: tensorcircuit.backends.jax_backend.JaxBackend.vectorized_value_and_grad
@@ -1021,6 +1085,7 @@ msgstr ""
 #: tensorcircuit.backends.jax_backend.JaxBackend.vmap
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.acos
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.acosh
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.arange
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.argmax
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.argmin
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.asin
@@ -1044,13 +1109,16 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.jit
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.jvp
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.kron
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.left_shift
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.max
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.mean
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.min
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.mod
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.numpy
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.onehot
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.real
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.relu
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.right_shift
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.scatter
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.sigmoid
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.sin
@@ -1076,6 +1144,7 @@ msgstr ""
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.vmap
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.acos
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.acosh
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.arange
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.argmax
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.argmin
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.asin
@@ -1097,13 +1166,17 @@ msgstr ""
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.jit
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.jvp
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.kron
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.left_shift
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.max
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.mean
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.min
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.mod
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.numpy
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.onehot
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.real
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.relu
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.reverse
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.right_shift
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.sigmoid
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.sin
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.sinh
@@ -1116,6 +1189,9 @@ msgstr ""
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tan
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tanh
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tile
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_flatten
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_map
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_unflatten
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.unique_with_counts
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.value_and_grad
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.vectorized_value_and_grad
@@ -1123,6 +1199,7 @@ msgstr ""
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.vmap
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.acos
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.acosh
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.arange
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.argmax
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.argmin
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.asin
@@ -1147,13 +1224,16 @@ msgstr ""
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.jit
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.jvp
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.kron
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.left_shift
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.max
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.mean
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.min
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.mod
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.numpy
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.onehot
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.real
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.relu
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.right_shift
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.scatter
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.sigmoid
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.sin
@@ -1188,12 +1268,13 @@ msgstr ""
 #: tensorcircuit.circuit.Circuit.expectation_before
 #: tensorcircuit.circuit.Circuit.from_qir
 #: tensorcircuit.circuit.Circuit.from_qiskit
+#: tensorcircuit.circuit.Circuit.get_quoperator
 #: tensorcircuit.circuit.Circuit.get_quvector
 #: tensorcircuit.circuit.Circuit.is_valid tensorcircuit.circuit.Circuit.matrix
 #: tensorcircuit.circuit.Circuit.measure_jit
 #: tensorcircuit.circuit.Circuit.measure_reference
 #: tensorcircuit.circuit.Circuit.perfect_sampling
-#: tensorcircuit.circuit.Circuit.to_qir
+#: tensorcircuit.circuit.Circuit.sample tensorcircuit.circuit.Circuit.to_qir
 #: tensorcircuit.circuit.Circuit.unitary_kraus
 #: tensorcircuit.circuit.Circuit.vis_tex
 #: tensorcircuit.circuit.Circuit.wavefunction
@@ -1217,7 +1298,9 @@ msgstr ""
 #: tensorcircuit.gates.r_gate tensorcircuit.gates.random_single_qubit_gate
 #: tensorcircuit.gates.random_two_qubit_gate
 #: tensorcircuit.gates.rgate_theoretical tensorcircuit.gates.rx_gate
-#: tensorcircuit.gates.ry_gate tensorcircuit.gates.rz_gate
+#: tensorcircuit.gates.rxx_gate tensorcircuit.gates.ry_gate
+#: tensorcircuit.gates.ryy_gate tensorcircuit.gates.rz_gate
+#: tensorcircuit.gates.rzz_gate
 #: tensorcircuit.interfaces.scipy_optimize_interface
 #: tensorcircuit.interfaces.torch_interface tensorcircuit.keras.load_func
 #: tensorcircuit.keras.output_asis_loss
@@ -1238,6 +1321,7 @@ msgstr ""
 #: tensorcircuit.mpscircuit.split_tensor tensorcircuit.quantum.PauliString2COO
 #: tensorcircuit.quantum.PauliStringSum2COO
 #: tensorcircuit.quantum.PauliStringSum2COO_numpy
+#: tensorcircuit.quantum.PauliStringSum2COO_tf
 #: tensorcircuit.quantum.PauliStringSum2Dense
 #: tensorcircuit.quantum.QuAdjointVector.from_tensor
 #: tensorcircuit.quantum.QuAdjointVector.projector
@@ -1287,6 +1371,7 @@ msgstr ""
 #: tensorcircuit.templates.measurements.spin_glass_measurements
 #: tensorcircuit.translation.perm_matrix tensorcircuit.translation.qir2qiskit
 #: tensorcircuit.translation.qiskit2tc tensorcircuit.utils.append
+#: tensorcircuit.utils.benchmark tensorcircuit.utils.is_m1mac
 #: tensorcircuit.utils.return_partial tensorcircuit.vis.gate_name_trans
 #: tensorcircuit.vis.render_pdf
 msgid "Return type"
@@ -1616,6 +1701,7 @@ msgstr ""
 #: of tensorcircuit.applications.utils.FakeModule:1
 #: tensorcircuit.applications.vqes.VQNHE:1
 #: tensorcircuit.backends.jax_backend.optax_optimizer:1
+#: tensorcircuit.backends.pytorch_backend.torch_optimizer:1
 #: tensorcircuit.backends.tensorflow_backend.keras_optimizer:1
 #: tensorcircuit.circuit.Circuit:1 tensorcircuit.densitymatrix.DMCircuit:1
 #: tensorcircuit.gates.GateF:1 tensorcircuit.mpscircuit.MPSCircuit:1
@@ -2277,6 +2363,8 @@ msgid "\"numpy\", \"tensorflow\", \"jax\", \"pytorch\""
 msgstr ""
 
 #: of tensorcircuit.backends.backend_factory.get_backend
+#: tensorcircuit.backends.jax_backend.JaxBackend.tree_map
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_map
 #: tensorcircuit.circuit.Circuit.expectation tensorcircuit.circuit.expectation
 #: tensorcircuit.cons.get_contractor tensorcircuit.cons.set_contractor
 #: tensorcircuit.gates.bmatrix tensorcircuit.keras.load_func
@@ -2439,6 +2527,49 @@ msgstr ""
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.acosh:5
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.acosh:5
 msgid "acosh of ``a``"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.arange:1
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.arange:1
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.arange:1
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.arange:1
+msgid "Values are generated within the half-open interval [start, stop)"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.arange:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.arange:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.arange:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.arange:3
+msgid "start index"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.arange:5
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.arange:5
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.arange:5
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.arange:5
+msgid "end index, defaults to None"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.arange:7
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.arange:7
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.arange:7
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.arange:7
+msgid "steps, defaults to 1"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.arange:9
+#: tensorcircuit.backends.jax_backend.JaxBackend.mean:9
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.arange:9
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.mean:9
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.arange:9
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.mean:9
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.arange:9
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.mean:9
+#: tensorcircuit.cons.runtime_contractor:3
+#: tensorcircuit.cons.set_function_contractor:3
+#: tensorcircuit.templates.graphs.Grid2DCoord.lattice_graph:6
+#: tensorcircuit.utils.benchmark:3 tensorcircuit.utils.benchmark:9
+msgid "_description_"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.argmax:1
@@ -2775,6 +2906,7 @@ msgstr ""
 #: tensorcircuit.quantum.quantum_constructor
 #: tensorcircuit.quantum.renyi_free_energy tensorcircuit.quantum.spin_by_basis
 #: tensorcircuit.quantum.trace_product tensorcircuit.simplify.infer_new_shape
+#: tensorcircuit.torchnn.QuantumNet.__init__
 #: tensorcircuit.translation.qir2qiskit tensorcircuit.translation.qiskit2tc
 #: tensorcircuit.utils.append tensorcircuit.utils.return_partial
 #: tensorcircuit.vis.gate_name_trans tensorcircuit.vis.qir2tex
@@ -3039,6 +3171,50 @@ msgstr ""
 msgid "kronecker product of ``a`` and ``b``"
 msgstr ""
 
+#: of tensorcircuit.backends.jax_backend.JaxBackend.left_shift:1
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.left_shift:1
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.left_shift:1
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.left_shift:1
+msgid "Shift the bits of an integer x to the left y bits."
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.left_shift:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.mod:3
+#: tensorcircuit.backends.jax_backend.JaxBackend.right_shift:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.left_shift:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.mod:3
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.right_shift:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.left_shift:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.mod:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.right_shift:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.left_shift:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.mod:3
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.right_shift:3
+msgid "input values"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.left_shift:5
+#: tensorcircuit.backends.jax_backend.JaxBackend.right_shift:5
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.left_shift:5
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.right_shift:5
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.left_shift:5
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.right_shift:5
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.left_shift:5
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.right_shift:5
+msgid "Number of bits shift to ``x``"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.left_shift:7
+#: tensorcircuit.backends.jax_backend.JaxBackend.right_shift:7
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.left_shift:7
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.right_shift:7
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.left_shift:7
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.right_shift:7
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.left_shift:7
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.right_shift:7
+msgid "result with the same shape as ``x``"
+msgstr ""
+
 #: of tensorcircuit.backends.jax_backend.JaxBackend.max:1
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.max:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.max:1
@@ -3086,21 +3262,34 @@ msgstr ""
 msgid "_description_, defaults to False"
 msgstr ""
 
-#: of tensorcircuit.backends.jax_backend.JaxBackend.mean:9
-#: tensorcircuit.backends.numpy_backend.NumpyBackend.mean:9
-#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.mean:9
-#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.mean:9
-#: tensorcircuit.cons.runtime_contractor:3
-#: tensorcircuit.cons.set_function_contractor:3
-#: tensorcircuit.templates.graphs.Grid2DCoord.lattice_graph:6
-msgid "_description_"
-msgstr ""
-
 #: of tensorcircuit.backends.jax_backend.JaxBackend.min:1
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.min:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.min:1
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.min:1
 msgid "Return the minimum of an array or minimum along an axis."
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.mod:1
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.mod:1
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.mod:1
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.mod:1
+msgid ""
+"Compute y-mod of x (negative number behavior is not guaranteed to be "
+"consistent)"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.mod:5
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.mod:5
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.mod:5
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.mod:5
+msgid "mod ``y``"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.mod:7
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.mod:7
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.mod:7
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.mod:7
+msgid "results"
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.numpy:1
@@ -3224,6 +3413,13 @@ msgstr ""
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.relu:11
 #: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.relu:11
 msgid "Tensor after relu"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.right_shift:1
+#: tensorcircuit.backends.numpy_backend.NumpyBackend.right_shift:1
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.right_shift:1
+#: tensorcircuit.backends.tensorflow_backend.TensorFlowBackend.right_shift:1
+msgid "Shift the bits of an integer x to the right y bits."
 msgstr ""
 
 #: of tensorcircuit.backends.jax_backend.JaxBackend.scatter:1
@@ -3526,6 +3722,68 @@ msgstr ""
 msgid "the resulted dense matrix"
 msgstr ""
 
+#: of tensorcircuit.backends.jax_backend.JaxBackend.tree_flatten:1
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_flatten:1
+msgid "Flatten python structure to 1D list"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.tree_flatten:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_flatten:3
+msgid "python structure to be flattened"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.tree_flatten:5
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_flatten:5
+msgid ""
+"The 1D list of flattened structure and treedef which can be used for "
+"later unflatten"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.tree_map:1
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_map:1
+msgid "Return the new tree map with multiple arg function ``f`` through pytrees."
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.tree_map:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_map:3
+msgid "The function"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.tree_map:5
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_map:5
+msgid "inputs as any python structure"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.tree_map:7
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_map:7
+msgid "raise when neither tensorflow or jax is installed."
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.tree_map:8
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_map:8
+msgid "The new tree map with the same structure but different values."
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.tree_unflatten:1
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_unflatten:1
+msgid "Pack 1D list to pytree defined via ``treedef``"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.tree_unflatten:3
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_unflatten:3
+msgid "Def of pytree structure, the second return from ``tree_flatten``"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.tree_unflatten:5
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_unflatten:5
+msgid "the 1D list of flattened data structure"
+msgstr ""
+
+#: of tensorcircuit.backends.jax_backend.JaxBackend.tree_unflatten:7
+#: tensorcircuit.backends.pytorch_backend.PyTorchBackend.tree_unflatten:7
+msgid "Packed pytree"
+msgstr ""
+
 #: of tensorcircuit.backends.jax_backend.JaxBackend.unique_with_counts:1
 #: tensorcircuit.backends.numpy_backend.NumpyBackend.unique_with_counts:1
 #: tensorcircuit.backends.pytorch_backend.PyTorchBackend.unique_with_counts:1
@@ -3770,6 +4028,18 @@ msgstr ""
 msgid ""
 "Note the functionality provided by pytorch backend is incomplete, it "
 "currenly lacks native efficicent jit and vmap support."
+msgstr ""
+
+#: of tensorcircuit.backends.pytorch_backend.PyTorchBackend.reverse:1
+msgid "return ``a[::-1]``, only 1D tensor is guaranteed for consistent behavior"
+msgstr ""
+
+#: of tensorcircuit.backends.pytorch_backend.PyTorchBackend.reverse:3
+msgid "1D tensor"
+msgstr ""
+
+#: of tensorcircuit.backends.pytorch_backend.PyTorchBackend.reverse:5
+msgid "1D tensor in reverse order"
 msgstr ""
 
 #: ../../source/api/backends/tensorflow_backend.rst:2
@@ -4388,6 +4658,14 @@ msgstr ""
 #: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:1
 #: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
 msgid ""
+"Apply **RXX** gate with parameters on the circuit. See "
+":py:meth:`tensorcircuit.gates.rxx_gate`."
+msgstr ""
+
+#: of
+#: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:1
+#: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
+msgid ""
 "Apply **RY** gate with parameters on the circuit. See "
 ":py:meth:`tensorcircuit.gates.ry_gate`."
 msgstr ""
@@ -4396,8 +4674,24 @@ msgstr ""
 #: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:1
 #: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
 msgid ""
+"Apply **RYY** gate with parameters on the circuit. See "
+":py:meth:`tensorcircuit.gates.ryy_gate`."
+msgstr ""
+
+#: of
+#: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:1
+#: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
+msgid ""
 "Apply **RZ** gate with parameters on the circuit. See "
 ":py:meth:`tensorcircuit.gates.rz_gate`."
+msgstr ""
+
+#: of
+#: tensorcircuit.circuit.Circuit.apply_general_variable_gate_delayed.<locals>.apply:1
+#: tensorcircuit.densitymatrix.DMCircuit.apply_general_variable_gate_delayed.<locals>.apply:1
+msgid ""
+"Apply **RZZ** gate with parameters on the circuit. See "
+":py:meth:`tensorcircuit.gates.rzz_gate`."
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.apply_general_gate_delayed.<locals>.apply:1
@@ -4829,11 +5123,15 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.expectation:16
+msgid "whether enable light cone simplification, defaults to False"
+msgstr ""
+
+#: of tensorcircuit.circuit.Circuit.expectation:18
 #: tensorcircuit.circuit.expectation:50
 msgid "\"Cannot measure two operators in one index\""
 msgstr ""
 
-#: of tensorcircuit.circuit.Circuit.expectation:17
+#: of tensorcircuit.circuit.Circuit.expectation:19
 #: tensorcircuit.densitymatrix.DMCircuit.expectation:6
 msgid "Tensor with one element"
 msgstr ""
@@ -4907,6 +5205,18 @@ msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.from_qiskit:18
 msgid "The same circuit but as tensorcircuit object"
+msgstr ""
+
+#: of tensorcircuit.circuit.Circuit.get_quoperator:1
+msgid ""
+"Get the ``QuOperator`` MPO like representation of the circuit unitary "
+"without contraction."
+msgstr ""
+
+#: of tensorcircuit.circuit.Circuit.get_quoperator:3
+msgid ""
+"``QuOperator`` object for the circuit unitary (open indices for the input"
+" state)"
 msgstr ""
 
 #: of tensorcircuit.circuit.Circuit.get_quvector:1
@@ -5006,6 +5316,30 @@ msgid ""
 "structure unchanged."
 msgstr ""
 
+#: of tensorcircuit.circuit.Circuit.sample:1
+msgid "batched sampling from state or circuit tensor network directly"
+msgstr ""
+
+#: of tensorcircuit.circuit.Circuit.sample:3
+msgid "number of samples, defaults to None"
+msgstr ""
+
+#: of tensorcircuit.circuit.Circuit.sample:5
+msgid ""
+"if true, we sample from the final state if memory allsows, True is "
+"prefered, defaults to False"
+msgstr ""
+
+#: of tensorcircuit.circuit.Circuit.sample:8
+msgid "random generator,  defaults to None"
+msgstr ""
+
+#: of tensorcircuit.circuit.Circuit.sample:10
+msgid ""
+"List (if batch) of tuple (binary configuration tensor and correponding "
+"probability)"
+msgstr ""
+
 #: of tensorcircuit.circuit.Circuit.wavefunction:1
 #: tensorcircuit.mpscircuit.MPSCircuit.wavefunction:1
 msgid "Compute the output wavefunction from the circuit."
@@ -5081,7 +5415,7 @@ msgid "Example 2 (:math:`bra` is different from :math:`ket`)"
 msgstr ""
 
 #: of tensorcircuit.circuit.expectation:42
-msgid ":math:`ket`."
+msgid ":math:`ket`. The state in tensor or ``QuVector`` format"
 msgstr ""
 
 #: of tensorcircuit.circuit.expectation:44
@@ -5468,7 +5802,9 @@ msgstr ""
 #: tensorcircuit.gates.rgate_theoretical:8
 #: tensorcircuit.gates.rgate_theoretical:10
 #: tensorcircuit.gates.rgate_theoretical:12 tensorcircuit.gates.rx_gate:6
-#: tensorcircuit.gates.ry_gate:6 tensorcircuit.gates.rz_gate:6
+#: tensorcircuit.gates.rxx_gate:9 tensorcircuit.gates.ry_gate:6
+#: tensorcircuit.gates.ryy_gate:9 tensorcircuit.gates.rz_gate:6
+#: tensorcircuit.gates.rzz_gate:9
 msgid "angle in radians"
 msgstr ""
 
@@ -5477,12 +5813,16 @@ msgid "CR Gate"
 msgstr ""
 
 #: of tensorcircuit.gates.exponential_gate_unity:1
+#: tensorcircuit.gates.rxx_gate:1 tensorcircuit.gates.ryy_gate:1
+#: tensorcircuit.gates.rzz_gate:1
 msgid ""
 "Faster exponential gate directly implemented based on RHS. Only works "
 "when :math:`U^2 = I` is an identity matrix."
 msgstr ""
 
 #: of tensorcircuit.gates.exponential_gate_unity:3
+#: tensorcircuit.gates.rxx_gate:3 tensorcircuit.gates.ryy_gate:3
+#: tensorcircuit.gates.rzz_gate:3
 msgid ""
 "\\textrm{exp}(U) &= e^{-j \\theta U} \\\\\n"
 "        &= \\cos(\\theta) I - j \\sin(\\theta) U \\\\\n"
@@ -5490,17 +5830,22 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.gates.exponential_gate:6
-#: tensorcircuit.gates.exponential_gate_unity:7
+#: tensorcircuit.gates.exponential_gate_unity:7 tensorcircuit.gates.rxx_gate:7
+#: tensorcircuit.gates.ryy_gate:7 tensorcircuit.gates.rzz_gate:7
 msgid "input unitary :math:`U`"
 msgstr ""
 
 #: of tensorcircuit.gates.exponential_gate:10
 #: tensorcircuit.gates.exponential_gate_unity:11
+#: tensorcircuit.gates.rxx_gate:11 tensorcircuit.gates.ryy_gate:11
+#: tensorcircuit.gates.rzz_gate:11
 msgid "suffix of Gate name"
 msgstr ""
 
 #: of tensorcircuit.gates.exponential_gate:11
 #: tensorcircuit.gates.exponential_gate_unity:13
+#: tensorcircuit.gates.rxx_gate:13 tensorcircuit.gates.ryy_gate:13
+#: tensorcircuit.gates.rzz_gate:13
 msgid "Exponential Gate"
 msgstr ""
 
@@ -6290,7 +6635,7 @@ msgid "IMPORT"
 msgstr ""
 
 #: of tensorcircuit.quantum.PauliString2COO:1
-#: tensorcircuit.quantum.PauliStringSum2COO:1
+#: tensorcircuit.quantum.PauliStringSum2COO_tf:1
 msgid "Generate tensorflow sparse matrix from Pauli string sum"
 msgstr ""
 
@@ -6310,8 +6655,14 @@ msgstr ""
 msgid "the tensorflow sparse matrix"
 msgstr ""
 
+#: of tensorcircuit.quantum.PauliStringSum2COO:1
+#: tensorcircuit.quantum.PauliStringSum2COO_numpy:1
+msgid "Generate sparse tensor from Pauli string sum"
+msgstr ""
+
 #: of tensorcircuit.quantum.PauliStringSum2COO:3
 #: tensorcircuit.quantum.PauliStringSum2COO_numpy:3
+#: tensorcircuit.quantum.PauliStringSum2COO_tf:3
 #: tensorcircuit.quantum.PauliStringSum2Dense:3
 msgid ""
 "2D Tensor, each row is for a Pauli string, e.g. [1, 0, 0, 3, 2] is for "
@@ -6320,6 +6671,7 @@ msgstr ""
 
 #: of tensorcircuit.quantum.PauliStringSum2COO:6
 #: tensorcircuit.quantum.PauliStringSum2COO_numpy:6
+#: tensorcircuit.quantum.PauliStringSum2COO_tf:6
 #: tensorcircuit.quantum.PauliStringSum2Dense:6
 msgid ""
 "1D Tensor, each element corresponds the weight for each Pauli string "
@@ -6327,22 +6679,27 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.quantum.PauliStringSum2COO:9
-msgid "the tensorflow coo sparse matrix"
+#: tensorcircuit.quantum.PauliStringSum2COO_numpy:9
+#: tensorcircuit.quantum.PauliStringSum2Dense:9
+msgid ""
+"default False. If True, return numpy coo else return backend compatible "
+"sparse tensor"
 msgstr ""
 
-#: of tensorcircuit.quantum.PauliStringSum2COO_numpy:1
-msgid "Generate scipy sparse matrix from Pauli string sum"
-msgstr ""
-
-#: of tensorcircuit.quantum.PauliStringSum2COO_numpy:9
+#: of tensorcircuit.quantum.PauliStringSum2COO:12
+#: tensorcircuit.quantum.PauliStringSum2COO_numpy:12
 msgid "the scipy coo sparse matrix"
 msgstr ""
 
-#: of tensorcircuit.quantum.PauliStringSum2Dense:1
-msgid "Generate tensorflow dense matrix from Pauli string sum"
+#: of tensorcircuit.quantum.PauliStringSum2COO_tf:9
+msgid "the tensorflow coo sparse matrix"
 msgstr ""
 
-#: of tensorcircuit.quantum.PauliStringSum2Dense:9
+#: of tensorcircuit.quantum.PauliStringSum2Dense:1
+msgid "Generate dense matrix from Pauli string sum"
+msgstr ""
+
+#: of tensorcircuit.quantum.PauliStringSum2Dense:12
 msgid "the tensorflow dense matrix"
 msgstr ""
 
@@ -7277,7 +7634,7 @@ msgstr ""
 #: of tensorcircuit.templates.chems.get_ps:1
 msgid ""
 "Get Pauli string array and weights array for a qubit Hamiltonian as a sum"
-" of Pauli strings defined in openfermion QubitOperator."
+" of Pauli strings defined in openfermion ``QubitOperator``."
 msgstr ""
 
 #: of tensorcircuit.templates.chems.get_ps:4
@@ -7508,6 +7865,64 @@ msgstr ""
 msgid "The spin glass energy expectation value"
 msgstr ""
 
+#: ../../source/api/torchnn.rst:2
+msgid "tensorcircuit.torchnn"
+msgstr ""
+
+#: of tensorcircuit.torchnn:1
+msgid "PyTorch nn Module wrapper for quantum function"
+msgstr ""
+
+#: of tensorcircuit.torchnn.QuantumNet:1
+msgid "Bases: :py:class:`torch.nn.modules.module.Module`"
+msgstr ""
+
+#: of tensorcircuit.torchnn.QuantumNet.__init__:1
+msgid "PyTorch nn Module wrapper on quantum function ``f``."
+msgstr ""
+
+#: of tensorcircuit.torchnn.QuantumNet.__init__:32
+msgid "Quantum function with tensor in (input and weights) and tensor out."
+msgstr ""
+
+#: of tensorcircuit.torchnn.QuantumNet.__init__:34
+msgid ""
+"list of shape tuple for different weights as the non-first parameters for"
+" ``f``"
+msgstr ""
+
+#: of tensorcircuit.torchnn.QuantumNet.__init__:36
+msgid "function that gives the shape tuple returns torch tensor, defaults to None"
+msgstr ""
+
+#: of tensorcircuit.torchnn.QuantumNet.__init__:38
+msgid "whether apply vmap (batch input) on ``f``, defaults to True"
+msgstr ""
+
+#: of tensorcircuit.torchnn.QuantumNet.__init__:40
+msgid "whether transform ``f`` with torch interface, defaults to True"
+msgstr ""
+
+#: of tensorcircuit.torchnn.QuantumNet.__init__:42
+msgid "whether jit ``f``, defaults to True"
+msgstr ""
+
+#: of tensorcircuit.torchnn.QuantumNet.forward:1
+msgid "Defines the computation performed at every call."
+msgstr ""
+
+#: of tensorcircuit.torchnn.QuantumNet.forward:3
+msgid "Should be overridden by all subclasses."
+msgstr ""
+
+#: of tensorcircuit.torchnn.QuantumNet.forward:6
+msgid ""
+"Although the recipe for forward pass needs to be defined within this "
+"function, one should call the :class:`Module` instance afterwards instead"
+" of this since the former takes care of running the registered hooks "
+"while the latter silently ignores them."
+msgstr ""
+
 #: ../../source/api/translation.rst:2
 msgid "tensorcircuit.translation"
 msgstr ""
@@ -7582,6 +7997,26 @@ msgstr ""
 
 #: of tensorcircuit.utils.append:13
 msgid "The final results after function pipeline"
+msgstr ""
+
+#: of tensorcircuit.utils.benchmark:1
+msgid "benchmark jittable function with staging time and running time"
+msgstr ""
+
+#: of tensorcircuit.utils.benchmark:5
+msgid "_description_, defaults to 5"
+msgstr ""
+
+#: of tensorcircuit.utils.benchmark:7
+msgid "_description_, defaults to True"
+msgstr ""
+
+#: of tensorcircuit.utils.is_m1mac:1
+msgid "check whether the running platform is MAC with M1 chip"
+msgstr ""
+
+#: of tensorcircuit.utils.is_m1mac:3
+msgid "True for MAC M1 platform"
 msgstr ""
 
 #: of tensorcircuit.utils.return_partial:1
@@ -12035,5 +12470,15 @@ msgstr ""
 #~ " true, a string table of tex "
 #~ "code will also be returned. :rtype: "
 #~ "Union[str, Tuple[str, List[List[str]]]]"
+#~ msgstr ""
+
+#~ msgid ":math:`ket`."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Get Pauli string array and weights "
+#~ "array for a qubit Hamiltonian as a"
+#~ " sum of Pauli strings defined in "
+#~ "openfermion QubitOperator."
 #~ msgstr ""
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  TensorCircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-17 16:24+0800\n"
+"POT-Creation-Date: 2022-06-27 20:10+0800\n"
 "PO-Revision-Date: 2022-04-12 09:18+0800\n"
 "Last-Translator: Xinghan Yang\n"
 "Language: zh\n"
@@ -362,6 +362,21 @@ msgstr ""
 
 #: ../../source/contribution.rst:204
 msgid "Make sure the DockerHub account is logged in via ``docker login``."
+msgstr ""
+
+#: ../../source/contribution.rst:212
+#, fuzzy
+msgid "**Binder Release**"
+msgstr "**Fixtures:**"
+
+#: ../../source/contribution.rst:214
+msgid ""
+"One may need to update the tensorcirucit version for binder environment "
+"by pushing new commit in refraction-ray/tc-env repo with new version "
+"update in its ``requriements.txt``. See `mybind setup "
+"<https://discourse.jupyter.org/t/tip-speed-up-binder-launches-by-pulling-"
+"github-content-in-a-binder-link-with-nbgitpuller/922>`_ for speed up via "
+"nbgitpuller."
 msgstr ""
 
 #~ msgid ""
