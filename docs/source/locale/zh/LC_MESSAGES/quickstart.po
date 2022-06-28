@@ -64,7 +64,7 @@ msgid ""
 "or apply Rx gate on qubit 2 as :math:`e^{-i\\theta/2 X}`."
 msgstr ""
 "我们可以将门应用于电路对象。 例如，使用 ``c.H(1)`` 或 ``c.rx(2, theta=0.2)``，我们可以将 Hadamard "
-"门应用于量子比特1 （基于0）或将 Rx 门应用于量子比特2: math：`e^{-i\\theta/2 X}`。"
+"门应用于量子比特1 （基于0）或将 Rx 门应用于量子比特2: math:`e^{-i\\theta/2 X}`。"
 
 #: ../../source/quickstart.rst:23
 msgid "The same rule also applies to multi-qubit gates, such as ``c.cnot(0, 1)``."
