@@ -64,7 +64,7 @@ msgid ""
 "or apply Rx gate on qubit 2 as :math:`e^{-i\\theta/2 X}`."
 msgstr ""
 "我们可以将门应用于电路对象。 例如，使用 ``c.H(1)`` 或 ``c.rx(2, theta=0.2)``，我们可以将 Hadamard "
-"门应用于量子比特1 （基于0）或将 Rx 门应用于量子比特2: math:`e^{-i\\theta/2 X}`。"
+"门应用于量子比特1 （基于0）或将 Rx 门应用于量子比特2 :math:`e^{-i\\theta/2 X}`。"
 
 #: ../../source/quickstart.rst:23
 msgid "The same rule also applies to multi-qubit gates, such as ``c.cnot(0, 1)``."
@@ -80,7 +80,7 @@ msgid ""
 ":math:`e^{i\\theta m}` of any matrix m as long as :math:`m^2=1`."
 msgstr ""
 "``c.exp1(0, 1, unitary=m, theta=0.2)`` 用于任何矩阵 m 的指数门 :math:`e^{i\\theta "
-"m}`，只要 m 满足 :math:` m^2=1`。"
+"m}`，只要 m 满足 :math:`m^2=1`。"
 
 #: ../../source/quickstart.rst:29
 msgid ""
@@ -100,13 +100,13 @@ msgstr "**测量与期望**"
 msgid ""
 "The most straightforward way to get the output from the circuit object is"
 " by getting the output wavefunction in vector form as ``c.state()``."
-msgstr "从电路对象中获取输出的最直接的方法是通过``c.state()``以向量形式获取输出波函数。"
+msgstr "从电路对象中获取输出的最直接的方法是通过 ``c.state()`` 以向量形式获取输出波函数。"
 
 #: ../../source/quickstart.rst:37
 msgid ""
 "For bitstring sampling, we have ``c.perfect_sampling()`` which returns "
 "the bitstring and the corresponding probability amplitude."
-msgstr "对于位串采样，我们有“c.perfect_sampling()”，它返回位串和相应的概率幅度。"
+msgstr "对于位串采样，我们有 ``c.perfect_sampling()``，它返回位串和相应的概率幅度。"
 
 #: ../../source/quickstart.rst:39
 msgid ""
@@ -115,7 +115,7 @@ msgid ""
 "``c.measure(0, 1, with_prob=True)``. The measure API is by default non-"
 "jittable, but we also have a jittable version as ``c.measure_jit(0, 1)``."
 msgstr ""
-"要测量部分量子比特，我们可以使用`c.measure(0, 1)`，如果我们想知道测量的结果的对应概率，可以尝试`c.measure(0, 1, "
+"要测量部分量子比特，我们可以使用 ``c.measure(0, 1)``，如果我们想知道测量的结果的对应概率，可以尝试 ``c.measure(0, 1, "
 "with_prob=True)``。 测量 API 在默认情况下是不可即时编译的 ，但我们也有一个可即时编译的版本，如 "
 "``c.measure_jit(0, 1)``。"
 
@@ -212,8 +212,8 @@ msgid ""
 "then call the visualization built in Qiskit. Namely, we have ``c.draw()``"
 " API."
 msgstr ""
-"从 Qiskit 导入：`c = tc.Circuit.from_qiskit(QuantumCircuit, n)` 或者因为我们可以轻松地将 "
-"`tc.Circuit` 转换为 QuantumCircuit，我们有一个简单的管道来首先转换 `tc.Circuit` ` 为 "
+"从 Qiskit 导入：``c = tc.Circuit.from_qiskit(QuantumCircuit, n)`` 或者因为我们可以轻松地将 "
+"``tc.Circuit`` 转换为 QuantumCircuit，我们有一个简单的管道来首先转换 ``tc.Circuit`` 为 "
 "Qiskit，然后调用 Qiskit 中内置的可视化。 也就是说，我们有 ``c.draw()`` API。"
 
 #: ../../source/quickstart.rst:96
@@ -357,7 +357,7 @@ msgid ""
 "backend with a full set of APIs as a conventional ML framework, which can"
 " also be accessed by ``tc.backend``."
 msgstr ""
-"后端可以设置为 `K=tc.set_backend(\"jax\")` ，`K`作为常规机器学习框架的全套API的后端，也可以通过`tc "
+"后端可以设置为 ``K=tc.set_backend(\"jax\")`` ，``K``作为常规机器学习框架的全套API的后端，也可以通过``tc "
 ".backend`` 被访问。"
 
 #: ../../source/quickstart.rst:231
