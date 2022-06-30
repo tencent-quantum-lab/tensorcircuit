@@ -14,13 +14,10 @@ Author
 <list of authors’ GitHub id>
 
 Status
-<Draft | Accepted | Deferred | Rejected | Final | Superseded>
+<Draft | Accepted | Deferred | Rejected | Superseded>
 
 Created
 <date created on, in yyyy-mm-dd format>
-
-Resolution
-<url> (required for Accepted | Rejected | Withdrawn)
 
 ## Abstract
 
