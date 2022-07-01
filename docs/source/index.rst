@@ -16,6 +16,23 @@ TensorCircuit is an open source quantum circuit and algorithm simulation framewo
 
 * It is compatible with machine learning engineering paradigms: automatic differentiation, just-in-time compilation, vectorized parallelism and GPU acceleration. 🛠
 
+Links
+----------
+
+* Source code: https://github.com/tencent-quantum-lab/tensorcircuit
+
+* Issue Tracker: https://github.com/tencent-quantum-lab/tensorcircuit/issues
+
+* Forum: https://github.com/tencent-quantum-lab/tensorcircuit/discussions
+
+* Documentation: https://tensorcircuit.readthedocs.io 
+
+* Whitepaper: https://arxiv.org/abs/2205.10091
+
+* PyPI page: https://pypi.org/project/tensorcircuit
+
+* DockerHub page: https://hub.docker.com/repository/docker/tensorcircuit/tensorcircuit
+
 
 
 Reference Documentation

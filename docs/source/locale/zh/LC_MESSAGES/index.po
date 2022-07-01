@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-17 16:24+0800\n"
+"POT-Creation-Date: 2022-07-01 10:20+0800\n"
 "PO-Revision-Date: 2022-04-16 22:37+0800\n"
 "Last-Translator: Xinghan Yang\n"
 "Language: cn\n"
@@ -53,43 +53,87 @@ msgid ""
 " acceleration. 🛠"
 msgstr "与机器学习工程实践兼容：自动微分，即时编译，向量并行化和 GPU 加速。🛠"
 
+#: ../../source/index.rst:20
+msgid "Links"
+msgstr "重要链接"
+
 #: ../../source/index.rst:22
+msgid "Source code: https://github.com/tencent-quantum-lab/tensorcircuit"
+msgstr "源代码: https://github.com/tencent-quantum-lab/tensorcircuit"
+
+#: ../../source/index.rst:24
+msgid "Issue Tracker: https://github.com/tencent-quantum-lab/tensorcircuit/issues"
+msgstr "问题跟踪: https://github.com/tencent-quantum-lab/tensorcircuit/issues"
+
+#: ../../source/index.rst:26
+msgid "Forum: https://github.com/tencent-quantum-lab/tensorcircuit/discussions"
+msgstr "论坛社区: https://github.com/tencent-quantum-lab/tensorcircuit/discussions"
+
+#: ../../source/index.rst:28
+msgid "Documentation: https://tensorcircuit.readthedocs.io"
+msgstr "文档: https://tensorcircuit.readthedocs.io"
+
+#: ../../source/index.rst:30
+msgid "Whitepaper: https://arxiv.org/abs/2205.10091"
+msgstr "白皮书文章: https://arxiv.org/abs/2205.10091"
+
+#: ../../source/index.rst:32
+msgid "PyPI page: https://pypi.org/project/tensorcircuit"
+msgstr "PyPI 页面: https://pypi.org/project/tensorcircuit"
+
+#: ../../source/index.rst:34
+msgid ""
+"DockerHub page: "
+"https://hub.docker.com/repository/docker/tensorcircuit/tensorcircuit"
+msgstr "DockerHub 页面: https://hub.docker.com/repository/docker/tensorcircuit/tensorcircuit"
+
+#: ../../source/index.rst:36
+msgid ""
+"Binder online: https://mybinder.org/v2/gh/refraction-ray/tc-"
+"env/master?urlpath=git-pull?repo=https://github.com/tencent-quantum-"
+"lab/tensorcircuit&urlpath=lab/tree/tensorcircuit/&branch=master"
+msgstr ""
+"在线 Binder Jupyter: https://mybinder.org/v2/gh/refraction-ray/tc-"
+"env/master?urlpath=git-pull?repo=https://github.com/tencent-quantum-"
+"lab/tensorcircuit&urlpath=lab/tree/tensorcircuit/&branch=master"
+
+#: ../../source/index.rst:41
 msgid "Reference Documentation"
 msgstr "参考文档"
 
-#: ../../source/index.rst:24
+#: ../../source/index.rst:43
 msgid ""
 "The following documentation sections briefly introduce TensorCircuit to "
 "the users and developpers."
 msgstr "以下文档向用户和开发者简要介绍了 TensorCircuit 软件。"
 
-#: ../../source/index.rst:36
+#: ../../source/index.rst:56
 msgid "Tutorials"
 msgstr "教程"
 
-#: ../../source/index.rst:38
+#: ../../source/index.rst:58
 msgid ""
 "The following documentation sections include integrated examples in the "
 "form of Jupyter Notebook."
 msgstr "以下 Jupyter Notebook 格式的文档包括了一系列使用 TensorCircuit 的集成案例。"
 
-#: ../../source/index.rst:57
+#: ../../source/index.rst:72
 msgid "API References"
 msgstr "API 参考"
 
-#: ../../source/index.rst:66
+#: ../../source/index.rst:81
 msgid "Indices and Tables"
 msgstr "索引和表格"
 
-#: ../../source/index.rst:68
+#: ../../source/index.rst:83
 msgid ":ref:`genindex`"
 msgstr ":ref:`genindex`"
 
-#: ../../source/index.rst:69
+#: ../../source/index.rst:84
 msgid ":ref:`modindex`"
 msgstr ":ref:`modindex`"
 
-#: ../../source/index.rst:70
+#: ../../source/index.rst:85
 msgid ":ref:`search`"
 msgstr ":ref:`search`"
 
