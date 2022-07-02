@@ -3,11 +3,9 @@ general function for interfaces transformation
 """
 
 from typing import Any
-from functools import partial
 
 from ..cons import backend
 from ..backends import get_backend  # type: ignore
-from ..utils import is_sequence
 
 Tensor = Any
 Array = Any
@@ -21,6 +19,17 @@ module2backend = {
 
 
 def which_backend(a: Tensor, return_backend: bool = True) -> Any:
+    """
+    Given a tensor ``a``, return the corresponding backend
+
+    :param a: the tensor
+    :type a: Tensor
+    :param return_backend: if true, return backend object, if false, return backend str,
+        defaults to True
+    :type return_backend: bool, optional
+    :return: the backend object or backend str
+    :rtype: Any
+    """
     module = type(a).__module__.split(".")[0]
     bkstr = module2backend[module]
     if not return_backend:
@@ -32,50 +41,47 @@ def tensor_to_numpy(t: Tensor) -> Array:
     return which_backend(t).numpy(t)
 
 
-def general_args_to_numpy(args: Any, same_pytree: bool = True) -> Any:
-    res = []
-    alone = False
-    if not is_sequence(args):
-        args = [args]
-        alone = True
-    for i in args:
-        res.append(backend.tree_map(tensor_to_numpy, i))
-    if not same_pytree:
-        return res  # all list
-    if isinstance(args, tuple):
-        return tuple(res)
-    if isinstance(args, list) and alone is True:
-        return res[0]
-    return res  # plain list
+def general_args_to_numpy(args: Any) -> Any:
+    """
+    Given a pytree, get the corresponding numpy array pytree
+
+    :param args: pytree
+    :type args: Any
+    :return: the same format pytree with all tensor replaced by numpy array
+    :rtype: Any
+    """
+    return backend.tree_map(tensor_to_numpy, args)
 
 
 def numpy_args_to_backend(
-    args: Any, same_pytree: bool = True, dtype: Any = None, target_backend: Any = None
+    args: Any, dtype: Any = None, target_backend: Any = None
 ) -> Any:
+    """
+    Given a pytree of numpy arrays, get the corresponding tensor pytree
+
+    :param args: pytree of numpy arrays
+    :type args: Any
+    :param dtype: str of str of the same pytree shape as args, defaults to None
+    :type dtype: Any, optional
+    :param target_backend: str or backend object, defaults to None,
+        indicating the current default backend
+    :type target_backend: Any, optional
+    :return: the same format pytree with all numpy array replaced by the tensors
+        in the target backend
+    :rtype: Any
+    """
     if target_backend is None:
         target_backend = backend
     elif isinstance(target_backend, str):
         target_backend = get_backend(target_backend)
 
-    res = []
-    alone = False
-    if not is_sequence(args):
-        args = [args]
-        alone = True
-    if not is_sequence(dtype):
-        dtype = [dtype for _ in range(len(args))]
-    for i, dt in zip(args, dtype):
-        if dt is None:
-            res.append(backend.tree_map(target_backend.convert_to_tensor, i))
-        else:
-            t = backend.tree_map(target_backend.convert_to_tensor, i)
-            t = backend.tree_map(partial(target_backend.cast, dtype=dt), t)
-            # TODO: (@refraction-ray) when dtype is different in the same pytree
-            res.append(t)
-    if not same_pytree:
-        return res  # all list
-    if isinstance(args, tuple):
-        return tuple(res)
-    if isinstance(args, list) and alone is True:
-        return res[0]
-    return res  # plain list
+    if dtype is None:
+        return backend.tree_map(target_backend.convert_to_tensor, args)
+    else:
+        if isinstance(dtype, str):
+            leaves, treedef = backend.tree_flatten(args)
+            dtype = [dtype for _ in range(len(leaves))]
+            dtype = backend.tree_unflatten(treedef, dtype)
+        t = backend.tree_map(target_backend.convert_to_tensor, args)
+        t = backend.tree_map(target_backend.cast, t, dtype)
+        return t

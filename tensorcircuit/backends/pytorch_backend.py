@@ -396,8 +396,16 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         return torchlib.flip(a, dims=(-1,))
 
     def tree_map(self, f: Callable[..., Any], *pytrees: Any) -> Any:
-        # TODO(@refraction-ray): torch not support multiple pytree args
-        return torchlib.utils._pytree.tree_map(f, *pytrees)
+        # torch native tree_map not support multiple pytree args
+        # return torchlib.utils._pytree.tree_map(f, *pytrees)
+        args = []
+        for pytree in pytrees:
+            flat_args, spec = self.tree_flatten(pytree)
+            args.append(flat_args)
+        res = [
+            f(*[args[i][k] for i in range(len(pytrees))]) for k in range(len(flat_args))
+        ]
+        return self.tree_unflatten(spec, res)
 
     def tree_flatten(self: Any, pytree: Any) -> Tuple[Any, Any]:
         return torchlib.utils._pytree.tree_flatten(pytree)  # type: ignore

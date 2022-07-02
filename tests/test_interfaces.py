@@ -134,3 +134,28 @@ def test_scipy_interface(backend):
     f_scipy = tc.interfaces.scipy_optimize_interface(f, shape=[2, n], gradient=False)
     r = optimize.minimize(f_scipy, np.zeros([2 * n]), method="COBYLA")
     np.testing.assert_allclose(r["fun"], -1.0, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])
+def test_args_transformation(backend):
+    ans = tc.interfaces.general_args_to_numpy(
+        (
+            tc.backend.ones([2]),
+            {
+                "a": tc.get_backend("tensorflow").ones([]),
+                "b": [tc.get_backend("numpy").zeros([2, 1])],
+            },
+        )
+    )
+    print(ans)
+    np.testing.assert_allclose(ans[1]["b"][0], np.zeros([2, 1], dtype=np.complex64))
+    ans1 = tc.interfaces.numpy_args_to_backend(
+        ans, target_backend="jax", dtype="float32"
+    )
+    print(ans1[1]["a"].dtype)
+    ans1 = tc.interfaces.numpy_args_to_backend(
+        ans,
+        target_backend="jax",
+        dtype=("complex64", {"a": "float32", "b": ["complex64"]}),
+    )
+    print(ans1[1]["a"].dtype)

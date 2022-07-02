@@ -293,7 +293,7 @@ def test_arg_cmp(backend):
     )
 
 
-@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])
 def test_tree_map(backend):
     def f(a, b):
         return a + b
@@ -302,6 +302,16 @@ def test_tree_map(backend):
         f, {"a": tc.backend.ones([2])}, {"a": 2 * tc.backend.ones([2])}
     )
     assert np.allclose(r["a"], 3 * np.ones([2]), atol=1e-4)
+
+    def _add(a, b):
+        return a + b
+
+    ans = tc.backend.tree_map(
+        _add,
+        {"a": tc.backend.ones([2]), "b": tc.backend.ones([3])},
+        {"a": tc.backend.ones([2]), "b": tc.backend.ones([3])},
+    )
+    np.testing.assert_allclose(ans["a"], 2 * np.ones([2]))
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])

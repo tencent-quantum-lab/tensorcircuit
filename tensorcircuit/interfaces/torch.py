@@ -61,18 +61,22 @@ def torch_interface(fun: Callable[..., Any], jit: bool = False) -> Callable[...,
     class Fun(torch.autograd.Function):  # type: ignore
         @staticmethod
         def forward(ctx: Any, *x: Any) -> Any:  # type: ignore
-            ctx.xdtype = [xi.dtype for xi in x]
+            # ctx.xdtype = [xi.dtype for xi in x]
+            ctx.xdtype = backend.tree_map(lambda s: s.dtype, x)
+            # (x, )
+            if len(ctx.xdtype) == 1:
+                ctx.xdtype = ctx.xdtype[0]
             x = general_args_to_numpy(x)
             x = numpy_args_to_backend(x)
             y = fun(*x)
-            if not is_sequence(y):
-                ctx.ydtype = [y.dtype]
-            else:
-                ctx.ydtype = [yi.dtype for yi in y]
+            # if not is_sequence(y):
+            #     ctx.ydtype = [y.dtype]
+            # else:
+            #     ctx.ydtype = [yi.dtype for yi in y]
+            ctx.ydtype = backend.tree_map(lambda s: s.dtype, y)
             if len(x) == 1:
-                ctx.x = x[0]
-            else:
-                ctx.x = x
+                x = x[0]
+            ctx.x = x
             y = numpy_args_to_backend(
                 general_args_to_numpy(y),
                 target_backend="pytorch",
@@ -81,17 +85,15 @@ def torch_interface(fun: Callable[..., Any], jit: bool = False) -> Callable[...,
 
         @staticmethod
         def backward(ctx: Any, *grad_y: Any) -> Any:
-            grad_y = general_args_to_numpy(grad_y)
-            grad_y = numpy_args_to_backend(
-                grad_y, dtype=[d for d in ctx.ydtype]
-            )  # backend.dtype
             if len(grad_y) == 1:
                 grad_y = grad_y[0]
+            grad_y = general_args_to_numpy(grad_y)
+            grad_y = numpy_args_to_backend(grad_y, dtype=ctx.ydtype)  # backend.dtype
             _, g = vjp_fun(ctx.x, grad_y)
             # a redundency due to current vjp API
             r = numpy_args_to_backend(
                 general_args_to_numpy(g),
-                dtype=[d for d in ctx.xdtype],  # torchdtype
+                dtype=ctx.xdtype,  # torchdtype
                 target_backend="pytorch",
             )
             if not is_sequence(r):

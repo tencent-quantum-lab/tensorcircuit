@@ -10,7 +10,6 @@ from ..cons import backend, dtypestr
 from .tensortrans import general_args_to_numpy, numpy_args_to_backend
 
 Tensor = Any
-Array = Any
 
 
 def scipy_optimize_interface(
