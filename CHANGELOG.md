@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Changed
+
+- Refactor ``interfaces`` code as a submodule and add pytree support for args
+
+- Change the way to register global setup internally, so that we can skip the list of all submodules
+
 ## 0.2.1
 
 ### Added

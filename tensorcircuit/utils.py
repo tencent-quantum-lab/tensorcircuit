@@ -99,6 +99,12 @@ def is_m1mac() -> bool:
     return True
 
 
+def is_sequence(x: Any) -> bool:
+    if isinstance(x, list) or isinstance(x, tuple):
+        return True
+    return False
+
+
 def benchmark(
     f: Any, *args: Any, tries: int = 5, verbose: bool = True
 ) -> Tuple[Any, float, float]:

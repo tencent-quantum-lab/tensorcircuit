@@ -7,7 +7,8 @@ from typing import Any, Callable, Sequence, Tuple, Union
 import torch
 
 from .cons import backend
-from .interfaces import torch_interface, is_sequence
+from .interfaces import torch_interface  # type: ignore
+from .utils import is_sequence
 
 Tensor = Any
 

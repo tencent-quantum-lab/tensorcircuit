@@ -1,6 +1,6 @@
 tensorcircuit.interfaces
 ==================================================
-.. automodule:: tensorcircuit.interfaces
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. toctree::
+    interfaces/scipy.rst
+    interfaces/tensortrans.rst
+    interfaces/torch.rst

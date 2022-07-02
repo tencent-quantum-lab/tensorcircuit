@@ -20,40 +20,7 @@ from .simplify import _multi_remove
 
 logger = logging.getLogger(__name__)
 
-
-modules = [
-    "tensorcircuit",
-    "tensorcircuit.cons",
-    "tensorcircuit.gates",
-    "tensorcircuit.circuit",
-    "tensorcircuit.mps_base",
-    "tensorcircuit.mpscircuit",
-    "tensorcircuit.densitymatrix",
-    "tensorcircuit.densitymatrix2",
-    "tensorcircuit.channels",
-    "tensorcircuit.keras",
-    "tensorcircuit.torchnn",
-    "tensorcircuit.quantum",
-    "tensorcircuit.simplify",
-    "tensorcircuit.interfaces",
-    "tensorcircuit.experimental",
-    "tensorcircuit.utils",
-    "tensorcircuit.translation",
-    "tensorcircuit.backends",
-    "tensorcircuit.backends.abstract_backend",
-    "tensorcircuit.backends.backend_factory",
-    "tensorcircuit.backends.jax_backend",
-    "tensorcircuit.backends.numpy_backend",
-    "tensorcircuit.backends.pytorch_backend",
-    "tensorcircuit.backends.tensorflow_backend",
-    "tensorcircuit.templates",
-    "tensorcircuit.templates.measurements",
-    "tensorcircuit.templates.blocks",
-    "tensorcircuit.templates.graphs",
-    "tensorcircuit.templates.dataset",
-    "tensorcircuit.templates.chems",
-]
-
+package_name = "tensorcircuit"
 thismodule = sys.modules[__name__]
 dtypestr = "complex64"
 rdtypestr = "float32"
@@ -104,8 +71,8 @@ def set_tensornetwork_backend(
         backend = get_default_backend()
     backend_obj = get_backend(backend)
     if set_global:
-        for module in modules:
-            if module in sys.modules:
+        for module in sys.modules:
+            if module.startswith(package_name):
                 setattr(sys.modules[module], "backend", backend_obj)
         tn.set_default_backend(backend)
     return backend_obj
@@ -180,8 +147,8 @@ def set_dtype(dtype: Optional[str] = None, set_global: bool = True) -> Tuple[str
             config.update("jax_enable_x64", False)
     if set_global:
         npdtype = getattr(np, dtype)
-        for module in modules:
-            if module in sys.modules:
+        for module in sys.modules:
+            if module.startswith(package_name):
                 setattr(sys.modules[module], "dtypestr", dtype)
                 setattr(sys.modules[module], "rdtypestr", rdtype)
                 setattr(sys.modules[module], "npdtype", npdtype)
@@ -809,8 +776,8 @@ def set_contractor(
             **kws
         )
     if set_global:
-        for module in modules:
-            if module in sys.modules:
+        for module in sys.modules:
+            if module.startswith(package_name):
                 setattr(sys.modules[module], "contractor", cf)
     return cf
 
@@ -834,8 +801,8 @@ def set_function_contractor(*confargs: Any, **confkws: Any) -> Callable[..., Any
             old_contractor = getattr(thismodule, "contractor")
             set_contractor(*confargs, **confkws)
             r = f(*args, **kws)
-            for module in modules:
-                if module in sys.modules:
+            for module in sys.modules:
+                if module.startswith(package_name):
                     setattr(sys.modules[module], "contractor", old_contractor)
             return r
 
@@ -855,6 +822,6 @@ def runtime_contractor(*confargs: Any, **confkws: Any) -> Iterator[Any]:
     old_contractor = getattr(thismodule, "contractor")
     nc = set_contractor(*confargs, **confkws)
     yield nc
-    for module in modules:
-        if module in sys.modules:
+    for module in sys.modules:
+        if module.startswith(package_name):
             setattr(sys.modules[module], "contractor", old_contractor)
