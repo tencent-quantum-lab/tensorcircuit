@@ -18,7 +18,7 @@
 
 ### Fixed
 
-- Fixed `numpy` method bug in pytorch backend when the input tensor requires grad (#24)
+- Fixed `numpy` method bug in pytorch backend when the input tensor requires grad (#24) and when the tensor is on GPU (#25)
 
 ## 0.2.1
 

@@ -15,6 +15,7 @@ module2backend = {
     "numpy": "numpy",
     "jaxlib": "jax",
     "torch": "pytorch",
+    "jax": "jax",
 }
 
 

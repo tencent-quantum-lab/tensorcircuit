@@ -283,6 +283,7 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
         return torchlib.kron(a, b)
 
     def numpy(self, a: Tensor) -> Tensor:
+        a = a.cpu()
         if a.is_conj():
             return a.resolve_conj().numpy()
         if a.requires_grad:
