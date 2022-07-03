@@ -5,6 +5,7 @@ import sys
 import pytest
 from pytest_lazyfixture import lazy_fixture as lf
 from scipy import optimize
+import tensorflow as tf
 
 thisfile = os.path.abspath(__file__)
 modulepath = os.path.dirname(os.path.dirname(thisfile))
@@ -129,6 +130,49 @@ def test_torch_interface_pytree(backend):
     np.testing.assert_allclose(
         pg["a"], 2 * np.ones([2]).astype(np.complex64), atol=1e-5
     )
+
+
+@pytest.mark.parametrize("backend", [lf("jaxb")])
+def test_tf_interface(backend):
+    def f0(params):
+        c = tc.Circuit(1)
+        c.rx(0, theta=params[0])
+        c.ry(0, theta=params[1])
+        return tc.backend.real(c.expectation([tc.gates.z(), [0]]))
+
+    f = tc.interfaces.tf_interface(f0, ydtype=tf.float32, jit=True)
+
+    tfb = tc.get_backend("tensorflow")
+    grads = tfb.jit(tfb.grad(f))(tfb.ones([2]))
+    np.testing.assert_allclose(
+        tfb.real(grads), np.array([-0.45464867, -0.45464873]), atol=1e-5
+    )
+
+    f = tc.interfaces.tf_interface(f0, ydtype="float32", jit=False)
+
+    grads = tfb.grad(f)(tf.ones([2]))
+    np.testing.assert_allclose(grads, np.array([-0.45464867, -0.45464873]), atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("jaxb")])
+def test_tf_interface_2(backend):
+    def f1(a, b):
+        sa, sb = tc.backend.sum(a), tc.backend.sum(b)
+        return sa + sb, sa - sb
+
+    f = tc.interfaces.tf_interface(f1, ydtype=["float32", "float32"], jit=True)
+
+    def f_post(a, b):
+        p, m = f(a, b)
+        return p + m
+
+    tfb = tc.get_backend("tensorflow")
+
+    grads = tfb.jit(tfb.grad(f_post))(
+        tf.ones([2], dtype=tf.float32), tf.ones([2], dtype=tf.float32)
+    )
+
+    np.testing.assert_allclose(grads, 2 * np.ones([2]), atol=1e-5)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])

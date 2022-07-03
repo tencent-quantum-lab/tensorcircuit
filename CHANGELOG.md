@@ -8,6 +8,8 @@
 
 - Add `dtype` backend method which returns the dtype string
 
+- Add TensorFlow interface
+
 ### Changed
 
 - Refactor `interfaces` code as a submodule and add pytree support for args
