@@ -6,6 +6,8 @@
 
 - PyTorch backend support multi pytrees version of `tree_map`
 
+- Add `dtype` backend method which returns the dtype string
+
 ### Changed
 
 - Refactor `interfaces` code as a submodule and add pytree support for args

@@ -385,6 +385,19 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         a = self.reshape(a, [l, l])
         return a
 
+    def dtype(self: Any, a: Tensor) -> str:
+        """
+        Obtain dtype string for tensor ``a``
+
+        :param a: The tensor
+        :type a: Tensor
+        :return: dtype str, such as "complex64"
+        :rtype: str
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `dtype`.".format(self.name)
+        )
+
     def stack(self: Any, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         """
         Concatenates a sequence of tensors ``a`` along a new dimension ``axis``.

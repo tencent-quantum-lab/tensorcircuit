@@ -310,6 +310,9 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
             pass
         return a
 
+    def dtype(self, a: Tensor) -> str:
+        return a.dtype.__str__().split(".")[-1]  # type: ignore
+
     def stack(self, a: Sequence[Tensor], axis: int = 0) -> Tensor:
         return torchlib.stack(a, dim=axis)
 

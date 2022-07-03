@@ -134,6 +134,9 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def kron(self, a: Tensor, b: Tensor) -> Tensor:
         return np.kron(a, b)
 
+    def dtype(self, a: Tensor) -> str:
+        return a.dtype.__str__()  # type: ignore
+
     def numpy(self, a: Tensor) -> Tensor:
         return a
 

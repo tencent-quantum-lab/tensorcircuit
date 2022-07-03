@@ -316,6 +316,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     def eigvalsh(self, a: Tensor) -> Tensor:
         return tf.linalg.eigvalsh(a)
 
+    def dtype(self, a: Tensor) -> str:
+        return a.dtype.__repr__().split(".")[-1]  # type: ignore
+
     def kron(self, a: Tensor, b: Tensor) -> Tensor:
         # array more than 2d consistency is not guranteed for different backends
         return tf.reshape(

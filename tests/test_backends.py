@@ -274,6 +274,7 @@ def test_backend_methods_2(backend):
         tc.backend.arange(1, 5, 2),
         np.array([1, 3]),
     )
+    assert tc.backend.dtype(tc.backend.ones([])) == "complex64"
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])

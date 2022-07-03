@@ -41,6 +41,10 @@ def tensor_to_numpy(t: Tensor) -> Array:
     return which_backend(t).numpy(t)
 
 
+def tensor_to_dtype(t: Tensor) -> str:
+    return which_backend(t).dtype(t)  # type: ignore
+
+
 def general_args_to_numpy(args: Any) -> Any:
     """
     Given a pytree, get the corresponding numpy array pytree

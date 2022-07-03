@@ -310,6 +310,9 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     def imag(self, a: Tensor) -> Tensor:
         return jnp.imag(a)
 
+    def dtype(self, a: Tensor) -> str:
+        return a.dtype.__str__()  # type: ignore
+
     def cast(self, a: Tensor, dtype: str) -> Tensor:
         if isinstance(dtype, str):
             return a.astype(getattr(jnp, dtype))
