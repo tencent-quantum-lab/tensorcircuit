@@ -105,6 +105,32 @@ def test_torch_interface(backend):
     np.testing.assert_allclose(pg, 2 * np.ones([2]).astype(np.complex64), atol=1e-5)
 
 
+@pytest.mark.skipif(is_torch is False, reason="torch not installed")
+@pytest.mark.xfail(reason="see comment link below")
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_torch_interface_pytree(backend):
+    # pytree cannot support in pytorch autograd function...
+    # https://github.com/pytorch/pytorch/issues/55509
+    def f4(x):
+        return tc.backend.sum(x["a"] ** 2), tc.backend.sum(x["b"] ** 3)
+
+    f4_torch = tc.interfaces.torch_interface(f4, jit=False)
+    param4 = {
+        "a": torch.ones([2], requires_grad=True),
+        "b": torch.ones([2], requires_grad=True),
+    }
+
+    def f4_post(x):
+        r1, r2 = f4_torch(param4)
+        l4 = r1 + r2
+        return l4
+
+    pg = tc.get_backend("pytorch").grad(f4_post)(param4)
+    np.testing.assert_allclose(
+        pg["a"], 2 * np.ones([2]).astype(np.complex64), atol=1e-5
+    )
+
+
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_scipy_interface(backend):
     n = 3

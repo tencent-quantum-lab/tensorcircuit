@@ -4,15 +4,19 @@
 
 ### Added
 
-- PyTorch backend support multi pytrees version of ``tree_map``
+- PyTorch backend support multi pytrees version of `tree_map`
 
 ### Changed
 
-- Refactor ``interfaces`` code as a submodule and add pytree support for args
+- Refactor `interfaces` code as a submodule and add pytree support for args
 
 - Change the way to register global setup internally, so that we can skip the list of all submodules
 
 - Refactor the tensortrans code to a pytree perspective
+
+### Fixed
+
+- Fixed `numpy` method bug in pytorch backend when the input tensor requires grad (#24)
 
 ## 0.2.1
 

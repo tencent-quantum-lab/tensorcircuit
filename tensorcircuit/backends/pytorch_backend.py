@@ -285,6 +285,8 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
     def numpy(self, a: Tensor) -> Tensor:
         if a.is_conj():
             return a.resolve_conj().numpy()
+        if a.requires_grad:
+            return a.detach().numpy()
         return a.numpy()
 
     def i(self, dtype: Any = None) -> Tensor:
