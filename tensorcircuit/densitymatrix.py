@@ -213,6 +213,8 @@ class DMCircuit:
         self._nodes.append(lgate)
         setattr(self, "state_tensor", None)
 
+    # TODO(@refraction-ray): support mpo gate: wait for unified abstraction on circuit
+
     @staticmethod
     def apply_general_gate_delayed(
         gatef: Callable[[], Gate], name: Optional[str] = None

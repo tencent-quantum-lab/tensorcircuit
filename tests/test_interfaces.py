@@ -48,7 +48,7 @@ def test_torch_interface(backend):
 
     param = torch.ones([4, n], requires_grad=True)
     l = f_jit_torch(param)
-    l = l ** 2
+    l = l**2
     l.backward()
 
     pg = param.grad
@@ -96,7 +96,7 @@ def test_torch_interface(backend):
     np.testing.assert_allclose(pg[0, 0], -0.41609, atol=1e-5)
 
     def f3(x):
-        return tc.backend.real(x ** 2)
+        return tc.backend.real(x**2)
 
     f3_torch = tc.interfaces.torch_interface(f3)
     param3 = torch.ones([2], dtype=torch.complex64, requires_grad=True)
@@ -116,7 +116,7 @@ def test_torch_interface(backend):
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_torch_interface_dlpack_complex(backend):
     def f3(x):
-        return tc.backend.real(x ** 2)
+        return tc.backend.real(x**2)
 
     f3_torch = tc.interfaces.torch_interface(f3, enable_dlpack=True)
     param3 = torch.ones([2], dtype=torch.complex64, requires_grad=True)
