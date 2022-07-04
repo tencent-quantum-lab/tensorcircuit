@@ -6,13 +6,15 @@ from typing import Any, Callable, Tuple
 
 from ..cons import backend
 from ..utils import is_sequence
-from .tensortrans import general_args_to_numpy, numpy_args_to_backend
+from .tensortrans import general_args_to_backend
 
 
 Tensor = Any
 
 
-def torch_interface(fun: Callable[..., Any], jit: bool = False) -> Callable[..., Any]:
+def torch_interface(
+    fun: Callable[..., Any], jit: bool = False, enable_dlpack: bool = False
+) -> Callable[..., Any]:
     """
     Wrap a quantum function on different ML backend with a pytorch interface.
 
@@ -45,6 +47,8 @@ def torch_interface(fun: Callable[..., Any], jit: bool = False) -> Callable[...,
     :type fun: Callable[..., Any]
     :param jit: whether to jit ``fun``, defaults to False
     :type jit: bool, optional
+    :param enable_dlpack: whether transform tensor backend via dlpack, defaults to False
+    :type enable_dlpack: bool, optional
     :return: The same quantum function but now with torch tensor in and torch tensor out
         while AD is also supported
     :rtype: Callable[..., Any]
@@ -66,8 +70,7 @@ def torch_interface(fun: Callable[..., Any], jit: bool = False) -> Callable[...,
             # (x, )
             if len(ctx.xdtype) == 1:
                 ctx.xdtype = ctx.xdtype[0]
-            x = general_args_to_numpy(x)
-            x = numpy_args_to_backend(x)
+            x = general_args_to_backend(x, enable_dlpack=enable_dlpack)
             y = fun(*x)
             # if not is_sequence(y):
             #     ctx.ydtype = [y.dtype]
@@ -77,9 +80,8 @@ def torch_interface(fun: Callable[..., Any], jit: bool = False) -> Callable[...,
             if len(x) == 1:
                 x = x[0]
             ctx.x = x
-            y = numpy_args_to_backend(
-                general_args_to_numpy(y),
-                target_backend="pytorch",
+            y = general_args_to_backend(
+                y, target_backend="pytorch", enable_dlpack=enable_dlpack
             )
             return y
 
@@ -87,14 +89,19 @@ def torch_interface(fun: Callable[..., Any], jit: bool = False) -> Callable[...,
         def backward(ctx: Any, *grad_y: Any) -> Any:
             if len(grad_y) == 1:
                 grad_y = grad_y[0]
-            grad_y = general_args_to_numpy(grad_y)
-            grad_y = numpy_args_to_backend(grad_y, dtype=ctx.ydtype)  # backend.dtype
+            grad_y = general_args_to_backend(
+                grad_y, dtype=ctx.ydtype, enable_dlpack=enable_dlpack
+            )
+            # grad_y = general_args_to_numpy(grad_y)
+            # grad_y = numpy_args_to_backend(grad_y, dtype=ctx.ydtype)  # backend.dtype
             _, g = vjp_fun(ctx.x, grad_y)
             # a redundency due to current vjp API
-            r = numpy_args_to_backend(
-                general_args_to_numpy(g),
-                dtype=ctx.xdtype,  # torchdtype
+
+            r = general_args_to_backend(
+                g,
+                dtype=ctx.xdtype,
                 target_backend="pytorch",
+                enable_dlpack=enable_dlpack,
             )
             if not is_sequence(r):
                 return (r,)

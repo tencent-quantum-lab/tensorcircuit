@@ -9,20 +9,20 @@ import tensorflow as tf
 
 from ..cons import backend
 from ..utils import return_partial
-from .tensortrans import general_args_to_numpy, numpy_args_to_backend
+from .tensortrans import general_args_to_backend
 
 Tensor = Any
 
 
-def tf_wrapper(fun: Callable[..., Any]) -> Callable[..., Any]:
+def tf_wrapper(
+    fun: Callable[..., Any], enable_dlpack: bool = False
+) -> Callable[..., Any]:
     @wraps(fun)
     def fun_tf(*x: Any) -> Any:
-        x = general_args_to_numpy(x)
-        x = numpy_args_to_backend(x)
+        x = general_args_to_backend(x, enable_dlpack=enable_dlpack)
         y = fun(*x)
-        y = numpy_args_to_backend(
-            general_args_to_numpy(y),
-            target_backend="tensorflow",
+        y = general_args_to_backend(
+            y, target_backend="tensorflow", enable_dlpack=enable_dlpack
         )
         return y
 
@@ -36,7 +36,7 @@ def tf_dtype(dtype: str) -> Any:
 
 
 def tensorflow_interface(
-    fun: Callable[..., Any], ydtype: Any, jit: bool = False
+    fun: Callable[..., Any], ydtype: Any, jit: bool = False, enable_dlpack: bool = False
 ) -> Callable[..., Any]:
     """
     Wrap a quantum function on different ML backend with a tensorflow interface.
@@ -66,6 +66,8 @@ def tensorflow_interface(
     :type ydtype: Any
     :param jit: whether to jit ``fun``, defaults to False
     :type jit: bool, optional
+    :param enable_dlpack: whether transform tensor backend via dlpack, defaults to False
+    :type enable_dlpack: bool, optional
     :return: The same quantum function but now with torch tensor in and torch tensor out
         while AD is also supported
     :rtype: Callable[..., Any]

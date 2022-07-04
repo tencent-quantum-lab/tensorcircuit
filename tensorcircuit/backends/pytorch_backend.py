@@ -419,6 +419,12 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
     def tree_unflatten(self: Any, treedef: Any, leaves: Any) -> Any:
         return torchlib.utils._pytree.tree_unflatten(leaves, treedef)
 
+    def from_dlpack(self, a: Any) -> Tensor:
+        return torchlib.utils.dlpack.from_dlpack(a)
+
+    def to_dlpack(self, a: Tensor) -> Any:
+        return torchlib.utils.dlpack.to_dlpack(a)
+
     def cond(
         self,
         pred: bool,

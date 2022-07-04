@@ -442,6 +442,14 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
             return self.reshape(x, x.shape[:-1])
         return x
 
+    def from_dlpack(self, a: Any) -> Tensor:
+        return tf.experimental.dlpack.from_dlpack(a)
+
+    def to_dlpack(self, a: Tensor) -> Any:
+        return tf.experimental.dlpack.to_dlpack(a)
+
+    # note complex tensor support for dlpack is only available for tf>=2.9
+
     def set_random_state(
         self, seed: Optional[Union[int, RGenerator]] = None, get_only: bool = False
     ) -> Any:

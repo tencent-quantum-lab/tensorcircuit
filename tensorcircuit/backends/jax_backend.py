@@ -398,11 +398,21 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     def tree_map(self, f: Callable[..., Any], *pytrees: Any) -> Any:
         return libjax.tree_map(f, *pytrees)
 
-    def tree_flatten(self: Any, pytree: Any) -> Tuple[Any, Any]:
+    def tree_flatten(self, pytree: Any) -> Tuple[Any, Any]:
         return libjax.tree_flatten(pytree)  # type: ignore
 
-    def tree_unflatten(self: Any, treedef: Any, leaves: Any) -> Any:
+    def tree_unflatten(self, treedef: Any, leaves: Any) -> Any:
         return libjax.tree_unflatten(treedef, leaves)
+
+    def from_dlpack(self, a: Any) -> Tensor:
+        import jax.dlpack
+
+        return jax.dlpack.from_dlpack(a)  # type: ignore
+
+    def to_dlpack(self, a: Tensor) -> Any:
+        import jax.dlpack
+
+        return jax.dlpack.to_dlpack(a)  # type: ignore
 
     def set_random_state(
         self, seed: Optional[Union[int, PRNGKeyArray]] = None, get_only: bool = False

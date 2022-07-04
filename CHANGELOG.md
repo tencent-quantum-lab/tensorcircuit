@@ -10,6 +10,10 @@
 
 - Add TensorFlow interface
 
+- Add `to_dlpack` and `from_dlpack` method on backends
+
+- Add dlpack path for interfaces
+
 ### Changed
 
 - Refactor `interfaces` code as a submodule and add pytree support for args

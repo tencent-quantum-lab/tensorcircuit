@@ -43,7 +43,7 @@ def test_torch_interface(backend):
 
     f_jit = tc.backend.jit(f)
 
-    f_jit_torch = tc.interfaces.torch_interface(f_jit)
+    f_jit_torch = tc.interfaces.torch_interface(f_jit, enable_dlpack=True)
 
     param = torch.ones([4, n], requires_grad=True)
     l = f_jit_torch(param)
@@ -81,7 +81,7 @@ def test_torch_interface(backend):
         )
         return tc.backend.real(loss1), tc.backend.real(loss2)
 
-    f2_torch = tc.interfaces.torch_interface(f2, jit=True)
+    f2_torch = tc.interfaces.torch_interface(f2, jit=True, enable_dlpack=True)
 
     paramzz = torch.ones([2, n], requires_grad=True)
     paramx = torch.ones([2, n], requires_grad=True)
@@ -140,10 +140,10 @@ def test_tf_interface(backend):
         c.ry(0, theta=params[1])
         return tc.backend.real(c.expectation([tc.gates.z(), [0]]))
 
-    f = tc.interfaces.tf_interface(f0, ydtype=tf.float32, jit=True)
+    f = tc.interfaces.tf_interface(f0, ydtype=tf.float32, jit=True, enable_dlpack=True)
 
     tfb = tc.get_backend("tensorflow")
-    grads = tfb.jit(tfb.grad(f))(tfb.ones([2]))
+    grads = tfb.jit(tfb.grad(f))(tfb.ones([2], dtype="float32"))
     np.testing.assert_allclose(
         tfb.real(grads), np.array([-0.45464867, -0.45464873]), atol=1e-5
     )
@@ -173,6 +173,22 @@ def test_tf_interface_2(backend):
     )
 
     np.testing.assert_allclose(grads, 2 * np.ones([2]), atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("jaxb")])
+def test_tf_interface_3(backend, highp):
+    def f1(a, b):
+        sa, sb = tc.backend.sum(a), tc.backend.sum(b)
+        return sa + sb
+
+    f = tc.interfaces.tf_interface(f1, ydtype="float64", jit=True)
+
+    tfb = tc.get_backend("tensorflow")
+
+    grads = tfb.jit(tfb.grad(f))(
+        tf.ones([2], dtype=tf.float64), tf.ones([2], dtype=tf.float64)
+    )
+    np.testing.assert_allclose(grads, np.ones([2]), atol=1e-5)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
@@ -229,3 +245,14 @@ def test_args_transformation(backend):
         dtype=("complex64", {"a": "float32", "b": ["complex64"]}),
     )
     print(ans1[1]["a"].dtype)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])
+def test_dlpack_transformation(backend):
+    for b in ["tensorflow", "jax", "pytorch"]:
+        ans = tc.interfaces.general_args_to_backend(
+            args=tc.backend.ones([2], dtype="float32"),
+            target_backend=b,
+            enable_dlpack=True,
+        )
+        np.testing.assert_allclose(ans, np.ones([2]))

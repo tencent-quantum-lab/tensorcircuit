@@ -277,6 +277,14 @@ def test_backend_methods_2(backend):
     assert tc.backend.dtype(tc.backend.ones([])) == "complex64"
 
 
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])
+def test_dlpack(backend):
+    a = tc.backend.ones([2, 2], dtype="float64")
+    cap = tc.backend.to_dlpack(a)
+    a1 = tc.backend.from_dlpack(cap)
+    np.testing.assert_allclose(a, a1, atol=1e-5)
+
+
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])
 def test_arg_cmp(backend):
     np.testing.assert_allclose(tc.backend.argmax(tc.backend.ones([3], "float64")), 0)

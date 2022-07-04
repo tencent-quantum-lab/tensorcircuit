@@ -807,6 +807,37 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
         return tf.nest.pack_sequence_as(treedef, leaves)
 
+    def to_dlpack(self: Any, a: Tensor) -> Any:
+        """
+        Transform the tensor ``a`` as a dlpack capsule
+
+        :param a: _description_
+        :type a: Tensor
+        :return: _description_
+        :rtype: Any
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `to_dlpack`.".format(self.name)
+        )
+
+    def from_dlpack(self: Any, a: Any) -> Tensor:
+        """
+        Transform a dlpack capsule to a tensor
+
+        :param a: the dlpack capsule
+        :type a: Any
+        :return: _description_
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `from_dlpack`.".format(self.name)
+        )
+
+    # TODO(@refraction-ray): omit numpy implementation of dlpack for now
+    # their convention is not consistent with other ML libs and requires a rather high version
+    # https://github.com/numpy/numpy/issues/19013
+    # complex dlpack may still have issues across various backends
+
     def set_random_state(
         self: Any, seed: Optional[int] = None, get_only: bool = False
     ) -> Any:
