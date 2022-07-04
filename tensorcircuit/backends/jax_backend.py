@@ -197,6 +197,7 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
                 "backend or install Jax."
             )
         from jax.experimental import sparse
+        import jax.scipy
 
         try:
             import optax

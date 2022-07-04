@@ -6,6 +6,7 @@ import pytest
 from pytest_lazyfixture import lazy_fixture as lf
 from scipy import optimize
 import tensorflow as tf
+import jax
 
 thisfile = os.path.abspath(__file__)
 modulepath = os.path.dirname(os.path.dirname(thisfile))
@@ -47,7 +48,7 @@ def test_torch_interface(backend):
 
     param = torch.ones([4, n], requires_grad=True)
     l = f_jit_torch(param)
-    l = l**2
+    l = l ** 2
     l.backward()
 
     pg = param.grad
@@ -95,9 +96,29 @@ def test_torch_interface(backend):
     np.testing.assert_allclose(pg[0, 0], -0.41609, atol=1e-5)
 
     def f3(x):
-        return tc.backend.real(x**2)
+        return tc.backend.real(x ** 2)
 
     f3_torch = tc.interfaces.torch_interface(f3)
+    param3 = torch.ones([2], dtype=torch.complex64, requires_grad=True)
+    l3 = f3_torch(param3)
+    l3 = torch.sum(l3)
+    l3.backward()
+    pg = param3.grad
+    np.testing.assert_allclose(pg, 2 * np.ones([2]).astype(np.complex64), atol=1e-5)
+
+
+@pytest.mark.skipif(is_torch is False, reason="torch not installed")
+@pytest.mark.xfail(
+    (int(tf.__version__.split(".")[1]) < 9)
+    or (int("".join(jax.__version__.split(".")[1:])) < 314),
+    reason="version too low for tf or jax",
+)
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_torch_interface_dlpack_complex(backend):
+    def f3(x):
+        return tc.backend.real(x ** 2)
+
+    f3_torch = tc.interfaces.torch_interface(f3, enable_dlpack=True)
     param3 = torch.ones([2], dtype=torch.complex64, requires_grad=True)
     l3 = f3_torch(param3)
     l3 = torch.sum(l3)

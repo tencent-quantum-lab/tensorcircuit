@@ -89,6 +89,7 @@ def torch_interface(
         def backward(ctx: Any, *grad_y: Any) -> Any:
             if len(grad_y) == 1:
                 grad_y = grad_y[0]
+            grad_y = backend.tree_map(lambda s: s.contiguous(), grad_y)
             grad_y = general_args_to_backend(
                 grad_y, dtype=ctx.ydtype, enable_dlpack=enable_dlpack
             )
