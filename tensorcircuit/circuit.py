@@ -713,6 +713,40 @@ class Circuit:
         c = cls._apply_qir(c, qir)
         return c
 
+    def inverse(self, circuit_params: Optional[Dict[str, Any]] = None) -> "Circuit":
+        """
+        inverse the circuit, return a new inversed circuit
+
+        :EXAMPLE:
+
+        >>> c = tc.Circuit(2)
+        >>> c.H(0)
+        >>> c.rzz(1, 2, theta=0.8)
+        >>> c1 = c.inverse()
+
+        :param circuit_params: keywords dict for initialization the new circuit, defaults to None
+        :type circuit_params: Optional[Dict[str, Any]], optional
+        :return: the inversed circuit
+        :rtype: Circuit
+        """
+        if circuit_params is None:
+            circuit_params = {}
+        if "nqubits" not in circuit_params:
+            circuit_params["nqubits"] = self._nqubits
+
+        c = type(self)(**circuit_params)
+        for d in reversed(self._qir):
+            if "parameters" not in d:
+                c.apply_general_gate_delayed(d["gatef"].adjoint(), d["name"], mpo=d["mpo"])(  # type: ignore
+                    c, *d["index"], split=d["split"]  # type: ignore
+                )
+            else:
+                c.apply_general_variable_gate_delayed(d["gatef"].adjoint(), d["name"], mpo=d["mpo"])(  # type: ignore
+                    c, *d["index"], **d["parameters"], split=d["split"]  # type: ignore
+                )
+
+        return c
+
     def append_from_qir(self, qir: List[Dict[str, Any]]) -> None:
         """
         Apply the ciurict in form of quantum intermediate representation after the current cirucit.

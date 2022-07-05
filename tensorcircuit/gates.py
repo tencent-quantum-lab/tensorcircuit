@@ -13,6 +13,7 @@ import tensornetwork as tn
 from scipy.stats import unitary_group
 
 from .cons import backend, dtypestr, npdtype
+from .backends import get_backend  # type: ignore
 
 thismodule = sys.modules[__name__]
 
@@ -234,14 +235,25 @@ class GateF:
         self.ctrl = ctrl
 
     def __call__(self, *args: Any, **kws: Any) -> Gate:
+        # m = array_to_tensor(self.m)
+        # m = backend.cast(m, dtypestr)
         m = self.m.astype(npdtype)
         return Gate(deepcopy(m), name=self.n)
 
-    def adjoint(self, *args: Any, **kws: Any) -> "GateF":
-        m = self.__call__(*args, **kws)
-        ma = backend.adjoint(m.tensor)
-        return GateF(ma, self.n + "d", self.ctrl)
-        # TODO(@refraction-ray): adjoint gate convention finally determined
+    def adjoint(self) -> "GateF":
+        m = self.__call__()
+        npb = get_backend("numpy")
+        shape0 = npb.shape_tuple(m.tensor)
+        m0 = npb.reshapem(m.tensor)
+        ma = npb.adjoint(m0)
+        if np.allclose(m0, ma, atol=1e-5):
+            name = self.n
+        else:
+            name = self.n + "d"
+        ma = npb.reshape(ma, shape0)
+        return GateF(ma, name, self.ctrl)
+
+    # TODO(@refraction-ray): adjoint gate convention finally determined
 
     def controlled(self, *args: Any, **kws: Any) -> "GateF":
         def f(*args: Any, **kws: Any) -> Any:
@@ -303,6 +315,22 @@ class GateVF(GateF):
 
     def __call__(self, *args: Any, **kws: Any) -> Gate:
         return self.f(*args, **kws)
+
+    def adjoint(self) -> "GateVF":
+        def f(*args: Any, **kws: Any) -> Gate:
+            m = self.__call__(*args, **kws)
+            npb = get_backend("numpy")
+            shape0 = npb.shape_tuple(m.tensor)
+            m0 = npb.reshapem(m.tensor)
+            ma = npb.adjoint(m0)
+            if np.allclose(m0, ma, atol=1e-5):
+                name = self.n
+            else:
+                name = self.n + "d"
+            ma = npb.reshape(ma, shape0)
+            return Gate(ma, name)
+
+        return GateVF(f, self.n + "d", self.ctrl)
 
 
 def meta_gate() -> None:

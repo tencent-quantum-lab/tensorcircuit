@@ -1017,3 +1017,17 @@ def test_lightcone_expectation():
         m1 = c.expectation_ps(z=[0], enable_lightcone=True)
         m2 = c.expectation_ps(z=[0])
         np.testing.assert_allclose(m1, m2, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_circuit_inverse(backend):
+    inputs = np.random.uniform(size=[8])
+    inputs /= np.linalg.norm(inputs)
+    c = tc.Circuit(3, inputs=inputs)
+    c.H(1)
+    c.rx(0, theta=0.5)
+    c.cnot(1, 2)
+    c.rzz(0, 2, theta=-0.8)
+    c1 = c.inverse()
+    c.append(c1)
+    np.testing.assert_allclose(c.state(), inputs, atol=1e-5)

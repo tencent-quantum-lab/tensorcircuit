@@ -14,6 +14,8 @@
 
 - Add `enable_dlpack` option on interfaces and torchnn
 
+- Add `inverse` method for Circuit (#26)
+
 ### Changed
 
 - Refactor `interfaces` code as a submodule and add pytree support for args

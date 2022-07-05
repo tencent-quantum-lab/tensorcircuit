@@ -76,6 +76,7 @@ quantumnet = tc.TorchLayer(
     use_jit=True,
     enable_dlpack=True,
 )
+# enable_dlpack = False for old version of ML libs
 
 
 model = torch.nn.Sequential(quantumnet, torch.nn.Linear(9, 1), torch.nn.Sigmoid())
