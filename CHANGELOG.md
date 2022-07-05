@@ -28,6 +28,8 @@
 
 - Fixed `TorchLayer` parameter list auto registeration
 
+- Pytorch interface is now device aware (#25)
+
 ## 0.2.1
 
 ### Added
