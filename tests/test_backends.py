@@ -4,6 +4,8 @@ import sys
 import os
 from functools import partial
 
+os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
+
 import numpy as np
 import pytest
 from pytest_lazyfixture import lazy_fixture as lf
@@ -275,6 +277,27 @@ def test_backend_methods_2(backend):
         np.array([1, 3]),
     )
     assert tc.backend.dtype(tc.backend.ones([])) == "complex64"
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])
+def test_device_cpu_only(backend):
+    a = tc.backend.ones([])
+    dev_str = tc.backend.device(a)
+    assert dev_str == "cpu"
+    tc.backend.device_move(a, dev_str)
+
+
+@pytest.mark.skipif(
+    len(tf.config.list_physical_devices()) == 1, reason="no GPU detected"
+)
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])
+def test_device_cpu_gpu(backend):
+    a = tc.backend.ones([])
+    a1 = tc.backend.device_move(a, "gpu:0")
+    dev_str = tc.backend.device(a1)
+    assert dev_str == "gpu:0"
+    a2 = tc.backend.device_move(a1, "cpu")
+    assert tc.backend.device(a2) == "cpu"
 
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])

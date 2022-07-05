@@ -1161,6 +1161,60 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `is_sparse`.".format(self.name)
         )
 
+    def device(self: Any, a: Tensor) -> str:
+        """
+        get the universal device str for the tensor, in the format of tf
+
+        :param a: the tensor
+        :type a: Tensor
+        :return: device str where the tensor lives on
+        :rtype: str
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `device`.".format(self.name)
+        )
+
+    def device_move(self: Any, a: Tensor, dev: Any) -> Tensor:
+        """
+        move tensor ``a`` to device ``dev``
+
+        :param a: the tensor
+        :type a: Tensor
+        :param dev: device str or device obj in corresponding backend
+        :type dev: Any
+        :return: the tensor on new device
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `device_move`.".format(self.name)
+        )
+
+    def _dev2str(self: Any, dev: Any) -> str:
+        """
+        device object to universal dev str
+
+        :param dev: device object
+        :type dev: Any
+        :return: dev str
+        :rtype: str
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `_dev2str`.".format(self.name)
+        )
+
+    def _str2dev(self: Any, str_: str) -> Any:
+        """
+        device object to universal dev str
+
+        :param str_: dev str
+        :type str_: str
+        :return: device object
+        :rtype: Any
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `_str2dev`.".format(self.name)
+        )
+
     def cond(
         self: Any,
         pred: bool,

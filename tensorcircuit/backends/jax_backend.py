@@ -597,6 +597,30 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     def is_sparse(self, a: Tensor) -> bool:
         return isinstance(a, sparse.BCOO)  # type: ignore
 
+    def device(self, a: Tensor) -> str:
+        dev = a.device()
+        return self._dev2str(dev)
+
+    def device_move(self, a: Tensor, dev: Any) -> Tensor:
+        if isinstance(dev, str):
+            dev = self._str2dev(dev)
+        return libjax.device_put(a, dev)
+
+    def _dev2str(self, dev: Any) -> str:
+        if dev.platform == "cpu":
+            return "cpu"
+        if dev.platform == "gpu":
+            return "gpu:" + str(dev.id)
+        raise ValueError("JaxBackend don't support non-GPU/CPU device")
+
+    def _str2dev(self, str_: str) -> Any:
+        if str_ == "cpu":
+            return libjax.devices("cpu")[0]
+        if str_.startswith("gpu"):
+            _id = int(str_.split(":")[-1])
+            return libjax.devices("gpu")[_id]
+        raise ValueError("JaxBackend don't support non-GPU/CPU device")
+
     def stop_gradient(self, a: Tensor) -> Tensor:
         return libjax.lax.stop_gradient(a)
 

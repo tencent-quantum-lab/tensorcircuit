@@ -438,6 +438,32 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
     def switch(self, index: Tensor, branches: Sequence[Callable[[], Tensor]]) -> Tensor:
         return branches[index.numpy()]()
 
+    def device(self, a: Tensor) -> str:
+        dev = a.device
+        return self._dev2str(dev)
+
+    def device_move(self, a: Tensor, dev: Any) -> Tensor:
+        if not isinstance(dev, str):
+            dev = self._dev2str(dev)
+        if dev.startswith("gpu"):
+            dev = "cuda:" + dev.split(":")[-1]
+        return a.to(device=dev)
+
+    def _dev2str(self, dev: Any) -> str:
+        if dev.type == "cpu":
+            return "cpu"
+        if dev.type == "cuda":
+            return "gpu:" + str(dev.index)
+        raise ValueError("PyTorchBackend don't support non-GPU/CPU device")
+
+    def _str2dev(self, str_: str) -> Any:
+        if str_ == "cpu":
+            return torchlib.device("cpu")
+        if str_.startswith("gpu"):
+            _id = int(str_.split(":")[-1])
+            return torchlib.cuda.device(_id)
+        raise ValueError("PyTorchBackend don't support non-GPU/CPU device")
+
     def stop_gradient(self, a: Tensor) -> Tensor:
         return a.detach()
 

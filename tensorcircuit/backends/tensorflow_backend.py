@@ -561,6 +561,28 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     ) -> Tensor:
         return tf.switch_case(index, branches)
 
+    def device(self, a: Tensor) -> str:
+        dev = a.device
+        return self._dev2str(dev)
+
+    def device_move(self, a: Tensor, dev: Any) -> Tensor:
+        if isinstance(dev, str):
+            dev = self._str2dev(dev)
+        with tf.device(dev):
+            a = tf.identity(a)
+        return a
+
+    def _dev2str(self, dev: Any) -> str:
+        platform, id_ = dev.split(":")[-2:]
+        if platform == "CPU":
+            return "cpu"
+        if platform == "GPU":
+            return "gpu" + ":" + str(id_)
+        raise ValueError("TensorFlowBackend don't support non-GPU/CPU device")
+
+    def _str2dev(self, str_: str) -> Any:
+        return str_
+
     def stop_gradient(self, a: Tensor) -> Tensor:
         return tf.stop_gradient(a)
 

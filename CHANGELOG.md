@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add `device` and `device_move` methods on backend with universal device string representation
+
 ## 0.2.2
 
 ### Added

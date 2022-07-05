@@ -334,6 +334,24 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def switch(self, index: Tensor, branches: Sequence[Callable[[], Tensor]]) -> Tensor:
         return branches[index]()
 
+    def device(self, a: Tensor) -> str:
+        return "cpu"
+
+    def device_move(self, a: Tensor, dev: Any) -> Tensor:
+        if dev == "cpu":
+            return a
+        raise ValueError("NumPy backend only support CPU device")
+
+    def _dev2str(self, dev: Any) -> str:
+        if dev == "cpu":
+            return "cpu"
+        raise ValueError("NumPy backend only support CPU device")
+
+    def _str2dev(self, str_: str) -> Any:
+        if str_ == "cpu":
+            return "cpu"
+        raise ValueError("NumPy backend only support CPU device")
+
     def stop_gradient(self, a: Tensor) -> Tensor:
         raise NotImplementedError("numpy backend doesn't support AD")
 
