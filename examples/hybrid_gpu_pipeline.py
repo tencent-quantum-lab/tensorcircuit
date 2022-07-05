@@ -22,6 +22,11 @@ else:
 
 print(device)
 
+enable_dlpack = True
+# enable_dlpack = False # for old version of ML libs
+tf_device = "/GPU:0"
+# tf_device "/device:CPU:0"
+
 # dataset preparation
 
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
@@ -52,17 +57,18 @@ nlayers = 3
 
 
 def qpreds(x, weights):
-    c = tc.Circuit(n)
-    for i in range(n):
-        c.rx(i, theta=x[i])
-    for j in range(nlayers):
-        for i in range(n - 1):
-            c.cnot(i, i + 1)
+    with tf.device(tf_device):
+        c = tc.Circuit(n)
         for i in range(n):
-            c.rx(i, theta=weights[2 * j, i])
-            c.ry(i, theta=weights[2 * j + 1, i])
+            c.rx(i, theta=x[i])
+        for j in range(nlayers):
+            for i in range(n - 1):
+                c.cnot(i, i + 1)
+            for i in range(n):
+                c.rx(i, theta=weights[2 * j, i])
+                c.ry(i, theta=weights[2 * j + 1, i])
 
-    return K.stack([K.real(c.expectation_ps(z=[i])) for i in range(n)])
+        return K.stack([K.real(c.expectation_ps(z=[i])) for i in range(n)])
 
 
 # qpreds_vmap = K.vmap(qpreds, vectorized_argnums=0)
@@ -74,9 +80,8 @@ quantumnet = tc.TorchLayer(
     use_vmap=True,
     use_interface=True,
     use_jit=True,
-    enable_dlpack=True,
+    enable_dlpack=enable_dlpack,
 )
-# enable_dlpack = False for old version of ML libs
 
 
 model = torch.nn.Sequential(quantumnet, torch.nn.Linear(9, 1), torch.nn.Sigmoid())

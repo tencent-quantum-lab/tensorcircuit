@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.2
+
 ### Added
 
 - PyTorch backend support multi pytrees version of `tree_map`
