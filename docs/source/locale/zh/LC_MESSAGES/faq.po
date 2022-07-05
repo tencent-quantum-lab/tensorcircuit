@@ -59,7 +59,7 @@ msgstr ""
 
 #: ../../source/faq.rst:21
 msgid "When should I jit the function?"
-msgstr ""
+msgstr "什么时候该使用 jit？"
 
 #: ../../source/faq.rst:23
 msgid ""
