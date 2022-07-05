@@ -8,6 +8,8 @@ assignees: ""
 
 <!--Inspired from NEP: https://numpy.org/neps/nep-template.html-->
 
+<!-- If you have some small feature request or issue report, just open instead a plain issue -->
+
 # TEP - Title
 
 Author

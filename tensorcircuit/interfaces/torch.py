@@ -70,12 +70,9 @@ def torch_interface(
             # (x, )
             if len(ctx.xdtype) == 1:
                 ctx.xdtype = ctx.xdtype[0]
+
             x = general_args_to_backend(x, enable_dlpack=enable_dlpack)
             y = fun(*x)
-            # if not is_sequence(y):
-            #     ctx.ydtype = [y.dtype]
-            # else:
-            #     ctx.ydtype = [yi.dtype for yi in y]
             ctx.ydtype = backend.tree_map(lambda s: s.dtype, y)
             if len(x) == 1:
                 x = x[0]

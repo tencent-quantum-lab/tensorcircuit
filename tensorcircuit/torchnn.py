@@ -22,6 +22,7 @@ class QuantumNet(torch.nn.Module):  # type: ignore
         use_vmap: bool = True,
         use_interface: bool = True,
         use_jit: bool = True,
+        enable_dlpack: bool = False,
     ):
         """
         PyTorch nn Module wrapper on quantum function ``f``.
@@ -67,14 +68,16 @@ class QuantumNet(torch.nn.Module):  # type: ignore
         :type use_interface: bool, optional
         :param use_jit: whether jit ``f``, defaults to True
         :type use_jit: bool, optional
+        :param enable_dlpack: whether enbale dlpack in interfaces, defaults to False
+        :type enable_dlpack: bool, optional
         """
         super().__init__()
         if use_vmap:
             f = backend.vmap(f, vectorized_argnums=0)
         if use_interface:
-            f = torch_interface(f, jit=use_jit)
+            f = torch_interface(f, jit=use_jit, enable_dlpack=enable_dlpack)
         self.f = f
-        self.q_weights = []
+        self.q_weights = torch.nn.ParameterList()  # type: ignore
         if isinstance(weights_shape[0], int):
             weights_shape = [weights_shape]
         if not is_sequence(initializer):

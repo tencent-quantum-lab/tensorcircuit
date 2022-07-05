@@ -12,7 +12,7 @@
 
 - Add `to_dlpack` and `from_dlpack` method on backends
 
-- Add dlpack path for interfaces
+- Add `enable_dlpack` option on interfaces and torchnn
 
 ### Changed
 
@@ -25,6 +25,8 @@
 ### Fixed
 
 - Fixed `numpy` method bug in pytorch backend when the input tensor requires grad (#24) and when the tensor is on GPU (#25)
+
+- Fixed `TorchLayer` parameter list auto registeration
 
 ## 0.2.1
 
