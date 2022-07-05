@@ -25,7 +25,11 @@ print(device)
 enable_dlpack = True
 # enable_dlpack = False # for old version of ML libs
 tf_device = "/GPU:0"
-# tf_device "/device:CPU:0"
+# tf_device = "/device:CPU:0"
+# another scheme to globally close GPU only for tf
+# https://datascience.stackexchange.com/a/76039
+# but if gpu support is fully shut down as above
+# dlpack=True wont work
 
 # dataset preparation
 

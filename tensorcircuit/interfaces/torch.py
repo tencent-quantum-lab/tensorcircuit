@@ -70,8 +70,7 @@ def torch_interface(
             # (x, )
             if len(ctx.xdtype) == 1:
                 ctx.xdtype = ctx.xdtype[0]
-            if not enable_dlpack:
-                ctx.device = (backend.tree_flatten(x)[0][0]).device
+            ctx.device = (backend.tree_flatten(x)[0][0]).device
             x = general_args_to_backend(x, enable_dlpack=enable_dlpack)
             y = fun(*x)
             ctx.ydtype = backend.tree_map(lambda s: s.dtype, y)
@@ -81,8 +80,7 @@ def torch_interface(
             y = general_args_to_backend(
                 y, target_backend="pytorch", enable_dlpack=enable_dlpack
             )
-            if not enable_dlpack:
-                y = backend.tree_map(lambda s: s.to(device=ctx.device), y)
+            y = backend.tree_map(lambda s: s.to(device=ctx.device), y)
             return y
 
         @staticmethod
@@ -104,8 +102,7 @@ def torch_interface(
                 target_backend="pytorch",
                 enable_dlpack=enable_dlpack,
             )
-            if not enable_dlpack:
-                r = backend.tree_map(lambda s: s.to(device=ctx.device), r)
+            r = backend.tree_map(lambda s: s.to(device=ctx.device), r)
             if not is_sequence(r):
                 return (r,)
             return r
