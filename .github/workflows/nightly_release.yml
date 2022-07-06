@@ -1,5 +1,8 @@
 name: ci
 on:
+  push:
+    branches:
+      - beta
   schedule:
     - cron: "0 12 * * *"
 jobs:
