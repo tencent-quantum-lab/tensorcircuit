@@ -78,6 +78,55 @@ def depolarizingchannel(px: float, py: float, pz: float) -> Sequence[Gate]:
     return [i, x, y, z]
 
 
+def depolarizingchannel2(param: float, num_qubits: int) -> Sequence[Gate]:
+    r"""Return a Depolarizing Channel
+
+    """
+
+    if not isinstance(num_qubits, int) or num_qubits < 1:
+        print("error")
+
+    # Check valid CPTP
+    num_terms = 4**num_qubits
+    max_param = num_terms / (num_terms - 1)
+    if param < 0 or param > max_param:
+        print("error")
+
+    p_id = 1 - param / max_param
+    p_pauli = param / num_terms
+    probs = [p_id] + (num_terms - 1) * [p_pauli]
+
+    if num_qubits == 1:
+        tup = [gates.i().tensor, gates.x().tensor, gates.y().tensor, gates.z().tensor]  # type: ignore
+    if num_qubits == 2:
+        tup = [
+            gates.ii().tensor,  # type: ignore
+            gates.ix().tensor,  # type: ignore
+            gates.iy().tensor,  # type: ignore
+            gates.iz().tensor,  # type: ignore
+            gates.xi().tensor,  # type: ignore
+            gates.xx().tensor,  # type: ignore
+            gates.xy().tensor,  # type: ignore
+            gates.xz().tensor,  # type: ignore
+            gates.yi().tensor,  # type: ignore
+            gates.yx().tensor,  # type: ignore
+            gates.yy().tensor,  # type: ignore
+            gates.yz().tensor,  # type: ignore
+            gates.zi().tensor,  # type: ignore
+            gates.zx().tensor,  # type: ignore
+            gates.zy().tensor,  # type: ignore
+            gates.zz().tensor,  # type: ignore
+        ]
+
+    # ctype, rtype = tc.set_dtype("complex64")
+    Gkarus = []
+    for pro, paugate in zip(probs, tup):
+        #  Gkarus.append(Gate(_sqrt(pro) * K.cast(paugate, ctype)))
+        Gkarus.append(Gate(_sqrt(pro) * paugate))
+
+    return Gkarus
+
+
 def amplitudedampingchannel(gamma: float, p: float) -> Sequence[Gate]:
     r"""
     Return an amplitude damping channel.

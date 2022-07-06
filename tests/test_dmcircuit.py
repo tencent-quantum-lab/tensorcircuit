@@ -256,3 +256,66 @@ def test_measure(backend):
     rs1, rs2 = r(key1), r(key2)
     assert rs1[0] != rs2[0]
     assert np.allclose(rs1[1], 0.4, atol=1e-5) or np.allclose(rs2[1], 0.4, atol=1e-5)
+
+
+class NoiseConf:
+    def __init__(self):
+        self.nc = {}
+
+    def add_noise(self, gate_name, kraus):
+        self.nc[gate_name] = kraus
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_depolarizing2(backend):
+
+    Nq = 2
+    c = tc.Circuit(Nq)
+    c.x(0)
+    c.cnot(0, 1)
+    c.x(0)
+    print((c.expectation_ps(y=[0, 1])))
+
+    noise_conf = NoiseConf()
+    noise_conf.add_noise("x", tc.channels.depolarizingchannel2(0.1, 1))
+    noise_conf.add_noise("cnot", tc.channels.depolarizingchannel2(0.1, 2))
+
+    cnoise = circuit_with_noise(c, noise_conf, 0.1)
+    cnoise.draw()
+
+
+def circuit_with_noise(c, noise_conf, randx):
+    qir = c.to_qir()
+    cnew = tc.Circuit(c._nqubits)
+    cv = apply_qir(cnew, qir, noise_conf, randx)
+
+    return cv
+
+
+def apply_qir(c, qir, noise_conf, randx):
+
+    for d in qir:
+
+        if "parameters" not in d:
+            c.apply_general_gate_delayed(d["gatef"], d["name"])(  # type: ignore
+                c, *d["index"]  # type: ignore
+            )
+        else:
+            c.apply_general_variable_gate_delayed(d["gatef"], d["name"])(  # type: ignore
+                c, *d["index"], **d["parameters"]  # type: ignore
+            )
+
+        if d["name"] in noise_conf.nc:
+            c.general_kraus(noise_conf.nc[d["name"]], *d["index"], status=randx)
+
+    return c
+
+
+@pytest.mark.parametrize("backend", [lf("tfb")])
+def test_dep(backend):
+    Nq = 1
+    c = tc.Circuit(Nq)
+    c.x(0)
+    print((c.expectation_ps(y=[0])))
+
+    print(tc.channels.depolarizingchannel(0.1, 0.2, 0.3))
