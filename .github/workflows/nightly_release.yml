@@ -13,7 +13,8 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
-        ref: beta
+        with:
+          ref: beta
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
