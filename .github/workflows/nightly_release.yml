@@ -1,4 +1,4 @@
-name: ci
+name: release
 on:
   push:
     branches:
@@ -50,6 +50,7 @@ jobs:
       - name: setup build
         run: |
           python3 .github/nightly_build/darkify.py
+          cat setup.py
           python3 setup.py bdist_wheel sdist
       - name: upload to pypi
         # if: startsWith(github.ref, 'refs/tags')

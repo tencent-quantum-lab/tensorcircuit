@@ -21,7 +21,7 @@ def update_setuppy(url=None):
     if not url:
         url = "https://raw.githubusercontent.com/refraction-ray/tensorcircuit-dev/beta/.github/nightly_build/setup.py"
     r = requests.get(url)
-    with open("setup.debug.py", "w") as f:
+    with open("setup.py", "w") as f:
         f.writelines(r.text)
 
 
