@@ -270,7 +270,10 @@ def test_args_transformation(backend):
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])
 def test_dlpack_transformation(backend):
-    for b in ["tensorflow", "jax", "pytorch"]:
+    blist = ["tensorflow", "jax"]
+    if is_torch is True:
+        blist.append("pytorch")
+    for b in blist:
         ans = tc.interfaces.general_args_to_backend(
             args=tc.backend.ones([2], dtype="float32"),
             target_backend=b,
