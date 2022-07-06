@@ -1,8 +1,8 @@
 name: release
 on:
-  push:
-    branches:
-      - beta
+  # push:
+  #   branches:
+  #     - beta
   schedule:
     - cron: "0 12 * * *"
 jobs:
@@ -29,24 +29,24 @@ jobs:
       - name: black linter
         run: |
           black . --check
-      # - name: mypy checker
-      #   run: |
-      #     mypy tensorcircuit
-      # - name: pylint checker
-      #   run: |
-      #     pylint tensorcircuit tests
-      # - name: test scripts
-      #   run: |
-      #     pytest --cov=tensorcircuit --cov-report=xml -svv --benchmark-skip
-      # - name: run example demos
-      #   run: |
-      #     cd examples
-      #     python mcnoise_check.py
-      #     python vqnhe_h6.py
-      #     python qaoa_dqas.py
-      #     python mcnoise_boost.py
-      #     python quantumng.py
-      #     python universal_lr.py
+      - name: mypy checker
+        run: |
+          mypy tensorcircuit
+      - name: pylint checker
+        run: |
+          pylint tensorcircuit tests
+      - name: test scripts
+        run: |
+          pytest --cov=tensorcircuit --cov-report=xml -svv --benchmark-skip
+      - name: run example demos
+        run: |
+          cd examples
+          python mcnoise_check.py
+          python vqnhe_h6.py
+          python qaoa_dqas.py
+          python mcnoise_boost.py
+          python quantumng.py
+          python universal_lr.py
       - name: setup build
         run: |
           python3 .github/nightly_build/darkify.py
