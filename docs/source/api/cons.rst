@@ -4,3 +4,4 @@ tensorcircuit.cons
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:

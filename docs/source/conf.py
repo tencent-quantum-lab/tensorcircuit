@@ -48,6 +48,7 @@ extensions = [
     "sphinx_copybutton",
     "nbsphinx",
     "toctree_filter",
+    "sphinx.ext.napoleon",
 ]
 
 autosectionlabel_prefix_document = True

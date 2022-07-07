@@ -4,3 +4,4 @@ tensorcircuit.applications.layers
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:

@@ -33,7 +33,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def copy(self: Any, a: Tensor) -> Tensor:
         """
-        Return the expm of ``a``, matrix exponential.
+        Return the copy of ``a``, matrix exponential.
 
         :param a: tensor in matrix form
         :type a: Tensor
@@ -46,7 +46,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     def expm(self: Any, a: Tensor) -> Tensor:
         """
-        Return the copy of tensor ''a''.
+        Return the expm of tensor ''a''.
 
         :param a: tensor in matrix form
         :type a: Tensor
@@ -186,6 +186,19 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         """
         raise NotImplementedError(
             "Backend '{}' has not implemented `atan2`.".format(self.name)
+        )
+
+    def atanh(self: Any, a: Tensor) -> Tensor:
+        """
+        Return the atanh of a tensor ``a``.
+
+        :param a: tensor in matrix form
+        :type a: Tensor
+        :return: atanh of ``a``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `atanh`.".format(self.name)
         )
 
     def cosh(self: Any, a: Tensor) -> Tensor:

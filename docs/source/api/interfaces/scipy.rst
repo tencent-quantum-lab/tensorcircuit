@@ -4,3 +4,4 @@ tensorcircuit.interfaces.scipy
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:

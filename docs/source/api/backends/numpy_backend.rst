@@ -4,3 +4,4 @@ tensorcircuit.backends.numpy_backend
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:

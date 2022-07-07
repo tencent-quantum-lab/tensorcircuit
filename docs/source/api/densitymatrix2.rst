@@ -4,3 +4,4 @@ tensorcircuit.densitymatrix2
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:

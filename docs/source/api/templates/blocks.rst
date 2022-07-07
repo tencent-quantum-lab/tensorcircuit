@@ -4,3 +4,4 @@ tensorcircuit.templates.blocks
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:

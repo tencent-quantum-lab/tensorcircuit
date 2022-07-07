@@ -8,9 +8,7 @@ class RSTGenerator:
 
     title_line = "=" * 50
     toctree = ".. toctree::\n    {}"
-    automodule = (
-        ".. automodule:: {}\n    :members:\n    :undoc-members:\n    :show-inheritance:"
-    )
+    automodule = ".. automodule:: {}\n    :members:\n    :undoc-members:\n    :show-inheritance:\n    :inherited-members:"
 
     def __init__(
         self, package_name, docs_folder, package_folder, ignore_modules=["__init__"]

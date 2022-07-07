@@ -4,3 +4,4 @@ tensorcircuit.keras
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:

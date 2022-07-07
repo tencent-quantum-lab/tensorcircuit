@@ -4,3 +4,4 @@ tensorcircuit.torchnn
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
