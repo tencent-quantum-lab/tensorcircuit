@@ -3,6 +3,7 @@ general function for interfaces transformation
 """
 
 from typing import Any
+from functools import partial
 
 from ..cons import backend
 from ..backends import get_backend  # type: ignore
@@ -39,7 +40,15 @@ def which_backend(a: Tensor, return_backend: bool = True) -> Any:
 
 
 def tensor_to_numpy(t: Tensor) -> Array:
+    if isinstance(t, int) or isinstance(t, float):
+        return t
     return which_backend(t).numpy(t)
+
+
+def numpy_to_tensor(t: Array, backend: Any) -> Tensor:
+    if isinstance(t, int) or isinstance(t, float):
+        return t
+    return backend.convert_to_tensor(t)
 
 
 def tensor_to_dtype(t: Tensor) -> str:
@@ -85,13 +94,13 @@ def numpy_args_to_backend(
         target_backend = get_backend(target_backend)
 
     if dtype is None:
-        return backend.tree_map(target_backend.convert_to_tensor, args)
+        return backend.tree_map(partial(numpy_to_tensor, backend=target_backend), args)
     else:
         if isinstance(dtype, str):
             leaves, treedef = backend.tree_flatten(args)
             dtype = [dtype for _ in range(len(leaves))]
             dtype = backend.tree_unflatten(treedef, dtype)
-        t = backend.tree_map(target_backend.convert_to_tensor, args)
+        t = backend.tree_map(partial(numpy_to_tensor, backend=target_backend), args)
         t = backend.tree_map(target_backend.cast, t, dtype)
         return t
 
@@ -100,7 +109,6 @@ def general_args_to_backend(
     args: Any, dtype: Any = None, target_backend: Any = None, enable_dlpack: bool = True
 ) -> Any:
     if not enable_dlpack:
-        # TODO(@refraction-ray): add device shift for numpy mediate transformation
         args = general_args_to_numpy(args)
         args = numpy_args_to_backend(args, dtype, target_backend)
         return args

@@ -280,6 +280,3 @@ def _full_light_cone_cancel(nodes: List[Any]) -> List[Any]:
     while is_changed:
         nodes, is_changed = _light_cone_cancel(nodes)
     return nodes
-
-
-# TODO(@refraction-ray): utilize more simplification method in contractor preprocessing

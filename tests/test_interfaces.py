@@ -243,6 +243,23 @@ def test_scipy_interface(backend):
     np.testing.assert_allclose(r["fun"], -1.0, atol=1e-5)
 
 
+@pytest.mark.parametrize("backend", [lf("torchb"), lf("tfb"), lf("jaxb")])
+def test_numpy_interface(backend):
+    def f(params, n):
+        c = tc.Circuit(n)
+        for i in range(n):
+            c.rx(i, theta=params[i])
+        for i in range(n - 1):
+            c.cnot(i, i + 1)
+        r = tc.backend.real(c.expectation_ps(z=[n - 1]))
+        return r
+
+    n = 3
+    f_np = tc.interfaces.numpy_interface(f, jit=False)
+    r = f_np(np.ones([n]), n)
+    np.testing.assert_allclose(r, 0.1577285, atol=1e-5)
+
+
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])
 def test_args_transformation(backend):
     ans = tc.interfaces.general_args_to_numpy(

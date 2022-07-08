@@ -268,8 +268,6 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `abs`.".format(self.name)
         )
 
-    # TODO(@refraction-ray): abs docstring doesn't get registered in the doc
-
     def kron(self: Any, a: Tensor, b: Tensor) -> Tensor:
         """
         Return the kronecker product of two matrices ``a`` and ``b``.
