@@ -14,8 +14,8 @@ def get_ps(qo: Any, n: int) -> Tuple[Tensor, Tensor]:
     Get Pauli string array and weights array for a qubit Hamiltonian
     as a sum of Pauli strings defined in openfermion ``QubitOperator``.
 
-    :param qubit_hamiltonian: ``openfermion.ops.operators.qubit_operator.QubitOperator``
-    :type qubit_hamiltonian: ``openfermion.ops.operators.qubit_operator.QubitOperator``
+    :param qo: ``openfermion.ops.operators.qubit_operator.QubitOperator``
+    :type qo: ``openfermion.ops.operators.qubit_operator.QubitOperator``
     :param n: The number of qubits
     :type n: int
     :return: Pauli String array and weights array

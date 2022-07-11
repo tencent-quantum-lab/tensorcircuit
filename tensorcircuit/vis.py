@@ -58,27 +58,26 @@ def qir2tex(
     :param init: Initial state, default is an all zero state '000...000'.
     :type init: Optional[List[str]]
     :param measure: Measurement Basis, default is None which means no
-    measurement in the end of the circuit.
+        measurement in the end of the circuit.
     :type measure: Optional[List[str]]
     :param rcompress: If true, a right compression of the circuit will be conducted.
-    A right compression means we will try to shift gates from right to left if possible.
+        A right compression means we will try to shift gates from right to left if possible.
     Default is false.
     :type rcompress: bool
     :param lcompress: If true, a left compression of the circuit will be conducted.
-    A left compression means we will try to shift gates from left to right if possible.
-    Default is false.
+        A left compression means we will try to shift gates from left to right if possible.
+        Default is false.
     :type lcompress: bool
     :param standalone: If true, the tex code will be designed to generate a standalone document.
-    Default is false which means the generated tex code is just a quantikz code block.
+        Default is false which means the generated tex code is just a quantikz code block.
     :type standalone: bool
     :param return_string_table: If true, a string table of tex code will also be returned.
-    Default is false.
+        Default is false.
     :type return_string_table: bool
     :return: Tex code of circuit visualization based on quantikz package. If return_string_table
-    is true, a string table of tex code will also be returned.
+        is true, a string table of tex code will also be returned.
     :rtype: Union[str, Tuple[str, List[List[str]]]]
     """
-
     # flag for applied layers
     flag = np.zeros(n, dtype=int)
     tex_string_table: List[List[str]] = [[] for _ in range(n)]
