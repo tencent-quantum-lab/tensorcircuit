@@ -135,10 +135,13 @@ def test_mult_qubit_kraus(backend):
     xx = np.array(
         [[0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0], [1, 0, 0, 0]], dtype=np.complex64
     ) / np.sqrt(2)
-    yz = np.array(
-        [[0, 0, -1.0j, 0], [0, 0, 0, 1.0j], [1.0j, 0, 0, 0], [0, -1.0j, 0, 0]],
-        dtype=np.complex64,
-    ) / np.sqrt(2)
+    yz = (
+        np.array(
+            [[0, 0, -1.0j, 0], [0, 0, 0, 1.0j], [1.0j, 0, 0, 0], [0, -1.0j, 0, 0]],
+            dtype=np.complex64,
+        )
+        / np.sqrt(2)
+    )
 
     def forward(theta):
         c = tc.DMCircuit_reference(3)
@@ -269,3 +272,12 @@ def test_dep(backend):
 
     cs = tc.channels.generaldepolarizingchannel(0.02, 2)
     tc.channels.kraus_identity_check(cs)
+
+
+def test_mpo_dm(backend, highp):
+    c = tc.DMCircuit(3)
+    c.H(1)
+    c.depolarizing(0, px=0.05, py=0.02, pz=0.02)
+    c.multicontrol(1, 0, 2, ctrl=[1, 1], unitary=tc.gates.x())
+    r = tc.backend.real(c.expectation_ps(z=[2]))
+    np.testing.assert_allclose(r, 0.93, atol=1e-8)

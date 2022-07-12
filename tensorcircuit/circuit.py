@@ -999,28 +999,6 @@ class Circuit:
         except AssertionError:
             return False
 
-    # def _copy(self, conj: bool = False) -> Tuple[List[tn.Node], List[tn.Edge]]:
-    #     """
-    #     Copy all nodes and dangling edges correspondingly.
-
-    #     :param conj: Bool indicating whether the tensors for nodes should be conjugated.
-    #     :type conj: bool
-    #     :return: New copy of nodes and dangling edges for the circuit.
-    #     :rtype: Tuple[List[tn.Node], List[tn.Edge]]
-    #     """
-    #     ndict, edict = tn.copy(self._nodes, conjugate=conj)
-    #     newnodes = []
-    #     for n in self._nodes:
-    #         newn = ndict[n]
-    #         newn.is_dagger = conj
-    #         newn.flag = getattr(n, "flag", "") + "copy"
-    #         newn.id = getattr(n, "id", id(n))
-    #         newnodes.append(ndict[n])
-    #     newfront = []
-    #     for e in self._front:
-    #         newfront.append(edict[e])
-    #     return newnodes, newfront
-
     _copy = copy_circuit
 
     def wavefunction(self, form: str = "default") -> tn.Node.tensor:

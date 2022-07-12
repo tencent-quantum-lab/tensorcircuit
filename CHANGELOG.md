@@ -6,6 +6,10 @@
 
 - Add `device` and `device_move` methods on backend with universal device string representation
 
+### Changed
+
+- Refactor circuit and dmcircuit with common methods now in `commons.py`, now `DMCircuit` supports MPO gate and qir
+
 ## 0.2.2
 
 ### Added

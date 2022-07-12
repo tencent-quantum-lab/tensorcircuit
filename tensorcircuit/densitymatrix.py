@@ -179,30 +179,6 @@ class DMCircuit:
             for alias_gate in gate_alias[1:]:
                 setattr(cls, alias_gate, getattr(cls, present_gate))
 
-    # def _copy(
-    #     self,
-    #     nodes: Sequence[tn.Node],
-    #     dangling: Optional[Sequence[tn.Edge]] = None,
-    #     conj: Optional[bool] = False,
-    # ) -> Tuple[List[tn.Node], List[tn.Edge]]:
-    #     """
-    #     copy all nodes and dangling edges correspondingly
-
-    #     :return:
-    #     """
-    #     ndict, edict = tn.copy(nodes, conjugate=conj)
-    #     newnodes = []
-    #     for n in nodes:
-    #         newnodes.append(ndict[n])
-    #     newfront = []
-    #     if not dangling:
-    #         dangling = []
-    #         for n in nodes:
-    #             dangling.extend([e for e in n])
-    #     for e in dangling:
-    #         newfront.append(edict[e])
-    #     return newnodes, newfront
-
     def _copy_DMCircuit(self) -> "DMCircuit":
         newnodes, newfront = copy(self._nodes, self._lfront + self._front)
         newDMCircuit = DMCircuit(self._nqubits, empty=True)
