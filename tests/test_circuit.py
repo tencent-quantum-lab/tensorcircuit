@@ -42,9 +42,9 @@ def test_wavefunction():
 def test_basics():
     c = tc.Circuit(2)
     c.x(0)
-    assert np.allclose(c.amplitude("10"), np.array(1.0))
+    np.testing.assert_allclose(c.amplitude("10"), np.array(1.0))
     c.CNOT(0, 1)
-    assert np.allclose(c.amplitude("11"), np.array(1.0))
+    np.testing.assert_allclose(c.amplitude("11"), np.array(1.0))
 
 
 def test_measure():
@@ -211,21 +211,21 @@ def test_jittable_depolarizing(backend):
         if tc.backend.name == "tensorflow":
             import tensorflow as tf
 
-            assert np.allclose(tc.backend.norm(f(None)), 1.0, atol=1e-4)
-            assert np.allclose(
+            np.testing.assert_allclose(tc.backend.norm(f(None)), 1.0, atol=1e-4)
+            np.testing.assert_allclose(
                 tc.backend.norm(f(tf.random.Generator.from_seed(23))), 1.0, atol=1e-4
             )
-            assert np.allclose(
+            np.testing.assert_allclose(
                 tc.backend.norm(f(tf.random.Generator.from_seed(24))), 1.0, atol=1e-4
             )
 
         elif tc.backend.name == "jax":
             import jax
 
-            assert np.allclose(
+            np.testing.assert_allclose(
                 tc.backend.norm(f(jax.random.PRNGKey(23))), 1.0, atol=1e-4
             )
-            assert np.allclose(
+            np.testing.assert_allclose(
                 tc.backend.norm(f(jax.random.PRNGKey(24))), 1.0, atol=1e-4
             )
 
@@ -233,7 +233,7 @@ def test_jittable_depolarizing(backend):
 def test_expectation():
     c = tc.Circuit(2)
     c.H(0)
-    assert np.allclose(c.expectation((tc.gates.z(), [0])), 0, atol=1e-7)
+    np.testing.assert_allclose(c.expectation((tc.gates.z(), [0])), 0, atol=1e-7)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
@@ -260,7 +260,7 @@ def test_exp1(backend):
 
     s = sf()
     s1 = s1f()
-    assert np.allclose(s, s1, atol=1e-4)
+    np.testing.assert_allclose(s, s1, atol=1e-4)
 
 
 def test_complex128(highp, tfb):
@@ -268,7 +268,7 @@ def test_complex128(highp, tfb):
     c.H(1)
     c.rx(0, theta=tc.gates.num_to_tensor(1j))
     c.wavefunction()
-    assert np.allclose(c.expectation((tc.gates.z(), [1])), 0)
+    np.testing.assert_allclose(c.expectation((tc.gates.z(), [1])), 0)
 
 
 # def test_qcode():
@@ -311,7 +311,7 @@ def test_single_qubit():
     c = tc.Circuit(1)
     c.H(0)
     w = c.state()[0]
-    assert np.allclose(w, np.array([1, 1]) / np.sqrt(2), atol=1e-4)
+    np.testing.assert_allclose(w, np.array([1, 1]) / np.sqrt(2), atol=1e-4)
 
 
 def test_expectation_between_two_states():
@@ -328,7 +328,7 @@ def test_expectation_between_two_states():
     x1z2 = [(tc.gates.x(), [0]), (tc.gates.z(), [1])]
     e1 = c.expectation(*x1z2)
     e2 = tc.expectation(*x1z2, ket=state, bra=state, normalization=True)
-    assert np.allclose(e2, e1)
+    np.testing.assert_allclose(e2, e1)
 
     c = tc.Circuit(3)
     c.H(0)
@@ -339,7 +339,7 @@ def test_expectation_between_two_states():
     x1z2 = [(tc.gates.x(), [0]), (tc.gates.z(), [1])]
     e1 = c.expectation(*x1z2) / tc.backend.norm(state) ** 2
     e2 = tc.expectation(*x1z2, ket=state, normalization=True)
-    assert np.allclose(e2, e1)
+    np.testing.assert_allclose(e2, e1)
 
     c = tc.Circuit(2)
     c.X(1)
@@ -352,9 +352,9 @@ def test_expectation_between_two_states():
     s3 = c3.state()
     x1x2 = [(tc.gates.x(), [0]), (tc.gates.x(), [1])]
     e = tc.expectation(*x1x2, ket=s1, bra=s2)
-    assert np.allclose(e, 1.0)
+    np.testing.assert_allclose(e, 1.0)
     e2 = tc.expectation(*x1x2, ket=s3, bra=s2)
-    assert np.allclose(e2, 1.0 / np.sqrt(2))
+    np.testing.assert_allclose(e2, 1.0 / np.sqrt(2))
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
@@ -377,7 +377,7 @@ def test_any_inputs_state(backend):
     )
     c.X(0)
     z0 = c.expectation((tc.gates.z(), [0]))
-    assert np.allclose(z0, 0.0, rtol=1e-4, atol=1e-4)
+    np.testing.assert_allclose(z0, 0.0, rtol=1e-4, atol=1e-4)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb")])
@@ -388,7 +388,7 @@ def test_postselection(backend):
     c.mid_measurement(1, 1)
     c.mid_measurement(2, 1)
     s = c.wavefunction()
-    assert np.allclose(tc.backend.real(s[3]), 0.5)
+    np.testing.assert_allclose(tc.backend.real(s[3]), 0.5)
 
 
 def test_unitary():
@@ -396,7 +396,7 @@ def test_unitary():
     c.X(0)
     c.Y(1)
     answer = np.kron(tc.gates.x().tensor, tc.gates.y().tensor)
-    assert np.allclose(c.wavefunction().reshape([4, 4]), answer, atol=1e-4)
+    np.testing.assert_allclose(c.wavefunction().reshape([4, 4]), answer, atol=1e-4)
 
 
 def test_expectation_ps():
@@ -456,7 +456,7 @@ def test_dqas_type_circuit(backend):
 
     vf = tc.backend.vmap(f, vectorized_argnums=(1,))
 
-    assert np.allclose(vf(params, structures).shape, [16])
+    np.testing.assert_allclose(vf(params, structures).shape, [16])
 
     vvag = tc.backend.vvag(f, argnums=0, vectorized_argnums=1)
 
@@ -464,8 +464,8 @@ def test_dqas_type_circuit(backend):
 
     value, grad = vvag(params, structures)
 
-    assert np.allclose(value.shape, [16])
-    assert np.allclose(grad.shape, [5, 2, 3])
+    np.testing.assert_allclose(value.shape, [16])
+    np.testing.assert_allclose(grad.shape, [5, 2, 3])
 
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
@@ -533,11 +533,11 @@ def test_circuit_add_demo():
     c2 = tc.Circuit(2, mps_inputs=c.quvector())
     c2.X(0)
     answer = np.array([1.0, 0, 0, 0])
-    assert np.allclose(c2.wavefunction(), answer, atol=1e-4)
+    np.testing.assert_allclose(c2.wavefunction(), answer, atol=1e-4)
     c3 = tc.Circuit(2)
     c3.X(0)
     c3.replace_mps_inputs(c.quvector())
-    assert np.allclose(c3.wavefunction(), answer, atol=1e-4)
+    np.testing.assert_allclose(c3.wavefunction(), answer, atol=1e-4)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
