@@ -736,6 +736,16 @@ ryy_gate = partial(exp1_gate, unitary=_yy_matrix)
 
 
 def multicontrol_gate(unitary: Tensor, ctrl: Union[int, Sequence[int]] = 1) -> Operator:
+    r"""
+    Multicontrol gate. If the control qubits equal to `ctrl`, :math:`U` is applied to the target qubits.
+
+    :param unitary: input unitary :math:`U`
+    :type unitary: Tensor
+    :param ctrl: control bit sequence
+    :type ctrl: Union[int, Sequence[int]]
+    :return: Multicontrol Gate
+    :rtype: Operator
+    """
     if isinstance(unitary, tn.Node):
         unitary = unitary.tensor
     unitary = backend.reshapem(unitary)

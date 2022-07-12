@@ -318,12 +318,14 @@ class Circuit:
             )
             doc = """
             Apply %s gate in MPO format on the circuit.
+            See :py:meth:`tensorcircuit.gates.%s_gate`.
 
             :param index: Qubit number that the gate applies on.
             :type index: int.
             :param vars: Parameters for the gate.
             :type vars: float.
             """ % (
+                g,
                 g
             )
             getattr(cls, g).__doc__ = doc
