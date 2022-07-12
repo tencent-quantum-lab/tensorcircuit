@@ -23,8 +23,8 @@ def test_gate_dm():
     c = tc.DMCircuit(3)
     c.H(0)
     c.rx(1, theta=tc.num_to_tensor(np.pi))
-    assert np.allclose(c.expectation((tc.gates.z(), [0])), 0.0, atol=1e-4)
-    assert np.allclose(c.expectation((tc.gates.z(), [1])), -1.0, atol=1e-4)
+    np.testing.assert_allclose(c.expectation((tc.gates.z(), [0])), 0.0, atol=1e-4)
+    np.testing.assert_allclose(c.expectation((tc.gates.z(), [1])), -1.0, atol=1e-4)
 
 
 def test_state_inputs():
@@ -32,9 +32,9 @@ def test_state_inputs():
     w[1] = 1.0
     c = tc.DMCircuit(3, inputs=w)
     c.cnot(2, 1)
-    assert np.allclose(c.expectation((tc.gates.z(), [1])), -1.0)
-    assert np.allclose(c.expectation((tc.gates.z(), [2])), -1.0)
-    assert np.allclose(c.expectation((tc.gates.z(), [0])), 1.0)
+    np.testing.assert_allclose(c.expectation((tc.gates.z(), [1])), -1.0)
+    np.testing.assert_allclose(c.expectation((tc.gates.z(), [2])), -1.0)
+    np.testing.assert_allclose(c.expectation((tc.gates.z(), [0])), 1.0)
 
     s2 = np.sqrt(2.0)
     w = np.array([1 / s2, 0, 0, 1.0j / s2])
@@ -44,12 +44,12 @@ def test_state_inputs():
         [[0, 0, 0, 0], [0, 0.5, -0.5j, 0], [0, 0.5j, 0.5, 0], [0, 0, 0, 0]]
     )
     print(c.densitymatrix())
-    assert np.allclose(c.densitymatrix(), answer)
+    np.testing.assert_allclose(c.densitymatrix(), answer)
 
     c = tc.DMCircuit(2, inputs=w)
     c.Y(0)
     print(c.densitymatrix())
-    assert np.allclose(c.densitymatrix(), answer)
+    np.testing.assert_allclose(c.densitymatrix(), answer)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("jaxb"), lf("tfb")])
@@ -69,9 +69,9 @@ def test_dm_inputs(backend):
     b2 = b2.astype(np.complex64)
     c = tc.DMCircuit(nqubits=2, dminputs=rho0)
     c.apply_general_kraus([tc.gates.Gate(b1), tc.gates.Gate(b2)], [(1,)])
-    assert np.allclose(c.densitymatrix(), rho1, atol=1e-4)
+    np.testing.assert_allclose(c.densitymatrix(), rho1, atol=1e-4)
     c.y(1)
-    assert np.allclose(c.densitymatrix(), rho2, atol=1e-4)
+    np.testing.assert_allclose(c.densitymatrix(), rho2, atol=1e-4)
 
 
 def test_inputs_and_kraus():
@@ -92,20 +92,20 @@ def test_inputs_and_kraus():
     c = tc.DMCircuit(2, inputs=w)
     c.y(0)
     c.cnot(0, 1)
-    assert np.allclose(c.densitymatrix(), rho0, atol=1e-4)
+    np.testing.assert_allclose(c.densitymatrix(), rho0, atol=1e-4)
     c.apply_general_kraus([tc.gates.Gate(b1), tc.gates.Gate(b2)], 1)
-    assert np.allclose(c.densitymatrix(), rho1, atol=1e-4)
+    np.testing.assert_allclose(c.densitymatrix(), rho1, atol=1e-4)
     c.y(1)
-    assert np.allclose(c.densitymatrix(), rho2, atol=1e-4)
+    np.testing.assert_allclose(c.densitymatrix(), rho2, atol=1e-4)
 
     c = tc.DMCircuit(2, inputs=w)
     c.y(0)
     c.cnot(0, 1)
-    assert np.allclose(c.densitymatrix(), rho0, atol=1e-4)
+    np.testing.assert_allclose(c.densitymatrix(), rho0, atol=1e-4)
     c.apply_general_kraus([tc.gates.Gate(b1), tc.gates.Gate(b2)], [(1,)])
-    assert np.allclose(c.densitymatrix(), rho1, atol=1e-4)
+    np.testing.assert_allclose(c.densitymatrix(), rho1, atol=1e-4)
     c.y(1)
-    assert np.allclose(c.densitymatrix(), rho2, atol=1e-4)
+    np.testing.assert_allclose(c.densitymatrix(), rho2, atol=1e-4)
 
 
 def test_gate_depolarizing():
@@ -157,7 +157,7 @@ def test_mult_qubit_kraus(backend):
     theta = tc.num_to_tensor(0.2)
     vg = tc.backend.value_and_grad(forward)
     _, g1 = vg(theta)
-    assert np.allclose(tc.backend.numpy(g1), 0.199, atol=1e-2)
+    np.testing.assert_allclose(tc.backend.numpy(g1), 0.199, atol=1e-2)
 
     def forward2(theta):
         c = tc.DMCircuit(3)
@@ -174,7 +174,7 @@ def test_mult_qubit_kraus(backend):
     theta = tc.num_to_tensor(0.2)
     vg2 = tc.backend.value_and_grad(forward2)
     _, g2 = vg2(theta)
-    assert np.allclose(tc.backend.numpy(g2), 0.199, atol=1e-2)
+    np.testing.assert_allclose(tc.backend.numpy(g2), 0.199, atol=1e-2)
 
 
 @pytest.mark.parametrize("backend", [lf("jaxb"), lf("tfb")])
@@ -197,8 +197,8 @@ def test_noise_param_ad(backend):
     theta = tc.num_to_tensor(0.1)
     vg = tc.backend.value_and_grad(forward)
     v, g = vg(theta)
-    assert np.allclose(v, -0.6, atol=1e-2)
-    assert np.allclose(g, 4, atol=1e-2)
+    np.testing.assert_allclose(v, -0.6, atol=1e-2)
+    np.testing.assert_allclose(g, 4, atol=1e-2)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb")])
@@ -255,4 +255,4 @@ def test_measure(backend):
     key1, key2 = tc.backend.random_split(key)
     rs1, rs2 = r(key1), r(key2)
     assert rs1[0] != rs2[0]
-    assert np.allclose(rs1[1], 0.4, atol=1e-5) or np.allclose(rs2[1], 0.4, atol=1e-5)
+    np.testing.assert_allclose(rs1[1], 0.4, atol=1e-5) or np.allclose(rs2[1], 0.4, atol=1e-5)
