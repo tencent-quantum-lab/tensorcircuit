@@ -15,6 +15,7 @@ from . import channels
 from .circuit import Circuit
 from .cons import backend, contractor, npdtype, dtypestr, rdtypestr
 from .commons import (
+    copy,
     sgates,
     vgates,
     mpogates,
@@ -69,7 +70,7 @@ class DMCircuit:
                 ]
                 self._front = [n.get_edge(0) for n in nodes]
 
-                lnodes, self._lfront = self._copy(nodes, self._front, conj=True)
+                lnodes, self._lfront = copy(nodes, self._front, conj=True)
                 lnodes.extend(nodes)
                 self._nodes = lnodes
             elif inputs is not None:
@@ -84,7 +85,7 @@ class DMCircuit:
                 nodes = [inputs]
                 self._front = [inputs.get_edge(i) for i in range(n)]
 
-                lnodes, self._lfront = self._copy(nodes, self._front, conj=True)
+                lnodes, self._lfront = copy(nodes, self._front, conj=True)
                 lnodes.extend(nodes)
                 self._nodes = lnodes
             else:  # dminputs is not None
@@ -178,32 +179,32 @@ class DMCircuit:
             for alias_gate in gate_alias[1:]:
                 setattr(cls, alias_gate, getattr(cls, present_gate))
 
-    def _copy(
-        self,
-        nodes: Sequence[tn.Node],
-        dangling: Optional[Sequence[tn.Edge]] = None,
-        conj: Optional[bool] = False,
-    ) -> Tuple[List[tn.Node], List[tn.Edge]]:
-        """
-        copy all nodes and dangling edges correspondingly
+    # def _copy(
+    #     self,
+    #     nodes: Sequence[tn.Node],
+    #     dangling: Optional[Sequence[tn.Edge]] = None,
+    #     conj: Optional[bool] = False,
+    # ) -> Tuple[List[tn.Node], List[tn.Edge]]:
+    #     """
+    #     copy all nodes and dangling edges correspondingly
 
-        :return:
-        """
-        ndict, edict = tn.copy(nodes, conjugate=conj)
-        newnodes = []
-        for n in nodes:
-            newnodes.append(ndict[n])
-        newfront = []
-        if not dangling:
-            dangling = []
-            for n in nodes:
-                dangling.extend([e for e in n])
-        for e in dangling:
-            newfront.append(edict[e])
-        return newnodes, newfront
+    #     :return:
+    #     """
+    #     ndict, edict = tn.copy(nodes, conjugate=conj)
+    #     newnodes = []
+    #     for n in nodes:
+    #         newnodes.append(ndict[n])
+    #     newfront = []
+    #     if not dangling:
+    #         dangling = []
+    #         for n in nodes:
+    #             dangling.extend([e for e in n])
+    #     for e in dangling:
+    #         newfront.append(edict[e])
+    #     return newnodes, newfront
 
     def _copy_DMCircuit(self) -> "DMCircuit":
-        newnodes, newfront = self._copy(self._nodes, self._lfront + self._front)
+        newnodes, newfront = copy(self._nodes, self._lfront + self._front)
         newDMCircuit = DMCircuit(self._nqubits, empty=True)
         newDMCircuit._nqubits = self._nqubits
         newDMCircuit._lfront = newfront[: self._nqubits]
@@ -219,9 +220,7 @@ class DMCircuit:
         else:
             t = None
         if t is None:
-            nodes, d_edges = self._copy(
-                self._nodes, self._front + self._lfront, conj=conj
-            )
+            nodes, d_edges = copy(self._nodes, self._front + self._lfront, conj=conj)
             t = contractor(nodes, output_edge_order=d_edges)
             setattr(self, "state_tensor", t)
         ndict, edict = tn.copy([t], conjugate=conj)
@@ -310,7 +309,7 @@ class DMCircuit:
         :rtype: Tensor
         """
         # kws is reserved for unsupported feature such as reuse arg
-        newdm, newdang = self._copy(self._nodes, self._front + self._lfront)
+        newdm, newdang = copy(self._nodes, self._front + self._lfront)
         occupied = set()
         nodes = newdm
         for op, index in ops:
@@ -357,7 +356,7 @@ class DMCircuit:
         p = backend.convert_to_tensor(p)
         p = backend.cast(p, dtype=rdtypestr)
         for k, j in enumerate(index):
-            newnodes, newfront = self._copy(self._nodes, self._lfront + self._front)
+            newnodes, newfront = copy(self._nodes, self._lfront + self._front)
             nfront = len(newfront) // 2
             edge1 = newfront[nfront:]
             edge2 = newfront[:nfront]

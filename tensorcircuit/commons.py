@@ -102,7 +102,10 @@ def copy(
 def copy_circuit(
     circuit: BaseCircuit, conj: Optional[bool] = False
 ) -> Tuple[List[tn.Node], List[tn.Edge]]:
-    return copy(circuit._nodes, circuit._front, conj)
+    if getattr(circuit, "lfront", None):
+        dangling = circuit._lfront + circuit._front
+    dangling = circuit._front
+    return copy(circuit._nodes, dangling, conj)
 
 
 def apply_general_gate(

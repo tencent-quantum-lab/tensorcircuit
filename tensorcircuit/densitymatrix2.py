@@ -11,6 +11,7 @@ from . import gates
 from .cons import backend, dtypestr
 from .channels import kraus_to_super_gate
 from .densitymatrix import DMCircuit
+from .commons import copy
 
 Gate = gates.Gate
 Tensor = Any
@@ -18,7 +19,7 @@ Tensor = Any
 
 class DMCircuit2(DMCircuit):
     def _copy_DMCircuit(self) -> "DMCircuit2":
-        newnodes, newfront = self._copy(self._nodes, self._lfront + self._front)
+        newnodes, newfront = copy(self._nodes, self._lfront + self._front)
         newDMCircuit = DMCircuit2(self._nqubits, empty=True)
         newDMCircuit._nqubits = self._nqubits
         newDMCircuit._lfront = newfront[: self._nqubits]
