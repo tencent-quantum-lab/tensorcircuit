@@ -18,11 +18,11 @@ Tensor = Any
 
 class DMCircuit2(DMCircuit):
     def _copy_DMCircuit(self) -> "DMCircuit2":
-        newnodes, newfront = self._copy(self._nodes, self._lfront + self._rfront)
+        newnodes, newfront = self._copy(self._nodes, self._lfront + self._front)
         newDMCircuit = DMCircuit2(self._nqubits, empty=True)
         newDMCircuit._nqubits = self._nqubits
         newDMCircuit._lfront = newfront[: self._nqubits]
-        newDMCircuit._rfront = newfront[self._nqubits :]
+        newDMCircuit._front = newfront[self._nqubits :]
         newDMCircuit._nodes = newnodes
         return newDMCircuit
 
@@ -51,8 +51,8 @@ class DMCircuit2(DMCircuit):
         for i, ind in enumerate(index):
             super_op.get_edge(i + r2l + o2i) ^ self._lfront[ind]
             self._lfront[ind] = super_op.get_edge(i + r2l)
-            super_op.get_edge(i + o2i) ^ self._rfront[ind]
-            self._rfront[ind] = super_op.get_edge(i)
+            super_op.get_edge(i + o2i) ^ self._front[ind]
+            self._front[ind] = super_op.get_edge(i)
         self._nodes.append(super_op)
         setattr(self, "state_tensor", None)
 

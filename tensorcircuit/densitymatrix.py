@@ -5,15 +5,25 @@ Quantum circuit class but with density matrix simulator
 
 from functools import reduce
 from operator import add
-from typing import Any, Callable, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 import tensornetwork as tn
 
 from . import gates
 from . import channels
-from .circuit import Circuit, _expectation_ps
+from .circuit import Circuit
 from .cons import backend, contractor, npdtype, dtypestr, rdtypestr
+from .commons import (
+    sgates,
+    vgates,
+    mpogates,
+    gate_aliases,
+    expectation_ps,
+    apply_general_gate,
+    apply_general_gate_delayed,
+    apply_general_variable_gate_delayed,
+)
 
 Gate = gates.Gate
 Tensor = Any
@@ -26,6 +36,7 @@ class DMCircuit:
         empty: bool = False,
         inputs: Optional[Tensor] = None,
         dminputs: Optional[Tensor] = None,
+        split: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         The density matrix simulator based on tensornetwork engine.
@@ -56,9 +67,9 @@ class DMCircuit:
                     )
                     for x in range(nqubits)
                 ]
-                self._rfront = [n.get_edge(0) for n in nodes]
+                self._front = [n.get_edge(0) for n in nodes]
 
-                lnodes, self._lfront = self._copy(nodes, self._rfront, conj=True)
+                lnodes, self._lfront = self._copy(nodes, self._front, conj=True)
                 lnodes.extend(nodes)
                 self._nodes = lnodes
             elif inputs is not None:
@@ -71,9 +82,9 @@ class DMCircuit:
                 inputs = backend.reshape(inputs, [2 for _ in range(n)])
                 inputs = Gate(inputs)
                 nodes = [inputs]
-                self._rfront = [inputs.get_edge(i) for i in range(n)]
+                self._front = [inputs.get_edge(i) for i in range(n)]
 
-                lnodes, self._lfront = self._copy(nodes, self._rfront, conj=True)
+                lnodes, self._lfront = self._copy(nodes, self._front, conj=True)
                 lnodes.extend(nodes)
                 self._nodes = lnodes
             else:  # dminputs is not None
@@ -82,34 +93,62 @@ class DMCircuit:
                 dminputs = backend.reshape(dminputs, [2 for _ in range(2 * nqubits)])
                 dminputs = Gate(dminputs)
                 nodes = [dminputs]
-                self._rfront = [dminputs.get_edge(i) for i in range(nqubits)]
+                self._front = [dminputs.get_edge(i) for i in range(nqubits)]
                 self._lfront = [dminputs.get_edge(i + nqubits) for i in range(nqubits)]
                 self._nodes = nodes
 
             self._nqubits = nqubits
+        self._qir: List[Dict[str, Any]] = []
+        self.split = split
 
     @classmethod
     def _meta_apply(cls) -> None:
-        for g in Circuit.sgates:
-            setattr(cls, g, cls.apply_general_gate_delayed(getattr(gates, g), name=g))
+        for g in sgates:
+            setattr(
+                cls,
+                g,
+                apply_general_gate_delayed(getattr(gates, g), name=g, is_dm=True),
+            )
             setattr(
                 cls,
                 g.upper(),
-                cls.apply_general_gate_delayed(getattr(gates, g), name=g),
+                apply_general_gate_delayed(getattr(gates, g), name=g, is_dm=True),
             )
             getattr(cls, g).__doc__ = getattr(Circuit, g).__doc__
             getattr(cls, g.upper()).__doc__ = getattr(Circuit, g).__doc__
 
-        for g in Circuit.vgates:
+        for g in vgates:
             setattr(
                 cls,
                 g,
-                cls.apply_general_variable_gate_delayed(getattr(gates, g), name=g),
+                apply_general_variable_gate_delayed(
+                    getattr(gates, g), name=g, is_dm=True
+                ),
             )
             setattr(
                 cls,
                 g.upper(),
-                cls.apply_general_variable_gate_delayed(getattr(gates, g), name=g),
+                apply_general_variable_gate_delayed(
+                    getattr(gates, g), name=g, is_dm=True
+                ),
+            )
+            getattr(cls, g).__doc__ = getattr(Circuit, g).__doc__
+            getattr(cls, g.upper()).__doc__ = getattr(Circuit, g).__doc__
+
+        for g in mpogates:
+            setattr(
+                cls,
+                g,
+                apply_general_variable_gate_delayed(
+                    getattr(gates, g), name=g, mpo=True, is_dm=True
+                ),
+            )
+            setattr(
+                cls,
+                g.upper(),
+                apply_general_variable_gate_delayed(
+                    getattr(gates, g), name=g, mpo=True, is_dm=True
+                ),
             )
             getattr(cls, g).__doc__ = getattr(Circuit, g).__doc__
             getattr(cls, g.upper()).__doc__ = getattr(Circuit, g).__doc__
@@ -134,7 +173,7 @@ class DMCircuit:
             )
             getattr(cls, k).__doc__ = doc
 
-        for gate_alias in Circuit.gate_alias_list:
+        for gate_alias in gate_aliases:
             present_gate = gate_alias[0]
             for alias_gate in gate_alias[1:]:
                 setattr(cls, alias_gate, getattr(cls, present_gate))
@@ -164,11 +203,11 @@ class DMCircuit:
         return newnodes, newfront
 
     def _copy_DMCircuit(self) -> "DMCircuit":
-        newnodes, newfront = self._copy(self._nodes, self._lfront + self._rfront)
+        newnodes, newfront = self._copy(self._nodes, self._lfront + self._front)
         newDMCircuit = DMCircuit(self._nqubits, empty=True)
         newDMCircuit._nqubits = self._nqubits
         newDMCircuit._lfront = newfront[: self._nqubits]
-        newDMCircuit._rfront = newfront[self._nqubits :]
+        newDMCircuit._front = newfront[self._nqubits :]
         newDMCircuit._nodes = newnodes
         return newDMCircuit
 
@@ -181,7 +220,7 @@ class DMCircuit:
             t = None
         if t is None:
             nodes, d_edges = self._copy(
-                self._nodes, self._rfront + self._lfront, conj=conj
+                self._nodes, self._front + self._lfront, conj=conj
             )
             t = contractor(nodes, output_edge_order=d_edges)
             setattr(self, "state_tensor", t)
@@ -194,47 +233,8 @@ class DMCircuit:
         return newnodes, newfront
 
     def _contract(self) -> None:
-        t = contractor(self._nodes, output_edge_order=self._rfront + self._lfront)
+        t = contractor(self._nodes, output_edge_order=self._front + self._lfront)
         self._nodes = [t]
-
-    def apply_general_gate(
-        self, gate: Gate, *index: int, name: Optional[str] = None
-    ) -> None:
-        assert len(index) == len(set(index))
-        noe = len(index)
-        lgated, _ = self._copy([gate], conj=True)
-        lgate = lgated[0]
-        for i, ind in enumerate(index):
-            gate.get_edge(i + noe) ^ self._rfront[ind]
-            self._rfront[ind] = gate.get_edge(i)
-            lgate.get_edge(i + noe) ^ self._lfront[ind]
-            self._lfront[ind] = lgate.get_edge(i)
-        self._nodes.append(gate)
-        self._nodes.append(lgate)
-        setattr(self, "state_tensor", None)
-
-    # TODO(@refraction-ray): support mpo gate: wait for unified abstraction on circuit
-
-    @staticmethod
-    def apply_general_gate_delayed(
-        gatef: Callable[[], Gate], name: Optional[str] = None
-    ) -> Callable[..., None]:
-        def apply(self: "DMCircuit", *index: int) -> None:
-            gate = gatef()
-            self.apply_general_gate(gate, *index, name=name)
-
-        return apply
-
-    @staticmethod
-    def apply_general_variable_gate_delayed(
-        gatef: Callable[..., Gate],
-        name: Optional[str] = None,
-    ) -> Callable[..., None]:
-        def apply(self: "DMCircuit", *index: int, **vars: float) -> None:
-            gate = gatef(**vars)
-            self.apply_general_gate(gate, *index, name=name)
-
-        return apply
 
     @staticmethod
     def check_kraus(kraus: Sequence[Gate]) -> bool:  # TODO(@refraction-ray)
@@ -252,14 +252,14 @@ class DMCircuit:
         circuits = []
         for k, i in zip(kraus, index):
             dmc = self._copy_DMCircuit()
-            dmc.apply_general_gate(k, *i)
+            apply_general_gate(dmc, k, *i, is_dm=True)
             dd = dmc.densitymatrix()
             circuits.append(dd)
         tensor = reduce(add, circuits)
         tensor = backend.reshape(tensor, [2 for _ in range(2 * self._nqubits)])
         self._nodes = [Gate(tensor)]
         dangling = [e for e in self._nodes[0]]
-        self._rfront = dangling[: self._nqubits]
+        self._front = dangling[: self._nqubits]
         self._lfront = dangling[self._nqubits :]
         setattr(self, "state_tensor", None)
 
@@ -310,7 +310,7 @@ class DMCircuit:
         :rtype: Tensor
         """
         # kws is reserved for unsupported feature such as reuse arg
-        newdm, newdang = self._copy(self._nodes, self._rfront + self._lfront)
+        newdm, newdang = self._copy(self._nodes, self._front + self._lfront)
         occupied = set()
         nodes = newdm
         for op, index in ops:
@@ -357,7 +357,7 @@ class DMCircuit:
         p = backend.convert_to_tensor(p)
         p = backend.cast(p, dtype=rdtypestr)
         for k, j in enumerate(index):
-            newnodes, newfront = self._copy(self._nodes, self._lfront + self._rfront)
+            newnodes, newfront = self._copy(self._nodes, self._lfront + self._front)
             nfront = len(newfront) // 2
             edge1 = newfront[nfront:]
             edge2 = newfront[:nfront]
@@ -412,4 +412,4 @@ class DMCircuit:
 # TODO(@refraction-ray): new sampling API as Circuit
 
 DMCircuit._meta_apply()
-DMCircuit.expectation_ps = _expectation_ps  # type: ignore
+DMCircuit.expectation_ps = expectation_ps  # type: ignore

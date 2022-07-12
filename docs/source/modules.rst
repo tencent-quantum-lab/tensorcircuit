@@ -5,6 +5,7 @@ tensorcircuit
     ./api/backends.rst
     ./api/channels.rst
     ./api/circuit.rst
+    ./api/commons.rst
     ./api/cons.rst
     ./api/densitymatrix.rst
     ./api/densitymatrix2.rst

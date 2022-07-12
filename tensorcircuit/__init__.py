@@ -17,6 +17,7 @@ from .cons import (
     runtime_contractor,
 )  # prerun of set hooks
 from . import gates
+from . import commons
 from .circuit import Circuit, expectation
 from .mpscircuit import MPSCircuit
 from .densitymatrix import DMCircuit as DMCircuit_reference

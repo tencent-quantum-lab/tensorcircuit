@@ -63,7 +63,7 @@ def test_variable_controlled():
     crxgate = tc.gates.rx.controlled()
     c = tc.Circuit(2)
     c.x(0)
-    tc.Circuit.crx_my = c.apply_general_variable_gate_delayed(crxgate)
+    tc.Circuit.crx_my = tc.commons.apply_general_variable_gate_delayed(crxgate)
     c.crx_my(0, 1, theta=0.3)
     np.testing.assert_allclose(
         c.expectation([tc.gates.z(), [1]]), 0.95533645, atol=1e-5

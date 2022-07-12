@@ -14,8 +14,18 @@ import tensornetwork as tn
 from . import gates
 from .cons import backend, contractor, dtypestr, rdtypestr, npdtype
 from .quantum import QuVector, QuOperator, identity
-from .simplify import _split_two_qubit_gate, _full_light_cone_cancel
+from .simplify import _full_light_cone_cancel
 from .vis import qir2tex
+from .commons import (
+    apply_general_gate,
+    apply_general_gate_delayed,
+    apply_general_variable_gate_delayed,
+    sgates,
+    vgates,
+    mpogates,
+    gate_aliases,
+    expectation_ps,
+)
 
 Gate = gates.Gate
 Tensor = Any
@@ -35,39 +45,6 @@ class Circuit:
         c.expectation([tc.gates.z(), (2, )]) # 0.54
 
     """
-
-    sgates = (
-        ["i", "x", "y", "z", "h", "t", "s", "td", "sd", "wroot"]
-        + ["cnot", "cz", "swap", "cy", "iswap", "ox", "oy", "oz"]
-        + ["toffoli", "fredkin"]
-    )
-    vgates = [
-        "r",
-        "cr",
-        "rx",
-        "ry",
-        "rz",
-        "rxx",
-        "ryy",
-        "rzz",
-        "crx",
-        "cry",
-        "crz",
-        "orx",
-        "ory",
-        "orz",
-        "any",
-        "exp",
-        "exp1",
-    ]
-    mpogates = ["multicontrol", "mpo"]
-
-    gate_alias_list = [
-        ["cnot", "cx"],
-        ["fredkin", "cswap"],
-        ["toffoli", "ccnot"],
-        ["any", "unitary"],
-    ]
 
     def __init__(
         self,
@@ -225,14 +202,12 @@ class Circuit:
     @classmethod
     def _meta_apply(cls) -> None:
 
-        for g in cls.sgates:
-            setattr(
-                cls, g, cls.apply_general_gate_delayed(gatef=getattr(gates, g), name=g)
-            )
+        for g in sgates:
+            setattr(cls, g, apply_general_gate_delayed(gatef=getattr(gates, g), name=g))
             setattr(
                 cls,
                 g.upper(),
-                cls.apply_general_gate_delayed(gatef=getattr(gates, g), name=g),
+                apply_general_gate_delayed(gatef=getattr(gates, g), name=g),
             )
             matrix = gates.matrix_for_gate(getattr(gates, g)())
             matrix = gates.bmatrix(matrix)
@@ -270,20 +245,16 @@ class Circuit:
                 getattr(cls, g).__doc__ = doc
                 getattr(cls, g.upper()).__doc__ = doc
 
-        for g in cls.vgates:
+        for g in vgates:
             setattr(
                 cls,
                 g,
-                cls.apply_general_variable_gate_delayed(
-                    gatef=getattr(gates, g), name=g
-                ),
+                apply_general_variable_gate_delayed(gatef=getattr(gates, g), name=g),
             )
             setattr(
                 cls,
                 g.upper(),
-                cls.apply_general_variable_gate_delayed(
-                    gatef=getattr(gates, g), name=g
-                ),
+                apply_general_variable_gate_delayed(gatef=getattr(gates, g), name=g),
             )
             doc = """
             Apply **%s** gate with parameters on the circuit.
@@ -301,18 +272,18 @@ class Circuit:
             getattr(cls, g).__doc__ = doc
             getattr(cls, g.upper()).__doc__ = doc
 
-        for g in cls.mpogates:
+        for g in mpogates:
             setattr(
                 cls,
                 g,
-                cls.apply_general_variable_gate_delayed(
+                apply_general_variable_gate_delayed(
                     gatef=getattr(gates, g), name=g, mpo=True
                 ),
             )
             setattr(
                 cls,
                 g.upper(),
-                cls.apply_general_variable_gate_delayed(
+                apply_general_variable_gate_delayed(
                     gatef=getattr(gates, g), name=g, mpo=True
                 ),
             )
@@ -329,7 +300,7 @@ class Circuit:
             getattr(cls, g).__doc__ = doc
             getattr(cls, g.upper()).__doc__ = doc
 
-        for gate_alias in cls.gate_alias_list:
+        for gate_alias in gate_aliases:
             present_gate = gate_alias[0]
             for alias_gate in gate_alias[1:]:
                 setattr(cls, alias_gate, getattr(cls, present_gate))
@@ -391,171 +362,7 @@ class Circuit:
         # actually apply single and double gate never directly used in the Circuit class
         # and don't use, directly use general gate function as it is more diverse in feature
 
-    def apply_general_gate(
-        self,
-        gate: Gate,
-        *index: int,
-        name: Optional[str] = None,
-        split: Optional[Dict[str, Any]] = None,
-        mpo: bool = False,
-        ir_dict: Optional[Dict[str, Any]] = None,
-    ) -> None:
-        if name is None:
-            name = ""
-        gate_dict = {
-            "gate": gate,
-            "index": index,
-            "name": name,
-            "split": split,
-            "mpo": mpo,
-        }
-        if ir_dict is not None:
-            ir_dict.update(gate_dict)
-        else:
-            ir_dict = gate_dict
-        self._qir.append(ir_dict)
-        assert len(index) == len(set(index))
-        noe = len(index)
-        applied = False
-        split_conf = None
-        if split is not None:
-            split_conf = split
-        elif self.split is not None:
-            split_conf = self.split
-
-        if not mpo:
-            if (split_conf is not None) and noe == 2:
-                results = _split_two_qubit_gate(gate, **split_conf)
-                # max_err cannot be jax jitted
-                if results is not None:
-                    n1, n2, is_swap = results
-                    n1.flag = "gate"
-                    n1.is_dagger = False
-                    n1.name = name
-                    n1.id = id(n1)
-                    n2.flag = "gate"
-                    n2.is_dagger = False
-                    n2.id = id(n2)
-                    n2.name = name
-                    if is_swap is False:
-                        n1[1] ^ self._front[index[0]]
-                        n2[2] ^ self._front[index[1]]
-                        self._nodes.append(n1)
-                        self._nodes.append(n2)
-                        self._front[index[0]] = n1[0]
-                        self._front[index[1]] = n2[1]
-                    else:
-                        n2[2] ^ self._front[index[0]]
-                        n1[1] ^ self._front[index[1]]
-                        self._nodes.append(n1)
-                        self._nodes.append(n2)
-                        self._front[index[0]] = n1[0]
-                        self._front[index[1]] = n2[1]
-                    applied = True
-
-            if applied is False:
-                for i, ind in enumerate(index):
-                    gate.get_edge(i + noe) ^ self._front[ind]
-                    self._front[ind] = gate.get_edge(i)
-                gate.name = name
-                gate.flag = "gate"
-                gate.is_dagger = False
-                gate.id = id(gate)
-                self._nodes.append(gate)
-
-        else:  # gate in MPO format
-            gatec = gate.copy()
-            self._nodes += gatec.nodes
-            for i, ind in enumerate(index):
-                gatec.in_edges[i] ^ self._front[ind]
-                self._front[ind] = gatec.out_edges[i]
-            for n in gatec.nodes:
-                n.flag = "gate"
-                n.is_dagger = False
-                n.id = id(gate)
-                n.name = name
-
-        self.state_tensor = None  # refresh the state cache
-        # if name:
-        #     # if no name is specified, then the corresponding op wont be recorded in qcode
-        #     self._qcode += name + " "
-        #     for i in index:
-        #         self._qcode += str(i) + " "
-        #     self._qcode = self._qcode[:-1] + "\n"
-
     apply = apply_general_gate
-
-    @staticmethod
-    def apply_general_gate_delayed(
-        gatef: Callable[[], Gate],
-        name: Optional[str] = None,
-        mpo: bool = False,
-    ) -> Callable[..., None]:
-        # it is more like a register instead of apply
-        # nested function must be utilized, functools.partial doesn't work for method register on class
-        # see https://re-ra.xyz/Python-中实例方法动态绑定的几组最小对立/
-        if name is None:
-            name = getattr(gatef, "n")
-        defaultname = name
-
-        def apply(
-            self: "Circuit",
-            *index: int,
-            split: Optional[Dict[str, Any]] = None,
-            name: Optional[str] = None,
-        ) -> None:
-            if name is not None:
-                localname = name
-            else:
-                localname = defaultname  # type: ignore
-
-            # split = None
-            gate = gatef()
-            gate_dict = {"gatef": gatef}
-
-            self.apply_general_gate(
-                gate, *index, name=localname, split=split, mpo=mpo, ir_dict=gate_dict
-            )
-
-        return apply
-
-    @staticmethod
-    def apply_general_variable_gate_delayed(
-        gatef: Callable[..., Gate],
-        name: Optional[str] = None,
-        mpo: bool = False,
-    ) -> Callable[..., None]:
-        if name is None:
-            name = getattr(gatef, "n")
-
-        def apply(self: "Circuit", *index: int, **vars: Any) -> None:
-            split = None
-            localname = name
-            if "name" in vars:
-                localname = vars["name"]
-                del vars["name"]
-            if "split" in vars:
-                split = vars["split"]
-                del vars["split"]
-            gate_dict = {
-                "gatef": gatef,
-                "index": index,
-                "name": localname,
-                "split": split,
-                "mpo": mpo,
-                "parameters": vars,
-            }
-            # self._qir.append(gate_dict)
-            gate = gatef(**vars)
-            self.apply_general_gate(
-                gate, *index, name=localname, split=split, mpo=mpo, ir_dict=gate_dict
-            )  # type: ignore
-            # self._qcode = self._qcode[:-1] + " "  # rip off the final "\n"
-            # for k, v in vars.items():
-            #     self._qcode += k + " " + str(v) + " "
-            # self._qcode = self._qcode[:-1] + "\n"
-
-        return apply
 
     def get_quvector(self) -> QuVector:
         """
@@ -615,11 +422,11 @@ class Circuit:
     def _apply_qir(c: "Circuit", qir: List[Dict[str, Any]]) -> "Circuit":
         for d in qir:
             if "parameters" not in d:
-                c.apply_general_gate_delayed(d["gatef"], d["name"], mpo=d["mpo"])(  # type: ignore
+                apply_general_gate_delayed(d["gatef"], d["name"], mpo=d["mpo"])(  # type: ignore
                     c, *d["index"], split=d["split"]  # type: ignore
                 )
             else:
-                c.apply_general_variable_gate_delayed(d["gatef"], d["name"], mpo=d["mpo"])(  # type: ignore
+                apply_general_variable_gate_delayed(d["gatef"], d["name"], mpo=d["mpo"])(  # type: ignore
                     c, *d["index"], **d["parameters"], split=d["split"]  # type: ignore
                 )
         return c
@@ -694,11 +501,11 @@ class Circuit:
         c = type(self)(**circuit_params)
         for d in reversed(self._qir):
             if "parameters" not in d:
-                c.apply_general_gate_delayed(d["gatef"].adjoint(), d["name"], mpo=d["mpo"])(  # type: ignore
+                apply_general_gate_delayed(d["gatef"].adjoint(), d["name"], mpo=d["mpo"])(  # type: ignore
                     c, *d["index"], split=d["split"]  # type: ignore
                 )
             else:
-                c.apply_general_variable_gate_delayed(d["gatef"].adjoint(), d["name"], mpo=d["mpo"])(  # type: ignore
+                apply_general_variable_gate_delayed(d["gatef"].adjoint(), d["name"], mpo=d["mpo"])(  # type: ignore
                     c, *d["index"], **d["parameters"], split=d["split"]  # type: ignore
                 )
 
@@ -1698,52 +1505,8 @@ class Circuit:
     tex = vis_tex
 
 
-def _expectation_ps(
-    c: Circuit,
-    x: Optional[Sequence[int]] = None,
-    y: Optional[Sequence[int]] = None,
-    z: Optional[Sequence[int]] = None,
-    reuse: bool = True,
-    **kws: Any,
-) -> Tensor:
-    """
-    Shortcut for Pauli string expectation.
-    x, y, z list are for X, Y, Z positions
-
-    :Example:
-
-    >>> c = tc.Circuit(2)
-    >>> c.X(0)
-    >>> c.H(1)
-    >>> c.expectation_ps(x=[1], z=[0])
-    array(-0.99999994+0.j, dtype=complex64)
-
-    :param x: _description_, defaults to None
-    :type x: Optional[Sequence[int]], optional
-    :param y: _description_, defaults to None
-    :type y: Optional[Sequence[int]], optional
-    :param z: _description_, defaults to None
-    :type z: Optional[Sequence[int]], optional
-    :param reuse: whether to cache and reuse the wavefunction, defaults to True
-    :type reuse: bool, optional
-    :return: Expectation value
-    :rtype: Tensor
-    """
-    obs = []
-    if x is not None:
-        for i in x:
-            obs.append([gates.x(), [i]])  # type: ignore
-    if y is not None:
-        for i in y:
-            obs.append([gates.y(), [i]])  # type: ignore
-    if z is not None:
-        for i in z:
-            obs.append([gates.z(), [i]])  # type: ignore
-    return c.expectation(*obs, reuse=reuse, **kws)  # type: ignore
-
-
 Circuit._meta_apply()
-Circuit.expectation_ps = _expectation_ps  # type: ignore
+Circuit.expectation_ps = expectation_ps  # type: ignore
 
 
 def to_graphviz(
