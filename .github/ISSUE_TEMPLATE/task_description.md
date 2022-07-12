@@ -8,12 +8,12 @@ assignees: ""
 
 ## Task description
 
-<--! What should be done -->
+<!-- What should be done -->
 
 ## Implementation
 
-<--! Details on how to do -->
+<!-- Details on how to do -->
 
-### Requirements
+## Requirements
 
-<--! The task difficulty and knowledge prior -->
+<!-- The task difficulty and knowledge prior -->
