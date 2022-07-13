@@ -9,7 +9,7 @@ import numpy as np
 import tensornetwork as tn
 
 from . import gates
-from .cons import npdtype
+from .cons import npdtype, backend, dtypestr, contractor
 from .simplify import _split_two_qubit_gate
 
 Gate = gates.Gate
@@ -311,6 +311,68 @@ def apply_general_gate_delayed(
         )
 
     return apply
+
+
+def copy_state(
+    circuit: BaseCircuit, conj: bool = False, reuse: bool = True
+) -> Tuple[List[tn.Node], List[tn.Edge]]:
+    if reuse:
+        t = getattr(circuit, "state_tensor", None)
+        if t is None:
+            nodes, d_edges = circuit._copy()
+            t = contractor(nodes, output_edge_order=d_edges)
+            setattr(circuit, "state_tensor", t)
+        ndict, edict = tn.copy([t], conjugate=conj)
+        newnodes = []
+        newnodes.append(ndict[t])
+        newfront = []
+        for e in t.edges:
+            newfront.append(edict[e])
+        return newnodes, newfront
+    return circuit._copy(conj)  # type: ignore
+
+
+def expectation_before(
+    circuit: BaseCircuit,
+    *ops: Tuple[tn.Node, List[int]],
+    is_dm: bool = False,
+    reuse: bool = True,
+    **kws: Any,
+) -> List[tn.Node]:
+    nq = circuit._nqubits
+    if is_dm is True:
+        nodes, newdang = circuit._copy_state_tensor(reuse=reuse)
+    else:
+        nodes1, edge1 = circuit._copy_state_tensor(reuse=reuse)
+        nodes2, edge2 = circuit._copy_state_tensor(conj=True, reuse=reuse)
+        nodes = nodes1 + nodes2
+        newdang = edge1 + edge2
+    occupied = set()
+    for op, index in ops:
+        if not isinstance(op, tn.Node):
+            # op is only a matrix
+            op = backend.reshape2(op)
+            op = backend.cast(op, dtype=dtypestr)
+            op = gates.Gate(op)
+        else:
+            op.tensor = backend.cast(op.tensor, dtype=dtypestr)
+        if isinstance(index, int):
+            index = [index]
+        noe = len(index)
+        for j, e in enumerate(index):
+            if e in occupied:
+                raise ValueError("Cannot measure two operators in one index")
+            newdang[e + nq] ^ op.get_edge(j)
+            newdang[e] ^ op.get_edge(j + noe)
+            occupied.add(e)
+        op.flag = "operator"
+        op.is_dagger = False
+        op.id = id(op)
+        nodes.append(op)
+    for j in range(nq):
+        if j not in occupied:  # edge1[j].is_dangling invalid here!
+            newdang[j] ^ newdang[j + nq]
+    return nodes  # type: ignore
 
 
 def expectation_ps(

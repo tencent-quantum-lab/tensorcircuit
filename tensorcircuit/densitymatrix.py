@@ -18,6 +18,7 @@ from .cons import backend, contractor, npdtype, dtypestr, rdtypestr
 from .commons import (
     copy,
     copy_circuit,
+    copy_state,
     sgates,
     vgates,
     mpogates,
@@ -26,6 +27,7 @@ from .commons import (
     apply_general_gate,
     apply_general_gate_delayed,
     apply_general_variable_gate_delayed,
+    expectation_before,
 )
 
 Gate = gates.Gate
@@ -192,24 +194,9 @@ class DMCircuit:
         newDMCircuit._nodes = newnodes
         return newDMCircuit
 
-    def _copy_dm_tensor(
-        self, conj: bool = False, reuse: bool = True
-    ) -> Tuple[List[tn.Node], List[tn.Edge]]:
-        if reuse:
-            t = getattr(self, "state_tensor", None)
-        else:
-            t = None
-        if t is None:
-            nodes, d_edges = copy(self._nodes, self._front, conj=conj)
-            t = contractor(nodes, output_edge_order=d_edges)
-            setattr(self, "state_tensor", t)
-        ndict, edict = tn.copy([t], conjugate=conj)
-        newnodes = []
-        newnodes.append(ndict[t])
-        newfront = []
-        for e in t.edges:
-            newfront.append(edict[e])
-        return newnodes, newfront
+    _copy_dm_tensor = copy_state
+
+    _copy_state_tensor = _copy_dm_tensor
 
     def _contract(self) -> None:
         t = contractor(self._nodes, output_edge_order=self._front)
@@ -276,7 +263,7 @@ class DMCircuit:
     state = densitymatrix
 
     def expectation(
-        self, *ops: Tuple[tn.Node, List[int]], **kws: Any
+        self, *ops: Tuple[tn.Node, List[int]], reuse: bool = True, **kws: Any
     ) -> tn.Node.tensor:
         """
         Compute the expectation of corresponding operators.
@@ -284,32 +271,12 @@ class DMCircuit:
         :param ops: Operator and its position on the circuit,
             eg. ``(tc.gates.z(), [1, ]), (tc.gates.x(), [2, ])`` is for operator :math:`Z_1X_2`.
         :type ops: Tuple[tn.Node, List[int]]
+        :param reuse: whether contract the density matrix in advance, defaults to True
+        :type reuse: bool
         :return: Tensor with one element
         :rtype: Tensor
         """
-        # kws is reserved for unsupported feature such as reuse arg
-        newdm, newdang = self._copy()
-        occupied = set()
-        nodes = newdm
-        for op, index in ops:
-            if not isinstance(op, tn.Node):
-                # op is only a matrix
-                op = backend.reshape2(op)
-                op = backend.cast(op, dtype=dtypestr)
-                op = gates.Gate(op)
-            if isinstance(index, int):
-                index = [index]
-            noe = len(index)
-            for j, e in enumerate(index):
-                if e in occupied:
-                    raise ValueError("Cannot measure two operators in one index")
-                newdang[e + self._nqubits] ^ op.get_edge(j)
-                newdang[e] ^ op.get_edge(j + noe)
-                occupied.add(e)
-            nodes.append(op)
-        for j in range(self._nqubits):
-            if j not in occupied:  # edge1[j].is_dangling invalid here!
-                newdang[j] ^ newdang[j + self._nqubits]
+        nodes = expectation_before(self, *ops, reuse=reuse, is_dm=True)
         return contractor(nodes).tensor
 
     @staticmethod

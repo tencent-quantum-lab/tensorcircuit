@@ -20,12 +20,14 @@ from .commons import (
     apply_general_gate,
     apply_general_gate_delayed,
     apply_general_variable_gate_delayed,
+    copy_state,
     sgates,
     vgates,
     mpogates,
     gate_aliases,
     expectation_ps,
     copy_circuit,
+    expectation_before,
 )
 
 Gate = gates.Gate
@@ -964,24 +966,7 @@ class Circuit:
             shape = [1, -1]
         return backend.reshape(t.tensor, shape=shape)
 
-    def _copy_state_tensor(
-        self, conj: bool = False, reuse: bool = True
-    ) -> Tuple[List[tn.Node], List[tn.Edge]]:
-        if reuse:
-            t = getattr(self, "state_tensor", None)
-            if t is None:
-                nodes, d_edges = self._copy()
-                t = contractor(nodes, output_edge_order=d_edges)
-                setattr(self, "state_tensor", t)
-            ndict, edict = tn.copy([t], conjugate=conj)
-            newnodes = []
-            newnodes.append(ndict[t])
-            newfront = []
-            for e in t.edges:
-                newfront.append(edict[e])
-        else:
-            return self._copy(conj)
-        return newnodes, newfront
+    _copy_state_tensor = copy_state
 
     state = wavefunction
 
@@ -1260,51 +1245,6 @@ class Circuit:
 
     # TODO(@refraction-ray): more _before function like state_before? and better API?
 
-    def expectation_before(
-        self,
-        *ops: Tuple[tn.Node, List[int]],
-        reuse: bool = True,
-    ) -> List[tn.Node]:
-        """
-        Return the list of nodes that consititues the expectation value just before the contraction.
-
-        :param reuse: whether contract the output state firstly, defaults to True
-        :type reuse: bool, optional
-        :return: The tensor network for the expectation
-        :rtype: List[tn.Node]
-        """
-        nodes1, edge1 = self._copy_state_tensor(reuse=reuse)
-        nodes2, edge2 = self._copy_state_tensor(conj=True, reuse=reuse)
-        nodes1.extend(nodes2)  # left right op order for plain contractor
-
-        occupied = set()
-        for op, index in ops:
-            if not isinstance(op, tn.Node):
-                # op is only a matrix
-                op = backend.reshape2(op)
-                op = backend.cast(op, dtype=dtypestr)
-                op = gates.Gate(op)
-            else:
-                op.tensor = backend.cast(op.tensor, dtype=dtypestr)
-            if isinstance(index, int):
-                index = [index]
-            noe = len(index)
-            for j, e in enumerate(index):
-                if e in occupied:
-                    raise ValueError("Cannot measure two operators in one index")
-                edge2[e] ^ op.get_edge(j)
-                edge1[e] ^ op.get_edge(j + noe)
-                # bug?
-                occupied.add(e)
-            op.flag = "operator"
-            op.is_dagger = False
-            op.id = id(op)
-            nodes1.append(op)
-        for j in range(self._nqubits):
-            if j not in occupied:  # edge1[j].is_dangling invalid here!
-                edge1[j] ^ edge2[j]
-        return nodes1
-
     def expectation(
         self,
         *ops: Tuple[tn.Node, List[int]],
@@ -1341,7 +1281,7 @@ class Circuit:
         # self._nodes = nodes1
         if enable_lightcone:
             reuse = False
-        nodes1 = self.expectation_before(*ops, reuse=reuse)
+        nodes1 = expectation_before(self, *ops, reuse=reuse)
         if enable_lightcone:
             nodes1 = _full_light_cone_cancel(nodes1)
         return contractor(nodes1).tensor
