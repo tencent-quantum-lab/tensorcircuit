@@ -12,10 +12,12 @@ import tensornetwork as tn
 
 from . import gates
 from . import channels
+from .channels import kraus_to_super_gate
 from .circuit import Circuit
 from .cons import backend, contractor, npdtype, dtypestr, rdtypestr
 from .commons import (
     copy,
+    copy_circuit,
     sgates,
     vgates,
     mpogates,
@@ -70,9 +72,10 @@ class DMCircuit:
                 ]
                 self._front = [n.get_edge(0) for n in nodes]
 
-                lnodes, self._lfront = copy(nodes, self._front, conj=True)
-                lnodes.extend(nodes)
-                self._nodes = lnodes
+                lnodes, lfront = copy(nodes, self._front, conj=True)
+                self._front.extend(lfront)
+                nodes.extend(lnodes)
+                self._nodes = nodes
             elif inputs is not None:
                 inputs = backend.convert_to_tensor(inputs)
                 inputs = backend.cast(inputs, dtype=dtypestr)
@@ -85,17 +88,17 @@ class DMCircuit:
                 nodes = [inputs]
                 self._front = [inputs.get_edge(i) for i in range(n)]
 
-                lnodes, self._lfront = copy(nodes, self._front, conj=True)
-                lnodes.extend(nodes)
-                self._nodes = lnodes
+                lnodes, lfront = copy(nodes, self._front, conj=True)
+                self._front.extend(lfront)
+                nodes.extend(lnodes)
+                self._nodes = nodes
             else:  # dminputs is not None
                 dminputs = backend.convert_to_tensor(dminputs)
                 dminputs = backend.cast(dminputs, dtype=dtypestr)
                 dminputs = backend.reshape(dminputs, [2 for _ in range(2 * nqubits)])
                 dminputs = Gate(dminputs)
                 nodes = [dminputs]
-                self._front = [dminputs.get_edge(i) for i in range(nqubits)]
-                self._lfront = [dminputs.get_edge(i + nqubits) for i in range(nqubits)]
+                self._front = [dminputs.get_edge(i) for i in range(2 * nqubits)]
                 self._nodes = nodes
 
             self._nqubits = nqubits
@@ -179,12 +182,13 @@ class DMCircuit:
             for alias_gate in gate_alias[1:]:
                 setattr(cls, alias_gate, getattr(cls, present_gate))
 
+    _copy = copy_circuit
+
     def _copy_DMCircuit(self) -> "DMCircuit":
-        newnodes, newfront = copy(self._nodes, self._lfront + self._front)
-        newDMCircuit = DMCircuit(self._nqubits, empty=True)
+        newnodes, newfront = self._copy()
+        newDMCircuit = type(self)(self._nqubits, empty=True)
         newDMCircuit._nqubits = self._nqubits
-        newDMCircuit._lfront = newfront[: self._nqubits]
-        newDMCircuit._front = newfront[self._nqubits :]
+        newDMCircuit._front = newfront
         newDMCircuit._nodes = newnodes
         return newDMCircuit
 
@@ -196,7 +200,7 @@ class DMCircuit:
         else:
             t = None
         if t is None:
-            nodes, d_edges = copy(self._nodes, self._front + self._lfront, conj=conj)
+            nodes, d_edges = copy(self._nodes, self._front, conj=conj)
             t = contractor(nodes, output_edge_order=d_edges)
             setattr(self, "state_tensor", t)
         ndict, edict = tn.copy([t], conjugate=conj)
@@ -208,7 +212,7 @@ class DMCircuit:
         return newnodes, newfront
 
     def _contract(self) -> None:
-        t = contractor(self._nodes, output_edge_order=self._front + self._lfront)
+        t = contractor(self._nodes, output_edge_order=self._front)
         self._nodes = [t]
 
     @staticmethod
@@ -234,8 +238,7 @@ class DMCircuit:
         tensor = backend.reshape(tensor, [2 for _ in range(2 * self._nqubits)])
         self._nodes = [Gate(tensor)]
         dangling = [e for e in self._nodes[0]]
-        self._front = dangling[: self._nqubits]
-        self._lfront = dangling[self._nqubits :]
+        self._front = dangling
         setattr(self, "state_tensor", None)
 
     general_kraus = apply_general_kraus
@@ -285,7 +288,7 @@ class DMCircuit:
         :rtype: Tensor
         """
         # kws is reserved for unsupported feature such as reuse arg
-        newdm, newdang = copy(self._nodes, self._front + self._lfront)
+        newdm, newdang = self._copy()
         occupied = set()
         nodes = newdm
         for op, index in ops:
@@ -332,10 +335,10 @@ class DMCircuit:
         p = backend.convert_to_tensor(p)
         p = backend.cast(p, dtype=rdtypestr)
         for k, j in enumerate(index):
-            newnodes, newfront = copy(self._nodes, self._lfront + self._front)
+            newnodes, newfront = self._copy()
             nfront = len(newfront) // 2
-            edge1 = newfront[nfront:]
-            edge2 = newfront[:nfront]
+            edge2 = newfront[nfront:]
+            edge1 = newfront[:nfront]
             # _lfront is edge2
             for i, e in enumerate(edge1):
                 if i != j:
@@ -412,3 +415,50 @@ class DMCircuit:
 
 DMCircuit._meta_apply()
 DMCircuit.expectation_ps = expectation_ps  # type: ignore
+
+
+class DMCircuit2(DMCircuit):
+    def apply_general_kraus(self, kraus: Sequence[Gate], *index: int) -> None:  # type: ignore
+        # incompatible API for now
+        kraus = [
+            k
+            if isinstance(k, tn.Node)
+            else Gate(backend.cast(backend.convert_to_tensor(k), dtypestr))
+            for k in kraus
+        ]
+        self.check_kraus(kraus)
+        if not isinstance(
+            index[0], int
+        ):  # try best to be compatible with DMCircuit interface
+            index = index[0][0]
+        # assert len(kraus) == len(index) or len(index) == 1
+        # if len(index) == 1:
+        #     index = [index[0] for _ in range(len(kraus))]
+        super_op = kraus_to_super_gate(kraus)
+        nlegs = 4 * len(index)
+        super_op = backend.reshape(super_op, [2 for _ in range(nlegs)])
+        super_op = Gate(super_op)
+        o2i = int(nlegs / 2)
+        r2l = int(nlegs / 4)
+        for i, ind in enumerate(index):
+            super_op.get_edge(i + r2l + o2i) ^ self._front[ind + self._nqubits]
+            self._front[ind + self._nqubits] = super_op.get_edge(i + r2l)
+            super_op.get_edge(i + o2i) ^ self._front[ind]
+            self._front[ind] = super_op.get_edge(i)
+        self._nodes.append(super_op)
+        setattr(self, "state_tensor", None)
+
+    general_kraus = apply_general_kraus  # type: ignore
+
+    @staticmethod
+    def apply_general_kraus_delayed(
+        krausf: Callable[..., Sequence[Gate]]
+    ) -> Callable[..., None]:
+        def apply(self: "DMCircuit2", *index: int, **vars: float) -> None:
+            kraus = krausf(**vars)
+            self.apply_general_kraus(kraus, *index)
+
+        return apply
+
+
+DMCircuit2._meta_apply()

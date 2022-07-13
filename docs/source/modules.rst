@@ -8,7 +8,6 @@ tensorcircuit
     ./api/commons.rst
     ./api/cons.rst
     ./api/densitymatrix.rst
-    ./api/densitymatrix2.rst
     ./api/experimental.rst
     ./api/gates.rst
     ./api/interfaces.rst

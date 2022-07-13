@@ -10,7 +10,7 @@
 
 ### Changed
 
-- Refactor circuit and dmcircuit with common methods now in `commons.py`, now `DMCircuit` supports MPO gate and qir
+- Refactor circuit and dmcircuit with common methods now in `commons.py`, and merge dmcircuit.py and dmcircuit2.py, now `DMCircuit` supports MPO gate and qir
 
 ## 0.2.2
 

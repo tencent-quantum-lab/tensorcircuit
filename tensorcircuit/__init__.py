@@ -21,7 +21,7 @@ from . import commons
 from .circuit import Circuit, expectation
 from .mpscircuit import MPSCircuit
 from .densitymatrix import DMCircuit as DMCircuit_reference
-from .densitymatrix2 import DMCircuit2
+from .densitymatrix import DMCircuit2
 
 DMCircuit = DMCircuit2  # compatibility issue to still expose DMCircuit2
 from .gates import num_to_tensor, array_to_tensor

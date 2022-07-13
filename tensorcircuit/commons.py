@@ -102,10 +102,7 @@ def copy(
 def copy_circuit(
     circuit: BaseCircuit, conj: Optional[bool] = False
 ) -> Tuple[List[tn.Node], List[tn.Edge]]:
-    if getattr(circuit, "lfront", None):
-        dangling = circuit._lfront + circuit._front
-    dangling = circuit._front
-    return copy(circuit._nodes, dangling, conj)
+    return copy(circuit._nodes, circuit._front, conj)
 
 
 def apply_general_gate(
@@ -134,6 +131,7 @@ def apply_general_gate(
     circuit._qir.append(ir_dict)
     assert len(index) == len(set(index))
     noe = len(index)
+    nq = circuit._nqubits
     applied = False
     split_conf = None
     if split is not None:
@@ -164,12 +162,12 @@ def apply_general_gate(
                     circuit._front[index[1]] = n2[1]
                     if is_dm:
                         [n1l, n2l], _ = copy([n1, n2], conj=True)
-                        n1l[1] ^ circuit._lfront[index[0]]
-                        n2l[2] ^ circuit._lfront[index[1]]
+                        n1l[1] ^ circuit._front[index[0] + nq]
+                        n2l[2] ^ circuit._front[index[1] + nq]
                         circuit._nodes.append(n1l)
                         circuit._nodes.append(n2l)
-                        circuit._lfront[index[0]] = n1l[0]
-                        circuit._lfront[index[1]] = n2l[1]
+                        circuit._front[index[0] + nq] = n1l[0]
+                        circuit._front[index[1] + nq] = n2l[1]
                 else:
                     n2[2] ^ circuit._front[index[0]]
                     n1[1] ^ circuit._front[index[1]]
@@ -179,12 +177,12 @@ def apply_general_gate(
                     circuit._front[index[1]] = n2[1]
                     if is_dm:
                         [n1l, n2l], _ = copy([n1, n2], conj=True)
-                        n2l[1] ^ circuit._lfront[index[0]]
-                        n1l[2] ^ circuit._lfront[index[1]]
+                        n2l[1] ^ circuit._front[index[0] + nq]
+                        n1l[2] ^ circuit._front[index[1] + nq]
                         circuit._nodes.append(n1l)
                         circuit._nodes.append(n2l)
-                        circuit._lfront[index[0]] = n1l[0]
-                        circuit._lfront[index[1]] = n2l[1]
+                        circuit._front[index[0] + nq] = n1l[0]
+                        circuit._front[index[1] + nq] = n2l[1]
                 applied = True
 
         if applied is False:
@@ -201,8 +199,8 @@ def apply_general_gate(
                 gate.get_edge(i + noe) ^ circuit._front[ind]
                 circuit._front[ind] = gate.get_edge(i)
                 if is_dm:
-                    lgate.get_edge(i + noe) ^ circuit._lfront[ind]
-                    circuit._lfront[ind] = lgate.get_edge(i)
+                    lgate.get_edge(i + noe) ^ circuit._front[ind + nq]
+                    circuit._front[ind + nq] = lgate.get_edge(i)
 
     else:  # gate in MPO format
         gatec = gate.copy()
@@ -225,8 +223,8 @@ def apply_general_gate(
             gatec.in_edges[i] ^ circuit._front[ind]
             circuit._front[ind] = gatec.out_edges[i]
             if is_dm:
-                gateconj.out_edges[i] ^ circuit._lfront[ind]
-                circuit._lfront[ind] = gateconj.in_edges[i]
+                gateconj.out_edges[i] ^ circuit._front[ind + nq]
+                circuit._front[ind + nq] = gateconj.in_edges[i]
 
     circuit.state_tensor = None  # refresh the state cache
 
