@@ -14,7 +14,7 @@ from ..circuit import Circuit
 from ..densitymatrix import DMCircuit
 from ..gates import num_to_tensor, array_to_tensor, _swap_matrix
 from ..channels import depolarizingchannel
-from ..commons import sgates
+from ..basecircuit import sgates
 
 logger = logging.getLogger(__name__)
 

@@ -16,25 +16,13 @@ from .cons import backend, contractor, dtypestr, rdtypestr, npdtype
 from .quantum import QuVector, QuOperator, identity
 from .simplify import _full_light_cone_cancel
 from .vis import qir2tex
-from .commons import (
-    apply_general_gate,
-    apply_general_gate_delayed,
-    apply_general_variable_gate_delayed,
-    copy_state,
-    sgates,
-    vgates,
-    mpogates,
-    gate_aliases,
-    expectation_ps,
-    copy_circuit,
-    expectation_before,
-)
+from .basecircuit import BaseCircuit, sgates, vgates, mpogates, gate_aliases
 
 Gate = gates.Gate
 Tensor = Any
 
 
-class Circuit:
+class Circuit(BaseCircuit):
     """
     ``Circuit`` class.
     Simple usage demo below.
@@ -70,6 +58,7 @@ class Circuit:
             ``max_singular_values`` and ``max_truncation_err``.
         :type split: Optional[Dict[str, Any]]
         """
+        self.is_dm = False
         _prefix = "qb-"
         if inputs is not None:
             self.has_inputs = True
@@ -206,11 +195,13 @@ class Circuit:
     def _meta_apply(cls) -> None:
 
         for g in sgates:
-            setattr(cls, g, apply_general_gate_delayed(gatef=getattr(gates, g), name=g))
+            setattr(
+                cls, g, cls.apply_general_gate_delayed(gatef=getattr(gates, g), name=g)
+            )
             setattr(
                 cls,
                 g.upper(),
-                apply_general_gate_delayed(gatef=getattr(gates, g), name=g),
+                cls.apply_general_gate_delayed(gatef=getattr(gates, g), name=g),
             )
             matrix = gates.matrix_for_gate(getattr(gates, g)())
             matrix = gates.bmatrix(matrix)
@@ -252,12 +243,16 @@ class Circuit:
             setattr(
                 cls,
                 g,
-                apply_general_variable_gate_delayed(gatef=getattr(gates, g), name=g),
+                cls.apply_general_variable_gate_delayed(
+                    gatef=getattr(gates, g), name=g
+                ),
             )
             setattr(
                 cls,
                 g.upper(),
-                apply_general_variable_gate_delayed(gatef=getattr(gates, g), name=g),
+                cls.apply_general_variable_gate_delayed(
+                    gatef=getattr(gates, g), name=g
+                ),
             )
             doc = """
             Apply **%s** gate with parameters on the circuit.
@@ -279,14 +274,14 @@ class Circuit:
             setattr(
                 cls,
                 g,
-                apply_general_variable_gate_delayed(
+                cls.apply_general_variable_gate_delayed(
                     gatef=getattr(gates, g), name=g, mpo=True
                 ),
             )
             setattr(
                 cls,
                 g.upper(),
-                apply_general_variable_gate_delayed(
+                cls.apply_general_variable_gate_delayed(
                     gatef=getattr(gates, g), name=g, mpo=True
                 ),
             )
@@ -307,8 +302,6 @@ class Circuit:
             present_gate = gate_alias[0]
             for alias_gate in gate_alias[1:]:
                 setattr(cls, alias_gate, getattr(cls, present_gate))
-
-    apply = apply_general_gate
 
     def get_quvector(self) -> QuVector:
         """
@@ -362,17 +355,16 @@ class Circuit:
         return self._qir
 
     # TODO(@refraction-ray): add noise support in IR
-    # TODO(@refraction-ray): IR for density matrix simulator?
 
     @staticmethod
     def _apply_qir(c: "Circuit", qir: List[Dict[str, Any]]) -> "Circuit":
         for d in qir:
             if "parameters" not in d:
-                apply_general_gate_delayed(d["gatef"], d["name"], mpo=d["mpo"])(  # type: ignore
+                c.apply_general_gate_delayed(d["gatef"], d["name"], mpo=d["mpo"])(  # type: ignore
                     c, *d["index"], split=d["split"]  # type: ignore
                 )
             else:
-                apply_general_variable_gate_delayed(d["gatef"], d["name"], mpo=d["mpo"])(  # type: ignore
+                c.apply_general_variable_gate_delayed(d["gatef"], d["name"], mpo=d["mpo"])(  # type: ignore
                     c, *d["index"], **d["parameters"], split=d["split"]  # type: ignore
                 )
         return c
@@ -447,11 +439,11 @@ class Circuit:
         c = type(self)(**circuit_params)
         for d in reversed(self._qir):
             if "parameters" not in d:
-                apply_general_gate_delayed(d["gatef"].adjoint(), d["name"], mpo=d["mpo"])(  # type: ignore
+                self.apply_general_gate_delayed(d["gatef"].adjoint(), d["name"], mpo=d["mpo"])(  # type: ignore
                     c, *d["index"], split=d["split"]  # type: ignore
                 )
             else:
-                apply_general_variable_gate_delayed(d["gatef"].adjoint(), d["name"], mpo=d["mpo"])(  # type: ignore
+                self.apply_general_variable_gate_delayed(d["gatef"].adjoint(), d["name"], mpo=d["mpo"])(  # type: ignore
                     c, *d["index"], **d["parameters"], split=d["split"]  # type: ignore
                 )
 
@@ -944,8 +936,6 @@ class Circuit:
         except AssertionError:
             return False
 
-    _copy = copy_circuit
-
     def wavefunction(self, form: str = "default") -> tn.Node.tensor:
         """
         Compute the output wavefunction from the circuit.
@@ -965,8 +955,6 @@ class Circuit:
         elif form == "bra":  # no conj here
             shape = [1, -1]
         return backend.reshape(t.tensor, shape=shape)
-
-    _copy_state_tensor = copy_state
 
     state = wavefunction
 
@@ -1281,7 +1269,7 @@ class Circuit:
         # self._nodes = nodes1
         if enable_lightcone:
             reuse = False
-        nodes1 = expectation_before(self, *ops, reuse=reuse)
+        nodes1 = self.expectation_before(*ops, reuse=reuse)
         if enable_lightcone:
             nodes1 = _full_light_cone_cancel(nodes1)
         return contractor(nodes1).tensor
@@ -1370,7 +1358,7 @@ class Circuit:
 
 
 Circuit._meta_apply()
-Circuit.expectation_ps = expectation_ps  # type: ignore
+# Circuit.expectation_ps = expectation_ps  # type: ignore
 
 
 def to_graphviz(

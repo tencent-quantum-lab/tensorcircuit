@@ -15,26 +15,28 @@ from . import channels
 from .channels import kraus_to_super_gate
 from .circuit import Circuit
 from .cons import backend, contractor, npdtype, dtypestr, rdtypestr
-from .commons import (
-    copy,
-    copy_circuit,
-    copy_state,
-    sgates,
-    vgates,
-    mpogates,
-    gate_aliases,
-    expectation_ps,
-    apply_general_gate,
-    apply_general_gate_delayed,
-    apply_general_variable_gate_delayed,
-    expectation_before,
-)
+
+# from .commons import (
+#     copy,
+#     copy_circuit,
+#     copy_state,
+#     sgates,
+#     vgates,
+#     mpogates,
+#     gate_aliases,
+#     expectation_ps,
+#     apply_general_gate,
+#     apply_general_gate_delayed,
+#     apply_general_variable_gate_delayed,
+#     expectation_before,
+# )
+from .basecircuit import sgates, vgates, mpogates, gate_aliases, BaseCircuit
 
 Gate = gates.Gate
 Tensor = Any
 
 
-class DMCircuit:
+class DMCircuit(BaseCircuit):
     def __init__(
         self,
         nqubits: int,
@@ -55,6 +57,7 @@ class DMCircuit:
         :param dminputs: the density matrix input for the circuit, defaults to None
         :type dminputs: Optional[Tensor], optional
         """
+        self.is_dm = True
         if not empty:
             _prefix = "qb-"
             if (inputs is None) and (dminputs is None):
@@ -74,7 +77,7 @@ class DMCircuit:
                 ]
                 self._front = [n.get_edge(0) for n in nodes]
 
-                lnodes, lfront = copy(nodes, self._front, conj=True)
+                lnodes, lfront = self.copy(nodes, self._front, conj=True)
                 self._front.extend(lfront)
                 nodes.extend(lnodes)
                 self._nodes = nodes
@@ -90,7 +93,7 @@ class DMCircuit:
                 nodes = [inputs]
                 self._front = [inputs.get_edge(i) for i in range(n)]
 
-                lnodes, lfront = copy(nodes, self._front, conj=True)
+                lnodes, lfront = self.copy(nodes, self._front, conj=True)
                 self._front.extend(lfront)
                 nodes.extend(lnodes)
                 self._nodes = nodes
@@ -113,12 +116,12 @@ class DMCircuit:
             setattr(
                 cls,
                 g,
-                apply_general_gate_delayed(getattr(gates, g), name=g, is_dm=True),
+                cls.apply_general_gate_delayed(getattr(gates, g), name=g),
             )
             setattr(
                 cls,
                 g.upper(),
-                apply_general_gate_delayed(getattr(gates, g), name=g, is_dm=True),
+                cls.apply_general_gate_delayed(getattr(gates, g), name=g),
             )
             getattr(cls, g).__doc__ = getattr(Circuit, g).__doc__
             getattr(cls, g.upper()).__doc__ = getattr(Circuit, g).__doc__
@@ -127,16 +130,12 @@ class DMCircuit:
             setattr(
                 cls,
                 g,
-                apply_general_variable_gate_delayed(
-                    getattr(gates, g), name=g, is_dm=True
-                ),
+                cls.apply_general_variable_gate_delayed(getattr(gates, g), name=g),
             )
             setattr(
                 cls,
                 g.upper(),
-                apply_general_variable_gate_delayed(
-                    getattr(gates, g), name=g, is_dm=True
-                ),
+                cls.apply_general_variable_gate_delayed(getattr(gates, g), name=g),
             )
             getattr(cls, g).__doc__ = getattr(Circuit, g).__doc__
             getattr(cls, g.upper()).__doc__ = getattr(Circuit, g).__doc__
@@ -145,15 +144,15 @@ class DMCircuit:
             setattr(
                 cls,
                 g,
-                apply_general_variable_gate_delayed(
-                    getattr(gates, g), name=g, mpo=True, is_dm=True
+                cls.apply_general_variable_gate_delayed(
+                    getattr(gates, g), name=g, mpo=True
                 ),
             )
             setattr(
                 cls,
                 g.upper(),
-                apply_general_variable_gate_delayed(
-                    getattr(gates, g), name=g, mpo=True, is_dm=True
+                cls.apply_general_variable_gate_delayed(
+                    getattr(gates, g), name=g, mpo=True
                 ),
             )
             getattr(cls, g).__doc__ = getattr(Circuit, g).__doc__
@@ -184,8 +183,6 @@ class DMCircuit:
             for alias_gate in gate_alias[1:]:
                 setattr(cls, alias_gate, getattr(cls, present_gate))
 
-    _copy = copy_circuit
-
     def _copy_DMCircuit(self) -> "DMCircuit":
         newnodes, newfront = self._copy()
         newDMCircuit = type(self)(self._nqubits, empty=True)
@@ -194,9 +191,7 @@ class DMCircuit:
         newDMCircuit._nodes = newnodes
         return newDMCircuit
 
-    _copy_dm_tensor = copy_state
-
-    _copy_state_tensor = _copy_dm_tensor
+    _copy_dm_tensor = BaseCircuit._copy_state_tensor
 
     def _contract(self) -> None:
         t = contractor(self._nodes, output_edge_order=self._front)
@@ -218,7 +213,7 @@ class DMCircuit:
         circuits = []
         for k, i in zip(kraus, index):
             dmc = self._copy_DMCircuit()
-            apply_general_gate(dmc, k, *i, is_dm=True)
+            dmc.apply_general_gate(k, *i)
             dd = dmc.densitymatrix()
             circuits.append(dd)
         tensor = reduce(add, circuits)
@@ -251,11 +246,12 @@ class DMCircuit:
         :return: The output densitymatrix in 2D shape tensor form
         :rtype: Tensor
         """
-        nodes, _ = self._copy_dm_tensor(conj=False, reuse=reuse)
-        # t = contractor(nodes, output_edge_order=d_edges)
-        dm = backend.reshape(
-            nodes[0].tensor, shape=[2**self._nqubits, 2**self._nqubits]
-        )
+        nodes, d_edges = self._copy_dm_tensor(conj=False, reuse=reuse)
+        if len(nodes) > 1:
+            t = contractor(nodes, output_edge_order=d_edges)
+        else:
+            t = nodes[0]
+        dm = backend.reshape(t.tensor, shape=[2**self._nqubits, 2**self._nqubits])
         if check:
             self.check_density_matrix(dm)
         return dm
@@ -276,7 +272,7 @@ class DMCircuit:
         :return: Tensor with one element
         :rtype: Tensor
         """
-        nodes = expectation_before(self, *ops, reuse=reuse, is_dm=True)
+        nodes = self.expectation_before(*ops, reuse=reuse)
         return contractor(nodes).tensor
 
     @staticmethod
@@ -381,7 +377,6 @@ class DMCircuit:
 # TODO(@refraction-ray): new sampling API as Circuit
 
 DMCircuit._meta_apply()
-DMCircuit.expectation_ps = expectation_ps  # type: ignore
 
 
 class DMCircuit2(DMCircuit):
