@@ -21,19 +21,23 @@ import tensorcircuit as tc
 
 def test_wavefunction():
     qc = tc.Circuit(2)
-    qc.apply_double_gate(
-        tc.gates.Gate(np.arange(16).reshape(2, 2, 2, 2).astype(np.complex64)), 0, 1
+    qc.unitary(
+        0,
+        1,
+        unitary=tc.gates.Gate(np.arange(16).reshape(2, 2, 2, 2).astype(np.complex64)),
     )
     assert np.real(qc.wavefunction()[2]) == 8
     qc = tc.Circuit(2)
-    qc.apply_double_gate(
-        tc.gates.Gate(np.arange(16).reshape(2, 2, 2, 2).astype(np.complex64)), 1, 0
+    qc.unitary(
+        1,
+        0,
+        unitary=tc.gates.Gate(np.arange(16).reshape(2, 2, 2, 2).astype(np.complex64)),
     )
     qc.wavefunction()
     assert np.real(qc.wavefunction()[2]) == 4
     qc = tc.Circuit(2)
-    qc.apply_single_gate(
-        tc.gates.Gate(np.arange(4).reshape(2, 2).astype(np.complex64)), 0
+    qc.unitary(
+        0, unitary=tc.gates.Gate(np.arange(4).reshape(2, 2).astype(np.complex64))
     )
     qc.wavefunction()
     assert np.real(qc.wavefunction()[2]) == 2

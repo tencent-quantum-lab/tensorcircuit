@@ -306,63 +306,6 @@ class Circuit:
             for alias_gate in gate_alias[1:]:
                 setattr(cls, alias_gate, getattr(cls, present_gate))
 
-    def apply_single_gate(self, gate: Gate, index: int) -> None:
-        """
-        Apply the gate to the bit with the given index.
-
-        :Example:
-
-        >>> gate = tc.gates.Gate(np.arange(4).reshape(2, 2).astype(np.complex64))
-        >>> qc = tc.Circuit(2)
-        >>> qc.apply_single_gate(gate, 0)
-        >>> qc.wavefunction()
-        array([0.+0.j, 0.+0.j, 2.+0.j, 0.+0.j], dtype=complex64)
-
-        :param gate: The Gate applied on the bit.
-        :type gate: Gate
-        :param index: The index of the bit to apply the Gate.
-        :type index: int
-        """
-
-        gate.get_edge(1) ^ self._front[index]  # pay attention on the rank index here
-        self._front[index] = gate.get_edge(0)
-        gate.flag = "gate"
-        gate.is_dagger = False
-        gate.id = id(gate)
-        self._nodes.append(gate)
-
-    def apply_double_gate(self, gate: Gate, index1: int, index2: int) -> None:
-        """
-        Apply the gate to two bits with given indexes.
-
-        :Example:
-
-        >>> gate = tc.gates.cr_gate()
-        >>> qc = tc.Circuit(2)
-        >>> qc.apply_double_gate(gate, 0, 1)
-        >>> qc.wavefunction()
-        array([1.+0.j, 0.+0.j, 0.+0.j, 0.+0.j], dtype=complex64)
-
-        :param gate: The Gate applied on bits.
-        :type gate: Gate
-        :param index1: The index of the bit to apply the Gate.
-        :type index1: int
-        :param index2: The index of the bit to apply the Gate.
-        :type index2: int
-        """
-        assert index1 != index2
-        gate.get_edge(2) ^ self._front[index1]
-        gate.get_edge(3) ^ self._front[index2]
-        self._front[index1] = gate.get_edge(0)
-        self._front[index2] = gate.get_edge(1)
-        gate.flag = "gate"
-        gate.is_dagger = False
-        gate.id = id(gate)
-        self._nodes.append(gate)
-
-        # actually apply single and double gate never directly used in the Circuit class
-        # and don't use, directly use general gate function as it is more diverse in feature
-
     apply = apply_general_gate
 
     def get_quvector(self) -> QuVector:

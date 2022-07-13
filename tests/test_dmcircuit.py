@@ -281,3 +281,18 @@ def test_mpo_dm(backend, highp):
     c.multicontrol(1, 0, 2, ctrl=[1, 1], unitary=tc.gates.x())
     r = tc.backend.real(c.expectation_ps(z=[2]))
     np.testing.assert_allclose(r, 0.93, atol=1e-8)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_to_circuit(backend):
+    c = tc.DMCircuit(2)
+    c.X(0)
+    c.depolarizing(0, px=0.1, py=0.1, pz=0.1)
+    c.cnot(0, 1)
+    np.testing.assert_allclose(
+        tc.backend.real(c.expectation_ps(z=[1])), -0.6, atol=1e-5
+    )
+    c2 = c.to_circuit()
+    np.testing.assert_allclose(
+        tc.backend.real(c2.expectation_ps(z=[1])), -1.0, atol=1e-5
+    )

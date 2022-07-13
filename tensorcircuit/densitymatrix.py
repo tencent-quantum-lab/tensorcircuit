@@ -383,6 +383,30 @@ class DMCircuit:
 
     sample = perfect_sampling
 
+    def to_qir(self) -> List[Dict[str, Any]]:
+        """
+        Return the quantum intermediate representation of the circuit.
+
+        :return: The quantum intermediate representation of the circuit.
+        :rtype: List[Dict[str, Any]]
+        """
+        return self._qir
+
+    def to_circuit(self, circuit_params: Optional[Dict[str, Any]] = None) -> Circuit:
+        """
+        convert into state simulator
+        (current implementation ignores all noise channels)
+
+        :param circuit_params: kws to initialize circuit object,
+            defaults to None
+        :type circuit_params: Optional[Dict[str, Any]], optional
+        :return: _description_
+        :rtype: Circuit
+        """
+        qir = self.to_qir()
+        c = Circuit.from_qir(qir, circuit_params)
+        return c
+
 
 # TODO(@refraction-ray): new sampling API as Circuit
 
