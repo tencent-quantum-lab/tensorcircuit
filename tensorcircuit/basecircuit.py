@@ -342,21 +342,16 @@ class BaseCircuit:
                 g,
                 matrix,
             )
-            docs = """
-            Apply **%s** gate on the circuit.
+            # docs = """
+            # Apply **%s** gate on the circuit.
 
-            :param index: Qubit number that the gate applies on.
-            :type index: int.
-            """ % (
-                g.upper()
-            )
-            if g in ["rs"]:
-                getattr(cls, g).__doc__ = docs
-                getattr(cls, g.upper()).__doc__ = docs
-
-            else:
-                getattr(cls, g).__doc__ = doc
-                getattr(cls, g.upper()).__doc__ = doc
+            # :param index: Qubit number that the gate applies on.
+            # :type index: int.
+            # """ % (
+            #     g.upper()
+            # )
+            getattr(cls, g).__doc__ = doc
+            getattr(cls, g.upper()).__doc__ = doc
 
         for g in vgates:
             setattr(
@@ -768,3 +763,67 @@ class BaseCircuit:
             return sample, -1.0
 
     measure = measure_jit
+
+    def to_qiskit(self) -> Any:
+        """
+        Translate ``tc.Circuit`` to a qiskit QuantumCircuit object.
+
+        :return: A qiskit object of this circuit.
+        """
+        from .translation import qir2qiskit
+
+        qir = self.to_qir()
+        return qir2qiskit(qir, n=self._nqubits)
+
+    def draw(self, **kws: Any) -> Any:
+        """
+        Visualise the circuit.
+        This method recevies the keywords as same as qiskit.circuit.QuantumCircuit.draw.
+        More details can be found here: https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.draw.html.
+
+        :Example:
+        >>> c = tc.Circuit(3)
+        >>> c.H(1)
+        >>> c.X(2)
+        >>> c.CNOT(0, 1)
+        >>> c.draw(output='text')
+        q_0: ───────■──
+             ┌───┐┌─┴─┐
+        q_1: ┤ H ├┤ X ├
+             ├───┤└───┘
+        q_2: ┤ X ├─────
+             └───┘
+        """
+        return self.to_qiskit().draw(**kws)
+
+    @classmethod
+    def from_qiskit(
+        cls, qc: Any, n: Optional[int] = None, inputs: Optional[List[float]] = None
+    ) -> "BaseCircuit":
+        """
+        Import Qiskit QuantumCircuit object as a ``tc.Circuit`` object.
+
+        :Example:
+
+        >>> from qiskit import QuantumCircuit
+        >>> qisc = QuantumCircuit(3)
+        >>> qisc.h(2)
+        >>> qisc.cswap(1, 2, 0)
+        >>> qisc.swap(0, 1)
+        >>> c = tc.Circuit.from_qiskit(qisc)
+
+        :param qc: Qiskit Circuit object
+        :type qc: QuantumCircuit in Qiskit
+        :param n: The number of qubits for the circuit
+        :type n: int
+        :param inputs: possible input wavefunction for ``tc.Circuit``, defaults to None
+        :type inputs: Optional[List[float]], optional
+        :return: The same circuit but as tensorcircuit object
+        :rtype: Circuit
+        """
+        from .translation import qiskit2tc
+
+        if n is None:
+            n = qc.num_qubits
+
+        return qiskit2tc(qc.data, n, inputs, is_dm=cls.is_dm)  # type: ignore

@@ -71,7 +71,7 @@ def test_control_vgate():
     c.x(1)
     c.crx(1, 0, theta=0.3)
     np.testing.assert_allclose(
-        c.expectation([tc.gates.z(), [0]]), 0.95533645, atol=1e-5
+        c.expectation([tc.gates._z_matrix, 0]), 0.95533645, atol=1e-5
     )
 
 
@@ -542,6 +542,18 @@ def test_circuit_add_demo():
     c3.X(0)
     c3.replace_mps_inputs(c.quvector())
     assert np.allclose(c3.wavefunction(), answer, atol=1e-4)
+
+
+def test_circuit_replace_inputs():
+    n = 3
+    c = tc.Circuit(n, inputs=np.zeros([2**n]))
+    for i in range(n):
+        c.H(i)
+    evenstate = np.ones([2**n])
+    evenstate /= np.linalg.norm(evenstate)
+    c.replace_inputs(evenstate)
+    for i in range(n):
+        np.testing.assert_allclose(c.expectation_ps(z=[i]), 1.0, atol=1e-5)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])

@@ -22,6 +22,8 @@ Tensor = Any
 
 
 class DMCircuit(BaseCircuit):
+    is_dm = True
+
     def __init__(
         self,
         nqubits: int,
@@ -42,7 +44,6 @@ class DMCircuit(BaseCircuit):
         :param dminputs: the density matrix input for the circuit, defaults to None
         :type dminputs: Optional[Tensor], optional
         """
-        self.is_dm = True
         if not empty:
             _prefix = "qb-"
             if (inputs is None) and (dminputs is None):

@@ -15,6 +15,7 @@ except ImportError:
 
 from . import gates
 from .circuit import Circuit
+from .densitymatrix import DMCircuit2
 from .cons import backend
 
 Tensor = Any
@@ -159,7 +160,10 @@ def ctrl_str2ctrl_state(ctrl_str: str, nctrl: int) -> List[int]:
 
 
 def qiskit2tc(
-    qcdata: List[List[Any]], n: int, inputs: Optional[List[float]] = None
+    qcdata: List[List[Any]],
+    n: int,
+    inputs: Optional[List[float]] = None,
+    is_dm: bool = False,
 ) -> Any:
     r"""
     Generate a tensorcircuit circuit using the quantum circuit data in qiskit.
@@ -182,10 +186,14 @@ def qiskit2tc(
     :return: A quantum circuit in tensorcircuit
     :rtype: Any
     """
-    if inputs is None:
-        tc_circuit: Any = Circuit(n)
+    if is_dm:
+        Circ = DMCircuit2
     else:
-        tc_circuit = Circuit(n, inputs=inputs)
+        Circ = Circuit  # type: ignore
+    if inputs is None:
+        tc_circuit: Any = Circ(n)
+    else:
+        tc_circuit = Circ(n, inputs=inputs)
     for gate_info in qcdata:
         idx = [qb.index for qb in gate_info[1]]
         gate_name = gate_info[0].name
