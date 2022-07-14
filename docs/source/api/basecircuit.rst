@@ -1,6 +1,6 @@
-tensorcircuit.commons
+tensorcircuit.basecircuit
 ==================================================
-.. automodule:: tensorcircuit.commons
+.. automodule:: tensorcircuit.basecircuit
     :members:
     :undoc-members:
     :show-inheritance:

@@ -15,22 +15,7 @@ from . import channels
 from .channels import kraus_to_super_gate
 from .circuit import Circuit
 from .cons import backend, contractor, npdtype, dtypestr, rdtypestr
-
-# from .commons import (
-#     copy,
-#     copy_circuit,
-#     copy_state,
-#     sgates,
-#     vgates,
-#     mpogates,
-#     gate_aliases,
-#     expectation_ps,
-#     apply_general_gate,
-#     apply_general_gate_delayed,
-#     apply_general_variable_gate_delayed,
-#     expectation_before,
-# )
-from .basecircuit import sgates, vgates, mpogates, gate_aliases, BaseCircuit
+from .basecircuit import BaseCircuit
 
 Gate = gates.Gate
 Tensor = Any
@@ -111,53 +96,7 @@ class DMCircuit(BaseCircuit):
         self.split = split
 
     @classmethod
-    def _meta_apply(cls) -> None:
-        for g in sgates:
-            setattr(
-                cls,
-                g,
-                cls.apply_general_gate_delayed(getattr(gates, g), name=g),
-            )
-            setattr(
-                cls,
-                g.upper(),
-                cls.apply_general_gate_delayed(getattr(gates, g), name=g),
-            )
-            getattr(cls, g).__doc__ = getattr(Circuit, g).__doc__
-            getattr(cls, g.upper()).__doc__ = getattr(Circuit, g).__doc__
-
-        for g in vgates:
-            setattr(
-                cls,
-                g,
-                cls.apply_general_variable_gate_delayed(getattr(gates, g), name=g),
-            )
-            setattr(
-                cls,
-                g.upper(),
-                cls.apply_general_variable_gate_delayed(getattr(gates, g), name=g),
-            )
-            getattr(cls, g).__doc__ = getattr(Circuit, g).__doc__
-            getattr(cls, g.upper()).__doc__ = getattr(Circuit, g).__doc__
-
-        for g in mpogates:
-            setattr(
-                cls,
-                g,
-                cls.apply_general_variable_gate_delayed(
-                    getattr(gates, g), name=g, mpo=True
-                ),
-            )
-            setattr(
-                cls,
-                g.upper(),
-                cls.apply_general_variable_gate_delayed(
-                    getattr(gates, g), name=g, mpo=True
-                ),
-            )
-            getattr(cls, g).__doc__ = getattr(Circuit, g).__doc__
-            getattr(cls, g.upper()).__doc__ = getattr(Circuit, g).__doc__
-
+    def _meta_apply_channels(cls) -> None:
         for k in channels.channels:
             setattr(
                 cls,
@@ -177,11 +116,6 @@ class DMCircuit(BaseCircuit):
                 k,
             )
             getattr(cls, k).__doc__ = doc
-
-        for gate_alias in gate_aliases:
-            present_gate = gate_alias[0]
-            for alias_gate in gate_alias[1:]:
-                setattr(cls, alias_gate, getattr(cls, present_gate))
 
     def _copy_DMCircuit(self) -> "DMCircuit":
         newnodes, newfront = self._copy()
@@ -338,25 +272,9 @@ class DMCircuit(BaseCircuit):
 
     measure = measure_jit
 
-    def perfect_sampling(self) -> Tuple[str, float]:
-        """
-        Sampling bistrings from the circuit output based on quantum amplitudes.
+    sample = BaseCircuit.perfect_sampling
 
-        :return: Sampled bit string and the corresponding theoretical probability.
-        :rtype: Tuple[str, float]
-        """
-        return self.measure_jit(*[i for i in range(self._nqubits)], with_prob=True)
-
-    sample = perfect_sampling
-
-    def to_qir(self) -> List[Dict[str, Any]]:
-        """
-        Return the quantum intermediate representation of the circuit.
-
-        :return: The quantum intermediate representation of the circuit.
-        :rtype: List[Dict[str, Any]]
-        """
-        return self._qir
+    # TODO(@refraction-ray): new sampling API as Circuit
 
     def to_circuit(self, circuit_params: Optional[Dict[str, Any]] = None) -> Circuit:
         """
@@ -366,17 +284,16 @@ class DMCircuit(BaseCircuit):
         :param circuit_params: kws to initialize circuit object,
             defaults to None
         :type circuit_params: Optional[Dict[str, Any]], optional
-        :return: _description_
+        :return: Circuit with no noise
         :rtype: Circuit
         """
         qir = self.to_qir()
         c = Circuit.from_qir(qir, circuit_params)
-        return c
+        return c  # type: ignore
 
-
-# TODO(@refraction-ray): new sampling API as Circuit
 
 DMCircuit._meta_apply()
+DMCircuit._meta_apply_channels()
 
 
 class DMCircuit2(DMCircuit):
@@ -424,3 +341,4 @@ class DMCircuit2(DMCircuit):
 
 
 DMCircuit2._meta_apply()
+DMCircuit2._meta_apply_channels()

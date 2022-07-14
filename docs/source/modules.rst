@@ -3,9 +3,9 @@ tensorcircuit
 .. toctree::
     ./api/applications.rst
     ./api/backends.rst
+    ./api/basecircuit.rst
     ./api/channels.rst
     ./api/circuit.rst
-    ./api/commons.rst
     ./api/cons.rst
     ./api/densitymatrix.rst
     ./api/experimental.rst

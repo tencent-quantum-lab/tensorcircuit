@@ -296,3 +296,20 @@ def test_to_circuit(backend):
     np.testing.assert_allclose(
         tc.backend.real(c2.expectation_ps(z=[1])), -1.0, atol=1e-5
     )
+
+
+def test_dmcircuit_inverse():
+    c = tc.DMCircuit2(3)
+    c.h(0)
+    c.rx(1, theta=0.5)
+    c.amplitudedamping(1, gamma=0.1, p=0.9)
+    c.amplitudedamping(2, gamma=0.1, p=0.9)
+    c.rzz(0, 2, theta=-1.0)
+    ci = c.inverse()
+    r = tc.backend.real(ci.expectation_ps(z=[2]))
+    c2 = tc.DMCircuit2(3)
+    c2.rzz(0, 2, theta=1.0)
+    c2.rx(1, theta=-0.5)
+    c2.h(0)
+    r2 = tc.backend.real(c2.expectation_ps(z=[2]))
+    np.testing.assert_allclose(r, r2, atol=1e-5)
