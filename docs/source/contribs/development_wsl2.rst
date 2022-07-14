@@ -26,7 +26,7 @@ Follow the Linux Installation Instructions to finish installing.
    * - Suggested Package Version
      - >= 1.20.0
      - >= 2.7.0
-     - >= 1.5.0
+     - >= 0.3.0
      - >= 1.12
    * - OS Support without GPU Accelerator
      - Windows/MacOS/Linux
@@ -35,7 +35,7 @@ Follow the Linux Installation Instructions to finish installing.
      - Windows/MacOS/Linux
    * - OS Support with GPU Accelerator
      - No Support for GPU
-     - Windows(WSL2, docker)/MacOS/Linux
+     - Windows(WSL2, docker)/`MacOS <https://developer.apple.com/metal/tensorflow-plugin>`_/Linux
      - Windows(WSL2, docker)/MacOS/Linux
      - Windows(WSL2, docker)/MacOS(torch>=1.12)/Linux
    * - Platform with TPU Accelerator
