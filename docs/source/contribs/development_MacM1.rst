@@ -1,14 +1,14 @@
-Run TensorCircuit on TensorlowBackend with Apple M1 Pro
+Run TensorCircuit on TensorlowBackend with Apple M1
 ========================================================
 Contributed by (Yuqin Chen)
 
-Why We Can't Run TensorCircuit on TensorlowBackend with Apple M1 Pro
----------------------------------------------------------------
-TensorCircuit requires Tensorflow to support TensorflowBackend. However for Apple M1 Pro, Tensorflow package cannot be properly installed by a usual method like "pip install tensorflow". As well, the TensorCircuit package cannot be properly installed by a usual method "pip install tensorcircuit"
+Why We Can't Run TensorCircuit on TensorlowBackend with Apple M1
+-----------------------------------------------------------------------
+TensorCircuit requires Tensorflow to support TensorflowBackend. However for Apple M1, Tensorflow package cannot be properly installed by a usual method like "pip install tensorflow". As well, the TensorCircuit package cannot be properly installed by a usual method "pip install tensorcircuit"
 All we need is to properly install tensorflow on Apple M1 Pro and then download the TensorCircuit package to the local and install it. 
 
-Install tensorflow on Apple M1 Pro
----------------------------------------------------------------
+Install tensorflow on Apple M1
+------------------------------------
 According to the instructions below or the installation manual on Apple's official website `tensorflow-metal PluggableDevice <https://developer.apple.com/metal/tensorflow-plugin/>`_, you can install tensorflow step by step.
 
 **Step1: Environment setup**
@@ -92,12 +92,12 @@ for v2.6
     python -m pip install tensorflow-metal
 
 
-Install TensorCircuit on Apple M1 Pro
----------------------------------------------------------------
+Install TensorCircuit on Apple M1
+-----------------------------------
 After properly install tensorflow, you can continue install TensorCircuit. 
-Up to now, for Apple M1 pro, the Tensorcircuit package can not be installed by simply
+Up to now, for Apple M1, the Tensorcircuit package can not be installed by simply
 conducting "pip install tensorcircuit", which will lead to improper way for Tensorflow installation.
-One need to download the installation package to the local, only in this way the installation proceess can recognize the Apple M1 pro environment. 
+One need to download the installation package to the local, only in this way the installation proceess can recognize the Apple M1 environment. 
 
 One should download the TensorCircuit package to local at first. 
 
