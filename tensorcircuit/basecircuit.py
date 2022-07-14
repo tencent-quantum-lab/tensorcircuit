@@ -11,6 +11,8 @@ import tensornetwork as tn
 from . import gates
 from .cons import npdtype, backend, dtypestr, contractor, rdtypestr
 from .simplify import _split_two_qubit_gate
+from .vis import qir2tex
+
 
 Gate = gates.Gate
 Tensor = Any
@@ -890,3 +892,90 @@ class BaseCircuit:
         if self.is_dm:
             no.extend(msconj)
         return contractor(no).tensor
+
+    def vis_tex(self, **kws: Any) -> str:
+        """
+        Generate latex string based on quantikz latex package
+
+        :return: Latex string that can be directly compiled via, e.g. latexit
+        :rtype: str
+        """
+        if getattr(self, "has_inputs", None):
+            init = ["" for _ in range(self._nqubits)]
+            init[self._nqubits // 2] = "\psi"
+            okws = {"init": init}
+        else:
+            okws = {"init": None}  # type: ignore
+        okws.update(kws)
+        return qir2tex(self._qir, self._nqubits, **okws)  # type: ignore
+
+    tex = vis_tex
+
+    def sample(
+        self,
+        batch: Optional[int] = None,
+        allow_state: bool = False,
+        status: Optional[Tensor] = None,
+    ) -> Any:
+        """
+        batched sampling from state or circuit tensor network directly
+
+        :param batch: number of samples, defaults to None
+        :type batch: Optional[int], optional
+        :param allow_state: if true, we sample from the final state
+            if memory allsows, True is prefered, defaults to False
+        :type allow_state: bool, optional
+        :param status: random generator,  defaults to None
+        :type status: Optional[Tensor], optional
+        :return: List (if batch) of tuple (binary configuration tensor and correponding probability)
+        :rtype: Any
+        """
+        # allow_state = False is compatibility issue
+        if not allow_state:
+            if status is None:
+                status = backend.get_random_state()
+
+            if batch is None:
+                seed = backend.stateful_randu(status, shape=[self._nqubits])
+                return self.perfect_sampling(seed)
+
+            @backend.jit  # type: ignore
+            def perfect_sampling(key: Any) -> Any:
+                backend.set_random_state(key)
+                return self.perfect_sampling()
+
+            r = []
+
+            subkey = status
+            for _ in range(batch):
+                key, subkey = backend.random_split(subkey)
+                r.append(perfect_sampling(key))
+
+            return r
+
+        if batch is None:
+            nbatch = 1
+        else:
+            nbatch = batch
+        s = self.state()  # type: ignore
+        if self.is_dm is False:
+            p = backend.abs(s) ** 2
+        else:
+            p = backend.real(backend.diagonal(s))
+        if status is None:
+            ch = backend.implicit_randc(a=2**self._nqubits, shape=[nbatch], p=p)
+        else:
+            ch = backend.stateful_randc(
+                status, a=2**self._nqubits, shape=[nbatch], p=p
+            )
+        prob = backend.gather1d(p, ch)
+        confg = backend.mod(
+            backend.right_shift(
+                ch[..., None], backend.reverse(backend.arange(self._nqubits))
+            ),
+            2,
+        )
+        r = list(zip(confg, prob))
+        if batch is None:
+            r = r[0]
+        return r

@@ -440,3 +440,12 @@ def test_dm_amplitude_jit(backend):
 
     np.testing.assert_allclose(m(tc.array_to_tensor([1, 1])), 0.4, atol=1e-5)
     np.testing.assert_allclose(m(tc.array_to_tensor([1, 0])), 0.1, atol=1e-5)
+
+
+def test_sample():
+    c = tc.DMCircuit(2)
+    c.H(0)
+    c.cnot(0, 1)
+    c.depolarizing(1, px=0.2, py=0.0, pz=0.0)
+    print(c.sample(batch=10))
+    print(c.sample(batch=20, allow_state=True))

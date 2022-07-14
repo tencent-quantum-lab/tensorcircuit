@@ -214,10 +214,6 @@ class DMCircuit(BaseCircuit):
     def check_density_matrix(dm: Tensor) -> None:
         assert np.allclose(backend.trace(dm), 1.0, atol=1e-5)
 
-    sample = BaseCircuit.perfect_sampling
-
-    # TODO(@refraction-ray): new sampling API as Circuit
-
     def to_circuit(self, circuit_params: Optional[Dict[str, Any]] = None) -> Circuit:
         """
         convert into state simulator
