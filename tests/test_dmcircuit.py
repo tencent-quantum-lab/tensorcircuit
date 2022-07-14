@@ -313,3 +313,21 @@ def test_dmcircuit_inverse():
     c2.h(0)
     r2 = tc.backend.real(c2.expectation_ps(z=[2]))
     np.testing.assert_allclose(r, r2, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_perfect_sampling_with_status(backend):
+    n = 3
+
+    @tc.backend.jit
+    def m(s):
+        c = tc.DMCircuit(n)
+        for i in range(n):
+            c.H(i)
+        for i in range(n):
+            c.amplitudedamping(i, p=1.0, gamma=0.1)
+        return c.perfect_sampling(s)
+
+    s, p = m(tc.backend.convert_to_tensor(np.array([0.9, 0.5, 0.7])))
+    np.testing.assert_allclose(s, np.array([1, 0, 1]))
+    np.testing.assert_allclose(p, 0.111375, atol=1e-5)

@@ -9,7 +9,7 @@ import numpy as np
 import tensornetwork as tn
 
 from . import gates
-from .cons import npdtype, backend, dtypestr, contractor
+from .cons import npdtype, backend, dtypestr, contractor, rdtypestr
 from .simplify import _split_two_qubit_gate
 
 Gate = gates.Gate
@@ -679,12 +679,92 @@ class BaseCircuit:
         """
         self._apply_qir(self, qir)
 
-    def perfect_sampling(self) -> Tuple[str, float]:
+    def perfect_sampling(self, status: Optional[Tensor] = None) -> Tuple[str, float]:
         """
         Sampling bistrings from the circuit output based on quantum amplitudes.
         Reference: arXiv:1201.3974.
 
+        :param status: external randomness, with shape [nqubits], defaults to None
+        :type status: Optional[Tensor]
         :return: Sampled bit string and the corresponding theoretical probability.
         :rtype: Tuple[str, float]
         """
-        return self.measure_jit(*[i for i in range(self._nqubits)], with_prob=True)  # type: ignore
+        return self.measure_jit(
+            *[i for i in range(self._nqubits)], with_prob=True, status=status
+        )
+
+    def measure_jit(
+        self, *index: int, with_prob: bool = False, status: Optional[Tensor] = None
+    ) -> Tuple[Tensor, Tensor]:
+        """
+        Take measurement to the given quantum lines.
+        This method is jittable is and about 100 times faster than unjit version!
+
+        :param index: Measure on which quantum line.
+        :type index: int
+        :param with_prob: If true, theoretical probability is also returned.
+        :type with_prob: bool, optional
+        :param status: external randomness, with shape [index], defaults to None
+        :type status: Optional[Tensor]
+        :return: The sample output and probability (optional) of the quantum line.
+        :rtype: Tuple[Tensor, Tensor]
+        """
+        # finally jit compatible ! and much faster than unjit version ! (100x)
+        sample: List[Tensor] = []
+        p = 1.0
+        p = backend.convert_to_tensor(p)
+        p = backend.cast(p, dtype=rdtypestr)
+        for k, j in enumerate(index):
+            if self.is_dm is False:
+                nodes1, edge1 = self._copy()
+                nodes2, edge2 = self._copy(conj=True)
+                newnodes = nodes1 + nodes2
+            else:
+                newnodes, newfront = self._copy()
+                nfront = len(newfront) // 2
+                edge2 = newfront[nfront:]
+                edge1 = newfront[:nfront]
+            for i, e in enumerate(edge1):
+                if i != j:
+                    e ^ edge2[i]
+            for i in range(k):
+                m = (1 - sample[i]) * gates.array_to_tensor(np.array([1, 0])) + sample[
+                    i
+                ] * gates.array_to_tensor(np.array([0, 1]))
+                newnodes.append(Gate(m))
+                newnodes[-1].id = id(newnodes[-1])
+                newnodes[-1].is_dagger = False
+                newnodes[-1].flag = "measurement"
+                newnodes[-1].get_edge(0) ^ edge1[index[i]]
+                newnodes.append(Gate(m))
+                newnodes[-1].id = id(newnodes[-1])
+                newnodes[-1].is_dagger = True
+                newnodes[-1].flag = "measurement"
+                newnodes[-1].get_edge(0) ^ edge2[index[i]]
+            rho = (
+                1
+                / backend.cast(p, dtypestr)
+                * contractor(newnodes, output_edge_order=[edge1[j], edge2[j]]).tensor
+            )
+            pu = backend.real(rho[0, 0])
+            if status is None:
+                r = backend.implicit_randu()[0]
+            else:
+                r = status[k]
+            r = backend.real(backend.cast(r, dtypestr))
+            eps = 0.31415926 * 1e-12
+            sign = backend.sign(r - pu + eps) / 2 + 0.5  # in case status is exactly 0.5
+            sign = backend.convert_to_tensor(sign)
+            sign = backend.cast(sign, dtype=rdtypestr)
+            sign_complex = backend.cast(sign, dtypestr)
+            sample.append(sign_complex)
+            p = p * (pu * (-1) ** sign + sign)
+
+        sample = backend.stack(sample)
+        sample = backend.real(sample)
+        if with_prob:
+            return sample, p
+        else:
+            return sample, -1.0
+
+    measure = measure_jit

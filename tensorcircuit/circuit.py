@@ -12,7 +12,7 @@ import numpy as np
 import tensornetwork as tn
 
 from . import gates
-from .cons import backend, contractor, dtypestr, rdtypestr, npdtype
+from .cons import backend, contractor, dtypestr, npdtype
 from .quantum import QuVector, QuOperator, identity
 from .simplify import _full_light_cone_cancel
 from .vis import qir2tex
@@ -824,70 +824,6 @@ class Circuit(BaseCircuit):
             return sample, p
         else:
             return sample, -1.0
-
-    def measure_jit(
-        self, *index: int, with_prob: bool = False
-    ) -> Tuple[Tensor, Tensor]:
-        """
-        Take measurement to the given quantum lines.
-        This method is jittable is and about 100 times faster than unjit version!
-
-        :param index: Measure on which quantum line.
-        :type index: int
-        :param with_prob: If true, theoretical probability is also returned.
-        :type with_prob: bool, optional
-        :return: The sample output and probability (optional) of the quantum line.
-        :rtype: Tuple[Tensor, Tensor]
-        """
-        # finally jit compatible ! and much faster than unjit version ! (100x)
-        sample: List[Tensor] = []
-        p = 1.0
-        p = backend.convert_to_tensor(p)
-        p = backend.cast(p, dtype=rdtypestr)
-        for k, j in enumerate(index):
-            nodes1, edge1 = self._copy()
-            nodes2, edge2 = self._copy(conj=True)
-            for i, e in enumerate(edge1):
-                if i != j:
-                    e ^ edge2[i]
-            for i in range(k):
-                m = (1 - sample[i]) * gates.array_to_tensor(np.array([1, 0])) + sample[
-                    i
-                ] * gates.array_to_tensor(np.array([0, 1]))
-                nodes1.append(Gate(m))
-                nodes1[-1].id = id(nodes1[-1])
-                nodes1[-1].is_dagger = False
-                nodes1[-1].flag = "measurement"
-                nodes1[-1].get_edge(0) ^ edge1[index[i]]
-                nodes2.append(Gate(m))
-                nodes2[-1].id = id(nodes2[-1])
-                nodes2[-1].is_dagger = True
-                nodes2[-1].flag = "measurement"
-                nodes2[-1].get_edge(0) ^ edge2[index[i]]
-            nodes1.extend(nodes2)
-            rho = (
-                1
-                / backend.cast(p, dtypestr)
-                * contractor(nodes1, output_edge_order=[edge1[j], edge2[j]]).tensor
-            )
-            pu = backend.real(rho[0, 0])
-            r = backend.implicit_randu()[0]
-            r = backend.real(backend.cast(r, dtypestr))
-            sign = backend.sign(r - pu) / 2 + 0.5
-            sign = backend.convert_to_tensor(sign)
-            sign = backend.cast(sign, dtype=rdtypestr)
-            sign_complex = backend.cast(sign, dtypestr)
-            sample.append(sign_complex)
-            p = p * (pu * (-1) ** sign + sign)
-
-        sample = backend.stack(sample)
-        sample = backend.real(sample)
-        if with_prob:
-            return sample, p
-        else:
-            return sample, -1.0
-
-    measure = measure_jit
 
     def sample(
         self,
