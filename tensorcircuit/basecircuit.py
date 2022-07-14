@@ -4,6 +4,8 @@ Quantum circuit: common methods for all circuit classes as MixIn
 # pylint: disable=invalid-name
 
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
+from functools import reduce
+from operator import add
 
 import numpy as np
 import tensornetwork as tn
@@ -999,3 +1001,24 @@ class BaseCircuit:
                 self._nodes[1].tensor = backend.conj(inputs)
         else:  # TODO(@refraction-ray) replace several start as inputs
             raise NotImplementedError("not support replace with no inputs")
+
+    def select_gate(self, which: Tensor, kraus: Sequence[Gate], *index: int) -> None:
+        """
+        Apply ``which``-th gate from ``kraus`` list, i.e. apply kraus[which]
+
+        :param which: Tensor of shape [] and dtype int
+        :type which: Tensor
+        :param kraus: A list of gate in the form of ``tc.gate`` or Tensor
+        :type kraus: Sequence[Gate]
+        :param index: the qubit lines the gate applied on
+        :type index: int
+        """
+        kraus = [k.tensor if isinstance(k, tn.Node) else k for k in kraus]
+        kraus = [gates.array_to_tensor(k) for k in kraus]
+        l = len(kraus)
+        r = backend.onehot(which, l)
+        r = backend.cast(r, dtype=dtypestr)
+        tensor = reduce(add, [r[i] * kraus[i] for i in range(l)])
+        self.any(*index, unitary=tensor)  # type: ignore
+
+    conditional_gate = select_gate

@@ -364,27 +364,6 @@ class Circuit(BaseCircuit):
         self.any(index, unitary=g)  # type: ignore
         return r
 
-    def select_gate(self, which: Tensor, kraus: Sequence[Gate], *index: int) -> None:
-        """
-        Apply ``which``-th gate from ``kraus`` list, i.e. apply kraus[which]
-
-        :param which: Tensor of shape [] and dtype int
-        :type which: Tensor
-        :param kraus: A list of gate in the form of ``tc.gate`` or Tensor
-        :type kraus: Sequence[Gate]
-        :param index: the qubit lines the gate applied on
-        :type index: int
-        """
-        kraus = [k.tensor if isinstance(k, tn.Node) else k for k in kraus]
-        kraus = [gates.array_to_tensor(k) for k in kraus]
-        l = len(kraus)
-        r = backend.onehot(which, l)
-        r = backend.cast(r, dtype=dtypestr)
-        tensor = reduce(add, [r[i] * kraus[i] for i in range(l)])
-        self.any(*index, unitary=tensor)  # type: ignore
-
-    conditional_gate = select_gate
-
     def unitary_kraus2(
         self,
         kraus: Sequence[Gate],
