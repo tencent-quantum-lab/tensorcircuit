@@ -724,46 +724,6 @@ class Circuit(BaseCircuit):
         c.replace_mps_inputs(mps)
         return backend.reshapem(c.state())
 
-    def amplitude(self, l: str) -> tn.Node.tensor:
-        """
-        Returns the amplitude of the circuit given the bitstring l.
-
-        :Example:
-
-        >>> c = tc.Circuit(2)
-        >>> c.X(0)
-        >>> c.amplitude("10")
-        array(1.+0.j, dtype=complex64)
-        >>> c.CNOT(0, 1)
-        >>> c.amplitude("11")
-        array(1.+0.j, dtype=complex64)
-
-        :param l: The bitstring of 0 and 1s.
-        :type l: string
-        :return: The amplitude of the circuit.
-        :rtype: tn.Node.tensor
-        """
-        assert len(l) == self._nqubits
-        no, d_edges = self._copy()
-        ms = []
-        for i, s in enumerate(l):
-            if s == "1":
-                ms.append(
-                    tn.Node(np.array([0, 1], dtype=npdtype), name=str(i) + "-measure")
-                )
-            elif s == "0":
-                ms.append(
-                    tn.Node(np.array([1, 0], dtype=npdtype), name=str(i) + "-measure")
-                )
-        for i, _ in enumerate(l):
-            d_edges[i] ^ ms[i].get_edge(0)
-        for n in ms:
-            n.flag = "measurement"
-            n.is_dagger = False
-            n.id = id(n)
-        no.extend(ms)
-        return contractor(no).tensor
-
     def measure_reference(
         self, *index: int, with_prob: bool = False
     ) -> Tuple[str, float]:

@@ -417,3 +417,26 @@ def test_dmcircuit_split(backend):
 
     np.testing.assert_allclose(s1, s3, atol=1e-5)
     np.testing.assert_allclose(g1, g3, atol=1e-5)
+
+
+def test_dm_amplitude():
+    c = tc.DMCircuit(2)
+    c.H(0)
+    c.cnot(0, 1)
+    np.testing.assert_allclose(c.amplitude("11"), 0.5, atol=1e-5)
+    c.depolarizing(1, px=0.2, py=0, pz=0)
+    np.testing.assert_allclose(c.amplitude("11"), 0.4, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_dm_amplitude_jit(backend):
+    @tc.backend.jit
+    def m(s):
+        c = tc.DMCircuit(2)
+        c.H(0)
+        c.cnot(0, 1)
+        c.depolarizing(1, px=0.2, py=0.0, pz=0.0)
+        return c.amplitude(s)
+
+    np.testing.assert_allclose(m(tc.array_to_tensor([1, 1])), 0.4, atol=1e-5)
+    np.testing.assert_allclose(m(tc.array_to_tensor([1, 0])), 0.1, atol=1e-5)

@@ -1047,3 +1047,21 @@ def test_circuit_inverse(backend):
     c1 = c.inverse()
     c.append(c1)
     np.testing.assert_allclose(c.state(), inputs, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_jittable_amplitude(backend):
+    # @tc.backend.jit
+    def amp(s):
+        c = tc.Circuit(3)
+        c.H(0)
+        c.cnot(0, 1)
+        c.swap(1, 2)
+        return c.amplitude(s)
+
+    np.testing.assert_allclose(
+        amp(tc.array_to_tensor([0, 1, 1], dtype="float32")), 0, atol=1e-5
+    )
+    np.testing.assert_allclose(
+        amp(tc.array_to_tensor([0, 0, 0], dtype="float32")), 1 / np.sqrt(2), atol=1e-5
+    )
