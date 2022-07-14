@@ -57,9 +57,10 @@ class BaseCircuit:
     is_dm: bool
     _qir: List[Dict[str, Any]]
     split: Optional[Dict[str, Any]]
+    inputs: Tensor
 
     @staticmethod
-    def all_zero_nodes(n: int, d: int = 2, prefix: str = "qb-") -> Sequence[tn.Node]:
+    def all_zero_nodes(n: int, d: int = 2, prefix: str = "qb-") -> List[tn.Node]:
         l = [0.0 for _ in range(d)]
         l[0] = 1.0
         nodes = [
@@ -900,7 +901,7 @@ class BaseCircuit:
         :return: Latex string that can be directly compiled via, e.g. latexit
         :rtype: str
         """
-        if getattr(self, "has_inputs", None):
+        if self.inputs is not None:
             init = ["" for _ in range(self._nqubits)]
             init[self._nqubits // 2] = "\psi"
             okws = {"init": init}
@@ -979,3 +980,22 @@ class BaseCircuit:
         if batch is None:
             r = r[0]
         return r
+
+    def replace_inputs(self, inputs: Tensor) -> None:
+        """
+        Replace the input state with the circuit structure unchanged.
+
+        :param inputs: Input wavefunction.
+        :type inputs: Tensor
+        """
+        inputs = backend.reshape(inputs, [-1])
+        N = inputs.shape[0]
+        n = int(np.log(N) / np.log(2))
+        assert n == self._nqubits
+        inputs = backend.reshape(inputs, [2 for _ in range(n)])
+        if self.inputs is not None:
+            self._nodes[0].tensor = inputs
+            if self.is_dm:
+                self._nodes[1].tensor = backend.conj(inputs)
+        else:  # TODO(@refraction-ray) replace several start as inputs
+            raise NotImplementedError("not support replace with no inputs")

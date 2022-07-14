@@ -10,6 +10,8 @@
 
 - Add `status` arguments as external randomness for `perfect_sampling` and `measure` methods
 
+- `DMCircuit` now supports `mps_inputs`
+
 ### Changed
 
 - Refactor circuit and dmcircuit with common methods now in `commons.py`, and merge dmcircuit.py and dmcircuit2.py, now `DMCircuit` supports MPO gate and qir

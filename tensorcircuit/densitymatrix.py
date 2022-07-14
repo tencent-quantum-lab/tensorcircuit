@@ -14,7 +14,7 @@ from . import gates
 from . import channels
 from .channels import kraus_to_super_gate
 from .circuit import Circuit
-from .cons import backend, contractor, npdtype, dtypestr
+from .cons import backend, contractor, dtypestr
 from .basecircuit import BaseCircuit
 
 Gate = gates.Gate
@@ -29,6 +29,7 @@ class DMCircuit(BaseCircuit):
         nqubits: int,
         empty: bool = False,
         inputs: Optional[Tensor] = None,
+        mps_inputs: Optional[Tensor] = None,
         dminputs: Optional[Tensor] = None,
         split: Optional[Dict[str, Any]] = None,
     ) -> None:
@@ -48,25 +49,9 @@ class DMCircuit(BaseCircuit):
             _prefix = "qb-"
             if (inputs is None) and (dminputs is None):
                 # Get nodes on the interior
-                nodes = [
-                    tn.Node(
-                        np.array(
-                            [
-                                1.0,
-                                0.0,
-                            ],
-                            dtype=npdtype,
-                        ),
-                        name=_prefix + str(x + 1),
-                    )
-                    for x in range(nqubits)
-                ]
-                self._front = [n.get_edge(0) for n in nodes]
-
-                lnodes, lfront = self.copy(nodes, self._front, conj=True)
-                self._front.extend(lfront)
-                nodes.extend(lnodes)
-                self._nodes = nodes
+                self._nodes = self.all_zero_nodes(nqubits)  # type: ignore
+                self._front = [n.get_edge(0) for n in self._nodes]
+                self._double_nodes_front()
             elif inputs is not None:
                 inputs = backend.convert_to_tensor(inputs)
                 inputs = backend.cast(inputs, dtype=dtypestr)
@@ -76,13 +61,17 @@ class DMCircuit(BaseCircuit):
                 assert n == nqubits
                 inputs = backend.reshape(inputs, [2 for _ in range(n)])
                 inputs = Gate(inputs)
-                nodes = [inputs]
+                self._nodes = [inputs]
                 self._front = [inputs.get_edge(i) for i in range(n)]
+                self._double_nodes_front()
+            elif mps_inputs is not None:
+                mps_nodes = list(mps_inputs.nodes)  # type: ignore
+                for i, n in enumerate(mps_nodes):
+                    mps_nodes[i].tensor = backend.cast(n.tensor, dtypestr)  # type: ignore
+                mps_edges = mps_inputs.out_edges + mps_inputs.in_edges  # type: ignore
+                self._nodes, self._front = self.copy(mps_nodes, mps_edges)
+                self._double_nodes_front()
 
-                lnodes, lfront = self.copy(nodes, self._front, conj=True)
-                self._front.extend(lfront)
-                nodes.extend(lnodes)
-                self._nodes = nodes
             else:  # dminputs is not None
                 dminputs = backend.convert_to_tensor(dminputs)
                 dminputs = backend.cast(dminputs, dtype=dtypestr)
@@ -93,8 +82,17 @@ class DMCircuit(BaseCircuit):
                 self._nodes = nodes
 
             self._nqubits = nqubits
-        self._qir: List[Dict[str, Any]] = []
+            self.inputs = inputs
+            self.dminputs = dminputs
+            self._start_index = len(self._nodes)
+
         self.split = split
+        self._qir: List[Dict[str, Any]] = []
+
+    def _double_nodes_front(self) -> None:
+        lnodes, lfront = self.copy(self._nodes, self._front, conj=True)
+        self._front.extend(lfront)
+        self._nodes.extend(lnodes)
 
     @classmethod
     def _meta_apply_channels(cls) -> None:

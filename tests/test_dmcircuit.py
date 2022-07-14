@@ -449,3 +449,13 @@ def test_sample():
     c.depolarizing(1, px=0.2, py=0.0, pz=0.0)
     print(c.sample(batch=10))
     print(c.sample(batch=20, allow_state=True))
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_dm_mps_inputs(backend):
+    ns = [tc.gates.Gate(np.array([0.0, 1.0])) for _ in range(3)]
+    mps = tc.quantum.QuVector([n[0] for n in ns])
+    c = tc.DMCircuit(3, mps_inputs=mps)
+    c.cnot(0, 1)
+    c.depolarizing(1, px=0.2, py=0, pz=0)
+    np.testing.assert_allclose(c.expectation_ps(z=[1]), 0.6, atol=1e-5)

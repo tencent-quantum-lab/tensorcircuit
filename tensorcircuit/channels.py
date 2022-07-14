@@ -30,6 +30,8 @@ def _sqrt(a: Tensor) -> Tensor:
     :return: Square root of Tensor
     :rtype: Tensor
     """
+    a = backend.convert_to_tensor(a)
+    a = backend.cast(a, cons.rdtypestr)
     return backend.cast(backend.sqrt(a), dtype=cons.dtypestr)
 
 

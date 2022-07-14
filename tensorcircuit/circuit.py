@@ -64,18 +64,11 @@ class Circuit(BaseCircuit):
             self.has_inputs = True
         else:
             self.has_inputs = False
+        self.inputs = inputs
+        self.mps_inputs = mps_inputs
         self.split = split
         if (inputs is None) and (mps_inputs is None):
-            nodes = [
-                tn.Node(
-                    np.array(
-                        [1.0, 0.0],
-                        dtype=npdtype,
-                    ),
-                    name=_prefix + str(x + 1),
-                )
-                for x in range(nqubits)
-            ]
+            nodes = self.all_zero_nodes(nqubits)
             self._front = [n.get_edge(0) for n in nodes]
         elif inputs is not None:  # provide input function
             inputs = backend.convert_to_tensor(inputs)
@@ -108,7 +101,7 @@ class Circuit(BaseCircuit):
             node.is_dagger = False
             node.flag = "inputs"
             node.id = id(node)
-        self._nodes = nodes
+        self._nodes = nodes  # type: ignore
 
         self._start_index = len(nodes)
         # self._start = nodes
@@ -117,21 +110,6 @@ class Circuit(BaseCircuit):
         # self._qcode = ""  # deprecated
         # self._qcode += str(self._nqubits) + "\n"
         self._qir: List[Dict[str, Any]] = []
-
-    def replace_inputs(self, inputs: Tensor) -> None:
-        """
-        Replace the input state with the circuit structure unchanged.
-
-        :param inputs: Input wavefunction.
-        :type inputs: Tensor
-        """
-        assert self.has_inputs is True
-        inputs = backend.reshape(inputs, [-1])
-        N = inputs.shape[0]
-        n = int(np.log(N) / np.log(2))
-        assert n == self._nqubits
-        inputs = backend.reshape(inputs, [2 for _ in range(n)])
-        self._nodes[0].tensor = inputs
 
     def replace_mps_inputs(self, mps_inputs: QuOperator) -> None:
         """
