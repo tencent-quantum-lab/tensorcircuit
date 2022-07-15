@@ -1033,6 +1033,14 @@ def test_lightcone_expectation():
         m1 = c.expectation_ps(z=[0], enable_lightcone=True)
         m2 = c.expectation_ps(z=[0])
         np.testing.assert_allclose(m1, m2, atol=1e-5)
+        nodes = c.expectation_before([tc.gates.z(), 0], reuse=False)
+        l1 = len(nodes)
+        nodes = tc.simplify._full_light_cone_cancel(nodes)
+        l2 = len(nodes)
+        if b is False:
+            assert l1 == 37 and l2 == 25
+        else:
+            assert l1 == 41 and l2 == 41
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])

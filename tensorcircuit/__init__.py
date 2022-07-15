@@ -18,6 +18,7 @@ from .cons import (
 )  # prerun of set hooks
 from . import gates
 from . import basecircuit
+from .gates import Gate
 from .circuit import Circuit, expectation
 from .mpscircuit import MPSCircuit
 from .densitymatrix import DMCircuit as DMCircuit_reference

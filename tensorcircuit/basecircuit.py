@@ -7,6 +7,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 from functools import reduce
 from operator import add
 
+import graphviz
 import numpy as np
 import tensornetwork as tn
 
@@ -82,6 +83,27 @@ class BaseCircuit:
         return [n.get_edge(0) for n in nodes]
 
     @staticmethod
+    def coloring_nodes(
+        nodes: Sequence[tn.Node], is_dagger: bool = False, flag: str = "inputs"
+    ) -> None:
+        for node in nodes:
+            node.is_dagger = is_dagger
+            node.flag = flag
+            node.id = id(node)
+
+    @staticmethod
+    def coloring_copied_nodes(
+        nodes: Sequence[tn.Node],
+        nodes0: Sequence[tn.Node],
+        is_dagger: bool = True,
+        flag: str = "inputs",
+    ) -> None:
+        for node, n0 in zip(nodes, nodes0):
+            node.is_dagger = is_dagger
+            node.flag = flag
+            node.id = getattr(n0, "id", id(n0))
+
+    @staticmethod
     def copy(
         nodes: Sequence[tn.Node],
         dangling: Optional[Sequence[tn.Edge]] = None,
@@ -153,13 +175,14 @@ class BaseCircuit:
                 # max_err cannot be jax jitted
                 if results is not None:
                     n1, n2, is_swap = results
-                    n1.flag = "gate"
-                    n1.is_dagger = False
+                    self.coloring_nodes([n1, n2], flag="gate")
+                    # n1.flag = "gate"
+                    # n1.is_dagger = False
                     n1.name = name
-                    n1.id = id(n1)
-                    n2.flag = "gate"
-                    n2.is_dagger = False
-                    n2.id = id(n2)
+                    # n1.id = id(n1)
+                    # n2.flag = "gate"
+                    # n2.is_dagger = False
+                    # n2.id = id(n2)
                     n2.name = name
                     if is_swap is False:
                         n1[1] ^ self._front[index[0]]
@@ -195,9 +218,10 @@ class BaseCircuit:
 
             if applied is False:
                 gate.name = name
-                gate.flag = "gate"
-                gate.is_dagger = False
-                gate.id = id(gate)
+                self.coloring_nodes([gate])
+                # gate.flag = "gate"
+                # gate.is_dagger = False
+                # gate.id = id(gate)
                 self._nodes.append(gate)
                 if self.is_dm:
                     lgates, _ = self.copy([gate], conj=True)
@@ -472,9 +496,10 @@ class BaseCircuit:
                 newdang[e + nq] ^ op.get_edge(j)
                 newdang[e] ^ op.get_edge(j + noe)
                 occupied.add(e)
-            op.flag = "operator"
-            op.is_dagger = False
-            op.id = id(op)
+            self.coloring_nodes([op], flag="operator")
+            # op.flag = "operator"
+            # op.is_dagger = False
+            # op.id = id(op)
             nodes.append(op)
         for j in range(nq):
             if j not in occupied:  # edge1[j].is_dangling invalid here!
@@ -1022,3 +1047,55 @@ class BaseCircuit:
         self.any(*index, unitary=tensor)  # type: ignore
 
     conditional_gate = select_gate
+
+    def to_graphviz(
+        self,
+        graph: graphviz.Graph = None,
+        include_all_names: bool = False,
+        engine: str = "neato",
+    ) -> graphviz.Graph:
+        """
+        Not an ideal visualization for quantum circuit, but reserve here as a general approach to show the tensornetwork
+        [Deprecated, use ``Circuit.vis_tex`` or ``Circuit.draw`` instead]
+        """
+        # Modified from tensornetwork codebase
+        nodes = self._nodes
+        if graph is None:
+            # pylint: disable=no-member
+            graph = graphviz.Graph("G", engine=engine)
+        for node in nodes:
+            if not node.name.startswith("__") or include_all_names:
+                label = node.name
+            else:
+                label = ""
+            graph.node(str(id(node)), label=label)
+        seen_edges = set()
+        for node in nodes:
+            for i, edge in enumerate(node.edges):
+                if edge in seen_edges:
+                    continue
+                seen_edges.add(edge)
+                if not edge.name.startswith("__") or include_all_names:
+                    edge_label = edge.name + ": " + str(edge.dimension)
+                else:
+                    edge_label = ""
+                if edge.is_dangling():
+                    # We need to create an invisible node for the dangling edge
+                    # to connect to.
+                    graph.node(
+                        "{}_{}".format(str(id(node)), i),
+                        label="",
+                        _attributes={"style": "invis"},
+                    )
+                    graph.edge(
+                        "{}_{}".format(str(id(node)), i),
+                        str(id(node)),
+                        label=edge_label,
+                    )
+                else:
+                    graph.edge(
+                        str(id(edge.node1)),
+                        str(id(edge.node2)),
+                        label=edge_label,
+                    )
+        return graph

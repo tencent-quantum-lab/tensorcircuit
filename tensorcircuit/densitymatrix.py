@@ -16,6 +16,7 @@ from .channels import kraus_to_super_gate
 from .circuit import Circuit
 from .cons import backend, contractor, dtypestr
 from .basecircuit import BaseCircuit
+from .quantum import QuOperator
 
 Gate = gates.Gate
 Tensor = Any
@@ -29,8 +30,9 @@ class DMCircuit(BaseCircuit):
         nqubits: int,
         empty: bool = False,
         inputs: Optional[Tensor] = None,
-        mps_inputs: Optional[Tensor] = None,
+        mps_inputs: Optional[QuOperator] = None,
         dminputs: Optional[Tensor] = None,
+        mpo_dminputs: Optional[QuOperator] = None,
         split: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
@@ -42,16 +44,30 @@ class DMCircuit(BaseCircuit):
         :type empty: bool, optional
         :param inputs: the state input for the circuit, defaults to None
         :type inputs: Optional[Tensor], optional
+        :param mps_inputs: QuVector for a MPS like initial pure state.
+        :type mps_inputs: Optional[QuOperator]
         :param dminputs: the density matrix input for the circuit, defaults to None
         :type dminputs: Optional[Tensor], optional
+        :param mpo_dminputs: QuOperator for a MPO like initial density matrix.
+        :type mpo_dminputs: Optional[QuOperator]
+        :param split: dict if two qubit gate is ready for split, including parameters for at least one of
+            ``max_singular_values`` and ``max_truncation_err``.
+        :type split: Optional[Dict[str, Any]]
         """
         if not empty:
             _prefix = "qb-"
-            if (inputs is None) and (dminputs is None):
+            if (
+                (inputs is None)
+                and (dminputs is None)
+                and (mps_inputs is None)
+                and (mpo_dminputs is None)
+            ):
                 # Get nodes on the interior
                 self._nodes = self.all_zero_nodes(nqubits)  # type: ignore
                 self._front = [n.get_edge(0) for n in self._nodes]
+                self.coloring_nodes(self._nodes)
                 self._double_nodes_front()
+
             elif inputs is not None:
                 inputs = backend.convert_to_tensor(inputs)
                 inputs = backend.cast(inputs, dtype=dtypestr)
@@ -62,17 +78,20 @@ class DMCircuit(BaseCircuit):
                 inputs = backend.reshape(inputs, [2 for _ in range(n)])
                 inputs = Gate(inputs)
                 self._nodes = [inputs]
+                self.coloring_nodes(self._nodes)
                 self._front = [inputs.get_edge(i) for i in range(n)]
                 self._double_nodes_front()
+
             elif mps_inputs is not None:
                 mps_nodes = list(mps_inputs.nodes)  # type: ignore
                 for i, n in enumerate(mps_nodes):
                     mps_nodes[i].tensor = backend.cast(n.tensor, dtypestr)  # type: ignore
                 mps_edges = mps_inputs.out_edges + mps_inputs.in_edges  # type: ignore
                 self._nodes, self._front = self.copy(mps_nodes, mps_edges)
+                self.coloring_nodes(self._nodes)
                 self._double_nodes_front()
 
-            else:  # dminputs is not None
+            elif dminputs is not None:
                 dminputs = backend.convert_to_tensor(dminputs)
                 dminputs = backend.cast(dminputs, dtype=dtypestr)
                 dminputs = backend.reshape(dminputs, [2 for _ in range(2 * nqubits)])
@@ -80,10 +99,22 @@ class DMCircuit(BaseCircuit):
                 nodes = [dminputs]
                 self._front = [dminputs.get_edge(i) for i in range(2 * nqubits)]
                 self._nodes = nodes
+                self.coloring_nodes(self._nodes)
+
+            else:  # mpo_dminputs is not None
+                mpo_nodes = list(mpo_dminputs.nodes)  # type: ignore
+                for i, n in enumerate(mpo_nodes):
+                    mpo_nodes[i].tensor = backend.cast(n.tensor, dtypestr)  # type: ignore
+                mpo_edges = mpo_dminputs.out_edges + mpo_dminputs.in_edges  # type: ignore
+                self._nodes = mpo_nodes
+                self._front = mpo_edges
+                self.coloring_nodes(self._nodes)
 
             self._nqubits = nqubits
             self.inputs = inputs
             self.dminputs = dminputs
+            self.mps_inputs = mps_inputs
+            self.mpo_dminputs = mpo_dminputs
             self._start_index = len(self._nodes)
 
         self.split = split

@@ -459,3 +459,19 @@ def test_dm_mps_inputs(backend):
     c.cnot(0, 1)
     c.depolarizing(1, px=0.2, py=0, pz=0)
     np.testing.assert_allclose(c.expectation_ps(z=[1]), 0.6, atol=1e-5)
+    np.testing.assert_allclose(c.expectation_ps(z=[2]), -1.0, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_dm_mpo_inputs(backend):
+    n = 4
+    nodes = [tc.Gate(np.eye(2) / 2.0) for _ in range(n)]
+    mpo = tc.quantum.QuOperator([n[0] for n in nodes], [n[1] for n in nodes])
+    print(len(mpo.nodes))
+    np.testing.assert_allclose(tc.backend.trace(mpo.eval_matrix()), 1.0, atol=1e-5)
+    c = tc.DMCircuit(4, mpo_dminputs=mpo)
+    for i in range(n):
+        c.x(i)
+        c.depolarizing(i, px=0.1, py=0.1, pz=0.1)
+    np.testing.assert_allclose(c.state(), np.eye(2**n) / 2**n, atol=1e-5)
+    print(len(c._nodes), len(c._front))

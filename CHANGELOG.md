@@ -10,7 +10,7 @@
 
 - Add `status` arguments as external randomness for `perfect_sampling` and `measure` methods
 
-- `DMCircuit` now supports `mps_inputs`
+- `DMCircuit` now supports `mps_inputs` and `mpo_dminputs`
 
 ### Changed
 

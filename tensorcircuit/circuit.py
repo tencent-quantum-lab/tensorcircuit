@@ -7,7 +7,6 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 from functools import reduce
 from operator import add
 
-import graphviz
 import numpy as np
 import tensornetwork as tn
 
@@ -53,8 +52,8 @@ class Circuit(BaseCircuit):
         :param inputs: If not None, the initial state of the circuit is taken as ``inputs``
             instead of :math:`\\vert 0\\rangle^n` qubits, defaults to None.
         :type inputs: Optional[Tensor], optional
-        :param mps_inputs: (Nodes, dangling Edges) for a MPS like initial wavefunction.
-        :type inputs: Optional[Tuple[Sequence[Gate], Sequence[Edge]]], optional
+        :param mps_inputs: QuVector for a MPS like initial wavefunction.
+        :type mps_inputs: Optional[QuOperator]
         :param split: dict if two qubit gate is ready for split, including parameters for at least one of
             ``max_singular_values`` and ``max_truncation_err``.
         :type split: Optional[Dict[str, Any]]
@@ -97,10 +96,7 @@ class Circuit(BaseCircuit):
             self._front = new_front
 
         self._nqubits = nqubits
-        for node in nodes:
-            node.is_dagger = False
-            node.flag = "inputs"
-            node.id = id(node)
+        self.coloring_nodes(nodes)
         self._nodes = nodes  # type: ignore
 
         self._start_index = len(nodes)
@@ -162,10 +158,7 @@ class Circuit(BaseCircuit):
                         new_front[j] ^ other[0][other[1]]
         j += 1
         self._front += new_front[j:]
-        for n in new_nodes:
-            n.is_dagger = False
-            n.flag = "inputs"
-            n.id = id(n)
+        self.coloring_nodes(new_nodes)
         self._nodes = new_nodes + self._nodes[self._start_index :]
         self._start_index = len(new_nodes)
 
@@ -216,12 +209,13 @@ class Circuit(BaseCircuit):
 
         mg1 = tn.Node(gate)
         mg2 = tn.Node(gate)
-        mg1.flag = "post-select"
-        mg1.is_dagger = False
-        mg1.id = id(mg1)
-        mg2.flag = "post-select"
-        mg2.is_dagger = False
-        mg2.id = id(mg2)
+        # mg1.flag = "post-select"
+        # mg1.is_dagger = False
+        # mg1.id = id(mg1)
+        # mg2.flag = "post-select"
+        # mg2.is_dagger = False
+        # mg2.id = id(mg2)
+        self.coloring_nodes([mg1, mg2], flag="post-select")
         mg1.get_edge(0) ^ self._front[index]
         mg1.get_edge(1) ^ mg2.get_edge(1)
         self._front[index] = mg2.get_edge(0)
@@ -787,60 +781,6 @@ class Circuit(BaseCircuit):
 
 
 Circuit._meta_apply()
-# Circuit.expectation_ps = expectation_ps  # type: ignore
-
-
-def to_graphviz(
-    c: Circuit,
-    graph: graphviz.Graph = None,
-    include_all_names: bool = False,
-    engine: str = "neato",
-) -> graphviz.Graph:
-    """
-    Not an ideal visualization for quantum circuit, but reserve here as a general approach to show the tensornetwork
-    [Deprecated, use ``Circuit.vis_tex`` or ``Circuit.draw`` instead]
-    """
-    # Modified from tensornetwork codebase
-    nodes = c._nodes
-    if graph is None:
-        # pylint: disable=no-member
-        graph = graphviz.Graph("G", engine=engine)
-    for node in nodes:
-        if not node.name.startswith("__") or include_all_names:
-            label = node.name
-        else:
-            label = ""
-        graph.node(str(id(node)), label=label)
-    seen_edges = set()
-    for node in nodes:
-        for i, edge in enumerate(node.edges):
-            if edge in seen_edges:
-                continue
-            seen_edges.add(edge)
-            if not edge.name.startswith("__") or include_all_names:
-                edge_label = edge.name + ": " + str(edge.dimension)
-            else:
-                edge_label = ""
-            if edge.is_dangling():
-                # We need to create an invisible node for the dangling edge
-                # to connect to.
-                graph.node(
-                    "{}_{}".format(str(id(node)), i),
-                    label="",
-                    _attributes={"style": "invis"},
-                )
-                graph.edge(
-                    "{}_{}".format(str(id(node)), i),
-                    str(id(node)),
-                    label=edge_label,
-                )
-            else:
-                graph.edge(
-                    str(id(edge.node1)),
-                    str(id(edge.node2)),
-                    label=edge_label,
-                )
-    return graph
 
 
 def expectation(
