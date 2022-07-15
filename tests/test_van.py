@@ -99,4 +99,4 @@ def test_pixelcnn():
         l.append(list(i))
     basis = tf.constant(tf.reshape(l, [-1, 2, 2]), dtype=tf.int32)
     ptot = tf.reduce_sum(tf.exp(m.log_prob(tf.one_hot(basis, depth=3))))
-    np.testing.assert_allclose(ptot.numpy(), 1.0)
+    np.testing.assert_allclose(ptot.numpy(), 1.0, atol=1e-5)
