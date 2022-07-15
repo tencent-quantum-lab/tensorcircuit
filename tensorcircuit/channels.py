@@ -3,7 +3,7 @@ Some common noise quantum channels.
 """
 
 import sys
-from typing import Any, Sequence, Optional, Union
+from typing import Any, Sequence, Union
 from operator import and_
 from functools import reduce
 
@@ -115,7 +115,7 @@ def generaldepolarizingchannel(
     >>> tc.channels.kraus_identity_check(cs)
 
 
-    :param p: parameter for each Pauli channel 
+    :param p: parameter for each Pauli channel
     :type p: Union[float, Sequence]
     :param num_qubits: number of qubits, defaults to 1, 1 and 2 are avaliable
     :type num_qubits: int, optional
