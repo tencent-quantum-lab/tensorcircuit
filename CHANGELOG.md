@@ -6,7 +6,7 @@
 
 - Add `device` and `device_move` methods on backend with universal device string representation
 
-- Add `to_qir`, `from_qir`, `to_circuit`, `inverse, `from_qiskit`, `to_qiskit`, `sample` method for`DMCircuit` class
+- Add `to_qir`, `from_qir`, `to_circuit`, `inverse, `from_qiskit`, `to_qiskit`, `sample`, `prepend`, `append`, `cond_measurment`, `select_gate`method for`DMCircuit` class
 
 - Add `status` arguments as external randomness for `perfect_sampling` and `measure` methods
 
@@ -14,7 +14,7 @@
 
 ### Changed
 
-- Refactor circuit and dmcircuit with common methods now in `commons.py`, and merge dmcircuit.py and dmcircuit2.py, now `DMCircuit` supports MPO gate and qir
+- Refactor circuit and dmcircuit with common methods now in `basecircuit.py`, and merge dmcircuit.py and dmcircuit2.py, now `DMCircuit` supports MPO gate and qir representation
 
 ## 0.2.2
 

@@ -55,7 +55,6 @@ class DMCircuit(BaseCircuit):
         :type split: Optional[Dict[str, Any]]
         """
         if not empty:
-            _prefix = "qb-"
             if (
                 (inputs is None)
                 and (dminputs is None)
@@ -110,14 +109,24 @@ class DMCircuit(BaseCircuit):
                 self._front = mpo_edges
                 self.coloring_nodes(self._nodes)
 
-            self._nqubits = nqubits
-            self.inputs = inputs
-            self.dminputs = dminputs
-            self.mps_inputs = mps_inputs
-            self.mpo_dminputs = mpo_dminputs
             self._start_index = len(self._nodes)
 
+        self._nqubits = nqubits
+        self.inputs = inputs
+        self.dminputs = dminputs
+        self.mps_inputs = mps_inputs
+        self.mpo_dminputs = mpo_dminputs
         self.split = split
+
+        self.circuit_param = {
+            "nqubits": nqubits,
+            "inputs": inputs,
+            "mps_inputs": mps_inputs,
+            "dminputs": dminputs,
+            "mpo_dminputs": mpo_dminputs,
+            "split": split,
+        }
+
         self._qir: List[Dict[str, Any]] = []
 
     def _double_nodes_front(self) -> None:
@@ -221,6 +230,35 @@ class DMCircuit(BaseCircuit):
         return dm
 
     state = densitymatrix
+
+    def wavefunction(self) -> Tensor:
+        """
+        get the wavefunction of outputs,
+        raise error if the final state is not purified
+        [Experimental: the phase factor is not fixed for different backend]
+
+        :return: wavefunction vector
+        :rtype: Tensor
+        """
+        dm = self.densitymatrix()
+        e, v = backend.eigh(dm)
+        np.testing.assert_allclose(
+            e[:-1], backend.zeros([2**self._nqubits - 1]), atol=1e-5
+        )
+        return v[:, -1]
+
+    get_dm_as_quvector = BaseCircuit.quvector
+
+    def get_dm_as_quoperator(self) -> QuOperator:
+        """
+        Get the representation of the output state in the form of ``QuOperator``
+        while maintaining the circuit uncomputed
+
+        :return: ``QuOperator`` representation of the output state from the circuit
+        :rtype: QuOperator
+        """
+        _, edges = self._copy()
+        return QuOperator(edges[: self._nqubits], edges[self._nqubits :])
 
     def expectation(
         self, *ops: Tuple[tn.Node, List[int]], reuse: bool = True, **kws: Any

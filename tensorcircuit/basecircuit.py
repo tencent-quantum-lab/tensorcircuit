@@ -15,6 +15,7 @@ from . import gates
 from .cons import npdtype, backend, dtypestr, contractor, rdtypestr
 from .simplify import _split_two_qubit_gate
 from .vis import qir2tex
+from .quantum import QuVector
 
 
 Gate = gates.Gate
@@ -61,6 +62,7 @@ class BaseCircuit:
     _qir: List[Dict[str, Any]]
     split: Optional[Dict[str, Any]]
     inputs: Tensor
+    circuit_param: Dict[str, Any]
 
     @staticmethod
     def all_zero_nodes(n: int, d: int = 2, prefix: str = "qb-") -> List[tn.Node]:
@@ -342,6 +344,9 @@ class BaseCircuit:
 
     @classmethod
     def _meta_apply(cls) -> None:
+        """
+        The registration of gate methods on circuit class using reflection mechanism
+        """
         for g in sgates:
             setattr(
                 cls, g, cls.apply_general_gate_delayed(gatef=getattr(gates, g), name=g)
@@ -470,6 +475,16 @@ class BaseCircuit:
         reuse: bool = True,
         **kws: Any,
     ) -> List[tn.Node]:
+        """
+        Get the tensor network in the form of a list of nodes
+        for the expectation calculation before the real contraction
+
+        :param reuse: _description_, defaults to True
+        :type reuse: bool, optional
+        :raises ValueError: _description_
+        :return: _description_
+        :rtype: List[tn.Node]
+        """
         nq = self._nqubits
         if self.is_dm is True:
             nodes, newdang = self._copy_state_tensor(reuse=reuse)
@@ -859,7 +874,7 @@ class BaseCircuit:
         return qiskit2tc(qc.data, n, inputs, is_dm=cls.is_dm)  # type: ignore
 
     def amplitude(self, l: Union[str, Tensor]) -> Tensor:
-        """
+        r"""
         Returns the amplitude of the circuit given the bitstring l.
         For state simulator, it computes :math:`\langle l\vert \psi\rangle`,
         for density matrix simulator, it computes :math:`Tr(\rho \vert l\rangle \langle 1\vert)`
@@ -1048,6 +1063,40 @@ class BaseCircuit:
 
     conditional_gate = select_gate
 
+    def cond_measurement(self, index: int) -> Tensor:
+        """
+        Measurement on z basis at ``index`` qubit based on quantum amplitude
+        (not post-selection). The highlight is that this method can return the
+        measured result as a int Tensor and thus maintained a jittable pipeline.
+
+        :Example:
+
+        >>> c = tc.Circuit(2)
+        >>> c.H(0)
+        >>> r = c.cond_measurement(0)
+        >>> c.conditional_gate(r, [tc.gates.i(), tc.gates.x()], 1)
+        >>> c.expectation([tc.gates.z(), [0]]), c.expectation([tc.gates.z(), [1]])
+        # two possible outputs: (1, 1) or (-1, -1)
+
+        .. note::
+
+            In terms of ``DMCircuit``, this method returns nothing and the density
+            matrix after this method is kept in mixed state without knowing the
+            measuremet resuslts
+
+
+
+        :param index: the qubit for the z-basis measurement
+        :type index: int
+        :return: 0 or 1 for z measurement on up and down freedom
+        :rtype: Tensor
+        """
+        return self.general_kraus(  # type: ignore
+            [np.array([[1.0, 0], [0, 0]]), np.array([[0, 0], [0, 1]])], index  # type: ignore
+        )
+
+    cond_measure = cond_measurement
+
     def to_graphviz(
         self,
         graph: graphviz.Graph = None,
@@ -1099,3 +1148,62 @@ class BaseCircuit:
                         label=edge_label,
                     )
         return graph
+
+    def prepend(self, c: "BaseCircuit") -> "BaseCircuit":
+        """
+        prepend circuit ``c`` before
+
+        :param c: The other circuit to be prepended
+        :type c: BaseCircuit
+        :return: The composed circuit
+        :rtype: BaseCircuit
+        """
+        qir1 = self.to_qir()
+        qir0 = c.to_qir()
+        newc = type(self).from_qir(qir0 + qir1, self.circuit_param)
+        self.__dict__.update(newc.__dict__)
+        return self
+
+    def append(self, c: "BaseCircuit") -> "BaseCircuit":
+        """
+        append circuit ``c`` before
+
+        :example:
+
+        >>> c1 = tc.Circuit(2)
+        >>> c1.H(0)
+        >>> c1.H(1)
+        >>> c2 = tc.Circuit(2)
+        >>> c2.cnot(0, 1)
+        >>> c1.append(c2)
+        <tensorcircuit.circuit.Circuit object at 0x7f8402968970>
+        >>> c1.draw()
+            ┌───┐
+        q_0:┤ H ├──■──
+            ├───┤┌─┴─┐
+        q_1:┤ H ├┤ X ├
+            └───┘└───┘
+
+        :param c: The other circuit to be appended
+        :type c: BaseCircuit
+        :return: The composed circuit
+        :rtype: BaseCircuit
+        """
+        qir1 = self.to_qir()
+        qir2 = c.to_qir()
+        newc = type(self).from_qir(qir1 + qir2, self.circuit_param)
+        self.__dict__.update(newc.__dict__)
+        return self
+
+    def get_quvector(self) -> QuVector:
+        """
+        Get the representation of the output state in the form of ``QuVector``
+        while maintaining the circuit uncomputed
+
+        :return: ``QuVector`` representation of the output state from the circuit
+        :rtype: QuVector
+        """
+        _, edges = self._copy()
+        return QuVector(edges)
+
+    quvector = get_quvector

@@ -475,3 +475,26 @@ def test_dm_mpo_inputs(backend):
         c.depolarizing(i, px=0.1, py=0.1, pz=0.1)
     np.testing.assert_allclose(c.state(), np.eye(2**n) / 2**n, atol=1e-5)
     print(len(c._nodes), len(c._front))
+
+
+def test_dm_cond_measure():
+    c = tc.DMCircuit(2)
+    c.H(0)
+    np.testing.assert_allclose(c.expectation_ps(x=[0]), 1.0, atol=1e-5)
+    c.cond_measure(0)
+    np.testing.assert_allclose(c.expectation_ps(x=[0]), 0.0, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_prepend_dmcircuit(backend):
+    c = tc.DMCircuit(2)
+    c.H(0)
+    c1 = tc.DMCircuit(2)
+    c1.cnot(0, 1)
+    c2 = c1.append(c)
+    c3 = c2.prepend(c)
+    qir = c3.to_qir()
+    for n, n0 in zip(qir, ["h", "cnot", "h"]):
+        assert n["name"] == n0
+    s = c3.wavefunction()
+    np.testing.assert_allclose(s[0], s[1], atol=1e-5)

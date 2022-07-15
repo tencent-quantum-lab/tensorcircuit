@@ -12,7 +12,7 @@ import tensornetwork as tn
 
 from . import gates
 from .cons import backend, contractor, dtypestr, npdtype
-from .quantum import QuVector, QuOperator, identity
+from .quantum import QuOperator, identity
 from .simplify import _full_light_cone_cancel
 from .basecircuit import BaseCircuit
 
@@ -58,14 +58,17 @@ class Circuit(BaseCircuit):
             ``max_singular_values`` and ``max_truncation_err``.
         :type split: Optional[Dict[str, Any]]
         """
-        _prefix = "qb-"
-        if inputs is not None:
-            self.has_inputs = True
-        else:
-            self.has_inputs = False
         self.inputs = inputs
         self.mps_inputs = mps_inputs
         self.split = split
+        self._nqubits = nqubits
+
+        self.circuit_param = {
+            "nqubits": nqubits,
+            "inputs": inputs,
+            "mps_inputs": mps_inputs,
+            "split": split,
+        }
         if (inputs is None) and (mps_inputs is None):
             nodes = self.all_zero_nodes(nqubits)
             self._front = [n.get_edge(0) for n in nodes]
@@ -95,7 +98,6 @@ class Circuit(BaseCircuit):
             nodes = new_nodes
             self._front = new_front
 
-        self._nqubits = nqubits
         self.coloring_nodes(nodes)
         self._nodes = nodes  # type: ignore
 
@@ -162,20 +164,8 @@ class Circuit(BaseCircuit):
         self._nodes = new_nodes + self._nodes[self._start_index :]
         self._start_index = len(new_nodes)
 
-    def get_quvector(self) -> QuVector:
-        """
-        Get the representation of the output state in the form of ``QuVector``
-        while maintaining the circuit uncomputed
-
-        :return: ``QuVector`` representation of the output state from the circuit
-        :rtype: QuVector
-        """
-        _, edges = self._copy()
-        return QuVector(edges)
-
-    quvector = get_quvector
-
     # TODO(@refraction-ray): add noise support in IR
+    # TODO(@refraction-ray): unify mid measure to basecircuit
 
     def mid_measurement(self, index: int, keep: int = 0) -> Tensor:
         """
@@ -228,43 +218,6 @@ class Circuit(BaseCircuit):
     mid_measure = mid_measurement
     post_select = mid_measurement
     post_selection = mid_measurement
-
-    def cond_measurement(self, index: int) -> Tensor:
-        """
-        Measurement on z basis at ``index`` qubit based on quantum amplitude
-        (not post-selection). The highlight is that this method can return the
-        measured result as a int Tensor and thus maintained a jittable pipeline.
-
-        :Example:
-
-        >>> c = tc.Circuit(2)
-        >>> c.H(0)
-        >>> r = c.cond_measurement(0)
-        >>> c.conditional_gate(r, [tc.gates.i(), tc.gates.x()], 1)
-        >>> c.expectation([tc.gates.z(), [0]]), c.expectation([tc.gates.z(), [1]])
-        # two possible outputs: (1, 1) or (-1, -1)
-
-        :param index: the qubit for the z-basis measurement
-        :type index: int
-        :return: 0 or 1 for z measurement on up and down freedom
-        :rtype: Tensor
-        """
-        return self.general_kraus(
-            [np.array([[1.0, 0], [0, 0]]), np.array([[0, 0], [0, 1]])], index  # type: ignore
-        )
-
-    cond_measure = cond_measurement
-
-    def prepend(self, c: "Circuit") -> "Circuit":
-        self.replace_mps_inputs(c.quvector())
-        self._qir = c._qir + self._qir
-        return self
-
-    def append(self, c: "Circuit") -> "Circuit":
-        c.replace_mps_inputs(self.quvector())
-        c._qir = self._qir + c._qir
-        self.__dict__ = c.__dict__
-        return self
 
     def depolarizing2(
         self,
@@ -658,6 +611,10 @@ class Circuit(BaseCircuit):
         return QuOperator(c._front[: self._nqubits], c._front[self._nqubits :])
 
     quoperator = get_quoperator
+    # both are not good names, but for backward compatibility
+
+    get_circuit_as_quoperator = get_quoperator
+    get_state_as_quvector = BaseCircuit.quvector
 
     def matrix(self) -> Tensor:
         """
