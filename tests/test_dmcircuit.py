@@ -256,3 +256,16 @@ def test_measure(backend):
     rs1, rs2 = r(key1), r(key2)
     assert rs1[0] != rs2[0]
     assert np.allclose(rs1[1], 0.4, atol=1e-5) or np.allclose(rs2[1], 0.4, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_dep(backend):
+
+    cs = tc.channels.generaldepolarizingchannel(0.1, 1)
+    tc.channels.kraus_identity_check(cs)
+
+    cs = tc.channels.generaldepolarizingchannel([0.1, 0.1, 0.1], 1)
+    tc.channels.kraus_identity_check(cs)
+
+    cs = tc.channels.generaldepolarizingchannel(0.02, 2)
+    tc.channels.kraus_identity_check(cs)

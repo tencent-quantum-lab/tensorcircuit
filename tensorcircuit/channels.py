@@ -3,7 +3,9 @@ Some common noise quantum channels.
 """
 
 import sys
-from typing import Any, Sequence
+from typing import Any, Sequence, Optional, Union
+from operator import and_
+from functools import reduce
 
 import numpy as np
 
@@ -76,6 +78,128 @@ def depolarizingchannel(px: float, py: float, pz: float) -> Sequence[Gate]:
     y = Gate(_sqrt(py) * gates.y().tensor)  # type: ignore
     z = Gate(_sqrt(pz) * gates.z().tensor)  # type: ignore
     return [i, x, y, z]
+
+
+def generaldepolarizingchannel(
+    p: Union[float, Sequence[Any]], num_qubits: int = 1
+) -> Sequence[Gate]:
+    """Return a Depolarizing Channel
+
+    .. math::
+        \sqrt{1-p_x-p_y-p_z}
+        \begin{bmatrix}
+            1 & 0\\
+            0 & 1\\
+        \end{bmatrix}\qquad
+        \sqrt{p_x}
+        \begin{bmatrix}
+            0 & 1\\
+            1 & 0\\
+        \end{bmatrix}\qquad
+        \sqrt{p_y}
+        \begin{bmatrix}
+            0 & -1j\\
+            1j & 0\\
+        \end{bmatrix}\qquad
+        \sqrt{p_z}
+        \begin{bmatrix}
+            1 & 0\\
+            0 & -1\\
+        \end{bmatrix}
+
+    :Example:
+
+    >>> cs=tc.channels.generaldepolarizingchannel([0.1,0.1,0.1],1)
+    >>> tc.channels.kraus_identity_check(cs)
+    >>> cs = tc.channels.generaldepolarizingchannel(0.02,2)
+    >>> tc.channels.kraus_identity_check(cs)
+
+
+    :param p: parameter for each Pauli channel 
+    :type p: Union[float, Sequence]
+    :param num_qubits: number of qubits, defaults to 1
+    :type num_qubits: int, optional
+    :return: Sequences of Gates
+    :rtype: Sequence[Gate]
+    """
+
+    if num_qubits == 1:
+
+        if isinstance(p, float):
+
+            assert p > 0 and p < 1 / 3, "p should be >0 and <1/3"
+            probs = [1 - 3 * p] + 3 * [p]
+
+        elif isinstance(p, list):
+
+            assert reduce(
+                and_, [pi > 0 and pi < 1 for pi in p]
+            ), "p should be >0 and <1"
+            probs = [1 - sum(p)] + p  # type: ignore
+
+        elif isinstance(p, tuple):
+
+            p = list[p]  # type: ignore
+            assert reduce(
+                and_, [pi > 0 and pi < 1 for pi in p]
+            ), "p should be >0 and <1"
+            probs = [1 - sum(p)] + p  # type: ignore
+
+        else:
+            raise ValueError("p should be float or list")
+
+    elif num_qubits == 2:
+
+        if isinstance(p, float):
+
+            assert p > 0 and p < 1, "p should be >0 and <1/15"
+            probs = [1 - 15 * p] + 15 * [p]
+
+        elif isinstance(p, list):
+
+            assert reduce(
+                and_, [pi > 0 and pi < 1 for pi in p]
+            ), "p should be >0 and <1"
+            probs = [1 - sum(p)] + p  # type: ignore
+
+        elif isinstance(p, tuple):
+
+            p = list[p]  # type: ignore
+            assert reduce(
+                and_, [pi > 0 and pi < 1 for pi in p]
+            ), "p should be >0 and <1"
+            probs = [1 - sum(p)] + p  # type: ignore
+
+        else:
+            raise ValueError("p should be float or list")
+
+    if num_qubits == 1:
+        tup = [gates.i().tensor, gates.x().tensor, gates.y().tensor, gates.z().tensor]  # type: ignore
+    if num_qubits == 2:
+        tup = [
+            gates.ii().tensor,  # type: ignore
+            gates.ix().tensor,  # type: ignore
+            gates.iy().tensor,  # type: ignore
+            gates.iz().tensor,  # type: ignore
+            gates.xi().tensor,  # type: ignore
+            gates.xx().tensor,  # type: ignore
+            gates.xy().tensor,  # type: ignore
+            gates.xz().tensor,  # type: ignore
+            gates.yi().tensor,  # type: ignore
+            gates.yx().tensor,  # type: ignore
+            gates.yy().tensor,  # type: ignore
+            gates.yz().tensor,  # type: ignore
+            gates.zi().tensor,  # type: ignore
+            gates.zx().tensor,  # type: ignore
+            gates.zy().tensor,  # type: ignore
+            gates.zz().tensor,  # type: ignore
+        ]
+
+    Gkarus = []
+    for pro, paugate in zip(probs, tup):
+        Gkarus.append(Gate(_sqrt(pro) * paugate))
+
+    return Gkarus
 
 
 def amplitudedampingchannel(gamma: float, p: float) -> Sequence[Gate]:
@@ -187,13 +311,13 @@ def phasedampingchannel(gamma: float) -> Sequence[Gate]:
     return [m0, m1]
 
 
-def single_qubit_kraus_identity_check(kraus: Sequence[Gate]) -> None:
+def kraus_identity_check(kraus: Sequence[Gate]) -> None:
     r"""Check identity of a single qubit Kraus operators.
 
     :Examples:
 
     >>> cs = resetchannel()
-    >>> tc.channels.single_qubit_kraus_identity_check(cs)
+    >>> tc.channels.kraus_identity_check(cs)
 
     .. math::
         \sum_{k}^{} K_k^{\dagger} K_k = I
@@ -201,11 +325,18 @@ def single_qubit_kraus_identity_check(kraus: Sequence[Gate]) -> None:
     :param kraus: List of Kraus operators.
     :type kraus: Sequence[Gate]
     """
-    placeholder = backend.zeros([2, 2])
+
+    dim = backend.shape_tuple(kraus[0].tensor)
+    shape = (len(dim), len(dim))
+    placeholder = backend.zeros(shape)
     placeholder = backend.cast(placeholder, dtype=cons.dtypestr)
     for k in kraus:
+        k = Gate(backend.reshape(k.tensor, [len(dim), len(dim)]))
         placeholder += backend.conj(backend.transpose(k.tensor, [1, 0])) @ k.tensor
-    np.testing.assert_allclose(placeholder, np.eye(2), atol=1e-5)
+    np.testing.assert_allclose(placeholder, np.eye(shape[0]), atol=1e-5)
+
+
+single_qubit_kraus_identity_check = kraus_identity_check  # backward compatibility
 
 
 def kraus_to_super_gate(kraus_list: Sequence[Gate]) -> Tensor:
