@@ -327,11 +327,11 @@ def kraus_identity_check(kraus: Sequence[Gate]) -> None:
     """
 
     dim = backend.shape_tuple(kraus[0].tensor)
-    shape = (len(dim), len(dim))
+    shape = (2**(len(dim)/2), 2**(len(dim)/2))
     placeholder = backend.zeros(shape)
     placeholder = backend.cast(placeholder, dtype=cons.dtypestr)
     for k in kraus:
-        k = Gate(backend.reshape(k.tensor, [len(dim), len(dim)]))
+        k = Gate(backend.reshape(k.tensor, [2**(len(dim)/2), 2**(len(dim)/2)]))
         placeholder += backend.conj(backend.transpose(k.tensor, [1, 0])) @ k.tensor
     np.testing.assert_allclose(placeholder, np.eye(shape[0]), atol=1e-5)
 
