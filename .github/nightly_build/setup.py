@@ -1,7 +1,6 @@
 import setuptools
 
 from tensorcircuit import __version__, __author__
-from tensorcircuit.utils import is_m1mac
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
