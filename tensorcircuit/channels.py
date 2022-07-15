@@ -83,7 +83,7 @@ def depolarizingchannel(px: float, py: float, pz: float) -> Sequence[Gate]:
 def generaldepolarizingchannel(
     p: Union[float, Sequence[Any]], num_qubits: int = 1
 ) -> Sequence[Gate]:
-    """Return a Depolarizing Channel
+    """Return a Depolarizing Channel for 1 qubit or 2 qubits
 
     .. math::
         \sqrt{1-p_x-p_y-p_z}
@@ -117,7 +117,7 @@ def generaldepolarizingchannel(
 
     :param p: parameter for each Pauli channel 
     :type p: Union[float, Sequence]
-    :param num_qubits: number of qubits, defaults to 1
+    :param num_qubits: number of qubits, defaults to 1, 1 and 2 are avaliable
     :type num_qubits: int, optional
     :return: Sequences of Gates
     :rtype: Sequence[Gate]
