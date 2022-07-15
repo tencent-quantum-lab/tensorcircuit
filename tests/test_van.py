@@ -59,7 +59,7 @@ def test_made():
     basis = tf.constant(l, dtype=tf.int32)
     print(basis)
     ptot = tf.reduce_sum(tf.exp(m.log_prob(tf.one_hot(basis, depth=3))))
-    np.testing.assert_allclose(ptot.numpy(), 1.0)
+    np.testing.assert_allclose(ptot.numpy(), 1.0, atol=1e-5)
 
     s, logp = m.sample(10)
     print(logp)

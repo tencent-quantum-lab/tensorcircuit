@@ -377,7 +377,7 @@ def test_backend_randoms(backend):
     key = 42
     r31, r32 = random_matrixu(key)
     np.testing.assert_allclose(r31.shape, [2, 2])
-    np.testing.assert_allclose(r32 > 0)
+    assert np.any(r32 > 0)
     assert not np.allclose(r31, r32, atol=1e-4)
 
     def random_matrixc(key):
@@ -388,7 +388,7 @@ def test_backend_randoms(backend):
 
     r41, r42 = random_matrixc(key)
     np.testing.assert_allclose(r41.shape, [2, 2])
-    np.testing.assert_allclose((r42 > 0) & (r42 < 4))
+    assert np.any((r42 > 0) & (r42 < 4))
 
 
 def vqe_energy(inputs, param, n, nlayers):
