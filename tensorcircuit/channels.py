@@ -329,13 +329,14 @@ def kraus_identity_check(kraus: Sequence[Gate]) -> None:
     """
 
     dim = backend.shape_tuple(kraus[0].tensor)
-    shape = (len(dim), len(dim))
+    dim2 = int(2 ** (len(dim) / 2))
+    shape = (dim2, dim2)
     placeholder = backend.zeros(shape)
     placeholder = backend.cast(placeholder, dtype=cons.dtypestr)
     for k in kraus:
-        k = Gate(backend.reshape(k.tensor, [len(dim), len(dim)]))
+        k = Gate(backend.reshape(k.tensor, [dim2, dim2]))
         placeholder += backend.conj(backend.transpose(k.tensor, [1, 0])) @ k.tensor
-    np.testing.assert_allclose(placeholder, np.eye(shape[0]), atol=1e-5)
+    np.testing.assert_allclose(placeholder, np.eye(int(shape[0])), atol=1e-5)
 
 
 single_qubit_kraus_identity_check = kraus_identity_check  # backward compatibility
