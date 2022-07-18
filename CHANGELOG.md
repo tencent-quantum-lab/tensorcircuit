@@ -12,6 +12,8 @@
 
 - `DMCircuit` now supports `mps_inputs` and `mpo_dminputs`
 
+- Add decorator `tc.interfaces.args_to_tensor` to auto convert function inputs as tensor format
+
 ### Changed
 
 - Refactor circuit and dmcircuit with common methods now in `basecircuit.py`, and merge dmcircuit.py and dmcircuit2.py, now `DMCircuit` supports MPO gate and qir representation
