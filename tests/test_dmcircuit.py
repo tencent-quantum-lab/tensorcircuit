@@ -12,9 +12,6 @@ sys.path.insert(0, modulepath)
 import tensorcircuit as tc
 from tensorcircuit.channels import (
     depolarizingchannel,
-    amplitudedampingchannel,
-    phasedampingchannel,
-    resetchannel,
     single_qubit_kraus_identity_check,
 )
 
@@ -201,9 +198,6 @@ def test_noise_param_ad(backend):
     np.testing.assert_allclose(g, 4, atol=1e-2)
 
 
-
-
-
 def test_ad_channel(tfb):
     p = tf.Variable(initial_value=0.1, dtype=tf.float32)
     theta = tf.Variable(initial_value=0.1, dtype=tf.complex64)
@@ -247,9 +241,6 @@ def test_measure(backend):
     rs1, rs2 = r(key1), r(key2)
     assert rs1[0] != rs2[0]
     print(rs1[1], rs2[1])
-
-
-
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
