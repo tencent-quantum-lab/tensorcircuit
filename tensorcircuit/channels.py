@@ -10,13 +10,17 @@ from functools import reduce
 import numpy as np
 
 from . import cons
-from .cons import backend
+from . import interfaces
+from .cons import backend,dtypestr
 from . import gates
+
+from functools  import partial
 
 thismodule = sys.modules[__name__]
 
 Gate = gates.Gate
 Tensor = Any
+Matrix = Any 
 
 
 def _sqrt(a: Tensor) -> Tensor:
@@ -33,6 +37,13 @@ def _sqrt(a: Tensor) -> Tensor:
     a = backend.convert_to_tensor(a)
     a = backend.cast(a, cons.rdtypestr)
     return backend.cast(backend.sqrt(a), dtype=cons.dtypestr)
+
+
+def _safe_sqrt(perfect_square: int):
+    square_root = int(np.sqrt(perfect_square)+1e-9)
+    if square_root**2 != perfect_square:
+        raise ValueError("The input must be a square number.")
+    return square_root
 
 
 def depolarizingchannel(px: float, py: float, pz: float) -> Sequence[Gate]:
@@ -85,7 +96,7 @@ def depolarizingchannel(px: float, py: float, pz: float) -> Sequence[Gate]:
 def generaldepolarizingchannel(
     p: Union[float, Sequence[Any]], num_qubits: int = 1
 ) -> Sequence[Gate]:
-    """Return a Depolarizing Channel for 1 qubit or 2 qubits
+    r"""Return a Depolarizing Channel for 1 qubit or 2 qubits
 
     .. math::
         \sqrt{1-p_x-p_y-p_z}
@@ -313,8 +324,34 @@ def phasedampingchannel(gamma: float) -> Sequence[Gate]:
     return [m0, m1]
 
 
+
+def _collect_channels() -> Sequence[str]:
+    r"""Return channels names in this module.
+
+    :Example:
+
+    >>> tc.channels._collect_channels()
+    ['amplitudedamping', 'depolarizing', 'phasedamping', 'reset']
+
+    :return: A list of channel names
+    :rtype: Sequence[str]
+    """
+    cs = []
+    for name in dir(thismodule):
+        if name.endswith("channel"):
+            n = name[:-7]
+            cs.append(n)
+    return cs
+
+
+channels = _collect_channels()
+# channels = ["depolarizing", "amplitudedamping", "reset", "phasedamping"]
+
+
+
+
 def kraus_identity_check(kraus: Sequence[Gate]) -> None:
-    r"""Check identity of a single qubit Kraus operators.
+    r"""Check identity of Kraus operators.
 
     :Examples:
 
@@ -361,24 +398,232 @@ def kraus_to_super_gate(kraus_list: Sequence[Gate]) -> Tensor:
     return u
 
 
-def _collect_channels() -> Sequence[str]:
-    r"""Return channels names in this module.
+def kraus_to_super(kraus_list: Sequence[Matrix]) -> Matrix:
+    """Using superoperator in col-vec form.
 
-    :Example:
-
-    >>> tc.channels._collect_channels()
-    ['amplitudedamping', 'depolarizing', 'phasedamping', 'reset']
-
-    :return: A list of channel names
-    :rtype: Sequence[str]
+    :param kraus_list: _description_
+    :type kraus_list: Sequence[Gate]
+    :return: _description_
+    :rtype: Tensor
     """
-    cs = []
-    for name in dir(thismodule):
-        if name.endswith("channel"):
-            n = name[:-7]
-            cs.append(n)
-    return cs
+    k = kraus_list[0]
+    u = backend.kron(backend.conj(k), k)
+    for k in kraus_list[1:]:
+        u += backend.kron(backend.conj(k), k)
+    return u
 
 
-channels = _collect_channels()
-# channels = ["depolarizing", "amplitudedamping", "reset", "phasedamping"]
+
+def super_to_choi(superop: Matrix) -> Matrix:
+    """Transform SuperOp representation to Choi representation. Using superoperator in col-vec form.
+    """
+    return reshuffle(superop,(3,1,2,0))
+
+
+def reshuffle(op,order):
+    dim = backend.shape_tuple(op)  
+    input_dim = _safe_sqrt(dim[0]) 
+    output_dim = _safe_sqrt(dim[1])
+    shape = (output_dim, output_dim, input_dim, input_dim)
+
+    return backend.reshape(
+        backend.transpose(backend.reshape(op, shape), order),
+        (shape[order[0]] * shape[order[1]], shape[order[2]] * shape[order[3]]),
+    )
+
+
+# TODO(@yutuer21): check jit able and ad
+def choi_to_kraus(choi, atol = 1e-5):
+    """_summary_
+
+    :param choi: _description_
+    :type choi: Matrix
+    :return: _description_
+    :rtype: Sequence[Matrix]
+    """
+    dim = backend.shape_tuple(choi)  
+    input_dim = _safe_sqrt(dim[0])
+    output_dim = _safe_sqrt(dim[1])
+
+
+    if is_hermitian_matrix(choi, atol=atol):
+        # Get eigen-decomposition of Choi-matrix
+        e,v = backend.eigh(choi)
+
+        # CP-map Kraus representation
+        kraus = []
+        for val, vec in zip(backend.real(e), backend.transpose(v)):
+            if val > atol:
+                k = backend.sqrt(backend.cast(val,dtypestr)) * backend.transpose(backend.reshape(vec, [output_dim, input_dim]),[1,0])
+                kraus.append(k)
+
+        if not kraus:
+            kraus.append(backend.zeros((_safe_sqrt(output_dim, input_dim)), dtype=complex))
+        return kraus
+
+    raise ValueError("ll")
+
+
+
+
+def kraus_to_choi(kraus_list: Sequence[Matrix]) -> Matrix:
+    """_summary_
+
+    :param kraus_list: _description_
+    :type kraus_list: Sequence[Matrix]
+    :return: _description_
+    :rtype: Matrix
+    """
+    superop = kraus_to_super(kraus_list)
+    return super_to_choi(superop)
+
+
+
+def choi_to_super(choi: Matrix) -> Matrix:
+    """_summary_
+
+    :param choi: _description_
+    :type choi: Matrix
+    :return: _description_
+    :rtype: Matrix
+    """
+    return super_to_choi(choi)
+
+
+
+
+def super_to_kraus(superop: Matrix) -> Matrix:
+    """
+    
+    :param superop: _description_
+    :type superop: Matrix
+    :return: _description_
+    :rtype: Matrix
+    """
+    choi = super_to_choi(superop)
+    return choi_to_kraus(choi)
+
+
+
+
+def is_hermitian_matrix(mat, rtol=1e-8, atol=1e-5):
+    """Test if an array is a Hermitian matrix"""
+    if atol is None:
+        atol = 1e-5
+    if rtol is None:
+        rtol = 1e-8
+    mat = np.array(mat)
+    if mat.ndim != 2:
+        return False
+    return np.allclose(mat, backend.conj(backend.transpose(mat,[1,0])), rtol=rtol, atol=atol)
+
+
+
+
+def krausgate_to_krausmatrix(kraus_list: Sequence[Gate]) -> Sequence[Matrix]:
+
+    if isinstance (kraus_list[0],Gate):
+        dim = backend.shape_tuple(kraus_list[0].tensor)
+        dim2 = int(2 ** (len(dim) / 2))
+        return  [backend.reshape(k.tensor, [dim2, dim2]) for k in kraus_list]
+    else:
+        return  kraus_list
+
+
+def krausmatrix_to_krausgate(kraus_list:  Sequence[Matrix]) -> Sequence[Gate]:
+
+    if isinstance (kraus_list[0],Gate):
+        return  kraus_list
+
+    newkraus = [backend.reshape2(k) for k in kraus_list]
+
+    return [Gate(k) for k in newkraus]
+
+
+
+def evol_kraus(density_matrix: Matrix,kraus_list: Sequence[Matrix]) -> Matrix:
+
+    final_density_matrix = 0
+    for k in kraus_list:
+        mid = k @ density_matrix @ backend.conj(backend.transpose(k, [1, 0]))
+        final_density_matrix += mid 
+    return final_density_matrix
+
+
+
+
+def evol_superop(density_matrix, superop):
+    dim=backend.shape_tuple(density_matrix)
+
+    density_vec = backend.reshape(density_matrix, [dim[0]**2,1])
+
+    superoprow = reshuffle(superop,(1,0,3,2))
+    final_density_vec= superoprow @ density_vec
+
+    return backend.reshape(final_density_vec, dim)
+
+
+@partial(
+    interfaces.args_to_tensor,
+    argnums=[0, 1],
+    gate_to_tensor=True,
+)
+def check_rep_transformation(kraus: Sequence[Gate], density_matrix: Matrix, verbose: bool=False):
+
+    #density_matrix=backend.cast(backend.convert_to_tensor(density_matrix),dtype=dtypestr)
+
+    # from kraus to choi
+    #kraus=krausgate_to_krausmatrix(kraus)
+    choi =kraus_to_choi(kraus)
+
+    # from choi to kraus2
+    choi = backend.convert_to_tensor(choi)
+    kraus2 = choi_to_kraus(choi)
+
+    # from kraus2 to choi2
+    choi2 = kraus_to_choi(kraus2)
+
+    if verbose:
+        print("kraus:",kraus)
+        print("kraus_new",kraus2)
+
+    
+    print("test identity from kraus/choi to superop")
+    superop=kraus_to_super(kraus)
+    superop2=choi_to_super(choi)
+    np.testing.assert_allclose(superop, superop2, atol=1e-5)
+
+    # cheack kraus2 satisfy identity
+    print("test normaliztion of kraus_new")
+    krausg=krausmatrix_to_krausgate(kraus2)
+    kraus_identity_check(krausg)
+
+
+    # cheack choi2 equals to choi
+    print("test identity of choi and choi_new")
+    np.testing.assert_allclose(choi, choi2, atol=1e-5)
+
+
+    # cheack evolution 
+    print("test evolution identity of kraus and kraus_new")
+    density_matrix1=evol_kraus(density_matrix,kraus)
+    density_matrix2=evol_kraus(density_matrix,kraus2)
+    np.testing.assert_allclose(density_matrix1, density_matrix2, atol=1e-5)
+
+
+    print("test evolution identity of kraus and superop")
+    density_matrix3=evol_superop(density_matrix,superop)
+    np.testing.assert_allclose(density_matrix1, density_matrix3, atol=1e-5)
+
+
+
+
+
+
+
+
+
+
+
+
+

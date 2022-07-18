@@ -201,16 +201,7 @@ def test_noise_param_ad(backend):
     np.testing.assert_allclose(g, 4, atol=1e-2)
 
 
-@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb")])
-def test_channel_identity(backend):
-    cs = depolarizingchannel(0.1, 0.15, 0.2)
-    tc.channels.single_qubit_kraus_identity_check(cs)
-    cs = amplitudedampingchannel(0.25, 0.3)
-    tc.channels.single_qubit_kraus_identity_check(cs)
-    cs = phasedampingchannel(0.6)
-    tc.channels.single_qubit_kraus_identity_check(cs)
-    cs = resetchannel()
-    tc.channels.single_qubit_kraus_identity_check(cs)
+
 
 
 def test_ad_channel(tfb):
@@ -258,17 +249,7 @@ def test_measure(backend):
     print(rs1[1], rs2[1])
 
 
-@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
-def test_dep(backend):
 
-    cs = tc.channels.generaldepolarizingchannel(0.1, 1)
-    tc.channels.kraus_identity_check(cs)
-
-    cs = tc.channels.generaldepolarizingchannel([0.1, 0.1, 0.1], 1)
-    tc.channels.kraus_identity_check(cs)
-
-    cs = tc.channels.generaldepolarizingchannel(0.02, 2)
-    tc.channels.kraus_identity_check(cs)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
