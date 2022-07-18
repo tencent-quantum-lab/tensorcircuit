@@ -254,7 +254,7 @@ def qiskit2tc(
                 base_gate = gate_info[0].base_gate
                 ctrl_state = [1] * base_gate.num_qubits
                 idx = idx[: -base_gate.num_qubits] + idx[-base_gate.num_qubits :][::-1]
-                print(idx)
+                # print(idx)
                 tc_circuit.multicontrol(
                     *idx, ctrl=ctrl_state, unitary=base_gate.to_matrix()
                 )
