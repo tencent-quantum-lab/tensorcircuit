@@ -435,7 +435,7 @@ def super_to_choi(superop: Matrix) -> Matrix:
     matrix :math:`\Lambda` can be expressed as
 
     .. math::
-        \rho'_{mn} = \sum_{n,m}^{} \Lambda_{\mu m,\nu n} \rho_{\mu \nu}
+        \rho'_{mn} = \sum_{\mu,\nu}^{} \Lambda_{\mu m,\nu n} \rho_{\mu \nu}
 
     The Choi matrix :math:`\Lambda` must make the dynamic map from :math:`\rho` to :math:`\rho'` to
     satisfy hermitian-perserving (HP), trace-preserving (TP), and completely positive (CP).
@@ -670,8 +670,11 @@ def krausmatrix_to_krausgate(kraus_list: Sequence[Matrix]) -> Sequence[Gate]:
     gate_to_tensor=True,
 )
 def evol_kraus(density_matrix: Matrix, kraus_list: Sequence[Matrix]) -> Matrix:
-    """
+    r"""
     The dynamic evolution according to Kraus operators.
+
+    .. math::
+        \rho' = \sum_{k} K_k \rho K_k^{\dagger}
 
     :Examples:
 
