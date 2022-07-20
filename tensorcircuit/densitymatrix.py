@@ -175,7 +175,7 @@ class DMCircuit(BaseCircuit):
         return True
 
     def apply_general_kraus(
-        self, kraus: Sequence[Gate], index: Sequence[Tuple[int, ...]]
+        self, kraus: Sequence[Gate], index: Sequence[Tuple[int, ...]], **kws: Any
     ) -> None:
         # note the API difference for index arg between DM and DM2
         self.check_kraus(kraus)
@@ -302,7 +302,7 @@ DMCircuit._meta_apply_channels()
 
 
 class DMCircuit2(DMCircuit):
-    def apply_general_kraus(self, kraus: Sequence[Gate], *index: int) -> None:  # type: ignore
+    def apply_general_kraus(self, kraus: Sequence[Gate], *index: int, **kws: Any) -> None:  # type: ignore
         # incompatible API for now
         kraus = [
             k

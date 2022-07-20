@@ -1092,7 +1092,7 @@ class BaseCircuit:
         :rtype: Tensor
         """
         return self.general_kraus(  # type: ignore
-            [np.array([[1.0, 0], [0, 0]]), np.array([[0, 0], [0, 1]])], index  # type: ignore
+            [np.array([[1.0, 0], [0, 0]]), np.array([[0, 0], [0, 1]])], index, name="measure"  # type: ignore
         )
 
     cond_measure = cond_measurement

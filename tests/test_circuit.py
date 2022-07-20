@@ -1073,3 +1073,12 @@ def test_jittable_amplitude(backend):
     np.testing.assert_allclose(
         amp(tc.array_to_tensor([0, 0, 0], dtype="float32")), 1 / np.sqrt(2), atol=1e-5
     )
+
+
+def test_draw_cond_measure():
+    c = tc.Circuit(2)
+    c.H(0)
+    c.cond_measure(0)
+    c.cnot(0, 1)
+    print("")
+    print(c.draw())

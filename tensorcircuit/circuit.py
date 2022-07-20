@@ -317,6 +317,7 @@ class Circuit(BaseCircuit):
         *index: int,
         prob: Optional[Sequence[float]] = None,
         status: Optional[float] = None,
+        name: Optional[str] = None,
     ) -> Tensor:
         # general impl from Monte Carlo trajectory depolarizing above
         # still jittable
@@ -326,7 +327,12 @@ class Circuit(BaseCircuit):
             return backend.switch(r, [lambda _=k: _ for k in kraus])
 
         return self._unitary_kraus_template(
-            kraus, *index, prob=prob, status=status, get_gate_from_index=index2gate2
+            kraus,
+            *index,
+            prob=prob,
+            status=status,
+            get_gate_from_index=index2gate2,
+            name=name,
         )
 
     def unitary_kraus(
@@ -335,6 +341,7 @@ class Circuit(BaseCircuit):
         *index: int,
         prob: Optional[Sequence[float]] = None,
         status: Optional[float] = None,
+        name: Optional[str] = None,
     ) -> Tensor:
         """
         Apply unitary gates in ``kraus`` randomly based on corresponding ``prob``.
@@ -360,7 +367,12 @@ class Circuit(BaseCircuit):
             return reduce(add, [r[i] * kraus[i] for i in range(l)])
 
         return self._unitary_kraus_template(
-            kraus, *index, prob=prob, status=status, get_gate_from_index=index2gate
+            kraus,
+            *index,
+            prob=prob,
+            status=status,
+            get_gate_from_index=index2gate,
+            name=name,
         )
 
     def _unitary_kraus_template(
@@ -372,6 +384,7 @@ class Circuit(BaseCircuit):
         get_gate_from_index: Optional[
             Callable[[Tensor, Sequence[Tensor]], Tensor]
         ] = None,
+        name: Optional[str] = None,
     ) -> Tensor:  # DRY
         sites = len(index)
         kraus = [k.tensor if isinstance(k, tn.Node) else k for k in kraus]
@@ -406,7 +419,7 @@ class Circuit(BaseCircuit):
             raise ValueError("no `get_gate_from_index` implementation is provided")
         g = get_gate_from_index(r, kraus)
         g = backend.reshape(g, [2 for _ in range(sites * 2)])
-        self.any(*index, unitary=g)  # type: ignore
+        self.any(*index, unitary=g, name=name)  # type: ignore
         return r
 
     def _general_kraus_tf(
@@ -482,6 +495,7 @@ class Circuit(BaseCircuit):
         kraus: Sequence[Gate],
         *index: int,
         status: Optional[float] = None,
+        name: Optional[str] = None,
     ) -> Tensor:
         # the graph building time is frustratingly slow, several minutes
         # though running time is in terms of ms
@@ -528,13 +542,16 @@ class Circuit(BaseCircuit):
             for w, k in zip(prob, kraus_tensor)
         ]
 
-        return self.unitary_kraus2(new_kraus, *index, prob=prob, status=status)
+        return self.unitary_kraus2(
+            new_kraus, *index, prob=prob, status=status, name=name
+        )
 
     def general_kraus(
         self,
         kraus: Sequence[Gate],
         *index: int,
         status: Optional[float] = None,
+        name: Optional[str] = None,
     ) -> Tensor:
         """
         Monte Carlo trajectory simulation of general Kraus channel whose Kraus operators cannot be
@@ -553,7 +570,7 @@ class Circuit(BaseCircuit):
             when the random number will be generated automatically
         :type status: Optional[float], optional
         """
-        return self._general_kraus_2(kraus, *index, status=status)
+        return self._general_kraus_2(kraus, *index, status=status, name=name)
 
     apply_general_kraus = general_kraus
 

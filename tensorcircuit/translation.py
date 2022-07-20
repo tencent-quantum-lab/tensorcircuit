@@ -3,20 +3,26 @@ Circuit object translation in different packages
 """
 
 from typing import Any, Dict, List, Optional
-import warnings
-
+import logging
 import numpy as np
+
+logger = logging.getLogger(__name__)
+
 
 try:
     from qiskit import QuantumCircuit
     import qiskit.quantum_info as qi
+    from qiskit.extensions.exceptions import ExtensionError
 except ImportError:
-    warnings.warn("Please first ``pip install qiskit`` to enable related functionality")
+    logger.warning(
+        "Please first ``pip install qiskit`` to enable related functionality"
+    )
 
 from . import gates
 from .circuit import Circuit
 from .densitymatrix import DMCircuit2
 from .cons import backend
+
 
 Tensor = Any
 
@@ -150,7 +156,16 @@ def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
                     [2 ** len(index), 2 ** len(index)],
                 )
             )
-            qiskit_circ.unitary(qop, index[::-1], label=qis_name)
+            try:
+                qiskit_circ.unitary(qop, index[::-1], label=qis_name)
+            except ExtensionError:
+                logger.warning(
+                    "omit non unitary gate in tensorcircuit when transforming to qiskit"
+                )
+                qiskit_circ.unitary(
+                    np.eye(2 ** len(index)), index[::-1], label=qis_name
+                )
+
     return qiskit_circ
 
 
