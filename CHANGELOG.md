@@ -18,6 +18,10 @@
 
 - Refactor circuit and dmcircuit with common methods now in `basecircuit.py`, and merge dmcircuit.py and dmcircuit2.py, now `DMCircuit` supports MPO gate and qir representation
 
+### Fixed
+
+- Patially solve the issue with visualization on `cond_measure` (#50)
+
 ## 0.2.2
 
 ### Added
