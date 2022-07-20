@@ -90,6 +90,8 @@ And we recommend you install this package with tensorflow also installed as:
 pip install tensorcircuit[tensorflow]
 ```
 
+Other optional dependencies include `[torch]`, `[jax]` and `[qiskit]`.
+
 For nightly build of tensorcircuit with new features, try:
 
 ```python
