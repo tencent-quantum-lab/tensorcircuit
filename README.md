@@ -84,6 +84,19 @@ The package is purely written in Python and can be obtained via pip as:
 pip install tensorcircuit
 ```
 
+And we recommend you install this package with tensorflow also installed as:
+
+```python
+pip install tensorcircuit[tensorflow]
+```
+
+For nightly build of tensorcircuit with new features, try:
+
+```python
+pip uninstall tensorcircuit
+pip install tensorcircuit-nightly
+```
+
 We also have [Docker support](/docker).
 
 ## Advantages

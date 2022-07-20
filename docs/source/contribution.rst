@@ -208,6 +208,8 @@ Make sure the DockerHub account is logged in via ``docker login``.
     sudo docker build . -f docker/Dockerfile -t tensorcircuit
     sudo docker tag tensorcircuit:latest tensorcircuit/tensorcircuit:0.x.y
     sudo docker push tensorcircuit/tensorcircuit:0.x.y
+    sudo docker tag tensorcircuit:latest tensorcircuit/tensorcircuit:latest
+    sudo docker push tensorcircuit/tensorcircuit:latest
 
 **Binder Release**
 
