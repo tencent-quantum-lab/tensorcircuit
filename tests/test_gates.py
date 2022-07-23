@@ -42,6 +42,10 @@ def test_iswap_gate():
     np.testing.assert_allclose(t, np.eye(4).reshape([2, 2, 2, 2]), atol=1e-5)
 
 
+def test_gate_list():
+    assert tc.Circuit.sgates == tc.basecircuit.sgates
+
+
 def test_controlled():
     xgate = tc.gates.x
     cxgate = xgate.controlled()

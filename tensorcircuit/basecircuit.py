@@ -64,6 +64,11 @@ class BaseCircuit:
     inputs: Tensor
     circuit_param: Dict[str, Any]
 
+    sgates = sgates
+    vgates = vgates
+    mpogates = mpogates
+    gate_aliases = gate_aliases
+
     @staticmethod
     def all_zero_nodes(n: int, d: int = 2, prefix: str = "qb-") -> List[tn.Node]:
         l = [0.0 for _ in range(d)]

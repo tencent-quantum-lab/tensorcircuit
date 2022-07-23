@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Changed
+
+- Change pytest xdist option in check_all.sh to `-n auto`
+
+### Fixed
+
+- Add `sgates`, `vgates`, `mpogates` and `gate_aliases` back to `BaseCircuit` for backward compatibility
+
+## 0.3.0
+
 ### Added
 
 - Add `device` and `device_move` methods on backend with universal device string representation
