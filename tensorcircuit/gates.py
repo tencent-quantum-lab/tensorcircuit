@@ -753,7 +753,7 @@ ryy_gate = partial(exp1_gate, unitary=_yy_matrix)
 def multicontrol_gate(unitary: Tensor, ctrl: Union[int, Sequence[int]] = 1) -> Operator:
     r"""
     Multicontrol gate. If the control qubits equal to ``ctrl``, :math:`U` is applied to the target qubits.
- 
+
     E.g., ``multicontrol_gate(tc.gates._zz_matrix, [1, 0, 1])`` returns a gate of 5 qubits, where the last 2 qubits are applied :math:`ZZ` gate, if the first 3 qubits are :math:`\ket{101}`.
 
     :param unitary: input unitary :math:`U`
