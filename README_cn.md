@@ -80,6 +80,21 @@ print(g(theta))
 pip install tensorcircuit
 ```
 
+我们推荐安装时同时安装 TensorFlow，这可以通过以下安装可选项实现：
+
+```python
+pip install tensorcircuit[tensorflow]
+```
+
+其他安装选项包括： `[torch]`, `[jax]` and `[qiskit]`。
+
+此外我们有每日发布的最新版本 pip package，可以尝鲜开发的最新功能，请通过以下方式安装:
+
+```python
+pip uninstall tensorcircuit
+pip install tensorcircuit-nightly
+```
+
 我们也有 [Docker 支持](/docker)。
 
 ## 优势
@@ -130,3 +145,7 @@ pip install tensorcircuit
 
 VQEX 在 MBL 相位识别上的应用见 [教程](/docs/source/tutorials/vqex_mbl.ipynb)。
 参考论文: https://arxiv.org/pdf/2111.13719.pdf 。
+
+```
+
+```

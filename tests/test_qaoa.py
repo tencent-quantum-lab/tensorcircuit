@@ -24,4 +24,4 @@ def test_vag(tfb):
         overlap_threhold=11,
     )
     print(expene, eneg, p)
-    assert np.allclose(ene.numpy(), -7.01, rtol=1e-2)
+    np.testing.assert_allclose(ene.numpy(), -7.01, rtol=1e-2)

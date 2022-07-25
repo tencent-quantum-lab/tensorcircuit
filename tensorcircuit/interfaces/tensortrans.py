@@ -2,10 +2,12 @@
 general function for interfaces transformation
 """
 
-from typing import Any
-from functools import partial
+from typing import Any, Callable, Union, Sequence
+from functools import partial, wraps
 
-from ..cons import backend
+from ..cons import backend, dtypestr
+from ..gates import Gate
+from ..quantum import QuOperator
 from ..backends import get_backend  # type: ignore
 
 Tensor = Any
@@ -43,6 +45,14 @@ def tensor_to_numpy(t: Tensor) -> Array:
     if isinstance(t, int) or isinstance(t, float):
         return t
     return which_backend(t).numpy(t)
+
+
+def tensor_to_backend_jittable(t: Tensor) -> Tensor:
+    if which_backend(t, return_backend=False) == backend.name:
+        return t
+    if isinstance(t, int) or isinstance(t, float):
+        return t
+    return backend.convert_to_tensor(which_backend(t).numpy(t))
 
 
 def numpy_to_tensor(t: Array, backend: Any) -> Tensor:
@@ -127,3 +137,144 @@ def general_args_to_backend(
     t = backend.tree_map(target_backend.from_dlpack, caps)
     t = backend.tree_map(target_backend.cast, t, dtype)
     return t
+
+
+def gate_to_matrix(t: Gate, is_reshapem: bool = True) -> Tensor:
+    if isinstance(t, Gate):
+        t = t.tensor
+        if is_reshapem:
+            t = backend.reshapem(t)
+    return t
+
+
+def qop_to_matrix(t: QuOperator, is_reshapem: bool = True) -> Tensor:
+    if isinstance(t, QuOperator):
+        if is_reshapem:
+            t = t.copy().eval_matrix()
+        else:
+            t = t.copy().eval()
+    return t
+
+
+def args_to_tensor(
+    f: Callable[..., Any],
+    argnums: Union[int, Sequence[int]] = 0,
+    tensor_as_matrix: bool = False,
+    gate_to_tensor: bool = False,
+    gate_as_matrix: bool = True,
+    qop_to_tensor: bool = False,
+    qop_as_matrix: bool = True,
+    cast_dtype: bool = True,
+) -> Callable[..., Any]:
+    """
+    Function decorator that automatically convert inputs to tensors on current backend
+
+    :Example:
+
+    .. code-block:: python
+
+        tc.set_backend("jax")
+
+        @partial(
+        tc.interfaces.args_to_tensor,
+        argnums=[0, 1, 2],
+        gate_to_tensor=True,
+        qop_to_tensor=True,
+        )
+        def f(a, b, c, d):
+            return a, b, c, d
+
+        f(
+        [tc.Gate(np.ones([2, 2])), tc.Gate(np.ones([2, 2, 2, 2]))],
+        tc.QuOperator.from_tensor(np.ones([2, 2, 2, 2, 2, 2])),
+        np.ones([2, 2, 2, 2]),
+        tf.zeros([1, 2]),
+        )
+
+        # ([DeviceArray([[1.+0.j, 1.+0.j],
+        #        [1.+0.j, 1.+0.j]], dtype=complex64),
+        # DeviceArray([[1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j],
+        #             [1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j],
+        #             [1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j],
+        #             [1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j]], dtype=complex64)],
+        # DeviceArray([[1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j,
+        #             1.+0.j],
+        #             [1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j,
+        #             1.+0.j],
+        #             [1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j,
+        #             1.+0.j],
+        #             [1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j,
+        #             1.+0.j],
+        #             [1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j,
+        #             1.+0.j],
+        #             [1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j,
+        #             1.+0.j],
+        #             [1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j,
+        #             1.+0.j],
+        #             [1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j, 1.+0.j,
+        #             1.+0.j]], dtype=complex64),
+        # DeviceArray([[[[1.+0.j, 1.+0.j],
+        #                 [1.+0.j, 1.+0.j]],
+
+        #             [[1.+0.j, 1.+0.j],
+        #                 [1.+0.j, 1.+0.j]]],
+
+
+        #             [[[1.+0.j, 1.+0.j],
+        #                 [1.+0.j, 1.+0.j]],
+
+        #             [[1.+0.j, 1.+0.j],
+        #                 [1.+0.j, 1.+0.j]]]], dtype=complex64),
+        # <tf.Tensor: shape=(1, 2), dtype=float32, numpy=array([[0., 0.]], dtype=float32)>)
+
+
+
+    :param f: the wrapped function whose arguments in ``argnums``
+        position are expected to be tensor format
+    :type f: Callable[..., Any]
+    :param argnums: position of args under the auto conversion, defaults to 0
+    :type argnums: Union[int, Sequence[int]], optional
+    :param tensor_as_matrix: try reshape all input tensor as matrix
+        with shape rank 2, defaults to False
+    :type tensor_as_matrix: bool, optional
+    :param gate_to_tensor: convert ``Gate`` to tensor, defaults to False
+    :type gate_to_tensor: bool, optional
+    :param gate_as_matrix: reshape tensor from ``Gate`` input as matrix, defaults to True
+    :type gate_as_matrix: bool, optional
+    :param qop_to_tensor: convert ``QuOperator`` to tensor, defaults to False
+    :type qop_to_tensor: bool, optional
+    :param qop_as_matrix: reshape tensor from ``QuOperator`` input as matrix, defaults to True
+    :type qop_as_matrix: bool, optional
+    :param cast_dtype: whether cast to backend dtype, defaults to True
+    :type cast_dtype: bool, optional
+    :return: The wrapped function
+    :rtype: Callable[..., Any]
+    """
+    if isinstance(argnums, int):
+        argnumslist = [argnums]
+    else:
+        argnumslist = argnums  # type: ignore
+
+    @wraps(f)
+    def wrapper(*args: Any, **kws: Any) -> Any:
+        nargs = []
+        for i, arg in enumerate(args):
+            if i in argnumslist:
+                if gate_to_tensor:
+                    arg = backend.tree_map(
+                        partial(gate_to_matrix, is_reshapem=gate_as_matrix), arg
+                    )
+                if qop_to_matrix:
+                    arg = backend.tree_map(
+                        partial(qop_to_matrix, is_reshapem=qop_as_matrix), arg
+                    )
+                arg = backend.tree_map(tensor_to_backend_jittable, arg)
+                # arg = backend.tree_map(backend.convert_to_tensor, arg)
+                if cast_dtype:
+                    arg = backend.tree_map(partial(backend.cast, dtype=dtypestr), arg)
+                if tensor_as_matrix:
+                    arg = backend.tree_map(backend.reshapem, arg)
+            nargs.append(arg)
+        return f(*nargs, **kws)
+
+    return wrapper

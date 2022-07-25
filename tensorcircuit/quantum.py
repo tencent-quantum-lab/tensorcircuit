@@ -9,7 +9,7 @@ Quantum state and operator class backend by tensornetwork
 """
 # pylint: disable=invalid-name
 
-from functools import reduce, wraps, partial
+from functools import reduce, partial
 import logging
 from operator import or_, mul, matmul
 from typing import (
@@ -1396,19 +1396,27 @@ except (NameError, ImportError):
 def op2tensor(
     fn: Callable[..., Any], op_argnums: Union[int, Sequence[int]] = 0
 ) -> Callable[..., Any]:
-    if isinstance(op_argnums, int):
-        op_argnums = [op_argnums]
+    from .interfaces.tensortrans import args_to_tensor
 
-    @wraps(fn)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        nargs = list(args)
-        for i in op_argnums:  # type: ignore
-            if isinstance(args[i], QuOperator):
-                nargs[i] = args[i].copy().eval_matrix()
-        out = fn(*nargs, **kwargs)
-        return out
+    return args_to_tensor(fn, op_argnums, qop_to_tensor=True, cast_dtype=False)
 
-    return wrapper
+
+# def op2tensor(
+#     fn: Callable[..., Any], op_argnums: Union[int, Sequence[int]] = 0
+# ) -> Callable[..., Any]:
+#     if isinstance(op_argnums, int):
+#         op_argnums = [op_argnums]
+
+#     @wraps(fn)
+#     def wrapper(*args: Any, **kwargs: Any) -> Any:
+#         nargs = list(args)
+#         for i in op_argnums:  # type: ignore
+#             if isinstance(args[i], QuOperator):
+#                 nargs[i] = args[i].copy().eval_matrix()
+#         out = fn(*nargs, **kwargs)
+#         return out
+
+#     return wrapper
 
 
 @op2tensor

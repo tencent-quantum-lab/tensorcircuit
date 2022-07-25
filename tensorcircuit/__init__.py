@@ -1,4 +1,4 @@
-__version__ = "0.2.2"
+__version__ = "0.3.0"
 __author__ = "TensorCircuit Authors"
 __creator__ = "refraction-ray"
 
@@ -17,10 +17,12 @@ from .cons import (
     runtime_contractor,
 )  # prerun of set hooks
 from . import gates
+from . import basecircuit
+from .gates import Gate
 from .circuit import Circuit, expectation
 from .mpscircuit import MPSCircuit
 from .densitymatrix import DMCircuit as DMCircuit_reference
-from .densitymatrix2 import DMCircuit2
+from .densitymatrix import DMCircuit2
 
 DMCircuit = DMCircuit2  # compatibility issue to still expose DMCircuit2
 from .gates import num_to_tensor, array_to_tensor

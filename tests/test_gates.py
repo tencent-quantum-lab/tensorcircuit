@@ -25,13 +25,13 @@ def test_exp_gate():
         ),
         theta=tc.gates.num_to_tensor(np.pi / 2),
     )
-    assert np.allclose(c.wavefunction()[0], -1j)
+    np.testing.assert_allclose(c.wavefunction()[0], -1j)
 
 
 def test_any_gate():
     c = tc.Circuit(2)
     c.any(0, unitary=np.eye(2))
-    assert np.allclose(c.expectation((tc.gates.z(), [0])), 1.0)
+    np.testing.assert_allclose(c.expectation((tc.gates.z(), [0])), 1.0)
 
 
 def test_iswap_gate():
@@ -40,6 +40,10 @@ def test_iswap_gate():
     np.testing.assert_allclose(t, ans.reshape([2, 2, 2, 2]), atol=1e-5)
     t = tc.gates.iswap_gate(theta=0).tensor
     np.testing.assert_allclose(t, np.eye(4).reshape([2, 2, 2, 2]), atol=1e-5)
+
+
+def test_gate_list():
+    assert tc.Circuit.sgates == tc.basecircuit.sgates
 
 
 def test_controlled():
@@ -63,7 +67,7 @@ def test_variable_controlled():
     crxgate = tc.gates.rx.controlled()
     c = tc.Circuit(2)
     c.x(0)
-    tc.Circuit.crx_my = c.apply_general_variable_gate_delayed(crxgate)
+    tc.Circuit.crx_my = tc.Circuit.apply_general_variable_gate_delayed(crxgate)
     c.crx_my(0, 1, theta=0.3)
     np.testing.assert_allclose(
         c.expectation([tc.gates.z(), [1]]), 0.95533645, atol=1e-5

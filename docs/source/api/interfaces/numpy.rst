@@ -1,6 +1,6 @@
-tensorcircuit.densitymatrix2
+tensorcircuit.interfaces.numpy
 ==================================================
-.. automodule:: tensorcircuit.densitymatrix2
+.. automodule:: tensorcircuit.interfaces.numpy
     :members:
     :undoc-members:
     :show-inheritance:

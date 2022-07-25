@@ -2,6 +2,7 @@
 
 import os
 import sys
+from functools import partial
 import pytest
 from pytest_lazyfixture import lazy_fixture as lf
 from scipy import optimize
@@ -297,3 +298,64 @@ def test_dlpack_transformation(backend):
             enable_dlpack=True,
         )
         np.testing.assert_allclose(ans, np.ones([2]))
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_args_to_tensor(backend):
+    @partial(
+        tc.interfaces.args_to_tensor,
+        argnums=[0, 1, 2],
+        gate_to_tensor=True,
+        qop_to_tensor=True,
+    )
+    def f(a, b, c, d):
+        return a, b, c, d
+
+    r = f(np.ones([2]), tc.backend.ones([1, 2]), {"a": [tf.zeros([3])]}, np.ones([2]))
+    a = r[0]
+    b = r[1]
+    c = r[2]["a"][0]
+    d = r[3]
+    assert tc.interfaces.which_backend(a, return_backend=False) == tc.backend.name
+    assert tc.interfaces.which_backend(b, return_backend=False) == tc.backend.name
+    assert tc.interfaces.which_backend(c, return_backend=False) == tc.backend.name
+    assert tc.interfaces.which_backend(d, return_backend=False) == "numpy"
+    # print(f([np.ones([2]), np.ones([1])], {"a": np.ones([3])}))
+    # print(f([tc.Gate(np.ones([2, 2])), tc.Gate(np.ones([2, 2, 2, 2]))], np.ones([2])))
+
+    a, b, c, d = f(
+        [tc.Gate(np.ones([2, 2])), tc.Gate(np.ones([2, 2, 2, 2]))],
+        tc.QuOperator.from_tensor(np.ones([2, 2, 2, 2, 2, 2])),
+        np.ones([2, 2, 2, 2]),
+        tf.zeros([1, 2]),
+    )
+    assert tc.interfaces.which_backend(a[0], return_backend=False) == tc.backend.name
+    assert tc.backend.shape_tuple(a[1]) == (4, 4)
+    assert tc.interfaces.which_backend(b, return_backend=False) == tc.backend.name
+    assert tc.interfaces.which_backend(d, return_backend=False) == "tensorflow"
+    assert tc.backend.shape_tuple(b) == (8, 8)
+    assert tc.backend.shape_tuple(c) == (2, 2, 2, 2)
+
+    @partial(
+        tc.interfaces.args_to_tensor,
+        argnums=[0, 1, 2],
+        tensor_as_matrix=False,
+        gate_to_tensor=True,
+        gate_as_matrix=False,
+        qop_to_tensor=True,
+        qop_as_matrix=False,
+    )
+    def g(a, b, c):
+        return a, b, c
+
+    a, b, c = g(
+        [tc.Gate(np.ones([2, 2])), tc.Gate(np.ones([2, 2, 2, 2]))],
+        tc.QuOperator.from_tensor(np.ones([2, 2, 2, 2, 2, 2])),
+        np.ones([2, 2, 2, 2]),
+    )
+
+    assert tc.interfaces.which_backend(a[0], return_backend=False) == tc.backend.name
+    assert tc.backend.shape_tuple(a[1]) == (2, 2, 2, 2)
+    assert tc.interfaces.which_backend(b, return_backend=False) == tc.backend.name
+    assert tc.backend.shape_tuple(b) == (2, 2, 2, 2, 2, 2)
+    assert tc.backend.shape_tuple(c) == (2, 2, 2, 2)

@@ -2,9 +2,35 @@
 
 ## Unreleased
 
+### Changed
+
+- Change pytest xdist option in check_all.sh to `-n auto`
+
+### Fixed
+
+- Add `sgates`, `vgates`, `mpogates` and `gate_aliases` back to `BaseCircuit` for backward compatibility
+
+## 0.3.0
+
 ### Added
 
 - Add `device` and `device_move` methods on backend with universal device string representation
+
+- Add `to_qir`, `from_qir`, `to_circuit`, `inverse`, `from_qiskit`, `to_qiskit`, `sample`, `prepend`, `append`, `cond_measurment`, `select_gate` method for `DMCircuit` class
+
+- Add `status` arguments as external randomness for `perfect_sampling` and `measure` methods
+
+- `DMCircuit` now supports `mps_inputs` and `mpo_dminputs`
+
+- Add decorator `tc.interfaces.args_to_tensor` to auto convert function inputs as tensor format
+
+### Changed
+
+- Refactor circuit and dmcircuit with common methods now in `basecircuit.py`, and merge dmcircuit.py and dmcircuit2.py, now `DMCircuit` supports MPO gate and qir representation
+
+### Fixed
+
+- Patially solve the issue with visualization on `cond_measure` (#50)
 
 ## 0.2.2
 

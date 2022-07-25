@@ -70,7 +70,7 @@ def test_grad_torch(torchb):
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_backend_scatter(backend):
-    assert np.allclose(
+    np.testing.assert_allclose(
         tc.backend.scatter(
             tc.array_to_tensor(np.arange(8), dtype="int32"),
             tc.array_to_tensor(np.array([[1], [4]]), dtype="int32"),
@@ -79,7 +79,7 @@ def test_backend_scatter(backend):
         np.array([0, 0, 2, 3, 0, 5, 6, 7]),
         atol=1e-4,
     )
-    assert np.allclose(
+    np.testing.assert_allclose(
         tc.backend.scatter(
             tc.array_to_tensor(np.arange(8).reshape([2, 4]), dtype="int32"),
             tc.array_to_tensor(np.array([[0, 2], [1, 2], [1, 3]]), dtype="int32"),
@@ -90,7 +90,7 @@ def test_backend_scatter(backend):
     )
     answer = np.arange(8).reshape([2, 2, 2])
     answer[0, 1, 0] = 99
-    assert np.allclose(
+    np.testing.assert_allclose(
         tc.backend.scatter(
             tc.array_to_tensor(np.arange(8).reshape([2, 2, 2]), dtype="int32"),
             tc.array_to_tensor(np.array([[0, 1, 0]]), dtype="int32"),
@@ -104,27 +104,27 @@ def test_backend_scatter(backend):
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_backend_methods(backend):
     # TODO(@refraction-ray): add more methods
-    assert np.allclose(
+    np.testing.assert_allclose(
         tc.backend.softmax(tc.array_to_tensor(np.ones([3, 2]), dtype="float32")),
         np.ones([3, 2]) / 6.0,
         atol=1e-4,
     )
 
     arr = np.random.normal(size=(6, 6))
-    assert np.allclose(
+    np.testing.assert_allclose(
         tc.backend.relu(tc.array_to_tensor(arr, dtype="float32")),
         np.maximum(arr, 0),
         atol=1e-4,
     )
 
-    assert np.allclose(
+    np.testing.assert_allclose(
         tc.backend.adjoint(tc.array_to_tensor(arr + 1.0j * arr)),
         arr.T - 1.0j * arr.T,
         atol=1e-4,
     )
 
     arr = tc.backend.zeros([5], dtype="float32")
-    assert np.allclose(
+    np.testing.assert_allclose(
         tc.backend.sigmoid(arr),
         tc.backend.ones([5]) * 0.5,
         atol=1e-4,
@@ -133,27 +133,29 @@ def test_backend_methods(backend):
     ans2 = ans @ ans
     ansp = tc.backend.sqrtmh(tc.array_to_tensor(ans2))
     print(ansp @ ansp, ans @ ans)
-    assert np.allclose(ansp @ ansp, ans @ ans, atol=1e-4)
+    np.testing.assert_allclose(ansp @ ansp, ans @ ans, atol=1e-4)
 
-    assert np.allclose(tc.backend.sum(tc.array_to_tensor(np.arange(4))), 6, atol=1e-4)
+    np.testing.assert_allclose(
+        tc.backend.sum(tc.array_to_tensor(np.arange(4))), 6, atol=1e-4
+    )
 
     indices = np.array([[1, 2], [0, 1]])
     ans = np.array([[[0, 1, 0], [0, 0, 1]], [[1, 0, 0], [0, 1, 0]]])
-    assert np.allclose(tc.backend.one_hot(indices, 3), ans, atol=1e-4)
+    np.testing.assert_allclose(tc.backend.one_hot(indices, 3), ans, atol=1e-4)
 
     a = tc.array_to_tensor(np.array([1, 1, 3, 2, 2, 1]), dtype="int32")
-    assert np.allclose(tc.backend.unique_with_counts(a)[0].shape[0], 3)
+    np.testing.assert_allclose(tc.backend.unique_with_counts(a)[0].shape[0], 3)
 
-    assert np.allclose(
+    np.testing.assert_allclose(
         tc.backend.cumsum(tc.array_to_tensor(np.array([[0.2, 0.2], [0.2, 0.4]]))),
         np.array([0.2, 0.4, 0.6, 1.0]),
         atol=1e-4,
     )
 
-    assert np.allclose(
+    np.testing.assert_allclose(
         tc.backend.max(tc.backend.ones([2, 2], "float32")), 1.0, atol=1e-4
     )
-    assert np.allclose(
+    np.testing.assert_allclose(
         tc.backend.min(
             tc.backend.cast(
                 tc.backend.convert_to_tensor(np.array([[1.0, 2.0], [2.0, 3.0]])),
@@ -165,7 +167,7 @@ def test_backend_methods(backend):
         atol=1e-4,
     )  # by default no keepdim
 
-    assert np.allclose(
+    np.testing.assert_allclose(
         tc.backend.concat([tc.backend.ones([2, 2]), tc.backend.ones([1, 2])]),
         tc.backend.ones([3, 2]),
         atol=1e-5,
@@ -333,7 +335,7 @@ def test_tree_map(backend):
     r = tc.backend.tree_map(
         f, {"a": tc.backend.ones([2])}, {"a": 2 * tc.backend.ones([2])}
     )
-    assert np.allclose(r["a"], 3 * np.ones([2]), atol=1e-4)
+    np.testing.assert_allclose(r["a"], 3 * np.ones([2]), atol=1e-4)
 
     def _add(a, b):
         return a + b
@@ -362,8 +364,8 @@ def test_backend_randoms(backend):
     if tc.backend.name == "tensorflow":
         key = tf.random.Generator.from_seed(42)
     r21, r22 = random_matrixn(key)
-    assert np.allclose(r11, r21, atol=1e-4)
-    assert np.allclose(r12, r22, atol=1e-4)
+    np.testing.assert_allclose(r11, r21, atol=1e-4)
+    np.testing.assert_allclose(r12, r22, atol=1e-4)
     assert not np.allclose(r11, r12, atol=1e-4)
 
     def random_matrixu(key):
@@ -374,7 +376,7 @@ def test_backend_randoms(backend):
 
     key = 42
     r31, r32 = random_matrixu(key)
-    assert np.allclose(r31.shape, [2, 2])
+    np.testing.assert_allclose(r31.shape, [2, 2])
     assert np.any(r32 > 0)
     assert not np.allclose(r31, r32, atol=1e-4)
 
@@ -385,7 +387,7 @@ def test_backend_randoms(backend):
         return r1, r2
 
     r41, r42 = random_matrixc(key)
-    assert np.allclose(r41.shape, [2, 2])
+    np.testing.assert_allclose(r41.shape, [2, 2])
     assert np.any((r42 > 0) & (r42 < 4))
 
 
@@ -434,9 +436,9 @@ def test_vvag(backend):
 
     pvag = tc.backend.vvag(vqe_energy_p, argnums=(0, 1))
     v1, (g10, g11) = pvag(inps, param)
-    assert np.allclose(v1[0], v0, atol=1e-4)
-    assert np.allclose(g10[0], g00, atol=1e-4)
-    assert np.allclose(g11 / batch, g01, atol=1e-4)
+    np.testing.assert_allclose(v1[0], v0, atol=1e-4)
+    np.testing.assert_allclose(g10[0], g00, atol=1e-4)
+    np.testing.assert_allclose(g11 / batch, g01, atol=1e-4)
 
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
@@ -449,8 +451,8 @@ def test_vvag_dict(backend):
     x = {"a": tc.backend.ones([1])}
     y = tc.backend.ones([20, 1])
     v, g = dp_vvag(x, y)
-    assert np.allclose(v.shape, [20])
-    assert np.allclose(g["a"], 20.0, atol=1e-4)
+    np.testing.assert_allclose(v.shape, [20])
+    np.testing.assert_allclose(g["a"], 20.0, atol=1e-4)
 
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])

@@ -7,21 +7,20 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 from functools import reduce
 from operator import add
 
-import graphviz
 import numpy as np
 import tensornetwork as tn
 
 from . import gates
-from .cons import backend, contractor, dtypestr, rdtypestr, npdtype
-from .quantum import QuVector, QuOperator, identity
-from .simplify import _split_two_qubit_gate, _full_light_cone_cancel
-from .vis import qir2tex
+from .cons import backend, contractor, dtypestr, npdtype
+from .quantum import QuOperator, identity
+from .simplify import _full_light_cone_cancel
+from .basecircuit import BaseCircuit
 
 Gate = gates.Gate
 Tensor = Any
 
 
-class Circuit:
+class Circuit(BaseCircuit):
     """
     ``Circuit`` class.
     Simple usage demo below.
@@ -36,38 +35,7 @@ class Circuit:
 
     """
 
-    sgates = (
-        ["i", "x", "y", "z", "h", "t", "s", "td", "sd", "wroot"]
-        + ["cnot", "cz", "swap", "cy", "iswap", "ox", "oy", "oz"]
-        + ["toffoli", "fredkin"]
-    )
-    vgates = [
-        "r",
-        "cr",
-        "rx",
-        "ry",
-        "rz",
-        "rxx",
-        "ryy",
-        "rzz",
-        "crx",
-        "cry",
-        "crz",
-        "orx",
-        "ory",
-        "orz",
-        "any",
-        "exp",
-        "exp1",
-    ]
-    mpogates = ["multicontrol", "mpo"]
-
-    gate_alias_list = [
-        ["cnot", "cx"],
-        ["fredkin", "cswap"],
-        ["toffoli", "ccnot"],
-        ["any", "unitary"],
-    ]
+    is_dm = False
 
     def __init__(
         self,
@@ -84,29 +52,25 @@ class Circuit:
         :param inputs: If not None, the initial state of the circuit is taken as ``inputs``
             instead of :math:`\\vert 0\\rangle^n` qubits, defaults to None.
         :type inputs: Optional[Tensor], optional
-        :param mps_inputs: (Nodes, dangling Edges) for a MPS like initial wavefunction.
-        :type inputs: Optional[Tuple[Sequence[Gate], Sequence[Edge]]], optional
+        :param mps_inputs: QuVector for a MPS like initial wavefunction.
+        :type mps_inputs: Optional[QuOperator]
         :param split: dict if two qubit gate is ready for split, including parameters for at least one of
             ``max_singular_values`` and ``max_truncation_err``.
         :type split: Optional[Dict[str, Any]]
         """
-        _prefix = "qb-"
-        if inputs is not None:
-            self.has_inputs = True
-        else:
-            self.has_inputs = False
+        self.inputs = inputs
+        self.mps_inputs = mps_inputs
         self.split = split
+        self._nqubits = nqubits
+
+        self.circuit_param = {
+            "nqubits": nqubits,
+            "inputs": inputs,
+            "mps_inputs": mps_inputs,
+            "split": split,
+        }
         if (inputs is None) and (mps_inputs is None):
-            nodes = [
-                tn.Node(
-                    np.array(
-                        [1.0, 0.0],
-                        dtype=npdtype,
-                    ),
-                    name=_prefix + str(x + 1),
-                )
-                for x in range(nqubits)
-            ]
+            nodes = self.all_zero_nodes(nqubits)
             self._front = [n.get_edge(0) for n in nodes]
         elif inputs is not None:  # provide input function
             inputs = backend.convert_to_tensor(inputs)
@@ -134,12 +98,8 @@ class Circuit:
             nodes = new_nodes
             self._front = new_front
 
-        self._nqubits = nqubits
-        for node in nodes:
-            node.is_dagger = False
-            node.flag = "inputs"
-            node.id = id(node)
-        self._nodes = nodes
+        self.coloring_nodes(nodes)
+        self._nodes = nodes  # type: ignore
 
         self._start_index = len(nodes)
         # self._start = nodes
@@ -148,21 +108,6 @@ class Circuit:
         # self._qcode = ""  # deprecated
         # self._qcode += str(self._nqubits) + "\n"
         self._qir: List[Dict[str, Any]] = []
-
-    def replace_inputs(self, inputs: Tensor) -> None:
-        """
-        Replace the input state with the circuit structure unchanged.
-
-        :param inputs: Input wavefunction.
-        :type inputs: Tensor
-        """
-        assert self.has_inputs is True
-        inputs = backend.reshape(inputs, [-1])
-        N = inputs.shape[0]
-        n = int(np.log(N) / np.log(2))
-        assert n == self._nqubits
-        inputs = backend.reshape(inputs, [2 for _ in range(n)])
-        self._nodes[0].tensor = inputs
 
     def replace_mps_inputs(self, mps_inputs: QuOperator) -> None:
         """
@@ -215,520 +160,12 @@ class Circuit:
                         new_front[j] ^ other[0][other[1]]
         j += 1
         self._front += new_front[j:]
-        for n in new_nodes:
-            n.is_dagger = False
-            n.flag = "inputs"
-            n.id = id(n)
+        self.coloring_nodes(new_nodes)
         self._nodes = new_nodes + self._nodes[self._start_index :]
         self._start_index = len(new_nodes)
 
-    @classmethod
-    def _meta_apply(cls) -> None:
-
-        for g in cls.sgates:
-            setattr(
-                cls, g, cls.apply_general_gate_delayed(gatef=getattr(gates, g), name=g)
-            )
-            setattr(
-                cls,
-                g.upper(),
-                cls.apply_general_gate_delayed(gatef=getattr(gates, g), name=g),
-            )
-            matrix = gates.matrix_for_gate(getattr(gates, g)())
-            matrix = gates.bmatrix(matrix)
-            doc = """
-            Apply **%s** gate on the circuit.
-            See :py:meth:`tensorcircuit.gates.%s_gate`.
-
-
-            :param index: Qubit number that the gate applies on.
-                The matrix for the gate is
-
-                .. math::
-
-                      %s
-
-            :type index: int.
-            """ % (
-                g.upper(),
-                g,
-                matrix,
-            )
-            docs = """
-            Apply **%s** gate on the circuit.
-
-            :param index: Qubit number that the gate applies on.
-            :type index: int.
-            """ % (
-                g.upper()
-            )
-            if g in ["rs"]:
-                getattr(cls, g).__doc__ = docs
-                getattr(cls, g.upper()).__doc__ = docs
-
-            else:
-                getattr(cls, g).__doc__ = doc
-                getattr(cls, g.upper()).__doc__ = doc
-
-        for g in cls.vgates:
-            setattr(
-                cls,
-                g,
-                cls.apply_general_variable_gate_delayed(
-                    gatef=getattr(gates, g), name=g
-                ),
-            )
-            setattr(
-                cls,
-                g.upper(),
-                cls.apply_general_variable_gate_delayed(
-                    gatef=getattr(gates, g), name=g
-                ),
-            )
-            doc = """
-            Apply **%s** gate with parameters on the circuit.
-            See :py:meth:`tensorcircuit.gates.%s_gate`.
-
-
-            :param index: Qubit number that the gate applies on.
-            :type index: int.
-            :param vars: Parameters for the gate.
-            :type vars: float.
-            """ % (
-                g.upper(),
-                g,
-            )
-            getattr(cls, g).__doc__ = doc
-            getattr(cls, g.upper()).__doc__ = doc
-
-        for g in cls.mpogates:
-            setattr(
-                cls,
-                g,
-                cls.apply_general_variable_gate_delayed(
-                    gatef=getattr(gates, g), name=g, mpo=True
-                ),
-            )
-            setattr(
-                cls,
-                g.upper(),
-                cls.apply_general_variable_gate_delayed(
-                    gatef=getattr(gates, g), name=g, mpo=True
-                ),
-            )
-            doc = """
-            Apply %s gate in MPO format on the circuit.
-            See :py:meth:`tensorcircuit.gates.%s_gate`.
-
-            :param index: Qubit number that the gate applies on.
-            :type index: int.
-            :param vars: Parameters for the gate.
-            :type vars: float.
-            """ % (
-                g,
-                g
-            )
-            getattr(cls, g).__doc__ = doc
-            getattr(cls, g.upper()).__doc__ = doc
-
-        for gate_alias in cls.gate_alias_list:
-            present_gate = gate_alias[0]
-            for alias_gate in gate_alias[1:]:
-                setattr(cls, alias_gate, getattr(cls, present_gate))
-
-    def apply_single_gate(self, gate: Gate, index: int) -> None:
-        """
-        Apply the gate to the bit with the given index.
-
-        :Example:
-
-        >>> gate = tc.gates.Gate(np.arange(4).reshape(2, 2).astype(np.complex64))
-        >>> qc = tc.Circuit(2)
-        >>> qc.apply_single_gate(gate, 0)
-        >>> qc.wavefunction()
-        array([0.+0.j, 0.+0.j, 2.+0.j, 0.+0.j], dtype=complex64)
-
-        :param gate: The Gate applied on the bit.
-        :type gate: Gate
-        :param index: The index of the bit to apply the Gate.
-        :type index: int
-        """
-
-        gate.get_edge(1) ^ self._front[index]  # pay attention on the rank index here
-        self._front[index] = gate.get_edge(0)
-        gate.flag = "gate"
-        gate.is_dagger = False
-        gate.id = id(gate)
-        self._nodes.append(gate)
-
-    def apply_double_gate(self, gate: Gate, index1: int, index2: int) -> None:
-        """
-        Apply the gate to two bits with given indexes.
-
-        :Example:
-
-        >>> gate = tc.gates.cr_gate()
-        >>> qc = tc.Circuit(2)
-        >>> qc.apply_double_gate(gate, 0, 1)
-        >>> qc.wavefunction()
-        array([1.+0.j, 0.+0.j, 0.+0.j, 0.+0.j], dtype=complex64)
-
-        :param gate: The Gate applied on bits.
-        :type gate: Gate
-        :param index1: The index of the bit to apply the Gate.
-        :type index1: int
-        :param index2: The index of the bit to apply the Gate.
-        :type index2: int
-        """
-        assert index1 != index2
-        gate.get_edge(2) ^ self._front[index1]
-        gate.get_edge(3) ^ self._front[index2]
-        self._front[index1] = gate.get_edge(0)
-        self._front[index2] = gate.get_edge(1)
-        gate.flag = "gate"
-        gate.is_dagger = False
-        gate.id = id(gate)
-        self._nodes.append(gate)
-
-        # actually apply single and double gate never directly used in the Circuit class
-        # and don't use, directly use general gate function as it is more diverse in feature
-
-    def apply_general_gate(
-        self,
-        gate: Gate,
-        *index: int,
-        name: Optional[str] = None,
-        split: Optional[Dict[str, Any]] = None,
-        mpo: bool = False,
-        ir_dict: Optional[Dict[str, Any]] = None,
-    ) -> None:
-        if name is None:
-            name = ""
-        gate_dict = {
-            "gate": gate,
-            "index": index,
-            "name": name,
-            "split": split,
-            "mpo": mpo,
-        }
-        if ir_dict is not None:
-            ir_dict.update(gate_dict)
-        else:
-            ir_dict = gate_dict
-        self._qir.append(ir_dict)
-        assert len(index) == len(set(index))
-        noe = len(index)
-        applied = False
-        split_conf = None
-        if split is not None:
-            split_conf = split
-        elif self.split is not None:
-            split_conf = self.split
-
-        if not mpo:
-            if (split_conf is not None) and noe == 2:
-                results = _split_two_qubit_gate(gate, **split_conf)
-                # max_err cannot be jax jitted
-                if results is not None:
-                    n1, n2, is_swap = results
-                    n1.flag = "gate"
-                    n1.is_dagger = False
-                    n1.name = name
-                    n1.id = id(n1)
-                    n2.flag = "gate"
-                    n2.is_dagger = False
-                    n2.id = id(n2)
-                    n2.name = name
-                    if is_swap is False:
-                        n1[1] ^ self._front[index[0]]
-                        n2[2] ^ self._front[index[1]]
-                        self._nodes.append(n1)
-                        self._nodes.append(n2)
-                        self._front[index[0]] = n1[0]
-                        self._front[index[1]] = n2[1]
-                    else:
-                        n2[2] ^ self._front[index[0]]
-                        n1[1] ^ self._front[index[1]]
-                        self._nodes.append(n1)
-                        self._nodes.append(n2)
-                        self._front[index[0]] = n1[0]
-                        self._front[index[1]] = n2[1]
-                    applied = True
-
-            if applied is False:
-                for i, ind in enumerate(index):
-                    gate.get_edge(i + noe) ^ self._front[ind]
-                    self._front[ind] = gate.get_edge(i)
-                gate.name = name
-                gate.flag = "gate"
-                gate.is_dagger = False
-                gate.id = id(gate)
-                self._nodes.append(gate)
-
-        else:  # gate in MPO format
-            gatec = gate.copy()
-            self._nodes += gatec.nodes
-            for i, ind in enumerate(index):
-                gatec.in_edges[i] ^ self._front[ind]
-                self._front[ind] = gatec.out_edges[i]
-            for n in gatec.nodes:
-                n.flag = "gate"
-                n.is_dagger = False
-                n.id = id(gate)
-                n.name = name
-
-        self.state_tensor = None  # refresh the state cache
-        # if name:
-        #     # if no name is specified, then the corresponding op wont be recorded in qcode
-        #     self._qcode += name + " "
-        #     for i in index:
-        #         self._qcode += str(i) + " "
-        #     self._qcode = self._qcode[:-1] + "\n"
-
-    apply = apply_general_gate
-
-    @staticmethod
-    def apply_general_gate_delayed(
-        gatef: Callable[[], Gate],
-        name: Optional[str] = None,
-        mpo: bool = False,
-    ) -> Callable[..., None]:
-        # it is more like a register instead of apply
-        # nested function must be utilized, functools.partial doesn't work for method register on class
-        # see https://re-ra.xyz/Python-中实例方法动态绑定的几组最小对立/
-        if name is None:
-            name = getattr(gatef, "n")
-        defaultname = name
-
-        def apply(
-            self: "Circuit",
-            *index: int,
-            split: Optional[Dict[str, Any]] = None,
-            name: Optional[str] = None,
-        ) -> None:
-            if name is not None:
-                localname = name
-            else:
-                localname = defaultname  # type: ignore
-
-            # split = None
-            gate = gatef()
-            gate_dict = {"gatef": gatef}
-
-            self.apply_general_gate(
-                gate, *index, name=localname, split=split, mpo=mpo, ir_dict=gate_dict
-            )
-
-        return apply
-
-    @staticmethod
-    def apply_general_variable_gate_delayed(
-        gatef: Callable[..., Gate],
-        name: Optional[str] = None,
-        mpo: bool = False,
-    ) -> Callable[..., None]:
-        if name is None:
-            name = getattr(gatef, "n")
-
-        def apply(self: "Circuit", *index: int, **vars: Any) -> None:
-            split = None
-            localname = name
-            if "name" in vars:
-                localname = vars["name"]
-                del vars["name"]
-            if "split" in vars:
-                split = vars["split"]
-                del vars["split"]
-            gate_dict = {
-                "gatef": gatef,
-                "index": index,
-                "name": localname,
-                "split": split,
-                "mpo": mpo,
-                "parameters": vars,
-            }
-            # self._qir.append(gate_dict)
-            gate = gatef(**vars)
-            self.apply_general_gate(
-                gate, *index, name=localname, split=split, mpo=mpo, ir_dict=gate_dict
-            )  # type: ignore
-            # self._qcode = self._qcode[:-1] + " "  # rip off the final "\n"
-            # for k, v in vars.items():
-            #     self._qcode += k + " " + str(v) + " "
-            # self._qcode = self._qcode[:-1] + "\n"
-
-        return apply
-
-    def get_quvector(self) -> QuVector:
-        """
-        Get the representation of the output state in the form of ``QuVector``
-        while maintaining the circuit uncomputed
-
-        :return: ``QuVector`` representation of the output state from the circuit
-        :rtype: QuVector
-        """
-        _, edges = self._copy()
-        return QuVector(edges)
-
-    quvector = get_quvector
-
-    def to_qir(self) -> List[Dict[str, Any]]:
-        """
-        Return the quantum intermediate representation of the circuit.
-
-        :Example:
-
-        .. code-block:: python
-
-            >>> c = tc.Circuit(2)
-            >>> c.CNOT(0, 1)
-            >>> c.to_qir()
-            [{'gatef': cnot, 'gate': Gate(
-                name: 'cnot',
-                tensor:
-                    array([[[[1.+0.j, 0.+0.j],
-                            [0.+0.j, 0.+0.j]],
-
-                            [[0.+0.j, 1.+0.j],
-                            [0.+0.j, 0.+0.j]]],
-
-
-                        [[[0.+0.j, 0.+0.j],
-                            [0.+0.j, 1.+0.j]],
-
-                            [[0.+0.j, 0.+0.j],
-                            [1.+0.j, 0.+0.j]]]], dtype=complex64),
-                edges: [
-                    Edge(Dangling Edge)[0],
-                    Edge(Dangling Edge)[1],
-                    Edge('cnot'[2] -> 'qb-1'[0] ),
-                    Edge('cnot'[3] -> 'qb-2'[0] )
-                ]), 'index': (0, 1), 'name': 'cnot', 'split': None, 'mpo': False}]
-
-        :return: The quantum intermediate representation of the circuit.
-        :rtype: List[Dict[str, Any]]
-        """
-        return self._qir
-
     # TODO(@refraction-ray): add noise support in IR
-    # TODO(@refraction-ray): IR for density matrix simulator?
-
-    @staticmethod
-    def _apply_qir(c: "Circuit", qir: List[Dict[str, Any]]) -> "Circuit":
-        for d in qir:
-            if "parameters" not in d:
-                c.apply_general_gate_delayed(d["gatef"], d["name"], mpo=d["mpo"])(  # type: ignore
-                    c, *d["index"], split=d["split"]  # type: ignore
-                )
-            else:
-                c.apply_general_variable_gate_delayed(d["gatef"], d["name"], mpo=d["mpo"])(  # type: ignore
-                    c, *d["index"], **d["parameters"], split=d["split"]  # type: ignore
-                )
-        return c
-
-    @classmethod
-    def from_qir(
-        cls, qir: List[Dict[str, Any]], circuit_params: Optional[Dict[str, Any]] = None
-    ) -> "Circuit":
-        """
-        Restore the circuit from the quantum intermediate representation.
-
-        :Example:
-
-        >>> c = tc.Circuit(3)
-        >>> c.H(0)
-        >>> c.rx(1, theta=tc.array_to_tensor(0.7))
-        >>> c.exp1(0, 1, unitary=tc.gates._zz_matrix, theta=tc.array_to_tensor(-0.2), split=split)
-        >>> len(c)
-        7
-        >>> c.expectation((tc.gates.z(), [1]))
-        array(0.764842+0.j, dtype=complex64)
-        >>> qirs = c.to_qir()
-        >>>
-        >>> c = tc.Circuit.from_qir(qirs, circuit_params={"nqubits": 3})
-        >>> len(c._nodes)
-        7
-        >>> c.expectation((tc.gates.z(), [1]))
-        array(0.764842+0.j, dtype=complex64)
-
-        :param qir: The quantum intermediate representation of a circuit.
-        :type qir: List[Dict[str, Any]]
-        :param circuit_params: Extra circuit parameters.
-        :type circuit_params: Optional[Dict[str, Any]]
-        :return: The circuit have same gates in the qir.
-        :rtype: Circuit
-        """
-        if circuit_params is None:
-            circuit_params = {}
-        if "nqubits" not in circuit_params:
-            nqubits = 0
-            for d in qir:
-                if max(d["index"]) > nqubits:  # type: ignore
-                    nqubits = max(d["index"])  # type: ignore
-            nqubits += 1
-            circuit_params["nqubits"] = nqubits
-
-        c = cls(**circuit_params)
-        c = cls._apply_qir(c, qir)
-        return c
-
-    def inverse(self, circuit_params: Optional[Dict[str, Any]] = None) -> "Circuit":
-        """
-        inverse the circuit, return a new inversed circuit
-
-        :EXAMPLE:
-
-        >>> c = tc.Circuit(2)
-        >>> c.H(0)
-        >>> c.rzz(1, 2, theta=0.8)
-        >>> c1 = c.inverse()
-
-        :param circuit_params: keywords dict for initialization the new circuit, defaults to None
-        :type circuit_params: Optional[Dict[str, Any]], optional
-        :return: the inversed circuit
-        :rtype: Circuit
-        """
-        if circuit_params is None:
-            circuit_params = {}
-        if "nqubits" not in circuit_params:
-            circuit_params["nqubits"] = self._nqubits
-
-        c = type(self)(**circuit_params)
-        for d in reversed(self._qir):
-            if "parameters" not in d:
-                c.apply_general_gate_delayed(d["gatef"].adjoint(), d["name"], mpo=d["mpo"])(  # type: ignore
-                    c, *d["index"], split=d["split"]  # type: ignore
-                )
-            else:
-                c.apply_general_variable_gate_delayed(d["gatef"].adjoint(), d["name"], mpo=d["mpo"])(  # type: ignore
-                    c, *d["index"], **d["parameters"], split=d["split"]  # type: ignore
-                )
-
-        return c
-
-    def append_from_qir(self, qir: List[Dict[str, Any]]) -> None:
-        """
-        Apply the ciurict in form of quantum intermediate representation after the current cirucit.
-
-        :Example:
-
-        >>> c = tc.Circuit(3)
-        >>> c.H(0)
-        >>> c.to_qir()
-        [{'gatef': h, 'gate': Gate(...), 'index': (0,), 'name': 'h', 'split': None, 'mpo': False}]
-        >>> c2 = tc.Circuit(3)
-        >>> c2.CNOT(0, 1)
-        >>> c2.to_qir()
-        [{'gatef': cnot, 'gate': Gate(...), 'index': (0, 1), 'name': 'cnot', 'split': None, 'mpo': False}]
-        >>> c.append_from_qir(c2.to_qir())
-        >>> c.to_qir()
-        [{'gatef': h, 'gate': Gate(...), 'index': (0,), 'name': 'h', 'split': None, 'mpo': False},
-         {'gatef': cnot, 'gate': Gate(...), 'index': (0, 1), 'name': 'cnot', 'split': None, 'mpo': False}]
-
-        :param qir: The quantum intermediate representation.
-        :type qir: List[Dict[str, Any]]
-        """
-        self._apply_qir(self, qir)
+    # TODO(@refraction-ray): unify mid measure to basecircuit
 
     def mid_measurement(self, index: int, keep: int = 0) -> Tensor:
         """
@@ -762,12 +199,13 @@ class Circuit:
 
         mg1 = tn.Node(gate)
         mg2 = tn.Node(gate)
-        mg1.flag = "post-select"
-        mg1.is_dagger = False
-        mg1.id = id(mg1)
-        mg2.flag = "post-select"
-        mg2.is_dagger = False
-        mg2.id = id(mg2)
+        # mg1.flag = "post-select"
+        # mg1.is_dagger = False
+        # mg1.id = id(mg1)
+        # mg2.flag = "post-select"
+        # mg2.is_dagger = False
+        # mg2.id = id(mg2)
+        self.coloring_nodes([mg1, mg2], flag="post-select")
         mg1.get_edge(0) ^ self._front[index]
         mg1.get_edge(1) ^ mg2.get_edge(1)
         self._front[index] = mg2.get_edge(0)
@@ -780,43 +218,6 @@ class Circuit:
     mid_measure = mid_measurement
     post_select = mid_measurement
     post_selection = mid_measurement
-
-    def cond_measurement(self, index: int) -> Tensor:
-        """
-        Measurement on z basis at ``index`` qubit based on quantum amplitude
-        (not post-selection). The highlight is that this method can return the
-        measured result as a int Tensor and thus maintained a jittable pipeline.
-
-        :Example:
-
-        >>> c = tc.Circuit(2)
-        >>> c.H(0)
-        >>> r = c.cond_measurement(0)
-        >>> c.conditional_gate(r, [tc.gates.i(), tc.gates.x()], 1)
-        >>> c.expectation([tc.gates.z(), [0]]), c.expectation([tc.gates.z(), [1]])
-        # two possible outputs: (1, 1) or (-1, -1)
-
-        :param index: the qubit for the z-basis measurement
-        :type index: int
-        :return: 0 or 1 for z measurement on up and down freedom
-        :rtype: Tensor
-        """
-        return self.general_kraus(
-            [np.array([[1.0, 0], [0, 0]]), np.array([[0, 0], [0, 1]])], index  # type: ignore
-        )
-
-    cond_measure = cond_measurement
-
-    def prepend(self, c: "Circuit") -> "Circuit":
-        self.replace_mps_inputs(c.quvector())
-        self._qir = c._qir + self._qir
-        return self
-
-    def append(self, c: "Circuit") -> "Circuit":
-        c.replace_mps_inputs(self.quvector())
-        c._qir = self._qir + c._qir
-        self.__dict__ = c.__dict__
-        return self
 
     def depolarizing2(
         self,
@@ -910,33 +311,13 @@ class Circuit:
         self.any(index, unitary=g)  # type: ignore
         return r
 
-    def select_gate(self, which: Tensor, kraus: Sequence[Gate], *index: int) -> None:
-        """
-        Apply ``which``-th gate from ``kraus`` list, i.e. apply kraus[which]
-
-        :param which: Tensor of shape [] and dtype int
-        :type which: Tensor
-        :param kraus: A list of gate in the form of ``tc.gate`` or Tensor
-        :type kraus: Sequence[Gate]
-        :param index: the qubit lines the gate applied on
-        :type index: int
-        """
-        kraus = [k.tensor if isinstance(k, tn.Node) else k for k in kraus]
-        kraus = [gates.array_to_tensor(k) for k in kraus]
-        l = len(kraus)
-        r = backend.onehot(which, l)
-        r = backend.cast(r, dtype=dtypestr)
-        tensor = reduce(add, [r[i] * kraus[i] for i in range(l)])
-        self.any(*index, unitary=tensor)  # type: ignore
-
-    conditional_gate = select_gate
-
     def unitary_kraus2(
         self,
         kraus: Sequence[Gate],
         *index: int,
         prob: Optional[Sequence[float]] = None,
         status: Optional[float] = None,
+        name: Optional[str] = None,
     ) -> Tensor:
         # general impl from Monte Carlo trajectory depolarizing above
         # still jittable
@@ -946,7 +327,12 @@ class Circuit:
             return backend.switch(r, [lambda _=k: _ for k in kraus])
 
         return self._unitary_kraus_template(
-            kraus, *index, prob=prob, status=status, get_gate_from_index=index2gate2
+            kraus,
+            *index,
+            prob=prob,
+            status=status,
+            get_gate_from_index=index2gate2,
+            name=name,
         )
 
     def unitary_kraus(
@@ -955,6 +341,7 @@ class Circuit:
         *index: int,
         prob: Optional[Sequence[float]] = None,
         status: Optional[float] = None,
+        name: Optional[str] = None,
     ) -> Tensor:
         """
         Apply unitary gates in ``kraus`` randomly based on corresponding ``prob``.
@@ -980,7 +367,12 @@ class Circuit:
             return reduce(add, [r[i] * kraus[i] for i in range(l)])
 
         return self._unitary_kraus_template(
-            kraus, *index, prob=prob, status=status, get_gate_from_index=index2gate
+            kraus,
+            *index,
+            prob=prob,
+            status=status,
+            get_gate_from_index=index2gate,
+            name=name,
         )
 
     def _unitary_kraus_template(
@@ -992,6 +384,7 @@ class Circuit:
         get_gate_from_index: Optional[
             Callable[[Tensor, Sequence[Tensor]], Tensor]
         ] = None,
+        name: Optional[str] = None,
     ) -> Tensor:  # DRY
         sites = len(index)
         kraus = [k.tensor if isinstance(k, tn.Node) else k for k in kraus]
@@ -1026,7 +419,7 @@ class Circuit:
             raise ValueError("no `get_gate_from_index` implementation is provided")
         g = get_gate_from_index(r, kraus)
         g = backend.reshape(g, [2 for _ in range(sites * 2)])
-        self.any(*index, unitary=g)  # type: ignore
+        self.any(*index, unitary=g, name=name)  # type: ignore
         return r
 
     def _general_kraus_tf(
@@ -1102,6 +495,7 @@ class Circuit:
         kraus: Sequence[Gate],
         *index: int,
         status: Optional[float] = None,
+        name: Optional[str] = None,
     ) -> Tensor:
         # the graph building time is frustratingly slow, several minutes
         # though running time is in terms of ms
@@ -1148,13 +542,16 @@ class Circuit:
             for w, k in zip(prob, kraus_tensor)
         ]
 
-        return self.unitary_kraus2(new_kraus, *index, prob=prob, status=status)
+        return self.unitary_kraus2(
+            new_kraus, *index, prob=prob, status=status, name=name
+        )
 
     def general_kraus(
         self,
         kraus: Sequence[Gate],
         *index: int,
         status: Optional[float] = None,
+        name: Optional[str] = None,
     ) -> Tensor:
         """
         Monte Carlo trajectory simulation of general Kraus channel whose Kraus operators cannot be
@@ -1173,7 +570,7 @@ class Circuit:
             when the random number will be generated automatically
         :type status: Optional[float], optional
         """
-        return self._general_kraus_2(kraus, *index, status=status)
+        return self._general_kraus_2(kraus, *index, status=status, name=name)
 
     apply_general_kraus = general_kraus
 
@@ -1192,28 +589,6 @@ class Circuit:
             return True
         except AssertionError:
             return False
-
-    def _copy(self, conj: bool = False) -> Tuple[List[tn.Node], List[tn.Edge]]:
-        """
-        Copy all nodes and dangling edges correspondingly.
-
-        :param conj: Bool indicating whether the tensors for nodes should be conjugated.
-        :type conj: bool
-        :return: New copy of nodes and dangling edges for the circuit.
-        :rtype: Tuple[List[tn.Node], List[tn.Edge]]
-        """
-        ndict, edict = tn.copy(self._nodes, conjugate=conj)
-        newnodes = []
-        for n in self._nodes:
-            newn = ndict[n]
-            newn.is_dagger = conj
-            newn.flag = getattr(n, "flag", "") + "copy"
-            newn.id = getattr(n, "id", id(n))
-            newnodes.append(ndict[n])
-        newfront = []
-        for e in self._front:
-            newfront.append(edict[e])
-        return newnodes, newfront
 
     def wavefunction(self, form: str = "default") -> tn.Node.tensor:
         """
@@ -1235,25 +610,6 @@ class Circuit:
             shape = [1, -1]
         return backend.reshape(t.tensor, shape=shape)
 
-    def _copy_state_tensor(
-        self, conj: bool = False, reuse: bool = True
-    ) -> Tuple[List[tn.Node], List[tn.Edge]]:
-        if reuse:
-            t = getattr(self, "state_tensor", None)
-            if t is None:
-                nodes, d_edges = self._copy()
-                t = contractor(nodes, output_edge_order=d_edges)
-                setattr(self, "state_tensor", t)
-            ndict, edict = tn.copy([t], conjugate=conj)
-            newnodes = []
-            newnodes.append(ndict[t])
-            newfront = []
-            for e in t.edges:
-                newfront.append(edict[e])
-        else:
-            return self._copy(conj)
-        return newnodes, newfront
-
     state = wavefunction
 
     def get_quoperator(self) -> QuOperator:
@@ -1272,6 +628,10 @@ class Circuit:
         return QuOperator(c._front[: self._nqubits], c._front[self._nqubits :])
 
     quoperator = get_quoperator
+    # both are not good names, but for backward compatibility
+
+    get_circuit_as_quoperator = get_quoperator
+    get_state_as_quvector = BaseCircuit.quvector
 
     def matrix(self) -> Tensor:
         """
@@ -1287,46 +647,6 @@ class Circuit:
         c._front = es
         c.replace_mps_inputs(mps)
         return backend.reshapem(c.state())
-
-    def amplitude(self, l: str) -> tn.Node.tensor:
-        """
-        Returns the amplitude of the circuit given the bitstring l.
-
-        :Example:
-
-        >>> c = tc.Circuit(2)
-        >>> c.X(0)
-        >>> c.amplitude("10")
-        array(1.+0.j, dtype=complex64)
-        >>> c.CNOT(0, 1)
-        >>> c.amplitude("11")
-        array(1.+0.j, dtype=complex64)
-
-        :param l: The bitstring of 0 and 1s.
-        :type l: string
-        :return: The amplitude of the circuit.
-        :rtype: tn.Node.tensor
-        """
-        assert len(l) == self._nqubits
-        no, d_edges = self._copy()
-        ms = []
-        for i, s in enumerate(l):
-            if s == "1":
-                ms.append(
-                    tn.Node(np.array([0, 1], dtype=npdtype), name=str(i) + "-measure")
-                )
-            elif s == "0":
-                ms.append(
-                    tn.Node(np.array([1, 0], dtype=npdtype), name=str(i) + "-measure")
-                )
-        for i, _ in enumerate(l):
-            d_edges[i] ^ ms[i].get_edge(0)
-        for n in ms:
-            n.flag = "measurement"
-            n.is_dagger = False
-            n.id = id(n)
-        no.extend(ms)
-        return contractor(no).tensor
 
     def measure_reference(
         self, *index: int, with_prob: bool = False
@@ -1390,191 +710,7 @@ class Circuit:
         else:
             return sample, -1.0
 
-    def measure_jit(
-        self, *index: int, with_prob: bool = False
-    ) -> Tuple[Tensor, Tensor]:
-        """
-        Take measurement to the given quantum lines.
-        This method is jittable is and about 100 times faster than unjit version!
-
-        :param index: Measure on which quantum line.
-        :type index: int
-        :param with_prob: If true, theoretical probability is also returned.
-        :type with_prob: bool, optional
-        :return: The sample output and probability (optional) of the quantum line.
-        :rtype: Tuple[Tensor, Tensor]
-        """
-        # finally jit compatible ! and much faster than unjit version ! (100x)
-        sample: List[Tensor] = []
-        p = 1.0
-        p = backend.convert_to_tensor(p)
-        p = backend.cast(p, dtype=rdtypestr)
-        for k, j in enumerate(index):
-            nodes1, edge1 = self._copy()
-            nodes2, edge2 = self._copy(conj=True)
-            for i, e in enumerate(edge1):
-                if i != j:
-                    e ^ edge2[i]
-            for i in range(k):
-                m = (1 - sample[i]) * gates.array_to_tensor(np.array([1, 0])) + sample[
-                    i
-                ] * gates.array_to_tensor(np.array([0, 1]))
-                nodes1.append(Gate(m))
-                nodes1[-1].id = id(nodes1[-1])
-                nodes1[-1].is_dagger = False
-                nodes1[-1].flag = "measurement"
-                nodes1[-1].get_edge(0) ^ edge1[index[i]]
-                nodes2.append(Gate(m))
-                nodes2[-1].id = id(nodes2[-1])
-                nodes2[-1].is_dagger = True
-                nodes2[-1].flag = "measurement"
-                nodes2[-1].get_edge(0) ^ edge2[index[i]]
-            nodes1.extend(nodes2)
-            rho = (
-                1
-                / backend.cast(p, dtypestr)
-                * contractor(nodes1, output_edge_order=[edge1[j], edge2[j]]).tensor
-            )
-            pu = backend.real(rho[0, 0])
-            r = backend.implicit_randu()[0]
-            r = backend.real(backend.cast(r, dtypestr))
-            sign = backend.sign(r - pu) / 2 + 0.5
-            sign = backend.convert_to_tensor(sign)
-            sign = backend.cast(sign, dtype=rdtypestr)
-            sign_complex = backend.cast(sign, dtypestr)
-            sample.append(sign_complex)
-            p = p * (pu * (-1) ** sign + sign)
-
-        sample = backend.stack(sample)
-        sample = backend.real(sample)
-        if with_prob:
-            return sample, p
-        else:
-            return sample, -1.0
-
-    measure = measure_jit
-
-    def perfect_sampling(self) -> Tuple[str, float]:
-        """
-        Sampling bistrings from the circuit output based on quantum amplitudes.
-        Reference: arXiv:1201.3974.
-
-        :return: Sampled bit string and the corresponding theoretical probability.
-        :rtype: Tuple[str, float]
-        """
-        return self.measure_jit(*[i for i in range(self._nqubits)], with_prob=True)
-
-    # sample = perfect_sampling
-
-    def sample(
-        self,
-        batch: Optional[int] = None,
-        allow_state: bool = False,
-        status: Optional[Tensor] = None,
-    ) -> Any:
-        """
-        batched sampling from state or circuit tensor network directly
-
-        :param batch: number of samples, defaults to None
-        :type batch: Optional[int], optional
-        :param allow_state: if true, we sample from the final state
-            if memory allsows, True is prefered, defaults to False
-        :type allow_state: bool, optional
-        :param status: random generator,  defaults to None
-        :type status: Optional[Tensor], optional
-        :return: List (if batch) of tuple (binary configuration tensor and correponding probability)
-        :rtype: Any
-        """
-        # allow_state = False is compatibility issue
-        if not allow_state:
-            if batch is None:
-                return self.perfect_sampling()
-
-            @backend.jit  # type: ignore
-            def perfect_sampling(key: Any) -> Any:
-                backend.set_random_state(key)
-                return self.perfect_sampling()
-
-            r = []
-            if status is None:
-                status = backend.get_random_state()
-            subkey = status
-            for _ in range(batch):
-                key, subkey = backend.random_split(subkey)
-                r.append(perfect_sampling(key))
-
-            return r
-
-        if batch is None:
-            nbatch = 1
-        else:
-            nbatch = batch
-        s = self.state()
-        p = backend.abs(s) ** 2
-        if status is None:
-            ch = backend.implicit_randc(a=2**self._nqubits, shape=[nbatch], p=p)
-        else:
-            ch = backend.stateful_randc(
-                status, a=2**self._nqubits, shape=[nbatch], p=p
-            )
-        prob = backend.gather1d(p, ch)
-        confg = backend.mod(
-            backend.right_shift(
-                ch[..., None], backend.reverse(backend.arange(self._nqubits))
-            ),
-            2,
-        )
-        r = list(zip(confg, prob))
-        if batch is None:
-            r = r[0]
-        return r
-
     # TODO(@refraction-ray): more _before function like state_before? and better API?
-
-    def expectation_before(
-        self,
-        *ops: Tuple[tn.Node, List[int]],
-        reuse: bool = True,
-    ) -> List[tn.Node]:
-        """
-        Return the list of nodes that consititues the expectation value just before the contraction.
-
-        :param reuse: whether contract the output state firstly, defaults to True
-        :type reuse: bool, optional
-        :return: The tensor network for the expectation
-        :rtype: List[tn.Node]
-        """
-        nodes1, edge1 = self._copy_state_tensor(reuse=reuse)
-        nodes2, edge2 = self._copy_state_tensor(conj=True, reuse=reuse)
-        nodes1.extend(nodes2)  # left right op order for plain contractor
-
-        occupied = set()
-        for op, index in ops:
-            if not isinstance(op, tn.Node):
-                # op is only a matrix
-                op = backend.reshape2(op)
-                op = backend.cast(op, dtype=dtypestr)
-                op = gates.Gate(op)
-            else:
-                op.tensor = backend.cast(op.tensor, dtype=dtypestr)
-            if isinstance(index, int):
-                index = [index]
-            noe = len(index)
-            for j, e in enumerate(index):
-                if e in occupied:
-                    raise ValueError("Cannot measure two operators in one index")
-                edge2[e] ^ op.get_edge(j)
-                edge1[e] ^ op.get_edge(j + noe)
-                # bug?
-                occupied.add(e)
-            op.flag = "operator"
-            op.is_dagger = False
-            op.id = id(op)
-            nodes1.append(op)
-        for j in range(self._nqubits):
-            if j not in occupied:  # edge1[j].is_dangling invalid here!
-                edge1[j] ^ edge2[j]
-        return nodes1
 
     def expectation(
         self,
@@ -1617,188 +753,8 @@ class Circuit:
             nodes1 = _full_light_cone_cancel(nodes1)
         return contractor(nodes1).tensor
 
-    def to_qiskit(self) -> Any:
-        """
-        Translate ``tc.Circuit`` to a qiskit QuantumCircuit object.
-
-        :return: A qiskit object of this circuit.
-        """
-        from .translation import qir2qiskit
-
-        qir = self.to_qir()
-        return qir2qiskit(qir, n=self._nqubits)
-
-    def draw(self, **kws: Any) -> Any:
-        """
-        Visualise the circuit.
-        This method recevies the keywords as same as qiskit.circuit.QuantumCircuit.draw.
-        More details can be found here: https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.draw.html.
-
-        :Example:
-        >>> c = tc.Circuit(3)
-        >>> c.H(1)
-        >>> c.X(2)
-        >>> c.CNOT(0, 1)
-        >>> c.draw(output='text')
-        q_0: ───────■──
-             ┌───┐┌─┴─┐
-        q_1: ┤ H ├┤ X ├
-             ├───┤└───┘
-        q_2: ┤ X ├─────
-             └───┘
-        """
-        return self.to_qiskit().draw(**kws)
-
-    @classmethod
-    def from_qiskit(
-        self, qc: Any, n: Optional[int] = None, inputs: Optional[List[float]] = None
-    ) -> "Circuit":
-        """
-        Import Qiskit QuantumCircuit object as a ``tc.Circuit`` object.
-
-        :Example:
-
-        >>> from qiskit import QuantumCircuit
-        >>> qisc = QuantumCircuit(3)
-        >>> qisc.h(2)
-        >>> qisc.cswap(1, 2, 0)
-        >>> qisc.swap(0, 1)
-        >>> c = tc.Circuit.from_qiskit(qisc)
-
-        :param qc: Qiskit Circuit object
-        :type qc: QuantumCircuit in Qiskit
-        :param n: The number of qubits for the circuit
-        :type n: int
-        :param inputs: possible input wavefunction for ``tc.Circuit``, defaults to None
-        :type inputs: Optional[List[float]], optional
-        :return: The same circuit but as tensorcircuit object
-        :rtype: Circuit
-        """
-        from .translation import qiskit2tc
-
-        if n is None:
-            n = qc.num_qubits
-
-        return qiskit2tc(qc.data, n, inputs)  # type: ignore
-
-    def vis_tex(self, **kws: Any) -> str:
-        """
-        Generate latex string based on quantikz latex package
-
-        :return: Latex string that can be directly compiled via, e.g. latexit
-        :rtype: str
-        """
-        if self.has_inputs:
-            init = ["" for _ in range(self._nqubits)]
-            init[self._nqubits // 2] = "\psi"
-            okws = {"init": init}
-        else:
-            okws = {"init": None}  # type: ignore
-        okws.update(kws)
-        return qir2tex(self._qir, self._nqubits, **okws)  # type: ignore
-
-    tex = vis_tex
-
-
-def _expectation_ps(
-    c: Circuit,
-    x: Optional[Sequence[int]] = None,
-    y: Optional[Sequence[int]] = None,
-    z: Optional[Sequence[int]] = None,
-    reuse: bool = True,
-    **kws: Any,
-) -> Tensor:
-    """
-    Shortcut for Pauli string expectation.
-    x, y, z list are for X, Y, Z positions
-
-    :Example:
-
-    >>> c = tc.Circuit(2)
-    >>> c.X(0)
-    >>> c.H(1)
-    >>> c.expectation_ps(x=[1], z=[0])
-    array(-0.99999994+0.j, dtype=complex64)
-
-    :param x: _description_, defaults to None
-    :type x: Optional[Sequence[int]], optional
-    :param y: _description_, defaults to None
-    :type y: Optional[Sequence[int]], optional
-    :param z: _description_, defaults to None
-    :type z: Optional[Sequence[int]], optional
-    :param reuse: whether to cache and reuse the wavefunction, defaults to True
-    :type reuse: bool, optional
-    :return: Expectation value
-    :rtype: Tensor
-    """
-    obs = []
-    if x is not None:
-        for i in x:
-            obs.append([gates.x(), [i]])  # type: ignore
-    if y is not None:
-        for i in y:
-            obs.append([gates.y(), [i]])  # type: ignore
-    if z is not None:
-        for i in z:
-            obs.append([gates.z(), [i]])  # type: ignore
-    return c.expectation(*obs, reuse=reuse, **kws)  # type: ignore
-
 
 Circuit._meta_apply()
-Circuit.expectation_ps = _expectation_ps  # type: ignore
-
-
-def to_graphviz(
-    c: Circuit,
-    graph: graphviz.Graph = None,
-    include_all_names: bool = False,
-    engine: str = "neato",
-) -> graphviz.Graph:
-    """
-    Not an ideal visualization for quantum circuit, but reserve here as a general approach to show the tensornetwork
-    [Deprecated, use ``Circuit.vis_tex`` or ``Circuit.draw`` instead]
-    """
-    # Modified from tensornetwork codebase
-    nodes = c._nodes
-    if graph is None:
-        # pylint: disable=no-member
-        graph = graphviz.Graph("G", engine=engine)
-    for node in nodes:
-        if not node.name.startswith("__") or include_all_names:
-            label = node.name
-        else:
-            label = ""
-        graph.node(str(id(node)), label=label)
-    seen_edges = set()
-    for node in nodes:
-        for i, edge in enumerate(node.edges):
-            if edge in seen_edges:
-                continue
-            seen_edges.add(edge)
-            if not edge.name.startswith("__") or include_all_names:
-                edge_label = edge.name + ": " + str(edge.dimension)
-            else:
-                edge_label = ""
-            if edge.is_dangling():
-                # We need to create an invisible node for the dangling edge
-                # to connect to.
-                graph.node(
-                    "{}_{}".format(str(id(node)), i),
-                    label="",
-                    _attributes={"style": "invis"},
-                )
-                graph.edge(
-                    "{}_{}".format(str(id(node)), i),
-                    str(id(node)),
-                    label=edge_label,
-                )
-            else:
-                graph.edge(
-                    str(id(edge.node1)),
-                    str(id(edge.node2)),
-                    label=edge_label,
-                )
-    return graph
 
 
 def expectation(

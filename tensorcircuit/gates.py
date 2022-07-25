@@ -47,6 +47,21 @@ _xx_matrix = np.kron(_x_matrix, _x_matrix)
 _yy_matrix = np.kron(_y_matrix, _y_matrix)
 _zz_matrix = np.kron(_z_matrix, _z_matrix)
 
+_ix_matrix = np.kron(_i_matrix, _x_matrix)
+_iy_matrix = np.kron(_i_matrix, _y_matrix)
+_iz_matrix = np.kron(_i_matrix, _z_matrix)
+_xi_matrix = np.kron(_x_matrix, _i_matrix)
+_yi_matrix = np.kron(_y_matrix, _i_matrix)
+_zi_matrix = np.kron(_z_matrix, _i_matrix)
+
+_xy_matrix = np.kron(_x_matrix, _y_matrix)
+_xz_matrix = np.kron(_x_matrix, _z_matrix)
+_yx_matrix = np.kron(_y_matrix, _x_matrix)
+_yz_matrix = np.kron(_y_matrix, _z_matrix)
+_zx_matrix = np.kron(_z_matrix, _x_matrix)
+_zy_matrix = np.kron(_z_matrix, _y_matrix)
+
+
 _cnot_matrix = np.array(
     [
         [1.0, 0.0, 0.0, 0.0],

@@ -5,8 +5,6 @@ Interface wraps quantum function as a tensorflow function
 from typing import Any, Callable, Tuple
 from functools import wraps
 
-import tensorflow as tf
-
 from ..cons import backend
 from ..utils import return_partial
 from .tensortrans import general_args_to_backend
@@ -30,6 +28,8 @@ def tf_wrapper(
 
 
 def tf_dtype(dtype: str) -> Any:
+    import tensorflow as tf
+
     if isinstance(dtype, str):
         return getattr(tf, dtype)
     return dtype
@@ -72,6 +72,7 @@ def tensorflow_interface(
         while AD is also supported
     :rtype: Callable[..., Any]
     """
+    import tensorflow as tf
 
     if jit is True:
         fun = backend.jit(fun)

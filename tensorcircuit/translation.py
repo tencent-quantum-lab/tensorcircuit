@@ -3,19 +3,26 @@ Circuit object translation in different packages
 """
 
 from typing import Any, Dict, List, Optional
-import warnings
-
+import logging
 import numpy as np
+
+logger = logging.getLogger(__name__)
+
 
 try:
     from qiskit import QuantumCircuit
     import qiskit.quantum_info as qi
+    from qiskit.extensions.exceptions import ExtensionError
 except ImportError:
-    warnings.warn("Please first ``pip install qiskit`` to enable related functionality")
+    logger.warning(
+        "Please first ``pip install qiskit`` to enable related functionality"
+    )
 
 from . import gates
 from .circuit import Circuit
+from .densitymatrix import DMCircuit2
 from .cons import backend
+
 
 Tensor = Any
 
@@ -149,7 +156,16 @@ def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
                     [2 ** len(index), 2 ** len(index)],
                 )
             )
-            qiskit_circ.unitary(qop, index[::-1], label=qis_name)
+            try:
+                qiskit_circ.unitary(qop, index[::-1], label=qis_name)
+            except ExtensionError:
+                logger.warning(
+                    "omit non unitary gate in tensorcircuit when transforming to qiskit"
+                )
+                qiskit_circ.unitary(
+                    np.eye(2 ** len(index)), index[::-1], label=qis_name
+                )
+
     return qiskit_circ
 
 
@@ -159,7 +175,10 @@ def ctrl_str2ctrl_state(ctrl_str: str, nctrl: int) -> List[int]:
 
 
 def qiskit2tc(
-    qcdata: List[List[Any]], n: int, inputs: Optional[List[float]] = None
+    qcdata: List[List[Any]],
+    n: int,
+    inputs: Optional[List[float]] = None,
+    is_dm: bool = False,
 ) -> Any:
     r"""
     Generate a tensorcircuit circuit using the quantum circuit data in qiskit.
@@ -182,10 +201,14 @@ def qiskit2tc(
     :return: A quantum circuit in tensorcircuit
     :rtype: Any
     """
-    if inputs is None:
-        tc_circuit: Any = Circuit(n)
+    if is_dm:
+        Circ = DMCircuit2
     else:
-        tc_circuit = Circuit(n, inputs=inputs)
+        Circ = Circuit  # type: ignore
+    if inputs is None:
+        tc_circuit: Any = Circ(n)
+    else:
+        tc_circuit = Circ(n, inputs=inputs)
     for gate_info in qcdata:
         idx = [qb.index for qb in gate_info[1]]
         gate_name = gate_info[0].name
@@ -246,7 +269,7 @@ def qiskit2tc(
                 base_gate = gate_info[0].base_gate
                 ctrl_state = [1] * base_gate.num_qubits
                 idx = idx[: -base_gate.num_qubits] + idx[-base_gate.num_qubits :][::-1]
-                print(idx)
+                # print(idx)
                 tc_circuit.multicontrol(
                     *idx, ctrl=ctrl_state, unitary=base_gate.to_matrix()
                 )

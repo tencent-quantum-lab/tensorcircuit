@@ -14,6 +14,7 @@ from ..circuit import Circuit
 from ..densitymatrix import DMCircuit
 from ..gates import num_to_tensor, array_to_tensor, _swap_matrix
 from ..channels import depolarizingchannel
+from ..basecircuit import sgates
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +93,7 @@ def generate_gate_layer(gate: str) -> None:
         circuit: Circuit, symbol: Union[Tensor, float] = None, g: Graph = None
     ) -> Circuit:  # compatible with graph mode
         symbol0 = _resolve(symbol)
-        if gate.lower() in Circuit.sgates:
+        if gate.lower() in sgates:
             for n in range(circuit._nqubits):
                 getattr(circuit, gate)(n)
         else:
@@ -102,7 +103,7 @@ def generate_gate_layer(gate: str) -> None:
 
     f.__doc__ = """%slayer""" % gate
     f.__repr__ = """%slayer""" % gate  # type: ignore
-    f.__trainable__ = False if gate in Circuit.sgates else True  # type: ignore
+    f.__trainable__ = False if gate in sgates else True  # type: ignore
     setattr(thismodule, gate + "layer", f)
 
 
@@ -118,7 +119,7 @@ def generate_any_gate_layer(gate: str) -> None:
     def f(
         circuit: Circuit, symbol: Union[Tensor, float] = None, g: Graph = None
     ) -> Circuit:  # compatible with graph mode
-        if gate.lower() in Circuit.sgates:
+        if gate.lower() in sgates:
             for n in range(circuit._nqubits):
                 getattr(circuit, gate)(n)
         else:
@@ -128,7 +129,7 @@ def generate_any_gate_layer(gate: str) -> None:
 
     f.__doc__ = """any%slayer""" % gate
     f.__repr__ = """any%slayer""" % gate  # type: ignore
-    f.__trainable__ = False if gate in Circuit.sgates else True  # type: ignore
+    f.__trainable__ = False if gate in sgates else True  # type: ignore
     setattr(thismodule, "any" + gate + "layer", f)
 
 
@@ -259,7 +260,7 @@ def generate_double_layer_block(gates: Tuple[str]) -> None:
 
     f.__doc__ = """%s_%s_block""" % (d1, d2)
     f.__repr__ = """%s_%s_block""" % (d1, d2)  # type: ignore
-    f.__trainable__ = False if (d1 in Circuit.sgates) and (d2 in Circuit.sgates) else True  # type: ignore
+    f.__trainable__ = False if (d1 in sgates) and (d2 in sgates) else True  # type: ignore
     setattr(thismodule, "%s_%s_block" % (d1, d2), f)
 
 
