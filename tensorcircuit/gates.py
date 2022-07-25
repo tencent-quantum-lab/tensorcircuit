@@ -679,6 +679,7 @@ def any_gate(unitary: Tensor, name: str = "any") -> Gate:
     if isinstance(unitary, Gate):
         unitary.tensor = backend.cast(unitary.tensor, dtypestr)
         return unitary
+    unitary = backend.cast(unitary, dtypestr)
     unitary = backend.reshape2(unitary)
     # nleg = int(np.log2(backend.sizen(unitary)))
     # unitary = backend.reshape(unitary, [2 for _ in range(nleg)])

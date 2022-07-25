@@ -10,6 +10,8 @@
 
 - Add `sgates`, `vgates`, `mpogates` and `gate_aliases` back to `BaseCircuit` for backward compatibility
 
+- Add auto conversion of dtype for `unitary` gate
+
 ## 0.3.0
 
 ### Added
