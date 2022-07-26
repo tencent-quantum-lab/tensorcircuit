@@ -242,6 +242,7 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
                 "different backend or install Tensorflow."
             )
         tf = tensorflow
+        tf.sparse.SparseTensor.__add__ = tf.sparse.add
         self.minor = int(tf.__version__.split(".")[1])
         self.name = "tensorflow"
 
