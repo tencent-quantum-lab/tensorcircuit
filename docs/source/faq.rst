@@ -66,7 +66,7 @@ What is the counterpart of ``QuantumLayer`` for PyTorch and Jax backend?
 ----------------------------------------------------------------------------
 
 Since PyTorch doesn't have mature vmap and jit support and Jax doesn't have native classical ML layers, we highly recommend TensorFlow as the backend for quantum-classical hybrid machine learning tasks, where ``QuantumLayer`` plays an important role.
-For PyTorch, we can in principle wrap the corresponding quantum function into a PyTorch module, but we currently have no built-in support for this wrapper.
+For PyTorch, we can in principle wrap the corresponding quantum function into a PyTorch module, we currently have the built-in support for this wrapper as ``tc.TorchLayer``.
 In terms of the Jax backend, we highly suggested keeping the functional programming paradigm for such machine learning tasks.
 Besides, it is worth noting that, jit and vmap are automatically taken care of in ``QuantumLayer``.
 
@@ -149,6 +149,16 @@ Please refer to the following demos:
     # 1
     print(c.state())  # collapsed but unnormalized
     # [0.        +0.j 0.        +0.j 0.49999998+0.j 0.49999998+0.j]
+
+
+How to understand difference between ``tc.array_to_tensor`` and ``tc.backend.convert_to_tensor``?
+------------------------------------------------------------------------------------------------------
+
+``tc.array_to_tensor`` convert array to tensor as well as automatically cast the type to the default dtype of TensorCircuit,
+i.e. ``tc.dtypestr`` and it also support to specify dtype as ``tc.array_to_tensor( , dtype="complex128")``.
+Instead, ``tc.backend.convert_to_tensor`` keeps the dtype of the input array, and to cast it as complex dtype, we have to
+explicitly call ``tc.backend.cast`` after conversion. Besides, ``tc.array_to_tensor`` also accepts multiple inputs as
+``a_tensor, b_tensor = tc.array_to_tensor(a_array, b_array)``.
 
 
 How to arrange the circuit gate placement in the visualization from ``c.tex()``?
