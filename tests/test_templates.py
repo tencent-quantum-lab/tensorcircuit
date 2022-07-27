@@ -25,6 +25,19 @@ def test_any_measurement():
     np.testing.assert_allclose(r2, 0.0, atol=1e-5)
 
 
+@pytest.mark.parametrize("backend", [lf("jaxb"), lf("tfb"), lf("jaxb")])
+def test_parameterized_local_measurement(backend):
+    c = tc.Circuit(3)
+    c.X(0)
+    c.cnot(0, 1)
+    c.H(-1)
+    basis = tc.backend.convert_to_tensor(np.array([3, 3, 1]))
+    r = tc.templates.measurements.parameterized_local_measurements(
+        c, structures=basis, onehot=True
+    )
+    np.testing.assert_allclose(r, np.array([-1, -1, 1]), atol=1e-5)
+
+
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_sparse_expectation(backend):
     ham = tc.backend.coo_sparse_matrix(

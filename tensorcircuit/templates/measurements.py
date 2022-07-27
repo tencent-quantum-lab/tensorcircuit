@@ -51,6 +51,8 @@ def any_measurements(
     :param onehot: defaults to False. If set to be True,
         structures will first go through onehot procedure.
     :type onehot: bool, optional
+    :param reuse: reuse the wavefunction when computing the expectations, defaults to be False
+    :type reuse: bool, optional
     :return: The expectation value of given Pauli string by the tensor ``structures``.
     :rtype: Tensor
     """
@@ -81,6 +83,73 @@ def any_measurements(
 
 
 parameterized_measurements = any_measurements
+
+
+def any_local_measurements(
+    c: Circuit, structures: Tensor, onehot: bool = False, reuse: bool = True
+) -> Tensor:
+    """
+    This measurements pattern is specifically suitable for vmap. Parameterize the local
+    Pauli string to be measured.
+
+    :example:
+
+    .. code-block:: python
+
+        c = tc.Circuit(3)
+        c.X(0)
+        c.cnot(0, 1)
+        c.H(-1)
+        basis = tc.backend.convert_to_tensor(np.array([3, 3, 1]))
+        z0, z1, x2 = tc.templates.measurements.parameterized_local_measurements(
+            c, structures=basis, onehot=True
+        )
+        # -1, -1, 1
+
+
+    :param c: The circuit to be measured
+    :type c: Circuit
+    :param structures: parameter tensors determines what Pauli string to be measured,
+        shape is [nwires, 4] if ``onehot`` is False and [nwires] if ``onehot`` is True.
+    :type structures: Tensor
+    :param onehot: defaults to False. If set to be True,
+        structures will first go through onehot procedure.
+    :type onehot: bool, optional
+    :param reuse: reuse the wavefunction when computing the expectations, defaults to be True
+    :type reuse: bool, optional
+    :return: The expectation value of given Pauli string by the tensor ``structures``.
+    :rtype: Tensor
+    """
+    if onehot is True:
+        structuresc = backend.cast(structures, dtype="int32")
+        structuresc = backend.onehot(structuresc, num=4)
+        structuresc = backend.cast(structuresc, dtype=dtypestr)
+    else:
+        structuresc = structures
+    nwires = c._nqubits
+    loss = []
+    for i in range(nwires):
+        loss.append(
+            c.expectation(
+                (
+                    G.Gate(
+                        sum(
+                            [
+                                structuresc[i, k] * g.tensor
+                                for k, g in enumerate(G.pauli_gates)
+                            ]
+                        )
+                    ),
+                    [i],
+                ),
+                reuse=reuse,
+            )
+        )
+
+    return backend.real(backend.stack(loss))
+
+
+parameterized_local_measurements = any_local_measurements
 
 
 def operator_expectation(c: Circuit, hamiltonian: Any) -> Tensor:

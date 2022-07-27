@@ -12,6 +12,8 @@
 
 - Both gate index and ``expectation(_ps)`` now support negative qubit index, eg. `c.H(-1)` with the same meaning as numpy indexing
 
+- Add `tc.templates.measurements.parameterized_local_measurements` for local Pauli string evaluation
+
 ### Changed
 
 - Change pytest xdist option in check_all.sh to `-n auto`
