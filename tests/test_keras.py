@@ -111,3 +111,32 @@ def test_function_io(tfb, tmp_path, highp):
     loaded = tc.keras.load_func(str(tmp_path), fallback=vqe_f_p)
     print(loaded(weights=tf.ones([6, 6], dtype=tf.float64), nlayers=3, n=6))
     print(loaded(weights=tf.ones([6, 6], dtype=tf.float64), nlayers=3, n=6))
+
+
+def test_keras_layer_inputs_dict(tfb):
+    n = 3
+    p = 0.1
+    K = tc.backend
+
+    def f(inputs, weights):
+        state = inputs["state"]
+        noise = inputs["noise"]
+        c = tc.Circuit(n, inputs=state)
+        for i in range(n):
+            c.rz(i, theta=weights[i])
+        for i in range(n):
+            c.depolarizing(i, px=p, py=p, pz=p, status=noise[i])
+        return K.real(c.expectation_ps(x=[0]))
+
+    layer = tc.KerasLayer(f, [n])
+    v = {"state": K.ones([1, 2**n]) / 2 ** (n / 2), "noise": 0.2 * K.ones([1, n])}
+    with tf.GradientTape() as tape:
+        l = layer(v)
+    g1 = tape.gradient(l, layer.trainable_variables)
+
+    v = {"state": K.ones([2**n]) / 2 ** (n / 2), "noise": 0.2 * K.ones([n])}
+    with tf.GradientTape() as tape:
+        l = layer(v)
+    g2 = tape.gradient(l, layer.trainable_variables)
+
+    np.testing.assert_allclose(g1[0], g2[0], atol=1e-5)

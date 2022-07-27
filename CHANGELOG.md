@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Added
+
+- Add overload of plus sign for TensorFlow SparseTensor
+
+- Add support of dict or list of tensors as the input for `tc.KerasLayer`
+
 ### Changed
 
 - Change pytest xdist option in check_all.sh to `-n auto`

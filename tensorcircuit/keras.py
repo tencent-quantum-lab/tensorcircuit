@@ -9,7 +9,7 @@ import tensorflow as tf
 from tensorflow.keras.layers import Layer
 from tensorflow.keras import initializers, constraints
 
-from .cons import rdtypestr  # type: ignore
+from .cons import rdtypestr, backend  # type: ignore
 
 # @tf.keras.utils.register_keras_serializable(
 #     package="tensorcircuit"
@@ -28,6 +28,7 @@ class QuantumLayer(Layer):  # type: ignore
         """
         `QuantumLayer` wraps the quantum function `f` as a `keras.Layer`
         so that tensorcircuit is better integrated with tensorflow.
+        Note that the input of the layer can be tensors or even list/dict of tensors.
 
         :param f: Callabel function.
         :type f: Callable[..., Any]
@@ -87,9 +88,16 @@ class QuantumLayer(Layer):  # type: ignore
     ) -> tf.Tensor:
         # input_shape = list(inputs.shape)
         # inputs = tf.reshape(inputs, (-1, input_shape[-1]))
-        if inputs is None:
+        if inputs is None:  # not possible
             result = self.f(*self.pqc_weights, **kwargs)
-        elif len(inputs.shape) == 1:
+        elif (
+            len(
+                backend.tree_map(backend.shape_tuple, backend.tree_flatten(inputs))[0][
+                    0
+                ]
+            )
+            == 1
+        ):
             result = self.f(inputs, *self.pqc_weights, **kwargs)
         else:
             result = tf.vectorized_map(
