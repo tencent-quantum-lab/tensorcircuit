@@ -8,6 +8,8 @@
 
 - Add support of dict or list of tensors as the input for `tc.KerasLayer`
 
+- Add support of multiple tensor inputs for `tc.TorchLayer`
+
 ### Changed
 
 - Change pytest xdist option in check_all.sh to `-n auto`

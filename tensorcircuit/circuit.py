@@ -303,10 +303,10 @@ class Circuit(BaseCircuit):
         rv = backend.onehot(r, 4)
         rv = backend.cast(rv, dtype=dtypestr)
         g = (
-            rv[0] * gates._x_matrix
-            + rv[1] * gates._y_matrix
-            + rv[2] * gates._z_matrix
-            + rv[3] * gates._i_matrix
+            rv[0] * gates.x().tensor  # type: ignore
+            + rv[1] * gates.y().tensor  # type: ignore
+            + rv[2] * gates.z().tensor  # type: ignore
+            + rv[3] * gates.i().tensor  # type: ignore
         )
         self.any(index, unitary=g)  # type: ignore
         return r

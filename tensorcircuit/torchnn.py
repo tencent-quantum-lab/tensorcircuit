@@ -20,6 +20,7 @@ class QuantumNet(torch.nn.Module):  # type: ignore
         weights_shape: Sequence[Tuple[int, ...]],
         initializer: Union[Any, Sequence[Any]] = None,
         use_vmap: bool = True,
+        vectorized_argnums: Union[int, Sequence[int]] = 0,
         use_interface: bool = True,
         use_jit: bool = True,
         enable_dlpack: bool = False,
@@ -64,6 +65,9 @@ class QuantumNet(torch.nn.Module):  # type: ignore
         :type initializer: Union[Any, Sequence[Any]], optional
         :param use_vmap: whether apply vmap (batch input) on ``f``, defaults to True
         :type use_vmap: bool, optional
+        :param vectorized_argnums: which position of input should be batched, need to be customized when
+            multiple inputs for the torch model, defaults to be 0.
+        :type vectorized_argnums: Union[int, Sequence[int]]
         :param use_interface: whether transform ``f`` with torch interface, defaults to True
         :type use_interface: bool, optional
         :param use_jit: whether jit ``f``, defaults to True
@@ -73,7 +77,7 @@ class QuantumNet(torch.nn.Module):  # type: ignore
         """
         super().__init__()
         if use_vmap:
-            f = backend.vmap(f, vectorized_argnums=0)
+            f = backend.vmap(f, vectorized_argnums=vectorized_argnums)
         if use_interface:
             f = torch_interface(f, jit=use_jit, enable_dlpack=enable_dlpack)
         self.f = f
