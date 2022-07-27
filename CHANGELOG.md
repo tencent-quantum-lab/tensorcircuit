@@ -10,7 +10,7 @@
 
 - Add support of multiple tensor inputs for `tc.TorchLayer`
 
-- Both gate index and ``expectation_ps`` now support negative qubit index, eg. `c.H(-1)` with the same meaning as numpy indexing
+- Both gate index and ``expectation(_ps)`` now support negative qubit index, eg. `c.H(-1)` with the same meaning as numpy indexing
 
 ### Changed
 

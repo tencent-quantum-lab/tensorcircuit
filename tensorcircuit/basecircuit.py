@@ -512,7 +512,9 @@ class BaseCircuit:
                 op.tensor = backend.cast(op.tensor, dtype=dtypestr)
             if isinstance(index, int):
                 index = [index]
+            index = tuple([i if i >= 0 else self._nqubits + i for i in index])  # type: ignore
             noe = len(index)
+
             for j, e in enumerate(index):
                 if e in occupied:
                     raise ValueError("Cannot measure two operators in one index")
@@ -563,18 +565,12 @@ class BaseCircuit:
         obs = []
         if x is not None:
             for i in x:
-                if i < 0:
-                    i += self._nqubits
                 obs.append([gates.x(), [i]])  # type: ignore
         if y is not None:
             for i in y:
-                if i < 0:
-                    i += self._nqubits
                 obs.append([gates.y(), [i]])  # type: ignore
         if z is not None:
             for i in z:
-                if i < 0:
-                    i += self._nqubits
                 obs.append([gates.z(), [i]])  # type: ignore
         return self.expectation(*obs, reuse=reuse, **kws)  # type: ignore
 
