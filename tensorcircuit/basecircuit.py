@@ -167,6 +167,7 @@ class BaseCircuit:
             ir_dict = gate_dict
         self._qir.append(ir_dict)
         assert len(index) == len(set(index))
+        index = tuple([i if i >= 0 else self._nqubits + i for i in index])  # type: ignore
         noe = len(index)
         nq = self._nqubits
         applied = False
@@ -562,12 +563,18 @@ class BaseCircuit:
         obs = []
         if x is not None:
             for i in x:
+                if i < 0:
+                    i += self._nqubits
                 obs.append([gates.x(), [i]])  # type: ignore
         if y is not None:
             for i in y:
+                if i < 0:
+                    i += self._nqubits
                 obs.append([gates.y(), [i]])  # type: ignore
         if z is not None:
             for i in z:
+                if i < 0:
+                    i += self._nqubits
                 obs.append([gates.z(), [i]])  # type: ignore
         return self.expectation(*obs, reuse=reuse, **kws)  # type: ignore
 

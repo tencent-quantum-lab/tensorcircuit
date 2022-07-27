@@ -1082,3 +1082,13 @@ def test_draw_cond_measure():
     c.cnot(0, 1)
     print("")
     print(c.draw())
+
+
+def test_minus_index():
+    c = tc.Circuit(3)
+    c.H(-2)
+    c.H(0)
+    np.testing.assert_allclose(tc.backend.real(c.expectation_ps(x=[0])), 1, atol=1e-5)
+    np.testing.assert_allclose(tc.backend.real(c.expectation_ps(x=[1])), 1, atol=1e-5)
+    np.testing.assert_allclose(tc.backend.real(c.expectation_ps(x=[-1])), 0, atol=1e-5)
+    np.testing.assert_allclose(tc.backend.real(c.expectation_ps(z=[-2])), 0, atol=1e-5)
