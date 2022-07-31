@@ -38,15 +38,6 @@ jobs:
       - name: test scripts
         run: |
           pytest --cov=tensorcircuit --cov-report=xml -svv --benchmark-skip
-      - name: run example demos
-        run: |
-          cd examples
-          python mcnoise_check.py
-          python vqnhe_h6.py
-          python qaoa_dqas.py
-          python mcnoise_boost.py
-          python quantumng.py
-          python universal_lr.py
       - name: setup build
         run: |
           python3 .github/nightly_build/darkify.py
