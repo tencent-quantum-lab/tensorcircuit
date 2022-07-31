@@ -48,7 +48,7 @@ jobs:
           cd examples
           python mcnoise_check.py
           python vqnhe_h6.py
-          python qaoa_dqas.py
+      #    python qaoa_dqas.py
           python mcnoise_boost.py
           python quantumng.py
           python universal_lr.py
