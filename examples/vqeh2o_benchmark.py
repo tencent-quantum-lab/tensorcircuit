@@ -41,7 +41,7 @@ print("%s terms in H2O qubit Hamiltonian" % len(wb))
 mb = tc.quantum.PauliStringSum2COO_numpy(lsb, wb)
 mbd = mb.todense()
 mb = K.coo_sparse_matrix(
-    np.transpose(np.stack([mb.row, mb.col])), mb.data, shape=(2**n, 2**n)
+    np.transpose(np.stack([mb.row, mb.col])), mb.data, shape=(2 ** n, 2 ** n)
 )
 mbd = tc.array_to_tensor(mbd)
 

@@ -224,7 +224,7 @@ class DMCircuit(BaseCircuit):
             t = contractor(nodes, output_edge_order=d_edges)
         else:
             t = nodes[0]
-        dm = backend.reshape(t.tensor, shape=[2**self._nqubits, 2**self._nqubits])
+        dm = backend.reshape(t.tensor, shape=[2 ** self._nqubits, 2 ** self._nqubits])
         if check:
             self.check_density_matrix(dm)
         return dm
@@ -243,7 +243,7 @@ class DMCircuit(BaseCircuit):
         dm = self.densitymatrix()
         e, v = backend.eigh(dm)
         np.testing.assert_allclose(
-            e[:-1], backend.zeros([2**self._nqubits - 1]), atol=1e-5
+            e[:-1], backend.zeros([2 ** self._nqubits - 1]), atol=1e-5
         )
         return v[:, -1]
 

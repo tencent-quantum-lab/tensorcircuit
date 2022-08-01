@@ -7,8 +7,8 @@ import time
 
 sys.path.insert(0, "../")
 
-import optax
 import tensorflow as tf
+import optax
 
 import tensorcircuit as tc
 from tensorcircuit import experimental

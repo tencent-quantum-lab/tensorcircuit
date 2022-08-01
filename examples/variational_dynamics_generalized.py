@@ -116,7 +116,7 @@ if __name__ == "__main__":
     # TFIM Hamiltonian defined on lattice graph g (1D OBC chain)
     h = tc.array_to_tensor(h)
 
-    psi0 = np.zeros(2**N)
+    psi0 = np.zeros(2 ** N)
     psi0[0] = 1.0
     psi0 = tc.array_to_tensor(psi0)
 
