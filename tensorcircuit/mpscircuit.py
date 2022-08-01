@@ -79,7 +79,9 @@ class MPSCircuit(AbstractCircuit):
 
     """
 
-    # TODO(@SUSYUSTC): remove 3-qubits gates
+    # TODO(@SUSYUSTC): Add 3-qubits gates support
+
+    is_mps = True
 
     def __init__(
         self,
@@ -255,7 +257,7 @@ class MPSCircuit(AbstractCircuit):
 
     def apply_general_gate(
         self,
-        gate: Union[tn.Node, QuOperator],
+        gate: Union[Gate, QuOperator],
         *index: int,
         name: Optional[str] = None,
         split: Optional[Dict[str, Any]] = None,

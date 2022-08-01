@@ -25,6 +25,8 @@ class BaseCircuit(AbstractCircuit):
     is_dm: bool
     split: Optional[Dict[str, Any]]
 
+    is_mps = False
+
     @staticmethod
     def all_zero_nodes(n: int, d: int = 2, prefix: str = "qb-") -> List[tn.Node]:
         l = [0.0 for _ in range(d)]
@@ -101,7 +103,7 @@ class BaseCircuit(AbstractCircuit):
 
     def apply_general_gate(
         self,
-        gate: Union[tn.Node, QuOperator],
+        gate: Union[Gate, QuOperator],
         *index: int,
         name: Optional[str] = None,
         split: Optional[Dict[str, Any]] = None,

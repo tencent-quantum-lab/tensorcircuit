@@ -57,6 +57,7 @@ class AbstractCircuit:
     _qir: List[Dict[str, Any]]
     inputs: Tensor
     circuit_param: Dict[str, Any]
+    is_mps: bool
 
     sgates = sgates
     vgates = vgates
@@ -65,7 +66,7 @@ class AbstractCircuit:
 
     def apply_general_gate(
         self,
-        gate: Union[tn.Node, QuOperator],
+        gate: Union[Gate, QuOperator],
         *index: int,
         name: Optional[str] = None,
         split: Optional[Dict[str, Any]] = None,
@@ -496,7 +497,7 @@ class AbstractCircuit:
         :return: Latex string that can be directly compiled via, e.g. latexit
         :rtype: str
         """
-        if self.inputs is not None:
+        if (not self.is_mps) and (self.inputs is not None):
             init = ["" for _ in range(self._nqubits)]
             init[self._nqubits // 2] = "\psi"
             okws = {"init": init}
