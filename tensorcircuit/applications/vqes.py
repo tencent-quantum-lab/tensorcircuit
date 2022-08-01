@@ -86,7 +86,7 @@ _generate_local_hamiltonian = tf.function(generate_local_hamiltonian)
 def construct_matrix_v2(ham: List[List[float]], dtype: Any = tf.complex128) -> Tensor:
     # deprecated
     s = len(ham[0]) - 1
-    h = tf.zeros([2 ** s, 2 ** s], dtype=dtype)
+    h = tf.zeros([2**s, 2**s], dtype=dtype)
     for term in tqdm(ham, desc="Hamiltonian building"):
         term = list(term)
         for i, t in enumerate(term):

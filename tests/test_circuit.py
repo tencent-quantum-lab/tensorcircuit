@@ -60,7 +60,7 @@ def test_measure():
 
 
 def test_gates_in_circuit():
-    c = tc.Circuit(2, inputs=np.eye(2 ** 2))
+    c = tc.Circuit(2, inputs=np.eye(2**2))
     c.iswap(0, 1)
     ans = tc.gates.iswap_gate().tensor.reshape([4, 4])
     np.testing.assert_allclose(c.state().reshape([4, 4]), ans, atol=1e-5)
@@ -546,10 +546,10 @@ def test_circuit_add_demo():
 
 def test_circuit_replace_inputs():
     n = 3
-    c = tc.Circuit(n, inputs=np.zeros([2 ** n]))
+    c = tc.Circuit(n, inputs=np.zeros([2**n]))
     for i in range(n):
         c.H(i)
-    evenstate = np.ones([2 ** n])
+    evenstate = np.ones([2**n])
     evenstate /= np.linalg.norm(evenstate)
     c.replace_inputs(evenstate)
     for i in range(n):
@@ -743,7 +743,7 @@ def test_debug_contract():
         c = tc.templates.blocks.example_block(c, param, nlayers=d)
         return c.state()
 
-    np.testing.assert_allclose(small_tn(), np.zeros([2 ** n]), atol=1e-5)
+    np.testing.assert_allclose(small_tn(), np.zeros([2**n]), atol=1e-5)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
@@ -853,7 +853,7 @@ def test_qir2qiskit(backend):
         pytest.skip("qiskit is not installed")
 
     n = 6
-    c = tc.Circuit(n, inputs=tc.array_to_tensor(np.eye(2 ** n)))
+    c = tc.Circuit(n, inputs=tc.array_to_tensor(np.eye(2**n)))
 
     for i in range(n):
         c.H(i)
@@ -927,11 +927,11 @@ def test_qir2qiskit(backend):
         name="zz",
     )
     tc_unitary = c.wavefunction()
-    tc_unitary = np.reshape(tc_unitary, [2 ** n, 2 ** n])
+    tc_unitary = np.reshape(tc_unitary, [2**n, 2**n])
 
     qisc = c.to_qiskit()
     qis_unitary = qi.Operator(qisc)
-    qis_unitary = np.reshape(qis_unitary, [2 ** n, 2 ** n])
+    qis_unitary = np.reshape(qis_unitary, [2**n, 2**n])
 
     p_mat = perm_matrix(n)
     np.testing.assert_allclose(p_mat @ tc_unitary @ p_mat, qis_unitary, atol=1e-5)
@@ -986,11 +986,11 @@ def test_qiskit2tc():
     CCCRX = SwapGate().control(2, ctrl_state="01")
     qisc.append(CCCRX, [0, 1, 2, 3])
 
-    c = tc.Circuit.from_qiskit(qisc, n, np.eye(2 ** n))
+    c = tc.Circuit.from_qiskit(qisc, n, np.eye(2**n))
     tc_unitary = c.wavefunction()
-    tc_unitary = np.reshape(tc_unitary, [2 ** n, 2 ** n])
+    tc_unitary = np.reshape(tc_unitary, [2**n, 2**n])
     qis_unitary = qi.Operator(qisc)
-    qis_unitary = np.reshape(qis_unitary, [2 ** n, 2 ** n])
+    qis_unitary = np.reshape(qis_unitary, [2**n, 2**n])
     p_mat = perm_matrix(n)
     np.testing.assert_allclose(p_mat @ tc_unitary @ p_mat, qis_unitary, atol=1e-5)
 

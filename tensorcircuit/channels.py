@@ -41,7 +41,7 @@ def _sqrt(a: Tensor) -> Tensor:
 
 def _safe_sqrt(perfect_square: int) -> int:
     square_root = int(np.sqrt(perfect_square) + 1e-9)
-    if square_root ** 2 != perfect_square:
+    if square_root**2 != perfect_square:
         raise ValueError("The input must be a square number.")
     return square_root
 

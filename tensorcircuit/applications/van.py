@@ -51,7 +51,7 @@ class MaskedLinear(Layer):  # type: ignore
         return tf.tensordot(inputs, w_mask, axes=[[-2, -1], [2, 3]]) + self.b
 
     def regularization(self, lbd_w: float = 1.0, lbd_b: float = 1.0) -> tf.Tensor:
-        return lbd_w * tf.reduce_sum(self.w ** 2) + lbd_b * tf.reduce_sum(self.b ** 2)
+        return lbd_w * tf.reduce_sum(self.w**2) + lbd_b * tf.reduce_sum(self.b**2)
 
 
 class MADE(Model):  # type: ignore

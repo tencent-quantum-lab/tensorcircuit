@@ -587,10 +587,10 @@ class BaseCircuit(AbstractCircuit):
         else:
             p = backend.real(backend.diagonal(s))
         if status is None:
-            ch = backend.implicit_randc(a=2 ** self._nqubits, shape=[nbatch], p=p)
+            ch = backend.implicit_randc(a=2**self._nqubits, shape=[nbatch], p=p)
         else:
             ch = backend.stateful_randc(
-                status, a=2 ** self._nqubits, shape=[nbatch], p=p
+                status, a=2**self._nqubits, shape=[nbatch], p=p
             )
         prob = backend.gather1d(p, ch)
         confg = backend.mod(

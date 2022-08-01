@@ -183,8 +183,8 @@ def mnist_data_preprocessing(PCA_components=10):
         pca.fit(train_img)
         train_img = pca.transform(train_img)
         test_img = pca.transform(test_img)
-        train_img = np.array([x / np.sqrt(np.sum(x ** 2)) for x in train_img])
-        test_img = np.array([x / np.sqrt(np.sum(x ** 2)) for x in test_img])
+        train_img = np.array([x / np.sqrt(np.sum(x**2)) for x in train_img])
+        test_img = np.array([x / np.sqrt(np.sum(x**2)) for x in test_img])
         qml_data["test_img"] = test_img
         qml_data["train_img"] = train_img
         qml_data["train_lbl"] = train_lbl
