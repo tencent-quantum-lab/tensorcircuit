@@ -4,7 +4,6 @@ Get molecule qubit format Hamiltonian from openfermion.
 
 import time
 import tensorflow as tf
-from scipy import sparse
 from openfermion.chem import MolecularData
 from openfermion.transforms import (
     get_fermion_operator,
@@ -15,6 +14,7 @@ from openfermion.transforms import (
 )
 from openfermion.utils import up_then_down
 from openfermionpyscf import run_pyscf
+from scipy import sparse
 
 import tensorcircuit as tc
 

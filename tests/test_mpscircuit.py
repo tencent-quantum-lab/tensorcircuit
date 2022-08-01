@@ -29,10 +29,6 @@ def get_test_circuits(full):
 
     O1 = tc.gates.any(reproducible_unitary(2).reshape((2, 2)))
     O2 = tc.gates.any(reproducible_unitary(4).reshape((2, 2, 2, 2)))
-    print(type(O1))
-    print(type(O1.copy()))
-    assert isinstance(O1.copy(), tc.gates.Gate)
-    assert isinstance(O2.copy(), tc.gates.Gate)
 
     # Construct a complicated circuit by Circuit and MPSCircuit and compare
 
