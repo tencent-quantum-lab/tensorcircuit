@@ -73,9 +73,9 @@ class AbstractCircuit:
         mpo: bool = False,
         ir_dict: Optional[Dict[str, Any]] = None,
     ) -> None:
-        '''
+        """
         An implementation of this method should also append gate directionary to self._qir
-        '''
+        """
         raise NotImplementedError
 
     @staticmethod
