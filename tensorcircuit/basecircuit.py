@@ -22,12 +22,8 @@ Tensor = Any
 class BaseCircuit(AbstractCircuit):
     _nodes: List[tn.Node]
     _front: List[tn.Edge]
-    _nqubits: int
     is_dm: bool
-    _qir: List[Dict[str, Any]]
     split: Optional[Dict[str, Any]]
-    inputs: Tensor
-    circuit_param: Dict[str, Any]
 
     @staticmethod
     def all_zero_nodes(n: int, d: int = 2, prefix: str = "qb-") -> List[tn.Node]:
@@ -105,7 +101,7 @@ class BaseCircuit(AbstractCircuit):
 
     def apply_general_gate(
         self,
-        gate: Union[Gate, QuOperator],
+        gate: Union[tn.Node, QuOperator],
         *index: int,
         name: Optional[str] = None,
         split: Optional[Dict[str, Any]] = None,
@@ -137,7 +133,7 @@ class BaseCircuit(AbstractCircuit):
             split_conf = self.split
 
         if not mpo:
-            assert isinstance(gate, Gate)
+            assert isinstance(gate, tn.Node)
             if (split_conf is not None) and noe == 2:
                 results = _split_two_qubit_gate(gate, **split_conf)
                 # max_err cannot be jax jitted

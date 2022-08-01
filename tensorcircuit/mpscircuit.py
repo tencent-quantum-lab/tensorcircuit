@@ -7,6 +7,7 @@ from functools import reduce
 from typing import Any, List, Optional, Sequence, Tuple, Dict, Union
 
 import numpy as np
+import tensornetwork as tn
 from tensorcircuit.quantum import QuOperator
 
 from . import gates
@@ -254,7 +255,7 @@ class MPSCircuit(AbstractCircuit):
 
     def apply_general_gate(
         self,
-        gate: Union[Gate, QuOperator],
+        gate: Union[tn.Node, QuOperator],
         *index: int,
         name: Optional[str] = None,
         split: Optional[Dict[str, Any]] = None,
@@ -287,7 +288,7 @@ class MPSCircuit(AbstractCircuit):
         assert len(index) == len(set(index))
         assert split is None, "MPS does not support gate split"
         assert mpo is False, "MPO not implemented for MPS"
-        assert isinstance(gate, Gate)
+        assert isinstance(gate, tn.Node)
         noe = len(index)
         if noe == 1:
             self.apply_single_gate(gate, *index)

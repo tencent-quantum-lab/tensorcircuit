@@ -55,7 +55,6 @@ gate_aliases = [
 class AbstractCircuit:
     _nqubits: int
     _qir: List[Dict[str, Any]]
-    split: Optional[Dict[str, Any]]
     inputs: Tensor
     circuit_param: Dict[str, Any]
 
@@ -66,16 +65,17 @@ class AbstractCircuit:
 
     def apply_general_gate(
         self,
-        gate: Union[Gate, QuOperator],
+        gate: Union[tn.Node, QuOperator],
         *index: int,
         name: Optional[str] = None,
         split: Optional[Dict[str, Any]] = None,
         mpo: bool = False,
         ir_dict: Optional[Dict[str, Any]] = None,
     ) -> None:
+        '''
+        An implementation of this method should also append gate directionary to self._qir
+        '''
         raise NotImplementedError
-
-    apply = apply_general_gate
 
     @staticmethod
     def apply_general_variable_gate_delayed(
