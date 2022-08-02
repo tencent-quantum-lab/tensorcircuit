@@ -43,7 +43,7 @@ def test_iswap_gate():
 
 
 def test_gate_list():
-    assert tc.Circuit.sgates == tc.basecircuit.sgates
+    assert tc.Circuit.sgates == tc.abstractcircuit.sgates
 
 
 def test_controlled():

@@ -170,6 +170,11 @@ class Gate(tn.Node):  # type: ignore
             f"{sp}edges: {edges_out})"
         )
 
+    def copy(self, conjugate: bool = False) -> "Gate":
+        result = super().copy(conjugate=conjugate)
+        result.__class__ = Gate
+        return result  # type: ignore
+
 
 def num_to_tensor(*num: Union[float, Tensor], dtype: Optional[str] = None) -> Any:
     r"""

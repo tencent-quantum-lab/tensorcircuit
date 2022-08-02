@@ -413,7 +413,7 @@ def Heisenberg1Denergy(L: int, Pauli: bool = True, maxiters: int = 1000) -> floa
     phi2 = np.zeros([L // 2, L // 2])
     lamb = np.array([2 * i + 1 for i in range(L // 2)])
     for _ in range(maxiters):
-        k = 1 / L * (2 * np.pi * lamb + np.sum(phi, axis=-1) - np.diag(phi))
+        k = 1 / L * (2 * np.pi * lamb + np.sum(phi, axis=-1) - np.diag(phi))  # type: ignore
         for i in range(L // 2):
             for j in range(L // 2):
                 phi2[i, j] = (
@@ -427,7 +427,7 @@ def Heisenberg1Denergy(L: int, Pauli: bool = True, maxiters: int = 1000) -> floa
                     )
                     * 2
                 )
-        if np.allclose(phi, phi2, rtol=error):  # converged
+        if np.allclose(phi, phi2, rtol=error):  # type: ignore # converged
             break
         phi = phi2.copy()
     else:

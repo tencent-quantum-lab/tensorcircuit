@@ -4,13 +4,16 @@ Quantum circuit: MPS state simulator
 # pylint: disable=invalid-name
 
 from functools import reduce
-from typing import Any, Callable, List, Optional, Sequence, Tuple
+from typing import Any, List, Optional, Sequence, Tuple, Dict, Union
 
 import numpy as np
+import tensornetwork as tn
+from tensorcircuit.quantum import QuOperator
 
 from . import gates
 from .cons import backend, npdtype
 from .mps_base import FiniteMPS
+from .abstractcircuit import AbstractCircuit
 
 Gate = gates.Gate
 Tensor = Any
@@ -61,7 +64,7 @@ def split_tensor(
             return backend.qr(tensor)  # type: ignore
 
 
-class MPSCircuit:
+class MPSCircuit(AbstractCircuit):
     """
     ``MPSCircuit`` class.
     Simple usage demo below.
@@ -76,16 +79,9 @@ class MPSCircuit:
 
     """
 
-    sgates = ["i", "x", "y", "z", "h", "t", "s", "wroot"] + [
-        "cnot",
-        "cz",
-        "swap",
-        "cy",
-    ]
-    # gates on > 2 qubits like toffoli is not available
-    # however they can be constructed from 1 and 2 qubit gates
-    vgates = ["r", "cr", "rx", "ry", "rz", "any", "exp", "exp1"]
-    # TODO(@refraction-ray): gate list update
+    # TODO(@SUSYUSTC): Add 3-qubits gates support
+
+    is_mps = True
 
     def __init__(
         self,
@@ -118,6 +114,7 @@ class MPSCircuit:
         self._nqubits = nqubits
         self._fidelity = 1.0
         self.set_truncation_rule()
+        self._qir: List[Dict[str, Any]] = []
 
     # `MPSCircuit` does not has `replace_inputs` like `Circuit`
     # because the gates are immediately absorted into the MPS when applied,
@@ -159,73 +156,6 @@ class MPSCircuit:
         :type site: int
         """
         self._mps.position(site, normalize=False)
-
-    @classmethod
-    def _meta_apply(cls) -> None:
-
-        for g in cls.sgates:
-            setattr(cls, g, cls.apply_general_gate_delayed(gatef=getattr(gates, g)))
-            setattr(
-                cls,
-                g.upper(),
-                cls.apply_general_gate_delayed(gatef=getattr(gates, g)),
-            )
-            matrix = gates.matrix_for_gate(getattr(gates, g)())
-            matrix = gates.bmatrix(matrix)
-            doc = """
-            Apply **%s** gate on the circuit.
-
-            :param index: Qubit number that the gate applies on.
-                The matrix for the gate is
-
-                .. math::
-
-                      %s
-
-            :type index: int.
-            """ % (
-                g.upper(),
-                matrix,
-            )
-            docs = """
-            Apply **%s** gate on the circuit.
-
-            :param index: Qubit number that the gate applies on.
-            :type index: int.
-            """ % (
-                g.upper()
-            )
-            if g in ["rs"]:
-                getattr(cls, g).__doc__ = docs
-                getattr(cls, g.upper()).__doc__ = docs
-
-            else:
-                getattr(cls, g).__doc__ = doc
-                getattr(cls, g.upper()).__doc__ = doc
-
-        for g in cls.vgates:
-            setattr(
-                cls,
-                g,
-                cls.apply_general_variable_gate_delayed(gatef=getattr(gates, g)),
-            )
-            setattr(
-                cls,
-                g.upper(),
-                cls.apply_general_variable_gate_delayed(gatef=getattr(gates, g)),
-            )
-            doc = """
-            Apply %s gate with parameters on the circuit.
-
-            :param index: Qubit number that the gate applies on.
-            :type index: int.
-            :param vars: Parameters for the gate
-            :type vars: float.
-            """ % (
-                g
-            )
-            getattr(cls, g).__doc__ = doc
-            getattr(cls, g.upper()).__doc__ = doc
 
     def apply_single_gate(self, gate: Gate, index: int) -> None:
         """
@@ -325,7 +255,15 @@ class MPSCircuit:
                     gates.swap(), index, index + 1, center_position=index + 1  # type: ignore
                 )
 
-    def apply_general_gate(self, gate: Gate, *index: int) -> None:
+    def apply_general_gate(
+        self,
+        gate: Union[Gate, QuOperator],
+        *index: int,
+        name: Optional[str] = None,
+        split: Optional[Dict[str, Any]] = None,
+        mpo: bool = False,
+        ir_dict: Optional[Dict[str, Any]] = None,
+    ) -> None:
         """
         Apply a general qubit gate on MPS.
 
@@ -335,37 +273,33 @@ class MPSCircuit:
         :param index: Qubit indices of the gate
         :type index: int
         """
+        if name is None:
+            name = ""
+        gate_dict = {
+            "gate": gate,
+            "index": index,
+            "name": name,
+            "split": split,
+            "mpo": mpo,
+        }
+        if ir_dict is not None:
+            ir_dict.update(gate_dict)
+        else:
+            ir_dict = gate_dict
+        self._qir.append(ir_dict)
         assert len(index) == len(set(index))
+        assert split is None, "MPS does not support gate split"
+        assert mpo is False, "MPO not implemented for MPS"
+        assert isinstance(gate, tn.Node)
         noe = len(index)
         if noe == 1:
             self.apply_single_gate(gate, *index)
         elif noe == 2:
             self.apply_double_gate(gate, *index)
-
         else:
             raise ValueError("MPS does not support application of gate on > 2 qubits")
 
     apply = apply_general_gate
-
-    @staticmethod
-    def apply_general_gate_delayed(gatef: Callable[[], Gate]) -> Callable[..., None]:
-        # nested function must be utilized, functools.partial doesn't work for method register on class
-        # see https://re-ra.xyz/Python-中实例方法动态绑定的几组最小对立/
-        def apply(self: "MPSCircuit", *index: int) -> None:
-            gate = gatef()
-            self.apply_general_gate(gate, *index)
-
-        return apply
-
-    @staticmethod
-    def apply_general_variable_gate_delayed(
-        gatef: Callable[..., Gate],
-    ) -> Callable[..., None]:
-        def apply(self: "MPSCircuit", *index: int, **vars: float) -> None:
-            gate = gatef(**vars)
-            self.apply_general_gate(gate, *index)
-
-        return apply
 
     def mid_measurement(self, index: int, keep: int = 0) -> None:
         """
