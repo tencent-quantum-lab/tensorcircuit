@@ -10,6 +10,8 @@ Overview of Modules
 
 **Core Modules:**
 
+- :py:mod:`tensorcircuit.abstractcircuit` and :py:mod:`tensorcircuit.basecircuit`: Hierarchical abstraction of circuit class.
+
 - :py:mod:`tensorcircuit.circuit`: The core object :py:obj:`tensorcircuit.circuit.Circuit`. It supports circuit construction, simulation, representation, and visualization without noise or with noise using the Monte Carlo trajectory approach.
 
 - :py:mod:`tensorcircuit.cons`: Runtime ML backend, dtype and contractor setups. We provide three sets of set methods for global setup, function level setup using function decorators, and context setup using ``with`` context managers. We also include customized contractor infrastructures in this module.
@@ -24,9 +26,7 @@ Overview of Modules
 
 - :py:mod:`tensorcircuit.channels`: Definition of quantum noise channels.
 
-- :py:mod:`tensorcircuit.densitymatrix`: Referenced implementation of ``tc.DMCircuit`` class, with similar set API of ``tc.Circuit`` while simulating the noise in the full form of the density matrix.
-
-- :py:mod:`tensorcircuit.densitymatrix2`: Highly efficient implementation of :py:obj:`tensorcircuit.densitymatrix2.DMCircuit2` class, always preferred than the referenced implementation.
+- :py:mod:`tensorcircuit.densitymatrix`: Referenced and highly efficient implementation of ``tc.DMCircuit`` class, with similar set API of ``tc.Circuit`` while simulating the noise in the full form of the density matrix.
 
 **ML Interfaces Related Modules:**
 
@@ -84,6 +84,18 @@ Inside TensorCircuit, we heavily utilize TensorNetwork-related APIs from the Ten
 - We borrow TensorNetwork's code in /quantum to our ``tc.quantum`` module, since TensorNetwork has no ``__init__.py`` file to export these MPO and MPS related objects. Of course, we have made substantial improvements since then.
 
 - We borrow the TensorNetwork's code in /matrixproductstates as ``tc.mps_base`` for bug fixing and jit/AD compatibility, so that we have better support for our MPS based quantum circuit simulator.
+
+
+Relations of Circuit-like classes
+---------------------------------------
+
+.. code-block::
+
+                                           |- Circuit
+                        |- BaseCircuit --- |
+    AbstractCircuit  ---|                  |- DMCircuitReference --- DMCircuit
+                        |- MPSCircuit
+
 
 
 QuOperator/QuVector and MPO/MPS
