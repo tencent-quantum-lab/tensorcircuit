@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.3.1
+
 ### Added
 
 - Add overload of plus sign for TensorFlow SparseTensor
@@ -10,13 +12,15 @@
 
 - Add support of multiple tensor inputs for `tc.TorchLayer`
 
-- Both gate index and ``expectation(_ps)`` now support negative qubit index, eg. `c.H(-1)` with the same meaning as numpy indexing
+- Both gate index and `expectation(_ps)` now support negative qubit index, eg. `c.H(-1)` with the same meaning as numpy indexing
 
 - Add `tc.templates.measurements.parameterized_local_measurements` for local Pauli string evaluation
 
 ### Changed
 
 - Change pytest xdist option in check_all.sh to `-n auto`
+
+- Further refactor the circuit abstraction as AbstractCircuit and BaseCircuit
 
 ### Fixed
 
