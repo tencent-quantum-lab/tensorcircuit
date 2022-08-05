@@ -5,10 +5,11 @@ Quantum circuit: MPS state simulator
 
 from functools import reduce
 from typing import Any, List, Optional, Sequence, Tuple, Dict, Union
+import wave
 
 import numpy as np
 import tensornetwork as tn
-from tensorcircuit.quantum import QuOperator
+from tensorcircuit.quantum import QuOperator, QuVector
 
 from . import gates
 from .cons import backend, npdtype
@@ -20,13 +21,33 @@ Tensor = Any
 
 # TODO(@refraction-ray): support Circuit IR for MPSCircuit
 
+def truncation_rules(
+    max_singular_values: Optional[int] = None, max_truncation_err: Optional[float] = None,
+    relative: bool = False,
+) -> Dict[str, Any]:
+    '''
+    Obtain the direcionary of truncation rules
+    :param max_singular_values: The maximum number of singular values to keep.
+    :type max_singular_values: int, optional
+    :param max_truncation_err: The maximum allowed truncation error.
+    :type max_truncation_err: float, optional
+    :param relative: Multiply `max_truncation_err` with the largest singular value.
+    :type relative: bool, optional
+    '''
+    rules = {}
+    if max_singular_values is not None:
+        rules['max_singular_values'] = max_singular_values
+    if max_truncation_err is not None:
+        rules['max_truncattion_err'] = max_truncation_err
+    if relative is not None:
+        rules['relative'] = relative
+    return rules
+
 
 def split_tensor(
     tensor: Tensor,
     left: bool = True,
-    max_singular_values: Optional[int] = None,
-    max_truncation_err: Optional[float] = None,
-    relative: bool = True,
+    **rules,
 ) -> Tuple[Tensor, Tensor]:
     """
     Split the tensor by SVD or QR depends on whether a truncation is required.
@@ -35,24 +56,13 @@ def split_tensor(
     :type tensor: Tensor
     :param left: Determine the orthogonal center is on the left tensor or the right tensor.
     :type left: bool, optional
-    :param max_singular_values: The maximum number of singular values to keep.
-    :type max_singular_values: int, optional
-    :param max_truncation_err: The maximum allowed truncation error.
-    :type max_truncation_err: float, optional
-    :param relative: Multiply `max_truncation_err` with the largest singular value.
-    :type relative: bool, optional
     :return: Two tensors after splitting
     :rtype: Tuple[Tensor, Tensor]
     """
     # The behavior is a little bit different from tn.split_node because it explicitly requires a center
-    svd = (max_truncation_err is not None) or (max_singular_values is not None)
+    svd = len(rules) > 0
     if svd:
-        U, S, VH, _ = backend.svd(
-            tensor,
-            max_singular_values=max_singular_values,
-            max_truncation_error=max_truncation_err,
-            relative=relative,
-        )
+        U, S, VH, _ = backend.svd(tensor, **rules)
         if left:
             return backend.matmul(U, backend.diagflat(S)), VH
         else:
@@ -86,27 +96,45 @@ class MPSCircuit(AbstractCircuit):
     def __init__(
         self,
         nqubits: int,
-        tensors: Optional[Sequence[Tensor]] = None,
         center_position: int = 0,
+        rules: Dict[str, Any] = {},
+        tensors: Optional[Sequence[Tensor]] = None,
+        wavefunction: Optional[Union[QuVector, Tensor]] = None,
     ) -> None:
         """
         MPSCircuit object based on state simulator.
 
         :param nqubits: The number of qubits in the circuit.
         :type nqubits: int
+        :param center_position: The center position of MPS, default to 0
+        :type center_position: int, optional
+        :param rules: Truncation rules
+        :type rules: Dict
         :param tensors: If not None, the initial state of the circuit is taken as ``tensors``
             instead of :math:`\\vert 0\\rangle^n` qubits, defaults to None
         :type tensors: Sequence[Tensor], optional
-        :param center_position: The center position of MPS, default to 0
-        :type center_position: int, optional
+        :param wavefunction: If not None, it is transformed to the MPS form according to the truncation rules
+        :type wavefunction: Tensor
         """
-        if tensors is None:
+        self.circuit_param = {
+            "nqubits": nqubits,
+            "center_position": center_position,
+            "rules": rules,
+            "tensors": tensors,
+            "wavefunction": wavefunction,
+        }
+        self.rules = rules
+        if wavefunction is not None:
+            assert tensors is None, "tensors and wavefunction cannot be used at input simutaneously"
+            if isinstance(wavefunction, QuVector):
+                wavefunction = wavefunction.eval()
+            tensors = self.wavefunction_to_tensors(wavefunction, **self.rules)
+        elif tensors is None:
             tensors = [
                 np.array([1.0, 0.0], dtype=npdtype)[None, :, None]
                 for i in range(nqubits)
             ]
-        else:
-            assert len(tensors) == nqubits
+        assert len(tensors) == nqubits
         self._mps = FiniteMPS(
             tensors, canonicalize=True, center_position=center_position
         )
@@ -120,30 +148,19 @@ class MPSCircuit(AbstractCircuit):
     # because the gates are immediately absorted into the MPS when applied,
     # so it is impossible to remember the initial structure
 
-    def set_truncation_rule(
-        self,
-        max_singular_values: Optional[int] = None,
-        max_truncation_err: Optional[float] = None,
-        relative: bool = False,
-    ) -> None:
+    def get_tensors(self):
+        return self._mps.tensors
+
+    def set_truncation_rule(self, rules: Dict[str, Any]) -> None:
         """
         Set truncation rules when double qubit gates are applied.
         If nothing is specified, no truncation will take place and the bond dimension will keep growing.
         For more details, refer to `split_tensor`.
 
-        :param max_singular_values: The maximum number of singular values to keep.
-        :type max_singular_values: int, optional
-        :param max_truncation_err: The maximum allowed truncation error.
-        :type max_truncation_err: float, optional
-        :param relative: Multiply `max_truncation_err` with the largest singular value.
-        :type relative: bool, optional
+        :param rules: Truncation rules
+        :type rules: Dict
         """
-        self.max_singular_values = max_singular_values
-        self.max_truncation_err = max_truncation_err
-        self.relative = relative
-        self.do_truncation = (self.max_singular_values is not None) or (
-            self.max_truncation_err is not None
-        )
+        self.rules = rules
 
     # TODO(@refraction-ray): unified split truncation API between Circuit and MPSCircuit
 
@@ -203,9 +220,7 @@ class MPSCircuit(AbstractCircuit):
             index1,
             index2,
             center_position=center_position,
-            max_singular_values=self.max_singular_values,
-            max_truncation_err=self.max_truncation_err,
-            relative=self.relative,
+            **self.rules,
         )
         self._fidelity *= 1 - backend.real(backend.sum(err**2))
 
@@ -254,6 +269,12 @@ class MPSCircuit(AbstractCircuit):
                 self.apply_adjacent_double_gate(
                     gates.swap(), index, index + 1, center_position=index + 1  # type: ignore
                 )
+
+    def apply_MPO(self, 
+        tensors: Sequence[Tensor],
+        index_from: int
+        ) -> None:
+        raise NotImplementedError
 
     def apply_general_gate(
         self,
@@ -335,25 +356,19 @@ class MPSCircuit(AbstractCircuit):
         return True
 
     @staticmethod
-    def from_wavefunction(
+    def wavefunction_to_tensors(
         wavefunction: Tensor,
-        max_singular_values: Optional[int] = None,
-        max_truncation_err: Optional[float] = None,
-        relative: bool = True,
-    ) -> "MPSCircuit":
+        **rules: Dict[str, Any]
+    ) -> List[Tensor]:
         """
         Construct the MPS from a given wavefunction.
 
         :param wavefunction: The given wavefunction (any shape is OK)
         :type wavefunction: Tensor
-        :param max_singular_values: The maximum number of singular values to keep.
-        :type max_singular_values: int, optional
-        :param max_truncation_err: The maximum allowed truncation error.
-        :type max_truncation_err: float, optional
-        :param relative: Multiply `max_truncation_err` with the largest singular value.
-        :type relative: bool, optional
-        :return: The constructed MPS
-        :rtype: MPSCircuit
+        :param rules: Truncation rules
+        :type rules: Dict
+        :return: The tensors
+        :rtype: List[Tensor]
         """
         wavefunction = backend.reshape(wavefunction, (-1, 1))
         tensors: List[Tensor] = []
@@ -363,14 +378,12 @@ class MPSCircuit(AbstractCircuit):
             wavefunction, Q = split_tensor(
                 wavefunction,
                 left=True,
-                max_singular_values=max_singular_values,
-                max_truncation_err=max_truncation_err,
-                relative=relative,
+                **rules,
             )
             tensors.insert(0, backend.reshape(Q, (-1, 2, nright)))
             if wavefunction.shape == (1, 1):
                 break
-        return MPSCircuit(len(tensors), tensors=tensors)
+        return tensors
 
     def wavefunction(self, form: str = "default") -> Tensor:
         """
@@ -405,12 +418,13 @@ class MPSCircuit(AbstractCircuit):
         :return: The constructed MPS
         :rtype: MPSCircuit
         """
+        from copy import deepcopy
         result: "MPSCircuit" = MPSCircuit.__new__(MPSCircuit)
         info = vars(self)
         for key in vars(self):
             if key == "_mps":
                 continue
-            setattr(result, key, info[key])
+            setattr(result, key, deepcopy(info[key]))
         return result
 
     def copy(self) -> "MPSCircuit":
@@ -542,7 +556,7 @@ class MPSCircuit(AbstractCircuit):
         :return: The expectation of corresponding operators
         :rtype: Tensor
         """
-        # A better idea is to create a MPO class and have a function to transform gates to MPO
+        # TODO(@SUSYUSTC): Maybe a better idea is to create a MPO class and have a function to transform gates to MPO
         mpscircuit = self.copy()
         for gate, index in ops:
             mpscircuit.apply_general_gate(gate, *index)
