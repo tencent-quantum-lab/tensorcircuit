@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Added
+
+- Add `sample_expectation_ps` method for `BaseCircuit`, which measure the Pauli string expectation considering measurement shots
+
+- Add alias `expps` for `expectation_ps` and `sexpps` for `sampled_expectation_ps`
+
 ## 0.3.1
 
 ### Added

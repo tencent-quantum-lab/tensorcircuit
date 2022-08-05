@@ -1092,3 +1092,28 @@ def test_minus_index():
     np.testing.assert_allclose(tc.backend.real(c.expectation_ps(x=[1])), 1, atol=1e-5)
     np.testing.assert_allclose(tc.backend.real(c.expectation_ps(x=[-1])), 0, atol=1e-5)
     np.testing.assert_allclose(tc.backend.real(c.expectation_ps(z=[-2])), 0, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_sexpps(backend):
+    c = tc.Circuit(1, inputs=1 / np.sqrt(2) * np.array([1.0, 1.0j]))
+    y = c.sample_expectation_ps(y=[0])
+    ye = c.expectation_ps(y=[0])
+    np.testing.assert_allclose(y, 1.0, atol=1e-5)
+    np.testing.assert_allclose(ye, 1.0, atol=1e-5)
+
+    c = tc.Circuit(4)
+    c.H(0)
+    c.cnot(0, 1)
+    c.rx(1, theta=0.3)
+    c.rz(2, theta=-1.2)
+    c.ccnot(2, 3, 1)
+    c.rzz(0, 3, theta=0.5)
+    c.ry(3, theta=2.2)
+    c.s(1)
+    c.td(2)
+    y = c.sample_expectation_ps(x=[1], y=[0], z=[2, 3])
+    ye = c.expectation_ps(x=[1], y=[0], z=[2, 3])
+    np.testing.assert_allclose(ye, y, atol=1e-5)
+    y2 = c.sample_expectation_ps(x=[1], y=[0], z=[2, 3], shots=81920)
+    assert np.abs(y2 - y) < 0.008

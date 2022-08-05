@@ -4,13 +4,14 @@ Quantum circuit: common methods for all circuit classes as MixIn
 # pylint: disable=invalid-name
 
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from copy import deepcopy
 
 import numpy as np
 import graphviz
 import tensornetwork as tn
 
 from . import gates
-from .quantum import QuOperator, QuVector
+from .quantum import QuOperator, QuVector, correlation_from_counts, measurement_counts
 from .abstractcircuit import AbstractCircuit
 from .cons import npdtype, backend, dtypestr, contractor, rdtypestr
 from .simplify import _split_two_qubit_gate
@@ -345,6 +346,8 @@ class BaseCircuit(AbstractCircuit):
                 obs.append([gates.z(), [i]])  # type: ignore
         return self.expectation(*obs, reuse=reuse, **kws)  # type: ignore
 
+    expps = expectation_ps
+
     def to_qir(self) -> List[Dict[str, Any]]:
         """
         Return the quantum intermediate representation of the circuit.
@@ -604,6 +607,63 @@ class BaseCircuit(AbstractCircuit):
         if batch is None:
             r = r[0]
         return r
+
+    def sample_expectation_ps(
+        self,
+        x: Optional[Sequence[int]] = None,
+        y: Optional[Sequence[int]] = None,
+        z: Optional[Sequence[int]] = None,
+        shots: Optional[int] = None,
+        **kws: Any,
+    ) -> Tensor:
+        """
+        Compute the expectation with given Pauli string with measurement shots numbers
+
+        :Example:
+
+        >>> c = tc.Circuit(2)
+        >>> c.H(0)
+        >>> c.rx(1, theta=np.pi/2)
+        >>> c.sample_expectation_ps(x=[0], y=[1])
+        -0.99999976
+
+        :param x: index for Pauli X, defaults to None
+        :type x: Optional[Sequence[int]], optional
+        :param y: index for Pauli Y, defaults to None
+        :type y: Optional[Sequence[int]], optional
+        :param z: index for Pauli Z, defaults to None
+        :type z: Optional[Sequence[int]], optional
+        :param shots: number of measurement shots, defaults to None, indicating analytical result
+        :type shots: Optional[int], optional
+        :return: [description]
+        :rtype: Tensor
+        """
+        c = deepcopy(self)
+        if x is None:
+            x = []
+        if y is None:
+            y = []
+        if z is None:
+            z = []
+        for i in x:
+            c.H(i)  # type: ignore
+        for i in y:
+            c.rx(i, theta=np.pi / 2)  # type: ignore
+        s = c.state()  # type: ignore
+        if c.is_dm is False:
+            p = backend.abs(s) ** 2
+        else:
+            p = backend.real(backend.diagonal(s))
+        # readout error can be processed here later
+        mc = measurement_counts(p, counts=shots, sparse=False, is_prob=True)
+        x = list(x)
+        y = list(y)
+        z = list(z)
+        r = correlation_from_counts(x + y + z, mc)
+        # TODO(@refraction-ray): analytical standard deviation
+        return r
+
+    sexpps = sample_expectation_ps
 
     def replace_inputs(self, inputs: Tensor) -> None:
         """

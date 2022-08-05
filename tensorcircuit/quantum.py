@@ -35,7 +35,7 @@ try:
 except ImportError:
     pass
 
-from .cons import backend, contractor, dtypestr, npdtype
+from .cons import backend, contractor, dtypestr, npdtype, rdtypestr
 from .backends import get_backend  # type: ignore
 from .utils import is_m1mac
 
@@ -1826,8 +1826,58 @@ def mutual_information(s: Tensor, cut: Union[int, List[int]]) -> Tensor:
     return ha + hb - hab
 
 
+def counts_s2d(srepr: Tuple[Tensor, Tensor], d: int) -> Tensor:
+    """
+    measurement shots results, sparse tuple representation to dense representation
+
+    :param srepr: [description]
+    :type srepr: Tuple[Tensor, Tensor]
+    :param d: [description]
+    :type d: int
+    :return: [description]
+    :rtype: Tensor
+    """
+    return backend.scatter(
+        backend.cast(backend.zeros([d]), srepr[1].dtype),
+        backend.reshape(srepr[0], [-1, 1]),
+        srepr[1],
+    )
+
+
+def counts_d2s(drepr: Tensor, eps: float = 1e-7) -> Tuple[Tensor, Tensor]:
+    """
+    measurement shots results, dense representation to sparse tuple representation
+    non-jittable due to the non fixed return shape
+
+    :Example:
+
+    >>> tc.quantum.counts_d2s(np.array([0.1, 0, -0.3, 0.2]))
+    (array([0, 2, 3]), array([ 0.1, -0.3,  0.2]))
+
+    :param drepr: [description]
+    :type drepr: Tensor
+    :param eps: cutoff to determine nonzero elements, defaults to 1e-7
+    :type eps: float, optional
+    :return: [description]
+    :rtype: Tuple[Tensor, Tensor]
+    """
+    # unjittable since the return shape is not fixed
+    xl = []
+    cl = []
+    for i, j in enumerate(drepr):
+        if backend.abs(j) > eps:
+            xl.append(i)
+            cl.append(j)
+    xl = backend.convert_to_tensor(xl)
+    cl = backend.stack(cl)
+    return xl, cl
+
+
 def measurement_counts(
-    state: Tensor, counts: int = 8192, sparse: bool = True
+    state: Tensor,
+    counts: Optional[int] = 8192,
+    sparse: bool = True,
+    is_prob: bool = False,
 ) -> Union[Tuple[Tensor, Tensor], Tensor]:
     """
     Simulate the measuring of each qubit of ``p`` in the computational basis,
@@ -1853,25 +1903,30 @@ def measurement_counts(
     :return: The counts for each bit string measured.
     :rtype: Tuple[]
     """
-    if len(state.shape) == 2:
-        state /= backend.trace(state)
-        pi = backend.real(backend.diagonal(state))
+    if is_prob:
+        pi = state
     else:
-        state /= backend.norm(state)
-        pi = backend.real(backend.conj(state) * state)
-    pi = backend.reshape(pi, [-1])
+        if len(state.shape) == 2:
+            state /= backend.trace(state)
+            pi = backend.real(backend.diagonal(state))
+        else:
+            state /= backend.norm(state)
+            pi = backend.real(backend.conj(state) * state)
+        pi = backend.reshape(pi, [-1])
     d = int(pi.shape[0])
     # raw counts in terms of integers
-    raw_counts = backend.implicit_randc(d, shape=counts, p=pi)
-    results = backend.unique_with_counts(raw_counts)
-    if sparse:
-        return results  # type: ignore
-    dense_results = backend.scatter(
-        backend.cast(backend.zeros([d]), results[1].dtype),
-        backend.reshape(results[0], [-1, 1]),
-        results[1],
-    )
-    return dense_results
+    if (counts is None) or counts <= 0:
+        if not sparse:
+            return pi
+        else:
+            return counts_d2s(pi)
+    else:
+        raw_counts = backend.implicit_randc(d, shape=counts, p=pi)
+        results = backend.unique_with_counts(raw_counts)
+        if sparse:
+            return results  # type: ignore
+        dense_results = counts_s2d(results, d)
+        return dense_results
 
 
 def spin_by_basis(n: int, m: int, elements: Tuple[int, int] = (1, -1)) -> Tensor:
@@ -1924,6 +1979,8 @@ def correlation_from_counts(index: Sequence[int], results: Tensor) -> Tensor:
     :rtype: Tensor
     """
     results = backend.reshape(results, [-1])
+    results = backend.cast(results, rdtypestr)
+    results /= backend.sum(results)
     n = int(np.log(results.shape[0]) / np.log(2))
     for i in index:
         results = results * backend.cast(spin_by_basis(n, i), results.dtype)
