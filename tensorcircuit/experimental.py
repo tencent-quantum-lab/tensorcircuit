@@ -5,6 +5,8 @@ Experimental features
 from functools import partial
 from typing import Any, Callable, Optional, Sequence, Union
 
+import numpy as np
+
 from .cons import backend, dtypestr
 
 Tensor = Any
@@ -202,3 +204,56 @@ def dynamics_rhs(f: Callable[..., Any], h: Tensor) -> Callable[..., Any]:
         return backend.grad(energy)(params)
 
     return wrapper
+
+
+def parameter_shift_grad(
+    f: Callable[..., Tensor],
+    argnums: Union[int, Sequence[int]] = 0,
+    jit: bool = False,
+) -> Callable[..., Tensor]:
+    """
+    similar to `grad` function but using parameter shift internally instead of AD,
+    vmap is utilized for evaluation, so the speed is still ok
+
+    :param f: quantum function with weights in and expectation out
+    :type f: Callable[..., Tensor]
+    :param argnums: label which args should be differentiated,
+        defaults to 0
+    :type argnums: Union[int, Sequence[int]], optional
+    :param jit: whether jit the original function `f` at the beginning,
+        defaults to False
+    :type jit: bool, optional
+    :return: the grad function
+    :rtype: Callable[..., Tensor]
+    """
+    if jit is True:
+        f = backend.jit(f)
+
+    if isinstance(argnums, int):
+        argnums = [argnums]
+
+    vfs = [backend.vmap(f, vectorized_argnums=i) for i in argnums]
+
+    def grad_f(*args: Any, **kws: Any) -> Any:
+        grad_values = []
+        for i in argnums:  # type: ignore
+            shape = backend.shape_tuple(args[i])
+            size = backend.sizen(args[i])
+            onehot = backend.eye(size)
+            onehot = backend.cast(onehot, args[i].dtype)
+            onehot = backend.reshape(onehot, [size] + list(shape))
+            onehot = np.pi / 2 * onehot
+            nargs = list(args)
+            arg = backend.reshape(args[i], [1] + list(shape))
+            batched_arg = backend.tile(arg, [size] + [1 for _ in shape])
+            nargs[i] = batched_arg + onehot
+            nargs2 = list(args)
+            nargs2[i] = batched_arg - onehot
+            r = (vfs[i](*nargs, **kws) - vfs[i](*nargs2, **kws)) / 2.0
+            r = backend.reshape(r, shape)
+            grad_values.append(r)
+        if len(argnums) > 1:  # type: ignore
+            return tuple(grad_values)
+        return grad_values[0]
+
+    return grad_f

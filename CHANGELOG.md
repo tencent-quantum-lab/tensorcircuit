@@ -8,6 +8,16 @@
 
 - Add alias `expps` for `expectation_ps` and `sexpps` for `sampled_expectation_ps`
 
+- Add `counts_d2s` and `counts_s2d` in quantum module to transform different representation of measurement shots results
+
+- Add vmap enhanced `parameter_shift_grad` in experimental module (API subjects to change)
+
+- Add `parameter_shift.py` script in examples
+
+### Changed
+
+- `rxx`, `ryy`, `rzz` gates now has 1/2 factor before theta consitent with `rx`, `ry`, `rz` gates. (breaking change)
+
 ## 0.3.1
 
 ### Added
