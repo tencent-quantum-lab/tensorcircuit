@@ -1878,6 +1878,8 @@ def measurement_counts(
     counts: Optional[int] = 8192,
     sparse: bool = True,
     is_prob: bool = False,
+    random_generator: Optional[Any] = None,
+    jittable: bool = False,
 ) -> Union[Tuple[Tensor, Tensor], Tensor]:
     """
     Simulate the measuring of each qubit of ``p`` in the computational basis,
@@ -1900,6 +1902,11 @@ def measurement_counts(
     :param sparse: Defaults True. The bool indicating whether
         the return form is in the form of two array or one of the same length as the ``state`` (if ``sparse=False``).
     :type sparse: bool
+    :param is_prob: if True, the `state` is directly regarded as a probability list,
+        defaults to be False
+    :type is_prob: bool
+    :param random_generator: random_generator, defaults to None
+    :type random_general: Optional[Any]
     :return: The counts for each bit string measured.
     :rtype: Tuple[]
     """
@@ -1908,12 +1915,13 @@ def measurement_counts(
     else:
         if len(state.shape) == 2:
             state /= backend.trace(state)
-            pi = backend.real(backend.diagonal(state))
+            pi = backend.abs(backend.diagonal(state))
         else:
             state /= backend.norm(state)
             pi = backend.real(backend.conj(state) * state)
         pi = backend.reshape(pi, [-1])
-    d = int(pi.shape[0])
+    d = int(backend.shape_tuple(pi)[0])
+    drange = backend.arange(d)
     # raw counts in terms of integers
     if (counts is None) or counts <= 0:
         if not sparse:
@@ -1921,8 +1929,16 @@ def measurement_counts(
         else:
             return counts_d2s(pi)
     else:
-        raw_counts = backend.implicit_randc(d, shape=counts, p=pi)
-        results = backend.unique_with_counts(raw_counts)
+        if random_generator is None:
+            raw_counts = backend.implicit_randc(drange, shape=counts, p=pi)
+        else:
+            raw_counts = backend.stateful_randc(
+                random_generator, a=drange, shape=counts, p=pi
+            )
+        if not jittable:
+            results = backend.unique_with_counts(raw_counts)  # non-jittable
+        else:  # jax specified
+            results = backend.unique_with_counts(raw_counts, size=d, fill_value=-1)
         if sparse:
             return results  # type: ignore
         dense_results = counts_s2d(results, d)

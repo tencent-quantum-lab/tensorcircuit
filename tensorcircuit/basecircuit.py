@@ -4,7 +4,6 @@ Quantum circuit: common methods for all circuit classes as MixIn
 # pylint: disable=invalid-name
 
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
-from copy import deepcopy
 
 import numpy as np
 import graphviz
@@ -543,7 +542,7 @@ class BaseCircuit(AbstractCircuit):
         self,
         batch: Optional[int] = None,
         allow_state: bool = False,
-        status: Optional[Tensor] = None,
+        random_generator: Optional[Any] = None,
     ) -> Any:
         """
         batched sampling from state or circuit tensor network directly
@@ -553,18 +552,18 @@ class BaseCircuit(AbstractCircuit):
         :param allow_state: if true, we sample from the final state
             if memory allsows, True is prefered, defaults to False
         :type allow_state: bool, optional
-        :param status: random generator,  defaults to None
-        :type status: Optional[Tensor], optional
+        :param random_generator: random generator,  defaults to None
+        :type random_generator: Optional[Any], optional
         :return: List (if batch) of tuple (binary configuration tensor and correponding probability)
         :rtype: Any
         """
         # allow_state = False is compatibility issue
         if not allow_state:
-            if status is None:
-                status = backend.get_random_state()
+            if random_generator is None:
+                random_generator = backend.get_random_state()
 
             if batch is None:
-                seed = backend.stateful_randu(status, shape=[self._nqubits])
+                seed = backend.stateful_randu(random_generator, shape=[self._nqubits])
                 return self.perfect_sampling(seed)
 
             @backend.jit  # type: ignore
@@ -574,7 +573,7 @@ class BaseCircuit(AbstractCircuit):
 
             r = []
 
-            subkey = status
+            subkey = random_generator
             for _ in range(batch):
                 key, subkey = backend.random_split(subkey)
                 r.append(perfect_sampling(key))
@@ -589,12 +588,12 @@ class BaseCircuit(AbstractCircuit):
         if self.is_dm is False:
             p = backend.abs(s) ** 2
         else:
-            p = backend.real(backend.diagonal(s))
-        if status is None:
+            p = backend.abs(backend.diagonal(s))
+        if random_generator is None:
             ch = backend.implicit_randc(a=2**self._nqubits, shape=[nbatch], p=p)
         else:
             ch = backend.stateful_randc(
-                status, a=2**self._nqubits, shape=[nbatch], p=p
+                random_generator, a=2**self._nqubits, shape=[nbatch], p=p
             )
         prob = backend.gather1d(p, ch)
         confg = backend.mod(
@@ -614,6 +613,7 @@ class BaseCircuit(AbstractCircuit):
         y: Optional[Sequence[int]] = None,
         z: Optional[Sequence[int]] = None,
         shots: Optional[int] = None,
+        random_generator: Optional[Any] = None,
         **kws: Any,
     ) -> Tensor:
         """
@@ -635,10 +635,15 @@ class BaseCircuit(AbstractCircuit):
         :type z: Optional[Sequence[int]], optional
         :param shots: number of measurement shots, defaults to None, indicating analytical result
         :type shots: Optional[int], optional
+        :param random_generator: random_generator, defaults to None
+        :type random_general: Optional[Any]
         :return: [description]
         :rtype: Tensor
         """
-        c = deepcopy(self)
+        if self.is_dm is False:
+            c = type(self)(self._nqubits, mps_inputs=self.quvector())  # type: ignore
+        else:
+            c = type(self)(self._nqubits, mpo_dminputs=self.get_dm_as_quoperator())  # type: ignore
         if x is None:
             x = []
         if y is None:
@@ -653,9 +658,17 @@ class BaseCircuit(AbstractCircuit):
         if c.is_dm is False:
             p = backend.abs(s) ** 2
         else:
-            p = backend.real(backend.diagonal(s))
+            p = backend.abs(backend.diagonal(s))
         # readout error can be processed here later
-        mc = measurement_counts(p, counts=shots, sparse=False, is_prob=True)
+        # TODO(@refraction-ray): explicit management on randomness
+        mc = measurement_counts(
+            p,
+            counts=shots,
+            sparse=False,
+            is_prob=True,
+            random_generator=random_generator,
+            jittable=True,
+        )
         x = list(x)
         y = list(y)
         z = list(z)

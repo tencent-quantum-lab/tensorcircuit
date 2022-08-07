@@ -468,3 +468,87 @@ def test_prepend_dmcircuit(backend):
         assert n["name"] == n0
     s = c3.wavefunction()
     np.testing.assert_allclose(s[0], s[1], atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_dm_sexpps(backend):
+    c = tc.DMCircuit(1, inputs=1 / np.sqrt(2) * np.array([1.0, 1.0j]))
+    y = c.sample_expectation_ps(y=[0])
+    ye = c.expectation_ps(y=[0])
+    np.testing.assert_allclose(y, 1.0, atol=1e-5)
+    np.testing.assert_allclose(ye, 1.0, atol=1e-5)
+
+    c = tc.DMCircuit(4)
+    c.H(0)
+    c.H(1)
+    c.X(2)
+    c.Y(3)
+    c.cnot(0, 1)
+    c.depolarizing(1, px=0.05, py=0.05, pz=0.1)
+    c.rx(1, theta=0.3)
+    c.ccnot(2, 3, 1)
+    c.depolarizing(0, px=0.05, py=0.0, pz=0.1)
+    c.rzz(0, 3, theta=0.5)
+    c.ry(3, theta=2.2)
+    c.amplitudedamping(2, gamma=0.1, p=0.95)
+    c.s(1)
+    c.td(2)
+    c.cswap(3, 0, 1)
+    y = c.sample_expectation_ps(x=[1], y=[0], z=[2, 3])
+    ye = c.expectation_ps(x=[1], y=[0], z=[2, 3])
+    np.testing.assert_allclose(ye, y, atol=1e-5)
+    y2 = c.sample_expectation_ps(x=[1], y=[0], z=[2, 3], shots=81920)
+    assert np.abs(y2 - y) < 0.01
+
+
+def test_dm_sexpps_jittable_vamppable(jaxb):
+    n = 4
+    m = 2
+
+    def f(param, key):
+        c = tc.DMCircuit(n)
+        for j in range(m):
+            for i in range(n - 1):
+                c.cnot(i, i + 1)
+            for i in range(n):
+                c.rx(i, theta=param[i, j])
+        return tc.backend.real(
+            c.sample_expectation_ps(y=[n // 2], shots=8192, random_generator=key)
+        )
+
+    vf = tc.backend.jit(tc.backend.vmap(f, vectorized_argnums=(0, 1)))
+    r = vf(
+        tc.backend.ones([2, n, m], dtype="float32"),
+        tc.backend.stack(
+            [
+                tc.backend.get_random_state(42),
+                tc.backend.get_random_state(43),
+            ]
+        ),
+    )
+    assert np.abs(r[0] - r[1]) > 1e-4
+
+    print(r)
+
+
+def test_dm_sexpps_jittable_vamppable_tf(tfb):
+    # finally giving up backend agnosticity
+    # and not sure the effciency and the safety of vmap random in tf
+    n = 4
+    m = 2
+
+    def f(param):
+        c = tc.DMCircuit(n)
+        for j in range(m):
+            for i in range(n - 1):
+                c.cnot(i, i + 1)
+            for i in range(n):
+                c.rx(i, theta=param[i, j])
+        return tc.backend.real(c.sample_expectation_ps(y=[n // 2], shots=8192))
+
+    vf = tc.backend.jit(tc.backend.vmap(f, vectorized_argnums=0))
+    r = vf(tc.backend.ones([2, n, m]))
+    r1 = vf(tc.backend.ones([2, n, m]))
+    assert np.abs(r[0] - r[1]) > 1e-5
+    assert np.abs(r[0] - r1[0]) > 1e-5
+    print(r, r1)

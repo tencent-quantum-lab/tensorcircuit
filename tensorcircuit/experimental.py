@@ -226,6 +226,7 @@ def parameter_shift_grad(
     :return: the grad function
     :rtype: Callable[..., Tensor]
     """
+    # TODO(@refraction-ray): finite shot sample_expectation_ps not supported well for now
     if jit is True:
         f = backend.jit(f)
 

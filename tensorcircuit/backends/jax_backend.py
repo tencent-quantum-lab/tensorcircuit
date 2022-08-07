@@ -367,8 +367,10 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     def argmin(self, a: Tensor, axis: int = 0) -> Tensor:
         return jnp.argmin(a, axis=axis)
 
-    def unique_with_counts(self, a: Tensor) -> Tuple[Tensor, Tensor]:
-        return jnp.unique(a, return_counts=True)  # type: ignore
+    def unique_with_counts(
+        self, a: Tensor, *, size: Optional[int] = None, fill_value: Optional[int] = None
+    ) -> Tuple[Tensor, Tensor]:
+        return jnp.unique(a, return_counts=True, size=size, fill_value=fill_value)  # type: ignore
 
     def sigmoid(self, a: Tensor) -> Tensor:
         return libjax.nn.sigmoid(a)

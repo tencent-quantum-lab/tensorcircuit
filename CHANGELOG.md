@@ -14,9 +14,13 @@
 
 - Add `parameter_shift.py` script in examples
 
+- Add jit support and external random management for `tc.quantum.measurement_counts`
+
 ### Changed
 
 - `rxx`, `ryy`, `rzz` gates now has 1/2 factor before theta consitent with `rx`, `ry`, `rz` gates. (breaking change)
+
+- replace `status` arguments in `sample` method as `random_generator` (new convention: status for 0, 1 uniform randomness and random_generator for random key) (breaking change)
 
 ## 0.3.1
 

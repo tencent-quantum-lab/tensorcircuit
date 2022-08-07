@@ -355,7 +355,7 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
     def argmin(self, a: Tensor, axis: int = 0) -> Tensor:
         return tf.math.argmin(a, axis=axis)
 
-    def unique_with_counts(self, a: Tensor) -> Tuple[Tensor, Tensor]:
+    def unique_with_counts(self, a: Tensor, **kws: Any) -> Tuple[Tensor, Tensor]:
         r = tf.unique_with_counts(a)
         order = tf.argsort(r.y)
         return tf.gather(r.y, order), tf.gather(r.count, order)
