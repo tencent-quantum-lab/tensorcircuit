@@ -394,7 +394,7 @@ class BaseCircuit(AbstractCircuit):
         :rtype: Tuple[str, float]
         """
         return self.measure_jit(
-            *[i for i in range(self._nqubits)], with_prob=True, status=status
+            *range(self._nqubits), with_prob=True, status=status
         )
 
     def measure_jit(

@@ -4,6 +4,8 @@ Quantum circuit: MPS state simulator
 # pylint: disable=invalid-name
 
 from functools import reduce
+from posixpath import split
+from tkinter import W
 from typing import Any, List, Optional, Sequence, Tuple, Dict, Union
 import wave
 
@@ -12,7 +14,7 @@ import tensornetwork as tn
 from tensorcircuit.quantum import QuOperator, QuVector
 
 from . import gates
-from .cons import backend, npdtype
+from .cons import backend, npdtype, contractor, rdtypestr, dtypestr
 from .mps_base import FiniteMPS
 from .abstractcircuit import AbstractCircuit
 
@@ -89,17 +91,15 @@ class MPSCircuit(AbstractCircuit):
 
     """
 
-    # TODO(@SUSYUSTC): Add 3-qubits gates support
-
     is_mps = True
 
     def __init__(
         self,
         nqubits: int,
-        center_position: int = 0,
-        rules: Dict[str, Any] = {},
+        center_position: Optional[int] = None,
         tensors: Optional[Sequence[Tensor]] = None,
         wavefunction: Optional[Union[QuVector, Tensor]] = None,
+        **rules: Dict[str, Any],
     ) -> None:
         """
         MPSCircuit object based on state simulator.
@@ -108,13 +108,13 @@ class MPSCircuit(AbstractCircuit):
         :type nqubits: int
         :param center_position: The center position of MPS, default to 0
         :type center_position: int, optional
-        :param rules: Truncation rules
-        :type rules: Dict
-        :param tensors: If not None, the initial state of the circuit is taken as ``tensors``
-            instead of :math:`\\vert 0\\rangle^n` qubits, defaults to None
+        :param tensors: If not None, the initial state of the circuit is taken as ``tensors`` instead of :math:`\\vert 0\\rangle^n` qubits, defaults to None. 
+        When ``tensors`` are specified, if ``center_position`` is None, then the tensors are canonicalized, otherwise it is assumed the tensors are already canonicalized at the ``center_position``
         :type tensors: Sequence[Tensor], optional
         :param wavefunction: If not None, it is transformed to the MPS form according to the truncation rules
         :type wavefunction: Tensor
+        :param rules: Truncation rules
+        :type rules: Dict
         """
         self.circuit_param = {
             "nqubits": nqubits,
@@ -129,29 +129,53 @@ class MPSCircuit(AbstractCircuit):
             if isinstance(wavefunction, QuVector):
                 wavefunction = wavefunction.eval()
             tensors = self.wavefunction_to_tensors(wavefunction, **self.rules)
-        elif tensors is None:
+            assert len(tensors) == nqubits
+            self._mps = FiniteMPS(
+                tensors, canonicalize=False)
+            self._mps.center_position = 0
+            if center_position is not None:
+                self.position(center_position)
+        elif tensors is not None:
+            if center_position is not None:
+                self._mps = FiniteMPS(
+                    tensors, canonicalize=False)
+                self._mps.center_position = center_position
+            else:
+                self._mps = FiniteMPS(
+                    tensors, canonicalize=True, center_position=0)
+        else:
             tensors = [
                 np.array([1.0, 0.0], dtype=npdtype)[None, :, None]
                 for i in range(nqubits)
             ]
-        assert len(tensors) == nqubits
-        self._mps = FiniteMPS(
-            tensors, canonicalize=True, center_position=center_position
-        )
+            self._mps = FiniteMPS(
+                tensors, canonicalize=False)
+            if center_position is not None:
+                self._mps.center_position = center_position
+            else:
+                self._mps.center_position = 0
 
         self._nqubits = nqubits
         self._fidelity = 1.0
-        self.set_truncation_rule()
         self._qir: List[Dict[str, Any]] = []
 
     # `MPSCircuit` does not has `replace_inputs` like `Circuit`
     # because the gates are immediately absorted into the MPS when applied,
     # so it is impossible to remember the initial structure
 
-    def get_tensors(self):
+    @property
+    def bond_dimensions(self):
+        return self._mps.bond_dimensions
+
+    @property
+    def tensors(self):
         return self._mps.tensors
 
-    def set_truncation_rule(self, rules: Dict[str, Any]) -> None:
+    @property
+    def center_position(self):
+        return self._mps.center_position
+    
+    def set_truncation_rule(self, **rules: Dict[str, Any]) -> None:
         """
         Set truncation rules when double qubit gates are applied.
         If nothing is specified, no truncation will take place and the bond dimension will keep growing.
@@ -224,6 +248,23 @@ class MPSCircuit(AbstractCircuit):
         )
         self._fidelity *= 1 - backend.real(backend.sum(err**2))
 
+    def consecutive_swap(
+        self,
+        index_from: int,
+        index_to: int,
+    ) -> None:
+        self.position(index_from)
+        if index_from < index_to:
+            for i in range(index_from, index_to):
+                self.apply_adjacent_double_gate(gates.swap(), i, i+1, center_position=i+1)
+        elif index_from > index_to:
+            for i in range(index_from, index_to, -1):
+                self.apply_adjacent_double_gate(gates.swap(), i-1, i, center_position=i-1)
+        else:
+            # index_from == index_to
+            pass
+        assert self._mps.center_position == index_to
+
     def apply_double_gate(
         self,
         gate: Gate,
@@ -244,37 +285,181 @@ class MPSCircuit(AbstractCircuit):
         diff1 = abs(index1 - self._mps.center_position)  # type: ignore
         diff2 = abs(index2 - self._mps.center_position)  # type: ignore
         if diff1 < diff2:
-            self.position(index1)
-            for index in np.arange(index1, index2 - 1):
-                self.apply_adjacent_double_gate(
-                    gates.swap(), index, index + 1, center_position=index + 1  # type: ignore
-                )
+            self.consecutive_swap(index1, index2 - 1)
             self.apply_adjacent_double_gate(
                 gate, index2 - 1, index2, center_position=index2 - 1
             )
-            for index in np.arange(index1, index2 - 1)[::-1]:
-                self.apply_adjacent_double_gate(
-                    gates.swap(), index, index + 1, center_position=index  # type: ignore
-                )
+            self.consecutive_swap(index2 - 1, index1)
         else:
-            self.position(index2)
-            for index in np.arange(index1 + 1, index2)[::-1]:
-                self.apply_adjacent_double_gate(
-                    gates.swap(), index, index + 1, center_position=index  # type: ignore
-                )
+            self.consecutive_swap(index2, index1 + 1)
             self.apply_adjacent_double_gate(
                 gate, index1, index1 + 1, center_position=index1 + 1
             )
-            for index in np.arange(index1 + 1, index2):
-                self.apply_adjacent_double_gate(
-                    gates.swap(), index, index + 1, center_position=index + 1  # type: ignore
-                )
+            self.consecutive_swap(index1 + 1, index2)
+
+    @classmethod
+    def gate_to_MPO(
+        cls,
+        gate: Union[Gate, Tensor],
+        *index: int,
+        ) -> Tuple[Sequence[Tensor], int]:
+        # should I put this function here?
+        '''
+        If sites are not adjacent, insert identities in the middle, i.e.
+          |       |             |   |   |
+        --A---x---B--   ->    --A---I---B--
+          |       |             |   |   |
+        where
+             a
+             |
+        --i--I--j-- = \delta_{i,j} \delta_{a,b}
+             |
+             b
+        '''
+        index_left = np.min(index)
+        if isinstance(gate, tn.Node):
+            gate = backend.copy(gate.tensor)
+        index = np.array(index) - index_left
+        nindex = len(index)
+        # transform gate from (in1, in2, ..., out1, out2 ...) to
+        order = tuple(np.arange(2*nindex).reshape((2, nindex)).T.flatten())
+        shape = (4, ) * nindex
+        gate = backend.reshape(backend.transpose(gate, order), shape)
+        # (in1, out1, in2, out2, ...)
+        argsort = np.argsort(index)
+        # reorder the gate according to the site positions
+        gate = backend.transpose(gate, tuple(argsort))
+        index = index[argsort]
+        length = index[-1] + 1
+        # split the gate into tensors assuming they are adjacent
+        main_tensors = cls.wavefunction_to_tensors(gate, dim_phys=4, norm=False)
+        # each tensor is in shape of (i, a, b, j)
+        tensors = []
+        previous_i = None
+        for i, main_tensor in zip(index, main_tensors):
+            # insert identites in the middle
+            if previous_i is not None:
+                for middle in range(previous_i + 1, i):
+                    bond_dim = tensors[-1].shape[-1]
+                    I = np.eye(bond_dim * 2).reshape((bond_dim, 2, bond_dim, 2)).transpose((0, 1, 3, 2))
+                    tensors.append(backend.convert_to_tensor(I))
+            nleft, _, nright = main_tensor.shape
+            tensor = backend.reshape(main_tensor, (nleft, 2, 2, nright))
+            tensors.append(tensor)
+            previous_i = i
+        return tensors, index_left
+        
+    @classmethod
+    def MPO_to_gate(
+        cls,
+        tensors: Sequence[Tensor],
+    ) -> Gate:
+        '''
+             1
+             |
+        --0--A--3--
+             |
+             2
+        '''
+        nodes = [tn.Node(tensor) for tensor in tensors]
+        length = len(nodes)
+        output_edges = [nodes[0].get_edge(0)]
+        for i in range(length-1):
+            nodes[i].get_edge(3) ^ nodes[i+1].get_edge(0)
+        for i in range(length):
+            output_edges.append(nodes[i].get_edge(1))
+        for i in range(length):
+            output_edges.append(nodes[i].get_edge(2))
+        output_edges.append(nodes[length-1].get_edge(3))
+        gate = contractor(nodes, output_edge_order=output_edges)
+        gate = Gate(gate.tensor[0, ..., 0])
+        return gate
+        
+    @classmethod
+    def reduce_tensor_dimension(
+        cls,
+        tensor_left: int, 
+        tensor_right: int, 
+        left: bool=True,
+        **rules: Dict[str, Any],
+        ):
+        ni = tensor_left.shape[0]
+        nk = tensor_right.shape[-1]
+        T = backend.einsum("iaj,jbk->iabk", tensor_left, tensor_right)
+        T = backend.reshape(T, (ni * 2, nk * 2))
+        new_tensor_left, new_tensor_right = split_tensor(T, left=left, **rules)
+        new_tensor_left = backend.reshape(new_tensor_left, (ni, 2, -1))
+        new_tensor_right = backend.reshape(new_tensor_right, (-1, 2, nk))
+        return new_tensor_left, new_tensor_right
+
+    def reduce_dimension(
+        self, 
+        index_left: int, 
+        index_right: int, 
+        left: bool=True,
+        ):
+        assert index_left + 1 == index_right
+        assert self._mps.center_position in [index_left, index_right]
+        tensor_left = self._mps.tensors[index_left]
+        tensor_right = self._mps.tensors[index_right]
+        new_tensor_left, new_tensor_right = self.reduce_tensor_dimension(tensor_left, tensor_right, left=left, **self.rules)
+        self._mps.tensors[index_left] = new_tensor_left
+        self._mps.tensors[index_right] = new_tensor_right
+        if left:
+            self._mps.center_position = index_left
+        else:
+            self._mps.center_position = index_right
 
     def apply_MPO(self, 
         tensors: Sequence[Tensor],
-        index_from: int
+        index_left: int,
+        center_left: bool = True,
         ) -> None:
-        raise NotImplementedError
+        '''
+        left: put the center at left
+        O means MPO operator, T means MPS tensor
+        step 1:
+            contract tensor
+                  a
+                  |
+            i-----O-----j            a
+                  |        ->        |
+                  b             ik---X---jl
+                  |   
+            k-----T-----l
+        step 2:
+            canonicalize the tensors one by one from end1 to end2
+        setp 3:
+            reduce the bond dimension one by one from end2 to end1
+        '''
+        assert center_left
+        self.position(index_left)
+        nindex = len(tensors)
+        index_right = index_left + nindex - 1
+        # contract
+        for i in range(nindex):
+            O = tensors[i]
+            T = self._mps.tensors[i + index_left]
+            ni, _, _, nj = O.shape
+            nk, _, nl = T.shape
+            OT = backend.einsum("iabj,kbl->ikajl", O, T)
+            OT = backend.reshape(OT, (ni*nk, 2, nj*nl))
+            self._mps.tensors[i + index_left] = OT
+        # canonicalize
+        # FiniteMPS.position applies QR sequentially from index_left to index_right
+        self._mps.position(index_right)
+        # reduce bond dimension
+        for i in range(index_right, index_left, -1):
+            self.reduce_dimension(i-1, i, True)
+
+    def apply_nqubit_gate(
+        self,
+        gate: Gate,
+        *index: int,
+        center_left: bool = True,
+    ) -> None:
+        MPO, index_left = self.gate_to_MPO(gate, *index)
+        self.apply_MPO(MPO, index_left, center_left=center_left)
 
     def apply_general_gate(
         self,
@@ -318,8 +503,7 @@ class MPSCircuit(AbstractCircuit):
         elif noe == 2:
             self.apply_double_gate(gate, *index)
         else:
-            raise ValueError("MPS does not support application of gate on > 2 qubits")
-
+            self.apply_nqubit_gate(gate, *index)
     apply = apply_general_gate
 
     def mid_measurement(self, index: int, keep: int = 0) -> None:
@@ -358,15 +542,21 @@ class MPSCircuit(AbstractCircuit):
     @staticmethod
     def wavefunction_to_tensors(
         wavefunction: Tensor,
-        **rules: Dict[str, Any]
+        dim_phys: int = 2,
+        norm: bool = True,
+        **rules: Dict[str, Any],
     ) -> List[Tensor]:
         """
-        Construct the MPS from a given wavefunction.
+        Construct the MPS tensors from a given wavefunction.
 
         :param wavefunction: The given wavefunction (any shape is OK)
         :type wavefunction: Tensor
         :param rules: Truncation rules
         :type rules: Dict
+        :param dim_phys: Physical dimension, 2 for MPS and 4 for MPO
+        :type dim_phys: int
+        :param norm: Whether to normalize the wavefunction
+        :type norm: bool
         :return: The tensors
         :rtype: List[Tensor]
         """
@@ -374,15 +564,17 @@ class MPSCircuit(AbstractCircuit):
         tensors: List[Tensor] = []
         while True:  # not jittable
             nright = wavefunction.shape[1]
-            wavefunction = backend.reshape(wavefunction, (-1, nright * 2))
+            wavefunction = backend.reshape(wavefunction, (-1, nright * dim_phys))
             wavefunction, Q = split_tensor(
                 wavefunction,
                 left=True,
                 **rules,
             )
-            tensors.insert(0, backend.reshape(Q, (-1, 2, nright)))
+            tensors.insert(0, backend.reshape(Q, (-1, dim_phys, nright)))
             if wavefunction.shape == (1, 1):
                 break
+        if not norm:
+            tensors[-1] *= wavefunction[0, 0]
         return tensors
 
     def wavefunction(self, form: str = "default") -> Tensor:
@@ -393,6 +585,9 @@ class MPSCircuit(AbstractCircuit):
         :type form: str, optional
         :return: Tensor with shape [1, -1]
         :rtype: Tensor
+           a  b           ab
+           |  |           ||
+        i--A--B--j  -> i--XX--j
         """
         result = backend.ones((1, 1, 1), dtype=npdtype)
         for tensor in self._mps.tensors:
@@ -514,7 +709,7 @@ class MPSCircuit(AbstractCircuit):
         else:
             return sample, -1
 
-    def proj_with_mps(self, other: "MPSCircuit") -> Tensor:
+    def proj_with_mps(self, other: "MPSCircuit", conj=True) -> Tensor:
         """
         Compute the projection between `other` as bra and `self` as ket.
 
@@ -523,20 +718,26 @@ class MPSCircuit(AbstractCircuit):
         :return: The projection in form of tensor
         :rtype: Tensor
         """
-        bra = other.conj().copy()
+        if conj:
+            bra = other.conj().copy()
+        else:
+            bra = other.copy()
         ket = self.copy()
         assert bra._nqubits == ket._nqubits
         n = bra._nqubits
 
         while n > 1:
-            # --bA---bB
-            #   |    |
-            #   |    |
-            # --kA---kB
+            '''
+             i--bA--k--bB---m
+                 |      |   |
+                 a      b   |
+                 |      |   |
+             j--kA--l--kB---m
+            '''
             bra_A, bra_B = bra._mps.tensors[-2:]
             ket_A, ket_B = ket._mps.tensors[-2:]
-            proj_B = backend.einsum("iak,jak->ij", bra_B, ket_B)
-            new_kA = backend.einsum("iak,jk->iaj", ket_A, proj_B)
+            proj_B = backend.einsum("kbm,lbm->kl", bra_B, ket_B)
+            new_kA = backend.einsum("jal,kl->jak", ket_A, proj_B)
             bra._mps.tensors = bra._mps.tensors[:-1]
             ket._mps.tensors = ket._mps.tensors[:-1]
             ket._mps.tensors[-1] = new_kA
@@ -546,7 +747,20 @@ class MPSCircuit(AbstractCircuit):
         result = backend.sum(bra_A * ket_A)
         return backend.convert_to_tensor(result)
 
-    def general_expectation(self, *ops: Tuple[Gate, List[int]]) -> Tensor:
+    def slice(self, begin: int, end: int) -> "MPSCircuit":
+        nqubits = end - begin + 1
+        tensors = [backend.copy(t) for t in self.tensors[begin:end+1]]
+        mps = self.__class__(nqubits, tensors=tensors, center_position=self.center_position, **self.rules)
+        return mps
+        
+    def expectation(
+        self, 
+        *ops: Tuple[Gate, List[int]], 
+        other: Optional["MPSCircuit"] = None, 
+        conj=True,
+        normalize=False,
+        **rules: Dict[str, Any],
+        ) -> Tensor:
         """
         Compute the expectation of corresponding operators in the form of tensor.
 
@@ -556,73 +770,102 @@ class MPSCircuit(AbstractCircuit):
         :return: The expectation of corresponding operators
         :rtype: Tensor
         """
-        # TODO(@SUSYUSTC): Maybe a better idea is to create a MPO class and have a function to transform gates to MPO
-        mpscircuit = self.copy()
-        for gate, index in ops:
-            mpscircuit.apply_general_gate(gate, *index)
-        value = mpscircuit.proj_with_mps(self)
-        return backend.convert_to_tensor(value)
+        # If the bra is ket itself, the environments outside the operators can be viewed as identities so does not need to contract
+        ops = [list(op) for op in ops] # turn to list for modification
+        for op in ops:
+            if isinstance(op[1], int):
+                op[1] = [op[1]]
+        all_sites = np.concatenate([op[1] for op in ops])
 
-    def expectation_single_gate(
-        self,
-        gate: Gate,
-        site: int,
-    ) -> Tensor:
-        """
-        Compute the expectation of the corresponding single qubit gate in the form of tensor.
+        # move position inside the operator range
+        if other is None:
+            site_begin = np.min(all_sites)
+            site_end = np.max(all_sites)
+            if self.center_position < site_begin:
+                self.position(site_begin)
+            elif self.center_position > site_end:
+                self.position(site_end)
+        else:
+            assert isinstance(other, MPSCircuit), "the bra has to be a MPSCircuit"
 
-        :param gate: Gate to be applied
-        :type gate: Gate
-        :param site: Qubit index of the gate
-        :type site: int
-        :return: The expectation of the corresponding single qubit gate
-        :rtype: Tensor
-        """
-        value = self._mps.measure_local_operator([gate.tensor], [site])[0]
-        return backend.convert_to_tensor(value)
-
-    def expectation_double_gates(
-        self,
-        gate: Gate,
-        site1: int,
-        site2: int,
-    ) -> Tensor:
-        # TODO@(SUSYUSTC): Could be more efficient by representing distant double gates as MPO
-        """
-        Compute the expectation of the corresponding double qubit gate.
-
-        :param gate: gate to be applied
-        :type gate: Gate
-        :param site: qubit index of the gate
-        :type site: int
-        """
+        # apply the gate
         mps = self.copy()
-        # disable truncation
-        mps.set_truncation_rule()
-        mps.apply_double_gate(gate, site1, site2)
-        return mps.proj_with_mps(self)
+        mps.set_truncation_rule(**rules)
+        for gate, index in ops:
+            mps.apply(gate, *index)
 
-    def expectation_two_gates_product(
-        self, gate1: Gate, gate2: Gate, site1: int, site2: int
-    ) -> Tensor:
-        """
-        Compute the expectation of the direct product of the corresponding two gates.
+        if other is None:
+            assert (self.center_position >= site_begin) and (self.center_position <= site_end)
+            ket = mps.slice(site_begin, site_end)
+            bra = self.slice(site_begin, site_end)
+        else:
+            ket = mps
+            bra = other
+        value = ket.proj_with_mps(bra, conj=conj)
+        value = backend.convert_to_tensor(value)
 
-        :param gate1: First gate to be applied
-        :type gate1: Gate
-        :param gate2: Second gate to be applied
-        :type gate2: Gate
-        :param site1: Qubit index of the first gate
-        :type site1: int
-        :param site2: Qubit index of the second gate
-        :type site2: int
-        :return: The correlation of the corresponding two qubit gates
-        :rtype: Tensor
-        """
-        value = self._mps.measure_two_body_correlator(
-            gate1.tensor, gate2.tensor, site1, [site2]
-        )[0]
-        return backend.convert_to_tensor(value)
+        if normalize:
+            norm1 = self.get_norm()
+            if other is None:
+                norm2 = norm1
+            else:
+                norm2 = other.get_norm()
+            norm = backend.sqrt(norm1 * norm2)
+            value /= norm
+        return value
+
+    def get_quvector(self) -> QuVector:
+        return QuVector.from_tensor(backend.reshape2(self.wavefunction()))
+    
+    def measure(
+        self,
+        *index: int,
+        with_prob: bool = False,
+        status: Optional[Tensor] = None,
+    ) -> Tuple[Tensor, Tensor]:
+        '''
+        '''
+        is_sorted = np.all(np.sort(index) == np.array(index))
+        if not is_sorted:
+            order = np.argsort(index).tolist()
+            sample, p = self.measure(*np.sort(index), with_prob=with_prob, status=status)
+            return sample[order], p
+        # set the center to the left side, then gradually move to the right and do measurement at sites
+        mps = self.copy()
+        up = backend.convert_to_tensor(np.array([1, 0]))
+        down = backend.convert_to_tensor(np.array([0, 1]))
+
+        p = 1.0
+        p = backend.convert_to_tensor(p)
+        p = backend.cast(p, dtype=rdtypestr)
+        sample = []
+        for k, site in enumerate(index):
+            mps.position(site)
+            # do measurement
+            tensor = mps.tensors[site]
+            ps = backend.real(backend.einsum("iaj,iaj->a", tensor, backend.conj(tensor)))
+            ps /= backend.sum(ps)
+            pu = ps[0]
+            if status is None:
+                r = backend.implicit_randu()[0]
+            else:
+                r = status[k]
+            r = backend.real(backend.cast(r, dtypestr))
+            eps = 0.31415926 * 1e-12
+            sign = backend.sign(r - pu + eps) / 2 + 0.5  # in case status is exactly 0.5
+            sign = backend.convert_to_tensor(sign)
+            sign = backend.cast(sign, dtype=rdtypestr)
+            sign_complex = backend.cast(sign, dtypestr)
+            sample.append(sign_complex)
+            p = p * (pu * (-1) ** sign + sign)
+            m = (1 - sign_complex) * up + sign_complex * down
+            mps.tensors[site] = backend.einsum("iaj,a->ij", tensor, m)[:, None, :]
+        sample = backend.stack(sample)
+        sample = backend.real(sample)
+        if with_prob:
+            return sample, p
+        else:
+            return sample, -1.0
 
 
 MPSCircuit._meta_apply()

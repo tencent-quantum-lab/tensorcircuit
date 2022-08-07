@@ -31,6 +31,7 @@ from . import interfaces
 from . import templates
 from . import quantum
 from .quantum import QuOperator, QuVector, QuAdjointVector, QuScalar
+from .mpscircuit import truncation_rules
 
 try:
     from . import keras
