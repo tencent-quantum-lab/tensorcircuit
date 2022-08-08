@@ -48,7 +48,7 @@ def truncation_rules(
 
 def split_tensor(
     tensor: Tensor,
-    left: bool = True,
+    center_left: bool = True,
     **rules,
 ) -> Tuple[Tensor, Tensor]:
     """
@@ -56,8 +56,8 @@ def split_tensor(
 
     :param tensor: The input tensor to split.
     :type tensor: Tensor
-    :param left: Determine the orthogonal center is on the left tensor or the right tensor.
-    :type left: bool, optional
+    :param center_left: Determine the orthogonal center is on the left tensor or the right tensor.
+    :type center_left: bool, optional
     :return: Two tensors after splitting
     :rtype: Tuple[Tensor, Tensor]
     """
@@ -65,12 +65,12 @@ def split_tensor(
     svd = len(rules) > 0
     if svd:
         U, S, VH, _ = backend.svd(tensor, **rules)
-        if left:
+        if center_left:
             return backend.matmul(U, backend.diagflat(S)), VH
         else:
             return U, backend.matmul(backend.diagflat(S), VH)
     else:
-        if left:
+        if center_left:
             return backend.rq(tensor)  # type: ignore
         else:
             return backend.qr(tensor)  # type: ignore
@@ -163,16 +163,16 @@ class MPSCircuit(AbstractCircuit):
     # because the gates are immediately absorted into the MPS when applied,
     # so it is impossible to remember the initial structure
 
-    @property
-    def bond_dimensions(self):
+    #@property
+    def get_bond_dimensions(self):
         return self._mps.bond_dimensions
 
-    @property
-    def tensors(self):
+    #@property
+    def get_tensors(self):
         return self._mps.tensors
 
-    @property
-    def center_position(self):
+    #@property
+    def get_center_position(self):
         return self._mps.center_position
     
     def set_truncation_rule(self, **rules: Dict[str, Any]) -> None:
@@ -281,7 +281,8 @@ class MPSCircuit(AbstractCircuit):
         :param index2: The second qubit index of the gate
         :type index2: int
         """
-        # Equivalent to apply N SWPA gates, the required gate, N SWAP gates sequentially on adjacent gates
+        # apply N SWPA gates, the required gate, N SWAP gates sequentially on adjacent gates
+        # start the swap from the side that the current center is closer to
         diff1 = abs(index1 - self._mps.center_position)  # type: ignore
         diff2 = abs(index2 - self._mps.center_position)  # type: ignore
         if diff1 < diff2:
@@ -378,16 +379,16 @@ class MPSCircuit(AbstractCircuit):
     @classmethod
     def reduce_tensor_dimension(
         cls,
-        tensor_left: int, 
-        tensor_right: int, 
-        left: bool=True,
+        tensor_left: Tensor, 
+        tensor_right: Tensor, 
+        center_left: bool=True,
         **rules: Dict[str, Any],
         ):
         ni = tensor_left.shape[0]
         nk = tensor_right.shape[-1]
         T = backend.einsum("iaj,jbk->iabk", tensor_left, tensor_right)
         T = backend.reshape(T, (ni * 2, nk * 2))
-        new_tensor_left, new_tensor_right = split_tensor(T, left=left, **rules)
+        new_tensor_left, new_tensor_right = split_tensor(T, center_left=center_left, **rules)
         new_tensor_left = backend.reshape(new_tensor_left, (ni, 2, -1))
         new_tensor_right = backend.reshape(new_tensor_right, (-1, 2, nk))
         return new_tensor_left, new_tensor_right
@@ -396,16 +397,19 @@ class MPSCircuit(AbstractCircuit):
         self, 
         index_left: int, 
         index_right: int, 
-        left: bool=True,
+        center_left: bool=True,
         ):
+        if index_left > index_right:
+            self.reduce_dimension(index_right, index_left, center_left=center_left)
+            return
         assert index_left + 1 == index_right
         assert self._mps.center_position in [index_left, index_right]
         tensor_left = self._mps.tensors[index_left]
         tensor_right = self._mps.tensors[index_right]
-        new_tensor_left, new_tensor_right = self.reduce_tensor_dimension(tensor_left, tensor_right, left=left, **self.rules)
+        new_tensor_left, new_tensor_right = self.reduce_tensor_dimension(tensor_left, tensor_right, center_left=center_left, **self.rules)
         self._mps.tensors[index_left] = new_tensor_left
         self._mps.tensors[index_right] = new_tensor_right
-        if left:
+        if center_left:
             self._mps.center_position = index_left
         else:
             self._mps.center_position = index_right
@@ -416,7 +420,6 @@ class MPSCircuit(AbstractCircuit):
         center_left: bool = True,
         ) -> None:
         '''
-        left: put the center at left
         O means MPO operator, T means MPS tensor
         step 1:
             contract tensor
@@ -432,34 +435,51 @@ class MPSCircuit(AbstractCircuit):
         setp 3:
             reduce the bond dimension one by one from end2 to end1
         '''
-        assert center_left
-        self.position(index_left)
         nindex = len(tensors)
         index_right = index_left + nindex - 1
+        if center_left:
+            end1 = index_left
+            end2 = index_right
+            step = 1
+        else:
+            end1 = index_right
+            end2 = index_left
+            step = -1
+        idx_list = np.arange(index_left, index_right + 1)[::step]
+        i_list = np.arange(nindex)[::step]
+
+        self.position(end1)
         # contract
-        for i in range(nindex):
+        for i, idx in zip(i_list, idx_list):
             O = tensors[i]
-            T = self._mps.tensors[i + index_left]
+            T = self._mps.tensors[idx]
             ni, _, _, nj = O.shape
             nk, _, nl = T.shape
             OT = backend.einsum("iabj,kbl->ikajl", O, T)
             OT = backend.reshape(OT, (ni*nk, 2, nj*nl))
-            self._mps.tensors[i + index_left] = OT
+            self._mps.tensors[idx] = OT
+
         # canonicalize
         # FiniteMPS.position applies QR sequentially from index_left to index_right
-        self._mps.position(index_right)
+        self.position(end2)
+
         # reduce bond dimension
-        for i in range(index_right, index_left, -1):
-            self.reduce_dimension(i-1, i, True)
+        for i in idx_list[::-1][:-1]:
+            self.reduce_dimension(i, i - step, center_left=center_left)
+        assert self._mps.center_position == end1
 
     def apply_nqubit_gate(
         self,
         gate: Gate,
         *index: int,
-        center_left: bool = True,
     ) -> None:
         MPO, index_left = self.gate_to_MPO(gate, *index)
-        self.apply_MPO(MPO, index_left, center_left=center_left)
+        index_right = index_left + len(MPO) - 1
+        # start the MPO from the side that the current center is closer to
+        diff_left = abs(index_left - self._mps.center_position)  # type: ignore
+        diff_right = abs(index_right - self._mps.center_position)  # type: ignore
+        self.apply_MPO(MPO, index_left, center_left=diff_left < diff_right)
+        #self.apply_MPO(MPO, index_left, center_left=False)
 
     def apply_general_gate(
         self,
@@ -519,7 +539,7 @@ class MPSCircuit(AbstractCircuit):
         # normalization not guaranteed
         assert keep in [0, 1]
         self.position(index)
-        self._mps.tensors[index] = self._mps.tensors[index][:, keep, :]
+        self._mps.tensors[index] = self._mps.tensors[index][:, keep, :][:, None, :]
 
     def is_valid(self) -> bool:
         """
@@ -567,7 +587,7 @@ class MPSCircuit(AbstractCircuit):
             wavefunction = backend.reshape(wavefunction, (-1, nright * dim_phys))
             wavefunction, Q = split_tensor(
                 wavefunction,
-                left=True,
+                center_left=True,
                 **rules,
             )
             tensors.insert(0, backend.reshape(Q, (-1, dim_phys, nright)))
@@ -670,49 +690,6 @@ class MPSCircuit(AbstractCircuit):
         tensors = [self._mps.tensors[i][:, int(s), :] for i, s in enumerate(l)]
         return reduce(backend.matmul, tensors)[0, 0]
 
-    def measure(self, *index: int, with_prob: bool = False) -> Tuple[str, float]:
-        """
-        :param index: integer indicating the measure on which quantum line
-        :param with_prob: if true, theoretical probability is also returned
-        :return:
-        """
-        n = len(index)
-        if not np.all(np.diff(index) >= 0):
-            argsort = np.argsort(index)
-            invargsort = np.zeros((n,), dtype=int)
-            invargsort[argsort] = np.arange(n)
-            sample, prob = self.measure(*np.array(index)[argsort], with_prob=with_prob)
-            return "".join(np.array(list(sample))[invargsort]), prob
-
-        # Assume no equivalent indices
-        assert np.all(np.diff(index) > 0)
-        # Assume that the index is in correct order
-        mpscircuit = self.copy()
-        sample = ""
-        p = 1.0
-        # TODO@(SUSYUSTC): add the possibility to move from right to left
-        for i in index:
-            # Move the center position to each index from left to right
-            mpscircuit.position(i)
-            tensor = mpscircuit._mps.tensors[i]
-            probs = backend.sum(backend.power(backend.abs(tensor), 2), axis=(0, 2))
-            # TODO@(SUSYUSTC): normalize the tensor to avoid error accumulation
-            probs /= backend.sum(probs)
-            pu = probs[0]
-            r = backend.implicit_randu([])
-            if r < pu:
-                choice = 0
-            else:
-                choice = 1
-            sample += str(choice)
-            p *= probs[choice]
-            tensor = tensor[:, choice, :][:, None, :]
-            mpscircuit._mps.tensors[i] = tensor
-        if with_prob:
-            return sample, p
-        else:
-            return sample, -1
-
     def proj_with_mps(self, other: "MPSCircuit", conj=True) -> Tensor:
         """
         Compute the projection between `other` as bra and `self` as ket.
@@ -753,8 +730,8 @@ class MPSCircuit(AbstractCircuit):
 
     def slice(self, begin: int, end: int) -> "MPSCircuit":
         nqubits = end - begin + 1
-        tensors = [backend.copy(t) for t in self.tensors[begin:end+1]]
-        mps = self.__class__(nqubits, tensors=tensors, center_position=self.center_position, **self.rules)
+        tensors = [backend.copy(t) for t in self._mps.tensors[begin:end+1]]
+        mps = self.__class__(nqubits, tensors=tensors, center_position=self._mps.center_position, **self.rules)
         return mps
         
     def expectation(
@@ -785,21 +762,22 @@ class MPSCircuit(AbstractCircuit):
         if other is None:
             site_begin = np.min(all_sites)
             site_end = np.max(all_sites)
-            if self.center_position < site_begin:
+            if self._mps.center_position < site_begin:
                 self.position(site_begin)
-            elif self.center_position > site_end:
+            elif self._mps.center_position > site_end:
                 self.position(site_end)
         else:
             assert isinstance(other, MPSCircuit), "the bra has to be a MPSCircuit"
 
         # apply the gate
         mps = self.copy()
+        # when the truncation rules is None (which is the default), it is guaranteed that the result is a real number since the calculation is exact, otherwise there's no guarantee
         mps.set_truncation_rule(**rules)
         for gate, index in ops:
             mps.apply(gate, *index)
 
         if other is None:
-            assert (self.center_position >= site_begin) and (self.center_position <= site_end)
+            assert (self._mps.center_position >= site_begin) and (self._mps.center_position <= site_end)
             ket = mps.slice(site_begin, site_end)
             bra = self.slice(site_begin, site_end)
         else:
@@ -827,13 +805,23 @@ class MPSCircuit(AbstractCircuit):
         with_prob: bool = False,
         status: Optional[Tensor] = None,
     ) -> Tuple[Tensor, Tensor]:
-        '''
-        '''
+        """
+        Take measurement to the given quantum lines.
+
+        :param index: Measure on which quantum line.
+        :type index: int
+        :param with_prob: If true, theoretical probability is also returned.
+        :type with_prob: bool, optional
+        :param status: external randomness, with shape [index], defaults to None
+        :type status: Optional[Tensor]
+        :return: The sample output and probability (optional) of the quantum line.
+        :rtype: Tuple[Tensor, Tensor]
+        """
         is_sorted = np.all(np.sort(index) == np.array(index))
         if not is_sorted:
-            order = np.argsort(index).tolist()
+            order = backend.convert_to_tensor(np.argsort(index).tolist())
             sample, p = self.measure(*np.sort(index), with_prob=with_prob, status=status)
-            return sample[order], p
+            return backend.convert_to_tensor([sample[i] for i in order]), p
         # set the center to the left side, then gradually move to the right and do measurement at sites
         mps = self.copy()
         up = backend.convert_to_tensor(np.array([1, 0]).astype(dtypestr))
@@ -846,7 +834,7 @@ class MPSCircuit(AbstractCircuit):
         for k, site in enumerate(index):
             mps.position(site)
             # do measurement
-            tensor = mps.tensors[site]
+            tensor = mps._mps.tensors[site]
             ps = backend.real(backend.einsum("iaj,iaj->a", tensor, backend.conj(tensor)))
             ps /= backend.sum(ps)
             pu = ps[0]
@@ -863,7 +851,7 @@ class MPSCircuit(AbstractCircuit):
             sample.append(sign_complex)
             p = p * (pu * (-1) ** sign + sign)
             m = (1 - sign_complex) * up + sign_complex * down
-            mps.tensors[site] = backend.einsum("iaj,a->ij", tensor, m)[:, None, :]
+            mps._mps.tensors[site] = backend.einsum("iaj,a->ij", tensor, m)[:, None, :]
         sample = backend.stack(sample)
         sample = backend.real(sample)
         if with_prob:
