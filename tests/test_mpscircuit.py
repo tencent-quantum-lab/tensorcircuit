@@ -10,6 +10,8 @@ import scipy
 import pytest
 from pytest_lazyfixture import lazy_fixture as lf
 
+from tensorcircuit.mpscircuit import MPSCircuit
+
 Tensor = Any
 
 thisfile = os.path.abspath(__file__)
@@ -58,8 +60,12 @@ def get_test_circuits(full) -> type_test_circuits:
         # test non-adjacent double gates
         c.apply(O2.copy(), N // 2 - 1, N // 2 + 1)
         c.apply(O3.copy(), int(N * 0.2), int(N*0.4), int(N*0.6))
+        if isinstance(c, tc.MPSCircuit):
+            np.testing.assert_allclose(np.abs(c._mps.check_canonical()), 0, atol=1e-12)
         c.apply(O2.copy(), N // 2 - 2, N // 2 + 2)
         c.apply(O3.copy(), int(N * 0.4), int(N*0.6), int(N*0.8))
+        if isinstance(c, tc.MPSCircuit):
+            np.testing.assert_allclose(np.abs(c._mps.check_canonical()), 0, atol=1e-12)
         c.cz(2, 3)
 
     c = tc.Circuit(N)
@@ -68,6 +74,8 @@ def get_test_circuits(full) -> type_test_circuits:
 
     mps = tc.MPSCircuit(N, **rules)
     simulate(mps)
+    do_test_norm(mps)
+    mps.normalize()
     w_mps = mps.wavefunction()
 
     mps_exact = tc.MPSCircuit(N)
@@ -75,6 +83,12 @@ def get_test_circuits(full) -> type_test_circuits:
     w_mps_exact = mps_exact.wavefunction()
 
     return [c, w_c, mps, w_mps, mps_exact, w_mps_exact]
+
+
+def do_test_norm(mps: MPSCircuit):
+    norm1 = mps.get_norm()
+    norm2 = tc.backend.norm(mps.wavefunction())
+    np.testing.assert_allclose(norm1, norm2, atol=1e-12)
 
 
 def do_test_canonical(test_circuits: type_test_circuits):
@@ -233,8 +247,8 @@ def do_test_tensor_input(test_circuits: type_test_circuits):
         mps_exact,
         w_mps_exact,
     ) = test_circuits
-    newmps = tc.MPSCircuit(mps._nqubits, tensors=mps.tensors, center_position=mps.center_position)
-    for t1, t2 in zip(newmps.tensors, mps.tensors):
+    newmps = tc.MPSCircuit(mps._nqubits, tensors=mps.get_tensors(), center_position=mps.get_center_position())
+    for t1, t2 in zip(newmps.get_tensors(), mps.get_tensors()):
         np.testing.assert_allclose(tc.backend.numpy(t1), tc.backend.numpy(t2), atol=1e-12)
 
 
@@ -247,7 +261,7 @@ def do_test_measure(test_circuits: type_test_circuits):
         mps_exact,
         w_mps_exact,
     ) = test_circuits
-    index = [2, 5, 6, 9]
+    index = [6, 5, 2, 9]
     status = tc.backend.convert_to_tensor([0.1, 0.3, 0.5, 0.7])
     result_c = c.measure(*index, with_prob=True, status=status)
     result_mps = mps.measure(*index, with_prob=True, status=status)
@@ -288,7 +302,7 @@ def test_circuits_1(backend, dtype):
     print('time', time.time() - begin)
     do_test_canonical(circuits)
     do_test_wavefunction(circuits)
-    do_test_truncation(circuits, 0.9980496398327333, 0.999454051741324)
+    do_test_truncation(circuits, 0.9987293417932497, 0.999440840610151)
     do_test_amplitude(circuits)
     do_test_expectation(circuits)
     external = external_wavefunction()
@@ -301,4 +315,11 @@ def test_circuits_1(backend, dtype):
 
 def test_circuits_2(highp):
     circuits = get_test_circuits(True)
-    do_test_truncation(circuits, 0.9262938615480413, 0.9679658625534029)
+    do_test_truncation(circuits, 0.9401410770899974, 0.9654331011546374)
+
+
+if __name__ == "__main__":
+    tc.set_dtype('complex128')
+    tc.set_backend('tensorflow')
+    circuits = get_test_circuits(True)
+    do_test_truncation(circuits, 0, 0)
