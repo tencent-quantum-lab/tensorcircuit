@@ -57,9 +57,9 @@ def get_test_circuits(full) -> type_test_circuits:
                 c.apply(O1.copy(), i)
         # test non-adjacent double gates
         c.apply(O2.copy(), N // 2 - 1, N // 2 + 1)
-        #c.apply(O3.copy(), int(N * 0.2), int(N*0.4), int(N*0.6))
+        c.apply(O3.copy(), int(N * 0.2), int(N*0.4), int(N*0.6))
         c.apply(O2.copy(), N // 2 - 2, N // 2 + 2)
-        #c.apply(O3.copy(), int(N * 0.4), int(N*0.6), int(N*0.8))
+        c.apply(O3.copy(), int(N * 0.4), int(N*0.6), int(N*0.8))
         c.cz(2, 3)
 
     c = tc.Circuit(N)

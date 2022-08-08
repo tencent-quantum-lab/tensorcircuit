@@ -450,7 +450,9 @@ class MPSCircuit(AbstractCircuit):
         self._mps.position(index_right)
         # reduce bond dimension
         for i in range(index_right, index_left, -1):
+            print(i-1, i)
             self.reduce_dimension(i-1, i, True)
+        assert self._mps.center_position == index_left
 
     def apply_nqubit_gate(
         self,
