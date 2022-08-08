@@ -57,9 +57,9 @@ def get_test_circuits(full) -> type_test_circuits:
                 c.apply(O1.copy(), i)
         # test non-adjacent double gates
         c.apply(O2.copy(), N // 2 - 1, N // 2 + 1)
-        c.apply(O3.copy(), int(N * 0.2), int(N*0.4), int(N*0.6))
+        #c.apply(O3.copy(), int(N * 0.2), int(N*0.4), int(N*0.6))
         c.apply(O2.copy(), N // 2 - 2, N // 2 + 2)
-        c.apply(O3.copy(), int(N * 0.4), int(N*0.6), int(N*0.8))
+        #c.apply(O3.copy(), int(N * 0.4), int(N*0.6), int(N*0.8))
         c.cz(2, 3)
 
     c = tc.Circuit(N)
@@ -116,11 +116,11 @@ def do_test_truncation(test_circuits: type_test_circuits, real_fedility_ref, est
     real_fedility = (
         np.abs(tc.backend.numpy(w_mps).conj().dot(tc.backend.numpy(w_c))) ** 2
     )
-    np.testing.assert_allclose(real_fedility, real_fedility_ref, atol=1e-8)
     estimated_fedility = tc.backend.numpy(mps._fidelity)
-    np.testing.assert_allclose(estimated_fedility, estimated_fedility_ref, atol=1e-8)
     print(real_fedility)
     print(estimated_fedility)
+    np.testing.assert_allclose(real_fedility, real_fedility_ref, atol=1e-8)
+    np.testing.assert_allclose(estimated_fedility, estimated_fedility_ref, atol=1e-8)
 
 
 def do_test_amplitude(test_circuits: type_test_circuits):
