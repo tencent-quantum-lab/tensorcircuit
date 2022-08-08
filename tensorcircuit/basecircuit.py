@@ -393,9 +393,7 @@ class BaseCircuit(AbstractCircuit):
         :return: Sampled bit string and the corresponding theoretical probability.
         :rtype: Tuple[str, float]
         """
-        return self.measure_jit(
-            *range(self._nqubits), with_prob=True, status=status
-        )
+        return self.measure_jit(*range(self._nqubits), with_prob=True, status=status)
 
     def measure_jit(
         self, *index: int, with_prob: bool = False, status: Optional[Tensor] = None
