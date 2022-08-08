@@ -341,7 +341,7 @@ class MPSCircuit(AbstractCircuit):
             if previous_i is not None:
                 for middle in range(previous_i + 1, i):
                     bond_dim = tensors[-1].shape[-1]
-                    I = np.eye(bond_dim * 2).reshape((bond_dim, 2, bond_dim, 2)).transpose((0, 1, 3, 2))
+                    I = np.eye(bond_dim * 2).reshape((bond_dim, 2, bond_dim, 2)).transpose((0, 1, 3, 2)).astype(dtypestr)
                     tensors.append(backend.convert_to_tensor(I))
             nleft, _, nright = main_tensor.shape
             tensor = backend.reshape(main_tensor, (nleft, 2, 2, nright))
@@ -613,13 +613,17 @@ class MPSCircuit(AbstractCircuit):
         :return: The constructed MPS
         :rtype: MPSCircuit
         """
-        from copy import deepcopy
+        from copy import copy
         result: "MPSCircuit" = MPSCircuit.__new__(MPSCircuit)
         info = vars(self)
         for key in vars(self):
             if key == "_mps":
                 continue
-            setattr(result, key, deepcopy(info[key]))
+            if backend.is_tensor(info[key]):
+                copied_value = backend.copy(info[key])
+            else:
+                copied_value = copy(info[key])
+            setattr(result, key, copied_value)
         return result
 
     def copy(self) -> "MPSCircuit":
@@ -832,8 +836,8 @@ class MPSCircuit(AbstractCircuit):
             return sample[order], p
         # set the center to the left side, then gradually move to the right and do measurement at sites
         mps = self.copy()
-        up = backend.convert_to_tensor(np.array([1, 0]))
-        down = backend.convert_to_tensor(np.array([0, 1]))
+        up = backend.convert_to_tensor(np.array([1, 0]).astype(dtypestr))
+        down = backend.convert_to_tensor(np.array([0, 1]).astype(dtypestr))
 
         p = 1.0
         p = backend.convert_to_tensor(p)

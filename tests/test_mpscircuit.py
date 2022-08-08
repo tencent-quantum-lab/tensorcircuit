@@ -1,6 +1,7 @@
 # pylint: disable=unused-variable
 # pylint: disable=invalid-name
 
+from time import get_clock_info
 from typing import Tuple, Any
 import sys
 import os
@@ -24,71 +25,59 @@ rules = tc.truncation_rules(max_singular_values=D)
 type_test_circuits = Tuple[tc.Circuit, Tensor, tc.MPSCircuit, Tensor, tc.MPSCircuit, Tensor]
 
 
-def get_test_circuits(full) -> type_test_circuits:
-    def reproducible_unitary(n):
-        A = np.arange(n**2).reshape((n, n))
-        A = A + np.sin(A) * 1j
-        A = A - A.conj().T
-        return scipy.linalg.expm(A).astype(tc.dtypestr)
+def reproducible_unitary(n):
+    A = np.arange(n**2).reshape((n, n))
+    A = A + np.sin(A) * 1j
+    A = A - A.conj().T
+    return scipy.linalg.expm(A).astype(tc.dtypestr)
 
+
+def get_test_circuits(full) -> type_test_circuits:
     O1 = tc.gates.any(reproducible_unitary(2).reshape((2, 2)))
     O2 = tc.gates.any(reproducible_unitary(4).reshape((2, 2, 2, 2)))
+    O3 = tc.gates.any(reproducible_unitary(8).reshape((2, 2, 2, 2, 2, 2)))
 
     # Construct a complicated circuit by Circuit and MPSCircuit and compare
-
-    c = tc.Circuit(N)
-    c.H(0)
 
     if full:
 
         def rangei(j, N):
             return range(0, N - 1)
-
-        # rangei = lambda j, N: range(0, N - 1)
     else:
 
         def rangei(j, N):
             return range(j, N - 1 - j)
 
-        # rangei = lambda j, N: range(j, N - 1 - j)
+    def simulate(c):
+        c.H(0)
+        # create as much correlation as possible
+        for j in range(N // 2):
+            for i in rangei(j, N):
+                c.apply(O2.copy(), i, i + 1)
+                c.apply(O1.copy(), i)
+        # test non-adjacent double gates
+        c.apply(O2.copy(), N // 2 - 1, N // 2 + 1)
+        c.apply(O3.copy(), int(N * 0.2), int(N*0.4), int(N*0.6))
+        c.apply(O2.copy(), N // 2 - 2, N // 2 + 2)
+        c.apply(O3.copy(), int(N * 0.4), int(N*0.6), int(N*0.8))
+        c.cz(2, 3)
 
-    # create as much correlation as possible
-    for j in range(N // 2):
-        for i in rangei(j, N):
-            c.apply(O2.copy(), i, i + 1)
-            c.apply(O1.copy(), i)
-    # test non-adjacent double gates
-    c.apply(O2.copy(), N // 2 - 1, N // 2 + 1)
-    c.apply(O2.copy(), N // 2 - 2, N // 2 + 2)
-    c.cz(2, 3)
+    c = tc.Circuit(N)
+    simulate(c)
     w_c = c.wavefunction()
 
     mps = tc.MPSCircuit(N, **rules)
-    mps.H(0)
-    for j in range(N // 2):
-        for i in rangei(j, N):
-            mps.apply(O2.copy(), i, i + 1)
-            mps.apply(O1.copy(), i)
-    mps.apply(O2.copy(), N // 2 - 1, N // 2 + 1)
-    mps.apply(O2.copy(), N // 2 - 2, N // 2 + 2)
-    mps.cz(2, 3)
+    simulate(mps)
     w_mps = mps.wavefunction()
 
     mps_exact = tc.MPSCircuit(N)
-    mps_exact.H(0)
-    for j in range(N // 2):
-        for i in rangei(j, N):
-            mps_exact.apply(O2.copy(), i, i + 1)
-            mps_exact.apply(O1.copy(), i)
-    mps_exact.apply(O2.copy(), N // 2 - 1, N // 2 + 1)
-    mps_exact.apply(O2.copy(), N // 2 - 2, N // 2 + 2)
-    mps_exact.cz(2, 3)
+    simulate(mps_exact)
     w_mps_exact = mps_exact.wavefunction()
 
     return [c, w_c, mps, w_mps, mps_exact, w_mps_exact]
 
 
-def do_test_canonical(test_circucits: type_test_circuits):
+def do_test_canonical(test_circuits: type_test_circuits):
     (
         c,
         w_c,
@@ -96,12 +85,12 @@ def do_test_canonical(test_circucits: type_test_circuits):
         w_mps,
         mps_exact,
         w_mps_exact,
-    ) = test_circucits
+    ) = test_circuits
     np.testing.assert_allclose(np.abs(mps._mps.check_canonical()), 0, atol=1e-12)
     np.testing.assert_allclose(np.abs(mps_exact._mps.check_canonical()), 0, atol=1e-12)
 
 
-def do_test_wavefunction(test_circucits: type_test_circuits):
+def do_test_wavefunction(test_circuits: type_test_circuits):
     (
         c,
         w_c,
@@ -109,12 +98,12 @@ def do_test_wavefunction(test_circucits: type_test_circuits):
         w_mps,
         mps_exact,
         w_mps_exact,
-    ) = test_circucits
+    ) = test_circuits
     # the wavefuntion is exact if there's no truncation
     np.testing.assert_allclose(tc.backend.numpy(w_mps_exact), tc.backend.numpy(w_c))
 
 
-def do_test_truncation(test_circucits: type_test_circuits, real_fedility_ref, estimated_fedility_ref):
+def do_test_truncation(test_circuits: type_test_circuits, real_fedility_ref, estimated_fedility_ref):
     (
         c,
         w_c,
@@ -122,19 +111,19 @@ def do_test_truncation(test_circucits: type_test_circuits, real_fedility_ref, es
         w_mps,
         mps_exact,
         w_mps_exact,
-    ) = test_circucits
+    ) = test_circuits
     # compare with a precalculated value
     real_fedility = (
         np.abs(tc.backend.numpy(w_mps).conj().dot(tc.backend.numpy(w_c))) ** 2
     )
-    np.testing.assert_allclose(real_fedility, real_fedility_ref)
-    # np.testing.assert_allclose(real_fedility, 0.9998648317622654)
-    estimated_fedility = mps._fidelity
-    np.testing.assert_allclose(estimated_fedility, estimated_fedility_ref)
-    # np.testing.assert_allclose(estimated_fedility, 0.9999264292512574)
+    np.testing.assert_allclose(real_fedility, real_fedility_ref, atol=1e-8)
+    estimated_fedility = tc.backend.numpy(mps._fidelity)
+    np.testing.assert_allclose(estimated_fedility, estimated_fedility_ref, atol=1e-8)
+    print(real_fedility)
+    print(estimated_fedility)
 
 
-def do_test_amplitude(test_circucits: type_test_circuits):
+def do_test_amplitude(test_circuits: type_test_circuits):
     (
         c,
         w_c,
@@ -142,7 +131,7 @@ def do_test_amplitude(test_circucits: type_test_circuits):
         w_mps,
         mps_exact,
         w_mps_exact,
-    ) = test_circucits
+    ) = test_circuits
     # compare with wavefunction
     s = "01" * (N // 2)
     sint = int(s, 2)  # binary to decimal
@@ -150,7 +139,7 @@ def do_test_amplitude(test_circucits: type_test_circuits):
     np.testing.assert_allclose(err_amplitude, 0, atol=1e-12)
 
 
-def do_test_expectation(test_circucits: type_test_circuits):
+def do_test_expectation(test_circuits: type_test_circuits):
     (
         c,
         w_c,
@@ -158,13 +147,22 @@ def do_test_expectation(test_circucits: type_test_circuits):
         w_mps,
         mps_exact,
         w_mps_exact,
-    ) = test_circucits
+    ) = test_circuits
+
+    # single gate
     gates_sites = (tc.gates.z(), [3])
     exp_mps = mps_exact.expectation(gates_sites)
     exp_c = c.expectation(gates_sites, reuse=False)
     np.testing.assert_allclose(exp_mps, exp_c, atol=1e-7)
 
+    # double gate
     gates_sites = (tc.gates.cnot(), [3, 7])
+    exp_mps = mps_exact.expectation(gates_sites)
+    exp_c = c.expectation(gates_sites, reuse=False)
+    np.testing.assert_allclose(exp_mps, exp_c, atol=1e-7)
+
+    # triple gate
+    gates_sites = (tc.gates.toffoli(), [3, 7, 10])
     exp_mps = mps_exact.expectation(gates_sites)
     exp_c = c.expectation(gates_sites, reuse=False)
     np.testing.assert_allclose(exp_mps, exp_c, atol=1e-7)
@@ -182,7 +180,7 @@ def external_wavefunction():
     return w_external, mps_external, mps_external_exact
 
 
-def do_test_fromwavefunction(external_wavefunction):
+def do_test_fromwavefunction(external_wavefunction, relative_err_ref):
     (
         w_external,
         mps_external,
@@ -198,10 +196,11 @@ def do_test_fromwavefunction(external_wavefunction):
     s = np.linalg.svd(w_external.reshape((2 ** (N // 2), 2 ** (N // 2))))[1]
     theoretical_upper_limit = np.sum(s[0:D] ** 2)
     relative_err = np.log((1 - real_fedility) / (1 - theoretical_upper_limit))
+    print(relative_err)
     np.testing.assert_allclose(relative_err, 0.11, atol=1e-2)
 
 
-def do_test_proj(test_circucits: type_test_circuits, external_wavefunction):
+def do_test_proj(test_circuits: type_test_circuits, external_wavefunction):
     (
         c,
         w_c,
@@ -209,7 +208,7 @@ def do_test_proj(test_circucits: type_test_circuits, external_wavefunction):
         w_mps,
         mps_exact,
         w_mps_exact,
-    ) = test_circucits
+    ) = test_circuits
     (
         w_external,
         mps_external,
@@ -225,7 +224,7 @@ def do_test_proj(test_circucits: type_test_circuits, external_wavefunction):
     np.testing.assert_allclose(proj, proj_ref, atol=1e-12)
 
 
-def do_test_tensor_input(test_circucits: type_test_circuits):
+def do_test_tensor_input(test_circuits: type_test_circuits):
     (
         c,
         w_c,
@@ -233,30 +232,73 @@ def do_test_tensor_input(test_circucits: type_test_circuits):
         w_mps,
         mps_exact,
         w_mps_exact,
-    ) = test_circucits
+    ) = test_circuits
     newmps = tc.MPSCircuit(mps._nqubits, tensors=mps.tensors, center_position=mps.center_position)
     for t1, t2 in zip(newmps.tensors, mps.tensors):
         np.testing.assert_allclose(tc.backend.numpy(t1), tc.backend.numpy(t2), atol=1e-12)
 
 
+def do_test_measure(test_circuits: type_test_circuits):
+    (
+        c,
+        w_c,
+        mps,
+        w_mps,
+        mps_exact,
+        w_mps_exact,
+    ) = test_circuits
+    index = [2, 5, 6, 9]
+    status = tc.backend.convert_to_tensor([0.1, 0.3, 0.5, 0.7])
+    result_c = c.measure(*index, with_prob=True, status=status)
+    result_mps = mps.measure(*index, with_prob=True, status=status)
+    result_mps_exact = mps_exact.measure(*index, with_prob=True, status=status)
+    np.testing.assert_allclose(result_mps[0], result_c[0], atol=1e-8)
+    np.testing.assert_allclose(result_mps_exact[0], result_c[0], atol=1e-8)
+    np.testing.assert_allclose(result_mps[1], result_c[1], atol=1e-4)
+    np.testing.assert_allclose(result_mps_exact[1], result_c[1], atol=1e-8)
+
+
+def test_MPO_conversion(highp, tfb):
+    O3 = tc.backend.convert_to_tensor(reproducible_unitary(8).reshape((2, 2, 2, 2, 2, 2)))
+    I = tc.backend.convert_to_tensor(np.eye(2).astype('complex128'))
+    gate = tc.gates.Gate(O3)
+
+    MPO3, _ = tc.MPSCircuit.gate_to_MPO(gate, 2, 3, 4)
+    tensor3 = tc.MPSCircuit.MPO_to_gate(MPO3).tensor
+    tensor3 = tc.backend.numpy(tensor3)
+    tensor3_ref = tc.backend.numpy(O3)
+    np.testing.assert_allclose(tensor3, tensor3_ref, atol=1e-12)
+
+    MPO4, _ = tc.MPSCircuit.gate_to_MPO(gate, 1, 3, 4)
+    tensor4 = tc.MPSCircuit.MPO_to_gate(MPO4).tensor
+    tensor4_ref = tc.backend.einsum("ijkabc,pq->ipjkaqbc", O3, I)
+    tensor4 = tc.backend.numpy(tensor4)
+    tensor4_ref = tc.backend.numpy(tensor4_ref)
+    np.testing.assert_allclose(tensor4, tensor4_ref, atol=1e-12)
+    
+
 @pytest.mark.parametrize(
-    "backend, dtype", [(lf("tfb"), lf("highp")), (lf("jaxb"), lf("highp"))]
+#    "backend, dtype", [(lf("tfb"), lf("highp")), (lf("jaxb"), lf("highp"))]
+    "backend, dtype", [(lf("tfb"), lf("highp"))]
 )
 def test_circuits_1(backend, dtype):
     import time
     begin = time.time()
     circuits = get_test_circuits(False)
+    print('time', time.time() - begin)
     do_test_canonical(circuits)
     do_test_wavefunction(circuits)
-    do_test_truncation(circuits, 0.9998648317622654, 0.9999264292512574)
+    do_test_truncation(circuits, 0.9980496398327333, 0.999454051741324)
     do_test_amplitude(circuits)
     do_test_expectation(circuits)
     external = external_wavefunction()
-    do_test_fromwavefunction(external)
+    do_test_fromwavefunction(external, 0.1185)
     do_test_proj(circuits, external)
     do_test_tensor_input(circuits)
+    do_test_measure(circuits)
+    print('time', time.time() - begin)
 
 
 def test_circuits_2(highp):
     circuits = get_test_circuits(True)
-    do_test_truncation(circuits, 0.9705050538783289, 0.984959108658121)
+    do_test_truncation(circuits, 0.9262938615480413, 0.9679658625534029)

@@ -139,7 +139,7 @@ def tensorcircuit_benchmark(
             e = tfi_energy(c, n)
             fd = 1.0
         else:
-            e = tfi_energy_mps(c, n)
+            e = tfi_energy(c, n)
             fd = c._fidelity
         # tensorflow only works for complex case, while jax only works for real case, don't know how to solve it
         if tcbackend != "tensorflow":
