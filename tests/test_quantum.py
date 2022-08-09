@@ -407,3 +407,14 @@ def test_qb2qop(backend):
         g, hzz=0, hxx=0, hyy=0, hz=0, hy=0.5, hx=0.5, sparse=False, numpy=True
     )
     np.testing.assert_allclose(m1, m2, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_counts_2(backend):
+    z0 = tc.backend.convert_to_tensor(np.array([0.1, 0, -0.3, 0]))
+    x, y = tc.quantum.counts_d2s(z0)
+    print(x, y)
+    np.testing.assert_allclose(x, np.array([0, 2]))
+    np.testing.assert_allclose(y, np.array([0.1, -0.3]))
+    z = tc.quantum.counts_s2d((x, y), 4)
+    np.testing.assert_allclose(z, z0)

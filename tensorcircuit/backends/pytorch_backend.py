@@ -349,7 +349,7 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
     def argmin(self, a: Tensor, axis: int = 0) -> Tensor:
         return torchlib.argmin(a, dim=axis)
 
-    def unique_with_counts(self, a: Tensor) -> Tuple[Tensor, Tensor]:
+    def unique_with_counts(self, a: Tensor, **kws: Any) -> Tuple[Tensor, Tensor]:
         return torchlib.unique(a, return_counts=True)  # type: ignore
 
     def sigmoid(self, a: Tensor) -> Tensor:

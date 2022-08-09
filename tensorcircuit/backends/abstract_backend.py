@@ -534,7 +534,7 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
             "Backend '{}' has not implemented `argmin`.".format(self.name)
         )
 
-    def unique_with_counts(self: Any, a: Tensor) -> Tuple[Tensor, Tensor]:
+    def unique_with_counts(self: Any, a: Tensor, **kws: Any) -> Tuple[Tensor, Tensor]:
         """
         Find the unique elements and their corresponding counts of the given tensor ``a``.
 

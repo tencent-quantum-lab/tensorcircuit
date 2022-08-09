@@ -87,7 +87,7 @@ class MPSCircuit(AbstractCircuit):
         :type center_position: int, optional
         :param tensors: If not None, the initial state of the circuit is taken as ``tensors``
             instead of :math:`\\vert 0\\rangle^n` qubits, defaults to None.
-        When ``tensors`` are specified, if ``center_position`` is None, then the tensors are canonicalized,
+            When ``tensors`` are specified, if ``center_position`` is None, then the tensors are canonicalized,
             otherwise it is assumed the tensors are already canonicalized at the ``center_position``
         :type tensors: Sequence[Tensor], optional
         :param wavefunction: If not None, it is transformed to the MPS form according to the split rules
@@ -204,6 +204,7 @@ class MPSCircuit(AbstractCircuit):
         :param index: Qubit index of the gate
         :type index: int
         """
+        # TODO(@SUSYUSTC): make it jittable
         tensor = backend.numpy(gate.tensor)
         prod = tensor.dot(tensor.T.conj())
         I = np.eye(prod.shape[0])

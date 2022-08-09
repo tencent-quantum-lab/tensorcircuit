@@ -723,7 +723,9 @@ exp_gate = exponential_gate
 # exp = exponential_gate
 
 
-def exponential_gate_unity(unitary: Tensor, theta: float, name: str = "none") -> Gate:
+def exponential_gate_unity(
+    unitary: Tensor, theta: float, half: bool = False, name: str = "none"
+) -> Gate:
     r"""
     Faster exponential gate directly implemented based on RHS. Only works when :math:`U^2 = I` is an identity matrix.
 
@@ -735,6 +737,9 @@ def exponential_gate_unity(unitary: Tensor, theta: float, name: str = "none") ->
     :type unitary: Tensor
     :param theta: angle in radians
     :type theta: float
+    :param half: if True, the angel theta is mutiplied by 1/2,
+        defaults to False
+    :type half: bool
     :param name: suffix of Gate name
     :type name: str, optional
     :return: Exponential Gate
@@ -747,15 +752,17 @@ def exponential_gate_unity(unitary: Tensor, theta: float, name: str = "none") ->
     i = i.reshape([2 for _ in range(n)])
     unitary = backend.reshape(unitary, [2 for _ in range(n)])
     it = array_to_tensor(i)
+    if half is True:
+        theta = theta / 2.0
     mat = backend.cos(theta) * it - 1.0j * backend.sin(theta) * unitary
     return Gate(mat, name="exp1-" + name)
 
 
 exp1_gate = exponential_gate_unity
 # exp1 = exponential_gate_unity
-rzz_gate = partial(exp1_gate, unitary=_zz_matrix)
-rxx_gate = partial(exp1_gate, unitary=_xx_matrix)
-ryy_gate = partial(exp1_gate, unitary=_yy_matrix)
+rzz_gate = partial(exp1_gate, unitary=_zz_matrix, half=True)
+rxx_gate = partial(exp1_gate, unitary=_xx_matrix, half=True)
+ryy_gate = partial(exp1_gate, unitary=_yy_matrix, half=True)
 
 
 def multicontrol_gate(unitary: Tensor, ctrl: Union[int, Sequence[int]] = 1) -> Operator:
