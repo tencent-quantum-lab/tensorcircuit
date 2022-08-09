@@ -3,7 +3,7 @@ Methods for abstract circuits independent of nodes, edges and contractions
 """
 # pylint: disable=invalid-name
 
-from typing import Any, Callable, Dict, List, Optional, Sequence, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Union, Tuple
 from functools import reduce
 from operator import add
 
@@ -608,3 +608,54 @@ class AbstractCircuit:
         newc = type(self).from_qir(qir1 + qir2, self.circuit_param)
         self.__dict__.update(newc.__dict__)
         return self
+
+    def expectation(
+        self,
+        *ops: Tuple[tn.Node, List[int]],
+        reuse: bool = True,
+        **kws: Any,
+    ) -> Tensor:
+        raise NotImplementedError
+
+    def expectation_ps(
+        self,
+        x: Optional[Sequence[int]] = None,
+        y: Optional[Sequence[int]] = None,
+        z: Optional[Sequence[int]] = None,
+        reuse: bool = True,
+        **kws: Any,
+    ) -> Tensor:
+        """
+        Shortcut for Pauli string expectation.
+        x, y, z list are for X, Y, Z positions
+
+        :Example:
+
+        >>> c = tc.Circuit(2)
+        >>> c.X(0)
+        >>> c.H(1)
+        >>> c.expectation_ps(x=[1], z=[0])
+        array(-0.99999994+0.j, dtype=complex64)
+
+        :param x: sites to apply X gate, defaults to None
+        :type x: Optional[Sequence[int]], optional
+        :param y: sites to apply Y gate, defaults to None
+        :type y: Optional[Sequence[int]], optional
+        :param z: sites to apply Z gate, defaults to None
+        :type z: Optional[Sequence[int]], optional
+        :param reuse: whether to cache and reuse the wavefunction, defaults to True
+        :type reuse: bool, optional
+        :return: Expectation value
+        :rtype: Tensor
+        """
+        obs = []
+        if x is not None:
+            for i in x:
+                obs.append([gates.x(), [i]])  # type: ignore
+        if y is not None:
+            for i in y:
+                obs.append([gates.y(), [i]])  # type: ignore
+        if z is not None:
+            for i in z:
+                obs.append([gates.z(), [i]])  # type: ignore
+        return self.expectation(*obs, reuse=reuse, **kws)  # type: ignore

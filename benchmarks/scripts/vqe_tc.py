@@ -80,16 +80,6 @@ def tensorcircuit_benchmark(
             e += j * c.expectation((tc.gates.z(), [i]), (tc.gates.z(), [(i + 1) % n]))
         return e
 
-    def tfi_energy_mps(c, n, j=1.0, h=-1.0):
-        e = 0.0
-        for i in range(n):
-            e += h * c.expectation_single_gate(tc.gates.x(), i)
-        for i in range(n - 1):
-            e += j * c.expectation_two_gates_product(
-                tc.gates.z(), tc.gates.z(), i, (i + 1) % n
-            )
-        return e
-
     meta["Software"] = "tensorcircuit[%s %s]" % (tcbackend, dt)
     meta["minus"] = minus
     meta["Cpuinfo"] = cpuinfo.get_cpu_info()["brand_raw"]
@@ -139,7 +129,7 @@ def tensorcircuit_benchmark(
             e = tfi_energy(c, n)
             fd = 1.0
         else:
-            e = tfi_energy_mps(c, n)
+            e = tfi_energy(c, n)
             fd = c._fidelity
         # tensorflow only works for complex case, while jax only works for real case, don't know how to solve it
         if tcbackend != "tensorflow":

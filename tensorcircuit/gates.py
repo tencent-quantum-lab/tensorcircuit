@@ -125,6 +125,8 @@ _fredkin_matrix = np.array(
     ]
 )
 
+# TODO(@SUSYUSTC): fix the dtype bug in delayed gates
+
 
 def __rmul__(self: tn.Node, lvalue: Union[float, complex]) -> "Gate":
     newg = Gate(lvalue * self.tensor)
