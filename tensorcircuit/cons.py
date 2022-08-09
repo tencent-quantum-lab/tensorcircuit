@@ -15,7 +15,7 @@ import opt_einsum
 import tensornetwork as tn
 from tensornetwork.backend_contextmanager import get_default_backend
 
-from .backends.numpy_backend import NumpyBackend
+# from .backends.numpy_backend import NumpyBackend
 from .backends import get_backend  # type: ignore
 from .simplify import _multi_remove
 
@@ -26,7 +26,7 @@ thismodule = sys.modules[__name__]
 dtypestr = "complex64"
 rdtypestr = "float32"
 npdtype = np.complex64
-backend: NumpyBackend = get_backend("numpy")
+backend = get_backend("numpy")
 contractor = tn.contractors.auto
 # these above lines are just for mypy, it is not very good at evaluating runtime object
 
@@ -851,4 +851,3 @@ def split_rules(
     if relative is not None:
         rules["relative"] = relative
     return rules
-

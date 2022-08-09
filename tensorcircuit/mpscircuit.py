@@ -22,7 +22,7 @@ Tensor = Any
 def split_tensor(
     tensor: Tensor,
     center_left: bool = True,
-    split: Dict[str, Any] = {},
+    split: Optional[Dict[str, Any]] = None,
 ) -> Tuple[Tensor, Tensor]:
     """
     Split the tensor by SVD or QR depends on whether a truncation is required.
@@ -35,6 +35,8 @@ def split_tensor(
     :rtype: Tuple[Tensor, Tensor]
     """
     # The behavior is a little bit different from tn.split_node because it explicitly requires a center
+    if split is None:
+        split = {}
     svd = len(split) > 0
     if svd:
         U, S, VH, _ = backend.svd(tensor, **split)
@@ -74,7 +76,7 @@ class MPSCircuit(AbstractCircuit):
         center_position: Optional[int] = None,
         tensors: Optional[Sequence[Tensor]] = None,
         wavefunction: Optional[Union[QuVector, Tensor]] = None,
-        split: Dict[str, Any] = None,
+        split: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         MPSCircuit object based on state simulator.
@@ -264,10 +266,14 @@ class MPSCircuit(AbstractCircuit):
         self.position(index_from)
         if index_from < index_to:
             for i in range(index_from, index_to):
-                self.apply_adjacent_double_gate(gates.swap(), i, i + 1, center_position=i + 1, split=split)  # type: ignore
+                self.apply_adjacent_double_gate(
+                    gates.swap(), i, i + 1, center_position=i + 1, split=split  # type: ignore
+                )
         elif index_from > index_to:
             for i in range(index_from, index_to, -1):
-                self.apply_adjacent_double_gate(gates.swap(), i - 1, i, center_position=i - 1, split=split)  # type: ignore
+                self.apply_adjacent_double_gate(
+                    gates.swap(), i - 1, i, center_position=i - 1, split=split  # type: ignore
+                )
         else:
             # index_from == index_to
             pass
@@ -281,7 +287,7 @@ class MPSCircuit(AbstractCircuit):
         split: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
-        Apply a double qubit gate on MPS. 
+        Apply a double qubit gate on MPS.
 
         :param gate: The Gate to be applied
         :type gate: Gate
@@ -299,14 +305,14 @@ class MPSCircuit(AbstractCircuit):
         if diff1 < diff2:
             self.consecutive_swap(index1, index2 - 1, split=split)
             self.apply_adjacent_double_gate(
-                gate, index2 - 1, index2, center_position=index2 - 1
-            , split=split)
+                gate, index2 - 1, index2, center_position=index2 - 1, split=split
+            )
             self.consecutive_swap(index2 - 1, index1, split=split)
         else:
             self.consecutive_swap(index2, index1 + 1, split=split)
             self.apply_adjacent_double_gate(
-                gate, index1, index1 + 1, center_position=index1 + 1
-            , split=split)
+                gate, index1, index1 + 1, center_position=index1 + 1, split=split
+            )
             self.consecutive_swap(index1 + 1, index2, split=split)
 
     @classmethod
@@ -497,7 +503,9 @@ class MPSCircuit(AbstractCircuit):
 
         # reduce bond dimension
         for i in idx_list[::-1][:-1]:
-            self.reduce_dimension(min(i, i - step), center_left=center_left, split=split)
+            self.reduce_dimension(
+                min(i, i - step), center_left=center_left, split=split
+            )
         assert self._mps.center_position == end1
 
     def apply_nqubit_gate(
@@ -559,7 +567,7 @@ class MPSCircuit(AbstractCircuit):
         if noe == 1:
             self.apply_single_gate(gate, *index)
         elif noe == 2:
-            self.apply_double_gate(gate, *index, split=split)
+            self.apply_double_gate(gate, *index, split=split)  # type: ignore
         else:
             self.apply_nqubit_gate(gate, *index, split=split)
 
@@ -605,7 +613,7 @@ class MPSCircuit(AbstractCircuit):
         wavefunction: Tensor,
         dim_phys: int = 2,
         norm: bool = True,
-        split: Dict[str, Any] = None,
+        split: Optional[Dict[str, Any]] = None,
     ) -> List[Tensor]:
         """
         Construct the MPS tensors from a given wavefunction.
@@ -746,10 +754,10 @@ class MPSCircuit(AbstractCircuit):
             bra = other.copy()
         ket = self.copy()
         assert bra._nqubits == ket._nqubits
-        #n = bra._nqubits
+        # n = bra._nqubits
 
-        #while n > 1:
-        for n in range(bra._nqubits, 1, -1):
+        # while n > 1:
+        for _ in range(bra._nqubits, 1, -1):
             """
             i--bA--k--bB---m
                 |      |   |
@@ -764,7 +772,7 @@ class MPSCircuit(AbstractCircuit):
             bra._mps.tensors = bra._mps.tensors[:-1]
             ket._mps.tensors = ket._mps.tensors[:-1]
             ket._mps.tensors[-1] = new_kA
-            #n -= 1
+            # n -= 1
         bra_A = bra._mps.tensors[0]
         ket_A = ket._mps.tensors[0]
         result = backend.sum(bra_A * ket_A)
@@ -792,14 +800,14 @@ class MPSCircuit(AbstractCircuit):
         )
         return mps
 
-    def expectation(
+    def expectation(  # type: ignore
         self,
         *ops: Tuple[Gate, List[int]],
         reuse: bool = True,
         other: Optional["MPSCircuit"] = None,
         conj: bool = True,
         normalize: bool = False,
-        split: Dict[str, Any] = None,
+        split: Optional[Dict[str, Any]] = None,
     ) -> Tensor:
         """
         Compute the expectation of corresponding operators in the form of tensor.
