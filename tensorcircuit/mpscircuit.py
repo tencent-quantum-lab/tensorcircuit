@@ -5,6 +5,7 @@ Quantum circuit: MPS state simulator
 
 from functools import reduce
 from typing import Any, List, Optional, Sequence, Tuple, Dict, Union
+from copy import copy
 
 import numpy as np
 import tensornetwork as tn
@@ -109,6 +110,7 @@ class MPSCircuit(AbstractCircuit):
             assert (
                 tensors is None
             ), "tensors and wavefunction cannot be used at input simutaneously"
+            # TODO(@SUSYUSTC): find better way to address QuVector
             if isinstance(wavefunction, QuVector):
                 wavefunction = wavefunction.eval()
             tensors = self.wavefunction_to_tensors(wavefunction, split=self.split)
@@ -299,7 +301,7 @@ class MPSCircuit(AbstractCircuit):
         """
         if split is None:
             split = self.split
-        # apply N SWPA gates, the required gate, N SWAP gates sequentially on adjacent gates
+        # apply N SWAP gates, the required gate, N SWAP gates sequentially on adjacent gates
         # start the swap from the side that the current center is closer to
         diff1 = abs(index1 - self._mps.center_position)  # type: ignore
         diff2 = abs(index2 - self._mps.center_position)  # type: ignore
@@ -588,6 +590,7 @@ class MPSCircuit(AbstractCircuit):
         assert keep in [0, 1]
         discard = 1 - keep
         self.position(index)
+        # TODO(@SUSYUSTC): make it compatible with other backends
         self._mps.tensors[index][:, discard, :] = 0
 
     def is_valid(self) -> bool:
@@ -683,8 +686,6 @@ class MPSCircuit(AbstractCircuit):
         :return: The constructed MPS
         :rtype: MPSCircuit
         """
-        from copy import copy
-
         result: "MPSCircuit" = MPSCircuit.__new__(MPSCircuit)
         info = vars(self)
         for key in vars(self):
