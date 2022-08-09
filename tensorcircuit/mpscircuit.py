@@ -19,34 +19,10 @@ Gate = gates.Gate
 Tensor = Any
 
 
-def truncation_rules(
-    max_singular_values: Optional[int] = None,
-    max_truncation_err: Optional[float] = None,
-    relative: bool = False,
-) -> Any:
-    """
-    Obtain the direcionary of truncation rules
-    :param max_singular_values: The maximum number of singular values to keep.
-    :type max_singular_values: int, optional
-    :param max_truncation_err: The maximum allowed truncation error.
-    :type max_truncation_err: float, optional
-    :param relative: Multiply `max_truncation_err` with the largest singular value.
-    :type relative: bool, optional
-    """
-    rules: Any = {}
-    if max_singular_values is not None:
-        rules["max_singular_values"] = max_singular_values
-    if max_truncation_err is not None:
-        rules["max_truncattion_err"] = max_truncation_err
-    if relative is not None:
-        rules["relative"] = relative
-    return rules
-
-
 def split_tensor(
     tensor: Tensor,
     center_left: bool = True,
-    **rules: Any,
+    split: Dict[str, Any] = {},
 ) -> Tuple[Tensor, Tensor]:
     """
     Split the tensor by SVD or QR depends on whether a truncation is required.
@@ -59,9 +35,9 @@ def split_tensor(
     :rtype: Tuple[Tensor, Tensor]
     """
     # The behavior is a little bit different from tn.split_node because it explicitly requires a center
-    svd = len(rules) > 0
+    svd = len(split) > 0
     if svd:
-        U, S, VH, _ = backend.svd(tensor, **rules)
+        U, S, VH, _ = backend.svd(tensor, **split)
         if center_left:
             return backend.matmul(U, backend.diagflat(S)), VH
         else:
@@ -98,7 +74,7 @@ class MPSCircuit(AbstractCircuit):
         center_position: Optional[int] = None,
         tensors: Optional[Sequence[Tensor]] = None,
         wavefunction: Optional[Union[QuVector, Tensor]] = None,
-        **rules: Any,
+        split: Dict[str, Any] = {},
     ) -> None:
         """
         MPSCircuit object based on state simulator.
@@ -112,26 +88,26 @@ class MPSCircuit(AbstractCircuit):
         When ``tensors`` are specified, if ``center_position`` is None, then the tensors are canonicalized,
             otherwise it is assumed the tensors are already canonicalized at the ``center_position``
         :type tensors: Sequence[Tensor], optional
-        :param wavefunction: If not None, it is transformed to the MPS form according to the truncation rules
+        :param wavefunction: If not None, it is transformed to the MPS form according to the split rules
         :type wavefunction: Tensor
-        :param rules: Truncation rules
-        :type rules: Any
+        :param split: Split rules
+        :type split: Any
         """
         self.circuit_param = {
             "nqubits": nqubits,
             "center_position": center_position,
-            "rules": rules,
+            "split": split,
             "tensors": tensors,
             "wavefunction": wavefunction,
         }
-        self.rules = rules
+        self.split = split
         if wavefunction is not None:
             assert (
                 tensors is None
             ), "tensors and wavefunction cannot be used at input simutaneously"
             if isinstance(wavefunction, QuVector):
                 wavefunction = wavefunction.eval()
-            tensors = self.wavefunction_to_tensors(wavefunction, **self.rules)
+            tensors = self.wavefunction_to_tensors(wavefunction, split=self.split)
             assert len(tensors) == nqubits
             self._mps = FiniteMPS(tensors, canonicalize=False)
             self._mps.center_position = 0
@@ -192,16 +168,16 @@ class MPSCircuit(AbstractCircuit):
         """
         return self._mps.center_position
 
-    def set_truncation_rule(self, **rules: Any) -> None:
+    def set_split_rules(self, split: Dict[str, Any]) -> None:
         """
-        Set truncation rules when double qubit gates are applied.
+        Set truncation split when double qubit gates are applied.
         If nothing is specified, no truncation will take place and the bond dimension will keep growing.
         For more details, refer to `split_tensor`.
 
-        :param rules: Truncation rules
-        :type rules: Any
+        :param split: Truncation split
+        :type split: Any
         """
-        self.rules = rules
+        self.split = split
 
     # TODO(@refraction-ray): unified split truncation API between Circuit and MPSCircuit
 
@@ -232,10 +208,10 @@ class MPSCircuit(AbstractCircuit):
         index1: int,
         index2: int,
         center_position: Optional[int] = None,
+        split: Dict[str, Any] = {},
     ) -> None:
         """
         Apply a double qubit gate on adjacent qubits of Matrix Product States (MPS).
-        Truncation rule is specified by `set_truncation_rule`.
 
         :param gate: The Gate to be applied
         :type gate: Gate
@@ -261,7 +237,7 @@ class MPSCircuit(AbstractCircuit):
             index1,
             index2,
             center_position=center_position,
-            **self.rules,
+            **split,
         )
         self._fidelity *= 1 - backend.real(backend.sum(err**2))
 
@@ -269,14 +245,15 @@ class MPSCircuit(AbstractCircuit):
         self,
         index_from: int,
         index_to: int,
+        split: Dict[str, Any] = {}
     ) -> None:
         self.position(index_from)
         if index_from < index_to:
             for i in range(index_from, index_to):
-                self.apply_adjacent_double_gate(gates.swap(), i, i + 1, center_position=i + 1)  # type: ignore
+                self.apply_adjacent_double_gate(gates.swap(), i, i + 1, center_position=i + 1, split=split)  # type: ignore
         elif index_from > index_to:
             for i in range(index_from, index_to, -1):
-                self.apply_adjacent_double_gate(gates.swap(), i - 1, i, center_position=i - 1)  # type: ignore
+                self.apply_adjacent_double_gate(gates.swap(), i - 1, i, center_position=i - 1, split=split)  # type: ignore
         else:
             # index_from == index_to
             pass
@@ -287,9 +264,10 @@ class MPSCircuit(AbstractCircuit):
         gate: Gate,
         index1: int,
         index2: int,
+        split: Dict[str, Any] = {},
     ) -> None:
         """
-        Apply a double qubit gate on MPS. Truncation rule is specified by `set_truncation_rule`.
+        Apply a double qubit gate on MPS. 
 
         :param gate: The Gate to be applied
         :type gate: Gate
@@ -303,17 +281,17 @@ class MPSCircuit(AbstractCircuit):
         diff1 = abs(index1 - self._mps.center_position)  # type: ignore
         diff2 = abs(index2 - self._mps.center_position)  # type: ignore
         if diff1 < diff2:
-            self.consecutive_swap(index1, index2 - 1)
+            self.consecutive_swap(index1, index2 - 1, split=split)
             self.apply_adjacent_double_gate(
                 gate, index2 - 1, index2, center_position=index2 - 1
-            )
-            self.consecutive_swap(index2 - 1, index1)
+            , split=split)
+            self.consecutive_swap(index2 - 1, index1, split=split)
         else:
-            self.consecutive_swap(index2, index1 + 1)
+            self.consecutive_swap(index2, index1 + 1, split=split)
             self.apply_adjacent_double_gate(
                 gate, index1, index1 + 1, center_position=index1 + 1
-            )
-            self.consecutive_swap(index1 + 1, index2)
+            , split=split)
+            self.consecutive_swap(index1 + 1, index2, split=split)
 
     @classmethod
     def gate_to_MPO(
@@ -405,7 +383,7 @@ class MPSCircuit(AbstractCircuit):
         tensor_left: Tensor,
         tensor_right: Tensor,
         center_left: bool = True,
-        **rules: Any,
+        split: Dict[str, Any] = {},
     ) -> Tuple[Tensor, Tensor]:
         """
         Reduce the bond dimension between two general tensors by SVD
@@ -415,7 +393,7 @@ class MPSCircuit(AbstractCircuit):
         T = backend.einsum("iaj,jbk->iabk", tensor_left, tensor_right)
         T = backend.reshape(T, (ni * 2, nk * 2))
         new_tensor_left, new_tensor_right = split_tensor(
-            T, center_left=center_left, **rules
+            T, center_left=center_left, split=split
         )
         new_tensor_left = backend.reshape(new_tensor_left, (ni, 2, -1))
         new_tensor_right = backend.reshape(new_tensor_right, (-1, 2, nk))
@@ -424,21 +402,18 @@ class MPSCircuit(AbstractCircuit):
     def reduce_dimension(
         self,
         index_left: int,
-        index_right: int,
         center_left: bool = True,
+        split: Dict[str, Any] = {},
     ) -> None:
         """
         Reduce the bond dimension between two adjacent sites by SVD
         """
-        if index_left > index_right:
-            self.reduce_dimension(index_right, index_left, center_left=center_left)
-            return
-        assert index_left + 1 == index_right
+        index_right = index_left + 1
         assert self._mps.center_position in [index_left, index_right]
         tensor_left = self._mps.tensors[index_left]
         tensor_right = self._mps.tensors[index_right]
         new_tensor_left, new_tensor_right = self.reduce_tensor_dimension(
-            tensor_left, tensor_right, center_left=center_left, **self.rules
+            tensor_left, tensor_right, center_left=center_left, split=split
         )
         self._mps.tensors[index_left] = new_tensor_left
         self._mps.tensors[index_right] = new_tensor_right
@@ -452,6 +427,7 @@ class MPSCircuit(AbstractCircuit):
         tensors: Sequence[Tensor],
         index_left: int,
         center_left: bool = True,
+        split: Dict[str, Any] = {},
     ) -> None:
         """
         Apply a MPO to the MPS
@@ -499,13 +475,14 @@ class MPSCircuit(AbstractCircuit):
 
         # reduce bond dimension
         for i in idx_list[::-1][:-1]:
-            self.reduce_dimension(i, i - step, center_left=center_left)
+            self.reduce_dimension(min(i, i - step), center_left=center_left, split=split)
         assert self._mps.center_position == end1
 
     def apply_nqubit_gate(
         self,
         gate: Gate,
         *index: int,
+        split: Dict[str, Any] = {},
     ) -> None:
         """
         Apply a n-qubit gate by transforming the gate to MPO
@@ -515,7 +492,7 @@ class MPSCircuit(AbstractCircuit):
         # start the MPO from the side that the current center is closer to
         diff_left = abs(index_left - self._mps.center_position)  # type: ignore
         diff_right = abs(index_right - self._mps.center_position)  # type: ignore
-        self.apply_MPO(MPO, index_left, center_left=diff_left < diff_right)
+        self.apply_MPO(MPO, index_left, center_left=diff_left < diff_right, split=split)
 
     def apply_general_gate(
         self,
@@ -537,6 +514,8 @@ class MPSCircuit(AbstractCircuit):
         """
         if name is None:
             name = ""
+        if split is None:
+            split = self.split
         gate_dict = {
             "gate": gate,
             "index": index,
@@ -550,16 +529,15 @@ class MPSCircuit(AbstractCircuit):
             ir_dict = gate_dict
         self._qir.append(ir_dict)
         assert len(index) == len(set(index))
-        assert split is None, "MPS does not support gate split"
         assert mpo is False, "MPO not implemented for MPS"
         assert isinstance(gate, tn.Node)
         noe = len(index)
         if noe == 1:
             self.apply_single_gate(gate, *index)
         elif noe == 2:
-            self.apply_double_gate(gate, *index)
+            self.apply_double_gate(gate, *index, split=split)
         else:
-            self.apply_nqubit_gate(gate, *index)
+            self.apply_nqubit_gate(gate, *index, split=split)
 
     apply = apply_general_gate
 
@@ -575,8 +553,9 @@ class MPSCircuit(AbstractCircuit):
         """
         # normalization not guaranteed
         assert keep in [0, 1]
+        discard = 1 - keep
         self.position(index)
-        self._mps.tensors[index] = self._mps.tensors[index][:, keep, :][:, None, :]
+        self._mps.tensors[index][:, discard, :] = 0
 
     def is_valid(self) -> bool:
         """
@@ -596,20 +575,21 @@ class MPSCircuit(AbstractCircuit):
                 return False
         return True
 
-    @staticmethod
+    @classmethod
     def wavefunction_to_tensors(
+        cls,
         wavefunction: Tensor,
         dim_phys: int = 2,
         norm: bool = True,
-        **rules: Any,
+        split: Dict[str, Any] = {}
     ) -> List[Tensor]:
         """
         Construct the MPS tensors from a given wavefunction.
 
         :param wavefunction: The given wavefunction (any shape is OK)
         :type wavefunction: Tensor
-        :param rules: Truncation rules
-        :type rules: Dict
+        :param split: Truncation split
+        :type split: Dict
         :param dim_phys: Physical dimension, 2 for MPS and 4 for MPO
         :type dim_phys: int
         :param norm: Whether to normalize the wavefunction
@@ -618,20 +598,20 @@ class MPSCircuit(AbstractCircuit):
         :rtype: List[Tensor]
         """
         wavefunction = backend.reshape(wavefunction, (-1, 1))
+        n_tensors = int(np.round(np.log(wavefunction.shape[0]) / np.log(dim_phys)))
         tensors: List[Tensor] = []
-        while True:  # not jittable
+        for _ in range(n_tensors):
             nright = wavefunction.shape[1]
             wavefunction = backend.reshape(wavefunction, (-1, nright * dim_phys))
             wavefunction, Q = split_tensor(
                 wavefunction,
                 center_left=True,
-                **rules,
+                split=split,
             )
             tensors.insert(0, backend.reshape(Q, (-1, dim_phys, nright)))
-            if wavefunction.shape == (1, 1):
-                break
+        assert wavefunction.shape == (1, 1)
         if not norm:
-            tensors[-1] *= wavefunction[0, 0]
+            tensors[0] *= wavefunction[0, 0]
         return tensors
 
     def wavefunction(self, form: str = "default") -> Tensor:
@@ -740,9 +720,10 @@ class MPSCircuit(AbstractCircuit):
             bra = other.copy()
         ket = self.copy()
         assert bra._nqubits == ket._nqubits
-        n = bra._nqubits
+        #n = bra._nqubits
 
-        while n > 1:
+        #while n > 1:
+        for n in range(bra._nqubits, 1, -1):
             """
             i--bA--k--bB---m
                 |      |   |
@@ -757,11 +738,11 @@ class MPSCircuit(AbstractCircuit):
             bra._mps.tensors = bra._mps.tensors[:-1]
             ket._mps.tensors = ket._mps.tensors[:-1]
             ket._mps.tensors[-1] = new_kA
-            n -= 1
+            #n -= 1
         bra_A = bra._mps.tensors[0]
         ket_A = ket._mps.tensors[0]
         result = backend.sum(bra_A * ket_A)
-        return backend.convert_to_tensor(result)
+        return result
 
     def slice(self, begin: int, end: int) -> "MPSCircuit":
         """
@@ -781,18 +762,18 @@ class MPSCircuit(AbstractCircuit):
             nqubits,
             tensors=tensors,
             center_position=center_position,
-            **self.rules,
+            split=self.split.copy(),
         )
         return mps
 
     def expectation(
         self,
         *ops: Tuple[Gate, List[int]],
-        resue: bool = True,
+        reuse: bool = True,
         other: Optional["MPSCircuit"] = None,
         conj: bool = True,
         normalize: bool = False,
-        **rules: Any,
+        split: Dict[str, Any] = None,
     ) -> Tensor:
         """
         Compute the expectation of corresponding operators in the form of tensor.
@@ -809,11 +790,13 @@ class MPSCircuit(AbstractCircuit):
         :type conj: bool, defaults to be True
         :param normalize: Whether to normalize the MPS
         :type normalize: bool, defaults to be True
-        :param rules: Truncation rules
-        :type rules: Any
+        :param split: Truncation split
+        :type split: Any
         :return: The expectation of corresponding operators
         :rtype: Tensor
         """
+        if split is None:
+            split = self.split
         # If the bra is ket itself, the environments outside the operators can be viewed as identities,
         # so does not need to contract
         ops = [list(op) for op in ops]  # type: ignore # turn to list for modification
@@ -835,10 +818,10 @@ class MPSCircuit(AbstractCircuit):
 
         # apply the gate
         mps = self.copy()
-        # when the truncation rules is None (which is the default),
+        # when the truncation split is None (which is the default),
         # it is guaranteed that the result is a real number
         # since the calculation is exact, otherwise there's no guarantee
-        mps.set_truncation_rule(**rules)
+        mps.set_split_rules(split)
         for gate, index in ops:
             mps.apply(gate, *index)
 

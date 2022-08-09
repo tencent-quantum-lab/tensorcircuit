@@ -825,3 +825,29 @@ def runtime_contractor(*confargs: Any, **confkws: Any) -> Iterator[Any]:
     for module in sys.modules:
         if module.startswith(package_name):
             setattr(sys.modules[module], "contractor", old_contractor)
+
+
+def split_rules(
+    max_singular_values: Optional[int] = None,
+    max_truncation_err: Optional[float] = None,
+    relative: bool = False,
+) -> Any:
+    """
+    Obtain the direcionary of truncation rules
+
+    :param max_singular_values: The maximum number of singular values to keep.
+    :type max_singular_values: int, optional
+    :param max_truncation_err: The maximum allowed truncation error.
+    :type max_truncation_err: float, optional
+    :param relative: Multiply `max_truncation_err` with the largest singular value.
+    :type relative: bool, optional
+    """
+    rules: Any = {}
+    if max_singular_values is not None:
+        rules["max_singular_values"] = max_singular_values
+    if max_truncation_err is not None:
+        rules["max_truncattion_err"] = max_truncation_err
+    if relative is not None:
+        rules["relative"] = relative
+    return rules
+

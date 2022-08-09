@@ -9,8 +9,6 @@ import scipy
 import pytest
 from pytest_lazyfixture import lazy_fixture as lf
 
-from tensorcircuit.mpscircuit import MPSCircuit
-
 Tensor = Any
 
 thisfile = os.path.abspath(__file__)
@@ -22,7 +20,7 @@ import tensorcircuit as tc
 
 N = 16
 D = 100
-rules = tc.truncation_rules(max_singular_values=D)
+split = tc.cons.split_rules(max_singular_values=D)
 type_test_circuits = Tuple[
     tc.Circuit, Tensor, tc.MPSCircuit, Tensor, tc.MPSCircuit, Tensor
 ]
@@ -74,7 +72,7 @@ def get_test_circuits(full) -> type_test_circuits:
     simulate(c)
     w_c = c.wavefunction()
 
-    mps = tc.MPSCircuit(N, **rules)
+    mps = tc.MPSCircuit(N, split=split)
     simulate(mps)
     do_test_norm(mps)
     mps.normalize()
@@ -87,7 +85,7 @@ def get_test_circuits(full) -> type_test_circuits:
     return [c, w_c, mps, w_mps, mps_exact, w_mps_exact]
 
 
-def do_test_norm(mps: MPSCircuit):
+def do_test_norm(mps: tc.MPSCircuit):
     norm1 = mps.get_norm()
     norm2 = tc.backend.norm(mps.wavefunction())
     np.testing.assert_allclose(norm1, norm2, atol=1e-12)
@@ -201,7 +199,7 @@ def external_wavefunction():
     )  # Just want to find a function that is so strange that the correlation is strong enough
     w_external /= np.linalg.norm(w_external)
     w_external = tc.backend.convert_to_tensor(w_external)
-    mps_external = tc.MPSCircuit(N, wavefunction=w_external, **rules)
+    mps_external = tc.MPSCircuit(N, wavefunction=w_external, split=split)
     mps_external_exact = tc.MPSCircuit(N, wavefunction=w_external)
     return w_external, mps_external, mps_external_exact
 
@@ -336,10 +334,3 @@ def test_circuits_1(backend, dtype):
 def test_circuits_2(highp):
     circuits = get_test_circuits(True)
     do_test_truncation(circuits, 0.9401410770899974, 0.9654331011546374)
-
-
-if __name__ == "__main__":
-    tc.set_dtype("complex128")
-    tc.set_backend("tensorflow")
-    circuits = get_test_circuits(True)
-    do_test_truncation(circuits, 0, 0)
