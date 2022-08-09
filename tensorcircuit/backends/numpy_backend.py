@@ -64,13 +64,13 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
         r = np.eye(N, M=M)
         return self.cast(r, dtype)
 
-    def ones(self, shape: Tuple[int, ...], dtype: Optional[str] = None) -> Tensor:
+    def ones(self, shape: Sequence[int], dtype: Optional[str] = None) -> Tensor:
         if dtype is None:
             dtype = dtypestr
         r = np.ones(shape)
         return self.cast(r, dtype)
 
-    def zeros(self, shape: Tuple[int, ...], dtype: Optional[str] = None) -> Tensor:
+    def zeros(self, shape: Sequence[int], dtype: Optional[str] = None) -> Tensor:
         if dtype is None:
             dtype = dtypestr
         r = np.zeros(shape)

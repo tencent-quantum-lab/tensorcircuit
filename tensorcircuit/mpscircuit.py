@@ -664,7 +664,7 @@ class MPSCircuit(AbstractCircuit):
            |  |           ||
         i--A--B--j  -> i--XX--j
         """
-        result = backend.ones((1, 1, 1), dtype=npdtype)
+        result = backend.ones((1, 1, 1), dtype=dtypestr)
         for tensor in self._mps.tensors:
             result = backend.einsum("iaj,jbk->iabk", result, tensor)
             ni, na, nb, nk = result.shape
