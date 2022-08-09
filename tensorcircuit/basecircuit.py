@@ -589,11 +589,12 @@ class BaseCircuit(AbstractCircuit):
             p = backend.abs(s) ** 2
         else:
             p = backend.abs(backend.diagonal(s))
+        a_range = backend.arange(2**self._nqubits)
         if random_generator is None:
-            ch = backend.implicit_randc(a=2**self._nqubits, shape=[nbatch], p=p)
+            ch = backend.implicit_randc(a=a_range, shape=[nbatch], p=p)
         else:
             ch = backend.stateful_randc(
-                random_generator, a=2**self._nqubits, shape=[nbatch], p=p
+                random_generator, a=a_range, shape=[nbatch], p=p
             )
         prob = backend.gather1d(p, ch)
         confg = backend.mod(

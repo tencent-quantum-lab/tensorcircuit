@@ -219,6 +219,8 @@ class Circuit(BaseCircuit):
     post_select = mid_measurement
     post_selection = mid_measurement
 
+    # TODO(@refraction-ray): registering kraus channels apart from depolarizing
+
     def depolarizing2(
         self,
         index: int,
