@@ -125,6 +125,8 @@ _fredkin_matrix = np.array(
     ]
 )
 
+# TODO(@SUSYUSTC): fix the dtype bug in delayed gates
+
 
 def __rmul__(self: tn.Node, lvalue: Union[float, complex]) -> "Gate":
     newg = Gate(lvalue * self.tensor)
@@ -365,7 +367,7 @@ def meta_gate() -> None:
                 m = np.reshape(m, newshape=(2, 2, 2, 2))
             if m.shape[0] == 8:
                 m = np.reshape(m, newshape=(2, 2, 2, 2, 2, 2))
-            m = m.astype(npdtype)
+            #m = m.astype(npdtype)
             # not enough for new mechanism: register method on class instead of instance
             # temp = partial(gate_wrapper, m, n)
             # temp.__name__ = n

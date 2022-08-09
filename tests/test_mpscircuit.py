@@ -165,22 +165,15 @@ def do_test_expectation(test_circuits: type_test_circuits):
         w_mps_exact,
     ) = test_circuits
 
-    # single gate
-    gates_sites = (tc.gates.z(), [3])
-    exp_mps = mps_exact.expectation(gates_sites)
-    exp_c = c.expectation(gates_sites, reuse=False)
-    np.testing.assert_allclose(exp_mps, exp_c, atol=1e-7)
+    single_gate = (tc.gates.z(), [11])
+    tensor = (np.sin(np.arange(16)) + np.cos(np.arange(16)) * 1j).reshape((2, 2, 2, 2))
+    double_gate_nonunitary = (tc.gates.Gate(tc.backend.convert_to_tensor(tensor)), [2, 6])
+    double_gate = (tc.gates.cnot(), [2, 6])
+    triple_gate = (tc.gates.toffoli(), [1, 5, 9])
+    gates = [single_gate, double_gate_nonunitary, triple_gate]
 
-    # double gate
-    gates_sites = (tc.gates.cnot(), [3, 7])
-    exp_mps = mps_exact.expectation(gates_sites)
-    exp_c = c.expectation(gates_sites, reuse=False)
-    np.testing.assert_allclose(exp_mps, exp_c, atol=1e-7)
-
-    # triple gate
-    gates_sites = (tc.gates.toffoli(), [3, 7, 10])
-    exp_mps = mps_exact.expectation(gates_sites)
-    exp_c = c.expectation(gates_sites, reuse=False)
+    exp_mps = mps_exact.expectation(*gates)
+    exp_c = c.expectation(*gates, reuse=False)
     np.testing.assert_allclose(exp_mps, exp_c, atol=1e-7)
 
     # ps
@@ -310,7 +303,8 @@ def test_MPO_conversion(highp, tfb):
 
 
 @pytest.mark.parametrize(
-    "backend, dtype", [(lf("tfb"), lf("highp")), (lf("jaxb"), lf("highp"))]
+    #"backend, dtype", [(lf("tfb"), lf("highp")), (lf("jaxb"), lf("highp"))]
+    "backend, dtype", [(lf("tfb"), lf("highp"))]
 )
 def test_circuits_1(backend, dtype):
     import time
@@ -334,3 +328,7 @@ def test_circuits_1(backend, dtype):
 def test_circuits_2(highp):
     circuits = get_test_circuits(True)
     do_test_truncation(circuits, 0.9401410770899974, 0.9654331011546374)
+
+tc.set_dtype('complex128')
+tc.set_backend('tensorflow')
+circuits = get_test_circuits(False)

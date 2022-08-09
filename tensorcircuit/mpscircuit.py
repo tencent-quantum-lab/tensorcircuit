@@ -60,7 +60,7 @@ class MPSCircuit(AbstractCircuit):
         mps.H(1)
         mps.CNOT(0, 1)
         mps.rx(2, theta=tc.num_to_tensor(1.))
-        mps.expectation_single_gate(tc.gates.z(), 2)
+        mps.expectation((tc.gates.z(), 2))
 
     """
 
@@ -74,7 +74,7 @@ class MPSCircuit(AbstractCircuit):
         center_position: Optional[int] = None,
         tensors: Optional[Sequence[Tensor]] = None,
         wavefunction: Optional[Union[QuVector, Tensor]] = None,
-        split: Dict[str, Any] = {},
+        split: Dict[str, Any] = None,
     ) -> None:
         """
         MPSCircuit object based on state simulator.
@@ -100,6 +100,8 @@ class MPSCircuit(AbstractCircuit):
             "tensors": tensors,
             "wavefunction": wavefunction,
         }
+        if split is None:
+            split = {}
         self.split = split
         if wavefunction is not None:
             assert (
@@ -193,13 +195,21 @@ class MPSCircuit(AbstractCircuit):
 
     def apply_single_gate(self, gate: Gate, index: int) -> None:
         """
-        Apply a single qubit gate on MPS, and the gate must be unitary; no truncation is needed.
+        Apply a single qubit gate on MPS; no truncation is needed.
 
         :param gate: gate to be applied
         :type gate: Gate
         :param index: Qubit index of the gate
         :type index: int
         """
+        tensor = backend.numpy(gate.tensor)
+        prod = tensor.dot(tensor.T.conj())
+        I = np.eye(prod.shape[0])
+        err_max = np.max(np.abs(prod - I))
+        # TODO(@SUSYUSTC): change this number to 1e-12 after the dtype bug fixed
+        is_unitary = err_max < 1e-6
+        if not is_unitary:
+            self.position(index)
         self._mps.apply_one_site_gate(gate.tensor, index)
 
     def apply_adjacent_double_gate(
@@ -208,7 +218,7 @@ class MPSCircuit(AbstractCircuit):
         index1: int,
         index2: int,
         center_position: Optional[int] = None,
-        split: Dict[str, Any] = {},
+        split: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Apply a double qubit gate on adjacent qubits of Matrix Product States (MPS).
@@ -223,6 +233,8 @@ class MPSCircuit(AbstractCircuit):
         :type center_position: Optional[int]
         """
 
+        if split is None:
+            split = self.split
         # The center position of MPS must be either `index1` for `index2` before applying a double gate
         # Choose the one closer to the current center
         assert index2 - index1 == 1
@@ -245,8 +257,10 @@ class MPSCircuit(AbstractCircuit):
         self,
         index_from: int,
         index_to: int,
-        split: Dict[str, Any] = {}
+        split: Optional[Dict[str, Any]] = None,
     ) -> None:
+        if split is None:
+            split = self.split
         self.position(index_from)
         if index_from < index_to:
             for i in range(index_from, index_to):
@@ -264,7 +278,7 @@ class MPSCircuit(AbstractCircuit):
         gate: Gate,
         index1: int,
         index2: int,
-        split: Dict[str, Any] = {},
+        split: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Apply a double qubit gate on MPS. 
@@ -276,6 +290,8 @@ class MPSCircuit(AbstractCircuit):
         :param index2: The second qubit index of the gate
         :type index2: int
         """
+        if split is None:
+            split = self.split
         # apply N SWPA gates, the required gate, N SWAP gates sequentially on adjacent gates
         # start the swap from the side that the current center is closer to
         diff1 = abs(index1 - self._mps.center_position)  # type: ignore
@@ -383,11 +399,13 @@ class MPSCircuit(AbstractCircuit):
         tensor_left: Tensor,
         tensor_right: Tensor,
         center_left: bool = True,
-        split: Dict[str, Any] = {},
+        split: Optional[Dict[str, Any]] = None,
     ) -> Tuple[Tensor, Tensor]:
         """
         Reduce the bond dimension between two general tensors by SVD
         """
+        if split is None:
+            split = {}
         ni = tensor_left.shape[0]
         nk = tensor_right.shape[-1]
         T = backend.einsum("iaj,jbk->iabk", tensor_left, tensor_right)
@@ -403,11 +421,13 @@ class MPSCircuit(AbstractCircuit):
         self,
         index_left: int,
         center_left: bool = True,
-        split: Dict[str, Any] = {},
+        split: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Reduce the bond dimension between two adjacent sites by SVD
         """
+        if split is None:
+            split = self.split
         index_right = index_left + 1
         assert self._mps.center_position in [index_left, index_right]
         tensor_left = self._mps.tensors[index_left]
@@ -427,7 +447,7 @@ class MPSCircuit(AbstractCircuit):
         tensors: Sequence[Tensor],
         index_left: int,
         center_left: bool = True,
-        split: Dict[str, Any] = {},
+        split: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Apply a MPO to the MPS
@@ -445,6 +465,8 @@ class MPSCircuit(AbstractCircuit):
         #     canonicalize the tensors one by one from end1 to end2
         # setp 3:
         #     reduce the bond dimension one by one from end2 to end1
+        if split is None:
+            split = self.split
         nindex = len(tensors)
         index_right = index_left + nindex - 1
         if center_left:
@@ -482,11 +504,13 @@ class MPSCircuit(AbstractCircuit):
         self,
         gate: Gate,
         *index: int,
-        split: Dict[str, Any] = {},
+        split: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Apply a n-qubit gate by transforming the gate to MPO
         """
+        if split is None:
+            split = self.split
         MPO, index_left = self.gate_to_MPO(gate, *index)
         index_right = index_left + len(MPO) - 1
         # start the MPO from the side that the current center is closer to
@@ -512,10 +536,10 @@ class MPSCircuit(AbstractCircuit):
         :param index: Qubit indices of the gate
         :type index: int
         """
-        if name is None:
-            name = ""
         if split is None:
             split = self.split
+        if name is None:
+            name = ""
         gate_dict = {
             "gate": gate,
             "index": index,
@@ -581,7 +605,7 @@ class MPSCircuit(AbstractCircuit):
         wavefunction: Tensor,
         dim_phys: int = 2,
         norm: bool = True,
-        split: Dict[str, Any] = {}
+        split: Dict[str, Any] = None,
     ) -> List[Tensor]:
         """
         Construct the MPS tensors from a given wavefunction.
@@ -597,6 +621,8 @@ class MPSCircuit(AbstractCircuit):
         :return: The tensors
         :rtype: List[Tensor]
         """
+        if split is None:
+            split = {}
         wavefunction = backend.reshape(wavefunction, (-1, 1))
         n_tensors = int(np.round(np.log(wavefunction.shape[0]) / np.log(dim_phys)))
         tensors: List[Tensor] = []
@@ -796,7 +822,7 @@ class MPSCircuit(AbstractCircuit):
         :rtype: Tensor
         """
         if split is None:
-            split = self.split
+            split = {}
         # If the bra is ket itself, the environments outside the operators can be viewed as identities,
         # so does not need to contract
         ops = [list(op) for op in ops]  # type: ignore # turn to list for modification
