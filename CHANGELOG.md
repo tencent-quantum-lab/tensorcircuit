@@ -20,11 +20,19 @@
 
 - Add jit support and external random management for `tc.quantum.measurement_counts`
 
+- Add MPO gate support for multiple qubit gates in `MPSCircuit` simulator
+
+- Add the `expectation_ps` method to `MPSCircuit` (moving to `AbstractCircuit`)
+
 ### Changed
 
 - `rxx`, `ryy`, `rzz` gates now has 1/2 factor before theta consitent with `rx`, `ry`, `rz` gates. (breaking change)
 
 - replace `status` arguments in `sample` method as `random_generator` (new convention: status for 0, 1 uniform randomness and random_generator for random key) (breaking change)
+
+- Rewrite the expectation method of `MPSCircuit` to make it general
+
+- Adjusted the initialization method for `MPSCircuit` (move the from_wavefunction method and allow QuVector input) (breaking change)
 
 ### Fixed
 
