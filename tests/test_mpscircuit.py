@@ -306,9 +306,7 @@ def test_MPO_conversion(highp, tfb):
 
 
 @pytest.mark.parametrize(
-    # "backend, dtype", [(lf("tfb"), lf("highp")), (lf("jaxb"), lf("highp"))]
-    "backend, dtype",
-    [(lf("tfb"), lf("highp"))],
+    "backend, dtype", [(lf("tfb"), lf("highp")), (lf("jaxb"), lf("highp"))]
 )
 def test_circuits_1(backend, dtype):
     import time
@@ -332,8 +330,3 @@ def test_circuits_1(backend, dtype):
 def test_circuits_2(highp):
     circuits = get_test_circuits(True)
     do_test_truncation(circuits, 0.9401410770899974, 0.9654331011546374)
-
-
-tc.set_dtype("complex128")
-tc.set_backend("tensorflow")
-circuits = get_test_circuits(False)
