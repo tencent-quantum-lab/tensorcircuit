@@ -286,15 +286,15 @@ def test_free_energy(backend):
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_measurement_counts(backend):
     state = np.ones([4])
-    ct, cs = qu.measurement_counts(state)
+    ct, cs = qu.measurement_counts(state, format="count_tuple")
     np.testing.assert_allclose(ct.shape[0], 4, atol=atol)
     np.testing.assert_allclose(tc.backend.sum(cs), 8192, atol=atol)
     state = np.ones([2, 2])
-    ct, cs = qu.measurement_counts(state)
+    ct, cs = qu.measurement_counts(state, format="count_tuple")
     np.testing.assert_allclose(ct.shape[0], 2, atol=atol)
     np.testing.assert_allclose(tc.backend.sum(cs), 8192, atol=atol)
     state = np.array([1.0, 1.0, 0, 0])
-    print(qu.measurement_counts(state, sparse=False))
+    print(qu.measurement_counts(state))
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
@@ -412,9 +412,37 @@ def test_qb2qop(backend):
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_counts_2(backend):
     z0 = tc.backend.convert_to_tensor(np.array([0.1, 0, -0.3, 0]))
-    x, y = tc.quantum.counts_d2s(z0)
+    x, y = tc.quantum.count_d2s(z0)
     print(x, y)
     np.testing.assert_allclose(x, np.array([0, 2]))
     np.testing.assert_allclose(y, np.array([0.1, -0.3]))
-    z = tc.quantum.counts_s2d((x, y), 4)
+    z = tc.quantum.count_s2d((x, y), 2)
     np.testing.assert_allclose(z, z0)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_measurement_results(backend):
+    n = 4
+    w = tc.backend.ones([2**n])
+    r = tc.quantum.measurement_results(w, counts=9, format="sample_bin", jittable=True)
+    assert tc.backend.shape_tuple(r) == (9, n)
+    print(r)
+    r = tc.quantum.measurement_results(w, counts=9, format="sample_int", jittable=True)
+    assert tc.backend.shape_tuple(r) == (9,)
+    print(r)
+    for c in (9, -9):
+        r = tc.quantum.measurement_results(
+            w, counts=c, format="count_vector", jittable=True
+        )
+        assert tc.backend.shape_tuple(r) == (2**n,)
+        print(r)
+        r = tc.quantum.measurement_results(w, counts=c, format="count_tuple")
+        print(r)
+        r = tc.quantum.measurement_results(
+            w, counts=c, format="count_dict_bin", jittable=True
+        )
+        print(r)
+        r = tc.quantum.measurement_results(
+            w, counts=c, format="count_dict_int", jittable=True
+        )
+        print(r)

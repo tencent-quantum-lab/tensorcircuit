@@ -16,6 +16,7 @@ from typing import (
     Any,
     Callable,
     Collection,
+    Dict,
     List,
     Optional,
     Sequence,
@@ -1826,28 +1827,36 @@ def mutual_information(s: Tensor, cut: Union[int, List[int]]) -> Tensor:
     return ha + hb - hab
 
 
-def counts_s2d(srepr: Tuple[Tensor, Tensor], d: int) -> Tensor:
+# measurement results and transformations and correlations below
+
+
+def count_s2d(srepr: Tuple[Tensor, Tensor], n: int) -> Tensor:
     """
     measurement shots results, sparse tuple representation to dense representation
+    count_vector to count_tuple
 
     :param srepr: [description]
     :type srepr: Tuple[Tensor, Tensor]
-    :param d: [description]
-    :type d: int
+    :param n: number of qubits
+    :type n: int
     :return: [description]
     :rtype: Tensor
     """
     return backend.scatter(
-        backend.cast(backend.zeros([d]), srepr[1].dtype),
+        backend.cast(backend.zeros([2**n]), srepr[1].dtype),
         backend.reshape(srepr[0], [-1, 1]),
         srepr[1],
     )
 
 
-def counts_d2s(drepr: Tensor, eps: float = 1e-7) -> Tuple[Tensor, Tensor]:
+counts_v2t = count_s2d
+
+
+def count_d2s(drepr: Tensor, eps: float = 1e-7) -> Tuple[Tensor, Tensor]:
     """
     measurement shots results, dense representation to sparse tuple representation
     non-jittable due to the non fixed return shape
+    count_tuple to count_vector
 
     :Example:
 
@@ -1862,6 +1871,7 @@ def counts_d2s(drepr: Tensor, eps: float = 1e-7) -> Tuple[Tensor, Tensor]:
     :rtype: Tuple[Tensor, Tensor]
     """
     # unjittable since the return shape is not fixed
+    # tf.boolean_mask is better but no jax counterpart
     xl = []
     cl = []
     for i, j in enumerate(drepr):
@@ -1873,10 +1883,123 @@ def counts_d2s(drepr: Tensor, eps: float = 1e-7) -> Tuple[Tensor, Tensor]:
     return xl, cl
 
 
+count_t2v = count_d2s
+
+
+def sample_int2bin(sample: Tensor, n: int) -> Tensor:
+    """
+    int sample to bin sample
+
+    :param sample: in shape [trials] of int elements in the range [0, 2**n)
+    :type sample: Tensor
+    :param n: number of qubits
+    :type n: int
+    :return: in shape [trials, n] of element (0, 1)
+    :rtype: Tensor
+    """
+    confg = backend.mod(
+        backend.right_shift(sample[..., None], backend.reverse(backend.arange(n))),
+        2,
+    )
+    return confg
+
+
+def sample_bin2int(sample: Tensor, n: int) -> Tensor:
+    """
+    bin sample to int sample
+
+    :param sample: in shape [trials, n] of elements (0, 1)
+    :type sample: Tensor
+    :param n: number of qubits
+    :type n: int
+    :return: in shape [trials]
+    :rtype: Tensor
+    """
+    power = backend.convert_to_tensor([2**j for j in reversed(range(n))])
+    return backend.sum(sample * power, axis=-1)
+
+
+def sample2count(
+    sample: Tensor, n: int, jittable: bool = True
+) -> Tuple[Tensor, Tensor]:
+    """
+    sample_int to count_tuple
+
+    :param sample: _description_
+    :type sample: Tensor
+    :param n: _description_
+    :type n: int
+    :param jittable: _description_, defaults to True
+    :type jittable: bool, optional
+    :return: _description_
+    :rtype: Tuple[Tensor, Tensor]
+    """
+    d = 2**n
+    if not jittable:
+        results = backend.unique_with_counts(sample)  # non-jittable
+    else:  # jax specified
+        results = backend.unique_with_counts(sample, size=d, fill_value=-1)
+    return results  # type: ignore
+
+
+def count_vector2dict(count: Tensor, n: int, key: str = "bin") -> Dict[Any, int]:
+    """
+    convert_vector to count_dict_bin or count_dict_int
+
+    :param count: tensor in shape [2**n]
+    :type count: Tensor
+    :param n: number of qubits
+    :type n: int
+    :param key: can be "int" or "bin", defaults to "bin"
+    :type key: str, optional
+    :return: _description_
+    :rtype: _type_
+    """
+    d = {i: backend.numpy(count[i]).item() for i in range(2**n)}
+    if key == "int":
+        return d
+    else:
+        dn = {}
+        for k, v in d.items():
+            kn = str(bin(k))[2:].zfill(n)
+            dn[kn] = v
+        return dn
+
+
+def count_tuple2dict(
+    count: Tuple[Tensor, Tensor], n: int, key: str = "bin"
+) -> Dict[Any, int]:
+    """
+    count_tuple to count_dict_bin or count_dict_int
+
+    :param count: count_tuple format
+    :type count: Tuple[Tensor, Tensor]
+    :param n: number of qubits
+    :type n: int
+    :param key: can be "int" or "bin", defaults to "bin"
+    :type key: str, optional
+    :return: count_dict
+    :rtype: _type_
+    """
+    d = {
+        backend.numpy(i).item(): backend.numpy(j).item()
+        for i, j in zip(count[0], count[1])
+        if i >= 0
+    }
+    if key == "int":
+        return d
+    else:
+        dn = {}
+        for k, v in d.items():
+            kn = str(bin(k))[2:].zfill(n)
+            dn[kn] = v
+        return dn
+
+
 def measurement_counts(
     state: Tensor,
     counts: Optional[int] = 8192,
-    sparse: bool = True,
+    format: str = "count_vector",
     is_prob: bool = False,
     random_generator: Optional[Any] = None,
     jittable: bool = False,
@@ -1885,33 +2008,35 @@ def measurement_counts(
     Simulate the measuring of each qubit of ``p`` in the computational basis,
     thus producing output like that of ``qiskit``.
 
-    :Example:
+    Four formats of measurement counts results:
 
-    >>> qu.measurement_counts(np.ones([2**6])/2**3, counts=16, sparse=True)
-    (array([ 4,  7, 13, 19, 21, 33, 36, 41, 42, 45, 49, 50, 54, 56]),
-     array([1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1]))
-    >>> qu.measurement_counts(np.ones([2**6])/2**3, counts=16, sparse=False)
-    array([0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-       0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 1, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 1,
-       0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0])
+    "sample_int": # np.array([0, 0])
+    "sample_bin": # [np.array([1, 0]), np.array([1, 0])]
+    "count_vector": # np.array([2, 0, 0, 0])
+    "count_tuple": # (np.array([0]), np.array([2]))
+    "count_dict_bin": # {"00": 2, "01": 0, "10": 0, "11": 0}
+    "count_dict_int": # {0: 2, 1: 0, 2: 0, 3: 0}
+
+    :Example:
 
     :param state: The quantum state, assumed to be normalized, as either a ket or density operator.
     :type state: Tensor
     :param counts: The number of counts to perform.
     :type counts: int
-    :param sparse: Defaults True. The bool indicating whether
-        the return form is in the form of two array or one of the same length as the ``state`` (if ``sparse=False``).
-    :type sparse: bool
+    :param format: defaults to be "direct", see supported format above
+    :type format: str
     :param is_prob: if True, the `state` is directly regarded as a probability list,
         defaults to be False
     :type is_prob: bool
     :param random_generator: random_generator, defaults to None
     :type random_general: Optional[Any]
+    :param jittable: if True, jax backend try using a jittable count, defaults to False
+    :type jittable: bool
     :return: The counts for each bit string measured.
     :rtype: Tuple[]
     """
     if is_prob:
-        pi = state
+        pi = state / backend.norm(state)
     else:
         if len(state.shape) == 2:
             state /= backend.trace(state)
@@ -1921,13 +2046,21 @@ def measurement_counts(
             pi = backend.real(backend.conj(state) * state)
         pi = backend.reshape(pi, [-1])
     d = int(backend.shape_tuple(pi)[0])
+    n = int(np.log(d) / np.log(2) + 1e-8)
     drange = backend.arange(d)
-    # raw counts in terms of integers
     if (counts is None) or counts <= 0:
-        if not sparse:
+        if format == "count_vector":
             return pi
+        elif format == "count_tuple":
+            return count_d2s(pi)
+        elif format == "count_dict_bin":
+            return count_vector2dict(pi, n, key="bin")
+        elif format == "count_dict_int":
+            return count_vector2dict(pi, n, key="int")
         else:
-            return counts_d2s(pi)
+            raise ValueError(
+                "unsupported format %s for analytical measurement" % format
+            )
     else:
         if random_generator is None:
             raw_counts = backend.implicit_randc(drange, shape=counts, p=pi)
@@ -1935,14 +2068,27 @@ def measurement_counts(
             raw_counts = backend.stateful_randc(
                 random_generator, a=drange, shape=counts, p=pi
             )
-        if not jittable:
-            results = backend.unique_with_counts(raw_counts)  # non-jittable
-        else:  # jax specified
-            results = backend.unique_with_counts(raw_counts, size=d, fill_value=-1)
-        if sparse:
-            return results  # type: ignore
-        dense_results = counts_s2d(results, d)
-        return dense_results
+        if format == "sample_int":
+            return raw_counts
+        elif format == "sample_bin":
+            return sample_int2bin(raw_counts, n)
+        else:
+            count_tuple = sample2count(raw_counts, n, jittable)
+            if format == "count_tuple":
+                return count_tuple
+            elif format == "count_vector":
+                return count_s2d(count_tuple, n)
+            elif format == "count_dict_bin":
+                return count_tuple2dict(count_tuple, n, key="bin")
+            elif format == "count_dict_int":
+                return count_tuple2dict(count_tuple, n, key="int")
+            else:
+                raise ValueError(
+                    "unsupported format %s for analytical measurement" % format
+                )
+
+
+measurement_results = measurement_counts
 
 
 def spin_by_basis(n: int, m: int, elements: Tuple[int, int] = (1, -1)) -> Tensor:
@@ -1974,13 +2120,33 @@ def spin_by_basis(n: int, m: int, elements: Tuple[int, int] = (1, -1)) -> Tensor
     return backend.reshape(s, [-1])
 
 
-# TODO(@refraction-ray): unified sample form and counts form for measurement results
+def correlation_from_samples(index: Sequence[int], results: Tensor, n: int) -> Tensor:
+    """
+    Compute :math:`\prod_{i\in \\text{index}} s_i (s=\pm 1)`,
+    Results is in the format of "sample_int" or "sample_bin"
+
+    :param index: list of int, indicating the position in the bitstring
+    :type index: Sequence[int]
+    :param results: sample tensor
+    :type results: Tensor
+    :param n: number of qubits
+    :type n: int
+    :return: Correlation expectation from measurement shots
+    :rtype: Tensor
+    """
+    if len(backend.shape_tuple(results)) == 1:
+        results = sample_int2bin(results, n)
+    r = results[:, index[0]]
+    for i in index[1:]:
+        r *= results[:, i]
+    return backend.mean(r)
 
 
 def correlation_from_counts(index: Sequence[int], results: Tensor) -> Tensor:
     """
     Compute :math:`\prod_{i\in \\text{index}} s_i`,
     where the probability for each bitstring is given as a vector ``results``.
+    Results is in the format of "count_vector"
 
     :Example:
 

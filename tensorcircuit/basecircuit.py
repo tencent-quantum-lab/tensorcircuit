@@ -10,7 +10,13 @@ import graphviz
 import tensornetwork as tn
 
 from . import gates
-from .quantum import QuOperator, QuVector, correlation_from_counts, measurement_counts
+from .quantum import (
+    QuOperator,
+    QuVector,
+    correlation_from_counts,
+    measurement_counts,
+    sample_int2bin,
+)
 from .abstractcircuit import AbstractCircuit
 from .cons import npdtype, backend, dtypestr, contractor, rdtypestr
 from .simplify import _split_two_qubit_gate
@@ -550,12 +556,13 @@ class BaseCircuit(AbstractCircuit):
                 random_generator, a=a_range, shape=[nbatch], p=p
             )
         prob = backend.gather1d(p, ch)
-        confg = backend.mod(
-            backend.right_shift(
-                ch[..., None], backend.reverse(backend.arange(self._nqubits))
-            ),
-            2,
-        )
+        confg = sample_int2bin(ch, self._nqubits)
+        # confg = backend.mod(
+        #     backend.right_shift(
+        #         ch[..., None], backend.reverse(backend.arange(self._nqubits))
+        #     ),
+        #     2,
+        # )
         r = list(zip(confg, prob))
         if batch is None:
             r = r[0]
@@ -609,17 +616,16 @@ class BaseCircuit(AbstractCircuit):
         for i in y:
             c.rx(i, theta=np.pi / 2)  # type: ignore
         s = c.state()  # type: ignore
-        if c.is_dm is False:
-            p = backend.abs(s) ** 2
-        else:
-            p = backend.abs(backend.diagonal(s))
+        # if c.is_dm is False:
+        #     p = backend.abs(s) ** 2
+        # else:
+        #     p = backend.abs(backend.diagonal(s))
         # readout error can be processed here later
         # TODO(@refraction-ray): explicit management on randomness
         mc = measurement_counts(
-            p,
+            s,
             counts=shots,
-            sparse=False,
-            is_prob=True,
+            format="count_vector",
             random_generator=random_generator,
             jittable=True,
         )

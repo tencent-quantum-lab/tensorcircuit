@@ -24,6 +24,8 @@
 
 - Add the `expectation_ps` method to `MPSCircuit` (moving to `AbstractCircuit`)
 
+- Add six format of measurement results support and their transformation in quantum module.
+
 ### Changed
 
 - `rxx`, `ryy`, `rzz` gates now has 1/2 factor before theta consitent with `rx`, `ry`, `rz` gates. (breaking change)
@@ -33,6 +35,8 @@
 - Rewrite the expectation method of `MPSCircuit` to make it general
 
 - Adjusted the initialization method for `MPSCircuit` (move the from_wavefunction method and allow QuVector input) (breaking change)
+
+- `tc.quantum.measurement_counts` aliased as `tc.quantum.measurement_results` and change the function arguments (breaking change)
 
 ### Fixed
 
