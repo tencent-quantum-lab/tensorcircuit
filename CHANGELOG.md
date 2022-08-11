@@ -38,6 +38,8 @@
 
 - `tc.quantum.measurement_counts` aliased as `tc.quantum.measurement_results` and change the function arguments (breaking change)
 
+- Refactor backend to use multiple inheritance approach instead of reflection method
+
 ### Fixed
 
 - Add jit support for `sample` method when `allow_state=True`
