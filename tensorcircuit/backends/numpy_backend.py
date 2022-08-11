@@ -14,16 +14,6 @@ from scipy.sparse import coo_matrix, issparse
 from tensornetwork.backends.numpy import numpy_backend
 from .abstract_backend import ExtendedBackend
 
-try:  # old version tn compatiblity
-    from tensornetwork.backends import base_backend
-
-    tnbackend = base_backend.BaseBackend
-
-except ImportError:
-    from tensornetwork.backends import abstract_backend
-
-    tnbackend = abstract_backend.AbstractBackend
-
 logger = logging.getLogger(__name__)
 
 dtypestr: str
@@ -228,7 +218,7 @@ class NumpyBackend(numpy_backend.NumPyBackend, ExtendedBackend):  # type: ignore
     def left_shift(self, x: Tensor, y: Tensor) -> Tensor:
         return np.left_shift(x, y)
 
-    def solve(self, A: Tensor, b: Tensor, assume_a: str = "gen") -> Tensor:
+    def solve(self, A: Tensor, b: Tensor, assume_a: str = "gen") -> Tensor:  # type: ignore
         # gen, sym, her, pos
         # https://stackoverflow.com/questions/44672029/difference-between-numpy-linalg-solve-and-numpy-linalg-lu-solve/44710451
         return solve(A, b, assume_a)

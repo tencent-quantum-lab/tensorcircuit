@@ -12,16 +12,6 @@ import tensornetwork
 from tensornetwork.backends.tensorflow import tensorflow_backend
 from .abstract_backend import ExtendedBackend
 
-try:  # old version tn compatiblity
-    from tensornetwork.backends import base_backend
-
-    tnbackend = base_backend.BaseBackend
-
-except ImportError:
-    from tensornetwork.backends import abstract_backend
-
-    tnbackend = abstract_backend.AbstractBackend
-
 dtypestr: str
 Tensor = Any
 RGenerator = Any  # tf.random.Generator

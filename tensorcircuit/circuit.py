@@ -234,10 +234,10 @@ class Circuit(BaseCircuit):
             status < px,
             lambda: gates.x().tensor,  # type: ignore
             lambda: backend.cond(
-                status < px + py, # type: ignore
+                status < px + py,  # type: ignore
                 lambda: gates.y().tensor,  # type: ignore
                 lambda: backend.cond(
-                    status < px + py + pz, # type: ignore
+                    status < px + py + pz,  # type: ignore
                     lambda: gates.z().tensor,  # type: ignore
                     lambda: gates.i().tensor,  # type: ignore
                 ),
@@ -324,7 +324,7 @@ class Circuit(BaseCircuit):
         # speed is similar to ``unitary_kraus``
         def index2gate2(r: Tensor, kraus: Sequence[Tensor]) -> Tensor:
             # r is int type Tensor of shape []
-            return backend.switch(r, [lambda _=k: _ for k in kraus]) # type: ignore
+            return backend.switch(r, [lambda _=k: _ for k in kraus])  # type: ignore
 
         return self._unitary_kraus_template(
             kraus,

@@ -13,16 +13,6 @@ import tensornetwork
 from tensornetwork.backends.jax import jax_backend
 from .abstract_backend import ExtendedBackend
 
-try:  # old version tn compatiblity
-    from tensornetwork.backends import base_backend
-
-    tnbackend = base_backend.BaseBackend
-
-except ImportError:
-    from tensornetwork.backends import abstract_backend
-
-    tnbackend = abstract_backend.AbstractBackend
-
 logger = logging.getLogger(__name__)
 
 
@@ -368,7 +358,7 @@ class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
     def argmin(self, a: Tensor, axis: int = 0) -> Tensor:
         return jnp.argmin(a, axis=axis)
 
-    def unique_with_counts(
+    def unique_with_counts(  # type: ignore
         self, a: Tensor, *, size: Optional[int] = None, fill_value: Optional[int] = None
     ) -> Tuple[Tensor, Tensor]:
         return jnp.unique(a, return_counts=True, size=size, fill_value=fill_value)  # type: ignore
@@ -396,7 +386,7 @@ class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
             return True
         return False
 
-    def solve(self, A: Tensor, b: Tensor, assume_a: str = "gen") -> Tensor:
+    def solve(self, A: Tensor, b: Tensor, assume_a: str = "gen") -> Tensor:  # type: ignore
         return jsp.linalg.solve(A, b, assume_a)
 
     def tree_map(self, f: Callable[..., Any], *pytrees: Any) -> Any:
