@@ -2154,7 +2154,6 @@ def correlation_from_samples(index: Sequence[int], results: Tensor, n: int) -> T
     if len(backend.shape_tuple(results)) == 1:
         results = sample_int2bin(results, n)
     results = results * 2 - 1
-    print(results)
     r = results[:, index[0]]
     for i in index[1:]:
         r *= results[:, i]
