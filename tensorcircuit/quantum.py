@@ -2019,6 +2019,23 @@ def measurement_counts(
 
     :Example:
 
+    >>> n = 4
+    >>> w = tc.backend.ones([2**n])
+    >>> tc.quantum.measurement_results(w, counts=3, format="sample_bin", jittable=True)
+    array([[0, 0, 1, 0],
+        [0, 1, 1, 0],
+        [0, 1, 1, 1]])
+    >>> tc.quantum.measurement_results(w, counts=3, format="sample_int", jittable=True)
+    array([ 7, 15, 11])
+    >>> tc.quantum.measurement_results(w, counts=3, format="count_vector", jittable=True)
+    array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1])
+    >>> tc.quantum.measurement_results(w, counts=3, format="count_tuple")
+    (array([1, 2, 8]), array([1, 1, 1]))
+    >>> tc.quantum.measurement_results(w, counts=3, format="count_dict_bin")
+    {'0001': 1, '0011': 1, '1101': 1}
+    >>> tc.quantum.measurement_results(w, counts=3, format="count_dict_int")
+    {3: 1, 6: 2}
+
     :param state: The quantum state, assumed to be normalized, as either a ket or density operator.
     :type state: Tensor
     :param counts: The number of counts to perform.
@@ -2136,6 +2153,8 @@ def correlation_from_samples(index: Sequence[int], results: Tensor, n: int) -> T
     """
     if len(backend.shape_tuple(results)) == 1:
         results = sample_int2bin(results, n)
+    results = results * 2 - 1
+    print(results)
     r = results[:, index[0]]
     for i in index[1:]:
         r *= results[:, i]

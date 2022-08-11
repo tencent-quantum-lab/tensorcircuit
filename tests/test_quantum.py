@@ -308,6 +308,10 @@ def test_extract_from_measure(backend):
     )
     np.testing.assert_allclose(qu.correlation_from_counts([1], state), 0.2, atol=atol)
 
+    samples_int = tc.array_to_tensor(np.array([0, 0, 3, 3, 3]), dtype="int32")
+    r = qu.correlation_from_samples([0, 1], samples_int, n=2)
+    np.testing.assert_allclose(r, 1, atol=1e-5)
+
 
 def test_heisenberg_ham(tfb):
     g = tc.templates.graphs.Line1D(6)
