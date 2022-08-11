@@ -1974,6 +1974,9 @@ def spin_by_basis(n: int, m: int, elements: Tuple[int, int] = (1, -1)) -> Tensor
     return backend.reshape(s, [-1])
 
 
+# TODO(@refraction-ray): unified sample form and counts form for measurement results
+
+
 def correlation_from_counts(index: Sequence[int], results: Tensor) -> Tensor:
     """
     Compute :math:`\prod_{i\in \\text{index}} s_i`,

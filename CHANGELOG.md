@@ -12,15 +12,31 @@
 
 - Add vmap enhanced `parameter_shift_grad` in experimental module (API subjects to change)
 
-- Add `parameter_shift.py` script in examples
+- Add `parameter_shift.py` script in examples showcasing how to use parameter shift grad wrapper
+
+- Add `vmap_randomness.py` script in examples showcasing how to vmap external random generators
+
+- Add `noise_sampling_jit.py` script showcasing how real device simulation with sample method is efficiently implemented with Monte Carlo and jit
 
 - Add jit support and external random management for `tc.quantum.measurement_counts`
+
+- Add MPO gate support for multiple qubit gates in `MPSCircuit` simulator
+
+- Add the `expectation_ps` method to `MPSCircuit` (moving to `AbstractCircuit`)
 
 ### Changed
 
 - `rxx`, `ryy`, `rzz` gates now has 1/2 factor before theta consitent with `rx`, `ry`, `rz` gates. (breaking change)
 
 - replace `status` arguments in `sample` method as `random_generator` (new convention: status for 0, 1 uniform randomness and random_generator for random key) (breaking change)
+
+- Rewrite the expectation method of `MPSCircuit` to make it general
+
+- Adjusted the initialization method for `MPSCircuit` (move the from_wavefunction method and allow QuVector input) (breaking change)
+
+### Fixed
+
+- Add jit support for `sample` method when `allow_state=True`
 
 ## 0.3.1
 
