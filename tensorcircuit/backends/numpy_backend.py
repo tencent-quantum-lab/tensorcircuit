@@ -12,17 +12,7 @@ from scipy.linalg import expm, solve
 from scipy.special import softmax, expit
 from scipy.sparse import coo_matrix, issparse
 from tensornetwork.backends.numpy import numpy_backend
-
-try:  # old version tn compatiblity
-    from tensornetwork.backends import base_backend
-
-    tnbackend = base_backend.BaseBackend
-
-except ImportError:
-    from tensornetwork.backends import abstract_backend
-
-    tnbackend = abstract_backend.AbstractBackend
-
+from .abstract_backend import ExtendedBackend
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +40,7 @@ tensornetwork.backends.numpy.numpy_backend.NumPyBackend.convert_to_tensor = (
 )
 
 
-class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
+class NumpyBackend(numpy_backend.NumPyBackend, ExtendedBackend):  # type: ignore
     """
     see the original backend API at `numpy backend
     <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/numpy/numpy_backend.py>`_
@@ -64,13 +54,13 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
         r = np.eye(N, M=M)
         return self.cast(r, dtype)
 
-    def ones(self, shape: Tuple[int, ...], dtype: Optional[str] = None) -> Tensor:
+    def ones(self, shape: Sequence[int], dtype: Optional[str] = None) -> Tensor:
         if dtype is None:
             dtype = dtypestr
         r = np.ones(shape)
         return self.cast(r, dtype)
 
-    def zeros(self, shape: Tuple[int, ...], dtype: Optional[str] = None) -> Tensor:
+    def zeros(self, shape: Sequence[int], dtype: Optional[str] = None) -> Tensor:
         if dtype is None:
             dtype = dtypestr
         r = np.zeros(shape)
@@ -228,7 +218,7 @@ class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
     def left_shift(self, x: Tensor, y: Tensor) -> Tensor:
         return np.left_shift(x, y)
 
-    def solve(self, A: Tensor, b: Tensor, assume_a: str = "gen") -> Tensor:
+    def solve(self, A: Tensor, b: Tensor, assume_a: str = "gen") -> Tensor:  # type: ignore
         # gen, sym, her, pos
         # https://stackoverflow.com/questions/44672029/difference-between-numpy-linalg-solve-and-numpy-linalg-lu-solve/44710451
         return solve(A, b, assume_a)

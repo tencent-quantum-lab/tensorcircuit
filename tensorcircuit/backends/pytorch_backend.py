@@ -10,16 +10,7 @@ from functools import reduce
 
 import tensornetwork
 from tensornetwork.backends.pytorch import pytorch_backend
-
-try:  # old version tn compatiblity
-    from tensornetwork.backends import base_backend
-
-    tnbackend = base_backend.BaseBackend
-
-except ImportError:
-    from tensornetwork.backends import abstract_backend
-
-    tnbackend = abstract_backend.AbstractBackend
+from .abstract_backend import ExtendedBackend
 
 dtypestr: str
 Tensor = Any
@@ -181,7 +172,7 @@ tensornetwork.backends.pytorch.pytorch_backend.PyTorchBackend.qr = _qr_torch
 tensornetwork.backends.pytorch.pytorch_backend.PyTorchBackend.rq = _rq_torch
 
 
-class PyTorchBackend(pytorch_backend.PyTorchBackend):  # type: ignore
+class PyTorchBackend(pytorch_backend.PyTorchBackend, ExtendedBackend):  # type: ignore
     """
     See the original backend API at `pytorch backend
     <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/pytorch/pytorch_backend.py>`_

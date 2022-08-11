@@ -11,16 +11,7 @@ import numpy as np
 from scipy.sparse import coo_matrix
 import tensornetwork
 from tensornetwork.backends.jax import jax_backend
-
-try:  # old version tn compatiblity
-    from tensornetwork.backends import base_backend
-
-    tnbackend = base_backend.BaseBackend
-
-except ImportError:
-    from tensornetwork.backends import abstract_backend
-
-    tnbackend = abstract_backend.AbstractBackend
+from .abstract_backend import ExtendedBackend
 
 logger = logging.getLogger(__name__)
 
@@ -172,7 +163,7 @@ tensornetwork.backends.jax.jax_backend.JaxBackend.qr = _qr_jax
 tensornetwork.backends.jax.jax_backend.JaxBackend.rq = _rq_jax
 
 
-class JaxBackend(jax_backend.JaxBackend):  # type: ignore
+class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
     """
     See the original backend API at `jax backend
     <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/jax/jax_backend.py>`_
@@ -367,7 +358,7 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
     def argmin(self, a: Tensor, axis: int = 0) -> Tensor:
         return jnp.argmin(a, axis=axis)
 
-    def unique_with_counts(
+    def unique_with_counts(  # type: ignore
         self, a: Tensor, *, size: Optional[int] = None, fill_value: Optional[int] = None
     ) -> Tuple[Tensor, Tensor]:
         return jnp.unique(a, return_counts=True, size=size, fill_value=fill_value)  # type: ignore
@@ -395,7 +386,7 @@ class JaxBackend(jax_backend.JaxBackend):  # type: ignore
             return True
         return False
 
-    def solve(self, A: Tensor, b: Tensor, assume_a: str = "gen") -> Tensor:
+    def solve(self, A: Tensor, b: Tensor, assume_a: str = "gen") -> Tensor:  # type: ignore
         return jsp.linalg.solve(A, b, assume_a)
 
     def tree_map(self, f: Callable[..., Any], *pytrees: Any) -> Any:

@@ -4,29 +4,17 @@ Backend magic inherited from tensornetwork: abstract backend
 # pylint: disable=invalid-name
 # pylint: disable=unused-variable
 
-import inspect
 from functools import reduce, partial
 from operator import mul
 from typing import Any, Callable, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
-
-try:  # old version tn compatiblity
-    from tensornetwork.backends import base_backend
-
-    tnbackend = base_backend.BaseBackend
-
-except ImportError:
-    from tensornetwork.backends import abstract_backend
-
-    tnbackend = abstract_backend.AbstractBackend
-
 from ..utils import return_partial
 
 Tensor = Any
 
 
-def _more_methods_for_backend(tnbackend: Any) -> None:
+class ExtendedBackend:
     """
     Add tensorcircuit specific backend methods, especially with their docstrings.
     """
@@ -1632,12 +1620,3 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
         return self.name + "_backend"  # type: ignore
 
     __str__ = __repr__
-
-    r = inspect.stack()
-    d = r[0].frame.f_locals
-    for k, v in d.items():
-        if k != "r":
-            setattr(tnbackend, k, v)
-
-
-_more_methods_for_backend(tnbackend)

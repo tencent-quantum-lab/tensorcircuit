@@ -10,16 +10,7 @@ from typing import Any, Callable, Optional, Sequence, Tuple, Union
 from scipy.sparse import coo_matrix
 import tensornetwork
 from tensornetwork.backends.tensorflow import tensorflow_backend
-
-try:  # old version tn compatiblity
-    from tensornetwork.backends import base_backend
-
-    tnbackend = base_backend.BaseBackend
-
-except ImportError:
-    from tensornetwork.backends import abstract_backend
-
-    tnbackend = abstract_backend.AbstractBackend
+from .abstract_backend import ExtendedBackend
 
 dtypestr: str
 Tensor = Any
@@ -225,7 +216,7 @@ tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.qr = _qr_
 tensornetwork.backends.tensorflow.tensorflow_backend.TensorFlowBackend.rq = _rq_tf
 
 
-class TensorFlowBackend(tensorflow_backend.TensorFlowBackend):  # type: ignore
+class TensorFlowBackend(tensorflow_backend.TensorFlowBackend, ExtendedBackend):  # type: ignore
     """
     See the original backend API at `tensorflow backend
     <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/tensorflow/tensorflow_backend.py>`_
