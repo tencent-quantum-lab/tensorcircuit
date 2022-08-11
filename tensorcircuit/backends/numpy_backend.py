@@ -12,6 +12,7 @@ from scipy.linalg import expm, solve
 from scipy.special import softmax, expit
 from scipy.sparse import coo_matrix, issparse
 from tensornetwork.backends.numpy import numpy_backend
+from .abstract_backend import ExtendedBackend
 
 try:  # old version tn compatiblity
     from tensornetwork.backends import base_backend
@@ -22,7 +23,6 @@ except ImportError:
     from tensornetwork.backends import abstract_backend
 
     tnbackend = abstract_backend.AbstractBackend
-
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +50,7 @@ tensornetwork.backends.numpy.numpy_backend.NumPyBackend.convert_to_tensor = (
 )
 
 
-class NumpyBackend(numpy_backend.NumPyBackend):  # type: ignore
+class NumpyBackend(numpy_backend.NumPyBackend, ExtendedBackend):  # type: ignore
     """
     see the original backend API at `numpy backend
     <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/numpy/numpy_backend.py>`_

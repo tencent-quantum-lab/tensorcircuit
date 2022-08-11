@@ -7,16 +7,19 @@ Backend magic inherited from tensornetwork: abstract backend
 import inspect
 from functools import reduce, partial
 from operator import mul
+from tkinter import W
 from typing import Any, Callable, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
 try:  # old version tn compatiblity
+    old = True
     from tensornetwork.backends import base_backend
 
     tnbackend = base_backend.BaseBackend
 
 except ImportError:
+    old = False
     from tensornetwork.backends import abstract_backend
 
     tnbackend = abstract_backend.AbstractBackend
@@ -26,7 +29,7 @@ from ..utils import return_partial
 Tensor = Any
 
 
-def _more_methods_for_backend(tnbackend: Any) -> None:
+class ExtendedBackend():
     """
     Add tensorcircuit specific backend methods, especially with their docstrings.
     """
@@ -1633,11 +1636,25 @@ def _more_methods_for_backend(tnbackend: Any) -> None:
 
     __str__ = __repr__
 
-    r = inspect.stack()
-    d = r[0].frame.f_locals
-    for k, v in d.items():
-        if k != "r":
-            setattr(tnbackend, k, v)
+    '''
+    @classmethod
+    def _add_methods_for_backend(cls, tnbackend):
+        r = inspect.stack()
+        # r[0]: r, i, tnbackend
+        # r[1]: all defined methods, e.g. copy, expm..., including _add_method_for_backend
+        for i in range(len(r)):
+            print(i, r[i].frame.f_locals.keys())
+        d = r[1].frame.f_locals
+        for k, v in d.items():
+            if k != "_add_method_for_backend":
+                setattr(tnbackend, k, v)
+    '''
 
 
-_more_methods_for_backend(tnbackend)
+#ExtendedBackend._add_methods_for_backend(tnbackend)
+#
+#breakpoint()
+#if old:
+#    base_backend.BaseBackend = ExtendedBackend
+#else:
+#    abstract_backend.AbstractBackend = ExtendedBackend

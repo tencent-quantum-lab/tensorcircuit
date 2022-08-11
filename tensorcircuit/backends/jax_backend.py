@@ -11,6 +11,7 @@ import numpy as np
 from scipy.sparse import coo_matrix
 import tensornetwork
 from tensornetwork.backends.jax import jax_backend
+from .abstract_backend import ExtendedBackend
 
 try:  # old version tn compatiblity
     from tensornetwork.backends import base_backend
@@ -172,7 +173,7 @@ tensornetwork.backends.jax.jax_backend.JaxBackend.qr = _qr_jax
 tensornetwork.backends.jax.jax_backend.JaxBackend.rq = _rq_jax
 
 
-class JaxBackend(jax_backend.JaxBackend):  # type: ignore
+class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
     """
     See the original backend API at `jax backend
     <https://github.com/google/TensorNetwork/blob/master/tensornetwork/backends/jax/jax_backend.py>`_
