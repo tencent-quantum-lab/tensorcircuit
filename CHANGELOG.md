@@ -44,6 +44,8 @@
 
 - Add jit support for `sample` method when `allow_state=True`
 
+- Fix the bug that 128 type is converted to 64 value
+
 ## 0.3.1
 
 ### Added
