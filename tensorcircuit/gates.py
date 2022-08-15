@@ -14,6 +14,7 @@ from scipy.stats import unitary_group
 
 from .cons import backend, dtypestr, npdtype
 from .backends import get_backend  # type: ignore
+from .utils import arg_alias
 
 thismodule = sys.modules[__name__]
 
@@ -696,6 +697,7 @@ def any_gate(unitary: Tensor, name: str = "any") -> Gate:
 # any = any_gate
 
 
+@partial(arg_alias, alias_dict={"unitary": ["hermitian", "hamiltonian"]})
 def exponential_gate(unitary: Tensor, theta: float, name: str = "none") -> Gate:
     r"""
     Exponential gate.
@@ -723,6 +725,7 @@ exp_gate = exponential_gate
 # exp = exponential_gate
 
 
+@partial(arg_alias, alias_dict={"unitary": ["hermitian", "hamiltonian"]})
 def exponential_gate_unity(
     unitary: Tensor, theta: float, half: bool = False, name: str = "none"
 ) -> Gate:

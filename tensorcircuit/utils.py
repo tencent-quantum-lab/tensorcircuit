@@ -2,9 +2,10 @@
 Helper functions
 """
 
-from typing import Any, Callable, Union, Sequence, Tuple
+from typing import Any, Callable, Union, Sequence, Tuple, Dict
 from functools import wraps
 import platform
+import re
 import time
 
 
@@ -103,6 +104,78 @@ def is_sequence(x: Any) -> bool:
     if isinstance(x, list) or isinstance(x, tuple):
         return True
     return False
+
+
+def is_number(x: Any) -> bool:
+    if isinstance(x, int) or isinstance(x, float) or isinstance(x, complex):
+        return True
+    return False
+
+
+def arg_alias(
+    f: Callable[..., Any],
+    alias_dict: Dict[str, Union[str, Sequence[str]]],
+    fix_doc: bool = True,
+) -> Callable[..., Any]:
+    """
+    function argument alias decorator with new docstring
+
+    :param f: _description_
+    :type f: Callable[..., Any]
+    :param alias_dict: _description_
+    :type alias_dict: Dict[str, Union[str, Sequence[str]]]
+    :param fix_doc: whether to add doc for these new alias arguments, defaults True
+    :type fix_doc: bool
+    :return: the decorated function
+    :rtype: Callable[..., Any]
+    """
+
+    @wraps(f)
+    def wrapper(*args: Any, **kws: Any) -> Any:
+        for k, vs in alias_dict.items():
+            if isinstance(vs, str):
+                vs = []
+            for v in vs:
+                if kws.get(v, None) is not None:
+                    kws[k] = kws[v]
+                    del kws[v]
+        return f(*args, **kws)
+
+    if fix_doc:
+        doc = wrapper.__doc__
+        if doc is not None:
+            doc = doc.split("\n")  # type: ignore
+            ndoc = []
+            skip = False
+            for i, line in enumerate(doc):  # type: ignore
+                if not skip:
+                    ndoc.append(line)
+                else:
+                    skip = False
+
+                if line.strip().startswith(":param "):
+                    param = re.findall(r":param\s([^\s]+):", line)[0]
+                    if param in alias_dict:
+                        ndoc.append(doc[i + 1])
+                        skip = True
+                        for v in alias_dict[param]:
+                            ndoc.append(
+                                re.sub(
+                                    r"(.*:param\s)([^\s]+)(:.*)",
+                                    r"\1%s: alias for the argument ``%s``" % (v, param),
+                                    line,
+                                )
+                            )
+                            ndoc.append(
+                                re.sub(
+                                    r"(.*:type\s)([^\s]+)(:.*)",
+                                    r"\1%s\3" % v,
+                                    doc[i + 1],
+                                )
+                            )
+            ndoc = "\n".join(ndoc)  # type: ignore
+            wrapper.__doc__ = ndoc  # type: ignore
+    return wrapper
 
 
 def benchmark(

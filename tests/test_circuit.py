@@ -93,7 +93,7 @@ def test_jittable_measure(backend):
             c.H(i)
         for j in range(nlayers):
             for i in range(n - 1):
-                c.exp1(i, i + 1, theta=param[2 * j, i], unitary=tc.gates._zz_matrix)
+                c.exp1(i, i + 1, theta=param[2 * j, i], hamiltonian=tc.gates._zz_matrix)
             for i in range(n):
                 c.rx(i, theta=param[2 * j + 1, i])
         return c.measure_jit(0, 1, 2, with_prob=True)
@@ -586,7 +586,7 @@ def test_circuit_split(backend):
             c.H(i)
         for j in range(2):
             for i in range(n - 1):
-                c.exp1(i, i + 1, theta=param[2 * j, i], unitary=tc.gates._zz_matrix)
+                c.exp1(i, i + 1, theta=param[2 * j, i], hermitian=tc.gates._zz_matrix)
             for i in range(n):
                 c.rx(i, theta=param[2 * j + 1, i])
         loss = c.expectation(

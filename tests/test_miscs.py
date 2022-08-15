@@ -2,6 +2,7 @@
 
 import sys
 import os
+from functools import partial
 import numpy as np
 import tensorflow as tf
 import pytest
@@ -160,3 +161,23 @@ def test_two_qng_approaches(backend):
             n1 = experimental.qng(state)(params)
             n2 = experimental.qng2(state)(params)
             np.testing.assert_allclose(n1, n2, atol=1e-7)
+
+
+def test_arg_alias():
+    @partial(tc.utils.arg_alias, alias_dict={"theta": ["alpha", "gamma"]})
+    def f(theta: float, beta: float) -> float:
+        """
+        f doc
+
+        :param theta: theta angle
+        :type theta: float
+        :param beta: beta angle
+        :type beta: float
+        :return: sum angle
+        :rtype: float
+        """
+        return theta + beta
+
+    np.testing.assert_allclose(f(beta=0.2, alpha=0.1), 0.3, atol=1e-5)
+    print(f.__doc__)
+    assert len(f.__doc__.strip().split("\n")) == 12

@@ -26,6 +26,8 @@
 
 - Add six format of measurement results support and their transformation in quantum module.
 
+- Add `tc.utils.arg_alias` which is a decorator that adds alias argument for function with the doc fixed accordingly
+
 ### Changed
 
 - `rxx`, `ryy`, `rzz` gates now has 1/2 factor before theta consitent with `rx`, `ry`, `rz` gates. (breaking change)
