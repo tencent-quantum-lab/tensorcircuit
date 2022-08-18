@@ -4,6 +4,7 @@ Quantum circuit: common methods for all circuit classes as MixIn
 # pylint: disable=invalid-name
 
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from functools import partial
 
 import numpy as np
 import graphviz
@@ -16,10 +17,15 @@ from .quantum import (
     correlation_from_counts,
     measurement_counts,
     sample_int2bin,
+    sample_bin2int,
+    sample2count,
+    count_s2d,
+    count_tuple2dict,
 )
 from .abstractcircuit import AbstractCircuit
 from .cons import npdtype, backend, dtypestr, contractor, rdtypestr
 from .simplify import _split_two_qubit_gate
+from .utils import arg_alias
 
 Gate = gates.Gate
 Tensor = Any
@@ -497,10 +503,12 @@ class BaseCircuit(AbstractCircuit):
             no.extend(msconj)
         return contractor(no).tensor
 
+    @partial(arg_alias, alias_dict={"format": ["format_"]})
     def sample(
         self,
         batch: Optional[int] = None,
         allow_state: bool = False,
+        format: Optional[str] = None,
         random_generator: Optional[Any] = None,
     ) -> Any:
         """
@@ -511,9 +519,13 @@ class BaseCircuit(AbstractCircuit):
         :param allow_state: if true, we sample from the final state
             if memory allsows, True is prefered, defaults to False
         :type allow_state: bool, optional
+        :param format: sample format, defaults to None as backward compatibility
+            check the doc in :py:meth:`tensorcircuit.quantum.measurement_results`
+        :type format: Optional[str]
         :param random_generator: random generator,  defaults to None
         :type random_generator: Optional[Any], optional
         :return: List (if batch) of tuple (binary configuration tensor and correponding probability)
+            if the format is None, and consitent with format when given
         :rtype: Any
         """
         # allow_state = False is compatibility issue
@@ -523,50 +535,76 @@ class BaseCircuit(AbstractCircuit):
 
             if batch is None:
                 seed = backend.stateful_randu(random_generator, shape=[self._nqubits])
-                return self.perfect_sampling(seed)
+                r = self.perfect_sampling(seed)
+                if format is None:  # batch=None, format=None, backward compatibility
+                    return r
+                r = [r]  # type: ignore
+            else:
 
-            @backend.jit  # type: ignore
-            def perfect_sampling(key: Any) -> Any:
-                backend.set_random_state(key)
-                return self.perfect_sampling()
+                @backend.jit  # type: ignore
+                def perfect_sampling(key: Any) -> Any:
+                    backend.set_random_state(key)
+                    return self.perfect_sampling()
 
-            r = []
+                r = []  # type: ignore
 
-            subkey = random_generator
-            for _ in range(batch):
-                key, subkey = backend.random_split(subkey)
-                r.append(perfect_sampling(key))
-
-            return r
-
-        if batch is None:
-            nbatch = 1
-        else:
-            nbatch = batch
-        s = self.state()  # type: ignore
-        if self.is_dm is False:
-            p = backend.abs(s) ** 2
-        else:
-            p = backend.abs(backend.diagonal(s))
-        a_range = backend.arange(2**self._nqubits)
-        if random_generator is None:
-            ch = backend.implicit_randc(a=a_range, shape=[nbatch], p=p)
-        else:
-            ch = backend.stateful_randc(
-                random_generator, a=a_range, shape=[nbatch], p=p
-            )
-        prob = backend.gather1d(p, ch)
-        confg = sample_int2bin(ch, self._nqubits)
+                subkey = random_generator
+                for _ in range(batch):
+                    key, subkey = backend.random_split(subkey)
+                    r.append(perfect_sampling(key))  # type: ignore
+            if format is None:
+                return r
+            r = backend.stack([ri[0] for ri in r])  # type: ignore
+            r = backend.cast(r, "int32")
+            ch = sample_bin2int(r, self._nqubits)
+        else:  # allow_state
+            if batch is None:
+                nbatch = 1
+            else:
+                nbatch = batch
+            s = self.state()  # type: ignore
+            if self.is_dm is False:
+                p = backend.abs(s) ** 2
+            else:
+                p = backend.abs(backend.diagonal(s))
+            a_range = backend.arange(2 ** self._nqubits)
+            if random_generator is None:
+                ch = backend.implicit_randc(a=a_range, shape=[nbatch], p=p)
+            else:
+                ch = backend.stateful_randc(
+                    random_generator, a=a_range, shape=[nbatch], p=p
+                )
         # confg = backend.mod(
         #     backend.right_shift(
         #         ch[..., None], backend.reverse(backend.arange(self._nqubits))
         #     ),
         #     2,
         # )
-        r = list(zip(confg, prob))
-        if batch is None:
-            r = r[0]
-        return r
+        if format is None:
+            confg = sample_int2bin(ch, self._nqubits)
+            prob = backend.gather1d(p, ch)
+            r = list(zip(confg, prob))  # type: ignore
+            if batch is None:
+                r = r[0]  # type: ignore
+            return r
+        elif format == "sample_int":
+            return ch
+        elif format == "sample_bin":
+            return sample_int2bin(ch, self._nqubits)
+        else:
+            count_tuple = sample2count(ch, self._nqubits, jittable=True)
+            if format == "count_tuple":
+                return count_tuple
+            elif format == "count_vector":
+                return count_s2d(count_tuple, self._nqubits)
+            elif format == "count_dict_bin":
+                return count_tuple2dict(count_tuple, self._nqubits, key="bin")
+            elif format == "count_dict_int":
+                return count_tuple2dict(count_tuple, self._nqubits, key="int")
+            else:
+                raise ValueError(
+                    "unsupported format %s for analytical measurement" % format
+                )
 
     def sample_expectation_ps(
         self,
@@ -616,18 +654,18 @@ class BaseCircuit(AbstractCircuit):
         for i in y:
             c.rx(i, theta=np.pi / 2)  # type: ignore
         s = c.state()  # type: ignore
-        # if c.is_dm is False:
-        #     p = backend.abs(s) ** 2
-        # else:
-        #     p = backend.abs(backend.diagonal(s))
+        if c.is_dm is False:
+            p = backend.abs(s) ** 2
+        else:
+            p = backend.abs(backend.diagonal(s))
         # readout error can be processed here later
-        # TODO(@refraction-ray): explicit management on randomness
         mc = measurement_counts(
-            s,
+            p,
             counts=shots,
             format="count_vector",
             random_generator=random_generator,
             jittable=True,
+            is_prob=True,
         )
         x = list(x)
         y = list(y)

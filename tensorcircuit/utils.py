@@ -136,7 +136,8 @@ def arg_alias(
             if isinstance(vs, str):
                 vs = []
             for v in vs:
-                if kws.get(v, None) is not None:
+                if kws.get(v, "qazxswedcvfr198") != "qazxswedcvfr198":
+                    # in case it is None by design!
                     kws[k] = kws[v]
                     del kws[v]
         return f(*args, **kws)
@@ -151,12 +152,18 @@ def arg_alias(
                 if not skip:
                     ndoc.append(line)
                 else:
-                    skip = False
+                    if doc[i].strip().startswith(":type"):
+                        skip = False
 
                 if line.strip().startswith(":param "):
                     param = re.findall(r":param\s([^\s]+):", line)[0]
                     if param in alias_dict:
-                        ndoc.append(doc[i + 1])
+                        j = 1
+                        while True:
+                            ndoc.append(doc[i + j])
+                            if doc[i + j].strip().startswith(":type"):
+                                break
+                            j += 1
                         skip = True
                         for v in alias_dict[param]:
                             ndoc.append(
@@ -166,13 +173,18 @@ def arg_alias(
                                     line,
                                 )
                             )
-                            ndoc.append(
-                                re.sub(
-                                    r"(.*:type\s)([^\s]+)(:.*)",
-                                    r"\1%s\3" % v,
-                                    doc[i + 1],
-                                )
-                            )
+                            j = 1
+                            while True:
+                                if doc[i + j].strip().startswith(":type"):
+                                    ndoc.append(
+                                        re.sub(
+                                            r"(.*:type\s)([^\s]+)(:.*)",
+                                            r"\1%s\3" % v,
+                                            doc[i + j],
+                                        )
+                                    )
+                                    break
+                                j += 1
             ndoc = "\n".join(ndoc)  # type: ignore
             wrapper.__doc__ = ndoc  # type: ignore
     return wrapper

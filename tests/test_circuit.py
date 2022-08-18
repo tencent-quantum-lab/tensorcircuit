@@ -1121,3 +1121,34 @@ def test_sexpps(backend):
     np.testing.assert_allclose(ye, y, atol=1e-5)
     y2 = c.sample_expectation_ps(x=[1], y=[0], z=[2, 3], shots=81920)
     assert np.abs(y2 - y) < 0.01
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_sample_format(backend):
+    c = tc.Circuit(2)
+    c.H(0)
+    c.cnot(0, 1)
+    key = tc.backend.get_random_state(42)
+    for allow_state in [False, True]:
+        print("allow_state: ", allow_state)
+        for batch in [None, 1, 3]:
+            print("  batch: ", batch)
+            for format_ in [
+                None,
+                "sample_int",
+                "sample_bin",
+                "count_vector",
+                "count_tuple",
+                "count_dict_bin",
+                "count_dict_int",
+            ]:
+                print("    format: ", format_)
+                print(
+                    "      ",
+                    c.sample(
+                        batch=batch,
+                        allow_state=allow_state,
+                        format_=format_,
+                        random_generator=key,
+                    ),
+                )

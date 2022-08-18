@@ -2008,13 +2008,18 @@ def measurement_counts(
     Simulate the measuring of each qubit of ``p`` in the computational basis,
     thus producing output like that of ``qiskit``.
 
-    Four formats of measurement counts results:
+    Six formats of measurement counts results:
 
     "sample_int": # np.array([0, 0])
+
     "sample_bin": # [np.array([1, 0]), np.array([1, 0])]
+
     "count_vector": # np.array([2, 0, 0, 0])
+
     "count_tuple": # (np.array([0]), np.array([2]))
+
     "count_dict_bin": # {"00": 2, "01": 0, "10": 0, "11": 0}
+
     "count_dict_int": # {0: 2, 1: 0, 2: 0, 3: 0}
 
     :Example:
@@ -2053,7 +2058,7 @@ def measurement_counts(
     :rtype: Tuple[]
     """
     if is_prob:
-        pi = state / backend.norm(state)
+        pi = state / backend.sum(state)
     else:
         if len(state.shape) == 2:
             state /= backend.trace(state)
@@ -2101,7 +2106,7 @@ def measurement_counts(
                 return count_tuple2dict(count_tuple, n, key="int")
             else:
                 raise ValueError(
-                    "unsupported format %s for analytical measurement" % format
+                    "unsupported format %s for finite shots measurement" % format
                 )
 
 

@@ -24,7 +24,9 @@
 
 - Add the `expectation_ps` method to `MPSCircuit` (moving to `AbstractCircuit`)
 
-- Add six format of measurement results support and their transformation in quantum module.
+- Add six format of measurement results support and their transformation in quantum module
+
+- Add format option in `Circuit.sample` while maintain the backward compatibility
 
 - Add `tc.utils.arg_alias` which is a decorator that adds alias argument for function with the doc fixed accordingly
 
@@ -47,6 +49,10 @@
 - Add jit support for `sample` method when `allow_state=True`
 
 - Fix the bug that 128 type is converted to 64 value
+
+- Fix `arg_alias` bug when the keyword arguments is None by design
+
+- Fix `arg_alias` when the docstring for each argument is in multiple lines
 
 ## 0.3.1
 
