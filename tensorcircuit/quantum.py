@@ -38,7 +38,7 @@ except ImportError:
 
 from .cons import backend, contractor, dtypestr, npdtype, rdtypestr
 from .backends import get_backend  # type: ignore
-from .utils import is_m1mac
+from .utils import is_m1mac, arg_alias
 
 Tensor = Any
 Graph = Any
@@ -1996,6 +1996,7 @@ def count_tuple2dict(
         return dn
 
 
+@partial(arg_alias, alias_dict={"counts": ["shots"], "format": ["format_"]})
 def measurement_counts(
     state: Tensor,
     counts: Optional[int] = 8192,
@@ -2003,7 +2004,7 @@ def measurement_counts(
     is_prob: bool = False,
     random_generator: Optional[Any] = None,
     jittable: bool = False,
-) -> Union[Tuple[Tensor, Tensor], Tensor]:
+) -> Any:
     """
     Simulate the measuring of each qubit of ``p`` in the computational basis,
     thus producing output like that of ``qiskit``.
@@ -2090,27 +2091,57 @@ def measurement_counts(
             raw_counts = backend.stateful_randc(
                 random_generator, a=drange, shape=counts, p=pi
             )
-        if format == "sample_int":
-            return raw_counts
-        elif format == "sample_bin":
-            return sample_int2bin(raw_counts, n)
-        else:
-            count_tuple = sample2count(raw_counts, n, jittable)
-            if format == "count_tuple":
-                return count_tuple
-            elif format == "count_vector":
-                return count_s2d(count_tuple, n)
-            elif format == "count_dict_bin":
-                return count_tuple2dict(count_tuple, n, key="bin")
-            elif format == "count_dict_int":
-                return count_tuple2dict(count_tuple, n, key="int")
-            else:
-                raise ValueError(
-                    "unsupported format %s for finite shots measurement" % format
-                )
+        return sample2all(raw_counts, n, format=format, jittable=jittable)
 
 
 measurement_results = measurement_counts
+
+
+@partial(arg_alias, alias_dict={"format": ["format_"]})
+def sample2all(
+    sample: Tensor, n: int, format: str = "count_vector", jittable: bool = False
+) -> Any:
+    """
+    transform ``sample_int`` or ``sample_bin`` form results to other forms specified by ``format``
+
+    :param sample: measurement shots results in ``sample_int`` or ``sample_bin`` format
+    :type sample: Tensor
+    :param n: number of qubits
+    :type n: int
+    :param format: see the doc in the doc in :py:meth:`tensorcircuit.quantum.measurement_results`,
+        defaults to "count_vector"
+    :type format: str, optional
+    :param jittable: only applicable to count transformation in jax backend, defaults to False
+    :type jittable: bool, optional
+    :return: measurement results specified as ``format``
+    :rtype: Any
+    """
+    if len(backend.shape_tuple(sample)) == 1:
+        sample_int = sample
+        sample_bin = sample_int2bin(sample, n)
+    elif len(backend.shape_tuple(sample)) == 2:
+        sample_int = sample_bin2int(sample, n)
+        sample_bin = sample
+    else:
+        raise ValueError("unrecognized tensor shape for sample")
+    if format == "sample_int":
+        return sample_int
+    elif format == "sample_bin":
+        return sample_bin
+    else:
+        count_tuple = sample2count(sample_int, n, jittable)
+        if format == "count_tuple":
+            return count_tuple
+        elif format == "count_vector":
+            return count_s2d(count_tuple, n)
+        elif format == "count_dict_bin":
+            return count_tuple2dict(count_tuple, n, key="bin")
+        elif format == "count_dict_int":
+            return count_tuple2dict(count_tuple, n, key="int")
+        else:
+            raise ValueError(
+                "unsupported format %s for finite shots measurement" % format
+            )
 
 
 def spin_by_basis(n: int, m: int, elements: Tuple[int, int] = (1, -1)) -> Tensor:

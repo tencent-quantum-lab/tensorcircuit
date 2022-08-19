@@ -18,9 +18,7 @@ from .quantum import (
     measurement_counts,
     sample_int2bin,
     sample_bin2int,
-    sample2count,
-    count_s2d,
-    count_tuple2dict,
+    sample2all,
 )
 from .abstractcircuit import AbstractCircuit
 from .cons import npdtype, backend, dtypestr, contractor, rdtypestr
@@ -574,37 +572,20 @@ class BaseCircuit(AbstractCircuit):
                 ch = backend.stateful_randc(
                     random_generator, a=a_range, shape=[nbatch], p=p
                 )
-        # confg = backend.mod(
-        #     backend.right_shift(
-        #         ch[..., None], backend.reverse(backend.arange(self._nqubits))
-        #     ),
-        #     2,
-        # )
-        if format is None:
-            confg = sample_int2bin(ch, self._nqubits)
-            prob = backend.gather1d(p, ch)
-            r = list(zip(confg, prob))  # type: ignore
-            if batch is None:
-                r = r[0]  # type: ignore
-            return r
-        elif format == "sample_int":
-            return ch
-        elif format == "sample_bin":
-            return sample_int2bin(ch, self._nqubits)
-        else:
-            count_tuple = sample2count(ch, self._nqubits, jittable=True)
-            if format == "count_tuple":
-                return count_tuple
-            elif format == "count_vector":
-                return count_s2d(count_tuple, self._nqubits)
-            elif format == "count_dict_bin":
-                return count_tuple2dict(count_tuple, self._nqubits, key="bin")
-            elif format == "count_dict_int":
-                return count_tuple2dict(count_tuple, self._nqubits, key="int")
-            else:
-                raise ValueError(
-                    "unsupported format %s for analytical measurement" % format
-                )
+            # confg = backend.mod(
+            #     backend.right_shift(
+            #         ch[..., None], backend.reverse(backend.arange(self._nqubits))
+            #     ),
+            #     2,
+            # )
+            if format is None:
+                confg = sample_int2bin(ch, self._nqubits)
+                prob = backend.gather1d(p, ch)
+                r = list(zip(confg, prob))  # type: ignore
+                if batch is None:
+                    r = r[0]  # type: ignore
+                return r
+        return sample2all(sample=ch, n=self._nqubits, format=format, jittable=True)
 
     def sample_expectation_ps(
         self,
