@@ -45,7 +45,7 @@ jobs:
           python3 setup.py bdist_wheel sdist
       - name: upload to pypi
         # if: startsWith(github.ref, 'refs/tags')
-        uses: pypa/gh-action-pypi-publish@master
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
           # skip_existing: true
