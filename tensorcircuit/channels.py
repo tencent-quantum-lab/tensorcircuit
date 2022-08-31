@@ -704,7 +704,7 @@ def choi_to_kraus(
     :param choi: Choi matrix
     :type choi: Matrix
     :param truncation_rules: A dictionary to restrict the calculation of kraus matrices. The restriction
-    can be the number of kraus terms, which is jitable. It can also be the truncattion error, which is not jitable.
+        can be the number of kraus terms, which is jitable. It can also be the truncattion error, which is not jitable.
     :type truncation_rules: Dictionary
     :return: A list of Kraus operators
     :rtype: Sequence[Matrix]
