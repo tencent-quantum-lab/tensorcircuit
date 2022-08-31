@@ -350,7 +350,7 @@ def thermalrelaxationchannel(
     p1 = backend.cast(array_to_tensor(p1), dtype=cons.dtypestr)
 
     if method == "T1dom":
-        # git avaliable
+        # jit avaliable
         m0 = backend.convert_to_tensor(
             np.array([[1, 0], [0, 0]], dtype=cons.npdtype)
         )  # reset channel
@@ -387,7 +387,7 @@ def thermalrelaxationchannel(
         return Gkraus
 
     else:  # method == "general" or method == "T2dom":
-        # git avaliable
+        # jit avaliable
         choi = (1 - p1 * p_reset) * backend.convert_to_tensor(
             np.array(
                 [[1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
@@ -698,11 +698,14 @@ def choi_to_kraus(
 
     >>> kraus = tc.channels.phasedampingchannel(0.2)
     >>> superop = tc.channels.kraus_to_choi(kraus)
-    >>> kraus_new = tc.channels.choi_to_kraus(superop)
+    >>> kraus_new = tc.channels.choi_to_kraus(superop, truncation_rules={"max_singular_values":3})
 
 
     :param choi: Choi matrix
     :type choi: Matrix
+    :param truncation_rules: A dictionary to restrict the calculation of kraus matrices. The restriction
+    can be the number of kraus terms, which is jitable. It can also be the truncattion error, which is not jitable.
+    :type truncation_rules: Dictionary
     :return: A list of Kraus operators
     :rtype: Sequence[Matrix]
     """
@@ -731,7 +734,7 @@ def choi_to_kraus(
             kraus.append(k)
 
     else:
-        if truncation_rules.get("max_singular_values", None) is None:
+        if truncation_rules.get("max_truncattion_err", None) is None:
             atol = 1e-5
         else:
             atol = truncation_rules["max_truncattion_err"]

@@ -86,29 +86,21 @@ def test_thermal(backend):
     time = 100
 
     t1 = 180
-    print(t1, t2)
     kraus = tc.channels.thermalrelaxationchannel(t1, t2, time, "general", 0.1)
     supop1 = tc.channels.kraus_to_super(kraus)
-    # print(kraus)
-    # print(supop1)
 
     kraus = tc.channels.thermalrelaxationchannel(t1, t2, time, "T1dom", 0.1)
     supop2 = tc.channels.kraus_to_super(kraus)
-    # print(kraus)
-    # print(supop2)
+
     np.testing.assert_allclose(supop1, supop2, atol=1e-5)
 
     t1 = 80
-    print(t1, t2)
     kraus = tc.channels.thermalrelaxationchannel(t1, t2, time, "general", 0.1)
     supop1 = tc.channels.kraus_to_super(kraus)
-    # print(kraus)
-    # print(supop1)
 
     kraus = tc.channels.thermalrelaxationchannel(t1, t2, time, "T2dom", 0.1)
     supop2 = tc.channels.kraus_to_super(kraus)
-    # print(kraus)
-    # print(supop2)
+
     np.testing.assert_allclose(supop1, supop2, atol=1e-5)
 
 
@@ -117,17 +109,26 @@ def test_noisecircuit(backend):
 
     # Monte carlo simulation
     def noisecircuit(X):
-        noise = tc.channels.thermalrelaxationchannel(300, 400, 1000, "T2dom", 0)
 
         n = 1
         c = tc.Circuit(n)
         c.x(0)
-        c.general_kraus(noise, 0, status=X)
+        # noise = tc.channels.thermalrelaxationchannel(300, 400, 1000, "T2dom", 0)
+        # c.general_kraus(noise, 0, status=X)
+        c.thermalrelaxation(
+            0,
+            t1=300,
+            t2=400,
+            time=1000,
+            method="T2dom",
+            excitedstatepopulation=0,
+            status=X,
+        )
+
         val = c.expectation_ps(z=[0])
         return val
 
-    noisec = noisecircuit
-    noisec_vmap = tc.backend.vmap(noisec, vectorized_argnums=0)
+    noisec_vmap = tc.backend.vmap(noisecircuit, vectorized_argnums=0)
     noisec_jit = tc.backend.jit(noisec_vmap)
 
     nmc = 1000
@@ -145,9 +146,7 @@ def test_noisecircuit(backend):
         val = dmc.expectation_ps(z=[0])
         return val
 
-    noisec = noisecircuitdm
-    noisec_jit = tc.backend.jit(noisec)
-
+    noisec_jit = tc.backend.jit(noisecircuitdm)
     valuedm = noisec_jit()
 
     np.testing.assert_allclose(valuemc, valuedm, atol=1e-1)
