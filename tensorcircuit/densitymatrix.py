@@ -203,6 +203,10 @@ class DMCircuit(BaseCircuit):
         krausf: Callable[..., Sequence[Gate]]
     ) -> Callable[..., None]:
         def apply(self: "DMCircuit", *index: int, **vars: float) -> None:
+            for key in ["status", "name"]:
+                if key in vars:
+                    del vars[key]
+            # compatibility with circuit API
             kraus = krausf(**vars)
             self.apply_general_kraus(kraus, [index])
 
@@ -339,6 +343,9 @@ class DMCircuit2(DMCircuit):
         krausf: Callable[..., Sequence[Gate]]
     ) -> Callable[..., None]:
         def apply(self: "DMCircuit2", *index: int, **vars: float) -> None:
+            for key in ["status", "name"]:
+                if key in vars:
+                    del vars[key]
             kraus = krausf(**vars)
             self.apply_general_kraus(kraus, *index)
 

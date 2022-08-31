@@ -11,6 +11,7 @@ import numpy as np
 import tensornetwork as tn
 
 from . import gates
+from . import channels
 from .cons import backend, contractor, dtypestr, npdtype
 from .quantum import QuOperator, identity
 from .simplify import _full_light_cone_cancel
@@ -255,6 +256,7 @@ class Circuit(BaseCircuit):
         # roughly benchmark shows that performance of two depolarizing in terms of
         # building time and running time are similar
 
+    # overwritten now, deprecated
     def depolarizing(
         self,
         index: int,
@@ -414,6 +416,7 @@ class Circuit(BaseCircuit):
 
         if status is None:
             status = backend.implicit_randu()[0]
+        status = backend.convert_to_tensor(status)
         status = backend.real(status)
         prob_cumsum = backend.cast(prob_cumsum, dtype=status.dtype)  # type: ignore
         r = step_function(status)
@@ -575,6 +578,46 @@ class Circuit(BaseCircuit):
         return self._general_kraus_2(kraus, *index, status=status, name=name)
 
     apply_general_kraus = general_kraus
+
+    @staticmethod
+    def apply_general_kraus_delayed(
+        krausf: Callable[..., Sequence[Gate]]
+    ) -> Callable[..., None]:
+        def apply(
+            self: "Circuit",
+            *index: int,
+            status: Optional[float] = None,
+            name: Optional[str] = None,
+            **vars: float,
+        ) -> None:
+            kraus = krausf(**vars)
+            self.apply_general_kraus(kraus, *index, status=status, name=name)
+
+        return apply
+
+    @classmethod
+    def _meta_apply_channels(cls) -> None:
+        for k in channels.channels:
+            setattr(
+                cls,
+                k,
+                cls.apply_general_kraus_delayed(getattr(channels, k + "channel")),
+            )
+            doc = """
+            Apply %s quantum channel on the circuit.
+            See :py:meth:`tensorcircuit.channels.%schannel`
+
+            :param index: Qubit number that the gate applies on.
+            :type index: int.
+            :param status: uniform external random number between 0 and 1
+            :type status: Tensor
+            :param vars: Parameters for the channel.
+            :type vars: float.
+            """ % (
+                k,
+                k,
+            )
+            getattr(cls, k).__doc__ = doc
 
     def is_valid(self) -> bool:
         """
@@ -757,6 +800,7 @@ class Circuit(BaseCircuit):
 
 
 Circuit._meta_apply()
+Circuit._meta_apply_channels()
 
 
 def expectation(

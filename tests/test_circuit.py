@@ -1152,3 +1152,12 @@ def test_sample_format(backend):
                         random_generator=key,
                     ),
                 )
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_channel_auto_register(backend, highp):
+    c = tc.Circuit(2)
+    c.H(0)
+    c.reset(0, status=0.8)
+    s = c.state()
+    np.testing.assert_allclose(s[0], 1.0, atol=1e-9)

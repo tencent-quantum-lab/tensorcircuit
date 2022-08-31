@@ -30,6 +30,8 @@
 
 - Add `tc.utils.arg_alias` which is a decorator that adds alias argument for function with the doc fixed accordingly
 
+- Add quantum channel auto resgisteration method in `Circuit` class
+
 ### Changed
 
 - `rxx`, `ryy`, `rzz` gates now has 1/2 factor before theta consitent with `rx`, `ry`, `rz` gates. (breaking change)
@@ -53,6 +55,8 @@
 - Fix `arg_alias` bug when the keyword arguments is None by design
 
 - Fix `arg_alias` when the docstring for each argument is in multiple lines
+
+- Noise channel apply methods in `DMCircuit` can also absorb `status` keyword (directly omitting it) for a consistent API with `Circuit`
 
 ## 0.3.1
 
