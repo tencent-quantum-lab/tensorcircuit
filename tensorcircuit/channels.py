@@ -3,16 +3,18 @@ Some common noise quantum channels.
 """
 
 import sys
-from typing import Any, Sequence, Union
+from typing import Any, Sequence, Union, Optional, Dict
 from operator import and_
 from functools import reduce
 from functools import partial
 import numpy as np
 
+
 from . import cons
 from . import interfaces
 from .cons import backend, dtypestr
 from . import gates
+from .gates import array_to_tensor
 
 
 thismodule = sys.modules[__name__]
@@ -306,6 +308,128 @@ def phasedampingchannel(gamma: float) -> Sequence[Gate]:
     return [m0, m1]
 
 
+def thermalrelaxationchannel(
+    t1: float,
+    t2: float,
+    time: float,
+    method: str = "general",
+    excitedstatepopulation: float = 0.0,
+) -> Sequence[Gate]:
+    r"""
+    Return a thermal_relaxation_channel
+
+    :param t1: the T1 relaxation time.
+    :type t1: float
+    :param t2: the T2 dephasing time.
+    :type t2: float
+    :param time: gate time
+    :type time: float
+    :param method: method to express error (default: "general")
+    :type time: str
+    :param excitedstatepopulation: the population of  state :math:`|1\rangle` at equilibrium (default: 0)
+    :type excited_state_population: float, optional
+    :return: A thermal_relaxation_channel
+    :rtype: Sequence[Gate]
+    """
+    t1 = backend.cast(array_to_tensor(t1), dtype=cons.dtypestr)
+    t2 = backend.cast(array_to_tensor(t2), dtype=cons.dtypestr)
+    time = backend.cast(array_to_tensor(time), dtype=cons.dtypestr)
+
+    # T1 relaxation rate: :math:`|1\rangle \rightarrow \0\rangle`
+    rate1 = 1.0 / t1
+    p_reset = 1 - backend.exp(-time * rate1)
+
+    # T2 dephasing rate: :math:`|+\rangle \rightarrow \-\rangle`
+    rate2 = 1.0 / t2
+    exp_t2 = backend.exp(-time * rate2)
+
+    # Qubit state equilibrium probabilities
+    p0 = 1 - excitedstatepopulation
+    p1 = excitedstatepopulation
+    p0 = backend.cast(array_to_tensor(p0), dtype=cons.dtypestr)
+    p1 = backend.cast(array_to_tensor(p1), dtype=cons.dtypestr)
+
+    if method == "T1dom":
+        # git avaliable
+        m0 = backend.convert_to_tensor(
+            np.array([[1, 0], [0, 0]], dtype=cons.npdtype)
+        )  # reset channel
+        m1 = backend.convert_to_tensor(
+            np.array([[0, 1], [0, 0]], dtype=cons.npdtype)
+        )  # reset channel
+        m2 = backend.convert_to_tensor(
+            np.array([[0, 0], [1, 0]], dtype=cons.npdtype)
+        )  # X gate + rest channel
+        m3 = backend.convert_to_tensor(
+            np.array([[0, 0], [0, 1]], dtype=cons.npdtype)
+        )  # X gate + rest channel
+
+        tup = [
+            gates.i().tensor,  # type: ignore
+            gates.z().tensor,  # type: ignore
+            m0,
+            m1,
+            m2,
+            m3,
+        ]
+
+        p_reset0 = p_reset * p0
+        p_reset1 = p_reset * p1
+        p_z = (
+            (1 - p_reset) * (1 - backend.exp(-time * (rate2 - rate1))) / 2
+        )  # must have rate2 > rate1
+        p_identity = 1 - p_z - p_reset0 - p_reset1
+        probs = [p_identity, p_z, p_reset0, p_reset0, p_reset1, p_reset1]
+
+        Gkraus = []
+        for pro, paugate in zip(probs, tup):
+            Gkraus.append(Gate(_sqrt(pro) * paugate))
+        return Gkraus
+
+    else:  # method == "general" or method == "T2dom":
+        # git avaliable
+        choi = (1 - p1 * p_reset) * backend.convert_to_tensor(
+            np.array(
+                [[1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+                dtype=cons.npdtype,
+            )
+        )
+        choi += (exp_t2) * backend.convert_to_tensor(
+            np.array(
+                [[0, 0, 0, 1], [0, 0, 0, 0], [0, 0, 0, 0], [1, 0, 0, 0]],
+                dtype=cons.npdtype,
+            )
+        )
+        choi += (p1 * p_reset) * backend.convert_to_tensor(
+            np.array(
+                [[0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+                dtype=cons.npdtype,
+            )
+        )
+        choi += (p0 * p_reset) * backend.convert_to_tensor(
+            np.array(
+                [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 0]],
+                dtype=cons.npdtype,
+            )
+        )
+        choi += (1 - p0 * p_reset) * backend.convert_to_tensor(
+            np.array(
+                [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1]],
+                dtype=cons.npdtype,
+            )
+        )
+
+        nmax = 4
+        if (
+            np.abs(excitedstatepopulation - 0.0) < 1e-3
+            or np.abs(excitedstatepopulation - 1.0) < 1e-3
+        ):
+            nmax = 3
+
+        listKraus = choi_to_kraus(choi, truncation_rules={"max_singular_values": nmax})
+        return [Gate(i) for i in listKraus]
+
+
 def _collect_channels() -> Sequence[str]:
     r"""
     Return channels names in this module.
@@ -496,7 +620,63 @@ def reshuffle(op: Matrix, order: Sequence[int]) -> Matrix:
     argnums=[0],
     gate_to_tensor=True,
 )
-def choi_to_kraus(choi: Matrix, atol: float = 1e-5) -> Matrix:
+# def choi_to_kraus(choi: Matrix, atol: float = 1e-5, Maxkraus: Optional[int] = None) -> Matrix:
+#     r"""
+#     Convert the Choi matrix representation to Kraus operator representation.
+
+#     This can be done by firstly geting eigen-decomposition of Choi-matrix
+
+#     .. math::
+#         \Lambda = \sum_k \gamma_k  \vert \phi_k \rangle \langle \phi_k \vert
+
+#     Then define Kraus operators
+
+#     .. math::
+#         K_k = \sqrt{\gamma_k} V_k
+
+#     where :math:`\gamma_k\geq0` and :math:`\phi_k` is the col-val vectorization of :math:`V_k` .
+
+
+#     :Examples:
+
+
+#     >>> kraus = tc.channels.phasedampingchannel(0.2)
+#     >>> superop = tc.channels.kraus_to_choi(kraus)
+#     >>> kraus_new = tc.channels.choi_to_kraus(superop)
+
+
+#     :param choi: Choi matrix
+#     :type choi: Matrix
+#     :return: A list of Kraus operators
+#     :rtype: Sequence[Matrix]
+#     """
+#     dim = backend.shape_tuple(choi)
+#     input_dim = _safe_sqrt(dim[0])
+#     output_dim = _safe_sqrt(dim[1])
+
+#     #if is_hermitian_matrix(choi, atol=atol):
+#     # Get eigen-decomposition of Choi-matrix
+#     e, v = backend.eigh(choi)    #  value of e is from minimal to maxmal
+
+#     # CP-map Kraus representation
+#     kraus = []
+#     for val, vec in zip(backend.real(e), backend.transpose(v)):
+#         if val > atol:
+#             k = backend.sqrt(backend.cast(val, dtypestr)) * backend.transpose(
+#                 backend.reshape(vec, [output_dim, input_dim]), [1, 0]
+#             )
+#             kraus.append(k)
+
+#     if not kraus:
+#         kraus.append(backend.zeros([output_dim, input_dim], dtype=dtypestr))
+#     return kraus
+
+#   #  raise ValueError("illegal Choi matrix")
+
+
+def choi_to_kraus(
+    choi: Matrix, truncation_rules: Optional[Dict[str, Any]] = None
+) -> Matrix:
     r"""
     Convert the Choi matrix representation to Kraus operator representation.
 
@@ -530,24 +710,44 @@ def choi_to_kraus(choi: Matrix, atol: float = 1e-5) -> Matrix:
     input_dim = _safe_sqrt(dim[0])
     output_dim = _safe_sqrt(dim[1])
 
-    if is_hermitian_matrix(choi, atol=atol):
-        # Get eigen-decomposition of Choi-matrix
-        e, v = backend.eigh(choi)
+    # Get eigen-decomposition of Choi-matrix
+    e, v = backend.eigh(choi)  #  value of e is from minimal to maxmal
+    e = backend.real(e)
+    v = backend.transpose(v)
 
-        # CP-map Kraus representation
-        kraus = []
-        for val, vec in zip(backend.real(e), backend.transpose(v)):
-            if val > atol:
-                k = backend.sqrt(backend.cast(val, dtypestr)) * backend.transpose(
-                    backend.reshape(vec, [output_dim, input_dim]), [1, 0]
+    # CP-map Kraus representation
+    kraus = []
+
+    if truncation_rules is None:
+        truncation_rules = {}
+
+    if truncation_rules.get("max_singular_values", None) is not None:
+
+        nkraus = truncation_rules["max_singular_values"]
+        for i in range(nkraus):
+            k = backend.sqrt(backend.cast(e[-(i + 1)], dtypestr)) * backend.transpose(
+                backend.reshape(v[-(i + 1)], [output_dim, input_dim]), [1, 0]
+            )
+            kraus.append(k)
+
+    else:
+        if truncation_rules.get("max_singular_values", None) is None:
+            atol = 1e-5
+        else:
+            atol = truncation_rules["max_truncattion_err"]
+
+        for i in range(dim[0]):
+            if e[-(i + 1)] > atol:
+                k = backend.sqrt(
+                    backend.cast(e[-(i + 1)], dtypestr)
+                ) * backend.transpose(
+                    backend.reshape(v[-(i + 1)], [output_dim, input_dim]), [1, 0]
                 )
                 kraus.append(k)
 
-        if not kraus:
-            kraus.append(backend.zeros([output_dim, input_dim], dtype=dtypestr))
-        return kraus
-
-    raise ValueError("illegal Choi matrix")
+    if not kraus:
+        kraus.append(backend.zeros([output_dim, input_dim], dtype=dtypestr))
+    return kraus
 
 
 @partial(
