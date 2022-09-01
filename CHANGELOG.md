@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.4.0
+
 ### Added
 
 - Add `sample_expectation_ps` method for `BaseCircuit`, which measure the Pauli string expectation considering measurement shots
