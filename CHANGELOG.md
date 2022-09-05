@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add support for weighted graph QAOA in `tc.templates.blocks.QAOA_block`
+
 ## 0.4.0
 
 ### Added
