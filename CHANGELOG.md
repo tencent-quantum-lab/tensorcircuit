@@ -6,6 +6,14 @@
 
 - Add support for weighted graph QAOA in `tc.templates.blocks.QAOA_block`
 
+- Add `AbstractCircuit` to and from json capability (experimental support, subject to change)
+
+- Add alias for `sd` and `td` gate
+
+### Fixed
+
+- Make every gate function can be accessed via name by `getattr(tc.gates, name + "_gate")`
+
 ## 0.4.0
 
 ### Added

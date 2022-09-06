@@ -22,6 +22,7 @@ from . import gates
 from .circuit import Circuit
 from .densitymatrix import DMCircuit2
 from .cons import backend
+from .interfaces.tensortrans import tensor_to_numpy
 
 
 Tensor = Any
@@ -286,3 +287,84 @@ def qiskit2tc(
             idx_inverse = (x for x in idx[::-1])
             tc_circuit.any(*idx_inverse, unitary=gate_info[0].to_matrix())
     return tc_circuit
+
+
+def tensor_to_json(a: Any) -> Any:
+    if (
+        isinstance(a, float)
+        or isinstance(a, int)
+        or isinstance(a, complex)
+        or isinstance(a, list)
+        or isinstance(a, tuple)
+    ):
+        a = np.array(a)
+    a = tensor_to_numpy(a)
+
+    ar = np.real(a)
+    ai = np.imag(a)
+    return [ar.tolist(), ai.tolist()]
+
+
+def json_to_tensor(a: Any) -> Any:
+    ar = np.array(a[0])
+    ai = np.array(a[1])
+    return ar + 1.0j * ai
+
+
+def qir2json(qir: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    transform qir to json compatible list of dict where array is replaced by real and imaginary list
+
+    :param qir: _description_
+    :type qir: List[Dict[str, Any]]
+    :return: _description_
+    :rtype: List[Dict[str, Any]]
+    """
+    logger.warning(
+        "experimental feature subject to fast protocol and implementation change, try on your own risk"
+    )
+    tcqasm = []
+    for r in qir:
+        if r["mpo"] is True:
+            nm = backend.reshapem(r["gate"].eval())
+        else:
+            nm = backend.reshapem(r["gate"].tensor)
+        nmr, nmi = tensor_to_json(nm)
+        params = r.get("parameters", {})
+        for k, v in params.items():
+            params[k] = tensor_to_json(v)
+        # params = backend.tree_map(tensor_to_json, params)
+        tcqasm.append(
+            {
+                "name": r["gatef"].n,
+                "qubits": list(r["index"]),
+                "matrix": [nmr, nmi],
+                "parameters": params,
+                "mpo": r["mpo"],
+            }
+        )
+    return tcqasm
+
+
+def json2qir(tcqasm: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    logger.warning(
+        "experimental feature subject to fast protocol and implementation change, try on your own risk"
+    )
+    qir = []
+    for d in tcqasm:
+        param = d["parameters"]
+        for k, v in param.items():
+            # tree_map doesn't work here since the end leaves are list
+            param[k] = json_to_tensor(v)
+        qir.append(
+            {
+                "gate": json_to_tensor(d["matrix"]),
+                "index": tuple(d["qubits"]),
+                "mpo": d["mpo"],
+                "split": {},
+                "parameters": param,
+                "gatef": getattr(gates, d["name"] + "_gate"),
+                "name": d["name"],
+            }
+        )
+    return qir

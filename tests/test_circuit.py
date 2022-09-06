@@ -1161,3 +1161,20 @@ def test_channel_auto_register(backend, highp):
     c.reset(0, status=0.8)
     s = c.state()
     np.testing.assert_allclose(s[0], 1.0, atol=1e-9)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_circuit_to_json(backend):
+    c = tc.Circuit(3)
+    c.h(0)
+    c.CNOT(1, 2)
+    c.rxx(0, 2, theta=0.3)
+    c.crx(0, 1, theta=-0.8)
+    c.r(1, theta=tc.backend.ones([]), alpha=0.2)
+    c.toffoli(0, 2, 1)
+    c.ccnot(0, 1, 2)
+    c.multicontrol(1, 2, 0, ctrl=[0, 1], unitary=tc.gates._x_matrix)
+    s = c.to_json()
+    c2 = tc.Circuit.from_json(s)
+    print(c2.draw())
+    np.testing.assert_allclose(c.state(), c2.state(), atol=1e-5)

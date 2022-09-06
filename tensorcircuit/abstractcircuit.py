@@ -6,6 +6,7 @@ Methods for abstract circuits independent of nodes, edges and contractions
 from typing import Any, Callable, Dict, List, Optional, Sequence, Union, Tuple
 from functools import reduce
 from operator import add
+import json
 
 import numpy as np
 import tensornetwork as tn
@@ -49,6 +50,8 @@ gate_aliases = [
     ["fredkin", "cswap"],
     ["toffoli", "ccnot"],
     ["any", "unitary"],
+    ["sd", "sdg"],
+    ["td", "tdg"],
 ]
 
 
@@ -507,6 +510,63 @@ class AbstractCircuit:
         return qir2tex(self._qir, self._nqubits, **okws)  # type: ignore
 
     tex = vis_tex
+
+    def to_json(self, file: Optional[str] = None) -> Any:
+        """
+        circuit dumps to json
+
+        :param file: file str to dump the json to, defaults to None, return the json str
+        :type file: Optional[str], optional
+        :return: None if dumps to file otherwise the json str
+        :rtype: Any
+        """
+        from .translation import qir2json
+
+        tcqasm = qir2json(self.to_qir())
+        if file is not None:
+            with open(file, "w") as f:
+                json.dump(tcqasm, f)
+        return json.dumps(tcqasm)
+
+    @classmethod
+    def from_json(
+        cls, jsonstr: str, circuit_params: Optional[Dict[str, Any]] = None
+    ) -> "AbstractCircuit":
+        """
+        load json str as a Circuit
+
+        :param jsonstr: _description_
+        :type jsonstr: str
+        :param circuit_params: Extra circuit parameters in the format of ``__init__``,
+            defaults to None
+        :type circuit_params: Optional[Dict[str, Any]], optional
+        :return: _description_
+        :rtype: AbstractCircuit
+        """
+        from .translation import json2qir
+
+        if isinstance(jsonstr, str):
+            jsonstr = json.loads(jsonstr)
+        qir = json2qir(jsonstr)  # type: ignore
+        return cls.from_qir(qir, circuit_params)
+
+    @classmethod
+    def from_json_file(
+        cls, file: str, circuit_params: Optional[Dict[str, Any]] = None
+    ) -> "AbstractCircuit":
+        """
+        load json file and convert it to a circuit
+
+        :param file: filename
+        :type file: str
+        :param circuit_params: _description_, defaults to None
+        :type circuit_params: Optional[Dict[str, Any]], optional
+        :return: _description_
+        :rtype: AbstractCircuit
+        """
+        with open(file, "r") as f:
+            jsonstr = json.load(f)
+        return cls.from_json(jsonstr, circuit_params)
 
     def select_gate(self, which: Tensor, kraus: Sequence[Gate], *index: int) -> None:
         """

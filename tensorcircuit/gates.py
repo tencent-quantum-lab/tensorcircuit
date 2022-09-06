@@ -374,6 +374,7 @@ def meta_gate() -> None:
             # temp.__name__ = n
             temp = GateF(m, n)
             setattr(thismodule, n + "gate", temp)
+            setattr(thismodule, n + "_gate", temp)
             setattr(thismodule, n, temp)
 
 
@@ -792,9 +793,10 @@ def multicontrol_gate(unitary: Tensor, ctrl: Union[int, Sequence[int]] = 1) -> O
     rend = backend.reshape2(rend)
     rn = tn.Node(rend)
     nodes = []
+    eps = 1e-5
     if isinstance(ctrl, int):
         ctrl = [ctrl]
-    if ctrl[0] == 1:
+    if int(ctrl[0] + eps) == 1:
         leftend = np.zeros([2, 2, 2])
         leftend[1, 1, 0] = 1
         leftend[0, 0, 1] = 1
@@ -860,15 +862,20 @@ def meta_vgate() -> None:
         "rxx",
         "ryy",
     ]:
-        setattr(thismodule, f, GateVF(getattr(thismodule, f + "_gate"), f))
+        for funcname in [f, f + "gate", f + "_gate"]:
+            setattr(thismodule, funcname, GateVF(getattr(thismodule, f + "_gate"), f))
     for f in ["crx", "cry", "crz"]:
-        setattr(thismodule, f, getattr(thismodule, f[1:]).controlled())
+        for funcname in [f, f + "gate", f + "_gate"]:
+            setattr(thismodule, funcname, getattr(thismodule, f[1:]).controlled())
     for f in ["ox", "oy", "oz", "orx", "ory", "orz"]:
-        setattr(thismodule, f, getattr(thismodule, f[1:]).ocontrolled())
+        for funcname in [f, f + "gate", f + "_gate"]:
+            setattr(thismodule, funcname, getattr(thismodule, f[1:]).ocontrolled())
     for f in ["sd", "td"]:
-        setattr(thismodule, f, getattr(thismodule, f[:-1]).adjoint())
+        for funcname in [f, f + "gate", f + "_gate"]:
+            setattr(thismodule, funcname, getattr(thismodule, f[:-1]).adjoint())
     for f in ["multicontrol", "mpo"]:  # mpo type gate
-        setattr(thismodule, f, GateVF(getattr(thismodule, f + "_gate"), f))
+        for funcname in [f, f + "gate", f + "_gate"]:
+            setattr(thismodule, funcname, GateVF(getattr(thismodule, f + "_gate"), f))
 
 
 meta_vgate()
