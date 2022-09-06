@@ -3,6 +3,7 @@ Circuit object translation in different packages
 """
 
 from typing import Any, Dict, List, Optional
+from copy import deepcopy
 import logging
 import numpy as np
 
@@ -323,6 +324,7 @@ def qir2json(qir: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     logger.warning(
         "experimental feature subject to fast protocol and implementation change, try on your own risk"
     )
+    qir = deepcopy(qir)
     tcqasm = []
     for r in qir:
         if r["mpo"] is True:
@@ -350,6 +352,7 @@ def json2qir(tcqasm: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     logger.warning(
         "experimental feature subject to fast protocol and implementation change, try on your own risk"
     )
+    tcqasm = deepcopy(tcqasm)
     qir = []
     for d in tcqasm:
         param = d["parameters"]
