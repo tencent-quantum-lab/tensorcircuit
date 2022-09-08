@@ -5,14 +5,14 @@ Declarations of single-qubit and two-qubit gates and their corresponding matrix.
 import sys
 from copy import deepcopy
 from functools import reduce, partial
-from typing import Any, Callable, Optional, Sequence, List, Union
+from typing import Any, Callable, Optional, Sequence, List, Union, Tuple
 from operator import mul
 
 import numpy as np
 import tensornetwork as tn
 from scipy.stats import unitary_group
 
-from .cons import backend, dtypestr, npdtype
+from .cons import backend, dtypestr, npdtype, rdtypestr
 from .backends import get_backend  # type: ignore
 from .utils import arg_alias
 
@@ -464,6 +464,27 @@ def phase_gate(theta: float = 0) -> Gate:
     i00, i11 = array_to_tensor(np.array([[1, 0], [0, 0]]), np.array([[0, 0], [0, 1]]))
     unitary = i00 + backend.exp(1.0j * theta) * i11
     return Gate(unitary)
+
+
+# TODO(@refraction-ray): not correct now, correct impl required
+def get_u_parameter(m: Tensor) -> Tuple[Tensor, Tensor, Tensor]:
+    """
+    From the single qubit unitary to infer three angles of IBMUgate
+
+    :param m: _description_
+    :type m: Tensor
+    :return: theta, phi, lbd
+    :rtype: Tuple[Tensor, Tensor, Tensor]
+    """
+    print("wrong impl, dont use!")
+    a, b, c = m[0, 0], m[0, 1], m[1, 0]
+    if a == 0:
+        theta = np.pi
+    else:
+        theta = 2 * backend.atan(backend.sqrt(1 - a**2) / a)
+    lbd = -1j * backend.log(b * backend.sqrt(1 - a**2) / (a**2 - 1))
+    phi = -1j * backend.log(c / backend.sqrt(1 - a**2))
+    return array_to_tensor(theta, phi, lbd, dtype=rdtypestr)  # type: ignore
 
 
 def u_gate(theta: float = 0, phi: float = 0, lbd: float = 0) -> Gate:

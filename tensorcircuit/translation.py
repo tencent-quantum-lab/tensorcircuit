@@ -151,6 +151,7 @@ def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
                 )
             )
             qiskit_circ.unitary(qop, index[::-1], label=qis_name)
+        # TODO(@refraction-ray): support for phase gate and U, cU gate for the circuit translation
         else:  # r cr any gate
             qop = qi.Operator(
                 np.reshape(

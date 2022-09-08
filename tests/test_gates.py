@@ -1,6 +1,8 @@
 import sys
 import os
 import numpy as np
+import pytest
+from pytest_lazyfixture import lazy_fixture as lf
 
 thisfile = os.path.abspath(__file__)
 modulepath = os.path.dirname(os.path.dirname(thisfile))
@@ -29,6 +31,18 @@ def test_cu_gate():
     print(m)
     np.testing.assert_allclose(m[2:, 2:], tc.gates._wroot_matrix, atol=1e-5)
     np.testing.assert_allclose(m[:2, :2], np.eye(2), atol=1e-5)
+
+
+@pytest.mark.skip(reason="to be implemented")
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_get_u_parameter(backend, highp):
+    for _ in range(6):
+        hermitian = np.random.uniform(size=[2, 2])
+        hermitian += np.conj(np.transpose(hermitian))
+        unitary = tc.backend.expm(hermitian * 1.0j)
+        params = tc.gates.get_u_parameter(unitary)
+        unitary2 = tc.gates.u_gate(theta=params[0], phi=params[1], lbd=params[2])
+        np.testing.assert_allclose(unitary, unitary2.tensor, atol=1e-3)
 
 
 def test_exp_gate():
