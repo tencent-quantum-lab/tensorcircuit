@@ -466,6 +466,41 @@ def phase_gate(theta: float = 0) -> Gate:
     return Gate(unitary)
 
 
+def u_gate(theta: float = 0, phi: float = 0, lbd: float = 0) -> Gate:
+    r"""
+    IBMQ U gate following the converntion of OpenQASM3.0.
+    See `OpenQASM doc <https://openqasm.com/language/gates.html#built-in-gates>`_
+
+    .. math::
+
+        \begin{split}U(\theta,\phi,\lambda) := \left(\begin{array}{cc}
+        \cos(\theta/2) & -e^{i\lambda}\sin(\theta/2) \\
+        e^{i\phi}\sin(\theta/2) & e^{i(\phi+\lambda)}\cos(\theta/2) \end{array}\right).\end{split}
+
+    :param theta: _description_, defaults to 0
+    :type theta: float, optional
+    :param phi: _description_, defaults to 0
+    :type phi: float, optional
+    :param lbd: _description_, defaults to 0
+    :type lbd: float, optional
+    :return: _description_
+    :rtype: Gate
+    """
+    i00, i01, i10, i11 = array_to_tensor(
+        np.array([[1, 0], [0, 0]]),
+        np.array([[0, 1], [0, 0]]),
+        np.array([[0, 0], [1, 0]]),
+        np.array([[0, 0], [0, 1]]),
+    )
+    unitary = (
+        backend.cos(theta / 2) * i00
+        - backend.exp(1.0j * lbd) * backend.sin(theta / 2) * i01
+        + backend.exp(1.0j * phi) * backend.sin(theta / 2) * i10
+        + backend.exp(1.0j * (phi + lbd)) * backend.cos(theta / 2) * i11
+    )
+    return Gate(unitary)
+
+
 def r_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
     r"""
     General single qubit rotation gate
@@ -871,6 +906,7 @@ def mpo_gate(mpo: Operator, name: str = "mpo") -> Operator:
 def meta_vgate() -> None:
     for f in [
         "r",
+        "u",
         "rx",
         "ry",
         "rz",
@@ -886,7 +922,7 @@ def meta_vgate() -> None:
     ]:
         for funcname in [f, f + "gate", f + "_gate"]:
             setattr(thismodule, funcname, GateVF(getattr(thismodule, f + "_gate"), f))
-    for f in ["crx", "cry", "crz"]:
+    for f in ["cu", "crx", "cry", "crz"]:
         for funcname in [f, f + "gate", f + "_gate"]:
             setattr(thismodule, funcname, getattr(thismodule, f[1:]).controlled())
     for f in ["ox", "oy", "oz", "orx", "ory", "orz"]:

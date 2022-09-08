@@ -28,6 +28,8 @@ sgates = (
 vgates = [
     "r",
     "cr",
+    "u",
+    "cu",
     "rx",
     "ry",
     "rz",

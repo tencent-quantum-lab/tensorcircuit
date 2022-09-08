@@ -110,8 +110,4 @@ gate rzz(θ) a, b { cx a, b; rz(θ) b; cx a, b; }
 gate iswap(θ) a, b {cx a, b; h a; cx b, a; phase(θ*π/2) a; cx b, a; phase(-θ*π/2) a; h a; cx a,b; }
 
 // wroot
-gate wroot a {U(π/2, -π/4, π/4) a; }
-
-// to be determined
-// gate r()
-// gate cr() a, b { ctrl @ r() a, b; }
+gate wroot a { U(π/2, -π/4, π/4) a; }

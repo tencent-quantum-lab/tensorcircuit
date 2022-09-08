@@ -22,6 +22,15 @@ def test_phase_gate():
     np.testing.assert_allclose(c.state()[1], 0.7071j, atol=1e-4)
 
 
+def test_cu_gate():
+    c = tc.Circuit(2)
+    c.cu(0, 1, theta=np.pi / 2, phi=-np.pi / 4, lbd=np.pi / 4)
+    m = c.matrix()
+    print(m)
+    np.testing.assert_allclose(m[2:, 2:], tc.gates._wroot_matrix, atol=1e-5)
+    np.testing.assert_allclose(m[:2, :2], np.eye(2), atol=1e-5)
+
+
 def test_exp_gate():
     c = tc.Circuit(2)
     c.exp(
