@@ -1,3 +1,4 @@
+.prettierignore
 .idea/
 dataset
 *.outdated

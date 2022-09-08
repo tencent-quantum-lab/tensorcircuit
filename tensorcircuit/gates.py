@@ -445,6 +445,27 @@ def bmatrix(a: Array) -> str:
     return "".join(rv)
 
 
+def phase_gate(theta: float = 0) -> Gate:
+    r"""
+    The phase gate
+
+    .. math::
+        \textrm{phase}(\theta) =
+        \begin{pmatrix}
+            1 & 0 \\
+            0 & e^{i\theta} \\
+        \end{pmatrix}
+
+    :param theta: angle in radians, defaults to 0
+    :type theta: float, optional
+    :return: phase gate
+    :rtype: Gate
+    """
+    i00, i11 = array_to_tensor(np.array([[1, 0], [0, 0]]), np.array([[0, 0], [0, 1]]))
+    unitary = i00 + backend.exp(1.0j * theta) * i11
+    return Gate(unitary)
+
+
 def r_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
     r"""
     General single qubit rotation gate
@@ -853,6 +874,7 @@ def meta_vgate() -> None:
         "rx",
         "ry",
         "rz",
+        "phase",
         "iswap",
         "any",
         "exp",

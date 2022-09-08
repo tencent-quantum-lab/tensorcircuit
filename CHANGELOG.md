@@ -10,9 +10,13 @@
 
 - Add alias for `sd` and `td` gate
 
+- Add `phase` gate for the circuit
+
 ### Fixed
 
 - Make every gate function can be accessed via name by `getattr(tc.gates, name + "_gate")`
+
+- Move `iswap` gate to vgates list
 
 ## 0.4.0
 

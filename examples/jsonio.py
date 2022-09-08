@@ -18,6 +18,7 @@ def make_circuit():
     c.r(1, theta=tc.backend.ones([]), alpha=0.2)
     c.toffoli(0, 2, 1)
     c.ccnot(0, 1, 2)
+    c.any(0, 1, unitary=tc.gates._xx_matrix)
     c.multicontrol(1, 2, 0, ctrl=[0, 1], unitary=tc.gates._x_matrix)
     return c
 

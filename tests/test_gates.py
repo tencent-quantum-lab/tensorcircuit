@@ -15,6 +15,13 @@ def test_rgate(highp):
     )
 
 
+def test_phase_gate():
+    c = tc.Circuit(1)
+    c.h(0)
+    c.phase(0, theta=np.pi / 2)
+    np.testing.assert_allclose(c.state()[1], 0.7071j, atol=1e-4)
+
+
 def test_exp_gate():
     c = tc.Circuit(2)
     c.exp(

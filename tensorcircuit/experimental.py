@@ -258,3 +258,16 @@ def parameter_shift_grad(
         return grad_values[0]
 
     return grad_f
+
+
+def IBMUgate(theta: float, phi: float, lbd: float) -> Tensor:
+    # not jittable: just for correctness check
+    return np.array(
+        [
+            [np.cos(theta / 2), -np.exp(1.0j * lbd) * np.sin(theta / 2)],
+            [
+                np.exp(1.0j * phi) * np.sin(theta / 2),
+                np.exp(1.0j * (phi + lbd)) * np.cos(theta / 2),
+            ],
+        ]
+    )

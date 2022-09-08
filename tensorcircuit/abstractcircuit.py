@@ -22,7 +22,7 @@ Tensor = Any
 
 sgates = (
     ["i", "x", "y", "z", "h", "t", "s", "td", "sd", "wroot"]
-    + ["cnot", "cz", "swap", "cy", "iswap", "ox", "oy", "oz"]
+    + ["cnot", "cz", "swap", "cy", "ox", "oy", "oz"]
     + ["toffoli", "fredkin"]
 )
 vgates = [
@@ -31,6 +31,7 @@ vgates = [
     "rx",
     "ry",
     "rz",
+    "phase",
     "rxx",
     "ryy",
     "rzz",
@@ -40,6 +41,7 @@ vgates = [
     "orx",
     "ory",
     "orz",
+    "iswap",
     "any",
     "exp",
     "exp1",
