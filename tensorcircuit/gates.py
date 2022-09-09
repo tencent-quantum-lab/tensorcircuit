@@ -12,7 +12,7 @@ import numpy as np
 import tensornetwork as tn
 from scipy.stats import unitary_group
 
-from .cons import backend, dtypestr, npdtype, rdtypestr
+from .cons import backend, dtypestr, npdtype
 from .backends import get_backend  # type: ignore
 from .utils import arg_alias
 
@@ -467,24 +467,33 @@ def phase_gate(theta: float = 0) -> Gate:
 
 
 # TODO(@refraction-ray): not correct now, correct impl required
-def get_u_parameter(m: Tensor) -> Tuple[Tensor, Tensor, Tensor]:
+def get_u_parameter(m: Tensor) -> Tuple[float, float, float]:
     """
-    From the single qubit unitary to infer three angles of IBMUgate
+    From the single qubit unitary to infer three angles of IBMUgate,
 
-    :param m: _description_
+    :param m: numpy array, no backend agnostic version for now
     :type m: Tensor
     :return: theta, phi, lbd
     :rtype: Tuple[Tensor, Tensor, Tensor]
     """
-    print("wrong impl, dont use!")
-    a, b, c = m[0, 0], m[0, 1], m[1, 0]
-    if a == 0:
-        theta = np.pi
-    else:
-        theta = 2 * backend.atan(backend.sqrt(1 - a**2) / a)
-    lbd = -1j * backend.log(b * backend.sqrt(1 - a**2) / (a**2 - 1))
-    phi = -1j * backend.log(c / backend.sqrt(1 - a**2))
-    return array_to_tensor(theta, phi, lbd, dtype=rdtypestr)  # type: ignore
+    # ref:
+    # https://github.com/Qiskit/qiskit-terra/blob/6125f5cbbf322268f53328f23c0be348c4fe0771/qiskit/quantum_info/synthesis/two_qubit_decompose.py#L44
+    phase = np.linalg.det(m) ** (-1 / 2)
+    U = phase * m  # U in SU(2)
+    # OpenQASM SU(2) parameterization:
+    # U[0, 0] = exp(-i(phi+lambda)/2) * cos(theta/2)
+    # U[0, 1] = -exp(-i(phi-lambda)/2) * sin(theta/2)
+    # U[1, 0] = exp(i(phi-lambda)/2) * sin(theta/2)
+    # U[1, 1] = exp(i(phi+lambda)/2) * cos(theta/2)
+
+    theta = 2 * np.arccos(np.abs(U[1, 1]))
+
+    # Find phi and lambda
+    lbdpphi = 2 * np.angle(U[1, 1])
+    lbdmphi = -2 * np.angle(U[1, 0])
+    lbd = (lbdpphi + lbdmphi) / 2
+    phi = (lbdpphi - lbdmphi) / 2
+    return theta, phi, lbd
 
 
 def u_gate(theta: float = 0, phi: float = 0, lbd: float = 0) -> Gate:

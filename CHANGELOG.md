@@ -12,6 +12,10 @@
 
 - Add `phase` gate for the circuit
 
+- Add U gate and CU gate following OpenQASM 3.0 convention
+
+- Add `tc.gates.get_u_parameter` to solve the three Euler angle for the U gate given the matrix
+
 ### Fixed
 
 - Make every gate function can be accessed via name by `getattr(tc.gates, name + "_gate")`
