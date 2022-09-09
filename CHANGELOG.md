@@ -16,6 +16,10 @@
 
 - Add `tc.gates.get_u_parameter` to solve the three Euler angle for the U gate given the matrix
 
+- Add `GateVF.ided()` method to kron quantum gate with identity gate
+
+- Add `batched_parameters_structures.py` example to demonstrate nested vmap and architecture search possibility
+
 ### Fixed
 
 - Make every gate function can be accessed via name by `getattr(tc.gates, name + "_gate")`
