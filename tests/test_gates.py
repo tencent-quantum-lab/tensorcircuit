@@ -43,6 +43,21 @@ def test_get_u_parameter(highp):
         np.testing.assert_allclose(unitary, ans, atol=1e-3)
 
 
+def test_ided_gate():
+    g = tc.gates.rx.ided()
+    np.testing.assert_allclose(
+        tc.backend.reshapem(g(theta=0.3).tensor),
+        np.kron(np.eye(2), tc.gates.rx(theta=0.3).tensor),
+        atol=1e-5,
+    )
+    g1 = tc.gates.rx.ided(before=False)
+    np.testing.assert_allclose(
+        tc.backend.reshapem(g1(theta=0.3).tensor),
+        np.kron(tc.gates.rx(theta=0.3).tensor, np.eye(2)),
+        atol=1e-5,
+    )
+
+
 def test_exp_gate():
     c = tc.Circuit(2)
     c.exp(

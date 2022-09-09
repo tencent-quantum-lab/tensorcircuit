@@ -277,8 +277,27 @@ class GateF:
         return GateF(ma, name, self.ctrl)
 
     # TODO(@refraction-ray): adjoint gate convention finally determined
+    def ided(self, before: bool = True) -> "GateF":
+        def f(*args: Any, **kws: Any) -> Any:
+            m = self.__call__(*args, **kws)
+            u = m.tensor
+            u = backend.reshapem(u)
+            if before:
+                iu = backend.kron(backend.eye(2), u)
+                iu = backend.reshape2(iu)
+                return Gate(iu, name="ip" + self.n)
+            else:  # before=False
+                iu = backend.kron(u, backend.eye(2))
+                iu = backend.reshape2(iu)
+                return Gate(iu, name="ia" + self.n)
 
-    def controlled(self, *args: Any, **kws: Any) -> "GateF":
+        if before:
+            name_prefix = "ip"
+        else:
+            name_prefix = "ia"
+        return GateVF(f, name_prefix + self.n)
+
+    def controlled(self) -> "GateF":
         def f(*args: Any, **kws: Any) -> Any:
             m = self.__call__(*args, **kws)
             u = m.tensor
@@ -297,7 +316,7 @@ class GateF:
             ctrl = [1] + self.ctrl
         return GateVF(f, "c" + self.n, ctrl)
 
-    def ocontrolled(self, *args: Any, **kws: Any) -> "GateF":
+    def ocontrolled(self) -> "GateF":
         def f(*args: Any, **kws: Any) -> Any:
             m = self.__call__(*args, **kws)
             u = m.tensor
