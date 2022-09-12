@@ -589,6 +589,8 @@ def test_jac(backend, mode):
         return x + y**2
 
     jacf3 = backend_jac(f3, argnums=(0, 1))
+    jacf3jit = tc.backend.jit(backend_jac(f3, argnums=(0, 1)))
+    np.testing.assert_allclose(jacf3jit(x, x)[1], 2 * np.eye(3), atol=1e-5)
     np.testing.assert_allclose(jacf3(x, x)[1], 2 * np.eye(3), atol=1e-5)
 
     def f4(x, y):
@@ -597,6 +599,9 @@ def test_jac(backend, mode):
     # note the subtle difference of two tuples order in jacrev and jacfwd for current API
     # the value happen to be the same here, though
     jacf4 = backend_jac(f4, argnums=(0, 1))
+    jacf4jit = tc.backend.jit(backend_jac(f4, argnums=(0, 1)))
+    np.testing.assert_allclose(jacf4jit(x, x)[1][1], np.eye(3), atol=1e-5)
+    np.testing.assert_allclose(jacf4jit(x, x)[0][1], np.zeros([3, 3]), atol=1e-5)
     np.testing.assert_allclose(jacf4(x, x)[1][1], np.eye(3), atol=1e-5)
     np.testing.assert_allclose(jacf4(x, x)[0][1], np.zeros([3, 3]), atol=1e-5)
 
@@ -953,3 +958,43 @@ def test_hessian(backend):
     param = tc.backend.ones([10])
     hf = tc.backend.hessian(circuit_f)
     print(hf(param))  # still upto a conjugate for jax and tf backend.
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_nested_vmap(backend):
+    def f(x, w):
+        c = tc.Circuit(4)
+        for i in range(4):
+            c.rx(i, theta=x[i])
+            c.ry(i, theta=w[i])
+        return tc.backend.stack([c.expectation_ps(z=[i]) for i in range(4)])
+
+    def fa1(*args):
+        r = tc.backend.vmap(f, vectorized_argnums=1)(*args)
+        return r
+
+    def fa2(*args):
+        r = tc.backend.vmap(fa1, vectorized_argnums=0)(*args)
+        return r
+
+    fa2jit = tc.backend.jit(fa2)
+
+    ya = fa2(tc.backend.ones([3, 4]), tc.backend.ones([7, 4]))
+    yajit = fa2jit(tc.backend.ones([3, 4]), tc.backend.ones([7, 4]))
+
+    def fb1(*args):
+        r = tc.backend.vmap(f, vectorized_argnums=0)(*args)
+        return r
+
+    def fb2(*args):
+        r = tc.backend.vmap(fb1, vectorized_argnums=1)(*args)
+        return r
+
+    fb2jit = tc.backend.jit(fb2)
+
+    yb = fb2(tc.backend.ones([3, 4]), tc.backend.ones([7, 4]))
+    ybjit = fb2jit(tc.backend.ones([3, 4]), tc.backend.ones([7, 4]))
+
+    np.testing.assert_allclose(ya, tc.backend.transpose(yb, [1, 0, 2]), atol=1e-5)
+    np.testing.assert_allclose(ya, yajit, atol=1e-5)
+    np.testing.assert_allclose(yajit, tc.backend.transpose(ybjit, [1, 0, 2]), atol=1e-5)

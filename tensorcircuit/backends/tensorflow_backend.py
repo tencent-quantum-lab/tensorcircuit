@@ -592,6 +592,13 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend, ExtendedBackend): 
                 if isinstance(argnums, int):
                     x = args[argnums]
                 else:
+                    args = tuple(
+                        [
+                            tf.identity(arg) if i in argnums else arg  # type: ignore
+                            for i, arg in enumerate(args)
+                        ]
+                    )
+                    # in case wrong grad for f(x, x)
                     x = [args[i] for i in argnums]
                 t.watch(x)
                 y = f(*args, **kws)
@@ -616,6 +623,12 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend, ExtendedBackend): 
                 if isinstance(argnums, int):
                     x = args[argnums]
                 else:
+                    args = tuple(
+                        [
+                            tf.identity(arg) if i in argnums else arg  # type: ignore
+                            for i, arg in enumerate(args)
+                        ]
+                    )
                     x = [args[i] for i in argnums]
                 t.watch(x)
                 y = f(*args, **kws)
@@ -636,8 +649,16 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend, ExtendedBackend): 
         if not (isinstance(inputs, list) or isinstance(inputs, tuple)):
             # one input tensor
             inputs = [inputs]
+        elif isinstance(inputs, list):
+            inputs = [tf.identity(inp) for inp in inputs]
+        else:  # inputs, tuple
+            inputs = tuple([tf.identity(inp) for inp in inputs])
         if not (isinstance(v, list) or isinstance(v, tuple)):
             v = [v]
+        elif isinstance(v, list):
+            v = [tf.identity(vi) for vi in v]
+        else:
+            v = tuple([tf.identity(vi) for vi in v])
         with tf.autodiff.ForwardAccumulator(inputs, v) as t:
             y = f(*inputs)
         g = t.jvp(y)
@@ -653,7 +674,11 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend, ExtendedBackend): 
             # one input tensor
             one_input = True
             inputs = [inputs]
-        else:
+        elif isinstance(inputs, list):
+            inputs = [tf.identity(inp) for inp in inputs]
+            one_input = False
+        else:  # inputs tuple
+            inputs = tuple([tf.identity(inp) for inp in inputs])
             one_input = False
         with tf.GradientTape() as t:
             t.watch(inputs)
@@ -758,8 +783,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend, ExtendedBackend): 
 
         else:
 
-            @self.jit  # otherwise, vectorized_map claim on retracing
+            # @self.jit  # otherwise, vectorized_map claim on retracing
             def wrapper(*args: Any, **kws: Any) -> Tensor:
+                # @self.jit
                 def sf(sarg: Any) -> Any:
                     vvargs = []
                     j = 0
