@@ -26,6 +26,10 @@
 
 - Move `iswap` gate to vgates list
 
+- Fix possible bug when vmap is nested in different order (only affect tensorflow backend)
+
+- Fix bug when multi input function accept the same variable in different args and gradient or jvp/vjp is required (only affect tensorflow backend)
+
 ## 0.4.0
 
 ### Added
