@@ -15,6 +15,34 @@ def test_rgate(highp):
     )
 
 
+def test_phase_gate():
+    c = tc.Circuit(1)
+    c.h(0)
+    c.phase(0, theta=np.pi / 2)
+    np.testing.assert_allclose(c.state()[1], 0.7071j, atol=1e-4)
+
+
+def test_cu_gate():
+    c = tc.Circuit(2)
+    c.cu(0, 1, theta=np.pi / 2, phi=-np.pi / 4, lbd=np.pi / 4)
+    m = c.matrix()
+    print(m)
+    np.testing.assert_allclose(m[2:, 2:], tc.gates._wroot_matrix, atol=1e-5)
+    np.testing.assert_allclose(m[:2, :2], np.eye(2), atol=1e-5)
+
+
+def test_get_u_parameter(highp):
+    for _ in range(6):
+        hermitian = np.random.uniform(size=[2, 2])
+        hermitian += np.conj(np.transpose(hermitian))
+        unitary = tc.backend.expm(hermitian * 1.0j)
+        params = tc.gates.get_u_parameter(unitary)
+        unitary2 = tc.gates.u_gate(theta=params[0], phi=params[1], lbd=params[2])
+        ans = unitary2.tensor
+        unitary = unitary / np.exp(1j * np.angle(unitary[0, 0]))
+        np.testing.assert_allclose(unitary, ans, atol=1e-3)
+
+
 def test_exp_gate():
     c = tc.Circuit(2)
     c.exp(

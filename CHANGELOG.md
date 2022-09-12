@@ -4,6 +4,28 @@
 
 ### Added
 
+- Add support for weighted graph QAOA in `tc.templates.blocks.QAOA_block`
+
+- Add `AbstractCircuit` to and from json capability (experimental support, subject to change)
+
+- Add alias for `sd` and `td` gate
+
+- Add `phase` gate for the circuit
+
+- Add U gate and CU gate following OpenQASM 3.0 convention
+
+- Add `tc.gates.get_u_parameter` to solve the three Euler angle for the U gate given the matrix
+
+### Fixed
+
+- Make every gate function can be accessed via name by `getattr(tc.gates, name + "_gate")`
+
+- Move `iswap` gate to vgates list
+
+## 0.4.0
+
+### Added
+
 - Add `sample_expectation_ps` method for `BaseCircuit`, which measure the Pauli string expectation considering measurement shots
 
 - Add alias `expps` for `expectation_ps` and `sexpps` for `sampled_expectation_ps`

@@ -5,7 +5,7 @@ Declarations of single-qubit and two-qubit gates and their corresponding matrix.
 import sys
 from copy import deepcopy
 from functools import reduce, partial
-from typing import Any, Callable, Optional, Sequence, List, Union
+from typing import Any, Callable, Optional, Sequence, List, Union, Tuple
 from operator import mul
 
 import numpy as np
@@ -374,6 +374,7 @@ def meta_gate() -> None:
             # temp.__name__ = n
             temp = GateF(m, n)
             setattr(thismodule, n + "gate", temp)
+            setattr(thismodule, n + "_gate", temp)
             setattr(thismodule, n, temp)
 
 
@@ -442,6 +443,92 @@ def bmatrix(a: Array) -> str:
     rv[-1] = rv[-1][:-2]
     rv += [r" \end{bmatrix}"]
     return "".join(rv)
+
+
+def phase_gate(theta: float = 0) -> Gate:
+    r"""
+    The phase gate
+
+    .. math::
+        \textrm{phase}(\theta) =
+        \begin{pmatrix}
+            1 & 0 \\
+            0 & e^{i\theta} \\
+        \end{pmatrix}
+
+    :param theta: angle in radians, defaults to 0
+    :type theta: float, optional
+    :return: phase gate
+    :rtype: Gate
+    """
+    i00, i11 = array_to_tensor(np.array([[1, 0], [0, 0]]), np.array([[0, 0], [0, 1]]))
+    unitary = i00 + backend.exp(1.0j * theta) * i11
+    return Gate(unitary)
+
+
+# TODO(@refraction-ray): not correct now, correct impl required
+def get_u_parameter(m: Tensor) -> Tuple[float, float, float]:
+    """
+    From the single qubit unitary to infer three angles of IBMUgate,
+
+    :param m: numpy array, no backend agnostic version for now
+    :type m: Tensor
+    :return: theta, phi, lbd
+    :rtype: Tuple[Tensor, Tensor, Tensor]
+    """
+    # ref:
+    # https://github.com/Qiskit/qiskit-terra/blob/6125f5cbbf322268f53328f23c0be348c4fe0771/qiskit/quantum_info/synthesis/two_qubit_decompose.py#L44
+    phase = np.linalg.det(m) ** (-1 / 2)
+    U = phase * m  # U in SU(2)
+    # OpenQASM SU(2) parameterization:
+    # U[0, 0] = exp(-i(phi+lambda)/2) * cos(theta/2)
+    # U[0, 1] = -exp(-i(phi-lambda)/2) * sin(theta/2)
+    # U[1, 0] = exp(i(phi-lambda)/2) * sin(theta/2)
+    # U[1, 1] = exp(i(phi+lambda)/2) * cos(theta/2)
+
+    theta = 2 * np.arccos(np.abs(U[1, 1]))
+
+    # Find phi and lambda
+    lbdpphi = 2 * np.angle(U[1, 1])
+    lbdmphi = -2 * np.angle(U[1, 0])
+    lbd = (lbdpphi + lbdmphi) / 2
+    phi = (lbdpphi - lbdmphi) / 2
+    return theta, phi, lbd
+
+
+def u_gate(theta: float = 0, phi: float = 0, lbd: float = 0) -> Gate:
+    r"""
+    IBMQ U gate following the converntion of OpenQASM3.0.
+    See `OpenQASM doc <https://openqasm.com/language/gates.html#built-in-gates>`_
+
+    .. math::
+
+        \begin{split}U(\theta,\phi,\lambda) := \left(\begin{array}{cc}
+        \cos(\theta/2) & -e^{i\lambda}\sin(\theta/2) \\
+        e^{i\phi}\sin(\theta/2) & e^{i(\phi+\lambda)}\cos(\theta/2) \end{array}\right).\end{split}
+
+    :param theta: _description_, defaults to 0
+    :type theta: float, optional
+    :param phi: _description_, defaults to 0
+    :type phi: float, optional
+    :param lbd: _description_, defaults to 0
+    :type lbd: float, optional
+    :return: _description_
+    :rtype: Gate
+    """
+    i00, i01, i10, i11 = array_to_tensor(
+        np.array([[1, 0], [0, 0]]),
+        np.array([[0, 1], [0, 0]]),
+        np.array([[0, 0], [1, 0]]),
+        np.array([[0, 0], [0, 1]]),
+    )
+    unitary = (
+        backend.cos(theta / 2) * i00
+        - backend.exp(1.0j * lbd) * backend.sin(theta / 2) * i01
+        + backend.exp(1.0j * phi) * backend.sin(theta / 2) * i10
+        + backend.exp(1.0j * (phi + lbd)) * backend.cos(theta / 2) * i11
+    )
+    return Gate(unitary)
 
 
 def r_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
@@ -792,9 +879,10 @@ def multicontrol_gate(unitary: Tensor, ctrl: Union[int, Sequence[int]] = 1) -> O
     rend = backend.reshape2(rend)
     rn = tn.Node(rend)
     nodes = []
+    eps = 1e-5
     if isinstance(ctrl, int):
         ctrl = [ctrl]
-    if ctrl[0] == 1:
+    if int(ctrl[0] + eps) == 1:
         leftend = np.zeros([2, 2, 2])
         leftend[1, 1, 0] = 1
         leftend[0, 0, 1] = 1
@@ -848,9 +936,11 @@ def mpo_gate(mpo: Operator, name: str = "mpo") -> Operator:
 def meta_vgate() -> None:
     for f in [
         "r",
+        "u",
         "rx",
         "ry",
         "rz",
+        "phase",
         "iswap",
         "any",
         "exp",
@@ -860,15 +950,20 @@ def meta_vgate() -> None:
         "rxx",
         "ryy",
     ]:
-        setattr(thismodule, f, GateVF(getattr(thismodule, f + "_gate"), f))
-    for f in ["crx", "cry", "crz"]:
-        setattr(thismodule, f, getattr(thismodule, f[1:]).controlled())
+        for funcname in [f, f + "gate", f + "_gate"]:
+            setattr(thismodule, funcname, GateVF(getattr(thismodule, f + "_gate"), f))
+    for f in ["cu", "crx", "cry", "crz"]:
+        for funcname in [f, f + "gate", f + "_gate"]:
+            setattr(thismodule, funcname, getattr(thismodule, f[1:]).controlled())
     for f in ["ox", "oy", "oz", "orx", "ory", "orz"]:
-        setattr(thismodule, f, getattr(thismodule, f[1:]).ocontrolled())
+        for funcname in [f, f + "gate", f + "_gate"]:
+            setattr(thismodule, funcname, getattr(thismodule, f[1:]).ocontrolled())
     for f in ["sd", "td"]:
-        setattr(thismodule, f, getattr(thismodule, f[:-1]).adjoint())
+        for funcname in [f, f + "gate", f + "_gate"]:
+            setattr(thismodule, funcname, getattr(thismodule, f[:-1]).adjoint())
     for f in ["multicontrol", "mpo"]:  # mpo type gate
-        setattr(thismodule, f, GateVF(getattr(thismodule, f + "_gate"), f))
+        for funcname in [f, f + "gate", f + "_gate"]:
+            setattr(thismodule, funcname, GateVF(getattr(thismodule, f + "_gate"), f))
 
 
 meta_vgate()

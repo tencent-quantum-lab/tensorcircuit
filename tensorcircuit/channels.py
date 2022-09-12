@@ -614,66 +614,11 @@ def reshuffle(op: Matrix, order: Sequence[int]) -> Matrix:
     )
 
 
-# TODO(@yutuer21): check jit able and ad
 @partial(
     interfaces.args_to_tensor,  # type: ignore
     argnums=[0],
     gate_to_tensor=True,
 )
-# def choi_to_kraus(choi: Matrix, atol: float = 1e-5, Maxkraus: Optional[int] = None) -> Matrix:
-#     r"""
-#     Convert the Choi matrix representation to Kraus operator representation.
-
-#     This can be done by firstly geting eigen-decomposition of Choi-matrix
-
-#     .. math::
-#         \Lambda = \sum_k \gamma_k  \vert \phi_k \rangle \langle \phi_k \vert
-
-#     Then define Kraus operators
-
-#     .. math::
-#         K_k = \sqrt{\gamma_k} V_k
-
-#     where :math:`\gamma_k\geq0` and :math:`\phi_k` is the col-val vectorization of :math:`V_k` .
-
-
-#     :Examples:
-
-
-#     >>> kraus = tc.channels.phasedampingchannel(0.2)
-#     >>> superop = tc.channels.kraus_to_choi(kraus)
-#     >>> kraus_new = tc.channels.choi_to_kraus(superop)
-
-
-#     :param choi: Choi matrix
-#     :type choi: Matrix
-#     :return: A list of Kraus operators
-#     :rtype: Sequence[Matrix]
-#     """
-#     dim = backend.shape_tuple(choi)
-#     input_dim = _safe_sqrt(dim[0])
-#     output_dim = _safe_sqrt(dim[1])
-
-#     #if is_hermitian_matrix(choi, atol=atol):
-#     # Get eigen-decomposition of Choi-matrix
-#     e, v = backend.eigh(choi)    #  value of e is from minimal to maxmal
-
-#     # CP-map Kraus representation
-#     kraus = []
-#     for val, vec in zip(backend.real(e), backend.transpose(v)):
-#         if val > atol:
-#             k = backend.sqrt(backend.cast(val, dtypestr)) * backend.transpose(
-#                 backend.reshape(vec, [output_dim, input_dim]), [1, 0]
-#             )
-#             kraus.append(k)
-
-#     if not kraus:
-#         kraus.append(backend.zeros([output_dim, input_dim], dtype=dtypestr))
-#     return kraus
-
-#   #  raise ValueError("illegal Choi matrix")
-
-
 def choi_to_kraus(
     choi: Matrix, truncation_rules: Optional[Dict[str, Any]] = None
 ) -> Matrix:

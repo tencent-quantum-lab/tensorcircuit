@@ -74,6 +74,8 @@ def test_grid_coord():
 def test_qaoa_template(backend):
     cd = tc.templates.graphs.Grid2DCoord(3, 2)
     g = cd.lattice_graph(pbc=False)
+    for e1, e2 in g.edges:
+        g[e1][e2]["weight"] = np.random.uniform()
 
     def forward(paramzz, paramx):
         c = tc.Circuit(6)
