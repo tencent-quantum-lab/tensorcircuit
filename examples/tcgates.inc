@@ -107,7 +107,7 @@ gate ryy(θ) a, b { rx(-π/2) a; rx(-π/2) b; cx a, b; rz(θ) b; cx a, b; rx(π/
 gate rzz(θ) a, b { cx a, b; rz(θ) b; cx a, b; }
 
 // iswap: implementation according to https://github.com/quantumlib/Cirq/blob/v1.0.0/cirq-core/cirq/ops/swap_gates.py#L168-L291
-gate iswap(θ) a, b {cx a, b; h a; cx b, a; phase(θ*π/2) a; cx b, a; phase(-θ*π/2) a; h a; cx a,b; }
+gate iswap(θ) a, b { cx a, b; h a; cx b, a; phase(θ*π/2) a; cx b, a; phase(-θ*π/2) a; h a; cx a,b; }
 
 // wroot
 gate wroot a { U(π/2, -π/4, π/4) a; }

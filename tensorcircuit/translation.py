@@ -313,12 +313,17 @@ def json_to_tensor(a: Any) -> Any:
     return ar + 1.0j * ai
 
 
-def qir2json(qir: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def qir2json(
+    qir: List[Dict[str, Any]], simplified: bool = False
+) -> List[Dict[str, Any]]:
     """
     transform qir to json compatible list of dict where array is replaced by real and imaginary list
 
     :param qir: _description_
     :type qir: List[Dict[str, Any]]
+    :param simplified: If False, keep all info for each gate, defaults to be False.
+        If True, suitable for IO since less information is required
+    :type simplified: bool
     :return: _description_
     :rtype: List[Dict[str, Any]]
     """
@@ -333,19 +338,38 @@ def qir2json(qir: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         else:
             nm = backend.reshapem(r["gate"].tensor)
         nmr, nmi = tensor_to_json(nm)
+        if backend.shape_tuple(nm)[0] == backend.shape_tuple(nm)[1] == 2:
+            uparams = list(gates.get_u_parameter(backend.numpy(nm)))
+        else:
+            uparams = []
         params = r.get("parameters", {})
         for k, v in params.items():
             params[k] = tensor_to_json(v)
-        # params = backend.tree_map(tensor_to_json, params)
-        tcqasm.append(
-            {
-                "name": r["gatef"].n,
-                "qubits": list(r["index"]),
-                "matrix": [nmr, nmi],
-                "parameters": params,
-                "mpo": r["mpo"],
-            }
-        )
+
+        ditem = {
+            "name": r["gatef"].n,
+            "qubits": list(r["index"]),
+        }
+        unsupport_list = ["any", "unitary", "mpo", "exp", "exp1", "r", "cr"]
+        if not simplified:
+            ditem.update(
+                {
+                    "matrix": [nmr, nmi],
+                    "uparams": uparams,
+                    "parameters": params,
+                    "mpo": r["mpo"],
+                }
+            )
+        else:  # update only when necessary: simplified=True
+            if ditem["name"] in unsupport_list and uparams:
+                ditem.update({"uparams": uparams})
+            elif ditem["name"] in unsupport_list:
+                ditem.update({"matrix": [nmr, nmi]})
+            if params:
+                ditem.update({"parameters": params})
+            if r["mpo"]:
+                ditem.update({"mpo": r["mpo"]})
+        tcqasm.append(ditem)
     return tcqasm
 
 
@@ -356,15 +380,19 @@ def json2qir(tcqasm: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     tcqasm = deepcopy(tcqasm)
     qir = []
     for d in tcqasm:
-        param = d["parameters"]
+        param = d.get("parameters", {})
         for k, v in param.items():
             # tree_map doesn't work here since the end leaves are list
             param[k] = json_to_tensor(v)
+        if "matrix" in d:
+            gatem = json_to_tensor(d["matrix"])
+        else:
+            gatem = getattr(gates, d["name"] + "_gate")(**param)
         qir.append(
             {
-                "gate": json_to_tensor(d["matrix"]),
+                "gate": gatem,
                 "index": tuple(d["qubits"]),
-                "mpo": d["mpo"],
+                "mpo": d.get("mpo", False),
                 "split": {},
                 "parameters": param,
                 "gatef": getattr(gates, d["name"] + "_gate"),

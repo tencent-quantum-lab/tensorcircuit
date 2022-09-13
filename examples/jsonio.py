@@ -14,6 +14,8 @@ def make_circuit():
     c.H(2)
     c.CNOT(1, 2)
     c.rxx(0, 2, theta=0.3)
+    c.u(2, theta=0.2, lbd=-1.2, phi=0.5)
+    c.cu(1, 0, lbd=1.0)
     c.crx(0, 1, theta=-0.8)
     c.r(1, theta=tc.backend.ones([]), alpha=0.2)
     c.toffoli(0, 2, 1)
@@ -25,7 +27,7 @@ def make_circuit():
 
 if __name__ == "__main__":
     c = make_circuit()
-    s = c.to_json()
+    s = c.to_json(simplified=True)
     print(s)
     c.to_json(file="circuit.json")
     # load from json string

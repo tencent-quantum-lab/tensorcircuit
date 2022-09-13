@@ -515,18 +515,21 @@ class AbstractCircuit:
 
     tex = vis_tex
 
-    def to_json(self, file: Optional[str] = None) -> Any:
+    def to_json(self, file: Optional[str] = None, simplified: bool = False) -> Any:
         """
         circuit dumps to json
 
         :param file: file str to dump the json to, defaults to None, return the json str
         :type file: Optional[str], optional
+        :param simplified: If False, keep all info for each gate, defaults to be False.
+            If True, suitable for IO since less information is required
+        :type simplified: bool
         :return: None if dumps to file otherwise the json str
         :rtype: Any
         """
         from .translation import qir2json
 
-        tcqasm = qir2json(self.to_qir())
+        tcqasm = qir2json(self.to_qir(), simplified=simplified)
         if file is not None:
             with open(file, "w") as f:
                 json.dump(tcqasm, f)
