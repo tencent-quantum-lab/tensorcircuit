@@ -126,8 +126,6 @@ _fredkin_matrix = np.array(
     ]
 )
 
-# TODO(@SUSYUSTC): fix the dtype bug in delayed gates
-
 
 def __rmul__(self: tn.Node, lvalue: Union[float, complex]) -> "Gate":
     newg = Gate(lvalue * self.tensor)
@@ -485,7 +483,6 @@ def phase_gate(theta: float = 0) -> Gate:
     return Gate(unitary)
 
 
-# TODO(@refraction-ray): not correct now, correct impl required
 def get_u_parameter(m: Tensor) -> Tuple[float, float, float]:
     """
     From the single qubit unitary to infer three angles of IBMUgate,
@@ -499,11 +496,6 @@ def get_u_parameter(m: Tensor) -> Tuple[float, float, float]:
     # https://github.com/Qiskit/qiskit-terra/blob/6125f5cbbf322268f53328f23c0be348c4fe0771/qiskit/quantum_info/synthesis/two_qubit_decompose.py#L44
     phase = np.linalg.det(m) ** (-1 / 2)
     U = phase * m  # U in SU(2)
-    # OpenQASM SU(2) parameterization:
-    # U[0, 0] = exp(-i(phi+lambda)/2) * cos(theta/2)
-    # U[0, 1] = -exp(-i(phi-lambda)/2) * sin(theta/2)
-    # U[1, 0] = exp(i(phi-lambda)/2) * sin(theta/2)
-    # U[1, 1] = exp(i(phi+lambda)/2) * cos(theta/2)
 
     theta = 2 * np.arccos(np.abs(U[1, 1]))
 

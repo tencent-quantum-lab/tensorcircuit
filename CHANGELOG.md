@@ -20,6 +20,8 @@
 
 - Add `batched_parameters_structures.py` example to demonstrate nested vmap and architecture search possibility
 
+- Add `gate_count` method on `AbstractCircuit` to count gates of given type in the circuit
+
 ### Fixed
 
 - Make every gate function can be accessed via name by `getattr(tc.gates, name + "_gate")`
@@ -29,6 +31,8 @@
 - Fix possible bug when vmap is nested in different order (only affect tensorflow backend)
 
 - Fix bug when multi input function accept the same variable in different args and gradient or jvp/vjp is required (only affect tensorflow backend)
+
+- Fix the use of rev over rev jacobian for hessian method and back to the efficient solution of fwd over rev order due to the solution of nested vmap issue on tf backend
 
 ## 0.4.0
 

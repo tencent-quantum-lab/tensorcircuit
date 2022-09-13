@@ -1517,8 +1517,9 @@ class ExtendedBackend:
         # different by conjugate for tf and jax backend
         # tensorflow native hessian use naive for loop
         # idealy fwd over rev is the best choice, but this combination fails on tensorflow backend
-        # TODO(@refraction-ray): with complains like: AttributeError: 'IndexedSlices' object has no attribute '_id'
-        return self.jacrev(self.jacrev(f, argnums=argnums), argnums=argnums)
+        # (solved via commit abe771eff somehow)
+        # original error with complains like: AttributeError: 'IndexedSlices' object has no attribute '_id'
+        return self.jacfwd(self.jacrev(f, argnums=argnums), argnums=argnums)
 
     def jit(
         self: Any,

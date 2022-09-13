@@ -1554,10 +1554,6 @@ def reduced_density_matrix(
         else:
             p = backend.reshape(p, [-1])
             rho = backend.einsum("a,aiaj->ij", p, rho)
-            # raise NotImplementedError(
-            #     "p arguments is not supported when state is a density matrix"
-            # )
-            # TODO(@refraction-ray): implement this
         rho = backend.reshape(
             rho, [2 ** (freedom - len(traceout)), 2 ** (freedom - len(traceout))]
         )

@@ -433,6 +433,35 @@ class AbstractCircuit:
         """
         self._apply_qir(self, qir)
 
+    def gate_count(self, gate_list: Optional[Sequence[str]] = None) -> int:
+        """
+        count the gate number of the circuit
+
+        :Example:
+
+        >>> c = tc.Circuit(3)
+        >>> c.h(0)
+        >>> c.multicontrol(0, 1, 2, ctrl=[0, 1], unitary=tc.gates._x_matrix)
+        >>> c.toffolli(1, 2, 0)
+        >>> c.gate_count()
+        3
+        >>> c.gate_count(["multicontrol", "toffoli"])
+        2
+
+        :param gate_list: gate name list to be counted, defaults to None (counting all gates)
+        :type gate_list: Optional[Sequence[str]], optional
+        :return: the total number of all gates or gates in the ``gate_list``
+        :rtype: int
+        """
+        if gate_list is None:
+            return len(self._qir)
+        else:
+            c = 0
+            for d in self._qir:
+                if d["name"] in gate_list:
+                    c += 1
+            return c
+
     def to_qiskit(self) -> Any:
         """
         Translate ``tc.Circuit`` to a qiskit QuantumCircuit object.

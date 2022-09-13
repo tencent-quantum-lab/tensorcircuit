@@ -16,8 +16,6 @@ modulepath = os.path.dirname(os.path.dirname(thisfile))
 sys.path.insert(0, modulepath)
 import tensorcircuit as tc
 
-# TODO(@refraction-ray):replace all assert np.allclose with np.testing.assert_all_close !
-
 
 def test_wavefunction():
     qc = tc.Circuit(2)
@@ -1178,3 +1176,15 @@ def test_circuit_to_json(backend):
     c2 = tc.Circuit.from_json(s)
     print(c2.draw())
     np.testing.assert_allclose(c.state(), c2.state(), atol=1e-5)
+
+
+def test_gate_count():
+    c = tc.Circuit(3)
+    c.h(0)
+    c.rx(1, theta=-0.2)
+    c.h(2)
+    c.multicontrol(0, 1, 2, ctrl=[0, 1], unitary=tc.gates._x_matrix)
+    c.toffoli(0, 2, 1)
+    assert c.gate_count() == 5
+    assert c.gate_count(["h"]) == 2
+    assert c.gate_count(["rx", "multicontrol"]) == 2
