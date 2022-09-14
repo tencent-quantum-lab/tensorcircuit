@@ -1185,6 +1185,11 @@ def test_gate_count():
     c.h(2)
     c.multicontrol(0, 1, 2, ctrl=[0, 1], unitary=tc.gates._x_matrix)
     c.toffoli(0, 2, 1)
-    assert c.gate_count() == 5
+    c.ccnot(1, 2, 0)
+    c.ccx(1, 2, 0)
+    assert c.gate_count() == 7
     assert c.gate_count(["h"]) == 2
+    assert c.gate_count(["ccnot"]) == 3
     assert c.gate_count(["rx", "multicontrol"]) == 2
+    print(c.gate_summary())
+    # {'h': 2, 'rx': 1, 'multicontrol': 1, 'toffoli': 3}

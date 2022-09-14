@@ -7,6 +7,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Union, Tuple
 from functools import reduce
 from operator import add
 import json
+import logging
 
 import numpy as np
 import tensornetwork as tn
@@ -16,6 +17,7 @@ from .cons import backend, dtypestr
 from .vis import qir2tex
 from .quantum import QuOperator
 
+logger = logging.getLogger(__name__)
 
 Gate = gates.Gate
 Tensor = Any
@@ -53,6 +55,7 @@ gate_aliases = [
     ["cnot", "cx"],
     ["fredkin", "cswap"],
     ["toffoli", "ccnot"],
+    ["toffoli", "ccx"],
     ["any", "unitary"],
     ["sd", "sdg"],
     ["td", "tdg"],
@@ -433,6 +436,25 @@ class AbstractCircuit:
         """
         self._apply_qir(self, qir)
 
+    @staticmethod
+    def standardize_gate(name: str) -> str:
+        """
+        standardize the gate name to tc common gate sets
+
+        :param name: non-standard gate name
+        :type name: str
+        :return: the standard gate name
+        :rtype: str
+        """
+        name = name.lower()
+        for g1, g2 in gate_aliases:
+            if name == g2:
+                name = g1
+                break
+        if name not in sgates + vgates + mpogates:
+            logger.warning("gate name not in the common gate set that tc supported")
+        return name
+
     def gate_count(self, gate_list: Optional[Sequence[str]] = None) -> int:
         """
         count the gate number of the circuit
@@ -456,11 +478,24 @@ class AbstractCircuit:
         if gate_list is None:
             return len(self._qir)
         else:
+            gate_list = [self.standardize_gate(g) for g in gate_list]
             c = 0
             for d in self._qir:
                 if d["name"] in gate_list:
                     c += 1
             return c
+
+    def gate_summary(self) -> Dict[str, int]:
+        """
+        return the summary dictionary on gate type - gate count pair
+
+        :return: the gate count dict by gate type
+        :rtype: Dict[str, int]
+        """
+        summary: Dict[str, int] = {}
+        for d in self._qir:
+            summary[d["name"]] = summary.get(d["name"], 0) + 1
+        return summary
 
     def to_qiskit(self) -> Any:
         """

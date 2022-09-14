@@ -22,6 +22,10 @@
 
 - Add `gate_count` method on `AbstractCircuit` to count gates of given type in the circuit
 
+- Add `gate_summary` method on `AbstractCircuit` to count gate by type as a dict
+
+- Add ccx as another alias for toffoli gate
+
 ### Fixed
 
 - Make every gate function can be accessed via name by `getattr(tc.gates, name + "_gate")`
