@@ -22,6 +22,9 @@ def gate_list(param):
         tc.gates.Gate(np.kron(tc.gates._y_matrix, np.eye(2))),
         tc.gates.Gate(np.kron(tc.gates._z_matrix, np.eye(2))),
         tc.gates.Gate(np.kron(tc.gates._h_matrix, np.eye(2))),
+        tc.gates.rx_gate.ided(before=False)(theta=param),
+        tc.gates.ry_gate.ided(before=False)(theta=param),
+        tc.gates.rz_gate.ided(before=False)(theta=param),
         tc.gates.exp1_gate(theta=param, unitary=tc.gates._xx_matrix),
         tc.gates.exp1_gate(theta=param, unitary=tc.gates._yy_matrix),
         tc.gates.exp1_gate(theta=param, unitary=tc.gates._zz_matrix),
@@ -54,7 +57,7 @@ batch_structure = 2
 batch_weights = 8
 depth = 2
 structure1 = np.array([[0, 1, 0, 5, 0, 6], [6, 0, 6, 0, 6, 0]])
-structure2 = np.array([[0, 1, 0, 5, 0, 6], [5, 0, 5, 0, 5, 0]])
+structure2 = np.array([[0, 1, 0, 5, 0, 6], [9, 0, 8, 0, 3, 0]])
 structure = tc.backend.stack([structure1, structure2])
 structure = tc.backend.cast(structure, "int32")
 weights = tc.backend.implicit_randn(shape=[batch_structure, batch_weights, depth, n])
