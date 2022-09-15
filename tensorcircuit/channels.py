@@ -312,11 +312,17 @@ def thermalrelaxationchannel(
     t1: float,
     t2: float,
     time: float,
-    method: str = "general",
+    method: str = "ByChoi",
     excitedstatepopulation: float = 0.0,
 ) -> Sequence[Gate]:
     r"""
     Return a thermal_relaxation_channel
+
+
+    :Example:
+
+    >>> cs = thermalrelaxationchannel(100,200,100,"AUTO",0.1)
+    >>> tc.channels.single_qubit_kraus_identity_check(cs)
 
     :param t1: the T1 relaxation time.
     :type t1: float
@@ -324,7 +330,9 @@ def thermalrelaxationchannel(
     :type t2: float
     :param time: gate time
     :type time: float
-    :param method: method to express error (default: "general")
+    :param method: method to express error (default: "ByChoi"). When :math:`T1>T2`, choose method "ByKraus"
+        or "ByChoi" for jit. When :math:`T1<T2`,choose method "ByChoi" for jit. Users can also set method
+        as "AUTO" and never mind the relative magnitude of :math:`T1,T2`, which is not jitable.
     :type time: str
     :param excitedstatepopulation: the population of  state :math:`|1\rangle` at equilibrium (default: 0)
     :type excited_state_population: float, optional
@@ -349,7 +357,9 @@ def thermalrelaxationchannel(
     p0 = backend.cast(array_to_tensor(p0), dtype=cons.dtypestr)
     p1 = backend.cast(array_to_tensor(p1), dtype=cons.dtypestr)
 
-    if method == "T1dom":
+    if method == "ByKraus" or (
+        method == "AUTO" and backend.real(t1) > backend.real(t2)
+    ):
         # jit avaliable
         m0 = backend.convert_to_tensor(
             np.array([[1, 0], [0, 0]], dtype=cons.npdtype)
@@ -386,7 +396,9 @@ def thermalrelaxationchannel(
             Gkraus.append(Gate(_sqrt(pro) * paugate))
         return Gkraus
 
-    else:  # method == "general" or method == "T2dom":
+    elif method == "ByChoi" or (
+        method == "AUTO" and backend.real(t2) >= backend.real(t1)
+    ):
         # jit avaliable
         choi = (1 - p1 * p_reset) * backend.convert_to_tensor(
             np.array(
@@ -428,6 +440,9 @@ def thermalrelaxationchannel(
 
         listKraus = choi_to_kraus(choi, truncation_rules={"max_singular_values": nmax})
         return [Gate(i) for i in listKraus]
+
+    else:
+        raise ValueError("No valid method is provided")
 
 
 def _collect_channels() -> Sequence[str]:

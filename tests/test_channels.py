@@ -86,19 +86,19 @@ def test_thermal(backend):
     time = 100
 
     t1 = 180
-    kraus = tc.channels.thermalrelaxationchannel(t1, t2, time, "general", 0.1)
+    kraus = tc.channels.thermalrelaxationchannel(t1, t2, time, "AUTO", 0.1)
     supop1 = tc.channels.kraus_to_super(kraus)
 
-    kraus = tc.channels.thermalrelaxationchannel(t1, t2, time, "T1dom", 0.1)
+    kraus = tc.channels.thermalrelaxationchannel(t1, t2, time, "ByKraus", 0.1)
     supop2 = tc.channels.kraus_to_super(kraus)
 
     np.testing.assert_allclose(supop1, supop2, atol=1e-5)
 
     t1 = 80
-    kraus = tc.channels.thermalrelaxationchannel(t1, t2, time, "general", 0.1)
+    kraus = tc.channels.thermalrelaxationchannel(t1, t2, time, "AUTO", 0.1)
     supop1 = tc.channels.kraus_to_super(kraus)
 
-    kraus = tc.channels.thermalrelaxationchannel(t1, t2, time, "T2dom", 0.1)
+    kraus = tc.channels.thermalrelaxationchannel(t1, t2, time, "ByChoi", 0.1)
     supop2 = tc.channels.kraus_to_super(kraus)
 
     np.testing.assert_allclose(supop1, supop2, atol=1e-5)
@@ -113,14 +113,14 @@ def test_noisecircuit(backend):
         n = 1
         c = tc.Circuit(n)
         c.x(0)
-        # noise = tc.channels.thermalrelaxationchannel(300, 400, 1000, "T2dom", 0)
+        # noise = tc.channels.thermalrelaxationchannel(300, 400, 1000, "AUTO", 0)
         # c.general_kraus(noise, 0, status=X)
         c.thermalrelaxation(
             0,
             t1=300,
             t2=400,
             time=1000,
-            method="T2dom",
+            method="ByChoi",
             excitedstatepopulation=0,
             status=X,
         )
@@ -131,7 +131,7 @@ def test_noisecircuit(backend):
     noisec_vmap = tc.backend.vmap(noisecircuit, vectorized_argnums=0)
     noisec_jit = tc.backend.jit(noisec_vmap)
 
-    nmc = 1000
+    nmc = 10000
     X = tc.backend.implicit_randu(nmc)
     valuemc = sum(tc.backend.numpy(noisec_jit(X))) / nmc
 
@@ -141,7 +141,7 @@ def test_noisecircuit(backend):
         dmc = tc.DMCircuit(n)
         dmc.x(0)
         dmc.thermalrelaxation(
-            0, t1=300, t2=400, time=1000, method="T2dom", excitedstatepopulation=0
+            0, t1=300, t2=400, time=1000, method="ByChoi", excitedstatepopulation=0
         )
         val = dmc.expectation_ps(z=[0])
         return val
