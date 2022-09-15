@@ -330,8 +330,8 @@ def thermalrelaxationchannel(
     :type t2: float
     :param time: gate time
     :type time: float
-    :param method: method to express error (default: "ByChoi"). When :math:`T1>T2`, choose method "ByKraus" 
-        or "ByChoi" for jit. When :math:`T1<T2`,choose method "ByChoi" for jit. Users can also set method 
+    :param method: method to express error (default: "ByChoi"). When :math:`T1>T2`, choose method "ByKraus"
+        or "ByChoi" for jit. When :math:`T1<T2`,choose method "ByChoi" for jit. Users can also set method
         as "AUTO" and never mind the relative magnitude of :math:`T1,T2`, which is not jitable.
     :type time: str
     :param excitedstatepopulation: the population of  state :math:`|1\rangle` at equilibrium (default: 0)
