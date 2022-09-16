@@ -39,6 +39,7 @@ vgates = [
     "rxx",
     "ryy",
     "rzz",
+    "cphase",
     "crx",
     "cry",
     "crz",

@@ -58,6 +58,25 @@ def test_ided_gate():
     )
 
 
+def test_fsim_gate():
+    theta = 0.2
+    phi = 0.3
+    c = tc.Circuit(2)
+    c.iswap(0, 1, theta=-theta)
+    c.cphase(0, 1, theta=-phi)
+    m = c.matrix()
+    ans = np.array(
+        [
+            [1.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+            [0.0 + 0.0j, 0.95105654 + 0.0j, 0.0 - 0.309017j, 0.0 + 0.0j],
+            [0.0 + 0.0j, 0.0 - 0.309017j, 0.95105654 + 0.0j, 0.0 + 0.0j],
+            [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.9553365 - 0.29552022j],
+        ]
+    )
+    np.testing.assert_allclose(m, ans, atol=1e-5)
+    print(m)
+
+
 def test_exp_gate():
     c = tc.Circuit(2)
     c.exp(

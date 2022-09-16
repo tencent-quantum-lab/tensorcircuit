@@ -963,7 +963,7 @@ def meta_vgate() -> None:
     ]:
         for funcname in [f, f + "gate", f + "_gate"]:
             setattr(thismodule, funcname, GateVF(getattr(thismodule, f + "_gate"), f))
-    for f in ["cu", "crx", "cry", "crz"]:
+    for f in ["cu", "crx", "cry", "crz", "cphase"]:
         for funcname in [f, f + "gate", f + "_gate"]:
             setattr(thismodule, funcname, getattr(thismodule, f[1:]).controlled())
     for f in ["ox", "oy", "oz", "orx", "ory", "orz"]:

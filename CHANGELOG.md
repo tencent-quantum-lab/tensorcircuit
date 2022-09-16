@@ -10,7 +10,7 @@
 
 - Add alias for `sd` and `td` gate
 
-- Add `phase` gate for the circuit
+- Add `phase` gate and `cphase` gate for the circuit
 
 - Add U gate and CU gate following OpenQASM 3.0 convention
 
