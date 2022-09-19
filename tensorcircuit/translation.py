@@ -387,7 +387,7 @@ def json2qir(tcqasm: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         if "matrix" in d:
             gatem = json_to_tensor(d["matrix"])
         else:
-            gatem = getattr(gates, d["name"] + "_gate")(**param)
+            gatem = getattr(gates, d["name"])(**param)
         qir.append(
             {
                 "gate": gatem,
@@ -395,7 +395,7 @@ def json2qir(tcqasm: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                 "mpo": d.get("mpo", False),
                 "split": {},
                 "parameters": param,
-                "gatef": getattr(gates, d["name"] + "_gate"),
+                "gatef": getattr(gates, d["name"]),
                 "name": d["name"],
             }
         )

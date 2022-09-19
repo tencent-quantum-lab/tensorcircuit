@@ -28,8 +28,6 @@
 
 ### Fixed
 
-- Make every gate function can be accessed via name by `getattr(tc.gates, name + "_gate")`
-
 - Move `iswap` gate to vgates list
 
 - Fix possible bug when vmap is nested in different order (only affect tensorflow backend)

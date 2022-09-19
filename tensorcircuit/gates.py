@@ -961,19 +961,19 @@ def meta_vgate() -> None:
         "rxx",
         "ryy",
     ]:
-        for funcname in [f, f + "gate", f + "_gate"]:
+        for funcname in [f, f + "gate"]:
             setattr(thismodule, funcname, GateVF(getattr(thismodule, f + "_gate"), f))
     for f in ["cu", "crx", "cry", "crz", "cphase"]:
-        for funcname in [f, f + "gate", f + "_gate"]:
+        for funcname in [f, f + "gate"]:
             setattr(thismodule, funcname, getattr(thismodule, f[1:]).controlled())
     for f in ["ox", "oy", "oz", "orx", "ory", "orz"]:
-        for funcname in [f, f + "gate", f + "_gate"]:
+        for funcname in [f, f + "gate"]:
             setattr(thismodule, funcname, getattr(thismodule, f[1:]).ocontrolled())
     for f in ["sd", "td"]:
-        for funcname in [f, f + "gate", f + "_gate"]:
+        for funcname in [f, f + "gate"]:
             setattr(thismodule, funcname, getattr(thismodule, f[:-1]).adjoint())
     for f in ["multicontrol", "mpo"]:  # mpo type gate
-        for funcname in [f, f + "gate", f + "_gate"]:
+        for funcname in [f, f + "gate"]:
             setattr(thismodule, funcname, GateVF(getattr(thismodule, f + "_gate"), f))
 
 
