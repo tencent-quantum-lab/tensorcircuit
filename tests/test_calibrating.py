@@ -21,7 +21,7 @@ def fit_function(x_values, y_values, function, init_params):
 def T1_cali(t1, t2, time, method, excitedstatepopulation):
 
     # calibrating experiments
-    nstep = int(4 * t2 / time)
+    nstep = int(4 * t1 / time)
     pex = []
     for i in range(nstep):
 
