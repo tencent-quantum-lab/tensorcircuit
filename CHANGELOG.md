@@ -26,6 +26,12 @@
 
 - Add ccx as another alias for toffoli gate
 
+### Changed
+
+- Seperate channel auto register for circuit class with unitary and general case
+
+- The old standlone depolarizing implementation can now be called via `c.depolarizing_reference`
+
 ### Fixed
 
 - Move `iswap` gate to vgates list
@@ -35,6 +41,8 @@
 - Fix bug when multi input function accept the same variable in different args and gradient or jvp/vjp is required (only affect tensorflow backend)
 
 - Fix the use of rev over rev jacobian for hessian method and back to the efficient solution of fwd over rev order due to the solution of nested vmap issue on tf backend
+
+- Identify potential bug in `unitary_kraus2` implementation, change to `unitary_kraus` instead
 
 ## 0.4.0
 
