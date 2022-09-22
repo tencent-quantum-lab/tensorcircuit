@@ -255,7 +255,7 @@ class Circuit(BaseCircuit):
         # building time and running time are similar
 
     # overwritten now, deprecated
-    def depolarizing(
+    def depolarizing_reference(
         self,
         index: int,
         *,
@@ -321,6 +321,8 @@ class Circuit(BaseCircuit):
         status: Optional[float] = None,
         name: Optional[str] = None,
     ) -> Tensor:
+        # dont use, has issue conflicting with vmap, concurrent access lock emerged
+        # potential issue raised from switch
         # general impl from Monte Carlo trajectory depolarizing above
         # still jittable
         # speed is similar to ``unitary_kraus``
@@ -545,7 +547,7 @@ class Circuit(BaseCircuit):
             for w, k in zip(prob, kraus_tensor)
         ]
 
-        return self.unitary_kraus2(
+        return self.unitary_kraus(
             new_kraus, *index, prob=prob, status=status, name=name
         )
 
@@ -579,7 +581,7 @@ class Circuit(BaseCircuit):
 
     @staticmethod
     def apply_general_kraus_delayed(
-        krausf: Callable[..., Sequence[Gate]]
+        krausf: Callable[..., Sequence[Gate]], is_unitary: bool = False
     ) -> Callable[..., None]:
         def apply(
             self: "Circuit",
@@ -589,17 +591,26 @@ class Circuit(BaseCircuit):
             **vars: float,
         ) -> None:
             kraus = krausf(**vars)
-            self.apply_general_kraus(kraus, *index, status=status, name=name)
+            if not is_unitary:
+                self.apply_general_kraus(kraus, *index, status=status, name=name)
+            else:
+                self.unitary_kraus(kraus, *index, status=status, name=name)
 
         return apply
 
     @classmethod
     def _meta_apply_channels(cls) -> None:
         for k in channels.channels:
+            if k in ["depolarizing", "generaldepolarizing"]:
+                is_unitary = True
+            else:
+                is_unitary = False
             setattr(
                 cls,
                 k,
-                cls.apply_general_kraus_delayed(getattr(channels, k + "channel")),
+                cls.apply_general_kraus_delayed(
+                    getattr(channels, k + "channel"), is_unitary=is_unitary
+                ),
             )
             doc = """
             Apply %s quantum channel on the circuit.

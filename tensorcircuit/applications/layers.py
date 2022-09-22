@@ -213,8 +213,8 @@ def generate_double_gate_layer_bitflip_mc(gates: str) -> None:
                 qubit2,
                 -symbol0 * g[e[0]][e[1]].get("weight", 1.0) * 2,
             )  ## should be better as * 2 # e^{-i\theta H}, H=-ZZ
-            circuit.depolarizing(e[0], px=params[0], py=params[1], pz=params[2])
-            circuit.depolarizing(e[1], px=params[0], py=params[1], pz=params[2])
+            circuit.depolarizing(e[0], px=params[0], py=params[1], pz=params[2])  # type: ignore
+            circuit.depolarizing(e[1], px=params[0], py=params[1], pz=params[2])  # type: ignore
         return circuit
 
     f.__doc__ = """%slayer_bitflip_mc""" % gates
@@ -238,8 +238,8 @@ def generate_any_double_gate_layer_bitflip_mc(gates: str) -> None:
                 -symbol[i] * g[e[0]][e[1]].get("weight", 1.0) * 2,  # type: ignore
             )
             ## should be better as * 2 # e^{-i\theta H}, H=-ZZ
-            circuit.depolarizing(e[0], px=params[0], py=params[1], pz=params[2])
-            circuit.depolarizing(e[1], px=params[0], py=params[1], pz=params[2])
+            circuit.depolarizing(e[0], px=params[0], py=params[1], pz=params[2])  # type: ignore
+            circuit.depolarizing(e[1], px=params[0], py=params[1], pz=params[2])  # type: ignore
         return circuit
 
     f.__doc__ = """any%slayer_bitflip_mc""" % gates
@@ -288,8 +288,8 @@ def anyswaplayer_bitflip_mc(
             unitary=array_to_tensor(_swap_matrix),
             theta=symbol[i] * g[e[0]][e[1]].get("weight", 1.0),
         )
-        circuit.depolarizing(e[0], px=px, py=py, pz=pz)
-        circuit.depolarizing(e[1], px=px, py=py, pz=pz)
+        circuit.depolarizing(e[0], px=px, py=py, pz=pz)  # type: ignore
+        circuit.depolarizing(e[1], px=px, py=py, pz=pz)  # type: ignore
     return circuit
 
 
@@ -324,7 +324,7 @@ def bitfliplayer(ci: DMCircuit, g: Graph, px: float, py: float, pz: float) -> No
 def bitfliplayer_mc(ci: Circuit, g: Graph, px: float, py: float, pz: float) -> None:
     n = len(g.nodes)
     for i in range(n):
-        ci.depolarizing(i, px=px, py=py, pz=pz)
+        ci.depolarizing(i, px=px, py=py, pz=pz)  # type: ignore
     bitfliplayer.__repr__ = """bitfliplayer_mc"""  # type: ignore
     bitfliplayer.__trainable__ = True  # type: ignore
 
