@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.4.1
+
 ### Added
 
 - Add support for weighted graph QAOA in `tc.templates.blocks.QAOA_block`
@@ -30,7 +32,7 @@
 
 - Seperate channel auto register for circuit class with unitary and general case
 
-- The old standlone depolarizing implementation can now be called via `c.depolarizing_reference`
+- The old standalone depolarizing implementation can now be called via `c.depolarizing_reference`
 
 ### Fixed
 
