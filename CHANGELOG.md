@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixed
+
+- Fixed the breaking change introduced in jax 0.3.18, `jax._src` is no longer imported into the from the public jax namespace.
+
 ## 0.4.1
 
 ### Added

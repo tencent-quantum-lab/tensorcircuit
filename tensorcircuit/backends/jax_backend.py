@@ -440,7 +440,7 @@ class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
             g = getattr(self, "g", None)
         try:
             key, subkey = libjax.random.split(g)
-        except libjax._src.errors.UnexpectedTracerError:
+        except libjax.errors.UnexpectedTracerError:
             self.set_random_state()
             g = getattr(self, "g", None)
             key, subkey = libjax.random.split(g)
@@ -462,7 +462,7 @@ class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
             g = getattr(self, "g", None)
         try:
             key, subkey = libjax.random.split(g)
-        except libjax._src.errors.UnexpectedTracerError:
+        except libjax.errors.UnexpectedTracerError:
             self.set_random_state()
             g = getattr(self, "g", None)
             key, subkey = libjax.random.split(g)
@@ -482,7 +482,7 @@ class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
             g = getattr(self, "g", None)
         try:
             key, subkey = libjax.random.split(g)
-        except libjax._src.errors.UnexpectedTracerError:
+        except libjax.errors.UnexpectedTracerError:
             self.set_random_state()
             g = getattr(self, "g", None)
             key, subkey = libjax.random.split(g)
