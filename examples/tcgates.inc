@@ -88,7 +88,8 @@ gate fredkin a, b, c {cswap a, b, c; }
 gate cnot a, b {cx a, b; }
 gate sd a, b {sdg a, b; }
 gate td a, b {tdg a, b; }
-gate phase(λ) a { ctrl @ gphase(λ) a; }
+// gate phase(λ) a { ctrl @ gphase(λ) a; }
+// double check whether phase and p is consistent
 
 
 // Neg control gates
