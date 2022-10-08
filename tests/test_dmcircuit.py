@@ -498,6 +498,7 @@ def test_dm_sexpps(backend):
     ye = c.expectation_ps(x=[1], y=[0], z=[2, 3])
     np.testing.assert_allclose(ye, y, atol=1e-5)
     y2 = c.sample_expectation_ps(x=[1], y=[0], z=[2, 3], shots=81920)
+    print(y, y2)
     assert np.abs(y2 - y) < 0.015
 
 

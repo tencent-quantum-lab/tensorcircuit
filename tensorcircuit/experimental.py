@@ -258,3 +258,78 @@ def parameter_shift_grad(
         return grad_values[0]
 
     return grad_f
+
+
+def parameter_shift_grad_v2(
+    f: Callable[..., Tensor],
+    argnums: Union[int, Sequence[int]] = 0,
+    jit: bool = False,
+    random_argnums: Optional[Sequence[int]] = None,
+) -> Callable[..., Tensor]:
+    """
+    similar to `grad` function but using parameter shift internally instead of AD,
+    vmap is utilized for evaluation, so the speed is still ok
+
+    :param f: quantum function with weights in and expectation out
+    :type f: Callable[..., Tensor]
+    :param argnums: label which args should be differentiated,
+        defaults to 0
+    :type argnums: Union[int, Sequence[int]], optional
+    :param jit: whether jit the original function `f` at the beginning,
+        defaults to False
+    :type jit: bool, optional
+    :return: the grad function
+    :rtype: Callable[..., Tensor]
+    """
+    # TODO(@refraction-ray): finite shot sample_expectation_ps not supported well for now
+    if jit is True:
+        f = backend.jit(f)
+
+    if isinstance(argnums, int):
+        argnums = [argnums]
+
+    if random_argnums is None:
+        vfs = [backend.vmap(f, vectorized_argnums=i) for i in argnums]
+    else:
+        if isinstance(random_argnums, int):
+            random_argnums = [random_argnums]
+        vfs = [
+            backend.vmap(f, vectorized_argnums=[i] + random_argnums) for i in argnums  # type: ignore
+        ]
+
+    def grad_f(*args: Any, **kws: Any) -> Any:
+        grad_values = []
+        for i in argnums:  # type: ignore
+            shape = backend.shape_tuple(args[i])
+            size = backend.sizen(args[i])
+            onehot = backend.eye(size)
+            onehot = backend.cast(onehot, args[i].dtype)
+            onehot = backend.reshape(onehot, [size] + list(shape))
+            onehot = np.pi / 2 * onehot
+            nargs = list(args)
+            arg = backend.reshape(args[i], [1] + list(shape))
+            batched_arg = backend.tile(arg, [size] + [1 for _ in shape])
+            nargs[i] = batched_arg + onehot
+            nargs2 = list(args)
+            nargs2[i] = batched_arg - onehot
+            if random_argnums is not None:
+                for j in random_argnums:
+                    keys = []
+                    key = args[j]
+                    for _ in range(size):
+                        key, subkey = backend.random_split(key)
+                        keys.append(subkey)
+                    nargs[j] = backend.stack(keys)
+                    keys = []
+                    for _ in range(size):
+                        key, subkey = backend.random_split(key)
+                        keys.append(subkey)
+                    nargs2[j] = backend.stack(keys)
+            r = (vfs[i](*nargs, **kws) - vfs[i](*nargs2, **kws)) / 2.0
+            r = backend.reshape(r, shape)
+            grad_values.append(r)
+        if len(argnums) > 1:  # type: ignore
+            return tuple(grad_values)
+        return grad_values[0]
+
+    return grad_f

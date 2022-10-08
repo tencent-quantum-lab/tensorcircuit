@@ -2,9 +2,19 @@
 
 ## Unreleased
 
+### Added
+
+- Add new parameter shift gradient API that supports finite measurement shots and the corresponding example scripts
+
+### Changed
+
+- The inner mechanism for `sample_expectation_ps` is changed to sample representation from count representation for a fast speed
+
 ### Fixed
 
 - Fixed the breaking change introduced in jax 0.3.18, `jax._src` is no longer imported into the from the public jax namespace.
+
+- `tc.quantum.correlation_from_samples` now fix the sign error with odd number of spins
 
 ## 0.4.1
 

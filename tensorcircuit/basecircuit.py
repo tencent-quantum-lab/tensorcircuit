@@ -14,6 +14,7 @@ from . import gates
 from .quantum import (
     QuOperator,
     QuVector,
+    correlation_from_samples,
     correlation_from_counts,
     measurement_counts,
     sample_int2bin,
@@ -635,23 +636,34 @@ class BaseCircuit(AbstractCircuit):
         for i in y:
             c.rx(i, theta=np.pi / 2)  # type: ignore
         s = c.state()  # type: ignore
-        if c.is_dm is False:
+        if self.is_dm is False:
             p = backend.abs(s) ** 2
         else:
             p = backend.abs(backend.diagonal(s))
         # readout error can be processed here later
-        mc = measurement_counts(
-            p,
-            counts=shots,
-            format="count_vector",
-            random_generator=random_generator,
-            jittable=True,
-            is_prob=True,
-        )
         x = list(x)
         y = list(y)
         z = list(z)
-        r = correlation_from_counts(x + y + z, mc)
+        if shots is None:
+            mc = measurement_counts(
+                p,
+                counts=shots,
+                format="count_vector",
+                random_generator=random_generator,
+                jittable=True,
+                is_prob=True,
+            )
+            r = correlation_from_counts(x + y + z, mc)
+        else:
+            mc = measurement_counts(
+                p,
+                counts=shots,
+                format="sample_bin",
+                random_generator=random_generator,
+                jittable=True,
+                is_prob=True,
+            )
+            r = correlation_from_samples(x + y + z, mc, self._nqubits)
         # TODO(@refraction-ray): analytical standard deviation
         return r
 
