@@ -73,7 +73,7 @@ def exp_val_analytical(param):
 
 
 @partial(K.jit, static_argnums=2)
-def exp_val(param, key, shots=40960):
+def exp_val(param, key, shots=4096):
     # from circuit parameter to expectation
     c = generate_circuit(param)
     return sample_exp(c, ps, w, shots, key=key)
@@ -89,12 +89,13 @@ r1 = exp_val(K.ones([n, nlayers, 2], dtype="float32"), K.get_random_state(42))
 r2 = exp_val_analytical(K.ones([n, nlayers, 2], dtype="float32"))
 np.testing.assert_allclose(r1, r2, atol=0.05, rtol=0.01)
 print("correctness check passed for expectation value")
-gradf1 = K.jit(E.parameter_shift_grad_v2(exp_val, argnums=0, random_argnums=1))
+gradf1 = E.parameter_shift_grad_v2(exp_val, argnums=0, random_argnums=1)
 gradf2 = K.jit(K.grad(exp_val_analytical))
 print("benchmarking sample gradient")
 tc.utils.benchmark(
     gradf1, K.ones([n, nlayers, 2], dtype="float32"), K.get_random_state(42)
 )
+# n=12, nlayers=4, 276s + 0.75s
 print("benchmarking analytical gradient")
 tc.utils.benchmark(gradf2, K.ones([n, nlayers, 2], dtype="float32"))
 r1 = gradf1(K.ones([n, nlayers, 2], dtype="float32"), K.get_random_state(42))
