@@ -7,6 +7,7 @@ import tensorcircuit as tc
 from tensorcircuit import experimental as E
 
 K = tc.set_backend("jax")
+# note this script only supports jax backend
 
 n = 5
 nlayers = 4
@@ -95,7 +96,7 @@ print("benchmarking sample gradient")
 tc.utils.benchmark(
     gradf1, K.ones([n, nlayers, 2], dtype="float32"), K.get_random_state(42)
 )
-# n=12, nlayers=4, 276s + 0.75s
+# n=12, nlayers=4, 276s + 0.75s, mac CPU
 print("benchmarking analytical gradient")
 tc.utils.benchmark(gradf2, K.ones([n, nlayers, 2], dtype="float32"))
 r1 = gradf1(K.ones([n, nlayers, 2], dtype="float32"), K.get_random_state(42))
