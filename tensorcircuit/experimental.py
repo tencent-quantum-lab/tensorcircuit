@@ -268,7 +268,9 @@ def parameter_shift_grad_v2(
 ) -> Callable[..., Tensor]:
     """
     similar to `grad` function but using parameter shift internally instead of AD,
-    vmap is utilized for evaluation, so the speed is still ok
+    vmap is utilized for evaluation, v2 also supports random generator for finite
+    measurememt shot, only jax backend is supported, since no vmap randomness is
+    available in tensorflow
 
     :param f: quantum function with weights in and expectation out
     :type f: Callable[..., Tensor]
