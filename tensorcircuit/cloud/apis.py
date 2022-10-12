@@ -46,6 +46,12 @@ class Provider:
             )
         return p
 
+    def set_token(self, token: str, cached: bool = True) -> Any:
+        return set_token(token, self, cached=cached)
+
+    def get_token(self) -> str:
+        return get_token(self)  # type: ignore
+
 
 class Device:
     def __init__(self, name: str, lower: bool = False):
@@ -177,5 +183,29 @@ def set_token(
 
 
 set_token()
+
+
+@partial(
+    convert_provider_device,
+    provider_argnums=1,
+    provider_kws="provider",
+    device_argnums=2,
+    device_kws="device",
+)
+def get_token(
+    provider: Optional[str] = None,
+    device: Optional[str] = None,
+) -> str:
+    if provider is None:
+        provider = Provider.from_name("tencent")  # type: ignore
+    target = provider.name + "~"  # type: ignore
+    if device is not None:
+        target = target + device.name  # type: ignore
+    for k, v in saved_token.items():
+        if k == target:
+            return v  # type: ignore
+    return ""
+
+
 # token json structure
 # {"tencent~": token1, "tencent~20xmon":  token2}
