@@ -9,72 +9,12 @@ import json
 import os
 import sys
 
+from .abstraction import Provider, Device
+from . import tencent
 from ..cons import backend
 
 package_name = "tensorcircuit"
 thismodule = sys.modules[__name__]
-
-
-class Provider:
-    activated_provider: Dict[str, "Provider"] = {}
-
-    def __init__(self, name: str, lower: bool = True):
-        if lower is True:
-            name = name.lower()
-        self.name = name
-
-    def __str__(self) -> str:
-        return self.name
-
-    __repr__ = __str__
-
-    @classmethod
-    def from_name(cls, provider: Union[str, "Provider"] = "tencent") -> "Provider":
-        if provider is None:
-            provider = "tencent"
-        if isinstance(provider, cls):
-            p = provider
-        elif isinstance(provider, str):
-            if provider in cls.activated_provider:
-                return cls.activated_provider[provider]
-            else:
-                p = cls(provider)
-                cls.activated_provider[provider] = p
-        else:
-            raise ValueError(
-                "Unsupported format for `provider` argument: %s" % provider
-            )
-        return p
-
-    def set_token(self, token: str, cached: bool = True) -> Any:
-        return set_token(token, self, cached=cached)
-
-    def get_token(self) -> str:
-        return get_token(self)  # type: ignore
-
-
-class Device:
-    def __init__(self, name: str, lower: bool = False):
-        if lower is True:
-            name = name.lower()
-        self.name = name
-
-    def __str__(self) -> str:
-        return self.name
-
-    __repr__ = __str__
-
-    @classmethod
-    def from_name(cls, device: Optional[Union[str, "Device"]] = None) -> "Device":
-        if device is None:
-            raise ValueError("Must specify on device instead of default ``None``")
-        if isinstance(device, cls):
-            d = device
-        elif isinstance(device, str):
-            d = cls(device)
-        else:
-            raise ValueError("Unsupported format for `provider` argument: %s" % device)
-        return d
 
 
 def convert_provider_device(
@@ -117,7 +57,9 @@ def convert_provider_device(
 
 
 @partial(convert_provider_device, provider_argnums=0, provider_kws="provider")
-def set_provider(provider: Optional[str] = None, set_global: bool = True) -> Provider:
+def set_provider(
+    provider: Optional[Union[str, Provider]] = None, set_global: bool = True
+) -> Provider:
     if set_global:
         for module in sys.modules:
             if module.startswith(package_name):
@@ -148,8 +90,8 @@ saved_token: Dict[str, Any] = {}
 )
 def set_token(
     token: Optional[str] = None,
-    provider: Optional[str] = None,
-    device: Optional[str] = None,
+    provider: Optional[Union[str, Provider]] = None,
+    device: Optional[Union[str, Device]] = None,
     cached: bool = True,
 ) -> Dict[str, Any]:
     global saved_token
@@ -193,9 +135,9 @@ set_token()
     device_kws="device",
 )
 def get_token(
-    provider: Optional[str] = None,
-    device: Optional[str] = None,
-) -> str:
+    provider: Optional[Union[str, Provider]] = None,
+    device: Optional[Union[str, Device]] = None,
+) -> Optional[str]:
     if provider is None:
         provider = Provider.from_name("tencent")  # type: ignore
     target = provider.name + "~"  # type: ignore
@@ -204,8 +146,24 @@ def get_token(
     for k, v in saved_token.items():
         if k == target:
             return v  # type: ignore
-    return ""
+    return None
 
 
 # token json structure
 # {"tencent~": token1, "tencent~20xmon":  token2}
+
+
+@partial(
+    convert_provider_device,
+    provider_argnums=0,
+    provider_kws="provider",
+)
+def list_devices(
+    provider: Optional[Union[str, Provider]] = None, token: Optional[str] = None
+) -> Any:
+    if provider is None:
+        provider = Provider.from_name("tencent")
+    if provider.name == "tencent":  # type: ignore
+        tencent.list_devices(provider, token)  # type: ignore
+    else:
+        raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
