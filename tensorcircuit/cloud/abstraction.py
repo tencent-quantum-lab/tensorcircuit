@@ -46,6 +46,11 @@ class Provider:
 
         return get_token(self)  # type: ignore
 
+    def list_devices(self) -> Any:
+        from .apis import list_devices
+
+        return list_devices(self)
+
 
 class Device:
     def __init__(self, name: str, lower: bool = True):
@@ -78,14 +83,11 @@ class Device:
 
         return set_token(token, provider=self.provider, device=self, cached=cached)
 
-    def get_token(self) -> str:
+    def get_token(self) -> Optional[str]:
         from .apis import get_token
 
         s = get_token(provider=self.provider, device=self)
         if s is not None:
             return s  # type: ignore
         # fallback to provider default
-        s = get_token(provider=self.provider)
-        if s is not None:
-            return s  # type: ignore
-        raise LookupError("no token for device: %s" % self.name)
+        return get_token(provider=self.provider)  # type: ignore

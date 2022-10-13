@@ -60,6 +60,8 @@ def convert_provider_device(
 def set_provider(
     provider: Optional[Union[str, Provider]] = None, set_global: bool = True
 ) -> Provider:
+    if provider is None:
+        provider = Provider.from_name("tencent")
     if set_global:
         for module in sys.modules:
             if module.startswith(package_name):
@@ -163,7 +165,9 @@ def list_devices(
 ) -> Any:
     if provider is None:
         provider = Provider.from_name("tencent")
+    if token is None:
+        token = provider.get_token()  # type: ignore
     if provider.name == "tencent":  # type: ignore
-        tencent.list_devices(provider, token)  # type: ignore
+        return tencent.list_devices(token)  # type: ignore
     else:
         raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
