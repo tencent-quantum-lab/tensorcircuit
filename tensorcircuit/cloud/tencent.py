@@ -6,6 +6,7 @@ from typing import Any, Dict, Optional
 
 from .config import tencent_base_url
 from .utils import rpost_json
+from .abstraction import Device, sep
 
 
 def tencent_headers(token: Optional[str] = None) -> Dict[str, str]:
@@ -20,4 +21,8 @@ def list_devices(token: Optional[str] = None) -> Any:
     r = rpost_json(
         tencent_base_url + "device/find", json=json, headers=tencent_headers(token)
     )
-    return r["devices"]
+    ds = r["devices"]
+    rs = []
+    for d in ds:
+        rs.append(Device.from_name("tencent" + sep + d["id"]))
+    return rs

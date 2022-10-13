@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional, Union
 
 
 class Provider:
-    activated_provider: Dict[str, "Provider"] = {}
+    activated_providers: Dict[str, "Provider"] = {}
 
     def __init__(self, name: str, lower: bool = True):
         if lower is True:
@@ -25,11 +25,11 @@ class Provider:
         if isinstance(provider, cls):
             p = provider
         elif isinstance(provider, str):
-            if provider in cls.activated_provider:
-                return cls.activated_provider[provider]
+            if provider in cls.activated_providers:
+                return cls.activated_providers[provider]
             else:
                 p = cls(provider)
-                cls.activated_provider[provider] = p
+                cls.activated_providers[provider] = p
         else:
             raise ValueError(
                 "Unsupported format for `provider` argument: %s" % provider
@@ -51,29 +51,59 @@ class Provider:
 
         return list_devices(self)
 
+    def get_device(self, device: Optional[Union[str, "Device"]]) -> "Device":
+        from .apis import get_device
+
+        return get_device(self, device)
+
+
+sep = "::"
+
 
 class Device:
-    def __init__(self, name: str, lower: bool = True):
+    activated_devices: Dict[str, "Device"] = {}
+
+    def __init__(
+        self,
+        name: str,
+        provider: Optional[Union[str, Provider]] = None,
+        lower: bool = True,
+    ):
         if lower is True:
             name = name.lower()
-        if len(name.split("~")) == 1:
-            name = "tencent" + name  # default provider
-        self.name = name.split("~")[1]
-        self.provider = Provider.from_name(name.split("~")[0])
+        if provider is not None:
+            self.provider = Provider.from_name(provider)
+            if len(name.split(sep)) > 1:
+                self.name = name.split(sep)[1]
+            else:
+                self.name = name
+        else:  # no explicit provider
+            if len(name.split(sep)) == 1:
+                name = "tencent" + sep + name  # default provider
+            self.name = name.split(sep)[1]
+            self.provider = Provider.from_name(name.split(sep)[0])
 
     def __str__(self) -> str:
-        return self.name
+        return self.provider.name + sep + self.name
 
     __repr__ = __str__
 
     @classmethod
-    def from_name(cls, device: Optional[Union[str, "Device"]] = None) -> "Device":
+    def from_name(
+        cls,
+        device: Optional[Union[str, "Device"]] = None,
+        provider: Optional[Union[str, Provider]] = None,
+    ) -> "Device":
         if device is None:
             raise ValueError("Must specify on device instead of default ``None``")
         if isinstance(device, cls):
             d = device
         elif isinstance(device, str):
-            d = cls(device)
+            if device in cls.activated_devices:
+                return cls.activated_devices[device]
+            else:
+                d = cls(device, provider)
+                cls.activated_devices[device] = d
         else:
             raise ValueError("Unsupported format for `provider` argument: %s" % device)
         return d
