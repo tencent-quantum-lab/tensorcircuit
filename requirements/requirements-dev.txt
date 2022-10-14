@@ -1,4 +1,4 @@
-mypy==0.782
+mypy==0.982
 pytest==6.2.4
 pytest-cov
 pytest-benchmark

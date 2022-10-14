@@ -136,7 +136,7 @@ class BaseCircuit(AbstractCircuit):
             ir_dict = gate_dict
         self._qir.append(ir_dict)
         assert len(index) == len(set(index))
-        index = tuple([i if i >= 0 else self._nqubits + i for i in index])  # type: ignore
+        index = tuple([i if i >= 0 else self._nqubits + i for i in index])
         noe = len(index)
         nq = self._nqubits
         applied = False
@@ -257,7 +257,7 @@ class BaseCircuit(AbstractCircuit):
             for e in t.edges:
                 newfront.append(edict[e])
             return newnodes, newfront
-        return self._copy(conj)  # type: ignore
+        return self._copy(conj)
 
     def expectation_before(
         self,
@@ -311,7 +311,7 @@ class BaseCircuit(AbstractCircuit):
         for j in range(nq):
             if j not in occupied:  # edge1[j].is_dangling invalid here!
                 newdang[j] ^ newdang[j + nq]
-        return nodes  # type: ignore
+        return nodes
 
     def to_qir(self) -> List[Dict[str, Any]]:
         """
@@ -540,7 +540,7 @@ class BaseCircuit(AbstractCircuit):
                 r = [r]  # type: ignore
             else:
 
-                @backend.jit  # type: ignore
+                @backend.jit
                 def perfect_sampling(key: Any) -> Any:
                     backend.set_random_state(key)
                     return self.perfect_sampling()
@@ -717,7 +717,9 @@ class BaseCircuit(AbstractCircuit):
         :rtype: Tensor
         """
         return self.general_kraus(  # type: ignore
-            [np.array([[1.0, 0], [0, 0]]), np.array([[0, 0], [0, 1]])], index, name="measure"  # type: ignore
+            [np.array([[1.0, 0], [0, 0]]), np.array([[0, 0], [0, 1]])],
+            index,
+            name="measure",
         )
 
     cond_measure = cond_measurement

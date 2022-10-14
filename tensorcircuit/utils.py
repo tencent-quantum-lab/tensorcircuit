@@ -148,7 +148,7 @@ def arg_alias(
             doc = doc.split("\n")  # type: ignore
             ndoc = []
             skip = False
-            for i, line in enumerate(doc):  # type: ignore
+            for i, line in enumerate(doc):
                 if not skip:
                     ndoc.append(line)
                 else:

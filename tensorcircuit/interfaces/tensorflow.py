@@ -92,7 +92,7 @@ def tensorflow_interface(
                 x = x[0]
             if len(v) == 1:
                 v = v[0]
-            return backend.vjp(fun, x, v)  # type: ignore
+            return backend.vjp(fun, x, v)
 
         if jit is True:
             vjp_fun = backend.jit(vjp_fun)

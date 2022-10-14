@@ -56,13 +56,13 @@ def torch_interface(
     import torch
 
     def vjp_fun(x: Tensor, v: Tensor) -> Tuple[Tensor, Tensor]:
-        return backend.vjp(fun, x, v)  # type: ignore
+        return backend.vjp(fun, x, v)
 
     if jit is True:
         fun = backend.jit(fun)
         vjp_fun = backend.jit(vjp_fun)
 
-    class Fun(torch.autograd.Function):  # type: ignore
+    class Fun(torch.autograd.Function):
         @staticmethod
         def forward(ctx: Any, *x: Any) -> Any:  # type: ignore
             # ctx.xdtype = [xi.dtype for xi in x]

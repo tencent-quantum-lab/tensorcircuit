@@ -124,7 +124,7 @@ class AbstractCircuit:
                 split=split,
                 mpo=mpo,
                 ir_dict=gate_dict,
-            )  # type: ignore
+            )
 
         return apply
 
@@ -150,7 +150,7 @@ class AbstractCircuit:
             if name is not None:
                 localname = name
             else:
-                localname = defaultname  # type: ignore
+                localname = defaultname
 
             # split = None
             gate = gatef()
@@ -353,12 +353,12 @@ class AbstractCircuit:
         if "nqubits" not in circuit_params:
             nqubits = 0
             for d in qir:
-                if max(d["index"]) > nqubits:  # type: ignore
-                    nqubits = max(d["index"])  # type: ignore
+                if max(d["index"]) > nqubits:
+                    nqubits = max(d["index"])
             nqubits += 1
             circuit_params["nqubits"] = nqubits
 
-        c = cls(**circuit_params)  # type: ignore
+        c = cls(**circuit_params)
         c = cls._apply_qir(c, qir)
         return c
 
@@ -368,13 +368,13 @@ class AbstractCircuit:
     ) -> "AbstractCircuit":
         for d in qir:
             if "parameters" not in d:
-                c.apply_general_gate_delayed(d["gatef"], d["name"], mpo=d["mpo"])(  # type: ignore
-                    c, *d["index"], split=d["split"]  # type: ignore
+                c.apply_general_gate_delayed(d["gatef"], d["name"], mpo=d["mpo"])(
+                    c, *d["index"], split=d["split"]
                 )
             else:
-                c.apply_general_variable_gate_delayed(d["gatef"], d["name"], mpo=d["mpo"])(  # type: ignore
-                    c, *d["index"], **d["parameters"], split=d["split"]  # type: ignore
-                )
+                c.apply_general_variable_gate_delayed(
+                    d["gatef"], d["name"], mpo=d["mpo"]
+                )(c, *d["index"], **d["parameters"], split=d["split"])
         return c
 
     def inverse(
@@ -400,16 +400,16 @@ class AbstractCircuit:
         if "nqubits" not in circuit_params:
             circuit_params["nqubits"] = self._nqubits
 
-        c = type(self)(**circuit_params)  # type: ignore
+        c = type(self)(**circuit_params)
         for d in reversed(self._qir):
             if "parameters" not in d:
-                self.apply_general_gate_delayed(d["gatef"].adjoint(), d["name"], mpo=d["mpo"])(  # type: ignore
-                    c, *d["index"], split=d["split"]  # type: ignore
-                )
+                self.apply_general_gate_delayed(
+                    d["gatef"].adjoint(), d["name"], mpo=d["mpo"]
+                )(c, *d["index"], split=d["split"])
             else:
-                self.apply_general_variable_gate_delayed(d["gatef"].adjoint(), d["name"], mpo=d["mpo"])(  # type: ignore
-                    c, *d["index"], **d["parameters"], split=d["split"]  # type: ignore
-                )
+                self.apply_general_variable_gate_delayed(
+                    d["gatef"].adjoint(), d["name"], mpo=d["mpo"]
+                )(c, *d["index"], **d["parameters"], split=d["split"])
 
         return c
 
@@ -690,7 +690,9 @@ class AbstractCircuit:
         :rtype: Tensor
         """
         return self.general_kraus(  # type: ignore
-            [np.array([[1.0, 0], [0, 0]]), np.array([[0, 0], [0, 1]])], index, name="measure"  # type: ignore
+            [np.array([[1.0, 0], [0, 0]]), np.array([[0, 0], [0, 1]])],
+            index,
+            name="measure",
         )
 
     cond_measure = cond_measurement

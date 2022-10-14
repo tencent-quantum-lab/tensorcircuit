@@ -13,7 +13,7 @@ import tensornetwork as tn
 from scipy.stats import unitary_group
 
 from .cons import backend, dtypestr, npdtype
-from .backends import get_backend  # type: ignore
+from .backends import get_backend
 from .utils import arg_alias
 
 thismodule = sys.modules[__name__]
@@ -675,9 +675,8 @@ def random_single_qubit_gate() -> Gate:
     :rtype: Gate
     """
     # Get the random parameters
-    theta, alpha, phi = np.random.rand(3) * 2 * np.pi  # type: ignore
-
-    return r_gate(theta, alpha, phi)  # type: ignore
+    theta, alpha, phi = np.random.rand(3) * 2 * np.pi
+    return r_gate(theta, alpha, phi)
 
 
 # rs = random_single_qubit_gate  # deprecated

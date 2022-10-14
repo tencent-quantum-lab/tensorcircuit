@@ -9,7 +9,7 @@ import tensorflow as tf
 from tensorflow.keras.layers import Layer
 from tensorflow.keras import initializers, constraints
 
-from .cons import rdtypestr, backend  # type: ignore
+from .cons import rdtypestr, backend
 
 # @tf.keras.utils.register_keras_serializable(
 #     package="tensorcircuit"
@@ -71,7 +71,7 @@ class QuantumLayer(Layer):  # type: ignore
                 self.add_weight(
                     name="PQCweights%s" % i,
                     shape=shape,
-                    dtype=getattr(np, rdtypestr),  # type: ignore
+                    dtype=getattr(np, rdtypestr),
                     trainable=True,
                     initializer=init,
                     constraint=cst,

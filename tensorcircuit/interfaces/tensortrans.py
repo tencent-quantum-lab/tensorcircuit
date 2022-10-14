@@ -8,7 +8,7 @@ from functools import partial, wraps
 from ..cons import backend, dtypestr
 from ..gates import Gate
 from ..quantum import QuOperator
-from ..backends import get_backend  # type: ignore
+from ..backends import get_backend
 
 Tensor = Any
 Array = Any

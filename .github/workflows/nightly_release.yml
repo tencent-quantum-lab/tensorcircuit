@@ -31,6 +31,7 @@ jobs:
           black . --check
       - name: mypy checker
         run: |
+          mypy --install-types
           mypy tensorcircuit
       - name: pylint checker
         run: |

@@ -136,7 +136,7 @@ def example_block(
             "fixed_choice": 1,
         }
     else:
-        split_conf = None  # type: ignore
+        split_conf = None
     n = c._nqubits
     param = backend.reshape(param, [2 * nlayers, n])
     for i in range(n):

@@ -100,7 +100,7 @@ class Circuit(BaseCircuit):
             self._front = new_front
 
         self.coloring_nodes(nodes)
-        self._nodes = nodes  # type: ignore
+        self._nodes = nodes
 
         self._start_index = len(nodes)
         # self._start = nodes

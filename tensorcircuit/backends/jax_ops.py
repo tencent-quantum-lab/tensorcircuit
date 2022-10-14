@@ -11,7 +11,7 @@ import jax.numpy as jnp
 Array = Any  # jnp.array
 
 
-@jax.custom_vjp  # type: ignore
+@jax.custom_vjp
 def adaware_svd(A: Array) -> Any:
     return jnp.linalg.svd(A, full_matrices=False)
 
@@ -74,7 +74,7 @@ adaware_svd_jit = jax.jit(adaware_svd)
 qr_epsilon = 1e-8
 
 
-@jax.custom_vjp  # type: ignore
+@jax.custom_vjp
 def adaware_qr(A: Array) -> Any:
     # q, r = jnp.linalg.qr(A)
     return jnp.linalg.qr(A)

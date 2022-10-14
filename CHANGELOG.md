@@ -16,6 +16,8 @@
 
 - `tc.quantum.correlation_from_samples` now fix the sign error with odd number of spins
 
+- Updated to the latest version of mypy and get rid of lots of type: ignored
+
 ## 0.4.1
 
 ### Added

@@ -37,7 +37,7 @@ except ImportError:
     pass
 
 from .cons import backend, contractor, dtypestr, npdtype, rdtypestr
-from .backends import get_backend  # type: ignore
+from .backends import get_backend
 from .utils import is_m1mac, arg_alias
 
 Tensor = Any
@@ -1282,7 +1282,7 @@ try:
             weight = tf.constant(weight, dtype=getattr(tf, dtypestr))
         rsparse = get_backend("numpy").coo_sparse_matrix(
             indices=np.array([[0, 0]], dtype=np.int64),
-            values=np.array([0.0], dtype=getattr(np, dtypestr)),  # type: ignore
+            values=np.array([0.0], dtype=getattr(np, dtypestr)),
             shape=(s, s),
         )
         for i in range(nterms):
@@ -1935,7 +1935,7 @@ def sample2count(
         results = backend.unique_with_counts(sample)  # non-jittable
     else:  # jax specified
         results = backend.unique_with_counts(sample, size=d, fill_value=-1)
-    return results  # type: ignore
+    return results
 
 
 def count_vector2dict(count: Tensor, n: int, key: str = "bin") -> Dict[Any, int]:

@@ -387,7 +387,7 @@ def split_ansatz(g: Graph, split: int = 2) -> Sequence[Graph]:
     """
     edges = np.array(g.edges)
     ne = len(edges)
-    np.random.shuffle(edges)  # type: ignore
+    np.random.shuffle(edges)
     gs = [nx.Graph() for _ in range(split)]
     for i in range(split):
         for j, k in edges[int(i * ne / split) : int((i + 1) * ne / split)]:
