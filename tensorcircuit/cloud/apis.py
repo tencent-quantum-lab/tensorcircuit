@@ -30,7 +30,7 @@ def set_provider(
         for module in sys.modules:
             if module.startswith(package_name):
                 setattr(sys.modules[module], "default_provider", provider)
-    return provider  # type: ignore
+    return provider
 
 
 set_provider()
@@ -53,7 +53,7 @@ def set_device(
         for module in sys.modules:
             if module.startswith(package_name):
                 setattr(sys.modules[module], "default_device", device)
-    return device  # type: ignore
+    return device
 
 
 set_device()
@@ -100,10 +100,10 @@ def set_token(
     else:  # with token
         if device is None:
             if provider is None:
-                provider = Provider.from_name("tencent")  # type: ignore
-            added_token = {provider.name + sep: token}  # type: ignore
+                provider = Provider.from_name("tencent")
+            added_token = {provider.name + sep: token}
         else:
-            added_token = {provider.name + sep + device.name: token}  # type: ignore
+            added_token = {provider.name + sep + device.name: token}
         saved_token.update(added_token)
 
     if cached:
@@ -122,13 +122,13 @@ def get_token(
     device: Optional[Union[str, Device]] = None,
 ) -> Optional[str]:
     if provider is None:
-        provider = default_provider  # type: ignore
+        provider = default_provider
     provider = Provider.from_name(provider)
     if device is not None:
         device = Device.from_name(device, provider)
-    target = provider.name + sep  # type: ignore
+    target = provider.name + sep
     if device is not None:
-        target = target + device.name  # type: ignore
+        target = target + device.name
     for k, v in saved_token.items():
         if k == target:
             return v  # type: ignore
@@ -146,11 +146,11 @@ def list_devices(
         provider = default_provider
     provider = Provider.from_name(provider)
     if token is None:
-        token = provider.get_token()  # type: ignore
+        token = provider.get_token()
     if provider.name == "tencent":
-        return tencent.list_devices(token)  # type: ignore
+        return tencent.list_devices(token)
     else:
-        raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
+        raise ValueError("Unsupported provider: %s" % provider.name)
 
 
 def list_properties(
@@ -167,6 +167,6 @@ def list_properties(
     if token is None:
         token = provider.get_token()  # type: ignore
     if provider.name == "tencent":  # type: ignore
-        return tencent.list_properties(device, token)  # type: ignore
+        return tencent.list_properties(device, token)
     else:
         raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore

@@ -118,9 +118,9 @@ class Device:
 
         s = get_token(provider=self.provider, device=self)
         if s is not None:
-            return s  # type: ignore
+            return s
         # fallback to provider default
-        return get_token(provider=self.provider)  # type: ignore
+        return get_token(provider=self.provider)
 
     def list_properties(self) -> Dict[str, Any]:
         from .apis import list_properties
