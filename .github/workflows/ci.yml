@@ -21,12 +21,12 @@ jobs:
           pip install --no-cache-dir -r requirements/requirements.txt
           pip install --no-cache-dir -r requirements/requirements-extra.txt
           pip install --no-cache-dir -r requirements/requirements-dev.txt
+          pip install --no-cache-dir -r requirements/requirements-types.txt
       - name: black linter
         run: |
           black . --check
       - name: mypy checker
         run: |
-          mypy --install-types
           mypy tensorcircuit
       - name: pylint checker
         run: |
