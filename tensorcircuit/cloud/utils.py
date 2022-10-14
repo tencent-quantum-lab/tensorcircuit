@@ -53,7 +53,7 @@ def set_proxy(proxy: Optional[str] = None) -> None:
 
 
 def reconnect(tries: int = 5, timeout: int = 12) -> Callable[..., Any]:
-    # wrapper originally designed in xalpha
+    # wrapper originally designed in xalpha by @refraction-ray
     # https://github.com/refraction-ray/xalpha
     def robustify(f: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(f)

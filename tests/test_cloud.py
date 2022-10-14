@@ -1,5 +1,6 @@
 import sys
 import os
+import pytest
 
 thisfile = os.path.abspath(__file__)
 modulepath = os.path.dirname(os.path.dirname(thisfile))
@@ -23,7 +24,7 @@ def test_list_devices():
 
 
 def test_get_device():
-    d1 = apis.get_device(device="tecent::hello")
+    d1 = apis.get_device(device="tencent::hello")
     assert d1.name == "hello"
     assert d1.provider.name == "tencent"
     d2 = apis.get_device(device="hello")
@@ -36,3 +37,11 @@ def test_get_device():
     d4 = p.get_device("hello")
     assert d4.name == "hello"
     assert d4.provider.name == "tencent"
+
+
+def test_list_properties():
+    d = apis.get_device(device="hello")
+    print(d.list_properties())
+    print(apis.list_properties(device="tencent::hello"))
+    with pytest.raises(ValueError):
+        apis.list_properties(device="hell")

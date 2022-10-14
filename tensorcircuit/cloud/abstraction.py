@@ -121,3 +121,8 @@ class Device:
             return s  # type: ignore
         # fallback to provider default
         return get_token(provider=self.provider)  # type: ignore
+
+    def list_properties(self) -> Dict[str, Any]:
+        from .apis import list_properties
+
+        return list_properties(self.provider, self)

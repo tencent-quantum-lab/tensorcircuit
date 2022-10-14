@@ -44,12 +44,11 @@ def set_device(
     device: Optional[Union[str, Device]] = None,
     set_global: bool = True,
 ) -> Device:
-    if provider is None:
-        provider = default_provider
     if device is None:
         device = default_device
-    provider = Provider.from_name(provider)
     device = Device.from_name(device, provider)
+    if provider is None:
+        provider = device.provider
     if set_global:
         for module in sys.modules:
             if module.startswith(package_name):
@@ -150,5 +149,24 @@ def list_devices(
         token = provider.get_token()  # type: ignore
     if provider.name == "tencent":
         return tencent.list_devices(token)  # type: ignore
+    else:
+        raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
+
+
+def list_properties(
+    provider: Optional[Union[str, Provider]] = None,
+    device: Optional[Union[str, Device]] = None,
+    token: Optional[str] = None,
+) -> Dict[str, Any]:
+    if device is None:
+        device = default_device
+    device = Device.from_name(device, provider)
+    if provider is None:
+        provider = device.provider
+
+    if token is None:
+        token = provider.get_token()  # type: ignore
+    if provider.name == "tencent":  # type: ignore
+        return tencent.list_properties(device, token)  # type: ignore
     else:
         raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
