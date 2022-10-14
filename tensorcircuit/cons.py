@@ -16,7 +16,7 @@ import tensornetwork as tn
 from tensornetwork.backend_contextmanager import get_default_backend
 
 from .backends.numpy_backend import NumpyBackend
-from .backends import get_backend  # type: ignore
+from .backends import get_backend
 from .simplify import _multi_remove
 
 logger = logging.getLogger(__name__)
@@ -140,7 +140,7 @@ def set_dtype(dtype: Optional[str] = None, set_global: bool = True) -> Tuple[str
     else:
         rdtype = "float64"
     if backend.name == "jax":
-        from jax.config import config  # type: ignore
+        from jax.config import config
 
         if dtype == "complex128":
             config.update("jax_enable_x64", True)
@@ -245,7 +245,7 @@ def _merge_single_gates(
         njs = [i for i, n in enumerate(nodes) if id(n) in [id(e0.node1), id(e0.node2)]]
         qjs = [i for i, n in enumerate(queue) if id(n) in [id(e0.node1), id(e0.node2)]]
         new_node = tn.contract(e0)
-        total_size += _sizen(new_node)  # type: ignore
+        total_size += _sizen(new_node)
 
         logger.debug(
             _sizen(new_node, is_log=True),
@@ -259,7 +259,7 @@ def _merge_single_gates(
         if len(new_node.tensor.shape) <= 2:
             # queue.append(new_node)
             queue.insert(0, new_node)
-    return nodes, total_size  # type: ignore
+    return nodes, total_size
 
 
 def experimental_contractor(
@@ -431,7 +431,7 @@ def _get_path(
     output_set = set([id(e) for e in tn.get_subgraph_dangling(nodes)])
     size_dict = {id(edge): edge.dimension for edge in tn.get_all_edges(nodes)}
 
-    return algorithm(input_sets, output_set, size_dict), nodes  # type: ignore
+    return algorithm(input_sets, output_set, size_dict), nodes
 
 
 def _get_path_cache_friendly(
@@ -462,7 +462,7 @@ def _get_path_cache_friendly(
     logger.debug("output_set: %s" % output_set)
     logger.debug("size_dict: %s" % size_dict)
     logger.debug("path finder algorithm: %s" % algorithm)
-    return algorithm(input_sets, output_set, size_dict), nodes_new  # type: ignore
+    return algorithm(input_sets, output_set, size_dict), nodes_new
     # directly get input_sets, output_set and size_dict by using identity function as algorithm
 
 
@@ -603,8 +603,8 @@ def _base(
         nodes = _multi_remove(nodes, [a, b])
 
         logger.debug(_sizen(new_node, is_log=True))
-        total_size += _sizen(new_node)  # type: ignore
-    logger.info("----- WRITE: %s --------\n" % np.log2(total_size))  # type: ignore
+        total_size += _sizen(new_node)
+    logger.info("----- WRITE: %s --------\n" % np.log2(total_size))
 
     # if the final node has more than one edge,
     # output_edge_order has to be specified

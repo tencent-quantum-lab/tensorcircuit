@@ -401,12 +401,12 @@ class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
     def from_dlpack(self, a: Any) -> Tensor:
         import jax.dlpack
 
-        return jax.dlpack.from_dlpack(a)  # type: ignore
+        return jax.dlpack.from_dlpack(a)
 
     def to_dlpack(self, a: Tensor) -> Any:
         import jax.dlpack
 
-        return jax.dlpack.to_dlpack(a)  # type: ignore
+        return jax.dlpack.to_dlpack(a)
 
     def set_random_state(
         self, seed: Optional[Union[int, PRNGKeyArray]] = None, get_only: bool = False

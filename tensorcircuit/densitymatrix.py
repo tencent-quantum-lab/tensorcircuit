@@ -62,7 +62,7 @@ class DMCircuit(BaseCircuit):
                 and (mpo_dminputs is None)
             ):
                 # Get nodes on the interior
-                self._nodes = self.all_zero_nodes(nqubits)  # type: ignore
+                self._nodes = self.all_zero_nodes(nqubits)
                 self._front = [n.get_edge(0) for n in self._nodes]
                 self.coloring_nodes(self._nodes)
                 self._double_nodes_front()
@@ -82,10 +82,10 @@ class DMCircuit(BaseCircuit):
                 self._double_nodes_front()
 
             elif mps_inputs is not None:
-                mps_nodes = list(mps_inputs.nodes)  # type: ignore
+                mps_nodes = list(mps_inputs.nodes)
                 for i, n in enumerate(mps_nodes):
                     mps_nodes[i].tensor = backend.cast(n.tensor, dtypestr)  # type: ignore
-                mps_edges = mps_inputs.out_edges + mps_inputs.in_edges  # type: ignore
+                mps_edges = mps_inputs.out_edges + mps_inputs.in_edges
                 self._nodes, self._front = self.copy(mps_nodes, mps_edges)
                 self.coloring_nodes(self._nodes)
                 self._double_nodes_front()
@@ -306,7 +306,9 @@ DMCircuit._meta_apply_channels()
 
 
 class DMCircuit2(DMCircuit):
-    def apply_general_kraus(self, kraus: Sequence[Gate], *index: int, **kws: Any) -> None:  # type: ignore
+    def apply_general_kraus(
+        self, kraus: Sequence[Gate], *index: int, **kws: Any
+    ) -> None:
         # incompatible API for now
         kraus = [
             k
@@ -336,7 +338,7 @@ class DMCircuit2(DMCircuit):
         self._nodes.append(super_op)
         setattr(self, "state_tensor", None)
 
-    general_kraus = apply_general_kraus  # type: ignore
+    general_kraus = apply_general_kraus
 
     @staticmethod
     def apply_general_kraus_delayed(

@@ -7,13 +7,13 @@ from typing import Any, Callable, Sequence, Tuple, Union
 import torch
 
 from .cons import backend
-from .interfaces import torch_interface  # type: ignore
+from .interfaces import torch_interface
 from .utils import is_sequence
 
 Tensor = Any
 
 
-class QuantumNet(torch.nn.Module):  # type: ignore
+class QuantumNet(torch.nn.Module):
     def __init__(
         self,
         f: Callable[..., Any],
@@ -81,7 +81,7 @@ class QuantumNet(torch.nn.Module):  # type: ignore
         if use_interface:
             f = torch_interface(f, jit=use_jit, enable_dlpack=enable_dlpack)
         self.f = f
-        self.q_weights = torch.nn.ParameterList()  # type: ignore
+        self.q_weights = torch.nn.ParameterList()
         if isinstance(weights_shape[0], int):
             weights_shape = [weights_shape]
         if not is_sequence(initializer):
@@ -89,7 +89,7 @@ class QuantumNet(torch.nn.Module):  # type: ignore
         for ws, initf in zip(weights_shape, initializer):
             if initf is None:
                 initf = torch.randn
-            self.q_weights.append(torch.nn.Parameter(initf(ws)))  # type: ignore
+            self.q_weights.append(torch.nn.Parameter(initf(ws)))
 
     def forward(self, *inputs: Tensor) -> Tensor:
         ypred = self.f(*inputs, *self.q_weights)

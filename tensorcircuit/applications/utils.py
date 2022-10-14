@@ -349,10 +349,10 @@ def color_svg(circuit: cirq.Circuit, *coords: Tuple[int, int]) -> Any:
     :return:
     """
     import xml
-    from cirq.contrib.svg import SVGCircuit  # type: ignore
+    from cirq.contrib.svg import SVGCircuit
 
     svg_str = SVGCircuit(circuit)._repr_svg_()
-    DOMTree = xml.dom.minidom.parseString(svg_str)  # type: ignore
+    DOMTree = xml.dom.minidom.parseString(svg_str)
     xpos = []
     ypos = []
     for r in DOMTree.getElementsByTagName("rect"):  # [0].setAttribute("fill", "gray")
@@ -413,7 +413,7 @@ def Heisenberg1Denergy(L: int, Pauli: bool = True, maxiters: int = 1000) -> floa
     phi2 = np.zeros([L // 2, L // 2])
     lamb = np.array([2 * i + 1 for i in range(L // 2)])
     for _ in range(maxiters):
-        k = 1 / L * (2 * np.pi * lamb + np.sum(phi, axis=-1) - np.diag(phi))  # type: ignore
+        k = 1 / L * (2 * np.pi * lamb + np.sum(phi, axis=-1) - np.diag(phi))
         for i in range(L // 2):
             for j in range(L // 2):
                 phi2[i, j] = (
@@ -427,7 +427,7 @@ def Heisenberg1Denergy(L: int, Pauli: bool = True, maxiters: int = 1000) -> floa
                     )
                     * 2
                 )
-        if np.allclose(phi, phi2, rtol=error):  # type: ignore # converged
+        if np.allclose(phi, phi2, rtol=error):  # converged
             break
         phi = phi2.copy()
     else:

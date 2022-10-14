@@ -666,6 +666,6 @@ class VQNHE:
         if rs:
             es = [r["energy"] for r in rs]
             ind = np.argmin(es)
-            self.assign(rs[ind]["model_weights"], rs[ind]["circuit_weights"])  # type: ignore
-            self.history = rs[ind]["history"]  # type: ignore
+            self.assign(rs[ind]["model_weights"], rs[ind]["circuit_weights"])
+            self.history = rs[ind]["history"]
         return rs

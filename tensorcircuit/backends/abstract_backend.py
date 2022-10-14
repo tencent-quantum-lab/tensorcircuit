@@ -1471,7 +1471,7 @@ class ExtendedBackend:
                 collect = _first  # type: ignore
 
             jjs = []
-            for k in range(len(values)):  # type: ignore
+            for k in range(len(values)):
                 jj = self.vmap(vjp1, vectorized_argnums=2)(
                     pf,
                     args,

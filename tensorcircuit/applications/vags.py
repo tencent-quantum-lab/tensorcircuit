@@ -514,7 +514,7 @@ def qaoa_noise_vag(
     pnnp = array_to_tensor(np.array(pnnp))  # complex
     with tf.GradientTape() as t:
         t.watch(pnnp)
-        loss = forward_func(pnnp, preset, gdata, measure_func, **kws)  # type: ignore
+        loss = forward_func(pnnp, preset, gdata, measure_func, **kws)
         loss = cons.backend.real(loss)
     gr = t.gradient(loss, pnnp)
     if gr is None:

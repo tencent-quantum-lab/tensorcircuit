@@ -521,7 +521,7 @@ def kraus_to_super_gate(kraus_list: Sequence[Gate]) -> Tensor:
 
 
 @partial(
-    interfaces.args_to_tensor,  # type: ignore
+    interfaces.args_to_tensor,
     argnums=[0],
     gate_to_tensor=True,
 )
@@ -562,7 +562,7 @@ def kraus_to_super(kraus_list: Sequence[Matrix]) -> Matrix:
 
 
 @partial(
-    interfaces.args_to_tensor,  # type: ignore
+    interfaces.args_to_tensor,
     argnums=[0],
     gate_to_tensor=True,
 )
@@ -603,7 +603,7 @@ def super_to_choi(superop: Matrix) -> Matrix:
 
 
 @partial(
-    interfaces.args_to_tensor,  # type: ignore
+    interfaces.args_to_tensor,
     argnums=[0],
     gate_to_tensor=True,
 )
@@ -630,7 +630,7 @@ def reshuffle(op: Matrix, order: Sequence[int]) -> Matrix:
 
 
 @partial(
-    interfaces.args_to_tensor,  # type: ignore
+    interfaces.args_to_tensor,
     argnums=[0],
     gate_to_tensor=True,
 )
@@ -714,7 +714,7 @@ def choi_to_kraus(
 
 
 @partial(
-    interfaces.args_to_tensor,  # type: ignore
+    interfaces.args_to_tensor,
     argnums=[0],
     gate_to_tensor=True,
 )
@@ -732,7 +732,7 @@ def kraus_to_choi(kraus_list: Sequence[Matrix]) -> Matrix:
 
 
 @partial(
-    interfaces.args_to_tensor,  # type: ignore
+    interfaces.args_to_tensor,
     argnums=[0],
     gate_to_tensor=True,
 )
@@ -749,7 +749,7 @@ def choi_to_super(choi: Matrix) -> Matrix:
 
 
 @partial(
-    interfaces.args_to_tensor,  # type: ignore
+    interfaces.args_to_tensor,
     argnums=[0],
     gate_to_tensor=True,
 )
@@ -828,7 +828,7 @@ def krausmatrix_to_krausgate(kraus_list: Sequence[Matrix]) -> Sequence[Gate]:
 
 
 @partial(
-    interfaces.args_to_tensor,  # type: ignore
+    interfaces.args_to_tensor,
     argnums=[0, 1],
     gate_to_tensor=True,
 )
@@ -862,7 +862,7 @@ def evol_kraus(density_matrix: Matrix, kraus_list: Sequence[Matrix]) -> Matrix:
 
 
 @partial(
-    interfaces.args_to_tensor,  # type: ignore
+    interfaces.args_to_tensor,
     argnums=[0, 1],
     gate_to_tensor=True,
 )

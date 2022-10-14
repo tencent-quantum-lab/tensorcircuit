@@ -5,7 +5,7 @@ Customized ops for ML framework
 
 from typing import Any
 
-import tensorflow as tf  # type: ignore
+import tensorflow as tf
 
 Array = Any  # tensorflow Tensor
 

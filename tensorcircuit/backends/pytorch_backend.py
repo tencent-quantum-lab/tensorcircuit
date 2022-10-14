@@ -283,7 +283,7 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend, ExtendedBackend):  # type: 
 
     def i(self, dtype: Any = None) -> Tensor:
         if not dtype:
-            dtype = getattr(torchlib, dtypestr)  # type: ignore
+            dtype = getattr(torchlib, dtypestr)
         if isinstance(dtype, str):
             dtype = getattr(torchlib, dtype)
         return torchlib.tensor(1j, dtype=dtype)

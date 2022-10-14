@@ -329,7 +329,7 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend, ExtendedBackend): 
 
     def i(self, dtype: Any = None) -> Tensor:
         if not dtype:
-            dtype = getattr(tf, dtypestr)  # type: ignore
+            dtype = getattr(tf, dtypestr)
         if isinstance(dtype, str):
             dtype = getattr(tf, dtype)
         return tf.constant(1j, dtype=dtype)
@@ -594,7 +594,7 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend, ExtendedBackend): 
                 else:
                     args = tuple(
                         [
-                            tf.identity(arg) if i in argnums else arg  # type: ignore
+                            tf.identity(arg) if i in argnums else arg
                             for i, arg in enumerate(args)
                         ]
                     )
@@ -625,7 +625,7 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend, ExtendedBackend): 
                 else:
                     args = tuple(
                         [
-                            tf.identity(arg) if i in argnums else arg  # type: ignore
+                            tf.identity(arg) if i in argnums else arg
                             for i, arg in enumerate(args)
                         ]
                     )

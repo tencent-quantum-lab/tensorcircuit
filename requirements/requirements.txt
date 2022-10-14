@@ -1,6 +1,6 @@
 numpy
 scipy
-cirq==0.11
+cirq==0.13.1
 tensorflow==2.7
 tensornetwork
 graphviz
