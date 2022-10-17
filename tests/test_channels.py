@@ -1,6 +1,5 @@
 import sys
 import os
-import timeit
 import numpy as np
 import pytest
 from pytest_lazyfixture import lazy_fixture as lf
@@ -165,63 +164,69 @@ def test_readout(backend):
     valueaim = -1
     np.testing.assert_allclose(value, valueaim, atol=1e-3)
 
-    readouterror = []
-    readouterror.append([0.9, 0.75])  # readout error of qubit 0
-    readouterror.append([0.4, 0.7])  # readout error of qubit 1
-    readouterror.append([0.7, 0.9])  # readout error of qubit 2
+    readout_error = []
+    readout_error.append([0.9, 0.75])  # readout error of qubit 0
+    readout_error.append([0.4, 0.7])  # readout error of qubit 1
+    readout_error.append([0.7, 0.9])  # readout error of qubit 2
 
-    value = c.sample_expectation_ps(z=[0, 1, 2], readouterror=readouterror)
+    # readout_error is a list
+    value = c.sample_expectation_ps(z=[0, 1, 2], readout_error=readout_error)
+    valueaim = 0.04
+    np.testing.assert_allclose(value, valueaim, atol=1e-1)
+
+    # readout_error is a tensor
+    readout_error = tc.array_to_tensor(readout_error)
+    value = c.sample_expectation_ps(z=[0, 1, 2], readout_error=readout_error)
     valueaim = 0.04
     np.testing.assert_allclose(value, valueaim, atol=1e-1)
 
     # test jitble
-    def jitest(readouterror):
+    def jitest(readout_error):
         nqubit = 3
         c = tc.Circuit(nqubit)
         c.X(0)
-        return c.sample_expectation_ps(z=[0, 1, 2], readouterror=readouterror)
+        return c.sample_expectation_ps(z=[0, 1, 2], readout_error=readout_error)
 
     calvalue = tc.backend.jit(jitest)
-    value = calvalue(readouterror)
+    value = calvalue(readout_error)
     valueaim = 0.04
     np.testing.assert_allclose(value, valueaim, atol=1e-1)
 
     # test contractor time
-    start = timeit.default_timer()
+    # start = timeit.default_timer()
+    # def speed(nqubit):
+    #     c = tc.Circuit(nqubit)
+    #     c.X(0)
+    #     readout_error = []
+    #     for _ in range(nqubit):
+    #         readout_error.append([0.9, 0.75])  # readout error of qubit 0
+    #     value = c.sample_expectation_ps(
+    #         z=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], readout_error=readout_error
+    #     )
+    #     return value
 
-    def speed(nqubit):
-        c = tc.Circuit(nqubit)
-        c.X(0)
-        readouterror = []
-        for _ in range(nqubit):
-            readouterror.append([0.9, 0.75])  # readout error of qubit 0
-        value = c.sample_expectation_ps(
-            z=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], readouterror=readouterror
-        )
-        return value
-
-    speed(10)
-    stop = timeit.default_timer()
-    print("Time: ", stop - start)
+    # speed(10)
+    # stop = timeit.default_timer()
+    # print("Time: ", stop - start)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_noisesample(backend):
-    readouterror = []
-    readouterror.append([0.9, 0.75])  # readout error of qubit 0
-    readouterror.append([0.4, 0.7])  # readout error of qubit 1
-    readouterror.append([0.7, 0.9])  # readout error of qubit 2
+    readout_error = []
+    readout_error.append([0.9, 0.75])  # readout error of qubit 0
+    readout_error.append([0.4, 0.7])  # readout error of qubit 1
+    readout_error.append([0.7, 0.9])  # readout error of qubit 2
 
     c = tc.Circuit(3)
     c.H(0)
     c.cnot(0, 1)
-    print(c.sample(allow_state=True, readouterror=readouterror))
-    print(c.sample(batch=8, allow_state=True, readouterror=readouterror))
+    print(c.sample(allow_state=True, readout_error=readout_error))
+    print(c.sample(batch=8, allow_state=True, readout_error=readout_error))
     print(
         c.sample(
             batch=8,
             allow_state=True,
-            readouterror=readouterror,
+            readout_error=readout_error,
             random_generator=tc.backend.get_random_state(42),
         )
     )
@@ -234,21 +239,21 @@ def test_noisesample(backend):
     bs = c.sample(
         batch=1000,
         allow_state=True,
-        readouterror=readouterror,
+        readout_error=readout_error,
         format_="count_dict_bin",
         random_generator=key,
     )
     print(bs)
 
     # test jitble
-    def jitest(readouterror):
+    def jitest(readout_error):
         c = tc.Circuit(3)
         c.H(0)
         c.cnot(0, 1)
         return c.sample(batch=8, allow_state=True, format_="sample_int")
 
     calsample = tc.backend.jit(jitest)
-    sampletest = calsample(readouterror)
+    sampletest = calsample(readout_error)
     print(sampletest)
 
 
@@ -294,10 +299,10 @@ def read_mitigate(probability_noise, calmatrix, method="inverse"):
 def test_read_mitigate(backend):
     nqubit = 3
 
-    readouterror = []
-    readouterror.append([0.9, 0.75])  # readout error of qubit 0
-    readouterror.append([0.4, 0.7])  # readout error of qubit 1
-    readouterror.append([0.7, 0.9])  # readout error of qubit 2
+    readout_error = []
+    readout_error.append([0.9, 0.75])  # readout error of qubit 0
+    readout_error.append([0.4, 0.7])  # readout error of qubit 1
+    readout_error.append([0.7, 0.9])  # readout error of qubit 2
 
     # calibration matrix
     calicirc = cali_readout_circ(nqubit)
@@ -309,7 +314,7 @@ def test_read_mitigate(backend):
         bs = c.sample(
             batch=shots,
             allow_state=True,
-            readouterror=readouterror,
+            readout_error=readout_error,
             format_="count_dict_bin",
             random_generator=key,
         )
@@ -332,7 +337,7 @@ def test_read_mitigate(backend):
     bs = c.sample(
         batch=shots,
         allow_state=True,
-        readouterror=readouterror,
+        readout_error=readout_error,
         format_="count_dict_bin",
         random_generator=key,
     )

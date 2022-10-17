@@ -10,7 +10,6 @@ import numpy as np
 import graphviz
 import tensornetwork as tn
 
-from . import cons
 from . import gates
 from .quantum import (
     QuOperator,
@@ -508,7 +507,7 @@ class BaseCircuit(AbstractCircuit):
         self,
         batch: Optional[int] = None,
         allow_state: bool = False,
-        readouterror: Optional[Sequence[Any]] = None,
+        readout_error: Optional[Sequence[Any]] = None,
         format: Optional[str] = None,
         random_generator: Optional[Any] = None,
     ) -> Any:
@@ -520,8 +519,8 @@ class BaseCircuit(AbstractCircuit):
         :param allow_state: if true, we sample from the final state
             if memory allsows, True is prefered, defaults to False
         :type allow_state: bool, optional
-        :param readouterror: readoutlist, defaults to None
-        :type readouterror: Optional[Sequence[Any]]
+        :param readout_error: readout_error, defaults to None
+        :type readout_error: Optional[Sequence[Any]]. Tensor, List, Tuple
         :param format: sample format, defaults to None as backward compatibility
             check the doc in :py:meth:`tensorcircuit.quantum.measurement_results`
         :type format: Optional[str]
@@ -570,17 +569,15 @@ class BaseCircuit(AbstractCircuit):
                 p = backend.abs(s) ** 2
 
                 # readout error
-                if readouterror is not None:
-                    p = self.readouterror_bs(readouterror, p)
-                    p = backend.real(p)
+                if readout_error is not None:
+                    p = self.readouterror_bs(readout_error, p)
 
             else:
                 p = backend.abs(backend.diagonal(s))
 
                 # readout error
-                if readouterror is not None:
-                    p = self.readouterror_bs(readouterror, p)
-                    p = backend.real(p)
+                if readout_error is not None:
+                    p = self.readouterror_bs(readout_error, p)
 
             a_range = backend.arange(2**self._nqubits)
             if random_generator is None:
@@ -611,7 +608,7 @@ class BaseCircuit(AbstractCircuit):
         z: Optional[Sequence[int]] = None,
         shots: Optional[int] = None,
         random_generator: Optional[Any] = None,
-        readouterror: Optional[Sequence[Any]] = None,
+        readout_error: Optional[Sequence[Any]] = None,
         **kws: Any,
     ) -> Tensor:
         """
@@ -624,10 +621,10 @@ class BaseCircuit(AbstractCircuit):
         >>> c.rx(1, theta=np.pi/2)
         >>> c.sample_expectation_ps(x=[0], y=[1])
         -0.99999976
-        >>> readouterror = []
-        >>> readouterror.append([0.9,0.75])
-        >>> readouterror.append([0.4,0.7])
-        >>> c.sample_expectation_ps(x=[0], y=[1],readouterror = readouterror)
+        >>> readout_error = []
+        >>> readout_error.append([0.9,0.75])
+        >>> readout_error.append([0.4,0.7])
+        >>> c.sample_expectation_ps(x=[0], y=[1],readout_error = readout_error)
 
         :param x: index for Pauli X, defaults to None
         :type x: Optional[Sequence[int]], optional
@@ -639,8 +636,8 @@ class BaseCircuit(AbstractCircuit):
         :type shots: Optional[int], optional
         :param random_generator: random_generator, defaults to None
         :type random_general: Optional[Any]
-        :param readouterror: readoutlist, defaults to None
-        :type readouterror: Optional[Sequence[Any]]
+        :param readout_error: readout_error, defaults to None
+        :type readout_error: Optional[Sequence[Any]]. Tensor, List, Tuple
         :return: [description]
         :rtype: Tensor
         """
@@ -665,8 +662,8 @@ class BaseCircuit(AbstractCircuit):
             p = backend.abs(backend.diagonal(s))
 
         # readout error
-        if readouterror is not None:
-            p = self.readouterror_bs(readouterror, p)
+        if readout_error is not None:
+            p = self.readouterror_bs(readout_error, p)
 
         x = list(x)
         y = list(y)
@@ -697,48 +694,49 @@ class BaseCircuit(AbstractCircuit):
     sexpps = sample_expectation_ps
 
     def readouterror_bs(
-        self, readouterror: Optional[Sequence[Any]], p: Optional[Any]
+        self, readout_error: Optional[Sequence[Any]] = None, p: Optional[Any] = None
     ) -> Tensor:
         """Apply readout error to original probabilities of bit string and return the noisy probabilities.
 
         :Example:
 
-        >>> readouterror = []
-        >>> readouterror.append([0.9,0.75])  # readout error for qubit 0, [p0|0,p1|1]
-        >>> readouterror.append([0.4,0.7])   # readout error for qubit 1, [p0|0,p1|1]
+        >>> readout_error = []
+        >>> readout_error.append([0.9,0.75])  # readout error for qubit 0, [p0|0,p1|1]
+        >>> readout_error.append([0.4,0.7])   # readout error for qubit 1, [p0|0,p1|1]
 
 
-        :param readouterror: list of readout error for each qubits.
-        :type readouterror: Optional[Sequence[Any]]
+        :param readout_error: list of readout error for each qubits.
+        :type readout_error: Optional[Sequence[Any]]. Tensor, List, Tuple
         :param p: probabilities of bit string
         :type p: Optional[Any]
         :rtype: Tensor
         """
-        if isinstance(readouterror, list):
-            nqubit = len(readouterror)
-            readoutlist = []
-            for i in range(nqubit):
-                readoutlist.append(
-                    [
-                        [readouterror[i][0], 1 - readouterror[i][1]],
-                        [1 - readouterror[i][0], readouterror[i][1]],
-                    ]
-                )
-            readoutlist = backend.cast(
-                backend.convert_to_tensor(readoutlist), dtype=cons.dtypestr
-            )
+        # if isinstance(readout_error, tuple):
+        #     readout_error = list[readout_error]  # type: ignore
 
-            ms = [Gate(readoutlist[i]) for i in range(nqubit)]
-            p = backend.cast(p, dtypestr)
-            p = Gate(backend.reshape2(p))
-            for i in range(nqubit):
-                ms[i][1] ^ p[i]
-            nodes = ms + [p]
-            r = contractor(nodes, output_edge_order=[m[0] for m in ms]).tensor
-            p = backend.reshape(r, [-1])
-        else:
-            raise ValueError("readouterror should be a list")
-        return p
+        nqubit = len(readout_error)  # type: ignore
+        readoutlist = []
+        for i in range(nqubit):
+            readoutlist.append(
+                [
+                    [readout_error[i][0], 1 - readout_error[i][1]],  # type: ignore
+                    [1 - readout_error[i][0], readout_error[i][1]],  # type: ignore
+                ]
+            )
+        readoutlist = backend.cast(
+            backend.convert_to_tensor(readoutlist), dtype=dtypestr
+        )
+
+        ms = [Gate(readoutlist[i]) for i in range(nqubit)]
+        p = backend.cast(p, dtypestr)
+        p = Gate(backend.reshape2(p))
+        for i in range(nqubit):
+            ms[i][1] ^ p[i]
+        nodes = ms + [p]
+        r = contractor(nodes, output_edge_order=[m[0] for m in ms]).tensor
+        p = backend.reshape(r, [-1])
+
+        return backend.real(p)
 
     def replace_inputs(self, inputs: Tensor) -> None:
         """
