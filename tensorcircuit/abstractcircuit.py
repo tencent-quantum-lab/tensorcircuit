@@ -8,6 +8,7 @@ from functools import reduce
 from operator import add
 import json
 import logging
+import math
 
 import numpy as np
 import tensornetwork as tn
@@ -599,6 +600,91 @@ class AbstractCircuit:
             with open(file, "w") as f:
                 json.dump(tcqasm, f)
         return json.dumps(tcqasm)
+
+    @classmethod
+    def from_qsim_file(
+        cls, file: str, circuit_params: Optional[Dict[str, Any]] = None
+    ) -> "AbstractCircuit":
+        with open(file, "r") as f:
+            lines = f.readlines()
+        if circuit_params is None:
+            circuit_params = {}
+        if "nqubits" not in circuit_params:
+            circuit_params["nqubits"] = int(lines[0])
+
+        c = cls(**circuit_params)
+        c = cls._apply_qsim(c, lines)
+        return c
+
+    @staticmethod
+    def _apply_qsim(c: "AbstractCircuit", qsim_str: List[str]) -> "AbstractCircuit":
+        def _convert_ints_and_floats(x: str) -> Union[str, int, float]:
+            try:
+                return int(x)
+            except ValueError:
+                pass
+
+            try:
+                return float(x)
+            except ValueError:
+                pass
+
+            return x.lower()
+
+        qsim_gates = [
+            tuple(map(_convert_ints_and_floats, line.strip().split(" ")))
+            for line in qsim_str[1:]
+            if line
+        ]
+        # https://github.com/quantumlib/qsim/blob/master/docs/input_format.md
+        # https://github.com/jcmgray/quimb/blob/master/quimb/tensor/circuit.py#L241
+        for gate in qsim_gates:
+            print(gate)
+            if gate[1] == "h":
+                c.h(gate[2])
+            elif gate[1] == "x":
+                c.x(gate[2])
+            elif gate[1] == "y":
+                c.y(gate[2])
+            elif gate[1] == "z":
+                c.z(gate[2])
+            elif gate[1] == "s":
+                c.phase(gate[2], theta=math.pi / 2)
+            elif gate[1] == "t":
+                c.phase(gate[2], theta=math.pi / 4)
+            elif gate[1] == "x_1_2":
+                c.rx(gate[2], theta=math.pi / 2)
+            elif gate[1] == "y_1_2":
+                c.ry(gate[2], theta=math.pi / 2)
+            elif gate[1] == "z_1_2":
+                c.rz(gate[2], theta=math.pi / 2)
+            elif gate[1] == "w_1_2":
+                c.u(gate[2], theta=math.pi / 2, phi=-math.pi / 4, lbd=math.pi / 4)
+            elif gate[1] == "hz_1_2":
+                c.wroot(gate[2])
+            elif gate[1] == "cnot":
+                c.cnot(gate[2], gate[3])
+            elif gate[1] == "cx":
+                c.cx(gate[2], gate[3])
+            elif gate[1] == "cy":
+                c.cy(gate[2], gate[3])
+            elif gate[1] == "cz":
+                c.cz(gate[2], gate[3])
+            elif gate[1] == "is" or gate[1] == "iswap":
+                c.iswap(gate[2], gate[3])
+            elif gate[1] == "rx":
+                c.rx(gate[2], theta=gate[3])
+            elif gate[1] == "ry":
+                c.ry(gate[2], theta=gate[3])
+            elif gate[1] == "rz":
+                c.rz(gate[2], theta=gate[3])
+            elif gate[1] == "fs" or gate[1] == "fsim":
+                i, j, theta, phi = gate[2:]
+                c.iswap(i, j, theta=-theta)
+                c.cphase(i, j, theta=-phi)
+            else:
+                raise NotImplementedError
+        return c
 
     @classmethod
     def from_json(
