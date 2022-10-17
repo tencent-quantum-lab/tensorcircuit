@@ -1,8 +1,10 @@
 import sys
 import os
+import timeit
 import numpy as np
 import pytest
 from pytest_lazyfixture import lazy_fixture as lf
+from scipy.optimize import minimize
 
 
 thisfile = os.path.abspath(__file__)
@@ -150,3 +152,197 @@ def test_noisecircuit(backend):
     valuedm = noisec_jit()
 
     np.testing.assert_allclose(valuemc, valuedm, atol=1e-1)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_readout(backend):
+
+    nqubit = 3
+    c = tc.Circuit(nqubit)
+    c.X(0)
+
+    value = c.sample_expectation_ps(z=[0, 1, 2])
+    valueaim = -1
+    np.testing.assert_allclose(value, valueaim, atol=1e-3)
+
+    readouterror = []
+    readouterror.append([0.9, 0.75])  # readout error of qubit 0
+    readouterror.append([0.4, 0.7])  # readout error of qubit 1
+    readouterror.append([0.7, 0.9])  # readout error of qubit 2
+
+    value = c.sample_expectation_ps(z=[0, 1, 2], readouterror=readouterror)
+    valueaim = 0.04
+    np.testing.assert_allclose(value, valueaim, atol=1e-1)
+
+    # test jitble
+    def jitest(readouterror):
+        nqubit = 3
+        c = tc.Circuit(nqubit)
+        c.X(0)
+        return c.sample_expectation_ps(z=[0, 1, 2], readouterror=readouterror)
+
+    calvalue = tc.backend.jit(jitest)
+    value = calvalue(readouterror)
+    valueaim = 0.04
+    np.testing.assert_allclose(value, valueaim, atol=1e-1)
+
+    # test contractor time
+    start = timeit.default_timer()
+
+    def speed(nqubit):
+        c = tc.Circuit(nqubit)
+        c.X(0)
+        readouterror = []
+        for _ in range(nqubit):
+            readouterror.append([0.9, 0.75])  # readout error of qubit 0
+        value = c.sample_expectation_ps(
+            z=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], readouterror=readouterror
+        )
+        return value
+
+    speed(10)
+    stop = timeit.default_timer()
+    print("Time: ", stop - start)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_noisesample(backend):
+    readouterror = []
+    readouterror.append([0.9, 0.75])  # readout error of qubit 0
+    readouterror.append([0.4, 0.7])  # readout error of qubit 1
+    readouterror.append([0.7, 0.9])  # readout error of qubit 2
+
+    c = tc.Circuit(3)
+    c.H(0)
+    c.cnot(0, 1)
+    print(c.sample(allow_state=True, readouterror=readouterror))
+    print(c.sample(batch=8, allow_state=True, readouterror=readouterror))
+    print(
+        c.sample(
+            batch=8,
+            allow_state=True,
+            readouterror=readouterror,
+            random_generator=tc.backend.get_random_state(42),
+        )
+    )
+
+    key = tc.backend.get_random_state(42)
+    bs = c.sample(
+        batch=1000, allow_state=True, format_="count_dict_bin", random_generator=key
+    )
+    print(bs)
+    bs = c.sample(
+        batch=1000,
+        allow_state=True,
+        readouterror=readouterror,
+        format_="count_dict_bin",
+        random_generator=key,
+    )
+    print(bs)
+
+    # test jitble
+    def jitest(readouterror):
+        c = tc.Circuit(3)
+        c.H(0)
+        c.cnot(0, 1)
+        return c.sample(batch=8, allow_state=True, format_="sample_int")
+
+    calsample = tc.backend.jit(jitest)
+    sampletest = calsample(readouterror)
+    print(sampletest)
+
+
+def cali_readout_circ(nqubit):
+    calicirc = []
+    for i in range(2**nqubit):
+        name = "{:0" + str(nqubit) + "b}"
+        lisbs = [int(x) for x in name.format(i)]
+        c = tc.Circuit(nqubit)
+        for k in range(nqubit):
+            if lisbs[k] == 1:
+                c.X(k)
+        calicirc.append(c)
+    return calicirc
+
+
+def probability_bs(nqubit, bs, shots):
+    probability = [0] * 2**nqubit
+    for s in bs:
+        probability[int(s, 2)] = bs[s] / shots + 0.0
+    return probability
+
+
+def read_mitigate(probability_noise, calmatrix, method="inverse"):
+    if method == "inverse":
+        X = np.linalg.inv(calmatrix)
+        Y = probability_noise
+        probalibity_cali = X @ Y
+    else:
+
+        def fun(x):
+            return sum((probability_noise - calmatrix @ x) ** 2)
+
+        x0 = np.random.rand(len(probability_noise))
+        cons = {"type": "eq", "fun": lambda x: 1 - sum(x)}
+        bnds = tuple((0, 1) for x in x0)
+        res = minimize(fun, x0, method="SLSQP", constraints=cons, bounds=bnds, tol=1e-6)
+        probalibity_cali = res.x
+    return probalibity_cali
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_read_mitigate(backend):
+    nqubit = 3
+
+    readouterror = []
+    readouterror.append([0.9, 0.75])  # readout error of qubit 0
+    readouterror.append([0.4, 0.7])  # readout error of qubit 1
+    readouterror.append([0.7, 0.9])  # readout error of qubit 2
+
+    # calibration matrix
+    calicirc = cali_readout_circ(nqubit)
+    shots = 100000
+    calmatrix = np.zeros((2**nqubit, 2**nqubit))
+    for i in range(2**nqubit):
+        c = calicirc[i]
+        key = tc.backend.get_random_state(42)
+        bs = c.sample(
+            batch=shots,
+            allow_state=True,
+            readouterror=readouterror,
+            format_="count_dict_bin",
+            random_generator=key,
+        )
+        for s in bs:
+            calmatrix[int(s, 2)][i] = bs[s] / shots + 0.0
+
+    # test circuit
+    c = tc.Circuit(3)
+    c.H(0)
+    c.cnot(0, 1)
+    c.X(2)
+
+    key = tc.backend.get_random_state(42)
+    bs = c.sample(
+        batch=shots, allow_state=True, format_="count_dict_bin", random_generator=key
+    )
+    probability_perfect = probability_bs(nqubit, bs, shots)
+    print("good", probability_perfect)
+
+    bs = c.sample(
+        batch=shots,
+        allow_state=True,
+        readouterror=readouterror,
+        format_="count_dict_bin",
+        random_generator=key,
+    )
+    probability_noise = probability_bs(nqubit, bs, shots)
+    print("noise", probability_noise)
+
+    probalibity_cali = read_mitigate(probability_noise, calmatrix, method="inverse")
+    print("cal", probalibity_cali)
+    np.testing.assert_allclose(probability_perfect, probalibity_cali, atol=1e-1)
+
+    probalibity_cali = read_mitigate(probability_noise, calmatrix, method="square")
+    print("cal2", probalibity_cali)
+    np.testing.assert_allclose(probability_perfect, probalibity_cali, atol=1e-1)
