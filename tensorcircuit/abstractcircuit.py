@@ -8,7 +8,6 @@ from functools import reduce
 from operator import add
 import json
 import logging
-import math
 
 import numpy as np
 import tensornetwork as tn
@@ -639,49 +638,48 @@ class AbstractCircuit:
         # https://github.com/quantumlib/qsim/blob/master/docs/input_format.md
         # https://github.com/jcmgray/quimb/blob/master/quimb/tensor/circuit.py#L241
         for gate in qsim_gates:
-            print(gate)
             if gate[1] == "h":
-                c.h(gate[2])
+                getattr(c, "H")(gate[2])
             elif gate[1] == "x":
-                c.x(gate[2])
+                getattr(c, "X")(gate[2])
             elif gate[1] == "y":
-                c.y(gate[2])
+                getattr(c, "Y")(gate[2])
             elif gate[1] == "z":
-                c.z(gate[2])
+                getattr(c, "Z")(gate[2])
             elif gate[1] == "s":
-                c.phase(gate[2], theta=math.pi / 2)
+                getattr(c, "PHASE")(gate[2], theta=np.pi / 2)
             elif gate[1] == "t":
-                c.phase(gate[2], theta=math.pi / 4)
+                getattr(c, "PHASE")(gate[2], theta=np.pi / 4)
             elif gate[1] == "x_1_2":
-                c.rx(gate[2], theta=math.pi / 2)
+                getattr(c, "RX")(gate[2], theta=np.pi / 2)
             elif gate[1] == "y_1_2":
-                c.ry(gate[2], theta=math.pi / 2)
+                getattr(c, "RY")(gate[2], theta=np.pi / 2)
             elif gate[1] == "z_1_2":
-                c.rz(gate[2], theta=math.pi / 2)
+                getattr(c, "RZ")(gate[2], theta=np.pi / 2)
             elif gate[1] == "w_1_2":
-                c.u(gate[2], theta=math.pi / 2, phi=-math.pi / 4, lbd=math.pi / 4)
+                getattr(c, "U")(gate[2], theta=np.pi / 2, phi=-np.pi / 4, lbd=np.pi / 4)
             elif gate[1] == "hz_1_2":
-                c.wroot(gate[2])
+                getattr(c, "WROOT")(gate[2])
             elif gate[1] == "cnot":
-                c.cnot(gate[2], gate[3])
+                getattr(c, "CNOT")(gate[2], gate[3])
             elif gate[1] == "cx":
-                c.cx(gate[2], gate[3])
+                getattr(c, "CX")(gate[2], gate[3])
             elif gate[1] == "cy":
-                c.cy(gate[2], gate[3])
+                getattr(c, "CY")(gate[2], gate[3])
             elif gate[1] == "cz":
-                c.cz(gate[2], gate[3])
+                getattr(c, "CZ")(gate[2], gate[3])
             elif gate[1] == "is" or gate[1] == "iswap":
-                c.iswap(gate[2], gate[3])
+                getattr(c, "ISWAP")(gate[2], gate[3])
             elif gate[1] == "rx":
-                c.rx(gate[2], theta=gate[3])
+                getattr(c, "RX")(gate[2], theta=gate[3])
             elif gate[1] == "ry":
-                c.ry(gate[2], theta=gate[3])
+                getattr(c, "RY")(gate[2], theta=gate[3])
             elif gate[1] == "rz":
-                c.rz(gate[2], theta=gate[3])
+                getattr(c, "RZ")(gate[2], theta=gate[3])
             elif gate[1] == "fs" or gate[1] == "fsim":
                 i, j, theta, phi = gate[2:]
-                c.iswap(i, j, theta=-theta)
-                c.cphase(i, j, theta=-phi)
+                getattr(c, "ISWAP")(i, j, theta=-theta)  # type: ignore
+                getattr(c, "CPHASE")(i, j, theta=-phi)  # type: ignore
             else:
                 raise NotImplementedError
         return c
