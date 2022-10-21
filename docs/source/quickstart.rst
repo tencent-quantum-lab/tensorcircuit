@@ -458,9 +458,68 @@ For the Monte Carlo trajectory noise simulator, the unitary Kraus channel can be
     >>> c.state()
     array([0.+0.j, 0.+0.j, 0.+1.j, 0.+0.j], dtype=complex64)
 
+    >>> def noisecircuit(X):
+    >>>     c = tc.Circuit(n)
+    >>>     c.x(0)
+    >>>     c.thermalrelaxtion(0, t1 = 300, t2 = 400, time=1000, method = "ByChoi",excitedstatepopulation = 0,status = X)
+    >>>     return c.expectation_ps(z=[0])
+    >>> K = tc.set_backend("tensorflow")
+    >>> noisec_vmap = K.jit(K.vmap(noisecircuit, vectorized_argnums=0))
+    >>> nmc = 10000
+    >>> X = K.implicit_randu(nmc)
+    >>> valuemc = sum(K.numpy(noisec_vmap(X))) / nmc
+    (0.931+0j)
+
+
 **Density Matrix Simulator:**
 
 Density matrix simulator ``tc.DMCircuit`` simulates the noise in a full form, but takes twice qubits to do noiseless simulation. The API is the same as ``tc.Circuit``.
+
+.. code-block:: python
+
+    >>> def noisecircuitdm():
+    >>>     dmc = tc.DMCircuit(1)
+    >>>     dmc.x(0)
+    >>>     dmc.thermalrelaxation(0, t1=300, t2=400, time=1000, method="ByChoi", excitedstatepopulation=0)
+    >>>     return dmc.expectation_ps(z=[0])
+    >>> K = tc.set_backend("tensorflow")
+    >>> noisec_jit = K.jit(noisecircuitdm)
+    >>> valuedm = noisec_jit()
+    (0.931+0j)
+
+
+**Experiment with quantum errors:**
+
+Multiple quantum errors can be added on circuit.
+
+.. code-block:: python
+
+    c = tc.Circuit(1)
+    c.x(0)
+    c.thermalrelaxation(0,t1 = 300, t2 = 400, time = 1000,method = "ByChoi", excitedstatepopulation = 0)
+    c.generaldepolarizing(0,p = 0.01, num_qubits =1)
+    c.phasedamping(0,gamma=0.2)
+    c.amplitudedamping(0,gamma = 0.25,p = 0.2)
+    c.reset(0)
+    c.expectation_ps(z=[0])
+
+
+**Experiment with readout error:**
+
+Readout error can be added in experiments for sampling and expectation value calculation.
+
+.. code-block:: python
+
+    >>> c = tc.Circuit(3)
+    >>> c.X(0)
+    >>> readout_error = []
+    >>> readout_error.append([0.9, 0.75])  # readout error of qubit 0
+    >>> readout_error.append([0.4, 0.7])  # readout error of qubit 1
+    >>> readout_error.append([0.7, 0.9])  # readout error of qubit 2
+    >>> value = c.sample_expectation_ps(z=[0, 1, 2], readout_error=readout_error)
+    tf.Tensor(0.039999977, shape=(), dtype=float32)
+    >>> instance = c.sample(allow_state=True, readout_error=readout_error)
+    (<tf.Tensor: shape=(3,), dtype=int32, numpy=array([1, 1, 0], dtype=int32)>, <tf.Tensor: shape=(), dtype=float32, numpy=0.315>)
 
 
 MPS and MPO
