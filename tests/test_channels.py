@@ -312,44 +312,43 @@ def mitigate_readout(nqubit, circ, readout_error):
     calmatrix = np.zeros((2**nqubit, 2**nqubit))
     for i in range(2**nqubit):
         c = miticirc[i]
-        key = keys[i]
         bs = c.sample(
             batch=shots,
             allow_state=True,
             readout_error=readout_error,
             format_="count_dict_bin",
-            random_generator=key,
+            random_generator=keys[i],
         )
         for s in bs:
             calmatrix[int(s, 2)][i] = bs[s] / shots
 
     key, subkey = tc.backend.random_split(key)
-    key = subkey
     bs = circ.sample(
-        batch=shots, allow_state=True, format_="count_dict_bin", random_generator=key
+        batch=shots, allow_state=True, format_="count_dict_bin", random_generator=subkey
     )
     probability_perfect = probability_bs(bs)
     print("probability_without_readouterror", probability_perfect)
 
+    key, subkey = tc.backend.random_split(key)
     bs = circ.sample(
         batch=shots,
         allow_state=True,
         readout_error=readout_error,
         format_="count_dict_bin",
-        random_generator=key,
+        random_generator=subkey,
     )
     probability_noise = probability_bs(bs)
     print("probability_with_readouterror", probability_noise)
 
-    probalibity_miti = mitigate_probability(
+    probability_miti = mitigate_probability(
         probability_noise, calmatrix, method="inverse"
     )
-    print("mitigate_readouterror_method1", probalibity_miti)
+    print("mitigate_readouterror_method1", probability_miti)
 
-    probalibity_miti = mitigate_probability(
+    probability_miti = mitigate_probability(
         probability_noise, calmatrix, method="square"
     )
-    print("mitigate_readouterror_method2", probalibity_miti)
+    print("mitigate_readouterror_method2", probability_miti)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
