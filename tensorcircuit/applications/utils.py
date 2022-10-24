@@ -352,7 +352,7 @@ def color_svg(circuit: cirq.Circuit, *coords: Tuple[int, int]) -> Any:
     from cirq.contrib.svg import SVGCircuit
 
     svg_str = SVGCircuit(circuit)._repr_svg_()
-    DOMTree = xml.dom.minidom.parseString(svg_str)
+    DOMTree = xml.dom.minidom.parseString(svg_str)  # type: ignore
     xpos = []
     ypos = []
     for r in DOMTree.getElementsByTagName("rect"):  # [0].setAttribute("fill", "gray")

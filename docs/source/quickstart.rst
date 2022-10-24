@@ -470,7 +470,7 @@ For the Monte Carlo trajectory noise simulator, the unitary Kraus channel can be
     nmc = 10000
     random = K.implicit_randu(nmc)
     valuemc = K.mean(K.numpy(noisec_vmap(random)))
-    (0.931+0j)
+    # (0.931+0j)
 
 
 **Density Matrix Simulator:**
@@ -491,7 +491,7 @@ Density matrix simulator ``tc.DMCircuit`` simulates the noise in a full form, bu
     K = tc.set_backend("tensorflow")
     noisec_jit = K.jit(noisecircuitdm)
     valuedm = noisec_jit()
-    (0.931+0j)
+    # (0.931+0j)
 
 
 **Experiment with quantum errors:**
@@ -521,7 +521,7 @@ Readout error can be added in experiments for sampling and expectation value cal
     c = tc.Circuit(3)
     c.X(0)
     readout_error = []
-    readout_error.append([0.9, 0.75])  # readout error of qubit 0
+    readout_error.append([0.9, 0.75])  # readout error of qubit 0   p0|0=0.9, p1|1=0.75
     readout_error.append([0.4, 0.7])  # readout error of qubit 1
     readout_error.append([0.7, 0.9])  # readout error of qubit 2
     value = c.sample_expectation_ps(z=[0, 1, 2], readout_error=readout_error)
@@ -531,13 +531,12 @@ Readout error can be added in experiments for sampling and expectation value cal
         allow_state=True,
         readout_error=readout_error,
         random_generator=tc.backend.get_random_state(42),
+        format_="sample_bin"
     )
-    #[(<tf.Tensor: shape=(3,), dtype=int32, numpy=array([1, 0, 0], dtype=int32)>,
-    # <tf.Tensor: shape=(), dtype=float32, numpy=0.21000001>),
-    #(<tf.Tensor: shape=(3,), dtype=int32, numpy=array([1, 0, 0], dtype=int32)>,
-    # <tf.Tensor: shape=(), dtype=float32, numpy=0.21000001>),
-    #(<tf.Tensor: shape=(3,), dtype=int32, numpy=array([1, 0, 1], dtype=int32)>,
-    # <tf.Tensor: shape=(), dtype=float32, numpy=0.09>)]
+    # tf.Tensor(
+    # [[1 0 0]
+    # [1 0 0]
+    # [1 0 1]], shape=(3, 3), dtype=int32)
 
 
 MPS and MPO

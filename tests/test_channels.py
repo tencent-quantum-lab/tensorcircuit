@@ -323,7 +323,8 @@ def mitigate_readout(nqubit, circ, readout_error):
         for s in bs:
             calmatrix[int(s, 2)][i] = bs[s] / shots
 
-    key = tc.backend.get_random_state(42)
+    key, subkey = tc.backend.random_split(key)
+    key = subkey
     bs = circ.sample(
         batch=shots, allow_state=True, format_="count_dict_bin", random_generator=key
     )
@@ -360,7 +361,7 @@ def test_readout_mitigate(backend):
     c.X(2)
 
     readout_error = []
-    readout_error.append([0.9, 0.75])  # readout error of qubit 0
+    readout_error.append([0.9, 0.75])  # readout error of qubit 0, p0|0=0.9, p1|1=0.75
     readout_error.append([0.4, 0.7])  # readout error of qubit 1
     readout_error.append([0.7, 0.9])  # readout error of qubit 2
 

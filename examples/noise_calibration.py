@@ -75,7 +75,8 @@ def mitigate_readout(nqubit, circ, readout_error):
         for s in bs:
             calmatrix[int(s, 2)][i] = bs[s] / shots
 
-    key = K.get_random_state(42)
+    key, subkey = tc.backend.random_split(key)
+    key = subkey
     bs = circ.sample(
         batch=shots, allow_state=True, format_="count_dict_bin", random_generator=key
     )
@@ -226,66 +227,3 @@ if __name__ == "__main__":
     example_readout_mitigate()
     example_T1_cali()
     example_T2_cali()
-
-
-c = tc.Circuit(3)
-c.X(0)
-readout_error = []
-readout_error.append([0.9, 0.75])  # readout error of qubit 0
-readout_error.append([0.4, 0.7])  # readout error of qubit 1
-readout_error.append([0.7, 0.9])  # readout error of qubit 2
-value = c.sample_expectation_ps(z=[0, 1, 2], readout_error=readout_error)
-instance = c.sample(allow_state=True, readout_error=readout_error)
-instances = c.sample(
-    batch=3,
-    allow_state=True,
-    readout_error=readout_error,
-    random_generator=tc.backend.get_random_state(42),
-)
-
-c = tc.Circuit(1)
-c.x(0)
-c.thermalrelaxation(
-    0, t1=300, t2=400, time=1000, method="ByChoi", excitedstatepopulation=0
-)
-c.generaldepolarizing(0, p=0.01, num_qubits=1)
-c.phasedamping(0, gamma=0.2)
-c.amplitudedamping(0, gamma=0.25, p=0.2)
-c.reset(0)
-c.expectation_ps(z=[0])
-
-
-def noisecircuit(random):
-    c = tc.Circuit(1)
-    c.x(0)
-    c.thermalrelaxation(
-        0,
-        t1=300,
-        t2=400,
-        time=1000,
-        method="ByChoi",
-        excitedstatepopulation=0,
-        status=random,
-    )
-    return c.expectation_ps(z=[0])
-
-
-K = tc.set_backend("tensorflow")
-noisec_vmap = K.jit(K.vmap(noisecircuit, vectorized_argnums=0))
-nmc = 10000
-random = K.implicit_randu(nmc)
-valuemc = K.mean(K.numpy(noisec_vmap(random)))
-
-
-def noisecircuitdm():
-    dmc = tc.DMCircuit(1)
-    dmc.x(0)
-    dmc.thermalrelaxation(
-        0, t1=300, t2=400, time=1000, method="ByChoi", excitedstatepopulation=0
-    )
-    return dmc.expectation_ps(z=[0])
-
-
-K = tc.set_backend("tensorflow")
-noisec_jit = K.jit(noisecircuitdm)
-valuedm = noisec_jit()
