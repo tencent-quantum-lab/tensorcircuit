@@ -8,6 +8,8 @@
 
 - Add openqasm format transformation method `c.to_openqasm()`
 
+- Add native support for `phase` and `cphase` gates when transforming to qiskit
+
 ### Changed
 
 - The inner mechanism for `sample_expectation_ps` is changed to sample representation from count representation for a fast speed
@@ -19,6 +21,8 @@
 - `tc.quantum.correlation_from_samples` now fix the sign error with odd number of spins
 
 - Updated to the latest version of mypy and get rid of lots of type: ignored
+
+- Fix the dtype bug when float is pass to u gate or phase gate.
 
 ## 0.4.1
 

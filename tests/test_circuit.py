@@ -891,6 +891,8 @@ def test_qir2qiskit(backend):
     c.oy(4, 3)
     c.oz(4, 3)
     c.ox(3, 4)
+    c.phase(2, theta=0.3)
+    c.cphase(1, 0, theta=-1.2)
     c.rx(1, theta=tc.array_to_tensor(np.random.uniform()))
     c.r(5, theta=tc.array_to_tensor(np.random.uniform()))
     c.cr(
