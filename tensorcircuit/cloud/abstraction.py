@@ -2,7 +2,7 @@
 Abstraction for Provider, Device and Task
 """
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 
 class Provider:
@@ -126,3 +126,19 @@ class Device:
         from .apis import list_properties
 
         return list_properties(self.provider, self)
+
+    def submit_task(self, **task_kws: Any) -> List["Task"]:
+        from .apis import submit_task
+
+        return submit_task(provider=self.provider, device=self, **task_kws)
+
+
+class Task:
+    def __init__(self, id_: str, device: Device):
+        self.id_ = id_
+        self.device = device
+
+    def __repr__(self) -> str:
+        return self.device.__repr__() + "~~" + self.id_
+
+    __str__ = __repr__

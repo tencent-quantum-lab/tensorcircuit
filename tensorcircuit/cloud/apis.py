@@ -2,14 +2,14 @@
 main entrypoints of cloud module
 """
 
-from typing import Any, Optional, Dict, Union
+from typing import Any, List, Optional, Dict, Union
 from base64 import b64decode, b64encode
 from functools import partial
 import json
 import os
 import sys
 
-from .abstraction import Provider, Device, sep
+from .abstraction import Provider, Device, Task, sep
 from . import tencent
 from ..cons import backend
 
@@ -18,6 +18,11 @@ thismodule = sys.modules[__name__]
 
 
 default_provider = Provider.from_name("tencent")
+avail_providers = ["tencent"]
+
+
+def list_providers() -> List[Provider]:
+    return [get_provider(s) for s in avail_providers]
 
 
 def set_provider(
@@ -165,8 +170,29 @@ def list_properties(
         provider = device.provider
 
     if token is None:
-        token = provider.get_token()  # type: ignore
+        token = device.get_token()  # type: ignore
     if provider.name == "tencent":  # type: ignore
         return tencent.list_properties(device, token)
+    else:
+        raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
+
+
+def submit_task(
+    provider: Optional[Union[str, Provider]] = None,
+    device: Optional[Union[str, Device]] = None,
+    token: Optional[str] = None,
+    **task_kws: Any,
+) -> List[Task]:
+    if device is None:
+        device = default_device
+    device = Device.from_name(device, provider)
+    if provider is None:
+        provider = device.provider
+
+    if token is None:
+        token = device.get_token()  # type: ignore
+
+    if provider.name == "tencent":  # type: ignore
+        return tencent.submit_task(device, token, **task_kws)  # type: ignore
     else:
         raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
