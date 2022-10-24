@@ -450,17 +450,93 @@ For the Monte Carlo trajectory noise simulator, the unitary Kraus channel can be
 
 .. code-block:: python
 
-    >>> c = tc.Circuit(2)
-    >>> c.unitary_kraus(tc.channels.depolarizingchannel(0.2, 0.2, 0.2), 0)
-    0.0
-    >>> c.general_kraus(tc.channels.resetchannel(), 1)
-    0.0
-    >>> c.state()
-    array([0.+0.j, 0.+0.j, 0.+1.j, 0.+0.j], dtype=complex64)
+    def noisecircuit(random):
+        c = tc.Circuit(1)
+        c.x(0)
+        c.thermalrelaxation(
+            0,
+            t1=300,
+            t2=400,
+            time=1000,
+            method="ByChoi",
+            excitedstatepopulation=0,
+            status=random,
+        )
+        return c.expectation_ps(z=[0])
+
+
+    K = tc.set_backend("tensorflow")
+    noisec_vmap = K.jit(K.vmap(noisecircuit, vectorized_argnums=0))
+    nmc = 10000
+    random = K.implicit_randu(nmc)
+    valuemc = K.mean(K.numpy(noisec_vmap(random)))
+    # (0.931+0j)
+
 
 **Density Matrix Simulator:**
 
 Density matrix simulator ``tc.DMCircuit`` simulates the noise in a full form, but takes twice qubits to do noiseless simulation. The API is the same as ``tc.Circuit``.
+
+.. code-block:: python
+
+    def noisecircuitdm():
+        dmc = tc.DMCircuit(1)
+        dmc.x(0)
+        dmc.thermalrelaxation(
+            0, t1=300, t2=400, time=1000, method="ByChoi", excitedstatepopulation=0
+        )
+        return dmc.expectation_ps(z=[0])
+
+
+    K = tc.set_backend("tensorflow")
+    noisec_jit = K.jit(noisecircuitdm)
+    valuedm = noisec_jit()
+    # (0.931+0j)
+
+
+**Experiment with quantum errors:**
+
+Multiple quantum errors can be added on circuit.
+
+.. code-block:: python
+
+    c = tc.Circuit(1)
+    c.x(0)
+    c.thermalrelaxation(
+        0, t1=300, t2=400, time=1000, method="ByChoi", excitedstatepopulation=0
+    )
+    c.generaldepolarizing(0, p=0.01, num_qubits=1)
+    c.phasedamping(0, gamma=0.2)
+    c.amplitudedamping(0, gamma=0.25, p=0.2)
+    c.reset(0)
+    c.expectation_ps(z=[0])
+
+
+**Experiment with readout error:**
+
+Readout error can be added in experiments for sampling and expectation value calculation.
+
+.. code-block:: python
+
+    c = tc.Circuit(3)
+    c.X(0)
+    readout_error = []
+    readout_error.append([0.9, 0.75])  # readout error of qubit 0   p0|0=0.9, p1|1=0.75
+    readout_error.append([0.4, 0.7])  # readout error of qubit 1
+    readout_error.append([0.7, 0.9])  # readout error of qubit 2
+    value = c.sample_expectation_ps(z=[0, 1, 2], readout_error=readout_error)
+    # tf.Tensor(0.039999977, shape=(), dtype=float32)
+    instances = c.sample(
+        batch=3,
+        allow_state=True,
+        readout_error=readout_error,
+        random_generator=tc.backend.get_random_state(42),
+        format_="sample_bin"
+    )
+    # tf.Tensor(
+    # [[1 0 0]
+    # [1 0 0]
+    # [1 0 1]], shape=(3, 3), dtype=int32)
 
 
 MPS and MPO

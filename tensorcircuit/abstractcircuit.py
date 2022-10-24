@@ -601,6 +601,90 @@ class AbstractCircuit:
         return json.dumps(tcqasm)
 
     @classmethod
+    def from_qsim_file(
+        cls, file: str, circuit_params: Optional[Dict[str, Any]] = None
+    ) -> "AbstractCircuit":
+        with open(file, "r") as f:
+            lines = f.readlines()
+        if circuit_params is None:
+            circuit_params = {}
+        if "nqubits" not in circuit_params:
+            circuit_params["nqubits"] = int(lines[0])
+
+        c = cls(**circuit_params)
+        c = cls._apply_qsim(c, lines)
+        return c
+
+    @staticmethod
+    def _apply_qsim(c: "AbstractCircuit", qsim_str: List[str]) -> "AbstractCircuit":
+        def _convert_ints_and_floats(x: str) -> Union[str, int, float]:
+            try:
+                return int(x)
+            except ValueError:
+                pass
+
+            try:
+                return float(x)
+            except ValueError:
+                pass
+
+            return x.lower()
+
+        qsim_gates = [
+            tuple(map(_convert_ints_and_floats, line.strip().split(" ")))
+            for line in qsim_str[1:]
+            if line
+        ]
+        # https://github.com/quantumlib/qsim/blob/master/docs/input_format.md
+        # https://github.com/jcmgray/quimb/blob/master/quimb/tensor/circuit.py#L241
+        for gate in qsim_gates:
+            if gate[1] == "h":
+                getattr(c, "H")(gate[2])
+            elif gate[1] == "x":
+                getattr(c, "X")(gate[2])
+            elif gate[1] == "y":
+                getattr(c, "Y")(gate[2])
+            elif gate[1] == "z":
+                getattr(c, "Z")(gate[2])
+            elif gate[1] == "s":
+                getattr(c, "PHASE")(gate[2], theta=np.pi / 2)
+            elif gate[1] == "t":
+                getattr(c, "PHASE")(gate[2], theta=np.pi / 4)
+            elif gate[1] == "x_1_2":
+                getattr(c, "RX")(gate[2], theta=np.pi / 2)
+            elif gate[1] == "y_1_2":
+                getattr(c, "RY")(gate[2], theta=np.pi / 2)
+            elif gate[1] == "z_1_2":
+                getattr(c, "RZ")(gate[2], theta=np.pi / 2)
+            elif gate[1] == "w_1_2":
+                getattr(c, "U")(gate[2], theta=np.pi / 2, phi=-np.pi / 4, lbd=np.pi / 4)
+            elif gate[1] == "hz_1_2":
+                getattr(c, "WROOT")(gate[2])
+            elif gate[1] == "cnot":
+                getattr(c, "CNOT")(gate[2], gate[3])
+            elif gate[1] == "cx":
+                getattr(c, "CX")(gate[2], gate[3])
+            elif gate[1] == "cy":
+                getattr(c, "CY")(gate[2], gate[3])
+            elif gate[1] == "cz":
+                getattr(c, "CZ")(gate[2], gate[3])
+            elif gate[1] == "is" or gate[1] == "iswap":
+                getattr(c, "ISWAP")(gate[2], gate[3])
+            elif gate[1] == "rx":
+                getattr(c, "RX")(gate[2], theta=gate[3])
+            elif gate[1] == "ry":
+                getattr(c, "RY")(gate[2], theta=gate[3])
+            elif gate[1] == "rz":
+                getattr(c, "RZ")(gate[2], theta=gate[3])
+            elif gate[1] == "fs" or gate[1] == "fsim":
+                i, j, theta, phi = gate[2:]
+                getattr(c, "ISWAP")(i, j, theta=-theta)  # type: ignore
+                getattr(c, "CPHASE")(i, j, theta=-phi)  # type: ignore
+            else:
+                raise NotImplementedError
+        return c
+
+    @classmethod
     def from_json(
         cls, jsonstr: str, circuit_params: Optional[Dict[str, Any]] = None
     ) -> "AbstractCircuit":

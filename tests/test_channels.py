@@ -3,6 +3,7 @@ import os
 import numpy as np
 import pytest
 from pytest_lazyfixture import lazy_fixture as lf
+from scipy.optimize import minimize
 
 
 thisfile = os.path.abspath(__file__)
@@ -150,3 +151,217 @@ def test_noisecircuit(backend):
     valuedm = noisec_jit()
 
     np.testing.assert_allclose(valuemc, valuedm, atol=1e-1)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_readout(backend):
+
+    nqubit = 3
+    c = tc.Circuit(nqubit)
+    c.X(0)
+
+    value = c.sample_expectation_ps(z=[0, 1, 2])
+    valueaim = -1
+    np.testing.assert_allclose(value, valueaim, atol=1e-3)
+
+    readout_error = []
+    readout_error.append([0.9, 0.75])  # readout error of qubit 0
+    readout_error.append([0.4, 0.7])  # readout error of qubit 1
+    readout_error.append([0.7, 0.9])  # readout error of qubit 2
+
+    # readout_error is a list
+    value = c.sample_expectation_ps(z=[0, 1, 2], readout_error=readout_error)
+    valueaim = 0.04
+    np.testing.assert_allclose(value, valueaim, atol=1e-1)
+
+    # readout_error is a tensor
+    readout_error = tc.array_to_tensor(readout_error)
+    value = c.sample_expectation_ps(z=[0, 1, 2], readout_error=readout_error)
+    valueaim = 0.04
+    np.testing.assert_allclose(value, valueaim, atol=1e-1)
+
+    # test jitble
+    def jitest(readout_error):
+        nqubit = 3
+        c = tc.Circuit(nqubit)
+        c.X(0)
+        return c.sample_expectation_ps(z=[0, 1, 2], readout_error=readout_error)
+
+    calvalue = tc.backend.jit(jitest)
+    value = calvalue(readout_error)
+    valueaim = 0.04
+    np.testing.assert_allclose(value, valueaim, atol=1e-1)
+
+    # test contractor time
+    # start = timeit.default_timer()
+    # def speed(nqubit):
+    #     c = tc.Circuit(nqubit)
+    #     c.X(0)
+    #     readout_error = []
+    #     for _ in range(nqubit):
+    #         readout_error.append([0.9, 0.75])  # readout error of qubit 0
+    #     value = c.sample_expectation_ps(
+    #         z=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], readout_error=readout_error
+    #     )
+    #     return value
+
+    # speed(10)
+    # stop = timeit.default_timer()
+    # print("Time: ", stop - start)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_noisesample(backend):
+    readout_error = []
+    readout_error.append([0.9, 0.75])  # readout error of qubit 0
+    readout_error.append([0.4, 0.7])  # readout error of qubit 1
+    readout_error.append([0.7, 0.9])  # readout error of qubit 2
+
+    c = tc.Circuit(3)
+    c.H(0)
+    c.cnot(0, 1)
+    print(c.sample(allow_state=True, readout_error=readout_error))
+    print(c.sample(batch=8, allow_state=True, readout_error=readout_error))
+    print(
+        c.sample(
+            batch=8,
+            allow_state=True,
+            readout_error=readout_error,
+            random_generator=tc.backend.get_random_state(42),
+        )
+    )
+
+    key = tc.backend.get_random_state(42)
+    bs = c.sample(
+        batch=1000, allow_state=True, format_="count_dict_bin", random_generator=key
+    )
+    print(bs)
+    bs = c.sample(
+        batch=1000,
+        allow_state=True,
+        readout_error=readout_error,
+        format_="count_dict_bin",
+        random_generator=key,
+    )
+    print(bs)
+
+    # test jitble
+    def jitest(readout_error):
+        c = tc.Circuit(3)
+        c.H(0)
+        c.cnot(0, 1)
+        return c.sample(batch=8, allow_state=True, format_="sample_int")
+
+    calsample = tc.backend.jit(jitest)
+    sampletest = calsample(readout_error)
+    print(sampletest)
+
+
+# mitigate readout error
+def miti_readout_circ(nqubit):
+    miticirc = []
+    for i in range(2**nqubit):
+        name = "{:0" + str(nqubit) + "b}"
+        lisbs = [int(x) for x in name.format(i)]
+        c = tc.Circuit(nqubit)
+        for k in range(nqubit):
+            if lisbs[k] == 1:
+                c.X(k)
+        miticirc.append(c)
+    return miticirc
+
+
+def probability_bs(bs):
+    nqubit = len(list(bs.keys())[0])
+    probability = [0] * 2**nqubit
+    shots = sum([bs[s] for s in bs])
+    for s in bs:
+        probability[int(s, 2)] = bs[s] / shots
+    return probability
+
+
+def mitigate_probability(probability_noise, calmatrix, method="inverse"):
+    if method == "inverse":
+        X = np.linalg.inv(calmatrix)
+        Y = probability_noise
+        probability_cali = X @ Y
+    else:  # method="square"
+
+        def fun(x):
+            return sum((probability_noise - calmatrix @ x) ** 2)
+
+        x0 = np.random.rand(len(probability_noise))
+        cons = {"type": "eq", "fun": lambda x: 1 - sum(x)}
+        bnds = tuple((0, 1) for x in x0)
+        res = minimize(fun, x0, method="SLSQP", constraints=cons, bounds=bnds, tol=1e-6)
+        probability_cali = res.x
+    return probability_cali
+
+
+def mitigate_readout(nqubit, circ, readout_error):
+
+    key = tc.backend.get_random_state(42)
+    keys = []
+    for _ in range(2**nqubit):
+        key, subkey = tc.backend.random_split(key)
+        keys.append(subkey)
+
+    # calibration matrix
+    miticirc = miti_readout_circ(nqubit)
+    shots = 100000
+    calmatrix = np.zeros((2**nqubit, 2**nqubit))
+    for i in range(2**nqubit):
+        c = miticirc[i]
+        bs = c.sample(
+            batch=shots,
+            allow_state=True,
+            readout_error=readout_error,
+            format_="count_dict_bin",
+            random_generator=keys[i],
+        )
+        for s in bs:
+            calmatrix[int(s, 2)][i] = bs[s] / shots
+
+    key, subkey = tc.backend.random_split(key)
+    bs = circ.sample(
+        batch=shots, allow_state=True, format_="count_dict_bin", random_generator=subkey
+    )
+    probability_perfect = probability_bs(bs)
+    print("probability_without_readouterror", probability_perfect)
+
+    key, subkey = tc.backend.random_split(key)
+    bs = circ.sample(
+        batch=shots,
+        allow_state=True,
+        readout_error=readout_error,
+        format_="count_dict_bin",
+        random_generator=subkey,
+    )
+    probability_noise = probability_bs(bs)
+    print("probability_with_readouterror", probability_noise)
+
+    probability_miti = mitigate_probability(
+        probability_noise, calmatrix, method="inverse"
+    )
+    print("mitigate_readouterror_method1", probability_miti)
+
+    probability_miti = mitigate_probability(
+        probability_noise, calmatrix, method="square"
+    )
+    print("mitigate_readouterror_method2", probability_miti)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_readout_mitigate(backend):
+    nqubit = 3
+    c = tc.Circuit(nqubit)
+    c.H(0)
+    c.cnot(0, 1)
+    c.X(2)
+
+    readout_error = []
+    readout_error.append([0.9, 0.75])  # readout error of qubit 0, p0|0=0.9, p1|1=0.75
+    readout_error.append([0.4, 0.7])  # readout error of qubit 1
+    readout_error.append([0.7, 0.9])  # readout error of qubit 2
+
+    mitigate_readout(nqubit, c, readout_error)
