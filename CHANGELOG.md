@@ -6,6 +6,8 @@
 
 - Add new parameter shift gradient API that supports finite measurement shots and the corresponding example scripts
 
+- Add openqasm format transformation method `c.to_openqasm()`
+
 ### Changed
 
 - The inner mechanism for `sample_expectation_ps` is changed to sample representation from count representation for a fast speed
