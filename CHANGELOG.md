@@ -10,6 +10,8 @@
 
 - Add native support for `phase` and `cphase` gates when transforming to qiskit
 
+- Add native support for `rxx`, `ryy`, `rzz` and `u`, `cu` gates when transforming to qiskit
+
 ### Changed
 
 - The inner mechanism for `sample_expectation_ps` is changed to sample representation from count representation for a fast speed
@@ -22,7 +24,11 @@
 
 - Updated to the latest version of mypy and get rid of lots of type: ignored
 
-- Fix the dtype bug when float is pass to u gate or phase gate.
+- Fix the dtype bug when float is pass to u gate or phase gate
+
+- Fix to qiskit bug when parameterized gate has default nonset parameters
+
+- Fix `iswap` gate translation to qiskit with support for parameters
 
 ## 0.4.1
 
