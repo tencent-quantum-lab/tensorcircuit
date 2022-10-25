@@ -12,6 +12,8 @@
 
 - Add native support for `rxx`, `ryy`, `rzz` and `u`, `cu` gates when transforming to qiskit
 
+- Add native support for `u` gate when transforming from qiskit
+
 ### Changed
 
 - The inner mechanism for `sample_expectation_ps` is changed to sample representation from count representation for a fast speed

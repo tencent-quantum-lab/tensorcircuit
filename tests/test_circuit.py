@@ -976,6 +976,7 @@ def test_qiskit2tc():
     qisc.cz(0, 1, ctrl_state=0)
     qisc.cy(0, 1, ctrl_state=0)
     qisc.cx(0, 1, ctrl_state=0)
+    qisc.u(0.3, 0.9, -1.2, 2)
     qisc.rx(np.random.uniform(), 1)
     qisc.ry(np.random.uniform(), 2)
     qisc.rz(np.random.uniform(), 3)
