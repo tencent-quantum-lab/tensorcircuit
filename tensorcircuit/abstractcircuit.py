@@ -509,6 +509,17 @@ class AbstractCircuit:
         qir = self.to_qir()
         return qir2qiskit(qir, n=self._nqubits)
 
+    def to_openqasm(self, **kws: Any) -> str:
+        """
+        transform circuit to openqasm via qiskit circuit,
+        see https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.qasm.html
+        for usage on possible options for ``kws``
+
+        :return: circuit representation in openqasm format
+        :rtype: str
+        """
+        return self.to_qiskit().qasm(**kws)  # type: ignore
+
     def draw(self, **kws: Any) -> Any:
         """
         Visualise the circuit.

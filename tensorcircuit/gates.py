@@ -478,6 +478,7 @@ def phase_gate(theta: float = 0) -> Gate:
     :return: phase gate
     :rtype: Gate
     """
+    theta = array_to_tensor(theta)
     i00, i11 = array_to_tensor(np.array([[1, 0], [0, 0]]), np.array([[0, 0], [0, 1]]))
     unitary = i00 + backend.exp(1.0j * theta) * i11
     return Gate(unitary)
@@ -527,6 +528,7 @@ def u_gate(theta: float = 0, phi: float = 0, lbd: float = 0) -> Gate:
     :return: _description_
     :rtype: Gate
     """
+    theta, phi, lbd = array_to_tensor(theta, phi, lbd)
     i00, i01, i10, i11 = array_to_tensor(
         np.array([[1, 0], [0, 0]]),
         np.array([[0, 1], [0, 0]]),

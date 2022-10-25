@@ -891,6 +891,8 @@ def test_qir2qiskit(backend):
     c.oy(4, 3)
     c.oz(4, 3)
     c.ox(3, 4)
+    c.phase(2, theta=0.3)
+    c.cphase(1, 0, theta=-1.2)
     c.rx(1, theta=tc.array_to_tensor(np.random.uniform()))
     c.r(5, theta=tc.array_to_tensor(np.random.uniform()))
     c.cr(
@@ -1193,3 +1195,13 @@ def test_gate_count():
     assert c.gate_count(["rx", "multicontrol"]) == 2
     print(c.gate_summary())
     # {'h': 2, 'rx': 1, 'multicontrol': 1, 'toffoli': 3}
+
+
+def test_to_openqasm():
+    c = tc.Circuit(3)
+    c.H(0)
+    c.rz(2, theta=0.2)
+    c.cnot(2, 1)
+    c.rzz(0, 1, theta=-1.0)
+    c.ccx(1, 2, 0)
+    print(c.to_openqasm(formatted=True))

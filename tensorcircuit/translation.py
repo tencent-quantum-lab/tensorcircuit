@@ -124,6 +124,13 @@ def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
                 ).item(),
                 *index
             )
+        elif gate_name in ["phase", "cphase"]:
+            getattr(qiskit_circ, gate_name[:-4])(
+                np.real(
+                    backend.numpy(gates.array_to_tensor(parameters["theta"]))
+                ).item(),
+                *index
+            )
         elif gate_name in ["orx", "ory", "orz"]:
             getattr(qiskit_circ, "c" + gate_name[1:])(
                 np.real(
