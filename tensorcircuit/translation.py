@@ -12,11 +12,12 @@ logger = logging.getLogger(__name__)
 
 try:
     from qiskit import QuantumCircuit
+    from qiskit.circuit.library import XXPlusYYGate
     import qiskit.quantum_info as qi
     from qiskit.extensions.exceptions import ExtensionError
 except ImportError:
     logger.warning(
-        "Please first ``pip install qiskit`` to enable related functionality"
+        "Please first ``pip install -U qiskit`` to enable related functionality"
     )
 
 from . import gates
@@ -52,6 +53,10 @@ def perm_matrix(n: int) -> Tensor:
             bit = bit >> 1
         p_mat[i, revs_i] = 1
     return p_mat
+
+
+def _get_float(parameters: Any, key: str, default: int = 0) -> float:
+    return np.real(backend.numpy(gates.array_to_tensor(parameters.get(key, default)))).item()  # type: ignore
 
 
 def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
@@ -95,7 +100,7 @@ def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
             "s",
             "t",
             "swap",
-            "iswap",
+            # "iswap",
             "cnot",
             "toffoli",
             "fredkin",
@@ -109,35 +114,44 @@ def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
             getattr(qiskit_circ, gate_name + "g")(*index)
         elif gate_name in ["ox", "oy", "oz"]:
             getattr(qiskit_circ, "c" + gate_name[1:])(*index, ctrl_state=0)
-        elif gate_name == "wroot":
-            wroot_op = qi.Operator(
-                np.reshape(
-                    backend.numpy(gate_info["gatef"](**parameters).tensor),
-                    [2 ** len(index), 2 ** len(index)],
-                )
-            )
-            qiskit_circ.unitary(wroot_op, index, label=qis_name)
-        elif gate_name in ["rx", "ry", "rz", "crx", "cry", "crz"]:
-            getattr(qiskit_circ, gate_name)(
-                np.real(
-                    backend.numpy(gates.array_to_tensor(parameters["theta"]))
-                ).item(),
+        elif gate_name == "u":
+            getattr(qiskit_circ, "u")(
+                _get_float(parameters, "theta"),
+                _get_float(parameters, "phi"),
+                _get_float(parameters, "lbd"),
                 *index
             )
+        elif gate_name == "cu":
+            getattr(qiskit_circ, "cu")(
+                _get_float(parameters, "theta"),
+                _get_float(parameters, "phi"),
+                _get_float(parameters, "lbd"),
+                0,  # gamma
+                *index
+            )
+        elif gate_name == "iswap":
+            qiskit_circ.append(
+                XXPlusYYGate(np.pi * _get_float(parameters, "theta", 1), np.pi),
+                index,
+            )
+        elif gate_name == "wroot":
+            getattr(qiskit_circ, "u")(np.pi / 2, -np.pi / 4, np.pi / 4, *index)
+            # wroot_op = qi.Operator(
+            #     np.reshape(
+            #         backend.numpy(gate_info["gatef"](**parameters).tensor),
+            #         [2 ** len(index), 2 ** len(index)],
+            #     )
+            # )
+            # qiskit_circ.unitary(wroot_op, index, label=qis_name)
+        elif gate_name in ["rx", "ry", "rz", "crx", "cry", "crz", "rxx", "ryy", "rzz"]:
+            getattr(qiskit_circ, gate_name)(_get_float(parameters, "theta"), *index)
         elif gate_name in ["phase", "cphase"]:
             getattr(qiskit_circ, gate_name[:-4])(
-                np.real(
-                    backend.numpy(gates.array_to_tensor(parameters["theta"]))
-                ).item(),
-                *index
+                _get_float(parameters, "theta"), *index
             )
         elif gate_name in ["orx", "ory", "orz"]:
             getattr(qiskit_circ, "c" + gate_name[1:])(
-                np.real(
-                    backend.numpy(gates.array_to_tensor(parameters["theta"]))
-                ).item(),
-                *index,
-                ctrl_state=0
+                _get_float(parameters, "theta"), *index, ctrl_state=0
             )
         elif gate_name in ["exp", "exp1"]:
             unitary = backend.numpy(backend.convert_to_tensor(parameters["unitary"]))
@@ -158,19 +172,18 @@ def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
                 )
             )
             qiskit_circ.unitary(qop, index[::-1], label=qis_name)
-        # TODO(@refraction-ray): support for phase gate and U, cU gate for the circuit translation
         else:  # r cr any gate
-            qop = qi.Operator(
-                np.reshape(
-                    backend.numpy(gate_info["gatef"](**parameters).tensor),
-                    [2 ** len(index), 2 ** len(index)],
-                )
+            gatem = np.reshape(
+                backend.numpy(gate_info["gatef"](**parameters).tensor),
+                [2 ** len(index), 2 ** len(index)],
             )
+            qop = qi.Operator(gatem)
             try:
                 qiskit_circ.unitary(qop, index[::-1], label=qis_name)
             except ExtensionError:
                 logger.warning(
-                    "omit non unitary gate in tensorcircuit when transforming to qiskit"
+                    "omit non unitary gate in tensorcircuit when transforming to qiskit: %s"
+                    % gate_name
                 )
                 qiskit_circ.unitary(
                     np.eye(2 ** len(index)), index[::-1], label=qis_name
