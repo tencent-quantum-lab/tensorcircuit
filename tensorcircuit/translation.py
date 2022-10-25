@@ -100,7 +100,6 @@ def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
             "s",
             "t",
             "swap",
-            # "iswap",
             "cnot",
             "toffoli",
             "fredkin",
@@ -136,13 +135,6 @@ def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
             )
         elif gate_name == "wroot":
             getattr(qiskit_circ, "u")(np.pi / 2, -np.pi / 4, np.pi / 4, *index)
-            # wroot_op = qi.Operator(
-            #     np.reshape(
-            #         backend.numpy(gate_info["gatef"](**parameters).tensor),
-            #         [2 ** len(index), 2 ** len(index)],
-            #     )
-            # )
-            # qiskit_circ.unitary(wroot_op, index, label=qis_name)
         elif gate_name in ["rx", "ry", "rz", "crx", "cry", "crz", "rxx", "ryy", "rzz"]:
             getattr(qiskit_circ, gate_name)(_get_float(parameters, "theta"), *index)
         elif gate_name in ["phase", "cphase"]:
@@ -296,7 +288,6 @@ def qiskit2tc(
                 base_gate = gate_info[0].base_gate
                 ctrl_state = [1] * base_gate.num_qubits
                 idx = idx[: -base_gate.num_qubits] + idx[-base_gate.num_qubits :][::-1]
-                # print(idx)
                 tc_circuit.multicontrol(
                     *idx, ctrl=ctrl_state, unitary=base_gate.to_matrix()
                 )
