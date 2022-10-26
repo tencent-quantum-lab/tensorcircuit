@@ -4,6 +4,8 @@
 
 ### Added
 
+- Finished quantum noise modeling and simulation development stage 1. Add more quantum channels and the differentiable transformation between different channel forms. Add readout error support for sample and sample_expectation_ps methods.
+
 - Add new parameter shift gradient API that supports finite measurement shots and the corresponding example scripts
 
 - Add openqasm format transformation method `c.to_openqasm()`
@@ -13,6 +15,8 @@
 - Add native support for `rxx`, `ryy`, `rzz` and `u`, `cu` gates when transforming to qiskit
 
 - Add native support for `u` gate when transforming from qiskit
+
+- Add circuit `from_qsim_file` method to load Google random circuit structure
 
 ### Changed
 
