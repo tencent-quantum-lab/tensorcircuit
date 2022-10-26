@@ -45,7 +45,7 @@ def list_properties(device: Device, token: Optional[str] = None) -> Dict[str, An
 def submit_task(
     device: Device,
     token: str,
-    lang: str,
+    lang: str = "OPENQASM",
     shots: Union[int, Sequence[int]] = 1024,
     version: str = "1",
     prior: int = 1,
@@ -54,7 +54,11 @@ def submit_task(
     remarks: Optional[str] = None,
 ) -> List[Task]:
     if source is None:
-        pass  # circuit to source logic
+        if is_sequence(circuit):
+            source = [c.to_openqasm() for c in circuit]  # type: ignore
+        else:
+            source = circuit.to_openqasm()  # type: ignore
+        lang = "OPENQASM"
     if is_sequence(source):
         # batched mode
         json = []
@@ -87,6 +91,18 @@ def submit_task(
         tencent_base_url + "task/submit", json=json, headers=tencent_headers(token)
     )
     try:
-        return [Task(id_=t["id"], device=device) for t in r["tasks"]]
+        rtn = [Task(id_=t["id"], device=device) for t in r["tasks"]]
+        if len(rtn) == 1:
+            return rtn[0]  # type: ignore
+        else:
+            return rtn
     except KeyError:
         raise ValueError(dumps(r))
+
+
+def get_task_details(task: Task, device: Device, token: str) -> Dict[str, Any]:
+    json = {"id": task.id_}
+    r = rpost_json(
+        tencent_base_url + "task/detail", json=json, headers=tencent_headers(token)
+    )
+    return r  # type: ignore

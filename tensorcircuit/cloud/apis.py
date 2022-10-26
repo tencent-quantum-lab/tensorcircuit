@@ -41,7 +41,7 @@ def set_provider(
 set_provider()
 get_provider = partial(set_provider, set_global=False)
 
-default_device = Device.from_name("tencent::hello")
+default_device = Device.from_name("tencent::simulator:aer")
 
 
 def set_device(
@@ -49,6 +49,8 @@ def set_device(
     device: Optional[Union[str, Device]] = None,
     set_global: bool = True,
 ) -> Device:
+    if provider is not None and device is None:
+        provider, device = None, provider
     if device is None:
         device = default_device
     device = Device.from_name(device, provider)
@@ -163,6 +165,8 @@ def list_properties(
     device: Optional[Union[str, Device]] = None,
     token: Optional[str] = None,
 ) -> Dict[str, Any]:
+    if provider is not None and device is None:
+        provider, device = None, provider
     if device is None:
         device = default_device
     device = Device.from_name(device, provider)
@@ -173,6 +177,39 @@ def list_properties(
         token = device.get_token()  # type: ignore
     if provider.name == "tencent":  # type: ignore
         return tencent.list_properties(device, token)
+    else:
+        raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
+
+
+def get_task(
+    taskid: str,
+    provider: Optional[Union[str, Provider]] = None,
+    device: Optional[Union[str, Device]] = None,
+) -> Task:
+    if provider is not None and device is None:
+        provider, device = None, provider
+    if device is not None:  # device can be None for identify tasks
+        device = Device.from_name(device, provider)
+    return Task(taskid, device=device)
+
+
+def get_task_details(
+    taskid: Union[str, Task], token: Optional[str] = None
+) -> Dict[str, Any]:
+    if isinstance(taskid, str):
+        task = Task(taskid)
+    else:
+        task = taskid
+    if task.device is not None:
+        device = task.device
+    else:
+        device = default_device
+    if token is None:
+        token = device.get_token()
+    provider = device.provider
+
+    if provider.name == "tencent":
+        return tencent.get_task_details(task, device, token)  # type: ignore
     else:
         raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
 

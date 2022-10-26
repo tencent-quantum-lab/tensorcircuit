@@ -132,9 +132,14 @@ class Device:
 
         return submit_task(provider=self.provider, device=self, **task_kws)
 
+    def get_task(self, taskid: str) -> "Task":
+        from .apis import get_task
+
+        return get_task(taskid, device=self)
+
 
 class Task:
-    def __init__(self, id_: str, device: Device):
+    def __init__(self, id_: str, device: Optional[Device] = None):
         self.id_ = id_
         self.device = device
 
@@ -142,3 +147,8 @@ class Task:
         return self.device.__repr__() + "~~" + self.id_
 
     __str__ = __repr__
+
+    def details(self) -> Dict[str, Any]:
+        from .apis import get_task_details
+
+        return get_task_details(self)

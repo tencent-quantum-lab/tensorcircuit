@@ -6,6 +6,7 @@ thisfile = os.path.abspath(__file__)
 modulepath = os.path.dirname(os.path.dirname(thisfile))
 
 sys.path.insert(0, modulepath)
+import tensorcircuit as tc
 from tensorcircuit.cloud import apis
 from tensorcircuit.cloud import config
 
@@ -40,8 +41,18 @@ def test_get_device():
 
 
 def test_list_properties():
-    d = apis.get_device(device="hello")
+    d = apis.get_device(device="simulator:aer")
     print(d.list_properties())
-    print(apis.list_properties(device="tencent::hello"))
+    print(apis.list_properties(device="simulator:aer"))
     with pytest.raises(ValueError):
         apis.list_properties(device="hell")
+
+
+def test_submit_task():
+    c = tc.Circuit(3)
+    c.H(0)
+    c.H(1)
+    c.H(2)
+    t = apis.submit_task(device="simulator:aer", circuit=c)
+    r = t.details()
+    assert r["task"]["state"] in ["pending", "completed"]
