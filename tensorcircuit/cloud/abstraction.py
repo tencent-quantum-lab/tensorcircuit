@@ -152,3 +152,17 @@ class Task:
         from .apis import get_task_details
 
         return get_task_details(self)
+
+    def state(self) -> str:
+        r = self.details()
+        return r["state"]  # type: ignore
+
+    def results(self, format: Optional[str] = None) -> Any:
+        # TODO(@refraction-ray): support different formats compatible with tc,
+        # also support format_ alias
+        if self.state() != "completed":
+            raise ValueError("Task %s is not completed yet" % self.id_)
+        r = self.details()["results"]
+        return r
+
+    status = state

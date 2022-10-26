@@ -105,4 +105,27 @@ def get_task_details(task: Task, device: Device, token: str) -> Dict[str, Any]:
     r = rpost_json(
         tencent_base_url + "task/detail", json=json, headers=tencent_headers(token)
     )
-    return r  # type: ignore
+    try:
+        if "counts" in r["task"]["result"]:
+            r["task"]["results"] = r["task"]["result"]["counts"]
+        return r["task"]  # type: ignore
+    except KeyError:
+        raise ValueError(dumps(r))
+
+    # make the return at least contain the following terms across different providers
+    """
+    'id': 'd947cd76-a961-4c22-b295-76287c9fdaa3',
+    'state': 'completed',
+    'at': 1666752095915849,
+    'shots': 1024,
+    'source': 'OPENQASM 2.0;\ninclude "qelib1.inc";\nqreg q[3];\nh q[0];\nh q[1];\nh q[2];\n', 
+    'device': 'simulator:aer',
+    'results':  {'000': 123,
+    '001': 126,
+    '010': 131,
+    '011': 128,
+    '100': 122,
+    '101': 135,
+    '110': 128,
+    '111': 131}
+    """
