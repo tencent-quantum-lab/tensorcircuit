@@ -1,6 +1,6 @@
 import pytest
 from pytest_lazyfixture import lazy_fixture as lf
-
+import numpy as np
 
 import tensorcircuit as tc
 from tensorcircuit.noisemodel import (
@@ -27,6 +27,8 @@ def test_noisemodel_expectvalue(backend):
     readout_error.append([0.4, 0.7])  # readout error of qubit 1
 
     noise_conf1 = NoiseConf()
+    noise_conf1.add_noise("rx", error1)
+    noise_conf1.add_noise("h", error3)
     noise_conf1.add_noise("readout", readout_error)
 
     c = tc.Circuit(2)
@@ -35,7 +37,8 @@ def test_noisemodel_expectvalue(backend):
     c.x(1)
     cnoise = circuit_with_noise(c, noise_conf, [0.1] * 2)
     value = cnoise.expectation_ps(z=[0, 1])
-    print("noise_circuit_value", value)
+    # print("noise_circuit_value", value)
+    np.testing.assert_allclose(value, -0.18, atol=1e-2)
 
     dmc = tc.DMCircuit(2)
     dmc.rx(0, theta=0.4)
@@ -43,19 +46,28 @@ def test_noisemodel_expectvalue(backend):
     dmc.x(1)
     cnoise = circuit_with_noise(dmc, noise_conf)
     value = cnoise.expectation_ps(z=[0, 1])
-    print("noise_circuit_value", value)
+    # print("noise_circuit_value", value)
+    np.testing.assert_allclose(value, -0.28, atol=1e-2)
 
     value = expectation_ps_noisfy(c, z=[0, 1], nmc=10000)
-    print("mc", value)
+    # print("mc", value)
+    np.testing.assert_allclose(value, 0, atol=1e-2)
 
     value = expectation_ps_noisfy(dmc, z=[0, 1])
-    print("dm", value)
+    # print("dm", value)
+    np.testing.assert_allclose(value, 0, atol=1e-2)
 
     value = expectation_ps_noisfy(c, z=[0, 1], noise_conf=noise_conf, nmc=10000)
-    print("mc_quantum", value)
+    # print("mc_quantum", value)
+    np.testing.assert_allclose(value, -0.28, atol=1e-2)
 
     value = expectation_ps_noisfy(dmc, z=[0, 1], noise_conf=noise_conf)
-    print("dm_quantum", value)
+    # print("dm_quantum", value)
+    np.testing.assert_allclose(value, -0.28, atol=1e-2)
+
+    value = expectation_ps_noisfy(c, z=[0, 1], noise_conf=noise_conf1, nmc=10000)
+    # print("mc_readout", value)
+    np.testing.assert_allclose(value, -0.28, atol=1e-2)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
@@ -87,13 +99,16 @@ def test_noisemodel_sample(backend):
     value = sample_expectation_ps_noisfy(
         c, z=[0, 1], noise_conf=noise_conf1, nmc=100000
     )
-    print("noise_nmc_read", value)
+    # print("noise_nmc_read", value)
+    np.testing.assert_allclose(value, -0.06, atol=1e-2)
 
     value = sample_expectation_ps_noisfy(c, z=[0, 1], noise_conf=noise_conf, nmc=10000)
-    print("noise_nmc_read_quantum", value)
+    # print("noise_nmc_read_quantum", value)
+    np.testing.assert_allclose(value, -0.133, atol=1e-2)
 
     value = sample_expectation_ps_noisfy(c, z=[0, 1], noise_conf=noise_conf2, nmc=10000)
-    print("noise_nmc_quantum", value)
+    # print("noise_nmc_quantum", value)
+    np.testing.assert_allclose(value, -0.28, atol=1e-2)
 
     dmc = tc.DMCircuit(2)
     dmc.rx(0, theta=0.4)
@@ -101,10 +116,13 @@ def test_noisemodel_sample(backend):
     dmc.x(1)
 
     value = sample_expectation_ps_noisfy(dmc, z=[0, 1], noise_conf=noise_conf1)
-    print("noise_dm_read", value)
+    # print("noise_dm_read", value)
+    np.testing.assert_allclose(value, -0.06, atol=1e-2)
 
     value = sample_expectation_ps_noisfy(dmc, z=[0, 1], noise_conf=noise_conf)
-    print("noise_dm_read_quantum", value)
+    # print("noise_dm_read_quantum", value)
+    np.testing.assert_allclose(value, -0.133, atol=1e-2)
 
     value = sample_expectation_ps_noisfy(dmc, z=[0, 1], noise_conf=noise_conf2)
-    print("noise_nmc_quantum", value)
+    # print("noise_nmc_quantum", value)
+    np.testing.assert_allclose(value, -0.28, atol=1e-2)
