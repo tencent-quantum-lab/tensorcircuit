@@ -20,6 +20,8 @@
 
 - Add `searchsorted` method for backend
 
+- Add `probability_sample` method for backend as an alternative for `random_choice` since it supports `status` as external randomness format
+
 ### Changed
 
 - The inner mechanism for `sample_expectation_ps` is changed to sample representation from count representation for a fast speed

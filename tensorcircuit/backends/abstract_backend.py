@@ -1067,6 +1067,41 @@ class ExtendedBackend:
             "Backend '{}' has not implemented `stateful_randc`.".format(self.name)
         )
 
+    def probability_sample(
+        self: Any, shots: int, p: Tensor, status: Optional[Tensor] = None, g: Any = None
+    ) -> Tensor:
+        """
+        Drawn ``shots`` samples from probability distribution p, given the external randomness
+        determined by uniform distributed ``status`` tensor or backend random generator ``g``.
+        This method is similar with ``stateful_randc``, but it supports ``status`` beyond ``g``,
+        which is convenient when jit or vmap
+
+        :param shots: Number of samples to draw with replacement
+        :type shots: int
+        :param p: prbability vector
+        :type p: Tensor
+        :param status: external randomness as a tensor with each element drawn uniformly from [0, 1],
+            defaults to None
+        :type status: Optional[Tensor], optional
+        :param g: backend random genrator, defaults to None
+        :type g: Any, optional
+        :return: The drawn sample as an int tensor
+        :rtype: Tensor
+        """
+        if status is not None:
+            status = self.convert_to_tensor(status)
+        elif g is not None:
+            status = self.stateful_randu(g, shape=[shots])
+        else:
+            status = self.implicit_randu(shape=[shots])
+        p = p / self.sum(p)
+        p_cuml = self.cumsum(p)
+        r = p_cuml[-1] * (1 - self.cast(status, p.dtype))
+        ind = self.searchsorted(p_cuml, r)
+        a = self.arange(shots)
+        res = self.gather1d(a, ind)
+        return res
+
     def gather1d(self: Any, operand: Tensor, indices: Tensor) -> Tensor:
         """
         Return ``operand[indices]``, both ``operand`` and ``indices`` are rank-1 tensor.
