@@ -434,6 +434,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend, ExtendedBackend): 
             return self.reshape(x, x.shape[:-1])
         return x
 
+    def searchsorted(self, a: Tensor, v: Tensor, side: str = "left") -> Tensor:
+        return tf.searchsorted(a, v, side)
+
     def from_dlpack(self, a: Any) -> Tensor:
         return tf.experimental.dlpack.from_dlpack(a)
 

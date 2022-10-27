@@ -746,6 +746,26 @@ class ExtendedBackend:
             "Backend '{}' has not implemented `solve`.".format(self.name)
         )
 
+    def searchsorted(self: Any, a: Tensor, v: Tensor, side: str = "left") -> Tensor:
+        """
+        Find indices where elements should be inserted to maintain order.
+
+        :param a: input array sorted in ascending order
+        :type a: Tensor
+        :param v: value to inserted
+        :type v: Tensor
+        :param side:  If ‘left’, the index of the first suitable location found is given.
+            If ‘right’, return the last such index.
+            If there is no suitable index, return either 0 or N (where N is the length of a),
+            defaults to "left"
+        :type side: str, optional
+        :return: Array of insertion points with the same shape as v, or an integer if v is a scalar.
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `searchsorted`.".format(self.name)
+        )
+
     def tree_map(self: Any, f: Callable[..., Any], *pytrees: Any) -> Any:
         """
         Return the new tree map with multiple arg function ``f`` through pytrees.
@@ -1046,6 +1066,41 @@ class ExtendedBackend:
         raise NotImplementedError(
             "Backend '{}' has not implemented `stateful_randc`.".format(self.name)
         )
+
+    def probability_sample(
+        self: Any, shots: int, p: Tensor, status: Optional[Tensor] = None, g: Any = None
+    ) -> Tensor:
+        """
+        Drawn ``shots`` samples from probability distribution p, given the external randomness
+        determined by uniform distributed ``status`` tensor or backend random generator ``g``.
+        This method is similar with ``stateful_randc``, but it supports ``status`` beyond ``g``,
+        which is convenient when jit or vmap
+
+        :param shots: Number of samples to draw with replacement
+        :type shots: int
+        :param p: prbability vector
+        :type p: Tensor
+        :param status: external randomness as a tensor with each element drawn uniformly from [0, 1],
+            defaults to None
+        :type status: Optional[Tensor], optional
+        :param g: backend random genrator, defaults to None
+        :type g: Any, optional
+        :return: The drawn sample as an int tensor
+        :rtype: Tensor
+        """
+        if status is not None:
+            status = self.convert_to_tensor(status)
+        elif g is not None:
+            status = self.stateful_randu(g, shape=[shots])
+        else:
+            status = self.implicit_randu(shape=[shots])
+        p = p / self.sum(p)
+        p_cuml = self.cumsum(p)
+        r = p_cuml[-1] * (1 - self.cast(status, p.dtype))
+        ind = self.searchsorted(p_cuml, r)
+        a = self.arange(self.shape_tuple(p)[0])
+        res = self.gather1d(a, ind)
+        return res
 
     def gather1d(self: Any, operand: Tensor, indices: Tensor) -> Tensor:
         """

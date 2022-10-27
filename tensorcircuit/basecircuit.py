@@ -510,6 +510,7 @@ class BaseCircuit(AbstractCircuit):
         readout_error: Optional[Sequence[Any]] = None,
         format: Optional[str] = None,
         random_generator: Optional[Any] = None,
+        status: Optional[Tensor] = None,
     ) -> Any:
         """
         batched sampling from state or circuit tensor network directly
@@ -526,6 +527,9 @@ class BaseCircuit(AbstractCircuit):
         :type format: Optional[str]
         :param random_generator: random generator,  defaults to None
         :type random_generator: Optional[Any], optional
+        :param status: external randomness given by tensor uniformly from [0, 1],
+            if set, can overwrite random_generator
+        :type status: Optional[Tensor]
         :return: List (if batch) of tuple (binary configuration tensor and correponding probability)
             if the format is None, and consitent with format when given
         :rtype: Any
@@ -578,21 +582,20 @@ class BaseCircuit(AbstractCircuit):
                 # readout error
                 if readout_error is not None:
                     p = self.readouterror_bs(readout_error, p)
-
-            a_range = backend.arange(2**self._nqubits)
-            if random_generator is None:
-                ch = backend.implicit_randc(a=a_range, shape=[nbatch], p=p)
-            else:
-                ch = backend.stateful_randc(
-                    random_generator, a=a_range, shape=[nbatch], p=p
-                )
+            ch = backend.probability_sample(nbatch, p, status, random_generator)
+            # if random_generator is None:
+            #     ch = backend.implicit_randc(a=a_range, shape=[nbatch], p=p)
+            # else:
+            #     ch = backend.stateful_randc(
+            #         random_generator, a=a_range, shape=[nbatch], p=p
+            #     )
             # confg = backend.mod(
             #     backend.right_shift(
             #         ch[..., None], backend.reverse(backend.arange(self._nqubits))
             #     ),
             #     2,
             # )
-            if format is None:
+            if format is None:  # for backward compatibility
                 confg = sample_int2bin(ch, self._nqubits)
                 prob = backend.gather1d(p, ch)
                 r = list(zip(confg, prob))  # type: ignore
@@ -608,6 +611,7 @@ class BaseCircuit(AbstractCircuit):
         z: Optional[Sequence[int]] = None,
         shots: Optional[int] = None,
         random_generator: Optional[Any] = None,
+        status: Optional[Tensor] = None,
         readout_error: Optional[Sequence[Any]] = None,
         **kws: Any,
     ) -> Tensor:
@@ -635,7 +639,10 @@ class BaseCircuit(AbstractCircuit):
         :param shots: number of measurement shots, defaults to None, indicating analytical result
         :type shots: Optional[int], optional
         :param random_generator: random_generator, defaults to None
-        :type random_general: Optional[Any]
+        :type random_generator: Optional[Any]
+        :param status: external randomness given by tensor uniformly from [0, 1],
+            if set, can overwrite random_generator
+        :type status: Optional[Tensor]
         :param readout_error: readout_error, defaults to None
         :type readout_error: Optional[Sequence[Any]]. Tensor, List, Tuple
         :return: [description]
@@ -674,6 +681,7 @@ class BaseCircuit(AbstractCircuit):
                 counts=shots,
                 format="count_vector",
                 random_generator=random_generator,
+                status=status,
                 jittable=True,
                 is_prob=True,
             )
@@ -684,6 +692,7 @@ class BaseCircuit(AbstractCircuit):
                 counts=shots,
                 format="sample_bin",
                 random_generator=random_generator,
+                status=status,
                 jittable=True,
                 is_prob=True,
             )

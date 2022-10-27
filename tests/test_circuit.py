@@ -1017,6 +1017,14 @@ def test_batch_sample(backend):
             batch=8, allow_state=True, random_generator=tc.backend.get_random_state(42)
         )
     )
+    print(
+        c.sample(
+            batch=8,
+            allow_state=True,
+            status=np.random.uniform(size=[8]),
+            format="sample_bin",
+        )
+    )
 
 
 def test_expectation_y_bug():

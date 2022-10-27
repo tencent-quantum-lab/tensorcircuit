@@ -1999,6 +1999,7 @@ def measurement_counts(
     format: str = "count_vector",
     is_prob: bool = False,
     random_generator: Optional[Any] = None,
+    status: Optional[Tensor] = None,
     jittable: bool = False,
 ) -> Any:
     """
@@ -2048,7 +2049,10 @@ def measurement_counts(
         defaults to be False
     :type is_prob: bool
     :param random_generator: random_generator, defaults to None
-    :type random_general: Optional[Any]
+    :type random_generator: Optional[Any]
+    :param status: external randomness given by tensor uniformly from [0, 1],
+        if set, can overwrite random_generator
+    :type status: Optional[Tensor]
     :param jittable: if True, jax backend try using a jittable count, defaults to False
     :type jittable: bool
     :return: The counts for each bit string measured.
@@ -2066,7 +2070,6 @@ def measurement_counts(
         pi = backend.reshape(pi, [-1])
     d = int(backend.shape_tuple(pi)[0])
     n = int(np.log(d) / np.log(2) + 1e-8)
-    drange = backend.arange(d)
     if (counts is None) or counts <= 0:
         if format == "count_vector":
             return pi
@@ -2081,12 +2084,15 @@ def measurement_counts(
                 "unsupported format %s for analytical measurement" % format
             )
     else:
-        if random_generator is None:
-            raw_counts = backend.implicit_randc(drange, shape=counts, p=pi)
-        else:
-            raw_counts = backend.stateful_randc(
-                random_generator, a=drange, shape=counts, p=pi
-            )
+        raw_counts = backend.probability_sample(
+            counts, pi, status=status, g=random_generator
+        )
+        # if random_generator is None:
+        # raw_counts = backend.implicit_randc(drange, shape=counts, p=pi)
+        # else:
+        # raw_counts = backend.stateful_randc(
+        # random_generator, a=drange, shape=counts, p=pi
+        # )
         return sample2all(raw_counts, n, format=format, jittable=jittable)
 
 
