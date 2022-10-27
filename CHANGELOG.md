@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.5.0
+
 ### Added
 
 - Finished quantum noise modeling and simulation development stage 1. Add more quantum channels and the differentiable transformation between different channel forms. Add readout error support for sample and sample_expectation_ps methods.
