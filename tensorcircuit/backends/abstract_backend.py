@@ -1098,7 +1098,7 @@ class ExtendedBackend:
         p_cuml = self.cumsum(p)
         r = p_cuml[-1] * (1 - self.cast(status, p.dtype))
         ind = self.searchsorted(p_cuml, r)
-        a = self.arange(shots)
+        a = self.arange(self.shape_tuple(p)[0])
         res = self.gather1d(a, ind)
         return res
 

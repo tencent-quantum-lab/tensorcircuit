@@ -291,7 +291,7 @@ def test_backend_methods_2(backend):
     r = tc.backend.probability_sample(10000, p, status=np.random.uniform(size=[10000]))
     _, r = np.unique(r, return_counts=True)
     np.testing.assert_allclose(
-        r - tc.backend.numpy(p) * 10000.0, np.zeros([10]), atol=100, rtol=1
+        r - tc.backend.numpy(p) * 10000.0, np.zeros([10]), atol=200, rtol=1
     )
 
 
