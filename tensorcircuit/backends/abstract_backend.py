@@ -746,6 +746,26 @@ class ExtendedBackend:
             "Backend '{}' has not implemented `solve`.".format(self.name)
         )
 
+    def searchsorted(self: Any, a: Tensor, v: Tensor, side: str = "left") -> Tensor:
+        """
+        Find indices where elements should be inserted to maintain order.
+
+        :param a: input array sorted in ascending order
+        :type a: Tensor
+        :param v: value to inserted
+        :type v: Tensor
+        :param side:  If ‘left’, the index of the first suitable location found is given.
+            If ‘right’, return the last such index.
+            If there is no suitable index, return either 0 or N (where N is the length of a),
+            defaults to "left"
+        :type side: str, optional
+        :return: Array of insertion points with the same shape as v, or an integer if v is a scalar.
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `searchsorted`.".format(self.name)
+        )
+
     def tree_map(self: Any, f: Callable[..., Any], *pytrees: Any) -> Any:
         """
         Return the new tree map with multiple arg function ``f`` through pytrees.

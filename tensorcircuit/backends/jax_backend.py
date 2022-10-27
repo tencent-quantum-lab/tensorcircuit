@@ -389,6 +389,13 @@ class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
     def solve(self, A: Tensor, b: Tensor, assume_a: str = "gen") -> Tensor:  # type: ignore
         return jsp.linalg.solve(A, b, assume_a)
 
+    def searchsorted(self, a: Tensor, v: Tensor, side: str = "left") -> Tensor:
+        if not self.is_tensor(a):
+            a = self.convert_to_tensor(a)
+        if not self.is_tensor(v):
+            v = self.convert_to_tensor(v)
+        return jnp.searchsorted(a, v, side)
+
     def tree_map(self, f: Callable[..., Any], *pytrees: Any) -> Any:
         return libjax.tree_map(f, *pytrees)
 

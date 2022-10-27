@@ -389,6 +389,13 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend, ExtendedBackend):  # type: 
     def solve(self, A: Tensor, b: Tensor, **kws: Any) -> Tensor:
         return torchlib.linalg.solve(A, b)
 
+    def searchsorted(self, a: Tensor, v: Tensor, side: str = "left") -> Tensor:
+        if not self.is_tensor(a):
+            a = self.convert_to_tensor(a)
+        if not self.is_tensor(v):
+            v = self.convert_to_tensor(v)
+        return torchlib.searchsorted(a, v, side=side)
+
     def reverse(self, a: Tensor) -> Tensor:
         return torchlib.flip(a, dims=(-1,))
 

@@ -223,6 +223,9 @@ class NumpyBackend(numpy_backend.NumPyBackend, ExtendedBackend):  # type: ignore
         # https://stackoverflow.com/questions/44672029/difference-between-numpy-linalg-solve-and-numpy-linalg-lu-solve/44710451
         return solve(A, b, assume_a)
 
+    def searchsorted(self, a: Tensor, v: Tensor, side: str = "left") -> Tensor:
+        return np.searchsorted(a, v, side=side)  # type: ignore
+
     def set_random_state(
         self, seed: Optional[int] = None, get_only: bool = False
     ) -> Any:

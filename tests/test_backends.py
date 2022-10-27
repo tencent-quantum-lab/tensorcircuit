@@ -279,6 +279,10 @@ def test_backend_methods_2(backend):
         np.array([1, 3]),
     )
     assert tc.backend.dtype(tc.backend.ones([])) == "complex64"
+    edges = [-1, 3.3, 9.1, 10.0]
+    values = tc.backend.convert_to_tensor(np.array([0.0, 4.1, 12.0], dtype=np.float32))
+    r = tc.backend.numpy(tc.backend.searchsorted(edges, values))
+    np.testing.assert_allclose(r, np.array([1, 2, 4]))
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])

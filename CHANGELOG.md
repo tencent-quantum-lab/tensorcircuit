@@ -18,6 +18,8 @@
 
 - Add circuit `from_qsim_file` method to load Google random circuit structure
 
+- Add `searchsorted` method for backend
+
 ### Changed
 
 - The inner mechanism for `sample_expectation_ps` is changed to sample representation from count representation for a fast speed
