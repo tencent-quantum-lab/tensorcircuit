@@ -282,6 +282,7 @@ def parameter_shift_grad_v2(
     :return: the grad function
     :rtype: Callable[..., Tensor]
     """
+    # TODO(@refraction-ray): replace with new status support for the sample API
     if jit is True:
         f = backend.jit(f)
 
@@ -333,3 +334,44 @@ def parameter_shift_grad_v2(
         return grad_values[0]
 
     return grad_f
+
+
+# TODO(@refraction-ray): add SPSA gradient wrapper similar to parameter shift
+
+
+def hamiltonian_evol(
+    tlist: Tensor,
+    h: Tensor,
+    psi0: Tensor,
+    callback: Optional[Callable[..., Any]] = None,
+) -> Tensor:
+    """
+    Fast implementation of static full Hamiltonian evolution
+
+    :param tlist: _description_
+    :type tlist: Tensor
+    :param h: _description_
+    :type h: Tensor
+    :param psi0: _description_
+    :type psi0: Tensor
+    :param callback: _description_, defaults to None
+    :type callback: Optional[Callable[..., Any]], optional
+    :return: Tensor
+    :rtype: result dynamics on ``tlist``
+    """
+    es, u = backend.eigh(h)
+    utpsi0 = backend.reshape(
+        backend.transpose(u) @ backend.reshape(psi0, [-1, 1]), [-1]
+    )
+
+    @backend.jit
+    def _evol(t: Tensor) -> Tensor:
+        ebetah_utpsi0 = backend.exp(-t * es) * utpsi0
+        psi_exact = backend.conj(u) @ backend.reshape(ebetah_utpsi0, [-1, 1])
+        psi_exact = backend.reshape(psi_exact, [-1])
+        psi_exact = psi_exact / backend.norm(psi_exact)
+        if callback is None:
+            return psi_exact
+        return callback(psi_exact)
+
+    return backend.stack([_evol(t) for t in tlist])
