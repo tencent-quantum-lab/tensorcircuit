@@ -10,6 +10,7 @@ import tensorcircuit as tc
 from tensorcircuit.experimental import hamiltonian_evol
 
 K = tc.set_backend("jax")
+tc.set_dtype("complex128")
 
 
 @partial(K.jit, static_argnums=1)
@@ -22,6 +23,11 @@ def total_z(psi, N):
 @K.jit
 def naive_evol(t, h, psi0):
     return K.reshape(K.expm(-1j * t * h) @ K.reshape(psi0, [-1, 1]), [-1])
+
+
+@K.jit
+def hpsi(h, y):
+    return K.reshape(-1.0j * h @ K.reshape(y, [-1, 1]), [-1])
 
 
 def main(N):
@@ -43,10 +49,10 @@ def main(N):
 
     def fun(t, y):
         y = tc.array_to_tensor(y)
-        return K.numpy(K.reshape(-1.0j * h @ K.reshape(y, [-1, 1]), [-1]))
+        return K.numpy(hpsi(h, y))
 
     r = solve_ivp(
-        fun, (0, 3), psi0, method="DOP853", t_eval=K.numpy(tlist), rtol=1e-5, atol=1e-6
+        fun, (0, 3), psi0, method="DOP853", t_eval=K.numpy(tlist), rtol=1e-6, atol=1e-6
     )
     for psit in r.y.T:
         print(total_z(psit, N))
