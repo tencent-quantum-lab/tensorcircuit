@@ -316,7 +316,7 @@ def test_circuits_1(backend, dtype):
     print("time", time.time() - begin)
     do_test_canonical(circuits)
     do_test_wavefunction(circuits)
-    do_test_truncation(circuits, 0.9987293417932497, 0.999440840610151)
+    do_test_truncation(circuits, 0.9987310049079007, 0.9994452420583485)
     do_test_amplitude(circuits)
     do_test_expectation(circuits)
     external = external_wavefunction()
