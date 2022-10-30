@@ -3,6 +3,7 @@ __author__ = "TensorCircuit Authors"
 __creator__ = "refraction-ray"
 
 from .cons import (
+    backend,
     set_backend,
     set_dtype,
     set_contractor,

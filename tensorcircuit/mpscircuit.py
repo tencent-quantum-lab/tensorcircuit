@@ -514,6 +514,7 @@ class MPSCircuit(AbstractCircuit):
         *index: int,
         split: Optional[Dict[str, Any]] = None,
     ) -> None:
+        # TODO(@SUSYUSTC): jax autograd is wrong on this function
         """
         Apply a n-qubit gate by transforming the gate to MPO
         """
@@ -921,6 +922,7 @@ class MPSCircuit(AbstractCircuit):
         :return: The sample output and probability (optional) of the quantum line.
         :rtype: Tuple[Tensor, Tensor]
         """
+        """
         is_sorted = np.all(np.sort(index) == np.array(index))
         if not is_sorted:
             order = backend.convert_to_tensor(np.argsort(index).tolist())
@@ -929,6 +931,7 @@ class MPSCircuit(AbstractCircuit):
             )
             return backend.convert_to_tensor([sample[i] for i in order]), p
         # set the center to the left side, then gradually move to the right and do measurement at sites
+        """
         mps = self.copy()
         up = backend.convert_to_tensor(np.array([1, 0]).astype(dtypestr))
         down = backend.convert_to_tensor(np.array([0, 1]).astype(dtypestr))
