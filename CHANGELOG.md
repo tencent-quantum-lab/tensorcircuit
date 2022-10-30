@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Added
+
+- Add native support for `rxx`, `ryy` and `rzz` gates for translation from qiskit
+
+- Add `from_openqasm` and `from_openqasm_file` methods for `Circuit`
+
+- Add `circuit_params` argument for translation from qiskit to make the interface universal and consistent with other `from_` methods
+
 ## 0.5.0
 
 ### Added
