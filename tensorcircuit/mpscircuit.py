@@ -144,7 +144,6 @@ class MPSCircuit(AbstractCircuit):
     # because the gates are immediately absorted into the MPS when applied,
     # so it is impossible to remember the initial structure
 
-    # @property
     def get_bond_dimensions(self) -> Tensor:
         """
         Get the MPS bond dimensions
@@ -154,7 +153,6 @@ class MPSCircuit(AbstractCircuit):
         """
         return self._mps.bond_dimensions
 
-    # @property
     def get_tensors(self) -> List[Tensor]:
         """
         Get the MPS tensors
@@ -164,7 +162,6 @@ class MPSCircuit(AbstractCircuit):
         """
         return self._mps.tensors  # type: ignore
 
-    # @property
     def get_center_position(self) -> Optional[int]:
         """
         Get the center position of the MPS
@@ -520,7 +517,7 @@ class MPSCircuit(AbstractCircuit):
         """
         Apply a n-qubit gate by transforming the gate to MPO
         """
-        ordered = np.all(np.diff(index)) > 0
+        ordered = np.all(np.diff(index) > 0)
         if not ordered:
             order = np.argsort(index)
             order2 = order + len(index)

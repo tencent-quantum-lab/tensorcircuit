@@ -33,7 +33,7 @@ def reproducible_unitary(n):
     return scipy.linalg.expm(A).astype(tc.dtypestr)
 
 
-def get_test_circuits(full) -> type_test_circuits:
+def simulate(c, full, check=True):
     O1 = tc.gates.any(reproducible_unitary(2).reshape((2, 2)))
     O2 = tc.gates.any(reproducible_unitary(4).reshape((2, 2, 2, 2)))
     O3 = tc.gates.any(reproducible_unitary(8).reshape((2, 2, 2, 2, 2, 2)))
@@ -41,45 +41,43 @@ def get_test_circuits(full) -> type_test_circuits:
     # Construct a complicated circuit by Circuit and MPSCircuit and compare
 
     if full:
-
         def rangei(j, N):
             return range(0, N - 1)
-
     else:
-
         def rangei(j, N):
             return range(j, N - 1 - j)
 
-    def simulate(c):
-        c.H(0)
-        # create as much correlation as possible
-        for j in range(N // 2):
-            for i in rangei(j, N):
-                c.apply(O2.copy(), i, i + 1)
-                c.apply(O1.copy(), i)
-        # test non-adjacent double gates
-        c.apply(O2.copy(), N // 2 - 1, N // 2 + 1)
-        c.apply(O3.copy(), int(N * 0.2), int(N * 0.4), int(N * 0.6))
-        if isinstance(c, tc.MPSCircuit):
-            np.testing.assert_allclose(np.abs(c._mps.check_canonical()), 0, atol=1e-12)
-        c.apply(O2.copy(), N // 2 - 2, N // 2 + 2)
-        c.apply(O3.copy(), int(N * 0.4), int(N * 0.6), int(N * 0.8))
-        if isinstance(c, tc.MPSCircuit):
-            np.testing.assert_allclose(np.abs(c._mps.check_canonical()), 0, atol=1e-12)
-        c.cz(2, 3)
+    c.H(0)
+    # create as much correlation as possible
+    for j in range(N // 2):
+        for i in rangei(j, N):
+            c.apply(O2.copy(), i, i + 1)
+            c.apply(O1.copy(), i)
+    # test non-adjacent double gates
+    c.apply(O2.copy(), N // 2 - 1, N // 2 + 1)
+    c.apply(O3.copy(), int(N * 0.2), int(N * 0.4), int(N * 0.6))
+    if check and isinstance(c, tc.MPSCircuit):
+        np.testing.assert_allclose(np.abs(c._mps.check_canonical()), 0, atol=1e-12)
+    c.apply(O2.copy(), N // 2 - 2, N // 2 + 2)
+    c.apply(O3.copy(), int(N * 0.4), int(N * 0.6), int(N * 0.8))
+    if check and isinstance(c, tc.MPSCircuit):
+        np.testing.assert_allclose(np.abs(c._mps.check_canonical()), 0, atol=1e-12)
+    c.cz(2, 3)
 
+
+def get_test_circuits(full) -> type_test_circuits:
     c = tc.Circuit(N)
-    simulate(c)
+    simulate(c, full)
     w_c = c.wavefunction()
 
     mps = tc.MPSCircuit(N, split=split)
-    simulate(mps)
+    simulate(mps, full)
     do_test_norm(mps)
     mps.normalize()
     w_mps = mps.wavefunction()
 
     mps_exact = tc.MPSCircuit(N)
-    simulate(mps_exact)
+    simulate(mps_exact, full)
     w_mps_exact = mps_exact.wavefunction()
 
     return [c, w_c, mps, w_mps, mps_exact, w_mps_exact]
@@ -133,8 +131,6 @@ def do_test_truncation(
         np.abs(tc.backend.numpy(w_mps).conj().dot(tc.backend.numpy(w_c))) ** 2
     )
     estimated_fedility = tc.backend.numpy(mps._fidelity)
-    print(real_fedility)
-    print(estimated_fedility)
     np.testing.assert_allclose(real_fedility, real_fedility_ref, atol=1e-8)
     np.testing.assert_allclose(estimated_fedility, estimated_fedility_ref, atol=1e-8)
 
@@ -172,7 +168,7 @@ def do_test_expectation(test_circuits: type_test_circuits):
         [2, 6],
     )
     double_gate = (tc.gates.cnot(), [2, 6])
-    triple_gate = (tc.gates.toffoli(), [1, 5, 9])
+    triple_gate = (tc.gates.toffoli(), [9, 1, 5])
     gates = [single_gate, double_gate_nonunitary, triple_gate]
 
     exp_mps = mps_exact.expectation(*gates)
@@ -181,7 +177,7 @@ def do_test_expectation(test_circuits: type_test_circuits):
 
     # ps
     x = [0, 2]
-    y = [1, 3, 5]
+    y = [5, 3, 1]
     z = [6, 8, 10]
     exp_mps = mps_exact.expectation_ps(x=x, y=y, z=z)
     exp_c = c.expectation_ps(x=x, y=y, z=z)
@@ -216,7 +212,6 @@ def do_test_fromwavefunction(external_wavefunction, relative_err_ref):
     s = np.linalg.svd(w_external.reshape((2 ** (N // 2), 2 ** (N // 2))))[1]
     theoretical_upper_limit = np.sum(s[0:D] ** 2)
     relative_err = np.log((1 - real_fedility) / (1 - theoretical_upper_limit))
-    print(relative_err)
     np.testing.assert_allclose(relative_err, 0.11, atol=1e-2)
 
 
@@ -306,14 +301,10 @@ def test_MPO_conversion(highp, tfb):
 
 
 @pytest.mark.parametrize(
-    "backend, dtype", [(lf("tfb"), lf("highp")), (lf("jaxb"), lf("highp"))]
+    "backend, dtype", [(lf("tfb"), lf("highp"))]
 )
 def test_circuits_1(backend, dtype):
-    import time
-
-    begin = time.time()
     circuits = get_test_circuits(False)
-    print("time", time.time() - begin)
     do_test_canonical(circuits)
     do_test_wavefunction(circuits)
     do_test_truncation(circuits, 0.9987310049079007, 0.9994452420583485)
@@ -324,9 +315,27 @@ def test_circuits_1(backend, dtype):
     do_test_proj(circuits, external)
     do_test_tensor_input(circuits)
     do_test_measure(circuits)
-    print("time", time.time() - begin)
 
-
-def test_circuits_2(highp):
+@pytest.mark.parametrize(
+    "backend, dtype", [(lf("tfb"), lf("highp"))]
+)
+def test_circuits_2(backend, dtype):
     circuits = get_test_circuits(True)
     do_test_truncation(circuits, 0.9401410770899974, 0.9654331011546374)
+
+@pytest.mark.parametrize(
+    "backend, dtype", [(lf("tfb"), lf("highp"))]
+)
+def test_circuits_jit(backend, dtype):
+    def expec():
+        mps = tc.MPSCircuit(N, split=split)
+        simulate(mps, False, check=False)
+        x = [0, 2]
+        y = [5, 3, 1]
+        z = [6, 8, 10]
+        exp = mps.expectation_ps(x=x, y=y, z=z)
+        return exp
+    expec_jit = tc.backend.jit(expec)
+    exp = tc.backend.numpy(expec())
+    exp_jit = tc.backend.numpy(expec_jit())
+    np.testing.assert_allclose(exp, exp_jit, atol=1e-10)
