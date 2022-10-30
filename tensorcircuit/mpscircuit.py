@@ -595,7 +595,11 @@ class MPSCircuit(AbstractCircuit):
         # normalization not guaranteed
         assert keep in [0, 1]
         gate = backend.zeros((2, 2), dtype=dtypestr)
-        gate = backend.scatter(gate, backend.convert_to_tensor([[keep, keep]]), backend.convert_to_tensor(np.array([1.0], dtype=dtypestr)))
+        gate = backend.scatter(
+            gate,
+            backend.convert_to_tensor([[keep, keep]]),
+            backend.convert_to_tensor(np.array([1.0], dtype=dtypestr)),
+        )
         gate = Gate(gate)
         self.apply_single_gate(gate, index)
 

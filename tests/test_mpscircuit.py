@@ -41,9 +41,12 @@ def simulate(c, full, check=True):
     # Construct a complicated circuit by Circuit and MPSCircuit and compare
 
     if full:
+
         def rangei(j, N):
             return range(0, N - 1)
+
     else:
+
         def rangei(j, N):
             return range(j, N - 1 - j)
 
@@ -300,9 +303,7 @@ def test_MPO_conversion(highp, tfb):
     np.testing.assert_allclose(tensor4, tensor4_ref, atol=1e-12)
 
 
-@pytest.mark.parametrize(
-    "backend, dtype", [(lf("tfb"), lf("highp"))]
-)
+@pytest.mark.parametrize("backend, dtype", [(lf("tfb"), lf("highp"))])
 def test_circuits_1(backend, dtype):
     circuits = get_test_circuits(False)
     do_test_canonical(circuits)
@@ -316,16 +317,14 @@ def test_circuits_1(backend, dtype):
     do_test_tensor_input(circuits)
     do_test_measure(circuits)
 
-@pytest.mark.parametrize(
-    "backend, dtype", [(lf("tfb"), lf("highp"))]
-)
+
+@pytest.mark.parametrize("backend, dtype", [(lf("tfb"), lf("highp"))])
 def test_circuits_2(backend, dtype):
     circuits = get_test_circuits(True)
     do_test_truncation(circuits, 0.9401410770899974, 0.9654331011546374)
 
-@pytest.mark.parametrize(
-    "backend, dtype", [(lf("tfb"), lf("highp"))]
-)
+
+@pytest.mark.parametrize("backend, dtype", [(lf("tfb"), lf("highp"))])
 def test_circuits_jit(backend, dtype):
     def expec():
         mps = tc.MPSCircuit(N, split=split)
@@ -335,6 +334,7 @@ def test_circuits_jit(backend, dtype):
         z = [6, 8, 10]
         exp = mps.expectation_ps(x=x, y=y, z=z)
         return exp
+
     expec_jit = tc.backend.jit(expec)
     exp = tc.backend.numpy(expec())
     exp_jit = tc.backend.numpy(expec_jit())
