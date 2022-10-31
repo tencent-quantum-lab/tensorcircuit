@@ -5,7 +5,6 @@ from typing import Tuple, Any
 import sys
 import os
 import numpy as np
-import scipy
 import pytest
 from pytest_lazyfixture import lazy_fixture as lf
 
