@@ -85,8 +85,8 @@ def set_token(
     cached: bool = True,
 ) -> Dict[str, Any]:
     global saved_token
-    tcdir = os.path.dirname(os.path.abspath(__file__))
-    authpath = os.path.join(tcdir, "auth.json")
+    homedir = os.path.expanduser("~")
+    authpath = os.path.join(homedir, ".tc.auth.json")
     if provider is None:
         provider = default_provider
     provider = Provider.from_name(provider)
