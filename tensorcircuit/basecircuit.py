@@ -648,10 +648,12 @@ class BaseCircuit(AbstractCircuit):
         :return: [description]
         :rtype: Tensor
         """
+        inputs_nodes, _ = self._copy_state_tensor()
+        inputs = inputs_nodes[0].tensor
         if self.is_dm is False:
-            c = type(self)(self._nqubits, mps_inputs=self.quvector())  # type: ignore
+            c = type(self)(self._nqubits, inputs=inputs)  # type: ignore
         else:
-            c = type(self)(self._nqubits, mpo_dminputs=self.get_dm_as_quoperator())  # type: ignore
+            c = type(self)(self._nqubits, dminputs=inputs)  # type: ignore
         if x is None:
             x = []
         if y is None:
