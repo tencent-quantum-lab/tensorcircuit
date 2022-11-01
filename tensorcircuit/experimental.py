@@ -210,6 +210,7 @@ def parameter_shift_grad(
     f: Callable[..., Tensor],
     argnums: Union[int, Sequence[int]] = 0,
     jit: bool = False,
+    shifts: Tuple[float, float] = (np.pi / 2, 2),
 ) -> Callable[..., Tensor]:
     """
     similar to `grad` function but using parameter shift internally instead of AD,
@@ -223,6 +224,9 @@ def parameter_shift_grad(
     :param jit: whether jit the original function `f` at the beginning,
         defaults to False
     :type jit: bool, optional
+    :param shifts: two floats for the delta shift on the numerator and dominator,
+        defaults to (pi/2, 2) for parameter shift
+    :type shifts: Tuple[float, float]
     :return: the grad function
     :rtype: Callable[..., Tensor]
     """
@@ -242,14 +246,14 @@ def parameter_shift_grad(
             onehot = backend.eye(size)
             onehot = backend.cast(onehot, args[i].dtype)
             onehot = backend.reshape(onehot, [size] + list(shape))
-            onehot = np.pi / 2 * onehot
+            onehot = shifts[0] * onehot
             nargs = list(args)
             arg = backend.reshape(args[i], [1] + list(shape))
             batched_arg = backend.tile(arg, [size] + [1 for _ in shape])
             nargs[i] = batched_arg + onehot
             nargs2 = list(args)
             nargs2[i] = batched_arg - onehot
-            r = (vfs[i](*nargs, **kws) - vfs[i](*nargs2, **kws)) / 2.0
+            r = (vfs[i](*nargs, **kws) - vfs[i](*nargs2, **kws)) / shifts[1]
             r = backend.reshape(r, shape)
             grad_values.append(r)
         if len(argnums) > 1:  # type: ignore
@@ -280,6 +284,9 @@ def parameter_shift_grad_v2(
     :param jit: whether jit the original function `f` at the beginning,
         defaults to False
     :type jit: bool, optional
+    :param shifts: two floats for the delta shift on the numerator and dominator,
+        defaults to (pi/2, 2) for parameter shift
+    :type shifts: Tuple[float, float]
     :return: the grad function
     :rtype: Callable[..., Tensor]
     """

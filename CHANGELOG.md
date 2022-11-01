@@ -10,6 +10,8 @@
 
 - Add `circuit_params` argument for translation from qiskit to make the interface universal and consistent with other `from_` methods
 
+- Add `shifts` tuple parameter for `experimental.parameter_shift_grad` API so that we can also customize finite difference gradient from this method
+
 ### Changed
 
 - Improve the efficiency of `sample_expectation_ps` method by using cached state.

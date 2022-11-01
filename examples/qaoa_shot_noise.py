@@ -68,17 +68,13 @@ def generate_circuit(param, g, n, nlayers):
     return c
 
 
-def ps2xyz(psi):
+def ps2z(psi):
     # ps2xyz([1, 2, 2, 0]) = {"x": [0], "y": [1, 2], "z": []}
-    xyz = {"x": [], "y": [], "z": []}
+    zs = []  # no x or y for QUBO problem
     for i, j in enumerate(psi):
-        if j == 1:
-            xyz["x"].append(i)
-        if j == 2:
-            xyz["y"].append(i)
         if j == 3:
-            xyz["z"].append(i)
-    return xyz
+            zs.append(i)
+    return zs
 
 
 rkey = K.get_random_state(42)
@@ -108,27 +104,23 @@ def main_benchmark_suite(n, nlayers, d=3, init=None):
             jittable=True,
             is_prob=False,
         )
-        for psi, wi in zip(pss, ws):
-            xyz = ps2xyz(psi)
-            loss += wi * tc.quantum.correlation_from_samples(xyz["z"], mc, c._nqubits)
+        for ps, w in zip(pss, ws):
+            loss += w * tc.quantum.correlation_from_samples(ps2z(ps), mc, c._nqubits)
         return K.real(loss)
 
     @K.jit
     def exp_val_analytical(param):
         c = generate_circuit(param, g, n, nlayers)
         loss = 0
-        for psi, wi in zip(pss, ws):
-            xyz = ps2xyz(psi)
-            loss += wi * c.expectation_ps(**xyz)
+        for ps, w in zip(pss, ws):
+            loss += w * c.expectation_ps(z=ps2z(ps))
         return K.real(loss)
-
-    # for i in range(3):
-    # print(exp_val(init, K.get_random_state(i)))
-    # print(exp_val_analytical(init))
 
     # 0. Exact result double check
 
-    hm = tc.quantum.PauliStringSum2COO(pss, ws, numpy=True)
+    hm = tc.quantum.PauliStringSum2COO(
+        K.convert_to_tensor(pss), K.convert_to_tensor(ws), numpy=True
+    )
     hm = K.to_dense(hm)
     e, _ = np.linalg.eigh(hm)
     print("exact minimal loss via eigenstate: ", e[0])
