@@ -109,7 +109,7 @@ def tensorcircuit_benchmark(
             c = tc.Circuit(n)
         else:
             c = tc.MPSCircuit(n)
-            c.set_truncation_rule(max_singular_values=mpsd)
+            c.set_split_rules({"max_singular_values": mpsd})
         paramx = tc.backend.cast(paramx, dtype)
         paramzz = tc.backend.cast(paramzz, dtype)
 
@@ -132,8 +132,8 @@ def tensorcircuit_benchmark(
             e = tfi_energy(c, n)
             fd = c._fidelity
         # tensorflow only works for complex case, while jax only works for real case, don't know how to solve it
-        if tcbackend != "tensorflow":
-            e = tc.backend.real(e)
+        # if tcbackend != "tensorflow":
+        e = tc.backend.real(e)
 
         return e, fd
 
@@ -144,12 +144,13 @@ def tensorcircuit_benchmark(
         # paramx = tc.backend.convert_to_tensor(paramx)
         # paramzz = tc.backend.convert_to_tensor(paramzz)
         (value, f), grads = energy_raw(paramx, paramzz)
-        print(tc.backend.numpy(f), tc.backend.numpy(value))
+        print("fidelity: ", f, value)
+        # print(tc.backend.numpy(f), tc.backend.numpy(value))
         # value = tc.backend.numpy(tc.backend.real(value))
         # grads = [tc.backend.numpy(tc.backend.real(g)) for g in grads]
         return value, grads
 
-    opt = utils.Opt(energy, [paramx, paramzz], tuning=False)
+    opt = utils.Opt(energy, [paramx, paramzz], tuning=True, backend=tcbackend)
     ct, it, Nitrs = utils.timing(opt.step, nitrs, timeLimit)
     meta["Results"]["with jit"] = {
         "Construction time": ct,
