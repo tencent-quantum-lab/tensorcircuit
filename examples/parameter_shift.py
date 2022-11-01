@@ -2,7 +2,11 @@
 Demonstration on the correctness and efficiency of parameter shift gradient implementation
 """
 
+import sys
 import numpy as np
+
+sys.path.insert(0, "../")
+
 import tensorcircuit as tc
 from tensorcircuit import experimental as E
 
