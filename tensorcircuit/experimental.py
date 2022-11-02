@@ -3,7 +3,7 @@ Experimental features
 """
 
 from functools import partial
-from typing import Any, Callable, Optional, Sequence, Union
+from typing import Any, Callable, Optional, Tuple, Sequence, Union
 
 import numpy as np
 
@@ -210,6 +210,7 @@ def parameter_shift_grad(
     f: Callable[..., Tensor],
     argnums: Union[int, Sequence[int]] = 0,
     jit: bool = False,
+    shifts: Tuple[float, float] = (np.pi / 2, 2),
 ) -> Callable[..., Tensor]:
     """
     similar to `grad` function but using parameter shift internally instead of AD,
@@ -223,6 +224,9 @@ def parameter_shift_grad(
     :param jit: whether jit the original function `f` at the beginning,
         defaults to False
     :type jit: bool, optional
+    :param shifts: two floats for the delta shift on the numerator and dominator,
+        defaults to (pi/2, 2) for parameter shift
+    :type shifts: Tuple[float, float]
     :return: the grad function
     :rtype: Callable[..., Tensor]
     """
@@ -242,14 +246,14 @@ def parameter_shift_grad(
             onehot = backend.eye(size)
             onehot = backend.cast(onehot, args[i].dtype)
             onehot = backend.reshape(onehot, [size] + list(shape))
-            onehot = np.pi / 2 * onehot
+            onehot = shifts[0] * onehot
             nargs = list(args)
             arg = backend.reshape(args[i], [1] + list(shape))
             batched_arg = backend.tile(arg, [size] + [1 for _ in shape])
             nargs[i] = batched_arg + onehot
             nargs2 = list(args)
             nargs2[i] = batched_arg - onehot
-            r = (vfs[i](*nargs, **kws) - vfs[i](*nargs2, **kws)) / 2.0
+            r = (vfs[i](*nargs, **kws) - vfs[i](*nargs2, **kws)) / shifts[1]
             r = backend.reshape(r, shape)
             grad_values.append(r)
         if len(argnums) > 1:  # type: ignore
@@ -264,6 +268,7 @@ def parameter_shift_grad_v2(
     argnums: Union[int, Sequence[int]] = 0,
     jit: bool = False,
     random_argnums: Optional[Sequence[int]] = None,
+    shifts: Tuple[float, float] = (np.pi / 2, 2),
 ) -> Callable[..., Tensor]:
     """
     similar to `grad` function but using parameter shift internally instead of AD,
@@ -279,9 +284,13 @@ def parameter_shift_grad_v2(
     :param jit: whether jit the original function `f` at the beginning,
         defaults to False
     :type jit: bool, optional
+    :param shifts: two floats for the delta shift on the numerator and dominator,
+        defaults to (pi/2, 2) for parameter shift
+    :type shifts: Tuple[float, float]
     :return: the grad function
     :rtype: Callable[..., Tensor]
     """
+    # TODO(@refraction-ray): replace with new status support for the sample API
     if jit is True:
         f = backend.jit(f)
 
@@ -305,7 +314,7 @@ def parameter_shift_grad_v2(
             onehot = backend.eye(size)
             onehot = backend.cast(onehot, args[i].dtype)
             onehot = backend.reshape(onehot, [size] + list(shape))
-            onehot = np.pi / 2 * onehot
+            onehot = shifts[0] * onehot
             nargs = list(args)
             arg = backend.reshape(args[i], [1] + list(shape))
             batched_arg = backend.tile(arg, [size] + [1 for _ in shape])
@@ -325,7 +334,7 @@ def parameter_shift_grad_v2(
                         key, subkey = backend.random_split(key)
                         keys.append(subkey)
                     nargs2[j] = backend.stack(keys)
-            r = (vfs[i](*nargs, **kws) - vfs[i](*nargs2, **kws)) / 2.0
+            r = (vfs[i](*nargs, **kws) - vfs[i](*nargs2, **kws)) / shifts[1]
             r = backend.reshape(r, shape)
             grad_values.append(r)
         if len(argnums) > 1:  # type: ignore
@@ -333,3 +342,44 @@ def parameter_shift_grad_v2(
         return grad_values[0]
 
     return grad_f
+
+
+# TODO(@refraction-ray): add SPSA gradient wrapper similar to parameter shift
+
+
+def hamiltonian_evol(
+    tlist: Tensor,
+    h: Tensor,
+    psi0: Tensor,
+    callback: Optional[Callable[..., Any]] = None,
+) -> Tensor:
+    """
+    Fast implementation of static full Hamiltonian evolution
+
+    :param tlist: _description_
+    :type tlist: Tensor
+    :param h: _description_
+    :type h: Tensor
+    :param psi0: _description_
+    :type psi0: Tensor
+    :param callback: _description_, defaults to None
+    :type callback: Optional[Callable[..., Any]], optional
+    :return: Tensor
+    :rtype: result dynamics on ``tlist``
+    """
+    es, u = backend.eigh(h)
+    utpsi0 = backend.reshape(
+        backend.transpose(u) @ backend.reshape(psi0, [-1, 1]), [-1]
+    )
+
+    @backend.jit
+    def _evol(t: Tensor) -> Tensor:
+        ebetah_utpsi0 = backend.exp(-t * es) * utpsi0
+        psi_exact = backend.conj(u) @ backend.reshape(ebetah_utpsi0, [-1, 1])
+        psi_exact = backend.reshape(psi_exact, [-1])
+        psi_exact = psi_exact / backend.norm(psi_exact)
+        if callback is None:
+            return psi_exact
+        return callback(psi_exact)
+
+    return backend.stack([_evol(t) for t in tlist])

@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Added
+
+- Add native support for `rxx`, `ryy` and `rzz` gates for translation from qiskit
+
+- Add `from_openqasm` and `from_openqasm_file` methods for `Circuit`
+
+- Add `circuit_params` argument for translation from qiskit to make the interface universal and consistent with other `from_` methods
+
+- Add `shifts` tuple parameter for `experimental.parameter_shift_grad` API so that we can also customize finite difference gradient from this method
+
+### Changed
+
+- Improve the efficiency of `sample_expectation_ps` method by using cached state.
+
 ## 0.5.0
 
 ### Added

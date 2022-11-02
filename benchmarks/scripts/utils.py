@@ -6,6 +6,8 @@ import json
 import numpy as np
 import tensorflow as tf
 from pathlib import Path
+import optax
+import tensorcircuit as tc
 
 
 qml_data = {}
@@ -218,12 +220,11 @@ def save(data, _uuid, path):
 
 def timing(f, nitrs, timeLimit):
     t0 = time.time()
-    print(f())
+    a = f()
     t1 = time.time()
     Nitrs = 1e-8
     for i in range(nitrs):
         a = f()
-        print(a)
         # if a != None:
         #    print(a)
         if time.time() - t1 > timeLimit:
@@ -263,15 +264,19 @@ def qml_timing(f, nbatch, nitrs, timeLimit, tfq=False):
 
 
 class Opt:
-    def __init__(self, f, params, lr=0.01, tuning=True):
+    def __init__(self, f, params, lr=0.002, tuning=True, backend="tensorflow"):
         self.f = f
         self.params = params
-        self.adam = tf.keras.optimizers.Adam(lr)
+        if backend == "tensorflow":
+            self.adam = tc.backend.optimizer(tf.keras.optimizers.Adam(lr))
+        else:
+            self.adam = tc.backend.optimizer(optax.adam(lr))
         self.tuning = tuning
 
     def step(self):
         e, grad = self.f(*self.params)
         if self.tuning:
-            grad = [tf.convert_to_tensor(g) for g in grad]
-            self.adam.apply_gradients(zip(grad, self.params))
+            self.params = self.adam.update(grad, self.params)
+            # grad = [tf.convert_to_tensor(g) for g in grad]
+            # self.adam.apply_gradients(zip(grad, self.params))
         return e[()]

@@ -8,6 +8,7 @@ sys.path.insert(0, "../")
 import tensorcircuit as tc
 
 tc.set_backend("tensorflow")
+tc.set_dtype("complex128")
 
 
 def tfi_energy(c, n, j=1.0, h=-1.0):
@@ -19,23 +20,12 @@ def tfi_energy(c, n, j=1.0, h=-1.0):
     return e
 
 
-def tfi_energy_mps(c, n, j=1.0, h=-1.0):
-    e = 0.0
-    for i in range(n):
-        e += h * c.expectation_single_gate(tc.gates.x(), i)
-    for i in range(n - 1):
-        e += j * c.expectation_two_gates_product(
-            tc.gates.z(), tc.gates.z(), i, (i + 1) % n
-        )
-    return e
-
-
 def energy(param, mpsd=None):
     if mpsd is None:
         c = tc.Circuit(n)
     else:
         c = tc.MPSCircuit(n)
-        c.set_truncation_rule(max_singular_values=mpsd)
+        c.set_split_rules({"max_singular_values": mpsd})
 
     for i in range(n):
         c.H(i)
@@ -49,11 +39,8 @@ def energy(param, mpsd=None):
             )
         for i in range(n):
             c.rx(i, theta=param[2 * j + 1, i])
-    if mpsd is None:
-        e = tfi_energy(c, n)
-    else:
-        e = tfi_energy_mps(c, n)
 
+    e = tfi_energy(c, n)
     e = tc.backend.real(e)
     if mpsd is not None:
         fidelity = c._fidelity

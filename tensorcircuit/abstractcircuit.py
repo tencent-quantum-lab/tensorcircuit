@@ -520,6 +520,26 @@ class AbstractCircuit:
         """
         return self.to_qiskit().qasm(**kws)  # type: ignore
 
+    @classmethod
+    def from_openqasm(
+        cls, qasmstr: str, circuit_params: Optional[Dict[str, Any]] = None
+    ) -> "AbstractCircuit":
+        from qiskit.circuit import QuantumCircuit
+
+        qiskit_circ = QuantumCircuit.from_qasm_str(qasmstr)
+        c = cls.from_qiskit(qiskit_circ, circuit_params=circuit_params)
+        return c
+
+    @classmethod
+    def from_openqasm_file(
+        cls, file: str, circuit_params: Optional[Dict[str, Any]] = None
+    ) -> "AbstractCircuit":
+        from qiskit.circuit import QuantumCircuit
+
+        qiskit_circ = QuantumCircuit.from_qasm_file(file)
+        c = cls.from_qiskit(qiskit_circ, circuit_params=circuit_params)
+        return c
+
     def draw(self, **kws: Any) -> Any:
         """
         Visualise the circuit.
@@ -543,7 +563,11 @@ class AbstractCircuit:
 
     @classmethod
     def from_qiskit(
-        cls, qc: Any, n: Optional[int] = None, inputs: Optional[List[float]] = None
+        cls,
+        qc: Any,
+        n: Optional[int] = None,
+        inputs: Optional[List[float]] = None,
+        circuit_params: Optional[Dict[str, Any]] = None,
     ) -> "AbstractCircuit":
         """
         Import Qiskit QuantumCircuit object as a ``tc.Circuit`` object.
@@ -571,7 +595,7 @@ class AbstractCircuit:
         if n is None:
             n = qc.num_qubits
 
-        return qiskit2tc(qc.data, n, inputs, is_dm=cls.is_dm)  # type: ignore
+        return qiskit2tc(qc.data, n, inputs, is_dm=cls.is_dm, circuit_params=circuit_params)  # type: ignore
 
     def vis_tex(self, **kws: Any) -> str:
         """

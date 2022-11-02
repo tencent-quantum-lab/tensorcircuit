@@ -144,7 +144,6 @@ class MPSCircuit(AbstractCircuit):
     # because the gates are immediately absorted into the MPS when applied,
     # so it is impossible to remember the initial structure
 
-    # @property
     def get_bond_dimensions(self) -> Tensor:
         """
         Get the MPS bond dimensions
@@ -154,7 +153,6 @@ class MPSCircuit(AbstractCircuit):
         """
         return self._mps.bond_dimensions
 
-    # @property
     def get_tensors(self) -> List[Tensor]:
         """
         Get the MPS tensors
@@ -164,7 +162,6 @@ class MPSCircuit(AbstractCircuit):
         """
         return self._mps.tensors  # type: ignore
 
-    # @property
     def get_center_position(self) -> Optional[int]:
         """
         Get the center position of the MPS
@@ -206,15 +203,7 @@ class MPSCircuit(AbstractCircuit):
         :param index: Qubit index of the gate
         :type index: int
         """
-        # TODO(@SUSYUSTC): make it jittable
-        tensor = backend.numpy(gate.tensor)
-        prod = tensor.dot(tensor.T.conj())
-        I = np.eye(prod.shape[0])
-        err_max = np.max(np.abs(prod - I))
-        # TODO(@SUSYUSTC): change this number to 1e-12 after the dtype bug fixed
-        is_unitary = err_max < 1e-6
-        if not is_unitary:
-            self.position(index)
+        self.position(index)
         self._mps.apply_one_site_gate(gate.tensor, index)
 
     def apply_adjacent_double_gate(
@@ -299,6 +288,11 @@ class MPSCircuit(AbstractCircuit):
         :param index2: The second qubit index of the gate
         :type index2: int
         """
+        assert index1 != index2
+        if index1 > index2:
+            newgate = Gate(backend.transpose(gate.tensor, [1, 0, 3, 2]))
+            self.apply_double_gate(newgate, index2, index1)
+            return
         if split is None:
             split = self.split
         # apply N SWAP gates, the required gate, N SWAP gates sequentially on adjacent gates
@@ -338,16 +332,19 @@ class MPSCircuit(AbstractCircuit):
         # --i--I--j-- = \delta_{i,j} \delta_{a,b}
         #      |
         #      b
+
+        # index must be ordered
+        assert np.all(np.diff(index) > 0)
         index_left = np.min(index)
         if isinstance(gate, tn.Node):
             gate = backend.copy(gate.tensor)
         index = np.array(index) - index_left
         nindex = len(index)
         # transform gate from (in1, in2, ..., out1, out2 ...) to
+        # (in1, out1, in2, out2, ...)
         order = tuple(np.arange(2 * nindex).reshape((2, nindex)).T.flatten())
         shape = (4,) * nindex
         gate = backend.reshape(backend.transpose(gate, order), shape)
-        # (in1, out1, in2, out2, ...)
         argsort = np.argsort(index)
         # reorder the gate according to the site positions
         gate = backend.transpose(gate, tuple(argsort))
@@ -517,9 +514,19 @@ class MPSCircuit(AbstractCircuit):
         *index: int,
         split: Optional[Dict[str, Any]] = None,
     ) -> None:
+        # TODO(@SUSYUSTC): jax autograd is wrong on this function
         """
         Apply a n-qubit gate by transforming the gate to MPO
         """
+        ordered = np.all(np.diff(index) > 0)
+        if not ordered:
+            order = np.argsort(index)
+            order2 = order + len(index)  # type: ignore
+            order_all = order.tolist() + order2.tolist()  # type: ignore
+            newgate = backend.transpose(gate.tensor, order_all)
+            index = np.sort(index).tolist()
+            self.apply_nqubit_gate(newgate, *index, split=split)
+            return
         if split is None:
             split = self.split
         MPO, index_left = self.gate_to_MPO(gate, *index)
@@ -588,10 +595,14 @@ class MPSCircuit(AbstractCircuit):
         """
         # normalization not guaranteed
         assert keep in [0, 1]
-        discard = 1 - keep
-        self.position(index)
-        # TODO(@SUSYUSTC): make it compatible with other backends
-        self._mps.tensors[index][:, discard, :] = 0
+        gate = backend.zeros((2, 2), dtype=dtypestr)
+        gate = backend.scatter(
+            gate,
+            backend.convert_to_tensor([[keep, keep]]),
+            backend.convert_to_tensor(np.array([1.0], dtype=dtypestr)),
+        )
+        gate = Gate(gate)
+        self.apply_single_gate(gate, index)
 
     def is_valid(self) -> bool:
         """
@@ -911,6 +922,7 @@ class MPSCircuit(AbstractCircuit):
         :return: The sample output and probability (optional) of the quantum line.
         :rtype: Tuple[Tensor, Tensor]
         """
+        """
         is_sorted = np.all(np.sort(index) == np.array(index))
         if not is_sorted:
             order = backend.convert_to_tensor(np.argsort(index).tolist())
@@ -919,6 +931,7 @@ class MPSCircuit(AbstractCircuit):
             )
             return backend.convert_to_tensor([sample[i] for i in order]), p
         # set the center to the left side, then gradually move to the right and do measurement at sites
+        """
         mps = self.copy()
         up = backend.convert_to_tensor(np.array([1, 0]).astype(dtypestr))
         down = backend.convert_to_tensor(np.array([0, 1]).astype(dtypestr))
