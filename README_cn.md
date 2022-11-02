@@ -145,7 +145,3 @@ pip install tensorcircuit-nightly
 
 VQEX 在 MBL 相位识别上的应用见 [教程](/docs/source/tutorials/vqex_mbl.ipynb)。
 参考论文: https://arxiv.org/pdf/2111.13719.pdf 。
-
-```
-
-```
