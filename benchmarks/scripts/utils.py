@@ -227,10 +227,9 @@ def timing(f, nitrs, timeLimit):
         a = f()
         # if a != None:
         #    print(a)
+        Nitrs += 1
         if time.time() - t1 > timeLimit:
             break
-        else:
-            Nitrs += 1
     t2 = time.time()
     return t1 - t0, (t2 - t1) / Nitrs, int(Nitrs)
 
@@ -255,10 +254,9 @@ def qml_timing(f, nbatch, nitrs, timeLimit, tfq=False):
         )
         if a is not None:
             print(a)
+        Nitrs += 1
         if time.time() - t1 > timeLimit:
             break
-        else:
-            Nitrs += 1
     t2 = time.time()
     return t1 - t0, (t2 - t1) / Nitrs, int(Nitrs)
 
@@ -269,14 +267,25 @@ class Opt:
         self.params = params
         if backend == "tensorflow":
             self.adam = tc.backend.optimizer(tf.keras.optimizers.Adam(lr))
-        else:
+        elif backend == "jax":
             self.adam = tc.backend.optimizer(optax.adam(lr))
+        elif backend == "numpy":
+            self.adam = tc.get_backend("tensorflow").optimizer(
+                tf.keras.optimizers.Adam(lr)
+            )
         self.tuning = tuning
+        self.backend = backend
 
     def step(self):
-        e, grad = self.f(*self.params)
+        if getattr(self.params, "shape", False):
+            e, grad = self.f(self.params)
+        else:
+            e, grad = self.f(*self.params)
         if self.tuning:
+            if self.backend == "numpy":
+                self.params = tf.constant(self.params)
             self.params = self.adam.update(grad, self.params)
-            # grad = [tf.convert_to_tensor(g) for g in grad]
-            # self.adam.apply_gradients(zip(grad, self.params))
-        return e[()]
+            if self.backend == "numpy":
+                self.params = self.params.numpy()
+        print(e)
+        return e
