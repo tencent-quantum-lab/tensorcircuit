@@ -129,6 +129,32 @@ def pennylane_benchmark(uuid, nwires, nlayer, nitrs, timeLimit, isgpu, minus=1):
         "# of actual iterations": Nitrs,
     }
 
+    print("begin testing lightning")
+    dev = qml.device("lightning.qubit", wires=nwires)
+
+    @qml.qnode(dev, diff_method="adjoint")
+    def lt_expval(params):
+        for i in range(nwires):
+            qml.Hadamard(wires=i)
+        for j in range(nlayer):
+            for i in range(nwires - minus):
+                qml.IsingZZ(params[i + j * 2 * nwires], wires=[i, (i + 1) % nwires])
+            for i in range(nwires):
+                qml.RX(params[nwires + i + j * 2 * nwires], wires=i)
+        return qml.expval(Htfim)
+
+    vag = qml.grad(lt_expval, argnum=0)
+    params = np.random.normal(size=[nlayer * 2 * nwires])
+
+    def f():
+        return vag(params)
+
+    ct, it, Nitrs = utils.timing(f, nitrs, timeLimit)
+    meta["Results"]["lightning.cpu"] = {
+        "Construction time": ct,
+        "Iteration time": it,
+        "# of actual iterations": Nitrs,
+    }
     # using tf interface and expvalcost
     # params.assign(np.random.normal(size=[nlayer * 2 * nwires]))
     # cost_fn_tf = qml.ExpvalCost(circuit, Htfim, dev, interface="tf")
