@@ -105,7 +105,7 @@ pip install tensorcircuit-nightly
 
 - 效率
 
-  - 时间：与 TFQ 或 Qiskit 相比，加速 10 到 10^6 倍
+  - 时间：与 TFQ, Pennylane, 或 Qiskit 相比，加速 10 到 10^6+ 倍
 
   - 空间：600+ qubits 1D VQE 工作流（收敛能量误差：< 1%）
 

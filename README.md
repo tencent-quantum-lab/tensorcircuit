@@ -109,7 +109,7 @@ We also have [Docker support](/docker).
 
 - Efficiency
 
-  - Time: 10 to 10^6 times acceleration compared to tfq or qiskit
+  - Time: 10 to 10^6+ times acceleration compared to TensorFlow Quantum, Pennylane or Qiskit
 
   - Space: 600+ qubits 1D VQE workflow (converged energy inaccuracy: < 1%)
 
