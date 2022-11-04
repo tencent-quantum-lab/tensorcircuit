@@ -61,7 +61,7 @@ def qibo_benchmark(uuid, n, nlayer, nitrs, timeLimit, minus=1):
     meta["Cpuinfo"] = cpuinfo.get_cpu_info()["brand_raw"]
     meta["Version"] = {
         "sys": sys.version,
-        "qiskit": qibo.__version__,
+        "qibo": qibo.__version__,
     }
     meta["VQE test parameters"] = {
         "nQubits": n,
