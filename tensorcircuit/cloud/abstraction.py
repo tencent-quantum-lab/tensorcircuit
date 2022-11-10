@@ -148,6 +148,12 @@ class Task:
 
     __str__ = __repr__
 
+    def get_device(self) -> Device:
+        if self.device is None:
+            return Device.from_name(self.details()["device"])
+        else:
+            return Device.from_name(self.device)
+
     def details(self) -> Dict[str, Any]:
         from .apis import get_task_details
 
@@ -157,6 +163,13 @@ class Task:
         r = self.details()
         return r["state"]  # type: ignore
 
+    status = state
+
+    def resubmit(self) -> "Task":
+        from .apis import resubmit_task
+
+        return resubmit_task(self)
+
     def results(self, format: Optional[str] = None) -> Any:
         # TODO(@refraction-ray): support different formats compatible with tc,
         # also support format_ alias
@@ -164,5 +177,3 @@ class Task:
             raise ValueError("Task %s is not completed yet" % self.id_)
         r = self.details()["results"]
         return r
-
-    status = state

@@ -100,14 +100,28 @@ def submit_task(
         raise ValueError(dumps(r))
 
 
+def resubmit_task(task: Task, token: str) -> Task:
+    # TODO(@refraction-ray): batch resubmit
+    json = {"id": task.id_}
+    r = rpost_json(
+        tencent_base_url + "task/start", json=json, headers=tencent_headers(token)
+    )
+    try:
+        return Task(id_=r["tasks"][0]["id"])
+
+    except KeyError:
+        raise ValueError(dumps(r))
+
+
 def get_task_details(task: Task, device: Device, token: str) -> Dict[str, Any]:
     json = {"id": task.id_}
     r = rpost_json(
         tencent_base_url + "task/detail", json=json, headers=tencent_headers(token)
     )
     try:
-        if "counts" in r["task"]["result"]:
-            r["task"]["results"] = r["task"]["result"]["counts"]
+        if "result" in r["task"]:
+            if "counts" in r["task"]["result"]:
+                r["task"]["results"] = r["task"]["result"]["counts"]
         return r["task"]  # type: ignore
     except KeyError:
         raise ValueError(dumps(r))
