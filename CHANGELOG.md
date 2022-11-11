@@ -20,6 +20,8 @@
 
 - Fixed `unitary_kraus` of Circuit class support for multi-qubit kraus channels, previous implementation fails to reshape the kraus tensor as matrix
 
+- Fixed `kraus_to_super_gate` bug when multi-qubit kraus channels are presented on tensorflow backend
+
 ## 0.5.0
 
 ### Added
