@@ -194,6 +194,7 @@ def qiskit2tc(
     n: int,
     inputs: Optional[List[float]] = None,
     is_dm: bool = False,
+    circuit_params: Optional[Dict[str, Any]] = None,
 ) -> Any:
     r"""
     Generate a tensorcircuit circuit using the quantum circuit data in qiskit.
@@ -220,10 +221,14 @@ def qiskit2tc(
         Circ = DMCircuit2
     else:
         Circ = Circuit  # type: ignore
-    if inputs is None:
-        tc_circuit: Any = Circ(n)
-    else:
-        tc_circuit = Circ(n, inputs=inputs)
+    if circuit_params is None:
+        circuit_params = {}
+    if "nqubits" not in circuit_params:
+        circuit_params["nqubits"] = n
+    if inputs is not None:
+        circuit_params["inputs"] = inputs
+
+    tc_circuit: Any = Circ(**circuit_params)
     for gate_info in qcdata:
         idx = [qb.index for qb in gate_info[1]]
         gate_name = gate_info[0].name
@@ -250,7 +255,7 @@ def qiskit2tc(
             getattr(tc_circuit, gate_name[:-1])(*idx)
         elif gate_name in ["cx_o0", "cy_o0", "cz_o0"]:
             getattr(tc_circuit, "o" + gate_name[1])(*idx)
-        elif gate_name in ["rx", "ry", "rz", "crx", "cry", "crz"]:
+        elif gate_name in ["rx", "ry", "rz", "crx", "cry", "crz", "rxx", "ryy", "rzz"]:
             getattr(tc_circuit, gate_name)(*idx, theta=parameters)
         elif gate_name in ["crx_o0", "cry_o0", "crz_o0"]:
             getattr(tc_circuit, "o" + gate_name[1:-3])(*idx, theta=parameters)

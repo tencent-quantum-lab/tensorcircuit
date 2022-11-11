@@ -10,8 +10,6 @@ import uuid
 import tensorcircuit as tc
 import utils
 
-tc.set_backend("tensorflow")
-
 
 def pennylane_benchmark(
     uuid,
@@ -59,6 +57,52 @@ def pennylane_benchmark(
         datetime.datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z")
     )
     meta["Results"] = {}
+
+    dev = qml.device("lightning.qubit", wires=nwires)
+
+    K = tc.get_backend("tensorflow")
+
+    @qml.qnode(dev, diff_method="adjoint", interface="tf")
+    def lt_expval(img, params):
+        for i in range(nwires - 1):
+            qml.RX(img[i] * np.pi, wires=i)
+        for j in range(nlayer):
+            for i in range(nwires - 1):
+                qml.IsingZZ(params[i + j * 2 * nwires], wires=[i, nwires - 1])
+            for i in range(nwires):
+                qml.RX(params[nwires + i + j * 2 * nwires], wires=i)
+        return qml.expval(qml.Hamiltonian([1.0], [qml.PauliZ(nwires - 1)], True))
+
+    def loss(imgs, lbls, param):
+        params = K.stack([param for _ in range(lbls.shape[0])])
+        params = K.transpose(params, [1, 0])
+        return K.mean(
+            (lbls - K.cast(lt_expval(imgs, params), "float32") * 0.5 - 0.5) ** 2
+        )
+
+    vag = K.value_and_grad(loss, argnums=2)
+    param = K.convert_to_tensor((np.random.normal(size=[nlayer * 2 * nwires])))
+
+    def f(train_imgs, train_lbls):
+        e, grad = vag(
+            K.transpose(
+                K.convert_to_tensor(np.array(train_imgs).astype(np.float32)), (1, 0)
+            ),
+            K.reshape(
+                K.convert_to_tensor(np.array(train_lbls).astype(np.float32)), (-1)
+            ),
+            param,
+        )
+        return e
+
+    ct, it, Nitrs = utils.qml_timing(f, nbatch, nitrs, timeLimit)
+    meta["Results"]["lightning"] = {
+        "Construction time": ct,
+        "Iteration time": it,
+        "# of actual iterations": Nitrs,
+    }
+
+    print(meta["Results"]["lightning"])
 
     dev = qml.device("default.qubit.jax", wires=nwires)
 
@@ -196,7 +240,7 @@ def pennylane_benchmark(
         return loss
 
     tf_vvag = tf.function(
-        tc.backend.vvag(tf_loss, vectorized_argnums=(0, 1), argnums=2)
+        tc.get_backend("tensorflow").vvag(tf_loss, vectorized_argnums=(0, 1), argnums=2)
     )
 
     def f(train_imgs, train_lbls):

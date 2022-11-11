@@ -7,6 +7,16 @@ MPS Simulator
 
 (Still experimental support)
 
+Very simple, we provide the same set of API for ``MPSCircuit`` as ``Circuit``, 
+the only new line is to set the bond dimension for the new simulator.
+
+.. code-block:: python
+
+    c = tc.MPSCircuit(n)
+    c.set_split_rules({"max_singular_values": 50})
+
+The larger bond dimension we set, the better approximation ratio (of course the more computational cost we pay)
+
 Split Two-qubit Gates
 -------------------------
 

@@ -60,7 +60,6 @@ def apply_qir_with_noise(c, qir, noise_conf, status=None):  # type: ignore
                     if d["index"] in noise_conf.nc[d["name"]]:
                         noise_kraus = noise_conf.nc[d["name"]][d["index"]]
 
-                    print(*d["index"])
                     c.general_kraus(noise_kraus, *d["index"])
 
         else:
@@ -74,7 +73,7 @@ def apply_qir_with_noise(c, qir, noise_conf, status=None):  # type: ignore
                         noise_kraus = noise_conf.nc[d["name"]][d["index"]]
         
                     if noise_kraus.is_unitary is True:
-                        c.general_kraus(
+                        c.unitary_kraus(
                             noise_kraus,
                             *d["index"],
                             status=status[quantum_index]

@@ -177,6 +177,8 @@ def test_noisemodel_qubit(backend):
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_dep(backend):
     c = tc.Circuit(2)
+    c.rx(0, theta=0.4)
+    c.rx(1, theta=0.8)
     c.cnot(0,1)
 
 
@@ -197,6 +199,10 @@ def test_dep(backend):
     print(value)
 
 
+    dmc = tc.DMCircuit(2)
+    dmc.rx(0, theta=0.4)
+    dmc.rx(1, theta=0.8)
+    dmc.cnot(0,1)
 
 
 
@@ -242,12 +248,11 @@ def test_dep(backend):
     print("2",c.expectation_ps(z=[0,1]))
 
 
+    dmc = tc.DMCircuit(2)
     dmc.general_kraus(kraus, 0,1)
     print("2",dmc.expectation_ps(z=[0,1]))
 
     dmc = tc.DMCircuit(2)
-    dmc.cnot(0,1)
-
     dmc.generaldepolarizing(0,1,p=0.01, num_qubits=2)
     print("2",dmc.expectation_ps(z=[0,1]))
 
