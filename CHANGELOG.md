@@ -16,6 +16,10 @@
 
 - Improve the efficiency of `sample_expectation_ps` method by using cached state.
 
+### Fixed
+
+- Fixed `unitary_kraus` of Circuit class support for multi-qubit kraus channels, previous implementation fails to reshape the kraus tensor as matrix
+
 ## 0.5.0
 
 ### Added

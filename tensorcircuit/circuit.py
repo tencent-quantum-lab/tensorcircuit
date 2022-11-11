@@ -393,6 +393,7 @@ class Circuit(BaseCircuit):
         sites = len(index)
         kraus = [k.tensor if isinstance(k, tn.Node) else k for k in kraus]
         kraus = [gates.array_to_tensor(k) for k in kraus]
+        kraus = [backend.reshapem(k) for k in kraus]
         if prob is None:
             prob = [
                 backend.real(backend.trace(backend.adjoint(k) @ k) / k.shape[0])
