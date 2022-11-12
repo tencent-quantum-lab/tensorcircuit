@@ -11,7 +11,10 @@ RUN if [ "${INSTALL_NODE}" = "true" ]; then su vscode -c "source /usr/local/shar
 
 # [Optional] If your pip requirements rarely change, uncomment this section to add them to the image.
 COPY requirements/requirements.txt /tmp/pip-tmp/
+COPY requirements/requirements-extra.txt /tmp/pip-tmp/
+
 RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.txt \
+   && pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements-extra.txt \
    && rm -rf /tmp/pip-tmp
 
 # [Optional] Uncomment this section to install additional OS packages.

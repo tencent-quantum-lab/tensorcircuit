@@ -8,4 +8,3 @@ jax
 jaxlib
 networkx
 optax
-qiskit
