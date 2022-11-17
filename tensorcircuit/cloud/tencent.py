@@ -19,11 +19,20 @@ def tencent_headers(token: Optional[str] = None) -> Dict[str, str]:
     return headers
 
 
+def error_handling(r: Dict[str, Any]) -> Dict[str, Any]:
+    if not isinstance(r, dict):
+        raise ValueError("failed to get legal response from the server")
+    if "err" in r:
+        raise ValueError(r["err"])
+    return r
+
+
 def list_devices(token: Optional[str] = None) -> List[Device]:
     json: Dict[Any, Any] = {}
     r = rpost_json(
         tencent_base_url + "device/find", json=json, headers=tencent_headers(token)
     )
+    r = error_handling(r)
     ds = r["devices"]
     rs = []
     for d in ds:
@@ -36,6 +45,7 @@ def list_properties(device: Device, token: Optional[str] = None) -> Dict[str, An
     r = rpost_json(
         tencent_base_url + "device/detail", json=json, headers=tencent_headers(token)
     )
+    r = error_handling(r)
     if "device" in r:
         return r["device"]  # type: ignore
     else:
@@ -90,8 +100,12 @@ def submit_task(
     r = rpost_json(
         tencent_base_url + "task/submit", json=json, headers=tencent_headers(token)
     )
+    r = error_handling(r)
     try:
-        rtn = [Task(id_=t["id"], device=device) for t in r["tasks"]]
+        rtn = []
+        for t in r["tasks"]:
+            t = error_handling(t)
+            rtn.append(Task(id_=t["id"], device=device))
         if len(rtn) == 1:
             return rtn[0]  # type: ignore
         else:
@@ -106,6 +120,7 @@ def resubmit_task(task: Task, token: str) -> Task:
     r = rpost_json(
         tencent_base_url + "task/start", json=json, headers=tencent_headers(token)
     )
+    r = error_handling(r)
     try:
         return Task(id_=r["tasks"][0]["id"])
 
@@ -118,6 +133,7 @@ def get_task_details(task: Task, device: Device, token: str) -> Dict[str, Any]:
     r = rpost_json(
         tencent_base_url + "task/detail", json=json, headers=tencent_headers(token)
     )
+    r = error_handling(r)
     try:
         if "result" in r["task"]:
             if "counts" in r["task"]["result"]:
