@@ -513,6 +513,8 @@ def kraus_to_super_gate(kraus_list: Sequence[Gate]) -> Tensor:
     :rtype: Tensor
     """
     kraus_tensor_list = [k.tensor for k in kraus_list]
+    kraus_tensor_list = [backend.reshapem(k) for k in kraus_tensor_list]
+
     k = kraus_tensor_list[0]
     u = backend.kron(k, backend.conj(k))
     for k in kraus_tensor_list[1:]:

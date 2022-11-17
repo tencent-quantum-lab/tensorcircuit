@@ -1,3 +1,4 @@
 # extra dependencies for ci
 qiskit
 torch
+jupyter
