@@ -56,6 +56,11 @@ class Provider:
 
         return get_device(self, device)
 
+    def list_tasks(self, **filter_kws: Any) -> List["Task"]:
+        from .apis import list_tasks
+
+        return list_tasks(self, **filter_kws)
+
 
 sep = "::"
 
@@ -136,6 +141,11 @@ class Device:
         from .apis import get_task
 
         return get_task(taskid, device=self)
+
+    def list_tasks(self, **filter_kws: Any) -> List["Task"]:
+        from .apis import list_tasks
+
+        return list_tasks(self.provider, self, **filter_kws)
 
 
 class Task:

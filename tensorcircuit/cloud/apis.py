@@ -250,3 +250,22 @@ def resubmit_task(
         return tencent.resubmit_task(task, token)  # type: ignore
     else:
         raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
+
+
+def list_tasks(
+    provider: Optional[Union[str, Provider]] = None,
+    device: Optional[Union[str, Device]] = None,
+    token: Optional[str] = None,
+    **filter_kws: Any,
+) -> List[Task]:
+    if provider is None:
+        provider = default_provider
+    provider = Provider.from_name(provider)
+    if token is None:
+        token = provider.get_token()  # type: ignore
+    if device is not None:
+        device = Device.from_name(device)
+    if provider.name == "tencent":  # type: ignore
+        return tencent.list_tasks(device, token, **filter_kws)  # type: ignore
+    else:
+        raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore

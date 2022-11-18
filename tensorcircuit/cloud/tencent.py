@@ -4,12 +4,15 @@ Cloud provider from Tencent
 
 from typing import Any, Dict, List, Optional, Sequence, Union
 from json import dumps
+import logging
 
 from .config import tencent_base_url
 from .utils import rpost_json
 from .abstraction import Device, sep, Task
 from ..abstractcircuit import AbstractCircuit
 from ..utils import is_sequence
+
+logger = logging.getLogger(__name__)
 
 
 def tencent_headers(token: Optional[str] = None) -> Dict[str, str]:
@@ -104,8 +107,10 @@ def submit_task(
     try:
         rtn = []
         for t in r["tasks"]:
-            t = error_handling(t)
-            rtn.append(Task(id_=t["id"], device=device))
+            if "err" in t:
+                logger.warning(t["err"])
+            else:
+                rtn.append(Task(id_=t["id"], device=device))
         if len(rtn) == 1:
             return rtn[0]  # type: ignore
         else:
@@ -124,6 +129,33 @@ def resubmit_task(task: Task, token: str) -> Task:
     try:
         return Task(id_=r["tasks"][0]["id"])
 
+    except KeyError:
+        raise ValueError(dumps(r))
+
+
+def list_tasks(device: Device, token: str, **filter_kws: Any) -> List[Task]:
+    json = filter_kws
+    if device is not None:
+        json["device"] = device.name
+    r = rpost_json(
+        tencent_base_url + "task/find?pn=1&npp=50",
+        json=json,
+        headers=tencent_headers(token),
+    )
+    r = error_handling(r)
+    try:
+        rtn = []
+        for t in r["tasks"]:
+            if "err" in t:
+                logger.warning(t["err"])
+            else:
+                rtn.append(
+                    Task(
+                        id_=t["id"],
+                        device=Device.from_name("tencent" + sep + t["device"]),
+                    )
+                )
+        return rtn
     except KeyError:
         raise ValueError(dumps(r))
 
