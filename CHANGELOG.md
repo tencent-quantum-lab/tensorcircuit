@@ -22,6 +22,7 @@
 
 - Fixed `kraus_to_super_gate` bug when multi-qubit kraus channels are presented on tensorflow backend
 
+
 ## 0.5.0
 
 ### Added
