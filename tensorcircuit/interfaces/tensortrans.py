@@ -250,6 +250,8 @@ def args_to_tensor(
     :return: The wrapped function
     :rtype: Callable[..., Any]
     """
+    from ..channels import KrausList
+
     if isinstance(argnums, int):
         argnumslist = [argnums]
     else:
@@ -260,6 +262,14 @@ def args_to_tensor(
         nargs = []
         for i, arg in enumerate(args):
             if i in argnumslist:
+                if isinstance(arg, KrausList):
+                    is_krauslist = True
+                    name = arg.name
+                    is_unitary = arg.is_unitary
+                    arg = list(arg)
+                else:
+                    is_krauslist = False
+
                 if gate_to_tensor:
                     arg = backend.tree_map(
                         partial(gate_to_matrix, is_reshapem=gate_as_matrix), arg
@@ -274,6 +284,9 @@ def args_to_tensor(
                     arg = backend.tree_map(partial(backend.cast, dtype=dtypestr), arg)
                 if tensor_as_matrix:
                     arg = backend.tree_map(backend.reshapem, arg)
+
+                if is_krauslist is True:
+                    arg = KrausList(arg, name, is_unitary)
             nargs.append(arg)
         return f(*nargs, **kws)
 

@@ -24,6 +24,13 @@ Tensor = Any
 Matrix = Any
 
 
+class KrausList(list):  # type: ignore
+    def __init__(self, iterable, name, is_unitary):  # type: ignore
+        super().__init__(iterable)
+        self.name = name
+        self.is_unitary = is_unitary
+
+
 def _sqrt(a: Tensor) -> Tensor:
     r"""
     Return the square root of Tensor with default global dtype
@@ -93,7 +100,7 @@ def depolarizingchannel(px: float, py: float, pz: float) -> Sequence[Gate]:
     x = Gate(_sqrt(px) * gates.x().tensor)  # type: ignore
     y = Gate(_sqrt(py) * gates.y().tensor)  # type: ignore
     z = Gate(_sqrt(pz) * gates.z().tensor)  # type: ignore
-    return [i, x, y, z]
+    return KrausList([i, x, y, z], name="depolarizing", is_unitary=True)
 
 
 def generaldepolarizingchannel(
@@ -194,7 +201,7 @@ def generaldepolarizingchannel(
     for pro, paugate in zip(probs, tup):
         Gkarus.append(Gate(_sqrt(pro) * paugate))
 
-    return Gkarus
+    return KrausList(Gkarus, name="depolarizing", is_unitary=True)
 
 
 def amplitudedampingchannel(gamma: float, p: float) -> Sequence[Gate]:
@@ -247,7 +254,7 @@ def amplitudedampingchannel(gamma: float, p: float) -> Sequence[Gate]:
     m1 = _sqrt(p) * (_sqrt(gamma) * g01)
     m2 = _sqrt(1 - p) * (_sqrt(1 - gamma) * g00 + g11)
     m3 = _sqrt(1 - p) * (_sqrt(gamma) * g10)
-    return [m0, m1, m2, m3]
+    return KrausList([m0, m1, m2, m3], name="amplitude_damping", is_unitary=False)
 
 
 def resetchannel() -> Sequence[Gate]:
@@ -274,7 +281,7 @@ def resetchannel() -> Sequence[Gate]:
     """
     m0 = Gate(np.array([[1, 0], [0, 0]], dtype=cons.npdtype))
     m1 = Gate(np.array([[0, 1], [0, 0]], dtype=cons.npdtype))
-    return [m0, m1]
+    return KrausList([m0, m1], name="reset", is_unitary=False)
 
 
 def phasedampingchannel(gamma: float) -> Sequence[Gate]:
@@ -305,7 +312,7 @@ def phasedampingchannel(gamma: float) -> Sequence[Gate]:
     g11 = Gate(np.array([[0, 0], [0, 1]], dtype=cons.npdtype))
     m0 = 1.0 * (g00 + _sqrt(1 - gamma) * g11)  # 1* ensure gate
     m1 = _sqrt(gamma) * g11
-    return [m0, m1]
+    return KrausList([m0, m1], name="phase_damping", is_unitary=False)
 
 
 def thermalrelaxationchannel(
@@ -394,7 +401,7 @@ def thermalrelaxationchannel(
         Gkraus = []
         for pro, paugate in zip(probs, tup):
             Gkraus.append(Gate(_sqrt(pro) * paugate))
-        return Gkraus
+        return KrausList(Gkraus, name="thermal_relaxation", is_unitary=False)
 
     elif method == "ByChoi" or (
         method == "AUTO" and backend.real(t2) >= backend.real(t1)
@@ -439,7 +446,8 @@ def thermalrelaxationchannel(
             nmax = 3
 
         listKraus = choi_to_kraus(choi, truncation_rules={"max_singular_values": nmax})
-        return [Gate(i) for i in listKraus]
+        Gatelist = [Gate(i) for i in listKraus]
+        return KrausList(Gatelist, name="thermal_relaxation", is_unitary=False)
 
     else:
         raise ValueError("No valid method is provided")
