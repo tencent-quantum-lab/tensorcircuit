@@ -39,6 +39,33 @@ class NoiseConf:
         self.has_quantum = False
         self.has_readout = False
 
+    def composedkraus(self, kraus1: KrausList, kraus2: KrausList) -> KrausList:
+        """
+        Compose the noise channels
+
+        :param kraus1: One noise channel
+        :type kraus1: KrausList
+        :param kraus2: Another noise channel
+        :type kraus2: KrausList
+        :return: Composed nosie channel
+        :rtype: KrausList
+        """
+        dim = backend.shape_tuple(kraus1[0].tensor)
+        dim2 = int(2 ** (len(dim) / 2))
+        new_kraus = []
+        for i in kraus1:
+            for j in kraus2:
+                k = Gate(
+                    backend.reshape(i.tensor, [dim2, dim2])
+                    @ backend.reshape(j.tensor, [dim2, dim2])
+                )
+                new_kraus.append(k)
+        return KrausList(
+            new_kraus,
+            name="composed_channel",
+            is_unitary=kraus1.is_unitary and kraus2.is_unitary,
+        )
+
     def add_noise(
         self,
         gate_name: str,
@@ -61,10 +88,25 @@ class NoiseConf:
             qubit_kraus = self.nc[gate_name]
 
         if qubit is None:
-            qubit_kraus["Default"] = kraus
+            if qubit_kraus:
+                for qname in qubit_kraus:
+                    qubit_kraus[qname] = self.composedkraus(qubit_kraus[qname], kraus)  # type: ignore
+            else:
+                qubit_kraus["Default"] = kraus
         else:
             for i in range(len(qubit)):
-                qubit_kraus[tuple(qubit[i])] = kraus[i]
+                if tuple(qubit[i]) in qubit_kraus:
+                    qubit_kraus[tuple(qubit[i])] = self.composedkraus(
+                        qubit_kraus[tuple(qubit[i])], kraus[i]
+                    )
+                else:
+                    if "Default" in qubit_kraus:
+                        qubit_kraus[tuple(qubit[i])] = self.composedkraus(
+                            qubit_kraus["Default"], kraus[i]
+                        )
+                    else:
+                        qubit_kraus[tuple(qubit[i])] = kraus[i]
+
         self.nc[gate_name] = qubit_kraus
 
         if gate_name == "readout":
@@ -103,6 +145,7 @@ def apply_qir_with_noise(
 
         if isinstance(c, DMCircuit):
             if d["name"] in noise_conf.nc:
+
                 if (
                     "Default" in noise_conf.nc[d["name"]]
                     or d["index"] in noise_conf.nc[d["name"]]
@@ -117,6 +160,7 @@ def apply_qir_with_noise(
 
         else:
             if d["name"] in noise_conf.nc:
+
                 if (
                     "Default" in noise_conf.nc[d["name"]]
                     or d["index"] in noise_conf.nc[d["name"]]
