@@ -2,12 +2,13 @@
 General Noise Model Construction.
 """
 import logging
-
 from typing import Any, Sequence, Optional, List, Dict
-from tensorcircuit.abstractcircuit import AbstractCircuit
+
+from .abstractcircuit import AbstractCircuit
 from . import gates
 from . import Circuit, DMCircuit
 from .cons import backend
+from .channels import KrausList
 
 Gate = gates.Gate
 Tensor = Any
@@ -22,19 +23,17 @@ class NoiseConf:
 
         error1 = tc.channels.generaldepolarizingchannel(0.1, 1)
         error2 = tc.channels.thermalrelaxationchannel(300, 400, 100, "ByChoi", 0)
-        readout_error = [[0.9, 0.75],[0.4, 0.7]]
+        readout_error = [[0.9, 0.75], [0.4, 0.7]]
 
         noise_conf = NoiseConf()
-        noise_conf.add_noise("x",error1)
-        noise_conf.add_noise("h",[error1,error2],[[0],[1]])
+        noise_conf.add_noise("x", error1)
+        noise_conf.add_noise("h", [error1, error2], [[0], [1]])
         noise_conf.add_noise("readout", readout_error)
-
     """
 
     def __init__(self) -> None:
         """
         Establish a noise configuration.
-
         """
         self.nc = {}  # type: ignore
         self.has_quantum = False
@@ -43,16 +42,17 @@ class NoiseConf:
     def add_noise(
         self,
         gate_name: str,
-        kraus: Sequence[Gate],
+        kraus: Sequence[KrausList],
         qubit: Optional[Sequence[Any]] = None,
     ) -> None:
-        """Add noise channels on specific gates and specific qubits in form of Kraus operators.
+        """
+        Add noise channels on specific gates and specific qubits in form of Kraus operators.
 
         :param gate_name: noisy gate
         :type gate_name: str
         :param kraus: noise channel
         :type kraus: Sequence[Gate]
-        :param qubit: the list of noisy qubit, defaults to None
+        :param qubit: the list of noisy qubit, defaults to None, indicating applying the noise channel on all qubits
         :type qubit: Optional[Sequence[Any]], optional
         """
         if gate_name not in self.nc:
@@ -74,25 +74,24 @@ class NoiseConf:
 
 
 def apply_qir_with_noise(
-    c: AbstractCircuit,
+    c: Any,
     qir: List[Dict[str, Any]],
     noise_conf: NoiseConf,
-    status: Optional[Sequence[Any]] = None,
-) -> AbstractCircuit:
+    status: Optional[Tensor] = None,
+) -> Any:
     """
 
     :param c: A newly defined circuit
     :type c: AbstractCircuit
-    :param qir: The qir of the objective circuit
+    :param qir: The qir of the clean circuit
     :type qir: List[Dict[str, Any]]
     :param noise_conf: Noise Configuration
     :type noise_conf: NoiseConf
     :param status: The status for Monte Carlo sampling, defaults to None
-    :type status: Optional[Sequence[Any]], optional
+    :type status: 1D Tensor, optional
     :return: A newly constructed circuit with noise
     :rtype: AbstractCircuit
     """
-
     quantum_index = 0
     for d in qir:
         if "parameters" not in d:  # paramized gate
@@ -129,13 +128,13 @@ def apply_qir_with_noise(
                         noise_kraus = noise_conf.nc[d["name"]][d["index"]]
 
                     if noise_kraus.is_unitary is True:
-                        c.unitary_kraus(  #  type: ignore
+                        c.unitary_kraus(
                             noise_kraus,
                             *d["index"],
                             status=status[quantum_index]  #  type: ignore
                         )
                     else:
-                        c.general_kraus(  # type: ignore
+                        c.general_kraus(
                             noise_kraus,
                             *d["index"],
                             status=status[quantum_index]  #  type: ignore
@@ -146,16 +145,16 @@ def apply_qir_with_noise(
 
 
 def circuit_with_noise(
-    c: AbstractCircuit, noise_conf: NoiseConf, status: Optional[Sequence[Any]] = None
-) -> AbstractCircuit:
-    """Noisify an objective circuit.
+    c: AbstractCircuit, noise_conf: NoiseConf, status: Optional[Tensor] = None
+) -> Any:
+    """Noisify a clean circuit.
 
-    :param c: An objective circuit
+    :param c: A clean circuit
     :type c: AbstractCircuit
     :param noise_conf: Noise Configuration
     :type noise_conf: NoiseConf
     :param status: The status for Monte Carlo sampling, defaults to None
-    :type status: Optional[Sequence[Any]], optional
+    :type status: 1D Tensor, optional
     :return: A newly constructed circuit with noise
     :rtype: AbstractCircuit
     """
@@ -170,13 +169,13 @@ def circuit_with_noise(
 
 
 def expectation_ps_noisfy(
-    c: AbstractCircuit,
+    c: Any,
     x: Optional[Sequence[int]] = None,
     y: Optional[Sequence[int]] = None,
     z: Optional[Sequence[int]] = None,
     noise_conf: Optional[NoiseConf] = None,
     nmc: int = 1000,
-    status: Optional[Sequence[Any]] = None,
+    status: Optional[Tensor] = None,
 ) -> Tensor:
 
     if noise_conf is None:
@@ -201,8 +200,8 @@ def expectation_ps_noisfy(
         # monte carlo
         else:
 
-            def mcsim(status):  # type: ignore
-                cnoise = circuit_with_noise(c, noise_conf, status)  # type: ignore
+            def mcsim(status: Optional[Tensor]) -> Tensor:
+                cnoise = circuit_with_noise(c, noise_conf, status)  #  type: ignore
                 return cnoise.expectation_ps(x=x, y=y, z=z)
 
             mcsim_vmap = backend.vmap(mcsim, vectorized_argnums=0)
@@ -219,14 +218,14 @@ def expectation_ps_noisfy(
 
 
 def sample_expectation_ps_noisfy(
-    c: AbstractCircuit,
+    c: Any,
     x: Optional[Sequence[int]] = None,
     y: Optional[Sequence[int]] = None,
     z: Optional[Sequence[int]] = None,
     noise_conf: Optional[NoiseConf] = None,
     nmc: int = 1000,
     shots: Optional[int] = None,
-    status: Optional[Sequence[Any]] = None,
+    status: Optional[Tensor] = None,
 ) -> Tensor:
 
     if noise_conf is None:
@@ -245,17 +244,17 @@ def sample_expectation_ps_noisfy(
 
         # density matrix
         if isinstance(c, DMCircuit):
-            cnoise = circuit_with_noise(c, noise_conf)
-            return cnoise.sample_expectation_ps(  # type: ignore
+            cnoise = circuit_with_noise(c, noise_conf)  #  type: ignore
+            return cnoise.sample_expectation_ps(
                 x=x, y=y, z=z, shots=shots, readout_error=readout_error
             )
 
         # monte carlo
         else:
 
-            def mcsim(status):  # type: ignore
-                cnoise = circuit_with_noise(c, noise_conf, status)  # type: ignore
-                return cnoise.sample_expectation_ps(  # type: ignore
+            def mcsim(status: Optional[Tensor]) -> Tensor:
+                cnoise = circuit_with_noise(c, noise_conf, status)  #  type: ignore
+                return cnoise.sample_expectation_ps(
                     x=x, y=y, z=z, shots=shots, readout_error=readout_error
                 )
 
@@ -268,7 +267,7 @@ def sample_expectation_ps_noisfy(
             return value
 
     else:
-        value = c.sample_expectation_ps(  # type: ignore
+        value = c.sample_expectation_ps(
             x=x, y=y, z=z, shots=shots, readout_error=readout_error
         )
         return value
