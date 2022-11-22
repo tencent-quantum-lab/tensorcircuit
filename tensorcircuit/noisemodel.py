@@ -8,7 +8,7 @@ from .abstractcircuit import AbstractCircuit
 from . import gates
 from . import Circuit, DMCircuit
 from .cons import backend
-from .channels import KrausList
+from .channels import KrausList, composedkraus
 
 Gate = gates.Gate
 Tensor = Any
@@ -39,33 +39,6 @@ class NoiseConf:
         self.has_quantum = False
         self.has_readout = False
 
-    def composedkraus(self, kraus1: KrausList, kraus2: KrausList) -> KrausList:
-        """
-        Compose the noise channels
-
-        :param kraus1: One noise channel
-        :type kraus1: KrausList
-        :param kraus2: Another noise channel
-        :type kraus2: KrausList
-        :return: Composed nosie channel
-        :rtype: KrausList
-        """
-        dim = backend.shape_tuple(kraus1[0].tensor)
-        dim2 = int(2 ** (len(dim) / 2))
-        new_kraus = []
-        for i in kraus1:
-            for j in kraus2:
-                k = Gate(
-                    backend.reshape(i.tensor, [dim2, dim2])
-                    @ backend.reshape(j.tensor, [dim2, dim2])
-                )
-                new_kraus.append(k)
-        return KrausList(
-            new_kraus,
-            name="composed_channel",
-            is_unitary=kraus1.is_unitary and kraus2.is_unitary,
-        )
-
     def add_noise(
         self,
         gate_name: str,
@@ -82,6 +55,9 @@ class NoiseConf:
         :param qubit: the list of noisy qubit, defaults to None, indicating applying the noise channel on all qubits
         :type qubit: Optional[Sequence[Any]], optional
         """
+        if gate_name is not "readout":
+            gate_name = AbstractCircuit.standardize_gate(gate_name)
+
         if gate_name not in self.nc:
             qubit_kraus = {}
         else:
@@ -90,18 +66,18 @@ class NoiseConf:
         if qubit is None:
             if qubit_kraus:
                 for qname in qubit_kraus:
-                    qubit_kraus[qname] = self.composedkraus(qubit_kraus[qname], kraus)  # type: ignore
+                    qubit_kraus[qname] = composedkraus(qubit_kraus[qname], kraus)  # type: ignore
             else:
                 qubit_kraus["Default"] = kraus
         else:
             for i in range(len(qubit)):
                 if tuple(qubit[i]) in qubit_kraus:
-                    qubit_kraus[tuple(qubit[i])] = self.composedkraus(
+                    qubit_kraus[tuple(qubit[i])] = composedkraus(
                         qubit_kraus[tuple(qubit[i])], kraus[i]
                     )
                 else:
                     if "Default" in qubit_kraus:
-                        qubit_kraus[tuple(qubit[i])] = self.composedkraus(
+                        qubit_kraus[tuple(qubit[i])] = composedkraus(
                             qubit_kraus["Default"], kraus[i]
                         )
                     else:
@@ -136,6 +112,9 @@ def apply_qir_with_noise(
     """
     quantum_index = 0
     for d in qir:
+
+        d["name"] = AbstractCircuit.standardize_gate(d["name"])
+
         if "parameters" not in d:  # paramized gate
             c.apply_general_gate_delayed(d["gatef"], d["name"])(c, *d["index"])
         else:
