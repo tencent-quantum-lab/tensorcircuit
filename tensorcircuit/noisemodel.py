@@ -8,7 +8,7 @@ from .abstractcircuit import AbstractCircuit
 from . import gates
 from . import Circuit, DMCircuit
 from .cons import backend
-from .channels import KrausList
+from .channels import KrausList, composedkraus
 
 Gate = gates.Gate
 Tensor = Any
@@ -55,16 +55,34 @@ class NoiseConf:
         :param qubit: the list of noisy qubit, defaults to None, indicating applying the noise channel on all qubits
         :type qubit: Optional[Sequence[Any]], optional
         """
+        if gate_name is not "readout":
+            gate_name = AbstractCircuit.standardize_gate(gate_name)
+
         if gate_name not in self.nc:
             qubit_kraus = {}
         else:
             qubit_kraus = self.nc[gate_name]
 
         if qubit is None:
-            qubit_kraus["Default"] = kraus
+            if qubit_kraus:
+                for qname in qubit_kraus:
+                    qubit_kraus[qname] = composedkraus(qubit_kraus[qname], kraus)  # type: ignore
+            else:
+                qubit_kraus["Default"] = kraus
         else:
             for i in range(len(qubit)):
-                qubit_kraus[tuple(qubit[i])] = kraus[i]
+                if tuple(qubit[i]) in qubit_kraus:
+                    qubit_kraus[tuple(qubit[i])] = composedkraus(
+                        qubit_kraus[tuple(qubit[i])], kraus[i]
+                    )
+                else:
+                    if "Default" in qubit_kraus:
+                        qubit_kraus[tuple(qubit[i])] = composedkraus(
+                            qubit_kraus["Default"], kraus[i]
+                        )
+                    else:
+                        qubit_kraus[tuple(qubit[i])] = kraus[i]
+
         self.nc[gate_name] = qubit_kraus
 
         if gate_name == "readout":
@@ -94,6 +112,9 @@ def apply_qir_with_noise(
     """
     quantum_index = 0
     for d in qir:
+
+        d["name"] = AbstractCircuit.standardize_gate(d["name"])
+
         if "parameters" not in d:  # paramized gate
             c.apply_general_gate_delayed(d["gatef"], d["name"])(c, *d["index"])
         else:
@@ -103,6 +124,7 @@ def apply_qir_with_noise(
 
         if isinstance(c, DMCircuit):
             if d["name"] in noise_conf.nc:
+
                 if (
                     "Default" in noise_conf.nc[d["name"]]
                     or d["index"] in noise_conf.nc[d["name"]]
@@ -117,6 +139,7 @@ def apply_qir_with_noise(
 
         else:
             if d["name"] in noise_conf.nc:
+
                 if (
                     "Default" in noise_conf.nc[d["name"]]
                     or d["index"] in noise_conf.nc[d["name"]]

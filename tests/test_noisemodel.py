@@ -9,18 +9,22 @@ from tensorcircuit.noisemodel import (
     expectation_ps_noisfy,
     sample_expectation_ps_noisfy,
 )
+from tensorcircuit.channels import composedkraus
 
 
-@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_noisemodel(backend):
 
     # test data structure
     # noise_conf = NoiseConf()
-    # noise_conf.add_noise("h1","t0")
-    # noise_conf.add_noise("h1",["t1","t2"],[[0],[1]])
-    # noise_conf.add_noise("h1",["t3"],[[0]])
-    # noise_conf.add_noise("h2",["v1","v2"],[[0],[1]])
-    # noise_conf.add_noise("h2",["v3"],[[0]])
+    # noise_conf.add_noise("h1", "t0")
+    # noise_conf.add_noise("h1", ["t1", "t2"], [[0], [1]])
+    # noise_conf.add_noise("h1", ["t3"], [[0]])
+    # noise_conf.add_noise("h1", "t4")
+    # noise_conf.add_noise("h1", ["t5"], [[3]])
+    # noise_conf.add_noise("h2", ["v1", "v2"], [[0], [1]])
+    # noise_conf.add_noise("h2", ["v3"], [[0]])
+    # noise_conf.add_noise("h2", "v4")
 
     c = tc.Circuit(2)
     c.cnot(0, 1)
@@ -56,14 +60,38 @@ def test_noisemodel(backend):
     value = cnoise.expectation_ps(x=[0, 1])
 
     value = expectation_ps_noisfy(c, x=[0, 1], noise_conf=noise_conf, nmc=10000)
-    np.testing.assert_allclose(value, 0.15, atol=1e-1)
+    np.testing.assert_allclose(value, 0.09, atol=1e-1)
 
     value = expectation_ps_noisfy(dmc, x=[0, 1], noise_conf=noise_conf)
-    np.testing.assert_allclose(value, 0.15, atol=1e-2)
+    np.testing.assert_allclose(value, 0.09, atol=1e-1)
 
     # with readout_error
     value = sample_expectation_ps_noisfy(dmc, x=[0, 1], noise_conf=noise_conf)
-    np.testing.assert_allclose(value, -0.16, atol=1e-2)
+    np.testing.assert_allclose(value, -0.11, atol=1e-1)
 
     value = sample_expectation_ps_noisfy(c, x=[0, 1], noise_conf=noise_conf, nmc=100000)
-    np.testing.assert_allclose(value, -0.16, atol=1e-1)
+    np.testing.assert_allclose(value, -0.11, atol=1e-1)
+
+    # test composed channel
+    newerror = composedkraus(error1, error3)
+    noise_conf1 = NoiseConf()
+    noise_conf1.add_noise("rx", [newerror, error1], [[0], [1]])
+    noise_conf1.add_noise("h", [error3, error1], [[0], [1]])
+    noise_conf1.add_noise("x", [error3], [[0]])
+    noise_conf1.add_noise("cnot", [error2], [[0, 1]])
+    noise_conf1.add_noise("readout", readout_error)
+
+    value = expectation_ps_noisfy(c, x=[0, 1], noise_conf=noise_conf1, nmc=10000)
+    np.testing.assert_allclose(value, 0.09, atol=1e-1)
+
+    # test standardized gate
+    newerror = composedkraus(error1, error3)
+    noise_conf2 = NoiseConf()
+    noise_conf2.add_noise("Rx", [newerror, error1], [[0], [1]])
+    noise_conf2.add_noise("H", [error3, error1], [[0], [1]])
+    noise_conf2.add_noise("x", [error3], [[0]])
+    noise_conf2.add_noise("cx", [error2], [[0, 1]])
+    noise_conf2.add_noise("readout", readout_error)
+
+    value = expectation_ps_noisfy(c, x=[0, 1], noise_conf=noise_conf2, nmc=10000)
+    np.testing.assert_allclose(value, 0.09, atol=1e-1)
