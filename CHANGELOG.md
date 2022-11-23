@@ -12,6 +12,12 @@
 
 - Add `shifts` tuple parameter for `experimental.parameter_shift_grad` API so that we can also customize finite difference gradient from this method
 
+- Add `std` method for backends
+
+- Add `NoiseModel` class to programmably configure the global error model when simulating the quantum circuit
+
+- Add `tc.channels.composedkraus` to compose the different Kraus operators as a new one
+
 ### Changed
 
 - Improve the efficiency of `sample_expectation_ps` method by using cached state.
@@ -21,7 +27,6 @@
 - Fixed `unitary_kraus` of Circuit class support for multi-qubit kraus channels, previous implementation fails to reshape the kraus tensor as matrix
 
 - Fixed `kraus_to_super_gate` bug when multi-qubit kraus channels are presented on tensorflow backend
-
 
 ## 0.5.0
 

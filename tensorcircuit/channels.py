@@ -962,3 +962,26 @@ def check_rep_transformation(
     print("test evolution identity of kraus and superop")
     density_matrix3 = evol_superop(density_matrix, superop)
     np.testing.assert_allclose(density_matrix1, density_matrix3, atol=1e-5)
+
+
+def composedkraus(kraus1: KrausList, kraus2: KrausList) -> KrausList:
+    """
+    Compose the noise channels
+
+    :param kraus1: One noise channel
+    :type kraus1: KrausList
+    :param kraus2: Another noise channel
+    :type kraus2: KrausList
+    :return: Composed nosie channel
+    :rtype: KrausList
+    """
+    new_kraus = []
+    for i in kraus1:
+        for j in kraus2:
+            k = Gate(backend.reshapem(i.tensor) @ backend.reshapem(j.tensor))
+            new_kraus.append(k)
+    return KrausList(
+        new_kraus,
+        name=kraus1.name + "_" + kraus2.name,
+        is_unitary=kraus1.is_unitary and kraus2.is_unitary,
+    )

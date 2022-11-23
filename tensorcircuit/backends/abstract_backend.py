@@ -462,6 +462,31 @@ class ExtendedBackend:
             "Backend '{}' has not implemented `mean`.".format(self.name)
         )
 
+    def std(
+        self: Any,
+        a: Tensor,
+        axis: Optional[Sequence[int]] = None,
+        keepdims: bool = False,
+    ) -> Tensor:
+        """
+        Compute the standard deviation along the specified axis.
+
+        :param a: _description_
+        :type a: Tensor
+        :param axis: Axis or axes along which the standard deviation is computed,
+            defaults to None, implying all axis
+        :type axis: Optional[Sequence[int]], optional
+        :param keepdims: If this is set to True,
+            the axes which are reduced are left in the result as dimensions with size one,
+            defaults to False
+        :type keepdims: bool, optional
+        :return: _description_
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `std`.".format(self.name)
+        )
+
     def min(self: Any, a: Tensor, axis: Optional[int] = None) -> Tensor:
         """
         Return the minimum of an array or minimum along an axis.

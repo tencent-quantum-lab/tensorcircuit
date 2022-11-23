@@ -293,6 +293,11 @@ def test_backend_methods_2(backend):
     np.testing.assert_allclose(
         r - tc.backend.numpy(p) * 10000.0, np.zeros([10]), atol=200, rtol=1
     )
+    np.testing.assert_allclose(
+        tc.backend.std(tc.backend.cast(tc.backend.arange(1, 4), "float32")),
+        0.81649658,
+        atol=1e-5,
+    )
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])

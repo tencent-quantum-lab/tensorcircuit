@@ -265,7 +265,13 @@ class DMCircuit(BaseCircuit):
         return QuOperator(edges[: self._nqubits], edges[self._nqubits :])
 
     def expectation(
-        self, *ops: Tuple[tn.Node, List[int]], reuse: bool = True, **kws: Any
+        self,
+        *ops: Tuple[tn.Node, List[int]],
+        reuse: bool = True,
+        noise_conf: Optional[Any] = None,
+        nmc: int = 1000,
+        status: Optional[Tensor] = None,
+        **kws: Any
     ) -> tn.Node.tensor:
         """
         Compute the expectation of corresponding operators.
@@ -275,11 +281,30 @@ class DMCircuit(BaseCircuit):
         :type ops: Tuple[tn.Node, List[int]]
         :param reuse: whether contract the density matrix in advance, defaults to True
         :type reuse: bool
+        :param noise_conf: Noise Configuration, defaults to None
+        :type noise_conf: Optional[NoiseConf], optional
+        :param nmc: repetition time for Monte Carlo sampling for noisfy calculation, defaults to 1000
+        :type nmc: int
+        :param status: external randomness given by tensor uniformly from [0, 1], defaults to None,
+            used for noisfy circuit sampling
+        :type status: Optional[Tensor], optional
         :return: Tensor with one element
         :rtype: Tensor
         """
-        nodes = self.expectation_before(*ops, reuse=reuse)
-        return contractor(nodes).tensor
+        from .noisemodel import expectation_noisfy
+
+        if noise_conf is None:
+            nodes = self.expectation_before(*ops, reuse=reuse)
+            return contractor(nodes).tensor
+        else:
+            return expectation_noisfy(
+                self,
+                *ops,
+                noise_conf=noise_conf,
+                nmc=nmc,
+                status=status,
+                **kws,
+            )
 
     @staticmethod
     def check_density_matrix(dm: Tensor) -> None:

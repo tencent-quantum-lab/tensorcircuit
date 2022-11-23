@@ -821,6 +821,7 @@ class MPSCircuit(AbstractCircuit):
         conj: bool = True,
         normalize: bool = False,
         split: Optional[Dict[str, Any]] = None,
+        **kws: Any,
     ) -> Tensor:
         """
         Compute the expectation of corresponding operators in the form of tensor.

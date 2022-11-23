@@ -2,13 +2,15 @@
 General Noise Model Construction.
 """
 import logging
-from typing import Any, Sequence, Optional, List, Dict
+from typing import Any, Sequence, Optional, List, Dict, Tuple
+
+import tensornetwork as tn
 
 from .abstractcircuit import AbstractCircuit
 from . import gates
 from . import Circuit, DMCircuit
 from .cons import backend
-from .channels import KrausList
+from .channels import KrausList, composedkraus
 
 Gate = gates.Gate
 Tensor = Any
@@ -55,16 +57,34 @@ class NoiseConf:
         :param qubit: the list of noisy qubit, defaults to None, indicating applying the noise channel on all qubits
         :type qubit: Optional[Sequence[Any]], optional
         """
+        if gate_name is not "readout":
+            gate_name = AbstractCircuit.standardize_gate(gate_name)
+
         if gate_name not in self.nc:
             qubit_kraus = {}
         else:
             qubit_kraus = self.nc[gate_name]
 
         if qubit is None:
-            qubit_kraus["Default"] = kraus
+            if qubit_kraus:
+                for qname in qubit_kraus:
+                    qubit_kraus[qname] = composedkraus(qubit_kraus[qname], kraus)  # type: ignore
+            else:
+                qubit_kraus["Default"] = kraus
         else:
             for i in range(len(qubit)):
-                qubit_kraus[tuple(qubit[i])] = kraus[i]
+                if tuple(qubit[i]) in qubit_kraus:
+                    qubit_kraus[tuple(qubit[i])] = composedkraus(
+                        qubit_kraus[tuple(qubit[i])], kraus[i]
+                    )
+                else:
+                    if "Default" in qubit_kraus:
+                        qubit_kraus[tuple(qubit[i])] = composedkraus(
+                            qubit_kraus["Default"], kraus[i]
+                        )
+                    else:
+                        qubit_kraus[tuple(qubit[i])] = kraus[i]
+
         self.nc[gate_name] = qubit_kraus
 
         if gate_name == "readout":
@@ -94,6 +114,9 @@ def apply_qir_with_noise(
     """
     quantum_index = 0
     for d in qir:
+
+        d["name"] = AbstractCircuit.standardize_gate(d["name"])
+
         if "parameters" not in d:  # paramized gate
             c.apply_general_gate_delayed(d["gatef"], d["name"])(c, *d["index"])
         else:
@@ -103,6 +126,7 @@ def apply_qir_with_noise(
 
         if isinstance(c, DMCircuit):
             if d["name"] in noise_conf.nc:
+
                 if (
                     "Default" in noise_conf.nc[d["name"]]
                     or d["index"] in noise_conf.nc[d["name"]]
@@ -117,6 +141,7 @@ def apply_qir_with_noise(
 
         else:
             if d["name"] in noise_conf.nc:
+
                 if (
                     "Default" in noise_conf.nc[d["name"]]
                     or d["index"] in noise_conf.nc[d["name"]]
@@ -131,13 +156,13 @@ def apply_qir_with_noise(
                         c.unitary_kraus(
                             noise_kraus,
                             *d["index"],
-                            status=status[quantum_index]  #  type: ignore
+                            status=status[quantum_index],  #  type: ignore
                         )
                     else:
                         c.general_kraus(
                             noise_kraus,
                             *d["index"],
-                            status=status[quantum_index]  #  type: ignore
+                            status=status[quantum_index],  #  type: ignore
                         )
                     quantum_index += 1
 
@@ -168,53 +193,48 @@ def circuit_with_noise(
     return cnew
 
 
-def expectation_ps_noisfy(
-    c: Any,
-    x: Optional[Sequence[int]] = None,
-    y: Optional[Sequence[int]] = None,
-    z: Optional[Sequence[int]] = None,
-    noise_conf: Optional[NoiseConf] = None,
-    nmc: int = 1000,
-    status: Optional[Tensor] = None,
-) -> Tensor:
+# def expectation_ps_noisfy(
+#     c: Any,
+#     x: Optional[Sequence[int]] = None,
+#     y: Optional[Sequence[int]] = None,
+#     z: Optional[Sequence[int]] = None,
+#     noise_conf: Optional[NoiseConf] = None,
+#     nmc: int = 1000,
+#     status: Optional[Tensor] = None,
+# ) -> Tensor:
 
-    if noise_conf is None:
-        noise_conf = NoiseConf()
-    else:
-        pass
+#     if noise_conf is None:
+#         noise_conf = NoiseConf()
 
-    num_quantum = c.gate_count(list(noise_conf.nc.keys()))
+#     num_quantum = c.gate_count(list(noise_conf.nc.keys()))
 
-    if noise_conf.has_readout is True:
-        logger.warning("expectation_ps_noisfy can't support readout error.")
-    else:
-        pass
+#     if noise_conf.has_readout is True:
+#         logger.warning("expectation_ps_noisfy can't support readout error.")
 
-    if noise_conf.has_quantum is True:
+#     if noise_conf.has_quantum is True:
 
-        # density matrix
-        if isinstance(c, DMCircuit):
-            cnoise = circuit_with_noise(c, noise_conf)
-            return cnoise.expectation_ps(x=x, y=y, z=z)
+#         # density matrix
+#         if isinstance(c, DMCircuit):
+#             cnoise = circuit_with_noise(c, noise_conf)
+#             return cnoise.expectation_ps(x=x, y=y, z=z)
 
-        # monte carlo
-        else:
+#         # monte carlo
+#         else:
 
-            def mcsim(status: Optional[Tensor]) -> Tensor:
-                cnoise = circuit_with_noise(c, noise_conf, status)  #  type: ignore
-                return cnoise.expectation_ps(x=x, y=y, z=z)
+#             def mcsim(status: Optional[Tensor]) -> Tensor:
+#                 cnoise = circuit_with_noise(c, noise_conf, status)  #  type: ignore
+#                 return cnoise.expectation_ps(x=x, y=y, z=z)
 
-            mcsim_vmap = backend.vmap(mcsim, vectorized_argnums=0)
-            if status is None:
-                status = backend.implicit_randu([nmc, num_quantum])
-            else:
-                pass
-            value = backend.mean(mcsim_vmap(status))
+#             mcsim_vmap = backend.vmap(mcsim, vectorized_argnums=0)
+#             if status is None:
+#                 status = backend.implicit_randu([nmc, num_quantum])
 
-            return value
+#             value = backend.mean(mcsim_vmap(status))
 
-    else:
-        return c.expectation_ps(x=x, y=y, z=z)
+#             return value
+
+#     else:
+#         return c.expectation_ps(x=x, y=y, z=z)
 
 
 def sample_expectation_ps_noisfy(
@@ -225,13 +245,39 @@ def sample_expectation_ps_noisfy(
     noise_conf: Optional[NoiseConf] = None,
     nmc: int = 1000,
     shots: Optional[int] = None,
+    statusc: Optional[Tensor] = None,
     status: Optional[Tensor] = None,
+    **kws: Any,
 ) -> Tensor:
+    """
+    Calculate sample_expectation_ps with noise configuration.
+
+    :param c: The clean circuit
+    :type c: Any
+    :param x: sites to apply X gate, defaults to None
+    :type x: Optional[Sequence[int]], optional
+    :param y: sites to apply Y gate, defaults to None
+    :type y: Optional[Sequence[int]], optional
+    :param z: sites to apply Z gate, defaults to None
+    :type z: Optional[Sequence[int]], optional
+    :param noise_conf: Noise Configuration, defaults to None
+    :type noise_conf: Optional[NoiseConf], optional
+    :param nmc: repetition time for Monte Carlo sampling  for noisfy calculation, defaults to 1000
+    :type nmc: int, optional
+    :param shots: number of measurement shots, defaults to None, indicating analytical result
+    :type shots: Optional[int], optional
+    :param statusc: external randomness given by tensor uniformly from [0, 1], defaults to None,
+        used for noisfy circuit sampling
+    :type statusc: Optional[Tensor], optional
+    :param status: external randomness given by tensor uniformly from [0, 1], defaults to None,
+        used for measurement sampling
+    :type status: Optional[Tensor], optional
+    :return: sample expectation value with noise
+    :rtype: Tensor
+    """
 
     if noise_conf is None:
         noise_conf = NoiseConf()
-    else:
-        pass
 
     num_quantum = c.gate_count(list(noise_conf.nc.keys()))
 
@@ -246,28 +292,96 @@ def sample_expectation_ps_noisfy(
         if isinstance(c, DMCircuit):
             cnoise = circuit_with_noise(c, noise_conf)  #  type: ignore
             return cnoise.sample_expectation_ps(
-                x=x, y=y, z=z, shots=shots, readout_error=readout_error
+                x=x, y=y, z=z, shots=shots, status=status, readout_error=readout_error
             )
+
+        # monte carlo
+        else:
+
+            def mcsim(statusc: Optional[Tensor], status: Optional[Tensor]) -> Tensor:
+                cnoise = circuit_with_noise(c, noise_conf, statusc)  #  type: ignore
+                return cnoise.sample_expectation_ps(
+                    x=x,
+                    y=y,
+                    z=z,
+                    shots=shots,
+                    status=status,
+                    readout_error=readout_error,
+                )
+
+            mcsim_vmap = backend.vmap(mcsim, vectorized_argnums=(0, 1))
+            if statusc is None:
+                statusc = backend.implicit_randu([nmc, num_quantum])
+
+            if status is None:
+                if shots is None:
+                    status = backend.implicit_randu([nmc, 1])
+                else:
+                    status = backend.implicit_randu([nmc, shots])
+
+            value = backend.mean(mcsim_vmap(statusc, status))
+            return value
+
+    else:
+        value = c.sample_expectation_ps(
+            x=x, y=y, z=z, shots=shots, status=status, readout_error=readout_error
+        )
+        return value
+
+
+def expectation_noisfy(
+    c: Any,
+    *ops: Tuple[tn.Node, List[int]],
+    noise_conf: Optional[NoiseConf] = None,
+    nmc: int = 1000,
+    status: Optional[Tensor] = None,
+    **kws: Any,
+) -> Tensor:
+    """
+    Calculate expectation value with noise configuration.
+
+    :param c: The clean circuit
+    :type c: Any
+    :param noise_conf: Noise Configuration, defaults to None
+    :type noise_conf: Optional[NoiseConf], optional
+    :param nmc: repetition time for Monte Carlo sampling for noisfy calculation, defaults to 1000
+    :type nmc: int, optional
+    :param status: external randomness given by tensor uniformly from [0, 1], defaults to None,
+        used for noisfy circuit sampling
+    :type status: Optional[Tensor], optional
+    :return: expectation value with noise
+    :rtype: Tensor
+    """
+
+    if noise_conf is None:
+        noise_conf = NoiseConf()
+
+    num_quantum = c.gate_count(list(noise_conf.nc.keys()))
+
+    if noise_conf.has_readout is True:
+        logger.warning("expectation_ps_noisfy can't support readout error.")
+
+    if noise_conf.has_quantum is True:
+
+        # density matrix
+        if isinstance(c, DMCircuit):
+            cnoise = circuit_with_noise(c, noise_conf)
+            return cnoise.expectation(*ops, **kws)
 
         # monte carlo
         else:
 
             def mcsim(status: Optional[Tensor]) -> Tensor:
                 cnoise = circuit_with_noise(c, noise_conf, status)  #  type: ignore
-                return cnoise.sample_expectation_ps(
-                    x=x, y=y, z=z, shots=shots, readout_error=readout_error
-                )
+                return cnoise.expectation(*ops, **kws)
 
             mcsim_vmap = backend.vmap(mcsim, vectorized_argnums=0)
             if status is None:
                 status = backend.implicit_randu([nmc, num_quantum])
-            else:
-                pass
+
             value = backend.mean(mcsim_vmap(status))
+
             return value
 
     else:
-        value = c.sample_expectation_ps(
-            x=x, y=y, z=z, shots=shots, readout_error=readout_error
-        )
-        return value
+        return c.expectation(*ops, **kws)

@@ -866,6 +866,9 @@ class AbstractCircuit:
         self,
         *ops: Tuple[tn.Node, List[int]],
         reuse: bool = True,
+        noise_conf: Optional[Any] = None,
+        nmc: int = 1000,
+        status: Optional[Tensor] = None,
         **kws: Any,
     ) -> Tensor:
         raise NotImplementedError
@@ -876,6 +879,9 @@ class AbstractCircuit:
         y: Optional[Sequence[int]] = None,
         z: Optional[Sequence[int]] = None,
         reuse: bool = True,
+        noise_conf: Optional[Any] = None,
+        nmc: int = 1000,
+        status: Optional[Tensor] = None,
         **kws: Any,
     ) -> Tensor:
         """
@@ -890,6 +896,20 @@ class AbstractCircuit:
         >>> c.expectation_ps(x=[1], z=[0])
         array(-0.99999994+0.j, dtype=complex64)
 
+        >>> c = tc.Circuit(2)
+        >>> c.cnot(0, 1)
+        >>> c.rx(0, theta=0.4)
+        >>> c.rx(1, theta=0.8)
+        >>> c.h(0)
+        >>> c.h(1)
+        >>> error1 = tc.channels.generaldepolarizingchannel(0.1, 1)
+        >>> error2 = tc.channels.generaldepolarizingchannel(0.06, 2)
+        >>> noise_conf = NoiseConf()
+        >>> noise_conf.add_noise("rx", error1)
+        >>> noise_conf.add_noise("cnot", [error2], [[0, 1]])
+        >>> c.expectation_ps(x=[0], noise_conf=noise_conf, nmc=10000)
+        (0.46274087-3.764033e-09j)
+
         :param x: sites to apply X gate, defaults to None
         :type x: Optional[Sequence[int]], optional
         :param y: sites to apply Y gate, defaults to None
@@ -898,6 +918,13 @@ class AbstractCircuit:
         :type z: Optional[Sequence[int]], optional
         :param reuse: whether to cache and reuse the wavefunction, defaults to True
         :type reuse: bool, optional
+        :param noise_conf: Noise Configuration, defaults to None
+        :type noise_conf: Optional[NoiseConf], optional
+        :param nmc: repetition time for Monte Carlo sampling for noisfy calculation, defaults to 1000
+        :type nmc: int, optional
+        :param status: external randomness given by tensor uniformly from [0, 1], defaults to None,
+            used for noisfy circuit sampling
+        :type status: Optional[Tensor], optional
         :return: Expectation value
         :rtype: Tensor
         """
@@ -911,4 +938,6 @@ class AbstractCircuit:
         if z is not None:
             for i in z:
                 obs.append([gates.z(), [i]])  # type: ignore
-        return self.expectation(*obs, reuse=reuse, **kws)  # type: ignore
+        return self.expectation(
+            *obs, reuse=reuse, noise_conf=noise_conf, nmc=nmc, status=status, **kws  # type: ignore
+        )

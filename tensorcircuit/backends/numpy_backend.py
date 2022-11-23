@@ -154,6 +154,11 @@ class NumpyBackend(numpy_backend.NumPyBackend, ExtendedBackend):  # type: ignore
     ) -> Tensor:
         return np.mean(a, axis=axis, keepdims=keepdims)
 
+    def std(
+        self, a: Tensor, axis: Optional[Sequence[int]] = None, keepdims: bool = False
+    ) -> Tensor:
+        return np.std(a, axis=axis, keepdims=keepdims)
+
     def unique_with_counts(self, a: Tensor, **kws: Any) -> Tuple[Tensor, Tensor]:
         return np.unique(a, return_counts=True)  # type: ignore
 

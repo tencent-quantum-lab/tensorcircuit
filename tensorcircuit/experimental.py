@@ -355,6 +355,7 @@ def hamiltonian_evol(
 ) -> Tensor:
     """
     Fast implementation of static full Hamiltonian evolution
+    (default as imaginary time)
 
     :param tlist: _description_
     :type tlist: Tensor
