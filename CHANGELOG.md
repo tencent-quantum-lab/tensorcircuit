@@ -18,13 +18,15 @@
 
 - Add `tc.channels.composedkraus` to compose the different Kraus operators as a new one
 
+- Add direct support for noise model via `sample_expectation_ps` and `expectation` methods, both Monte Carlo trajectory and density matrix evolution approaches are supported
+
 ### Changed
 
-- Improve the efficiency of `sample_expectation_ps` method by using cached state.
+- Improve the efficiency of `sample_expectation_ps` method by using cached state
 
 ### Fixed
 
-- Fixed `unitary_kraus` of Circuit class support for multi-qubit kraus channels, previous implementation fails to reshape the kraus tensor as matrix
+- Fixed `unitary_kraus` of Circuit class support for multi-qubit kraus channels, previous implementation fails to reshape the multi-qubit kraus tensor as matrix
 
 - Fixed `kraus_to_super_gate` bug when multi-qubit kraus channels are presented on tensorflow backend
 
