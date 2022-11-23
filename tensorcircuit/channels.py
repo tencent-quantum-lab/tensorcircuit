@@ -982,6 +982,6 @@ def composedkraus(kraus1: KrausList, kraus2: KrausList) -> KrausList:
             new_kraus.append(k)
     return KrausList(
         new_kraus,
-        name="composed_channel",
+        name=kraus1.name + "_" + kraus2.name,
         is_unitary=kraus1.is_unitary and kraus2.is_unitary,
     )
