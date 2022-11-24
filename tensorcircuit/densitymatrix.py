@@ -269,7 +269,6 @@ class DMCircuit(BaseCircuit):
         *ops: Tuple[tn.Node, List[int]],
         reuse: bool = True,
         noise_conf: Optional[Any] = None,
-        nmc: int = 1000,
         status: Optional[Tensor] = None,
         **kws: Any
     ) -> tn.Node.tensor:
@@ -283,8 +282,6 @@ class DMCircuit(BaseCircuit):
         :type reuse: bool
         :param noise_conf: Noise Configuration, defaults to None
         :type noise_conf: Optional[NoiseConf], optional
-        :param nmc: repetition time for Monte Carlo sampling for noisfy calculation, defaults to 1000
-        :type nmc: int
         :param status: external randomness given by tensor uniformly from [0, 1], defaults to None,
             used for noisfy circuit sampling
         :type status: Optional[Tensor], optional
@@ -301,7 +298,6 @@ class DMCircuit(BaseCircuit):
                 self,
                 *ops,
                 noise_conf=noise_conf,
-                nmc=nmc,
                 status=status,
                 **kws,
             )
