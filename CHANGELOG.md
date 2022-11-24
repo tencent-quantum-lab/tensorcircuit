@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.6.0
+
 ### Added
 
 - Add native support for `rxx`, `ryy` and `rzz` gates for translation from qiskit
