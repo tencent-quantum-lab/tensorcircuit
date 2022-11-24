@@ -170,6 +170,8 @@ def get_task_details(task: Task, device: Device, token: str) -> Dict[str, Any]:
         if "result" in r["task"]:
             if "counts" in r["task"]["result"]:
                 r["task"]["results"] = r["task"]["result"]["counts"]
+            else:
+                r["task"]["results"] = r["task"]["result"]
         return r["task"]  # type: ignore
     except KeyError:
         raise ValueError(dumps(r))
