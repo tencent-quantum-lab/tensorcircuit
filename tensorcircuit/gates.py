@@ -359,15 +359,14 @@ class GateVF(GateF):
     def adjoint(self) -> "GateVF":
         def f(*args: Any, **kws: Any) -> Gate:
             m = self.__call__(*args, **kws)
-            npb = get_backend("numpy")
-            shape0 = npb.shape_tuple(m.tensor)
-            m0 = npb.reshapem(m.tensor)
-            ma = npb.adjoint(m0)
-            if np.allclose(m0, ma, atol=1e-5):
-                name = self.n
-            else:
-                name = self.n + "d"
-            ma = npb.reshape(ma, shape0)
+            shape0 = backend.shape_tuple(m.tensor)
+            m0 = backend.reshapem(m.tensor)
+            ma = backend.adjoint(m0)
+            # if np.allclose(m0, ma, atol=1e-5):
+            #     name = self.n
+            # else:
+            name = self.n + "d"
+            ma = backend.reshape(ma, shape0)
             return Gate(ma, name)
 
         return GateVF(f, self.n + "d", self.ctrl)
