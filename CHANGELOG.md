@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixed
+
+- Fix adjoint possible bug with agnostic backend
+
 ## 0.6.0
 
 ### Added
