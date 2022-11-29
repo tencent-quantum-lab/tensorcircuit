@@ -146,15 +146,12 @@ def list_tasks(device: Device, token: str, **filter_kws: Any) -> List[Task]:
     try:
         rtn = []
         for t in r["tasks"]:
-            if "err" in t:
-                logger.warning(t["err"])
-            else:
-                rtn.append(
-                    Task(
-                        id_=t["id"],
-                        device=Device.from_name("tencent" + sep + t["device"]),
-                    )
+            rtn.append(
+                Task(
+                    id_=t["id"],
+                    device=Device.from_name("tencent" + sep + t["device"]),
                 )
+            )
         return rtn
     except KeyError:
         raise ValueError(dumps(r))

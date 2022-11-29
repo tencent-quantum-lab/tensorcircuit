@@ -3,6 +3,7 @@ Abstraction for Provider, Device and Task
 """
 
 from typing import Any, Dict, List, Optional, Union
+import time
 
 
 class Provider:
@@ -180,11 +181,16 @@ class Task:
 
         return resubmit_task(self)
 
-    def results(self, format: Optional[str] = None) -> Any:
+    def results(self, format: Optional[str] = None, blocked: bool = False) -> Any:
         # TODO(@refraction-ray): support different formats compatible with tc,
         # also support format_ alias
-        if self.state() != "completed":
-            raise ValueError("Task %s is not completed yet" % self.id_)
-        r = self.details()["results"]
-        r = {k: v for k, v in sorted(r.items(), key=lambda item: -item[1])}
-        return r
+        if not blocked:
+            if self.state() != "completed":
+                raise ValueError("Task %s is not completed yet" % self.id_)
+            r = self.details()["results"]
+            r = {k: v for k, v in sorted(r.items(), key=lambda item: -item[1])}
+            return r
+        else:
+            while self.state() != "completed":
+                time.sleep(0.5)
+            return self.results(format=format, blocked=False)
