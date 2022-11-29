@@ -133,6 +133,16 @@ def resubmit_task(task: Task, token: str) -> Task:
         raise ValueError(dumps(r))
 
 
+def cancel_task(task: Task, token: str) -> Any:
+    # TODO(@refraction-ray): batch cancel
+    json = {"id": task.id_}
+    r = rpost_json(
+        tencent_base_url + "task/remove", json=json, headers=tencent_headers(token)
+    )
+    r = error_handling(r)
+    return r
+
+
 def list_tasks(device: Device, token: str, **filter_kws: Any) -> List[Task]:
     json = filter_kws
     if device is not None:

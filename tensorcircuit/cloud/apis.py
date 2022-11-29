@@ -11,7 +11,6 @@ import sys
 
 from .abstraction import Provider, Device, Task, sep
 from . import tencent
-from ..cons import backend
 
 package_name = "tensorcircuit"
 thismodule = sys.modules[__name__]
@@ -99,7 +98,8 @@ def set_token(
         if cached and os.path.exists(authpath):
             with open(authpath, "r") as f:
                 file_token = json.load(f)
-                file_token = backend.tree_map(b64decode_s, file_token)
+                file_token = {k: b64decode_s(v) for k, v in file_token.items()}
+                # file_token = backend.tree_map(b64decode_s, file_token)
         else:
             file_token = {}
         file_token.update(saved_token)
@@ -114,7 +114,9 @@ def set_token(
         saved_token.update(added_token)
 
     if cached:
-        file_token = backend.tree_map(b64encode_s, saved_token)
+        # file_token = backend.tree_map(b64encode_s, saved_token)
+        file_token = {k: b64encode_s(v) for k, v in saved_token.items()}
+
         with open(authpath, "w") as f:
             json.dump(file_token, f)
 
@@ -248,6 +250,23 @@ def resubmit_task(
 
     if provider.name == "tencent":  # type: ignore
         return tencent.resubmit_task(task, token)  # type: ignore
+    else:
+        raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
+
+
+def cancel_task(
+    task: Optional[Union[str, Task]],
+    token: Optional[str] = None,
+) -> Task:
+    if isinstance(task, str):
+        task = Task(task)
+    device = task.get_device()  # type: ignore
+    if token is None:
+        token = device.get_token()
+    provider = device.provider
+
+    if provider.name == "tencent":  # type: ignore
+        return tencent.cancel_task(task, token)  # type: ignore
     else:
         raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
 

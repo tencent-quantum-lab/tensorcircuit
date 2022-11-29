@@ -56,6 +56,7 @@ def test_submit_task():
     t = apis.submit_task(device="simulator:aer", circuit=c)
     r = t.details()
     assert r["state"] in ["pending", "completed"]
+    print(t.results(blocked=True))
 
 
 def test_resubmit_task():

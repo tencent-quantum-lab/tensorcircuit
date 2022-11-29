@@ -188,7 +188,7 @@ class Task:
             if self.state() != "completed":
                 raise ValueError("Task %s is not completed yet" % self.id_)
             r = self.details()["results"]
-            r = {k: v for k, v in sorted(r.items(), key=lambda item: -item[1])}
+            r = {k: v for k, v in sorted(r.items(), key=lambda item: -item[1])}  # type: ignore
             return r
         else:
             while self.state() != "completed":
