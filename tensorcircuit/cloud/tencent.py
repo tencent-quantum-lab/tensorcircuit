@@ -133,7 +133,7 @@ def resubmit_task(task: Task, token: str) -> Task:
         raise ValueError(dumps(r))
 
 
-def cancel_task(task: Task, token: str) -> Any:
+def remove_task(task: Task, token: str) -> Any:
     # TODO(@refraction-ray): batch cancel
     json = {"id": task.id_}
     r = rpost_json(

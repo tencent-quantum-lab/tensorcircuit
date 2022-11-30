@@ -191,6 +191,10 @@ class Task:
             r = {k: v for k, v in sorted(r.items(), key=lambda item: -item[1])}  # type: ignore
             return r
         else:
-            while self.state() != "completed":
-                time.sleep(0.5)
+            s = self.state()
+            while s != "completed":
+                if s in ["failed"]:
+                    raise ValueError("Task %s is in %s state" % (self.id_, s))
+                time.sleep(1.0)
+                s = self.state()
             return self.results(format=format, blocked=False)

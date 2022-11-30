@@ -254,7 +254,7 @@ def resubmit_task(
         raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
 
 
-def cancel_task(
+def remove_task(
     task: Optional[Union[str, Task]],
     token: Optional[str] = None,
 ) -> Task:
@@ -266,7 +266,7 @@ def cancel_task(
     provider = device.provider
 
     if provider.name == "tencent":  # type: ignore
-        return tencent.cancel_task(task, token)  # type: ignore
+        return tencent.remove_task(task, token)  # type: ignore
     else:
         raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
 
