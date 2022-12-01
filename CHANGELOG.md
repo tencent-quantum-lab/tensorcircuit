@@ -6,6 +6,8 @@
 
 - Fix adjoint possible bug with agnostic backend
 
+- Fix `sigmoid` bug on pytorch backend
+
 ## 0.6.0
 
 ### Added
