@@ -57,7 +57,7 @@ class NoiseConf:
         :param qubit: the list of noisy qubit, defaults to None, indicating applying the noise channel on all qubits
         :type qubit: Optional[Sequence[Any]], optional
         """
-        if gate_name is not "readout":
+        if gate_name != "readout":
             gate_name = AbstractCircuit.standardize_gate(gate_name)
 
         if gate_name not in self.nc:
