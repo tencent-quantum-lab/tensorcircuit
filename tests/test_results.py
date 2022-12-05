@@ -17,3 +17,7 @@ def test_count2vec():
 def test_kl():
     a = {"00": 512, "11": 512}
     assert counts.kl_divergence(a, a) == 0
+
+
+def test_correlation():
+    assert counts.correlation(d, [0, 1]) == -5 / 9
