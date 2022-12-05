@@ -1,7 +1,7 @@
 """
 dict related functionalities
 """
-from typing import Any, Dict, Sequence
+from typing import Any, Dict, Sequence, Tuple
 
 import numpy as np
 import qiskit
@@ -64,3 +64,18 @@ def kl_divergence(c1: ct, c2: ct) -> float:
     for k, v in c1.items():
         kl += v * (np.log(v) - np.log(c2.get(k, eps)))
     return kl
+
+
+def correlation(
+    count: ct, zlist: Sequence[int], values: Tuple[int, int] = (1, -1)
+) -> float:
+    map_dict = {"0": values[0], "1": values[1]}
+    r = 0
+    shots = 0
+    for k, v in count.items():
+        ct = 1.0
+        for i in zlist:
+            ct *= map_dict[k[i]]
+        r += ct * v  # type: ignore
+        shots += v
+    return r / shots
