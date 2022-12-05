@@ -25,7 +25,7 @@ class ReadoutCal:
 
     def get_matrix(self) -> Tensor:
         # cache
-        if getattr(self, "calmatrix", False):
+        if getattr(self, "calmatrix", None) is not None:
             return self.calmatrix  # type: ignore
         if self.local is False:
             self.calmatrix = self.cal  # type: ignore
