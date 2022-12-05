@@ -94,7 +94,10 @@ def apply_readout_mitigation(
 
 
 def get_readout_cal(
-    nqubit: int, shots: int, execute_fun: Callable[..., ct], miti_method: str = "local"
+    nqubit: int,
+    shots: int,
+    execute_fun: Callable[..., List[ct]],
+    miti_method: str = "local",
 ) -> ReadoutCal:
     # TODO(@refraction-ray): more general qubit list
     if miti_method == "local":
@@ -129,7 +132,7 @@ def get_readout_cal(
         lbs = execute_fun(miticirc, shots)
         for i in range(len(miticirc)):
             for s in lbs[i]:
-                calmatrix[int(s, 2)][i] = bs[s] / shots
+                calmatrix[int(s, 2)][i] = lbs[i][s] / shots
 
         return ReadoutCal(calmatrix)
 

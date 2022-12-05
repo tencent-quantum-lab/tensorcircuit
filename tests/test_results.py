@@ -12,3 +12,8 @@ def test_marginal_count():
 
 def test_count2vec():
     assert counts.vec2count(counts.count2vec(d, normalization=False), prune=True) == d
+
+
+def test_kl():
+    a = {"00": 512, "11": 512}
+    assert counts.kl_divergence(a, a) == 0

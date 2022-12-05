@@ -18,6 +18,11 @@ def reverse_count(count: ct) -> ct:
     return ncount
 
 
+def normalized_count(count: ct) -> Dict[str, float]:
+    shots = sum([v for k, v in count.items()])
+    return {k: v / shots for k, v in count.items()}
+
+
 def marginal_count(count: ct, keep_list: Sequence[int]) -> ct:
     count = reverse_count(count)
     ncount = qiskit.result.utils.marginal_distribution(count, keep_list)
@@ -49,3 +54,13 @@ def vec2count(vec: Tensor, prune: bool = False) -> ct:
                 del nc[k]
         return nc
     return c
+
+
+def kl_divergence(c1: ct, c2: ct) -> float:
+    eps = 1e-4  # typical value for inverse of the total shots
+    c1 = normalized_count(c1)  # type: ignore
+    c2 = normalized_count(c2)  # type: ignore
+    kl = 0
+    for k, v in c1.items():
+        kl += v * (np.log(v) - np.log(c2.get(k, eps)))
+    return kl
