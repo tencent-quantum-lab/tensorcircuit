@@ -25,7 +25,7 @@ class ReadoutCal:
 
     def get_matrix(self) -> Tensor:
         # cache
-        if getattr(self, "calmatrix", False):
+        if getattr(self, "calmatrix", None) is not None:
             return self.calmatrix  # type: ignore
         if self.local is False:
             self.calmatrix = self.cal  # type: ignore
@@ -100,13 +100,7 @@ def get_readout_cal(
     if miti_method == "local":
         miticirc = local_miti_readout_circ(nqubit)
 
-        lbs = []
-        for c in miticirc:
-            bs = execute_fun(c, shots)
-            # t = apis.submit_task(device=device, circuit=c, shots=shots)
-            # bs = t.results(blocked=True)
-            lbs.append(bs)
-
+        lbs = execute_fun(miticirc, shots)
         readoutlist = []
         for i in range(nqubit):
             error00 = 0
@@ -132,12 +126,9 @@ def get_readout_cal(
     elif miti_method == "global":
         miticirc = global_miti_readout_circ(nqubit)
         calmatrix = np.zeros((2**nqubit, 2**nqubit))
-        for i, c in enumerate(miticirc):
-            # c = miticirc[i]
-            # t = apis.submit_task(device=device, circuit=c, shots=shots)
-            # bs = t.results(blocked=True)
-            bs = execute_fun(c, shots)
-            for s in bs:
+        lbs = execute_fun(miticirc, shots)
+        for i in range(len(miticirc)):
+            for s in lbs[i]:
                 calmatrix[int(s, 2)][i] = bs[s] / shots
 
         return ReadoutCal(calmatrix)
