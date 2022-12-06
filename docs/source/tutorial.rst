@@ -12,6 +12,7 @@ Jupyter Tutorials
     tutorials/qml_scenarios.ipynb
     tutorials/vqe_h2o.ipynb
     tutorials/tfim_vqe_diffreph.ipynb
+    tutorials/mera.ipynb
     tutorials/gradient_benchmark.ipynb
     tutorials/contractors.ipynb
     tutorials/operator_spreading.ipynb
