@@ -66,11 +66,14 @@ def submit_task(
     source: Optional[Union[str, Sequence[str]]] = None,
     remarks: Optional[str] = None,
 ) -> List[Task]:
+    # pistr = "3.14159265358979"
     if source is None:
         if is_sequence(circuit):
             source = [c.to_openqasm() for c in circuit]  # type: ignore
+            # source = [s.replace("pi", pistr) for s in source]
         else:
             source = circuit.to_openqasm()  # type: ignore
+            # source = source.replace("pi", pistr)
         lang = "OPENQASM"
     if is_sequence(source):
         # batched mode
