@@ -5,6 +5,8 @@ Abstraction for Provider, Device and Task
 from typing import Any, Dict, List, Optional, Union
 import time
 
+from ..results import readout_mitigation as rem
+
 
 class Provider:
     activated_providers: Dict[str, "Provider"] = {}
@@ -181,7 +183,12 @@ class Task:
 
         return resubmit_task(self)
 
-    def results(self, format: Optional[str] = None, blocked: bool = False) -> Any:
+    def results(
+        self,
+        format: Optional[str] = None,
+        blocked: bool = False,
+        mitigated: bool = False,
+    ) -> Any:
         # TODO(@refraction-ray): support different formats compatible with tc,
         # also support format_ alias
         if not blocked:
@@ -189,7 +196,6 @@ class Task:
                 raise ValueError("Task %s is not completed yet" % self.id_)
             r = self.details()["results"]
             r = {k: v for k, v in sorted(r.items(), key=lambda item: -item[1])}  # type: ignore
-            return r
         else:
             s = self.state()
             while s != "completed":
@@ -197,4 +203,25 @@ class Task:
                     raise ValueError("Task %s is in %s state" % (self.id_, s))
                 time.sleep(1.0)
                 s = self.state()
-            return self.results(format=format, blocked=False)
+            r = self.results(format=format, blocked=False, mitigated=False)
+        if mitigated is False:
+            return r
+
+        # mitigated is True:
+        def run(cs, shots):
+            """
+            current workaround for batch
+            """
+            from .apis import submit_task
+
+            ts = []
+            for c in cs:
+                ts.append(submit_task(circuit=c, shots=shots, device="9gmon?o=0"))
+                time.sleep(0.5)
+            return [t.results(blocked=True) for t in ts]
+
+        nqubit = len(list(r.keys())[0])
+        shots = self.details()["shots"]
+        cal = rem.get_readout_cal(nqubit, shots, run, miti_method="local")
+        miti_count = rem.apply_readout_mitigation(r, cal, "square")
+        return {k: v for k, v in sorted(miti_count.items(), key=lambda item: -item[1])}
