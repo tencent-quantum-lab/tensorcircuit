@@ -5,6 +5,7 @@ Cloud provider from Tencent
 from typing import Any, Dict, List, Optional, Sequence, Union
 from json import dumps
 import logging
+import re
 
 from .config import tencent_base_url
 from .utils import rpost_json
@@ -55,6 +56,23 @@ def list_properties(device: Device, token: Optional[str] = None) -> Dict[str, An
         raise ValueError("No device with the name: %s" % device)
 
 
+def _free_pi(s):
+    # dirty trick to get rid of pi in openqasm from qiskit
+    rs = []
+    pistr = "3.141592653589793"
+    s = s.replace("pi", pistr)
+    for r in s.split("\n"):
+        inc = re.search(r"\(.*\)", r)
+        if inc is None:
+            rs.append(r)
+        else:
+            v = r[inc.start() : inc.end()]
+            v = eval(v)
+            r = r[: inc.start()] + "(" + str(v) + ")" + r[inc.end() :]
+            rs.append(r)
+    return "\n".join(rs)
+
+
 def submit_task(
     device: Device,
     token: str,
@@ -65,15 +83,27 @@ def submit_task(
     circuit: Optional[Union[AbstractCircuit, Sequence[AbstractCircuit]]] = None,
     source: Optional[Union[str, Sequence[str]]] = None,
     remarks: Optional[str] = None,
+    compiling: bool = False,
 ) -> List[Task]:
-    # pistr = "3.14159265358979"
     if source is None:
+
+        def c2qasm(c: Any, compiling: bool) -> str:
+            if compiling is True:
+                from qiskit.compiler import transpile
+
+                c1 = transpile(
+                    c.to_qiskit(), basis_gates=["h", "rz", "x", "y", "z", "cx"]
+                )
+                s = c1.qasm()
+            else:
+                s = c.to_openqasm()
+            # s = _free_pi(s)
+            return s
+
         if is_sequence(circuit):
-            source = [c.to_openqasm() for c in circuit]  # type: ignore
-            # source = [s.replace("pi", pistr) for s in source]
+            source = [c2qasm(c, compiling) for c in circuit]  # type: ignore
         else:
-            source = circuit.to_openqasm()  # type: ignore
-            # source = source.replace("pi", pistr)
+            source = c2qasm(circuit, compiling)
         lang = "OPENQASM"
     if is_sequence(source):
         # batched mode
