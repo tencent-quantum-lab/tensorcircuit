@@ -56,7 +56,7 @@ def list_properties(device: Device, token: Optional[str] = None) -> Dict[str, An
         raise ValueError("No device with the name: %s" % device)
 
 
-def _free_pi(s):
+def _free_pi(s: str) -> str:
     # dirty trick to get rid of pi in openqasm from qiskit
     rs = []
     pistr = "3.141592653589793"
@@ -92,13 +92,15 @@ def submit_task(
                 from qiskit.compiler import transpile
 
                 c1 = transpile(
-                    c.to_qiskit(), basis_gates=["h", "rz", "x", "y", "z", "cx"]
+                    c.to_qiskit(),
+                    basis_gates=["h", "rz", "x", "y", "z", "cx"],
+                    optimization_level=2,
                 )
                 s = c1.qasm()
             else:
                 s = c.to_openqasm()
-            # s = _free_pi(s)
-            return s
+            # s = _free_pi(s) # tQuk translation now supports this
+            return s  # type: ignore
 
         if is_sequence(circuit):
             source = [c2qasm(c, compiling) for c in circuit]  # type: ignore

@@ -188,6 +188,7 @@ class Task:
         format: Optional[str] = None,
         blocked: bool = False,
         mitigated: bool = False,
+        readout_cal: Optional[rem.ReadoutCal] = None,
     ) -> Any:
         # TODO(@refraction-ray): support different formats compatible with tc,
         # also support format_ alias
@@ -208,20 +209,28 @@ class Task:
             return r
 
         # mitigated is True:
-        def run(cs, shots):
-            """
-            current workaround for batch
-            """
-            from .apis import submit_task
+        if readout_cal is None and getattr(self, "readout_cal", None) is None:
 
-            ts = []
-            for c in cs:
-                ts.append(submit_task(circuit=c, shots=shots, device="9gmon?o=0"))
-                time.sleep(0.5)
-            return [t.results(blocked=True) for t in ts]
+            def run(cs: Any, shots: Any) -> Any:
+                """
+                current workaround for batch
+                """
+                from .apis import submit_task
 
-        nqubit = len(list(r.keys())[0])
-        shots = self.details()["shots"]
-        cal = rem.get_readout_cal(nqubit, shots, run, miti_method="local")
-        miti_count = rem.apply_readout_mitigation(r, cal, "square")
+                ts = []
+                for c in cs:
+                    ts.append(
+                        submit_task(circuit=c, shots=shots, device=self.get_device())
+                    )
+                    time.sleep(0.5)
+                return [t.results(blocked=True) for t in ts]  # type: ignore
+
+            nqubit = len(list(r.keys())[0])
+            shots = self.details()["shots"]
+            readout_cal = rem.get_readout_cal(nqubit, shots, run, miti_method="local")
+            self.readout_cal = readout_cal
+        elif readout_cal is None:
+            readout_cal = self.readout_cal
+
+        miti_count = rem.apply_readout_mitigation(r, readout_cal, "square")
         return {k: v for k, v in sorted(miti_count.items(), key=lambda item: -item[1])}
