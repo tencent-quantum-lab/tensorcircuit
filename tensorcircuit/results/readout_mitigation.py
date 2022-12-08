@@ -158,7 +158,7 @@ class ReadoutMit:
 
     def global_miti_readout_circ(self) -> List[Circuit]:
         """
-         Generate circuits for local calibration.
+         Generate circuits for global calibration.
 
         :return: circuit list
         :rtype: List[Circuit]
