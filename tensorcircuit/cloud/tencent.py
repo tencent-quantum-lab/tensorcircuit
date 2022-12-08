@@ -5,13 +5,14 @@ Cloud provider from Tencent
 from typing import Any, Dict, List, Optional, Sequence, Union
 from json import dumps
 import logging
+from functools import partial
 import re
 
 from .config import tencent_base_url
 from .utils import rpost_json
 from .abstraction import Device, sep, Task
 from ..abstractcircuit import AbstractCircuit
-from ..utils import is_sequence
+from ..utils import is_sequence, arg_alias
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +74,7 @@ def _free_pi(s: str) -> str:
     return "\n".join(rs)
 
 
+@partial(arg_alias, alias_dict={"compiling": ["compiled"]})
 def submit_task(
     device: Device,
     token: str,
