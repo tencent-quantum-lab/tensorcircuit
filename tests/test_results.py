@@ -1,7 +1,8 @@
+import numpy as np
+
 import tensorcircuit as tc
 from tensorcircuit.results import counts
 from tensorcircuit.results.readout_mitigation import ReadoutMit
-import numpy as np
 
 d = {"000": 2, "101": 3, "100": 4}
 
