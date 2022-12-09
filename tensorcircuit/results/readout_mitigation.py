@@ -3,7 +3,7 @@ readout error mitigation functionalities
 """
 # Part of the code in this file is from mthree: https://github.com/Qiskit-Partners/mthree
 
-from typing import Any, Callable, List, Sequence, Optional
+from typing import Any, Callable, List, Sequence, Optional, Union
 import warnings
 from time import perf_counter
 
@@ -27,6 +27,7 @@ except ImportError:
 
 from .counts import count2vec, vec2count, ct, marginal_count
 from ..circuit import Circuit
+from ..utils import is_sequence
 
 
 Tensor = Any
@@ -175,7 +176,7 @@ class ReadoutMit:
         return miticirc
 
     def cals_from_system(  # type: ignore
-        self, qubits: List[Any], shots: int = 8192, method: str = "local"
+        self, qubits: Union[int, List[int]], shots: int = 8192, method: str = "local"
     ):
         """
         Get calibrattion information from system.
@@ -187,7 +188,9 @@ class ReadoutMit:
         :param method: calibration method, defaults to "local", it can also be "global"
         :type method: str, optional
         """
-        qubits.sort()
+        if not is_sequence(qubits):
+            qubits = list(range(qubits))  # type: ignore
+        qubits.sort()  # type: ignore
         self.cal_qubits = qubits  # type: ignore
         self.cal_shots = shots
 
@@ -278,7 +281,7 @@ class ReadoutMit:
     def apply_correction(
         self,
         counts: ct,
-        qubits: Sequence[Any],
+        qubits: Sequence[int],
         distance: Optional[int] = None,
         method: str = "square",
         max_iter: int = 25,
@@ -308,7 +311,8 @@ class ReadoutMit:
         :return: mitigated count
         :rtype: ct
         """
-
+        if not is_sequence(qubits):
+            qubits = list(range(qubits))  # type: ignore
         self.use_qubits = qubits  # type: ignore
         if not set(self.use_qubits).issubset(set(self.cal_qubits)):  # type: ignore
             raise ValueError(
@@ -339,13 +343,13 @@ class ReadoutMit:
 
         if isinstance(qubits, dict):
             # If a mapping was given for qubits
-            qubits = [list(qubits)]
+            qubits = [list(qubits)]  # type: ignore
         elif not any(isinstance(qq, (list, tuple, np.ndarray, dict)) for qq in qubits):
-            qubits = [qubits] * len(counts)
+            qubits = [qubits] * len(counts)  # type: ignore
         else:
             if isinstance(qubits[0], dict):
                 # assuming passed a list of mappings
-                qubits = [list(qu) for qu in qubits]
+                qubits = [list(qu) for qu in qubits]  # type: ignore
 
         if len(qubits) != len(counts):
             raise M3Error("Length of counts does not match length of qubits.")

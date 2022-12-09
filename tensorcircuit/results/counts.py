@@ -18,6 +18,10 @@ def reverse_count(count: ct) -> ct:
     return ncount
 
 
+def sort_count(count: ct) -> ct:
+    return {k: v for k, v in sorted(count.items(), key=lambda item: -item[1])}
+
+
 def normalized_count(count: ct) -> Dict[str, float]:
     shots = sum([v for k, v in count.items()])
     return {k: v / shots for k, v in count.items()}
