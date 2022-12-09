@@ -503,6 +503,21 @@ class BaseCircuit(AbstractCircuit):
             no.extend(msconj)
         return contractor(no).tensor
 
+    def probability(self) -> Tensor:
+        """
+        get the 2^n length probability vector over computational basis
+
+        :return: probability vector
+        :rtype: Tensor
+        """
+        s = self.state()  # type: ignore
+        if self.is_dm is False:
+            p = backend.abs(s) ** 2
+
+        else:
+            p = backend.abs(backend.diagonal(s))
+        return p
+
     @partial(arg_alias, alias_dict={"format": ["format_"]})
     def sample(
         self,
@@ -569,20 +584,11 @@ class BaseCircuit(AbstractCircuit):
                 nbatch = 1
             else:
                 nbatch = batch
-            s = self.state()  # type: ignore
-            if self.is_dm is False:
-                p = backend.abs(s) ** 2
+            p = self.probability()
 
-                # readout error
-                if readout_error is not None:
-                    p = self.readouterror_bs(readout_error, p)
-
-            else:
-                p = backend.abs(backend.diagonal(s))
-
-                # readout error
-                if readout_error is not None:
-                    p = self.readouterror_bs(readout_error, p)
+            # readout error
+            if readout_error is not None:
+                p = self.readouterror_bs(readout_error, p)
             ch = backend.probability_sample(nbatch, p, status, random_generator)
             # if random_generator is None:
             #     ch = backend.implicit_randc(a=a_range, shape=[nbatch], p=p)
