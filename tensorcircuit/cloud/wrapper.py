@@ -1,16 +1,40 @@
 """
 higher level wrapper shortcut for submit_task
 """
-from typing import Any, Optional, Sequence
+from typing import Any, Callable, List, Optional, Sequence, Union
+import time
 
 import numpy as np
 
 from ..circuit import Circuit
 from ..results import counts
+from ..utils import is_sequence
 from .apis import submit_task, get_device
 from .abstraction import Device
 
 Tensor = Any
+
+
+def batch_submit_template(device: str) -> Callable[..., List[counts.ct]]:
+    # TODO(@refraction-ray): fixed when batch submission really works
+    def run(cs: Union[Circuit, Sequence[Circuit]], shots: int) -> List[counts.ct]:
+        """
+        batch circuit running alternative
+        """
+        single = False
+        if not is_sequence(cs):
+            cs = [cs]  # type: ignore
+            single = True
+        ts = []
+        for c in cs:  # type: ignore
+            ts.append(submit_task(circuit=c, shots=shots, device=device))
+            time.sleep(0.5)
+        l = [t.results(blocked=True) for t in ts]  # type: ignore
+        if single is False:
+            return l
+        return l[0]  # type: ignore
+
+    return run
 
 
 def sample_expectation_ps(

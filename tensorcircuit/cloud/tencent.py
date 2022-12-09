@@ -86,18 +86,20 @@ def submit_task(
     source: Optional[Union[str, Sequence[str]]] = None,
     remarks: Optional[str] = None,
     compiling: bool = False,
+    compiled_options: Optional[Dict[str, Any]] = None,
 ) -> List[Task]:
     if source is None:
+        if compiled_options is None:
+            compiled_options = {
+                "basis_gates": ["h", "rz", "x", "y", "z", "cx"],
+                "optimization_level": 2,
+            }
 
         def c2qasm(c: Any, compiling: bool) -> str:
             if compiling is True:
                 from qiskit.compiler import transpile
 
-                c1 = transpile(
-                    c.to_qiskit(),
-                    basis_gates=["h", "rz", "x", "y", "z", "cx"],
-                    optimization_level=2,
-                )
+                c1 = transpile(c.to_qiskit(), **compiled_options)
                 s = c1.qasm()
             else:
                 s = c.to_openqasm()

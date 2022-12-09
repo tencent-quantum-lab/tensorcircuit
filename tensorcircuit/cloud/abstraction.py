@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional, Union
 import time
 
 from ..results import readout_mitigation as rem
+from ..results import counts
 
 
 class Provider:
@@ -188,7 +189,9 @@ class Task:
         format: Optional[str] = None,
         blocked: bool = False,
         mitigated: bool = False,
-        readout_cal: Optional[rem.ReadoutCal] = None,
+        calibriation_options: Optional[Dict[str, Any]] = None,
+        readout_mit: Optional[rem.ReadoutMit] = None,
+        mitigation_options: Optional[Dict[str, Any]] = None,
     ) -> Any:
         # TODO(@refraction-ray): support different formats compatible with tc,
         # also support format_ alias
@@ -196,20 +199,20 @@ class Task:
             if self.state() != "completed":
                 raise ValueError("Task %s is not completed yet" % self.id_)
             r = self.details()["results"]
-            r = {k: v for k, v in sorted(r.items(), key=lambda item: -item[1])}  # type: ignore
+            r = counts.sort_count(r)  # type: ignore
         else:
             s = self.state()
             while s != "completed":
                 if s in ["failed"]:
                     raise ValueError("Task %s is in %s state" % (self.id_, s))
-                time.sleep(1.0)
+                time.sleep(0.5)
                 s = self.state()
             r = self.results(format=format, blocked=False, mitigated=False)
         if mitigated is False:
             return r
 
         # mitigated is True:
-        if readout_cal is None and getattr(self, "readout_cal", None) is None:
+        if readout_mit is None and getattr(self, "readout_mit", None) is None:
 
             def run(cs: Any, shots: Any) -> Any:
                 """
@@ -227,10 +230,15 @@ class Task:
 
             nqubit = len(list(r.keys())[0])
             shots = self.details()["shots"]
-            readout_cal = rem.get_readout_cal(nqubit, shots, run, miti_method="local")
-            self.readout_cal = readout_cal
-        elif readout_cal is None:
-            readout_cal = self.readout_cal
+            mit = rem.ReadoutMit(run)
+            if calibriation_options is None:
+                calibriation_options = {}
+            mit.cals_from_system(list(range(nqubit)), shots, **calibriation_options)
+            self.readout_mit = readout_mit
+        elif readout_mit is None:
+            readout_mit = self.readout_mit
 
-        miti_count = rem.apply_readout_mitigation(r, readout_cal, "square")
-        return {k: v for k, v in sorted(miti_count.items(), key=lambda item: -item[1])}
+        if mitigation_options is None:
+            mitigation_options = {}
+        miti_count = mit.apply_correction(r, list(range(nqubit)), **mitigation_options)
+        return counts.sort_count(miti_count)
