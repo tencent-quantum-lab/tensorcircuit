@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Added
+
+- Add `c.probability()` method to return probability amplitude
+
+- Add results module including funtionalities on count dict manipulation and readout error mitigation
+
 ### Fixed
 
 - Fix adjoint possible bug with agnostic backend
