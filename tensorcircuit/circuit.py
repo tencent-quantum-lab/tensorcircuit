@@ -407,9 +407,12 @@ class Circuit(BaseCircuit):
         l = int(prob.shape[0])  # type: ignore
 
         def step_function(x: Tensor) -> Tensor:
-            r = backend.sum(
-                backend.stack([backend.sign(x - prob_cumsum[i]) for i in range(l - 1)])
-            )
+            if l == 1:
+                r = backend.convert_to_tensor(0.0)
+            else:
+                r = backend.sum(
+                    backend.stack([backend.sign(x - prob_cumsum[i]) for i in range(l - 1)])
+                )
             r = backend.cast(r / 2.0 + (l - 1) / 2.0, dtype="int32")
             # [0: kraus[0], 1: kraus[1]...]
             return r
@@ -429,7 +432,6 @@ class Circuit(BaseCircuit):
 
     def _general_kraus_tf(
         self,
-        kraus: Sequence[Gate],
         *index: int,
         status: Optional[float] = None,
     ) -> float:

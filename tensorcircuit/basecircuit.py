@@ -766,7 +766,7 @@ class BaseCircuit(AbstractCircuit):
         else:  # TODO(@refraction-ray) replace several start as inputs
             raise NotImplementedError("not support replace with no inputs")
 
-    def cond_measurement(self, index: int) -> Tensor:
+    def cond_measurement(self, index: int, status: Optional[float] = None) -> Tensor:
         """
         Measurement on z basis at ``index`` qubit based on quantum amplitude
         (not post-selection). The highlight is that this method can return the
@@ -797,6 +797,7 @@ class BaseCircuit(AbstractCircuit):
         return self.general_kraus(  # type: ignore
             [np.array([[1.0, 0], [0, 0]]), np.array([[0, 0], [0, 1]])],
             index,
+            status=status,
             name="measure",
         )
 
