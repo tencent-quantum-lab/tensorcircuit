@@ -393,6 +393,7 @@ class Circuit(BaseCircuit):
         sites = len(index)
         kraus = [k.tensor if isinstance(k, tn.Node) else k for k in kraus]
         kraus = [gates.array_to_tensor(k) for k in kraus]
+        kraus = [backend.reshapem(k) for k in kraus]
         if prob is None:
             prob = [
                 backend.real(backend.trace(backend.adjoint(k) @ k) / k.shape[0])
@@ -773,6 +774,10 @@ class Circuit(BaseCircuit):
         *ops: Tuple[tn.Node, List[int]],
         reuse: bool = True,
         enable_lightcone: bool = False,
+        noise_conf: Optional[Any] = None,
+        nmc: int = 1000,
+        status: Optional[Tensor] = None,
+        **kws: Any,
     ) -> Tensor:
         """
         Compute the expectation of corresponding operators.
@@ -784,6 +789,20 @@ class Circuit(BaseCircuit):
         >>> c.expectation((tc.gates.z(), [0]))
         array(0.+0.j, dtype=complex64)
 
+        >>> c = tc.Circuit(2)
+        >>> c.cnot(0, 1)
+        >>> c.rx(0, theta=0.4)
+        >>> c.rx(1, theta=0.8)
+        >>> c.h(0)
+        >>> c.h(1)
+        >>> error1 = tc.channels.generaldepolarizingchannel(0.1, 1)
+        >>> error2 = tc.channels.generaldepolarizingchannel(0.06, 2)
+        >>> noise_conf = NoiseConf()
+        >>> noise_conf.add_noise("rx", error1)
+        >>> noise_conf.add_noise("cnot", [error2], [[0, 1]])
+        >>> c.expectation((tc.gates.x(), [0]), noise_conf=noise_conf, nmc=10000)
+        (0.46274087-3.764033e-09j)
+
         :param ops: Operator and its position on the circuit,
             eg. ``(tc.gates.z(), [1, ]), (tc.gates.x(), [2, ])`` is for operator :math:`Z_1X_2`.
         :type ops: Tuple[tn.Node, List[int]]
@@ -792,22 +811,41 @@ class Circuit(BaseCircuit):
         :type reuse: bool, optional
         :param enable_lightcone: whether enable light cone simplification, defaults to False
         :type enable_lightcone: bool, optional
+        :param noise_conf: Noise Configuration, defaults to None
+        :type noise_conf: Optional[NoiseConf], optional
+        :param nmc: repetition time for Monte Carlo sampling for noisfy calculation, defaults to 1000
+        :type nmc: int, optional
+        :param status: external randomness given by tensor uniformly from [0, 1], defaults to None,
+            used for noisfy circuit sampling
+        :type status: Optional[Tensor], optional
         :raises ValueError: "Cannot measure two operators in one index"
         :return: Tensor with one element
         :rtype: Tensor
         """
-        # if not reuse:
-        #     nodes1, edge1 = self._copy()
-        #     nodes2, edge2 = self._copy(conj=True)
-        # else:  # reuse
+        from .noisemodel import expectation_noisfy
 
-        # self._nodes = nodes1
-        if enable_lightcone:
-            reuse = False
-        nodes1 = self.expectation_before(*ops, reuse=reuse)
-        if enable_lightcone:
-            nodes1 = _full_light_cone_cancel(nodes1)
-        return contractor(nodes1).tensor
+        if noise_conf is None:
+            # if not reuse:
+            #     nodes1, edge1 = self._copy()
+            #     nodes2, edge2 = self._copy(conj=True)
+            # else:  # reuse
+
+            # self._nodes = nodes1
+            if enable_lightcone:
+                reuse = False
+            nodes1 = self.expectation_before(*ops, reuse=reuse)
+            if enable_lightcone:
+                nodes1 = _full_light_cone_cancel(nodes1)
+            return contractor(nodes1).tensor
+        else:
+            return expectation_noisfy(
+                self,
+                *ops,
+                noise_conf=noise_conf,
+                nmc=nmc,
+                status=status,
+                **kws,
+            )
 
 
 Circuit._meta_apply()

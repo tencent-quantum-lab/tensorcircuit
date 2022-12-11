@@ -324,6 +324,13 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend, ExtendedBackend):  # type: 
             axis = tuple([i for i in range(len(a.shape))])
         return torchlib.mean(a, dim=axis, keepdim=keepdims)
 
+    def std(
+        self, a: Tensor, axis: Optional[Sequence[int]] = None, keepdims: bool = False
+    ) -> Tensor:
+        if axis is None:
+            axis = tuple([i for i in range(len(a.shape))])
+        return torchlib.std(a, dim=axis, unbiased=False, keepdim=keepdims)
+
     def min(self, a: Tensor, axis: Optional[int] = None) -> Tensor:
         if axis is None:
             return torchlib.min(a)
@@ -344,7 +351,7 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend, ExtendedBackend):  # type: 
         return torchlib.unique(a, return_counts=True)  # type: ignore
 
     def sigmoid(self, a: Tensor) -> Tensor:
-        return torchlib.nn.Sigmoid(a)
+        return torchlib.sigmoid(a)
 
     def relu(self, a: Tensor) -> Tensor:
         return torchlib.nn.ReLU(a)

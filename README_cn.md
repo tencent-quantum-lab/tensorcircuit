@@ -105,7 +105,7 @@ pip install tensorcircuit-nightly
 
 - 效率
 
-  - 时间：与 TFQ 或 Qiskit 相比，加速 10 到 10^6 倍
+  - 时间：与 TFQ, Pennylane, 或 Qiskit 相比，加速 10 到 10^6+ 倍
 
   - 空间：600+ qubits 1D VQE 工作流（收敛能量误差：< 1%）
 
@@ -145,7 +145,3 @@ pip install tensorcircuit-nightly
 
 VQEX 在 MBL 相位识别上的应用见 [教程](/docs/source/tutorials/vqex_mbl.ipynb)。
 参考论文: https://arxiv.org/pdf/2111.13719.pdf 。
-
-```
-
-```

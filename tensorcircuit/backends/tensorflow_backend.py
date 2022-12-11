@@ -368,6 +368,11 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend, ExtendedBackend): 
     ) -> Tensor:
         return tf.math.reduce_mean(a, axis=axis, keepdims=keepdims)
 
+    def std(
+        self, a: Tensor, axis: Optional[Sequence[int]] = None, keepdims: bool = False
+    ) -> Tensor:
+        return tf.math.reduce_std(a, axis=axis, keepdims=keepdims)
+
     def sigmoid(self, a: Tensor) -> Tensor:
         return tf.nn.sigmoid(a)
 

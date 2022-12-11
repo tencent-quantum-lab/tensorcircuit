@@ -9,6 +9,7 @@ import tensorflow as tf
 import cirq
 import sympy
 import numpy as np
+import pennylane as qml
 import tensorflow_quantum as tfq
 import tensorcircuit as tc
 
@@ -121,6 +122,42 @@ op_expectation_vmap_vvag = K.jit(
     K.vvag(op_expectation, argnums=0, vectorized_argnums=(0, 1)),
     static_argnums=(2, 3),
 )
+
+
+def pennylane_approach(n_qubits=10, depth=10, n_circuits=100):
+
+    dev = qml.device("lightning.qubit", wires=n_qubits)
+    gate_set = [qml.RX, qml.RY, qml.RZ]
+
+    @qml.qnode(dev)
+    def rand_circuit(params, status):
+        for i in range(n_qubits):
+            qml.RY(np.pi / 4, wires=i)
+
+        for j in range(depth):
+            for i in range(n_qubits):
+                gate_set[status[i, j]](params[j, i], wires=i)
+
+            for i in range(n_qubits - 1):
+                qml.CZ(wires=[i, i + 1])
+
+        return qml.expval(qml.Hamiltonian([1.0], [qml.PauliZ(0) @ qml.PauliZ(1)], True))
+
+    gf = qml.grad(rand_circuit, argnum=0)
+    params = np.random.uniform(0, 2 * np.pi, size=[n_circuits, depth, n_qubits])
+    status = np.random.choice(3, size=[n_circuits, depth, n_qubits])
+
+    g_results = []
+
+    for i in range(n_circuits):
+        g_results.append(gf(params[i], status[i]))
+
+    g_results = np.stack(g_results)
+
+    return np.std(g_results[:, 0, 0])
+
+
+benchmark(pennylane_approach)
 
 
 def tc_approach(n_qubits=10, depth=10, n_circuits=100):

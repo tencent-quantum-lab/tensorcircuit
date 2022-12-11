@@ -78,13 +78,13 @@ print(g(theta))
 
 ## Install
 
-The package is purely written in Python and can be obtained via pip as:
+The package is written in pure Python and can be obtained via pip as:
 
 ```python
 pip install tensorcircuit
 ```
 
-And we recommend you install this package with tensorflow also installed as:
+We recommend you install this package with tensorflow also installed as:
 
 ```python
 pip install tensorcircuit[tensorflow]
@@ -92,7 +92,7 @@ pip install tensorcircuit[tensorflow]
 
 Other optional dependencies include `[torch]`, `[jax]` and `[qiskit]`.
 
-For nightly build of tensorcircuit with new features, try:
+For the nightly build of tensorcircuit with new features, try:
 
 ```python
 pip uninstall tensorcircuit
@@ -109,7 +109,7 @@ We also have [Docker support](/docker).
 
 - Efficiency
 
-  - Time: 10 to 10^6 times acceleration compared to tfq or qiskit
+  - Time: 10 to 10^6+ times acceleration compared to TensorFlow Quantum, Pennylane or Qiskit
 
   - Space: 600+ qubits 1D VQE workflow (converged energy inaccuracy: < 1%)
 
@@ -121,13 +121,13 @@ We also have [Docker support](/docker).
 
 ## Citing TensorCircuit
 
-This project is released by [Tencent Quantum Lab](https://quantum.tencent.com/) and is currently maintained by [Shi-Xin Zhang](https://github.com/refraction-ray) with contributions from the lab and open source community.
+This project is released by [Tencent Quantum Lab](https://quantum.tencent.com/) and is currently maintained by [Shi-Xin Zhang](https://github.com/refraction-ray) with contributions from the lab and the open source community.
 
 If this project helps in your research, please cite our software whitepaper:
 
 [TensorCircuit: a Quantum Software Framework for the NISQ Era](https://arxiv.org/abs/2205.10091)
 
-which is also a good introduction for the software.
+which is also a good introduction to the software.
 
 ## Contributing
 
@@ -135,7 +135,7 @@ For contribution guidelines and notes, see [CONTRIBUTING](/CONTRIBUTING.md).
 
 We welcome [issues](https://github.com/tencent-quantum-lab/tensorcircuit/issues), [PRs](https://github.com/tencent-quantum-lab/tensorcircuit/pulls), and [discussions](https://github.com/tencent-quantum-lab/tensorcircuit/discussions) from everyone, and these are all hosted on GitHub.
 
-## Researches and Applications
+## Research and Applications
 
 ### DQAS
 

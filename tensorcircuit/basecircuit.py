@@ -26,6 +26,7 @@ from .cons import npdtype, backend, dtypestr, contractor, rdtypestr
 from .simplify import _split_two_qubit_gate
 from .utils import arg_alias
 
+
 Gate = gates.Gate
 Tensor = Any
 
@@ -502,6 +503,21 @@ class BaseCircuit(AbstractCircuit):
             no.extend(msconj)
         return contractor(no).tensor
 
+    def probability(self) -> Tensor:
+        """
+        get the 2^n length probability vector over computational basis
+
+        :return: probability vector
+        :rtype: Tensor
+        """
+        s = self.state()  # type: ignore
+        if self.is_dm is False:
+            p = backend.abs(s) ** 2
+
+        else:
+            p = backend.abs(backend.diagonal(s))
+        return p
+
     @partial(arg_alias, alias_dict={"format": ["format_"]})
     def sample(
         self,
@@ -568,20 +584,11 @@ class BaseCircuit(AbstractCircuit):
                 nbatch = 1
             else:
                 nbatch = batch
-            s = self.state()  # type: ignore
-            if self.is_dm is False:
-                p = backend.abs(s) ** 2
+            p = self.probability()
 
-                # readout error
-                if readout_error is not None:
-                    p = self.readouterror_bs(readout_error, p)
-
-            else:
-                p = backend.abs(backend.diagonal(s))
-
-                # readout error
-                if readout_error is not None:
-                    p = self.readouterror_bs(readout_error, p)
+            # readout error
+            if readout_error is not None:
+                p = self.readouterror_bs(readout_error, p)
             ch = backend.probability_sample(nbatch, p, status, random_generator)
             # if random_generator is None:
             #     ch = backend.implicit_randc(a=a_range, shape=[nbatch], p=p)
@@ -613,6 +620,9 @@ class BaseCircuit(AbstractCircuit):
         random_generator: Optional[Any] = None,
         status: Optional[Tensor] = None,
         readout_error: Optional[Sequence[Any]] = None,
+        noise_conf: Optional[Any] = None,
+        nmc: int = 1000,
+        statusc: Optional[Tensor] = None,
         **kws: Any,
     ) -> Tensor:
         """
@@ -630,6 +640,22 @@ class BaseCircuit(AbstractCircuit):
         >>> readout_error.append([0.4,0.7])
         >>> c.sample_expectation_ps(x=[0], y=[1],readout_error = readout_error)
 
+        >>> c = tc.Circuit(2)
+        >>> c.cnot(0, 1)
+        >>> c.rx(0, theta=0.4)
+        >>> c.rx(1, theta=0.8)
+        >>> c.h(0)
+        >>> c.h(1)
+        >>> error1 = tc.channels.generaldepolarizingchannel(0.1, 1)
+        >>> error2 = tc.channels.generaldepolarizingchannel(0.06, 2)
+        >>> readout_error = [[0.9, 0.75],[0.4, 0.7]]
+        >>> noise_conf = NoiseConf()
+        >>> noise_conf.add_noise("rx", error1)
+        >>> noise_conf.add_noise("cnot", [error2], [[0, 1]])
+        >>> noise_conf.add_noise("readout", readout_error)
+        >>> c.sample_expectation_ps(x=[0], noise_conf=noise_conf, nmc=10000)
+        0.44766843
+
         :param x: index for Pauli X, defaults to None
         :type x: Optional[Sequence[int]], optional
         :param y: index for Pauli Y, defaults to None
@@ -645,60 +671,85 @@ class BaseCircuit(AbstractCircuit):
         :type status: Optional[Tensor]
         :param readout_error: readout_error, defaults to None
         :type readout_error: Optional[Sequence[Any]]. Tensor, List, Tuple
+        :param noise_conf: Noise Configuration, defaults to None
+        :type noise_conf: Optional[NoiseConf], optional
+        :param nmc: repetition time for Monte Carlo sampling for noisfy calculation, defaults to 1000
+        :type nmc: int, optional
+        :param statusc: external randomness given by tensor uniformly from [0, 1], defaults to None,
+            used for noisfy circuit sampling
+        :type statusc: Optional[Tensor], optional
         :return: [description]
         :rtype: Tensor
         """
-        if self.is_dm is False:
-            c = type(self)(self._nqubits, mps_inputs=self.quvector())  # type: ignore
-        else:
-            c = type(self)(self._nqubits, mpo_dminputs=self.get_dm_as_quoperator())  # type: ignore
-        if x is None:
-            x = []
-        if y is None:
-            y = []
-        if z is None:
-            z = []
-        for i in x:
-            c.H(i)  # type: ignore
-        for i in y:
-            c.rx(i, theta=np.pi / 2)  # type: ignore
-        s = c.state()  # type: ignore
-        if self.is_dm is False:
-            p = backend.abs(s) ** 2
-        else:
-            p = backend.abs(backend.diagonal(s))
+        from .noisemodel import sample_expectation_ps_noisfy
 
-        # readout error
-        if readout_error is not None:
-            p = self.readouterror_bs(readout_error, p)
+        if noise_conf is None:
+            inputs_nodes, _ = self._copy_state_tensor()
+            inputs = inputs_nodes[0].tensor
+            if self.is_dm is False:
+                c = type(self)(self._nqubits, inputs=inputs)  # type: ignore
+            else:
+                c = type(self)(self._nqubits, dminputs=inputs)  # type: ignore
+            if x is None:
+                x = []
+            if y is None:
+                y = []
+            if z is None:
+                z = []
+            for i in x:
+                c.H(i)  # type: ignore
+            for i in y:
+                c.rx(i, theta=np.pi / 2)  # type: ignore
+            s = c.state()  # type: ignore
+            if self.is_dm is False:
+                p = backend.abs(s) ** 2
+            else:
+                p = backend.abs(backend.diagonal(s))
 
-        x = list(x)
-        y = list(y)
-        z = list(z)
-        if shots is None:
-            mc = measurement_counts(
-                p,
-                counts=shots,
-                format="count_vector",
-                random_generator=random_generator,
-                status=status,
-                jittable=True,
-                is_prob=True,
-            )
-            r = correlation_from_counts(x + y + z, mc)
+            # readout error
+            if readout_error is not None:
+                p = self.readouterror_bs(readout_error, p)
+
+            x = list(x)
+            y = list(y)
+            z = list(z)
+            if shots is None:
+                mc = measurement_counts(
+                    p,
+                    counts=shots,
+                    format="count_vector",
+                    random_generator=random_generator,
+                    status=status,
+                    jittable=True,
+                    is_prob=True,
+                )
+                r = correlation_from_counts(x + y + z, mc)
+            else:
+                mc = measurement_counts(
+                    p,
+                    counts=shots,
+                    format="sample_bin",
+                    random_generator=random_generator,
+                    status=status,
+                    jittable=True,
+                    is_prob=True,
+                )
+                r = correlation_from_samples(x + y + z, mc, self._nqubits)
+            # TODO(@refraction-ray): analytical standard deviation
+            return r
         else:
-            mc = measurement_counts(
-                p,
-                counts=shots,
-                format="sample_bin",
-                random_generator=random_generator,
+            return sample_expectation_ps_noisfy(
+                c=self,
+                x=x,
+                y=y,
+                z=z,
+                noise_conf=noise_conf,
+                nmc=nmc,
+                shots=shots,
+                statusc=statusc,
                 status=status,
-                jittable=True,
-                is_prob=True,
+                **kws,
             )
-            r = correlation_from_samples(x + y + z, mc, self._nqubits)
-        # TODO(@refraction-ray): analytical standard deviation
-        return r
 
     sexpps = sample_expectation_ps
 

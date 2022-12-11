@@ -4,11 +4,45 @@
 
 ### Added
 
+- Add `c.probability()` method to return probability amplitude
+
+- Add results module including funtionalities on count dict manipulation and readout error mitigation
+
+### Fixed
+
+- Fix adjoint possible bug with agnostic backend
+
+- Fix `sigmoid` bug on pytorch backend
+
+## 0.6.0
+
+### Added
+
 - Add native support for `rxx`, `ryy` and `rzz` gates for translation from qiskit
 
 - Add `from_openqasm` and `from_openqasm_file` methods for `Circuit`
 
 - Add `circuit_params` argument for translation from qiskit to make the interface universal and consistent with other `from_` methods
+
+- Add `shifts` tuple parameter for `experimental.parameter_shift_grad` API so that we can also customize finite difference gradient from this method
+
+- Add `std` method for backends
+
+- Add `NoiseModel` class to programmably configure the global error model when simulating the quantum circuit
+
+- Add `tc.channels.composedkraus` to compose the different Kraus operators as a new one
+
+- Add direct support for noise model via `sample_expectation_ps` and `expectation` methods, both Monte Carlo trajectory and density matrix evolution approaches are supported
+
+### Changed
+
+- Improve the efficiency of `sample_expectation_ps` method by using cached state
+
+### Fixed
+
+- Fixed `unitary_kraus` of Circuit class support for multi-qubit kraus channels, previous implementation fails to reshape the multi-qubit kraus tensor as matrix
+
+- Fixed `kraus_to_super_gate` bug when multi-qubit kraus channels are presented on tensorflow backend
 
 ## 0.5.0
 

@@ -24,6 +24,13 @@ Tensor = Any
 Matrix = Any
 
 
+class KrausList(list):  # type: ignore
+    def __init__(self, iterable, name, is_unitary):  # type: ignore
+        super().__init__(iterable)
+        self.name = name
+        self.is_unitary = is_unitary
+
+
 def _sqrt(a: Tensor) -> Tensor:
     r"""
     Return the square root of Tensor with default global dtype
@@ -93,7 +100,7 @@ def depolarizingchannel(px: float, py: float, pz: float) -> Sequence[Gate]:
     x = Gate(_sqrt(px) * gates.x().tensor)  # type: ignore
     y = Gate(_sqrt(py) * gates.y().tensor)  # type: ignore
     z = Gate(_sqrt(pz) * gates.z().tensor)  # type: ignore
-    return [i, x, y, z]
+    return KrausList([i, x, y, z], name="depolarizing", is_unitary=True)
 
 
 def generaldepolarizingchannel(
@@ -194,7 +201,7 @@ def generaldepolarizingchannel(
     for pro, paugate in zip(probs, tup):
         Gkarus.append(Gate(_sqrt(pro) * paugate))
 
-    return Gkarus
+    return KrausList(Gkarus, name="depolarizing", is_unitary=True)
 
 
 def amplitudedampingchannel(gamma: float, p: float) -> Sequence[Gate]:
@@ -247,7 +254,7 @@ def amplitudedampingchannel(gamma: float, p: float) -> Sequence[Gate]:
     m1 = _sqrt(p) * (_sqrt(gamma) * g01)
     m2 = _sqrt(1 - p) * (_sqrt(1 - gamma) * g00 + g11)
     m3 = _sqrt(1 - p) * (_sqrt(gamma) * g10)
-    return [m0, m1, m2, m3]
+    return KrausList([m0, m1, m2, m3], name="amplitude_damping", is_unitary=False)
 
 
 def resetchannel() -> Sequence[Gate]:
@@ -274,7 +281,7 @@ def resetchannel() -> Sequence[Gate]:
     """
     m0 = Gate(np.array([[1, 0], [0, 0]], dtype=cons.npdtype))
     m1 = Gate(np.array([[0, 1], [0, 0]], dtype=cons.npdtype))
-    return [m0, m1]
+    return KrausList([m0, m1], name="reset", is_unitary=False)
 
 
 def phasedampingchannel(gamma: float) -> Sequence[Gate]:
@@ -305,7 +312,7 @@ def phasedampingchannel(gamma: float) -> Sequence[Gate]:
     g11 = Gate(np.array([[0, 0], [0, 1]], dtype=cons.npdtype))
     m0 = 1.0 * (g00 + _sqrt(1 - gamma) * g11)  # 1* ensure gate
     m1 = _sqrt(gamma) * g11
-    return [m0, m1]
+    return KrausList([m0, m1], name="phase_damping", is_unitary=False)
 
 
 def thermalrelaxationchannel(
@@ -394,7 +401,7 @@ def thermalrelaxationchannel(
         Gkraus = []
         for pro, paugate in zip(probs, tup):
             Gkraus.append(Gate(_sqrt(pro) * paugate))
-        return Gkraus
+        return KrausList(Gkraus, name="thermal_relaxation", is_unitary=False)
 
     elif method == "ByChoi" or (
         method == "AUTO" and backend.real(t2) >= backend.real(t1)
@@ -439,7 +446,8 @@ def thermalrelaxationchannel(
             nmax = 3
 
         listKraus = choi_to_kraus(choi, truncation_rules={"max_singular_values": nmax})
-        return [Gate(i) for i in listKraus]
+        Gatelist = [Gate(i) for i in listKraus]
+        return KrausList(Gatelist, name="thermal_relaxation", is_unitary=False)
 
     else:
         raise ValueError("No valid method is provided")
@@ -513,6 +521,8 @@ def kraus_to_super_gate(kraus_list: Sequence[Gate]) -> Tensor:
     :rtype: Tensor
     """
     kraus_tensor_list = [k.tensor for k in kraus_list]
+    kraus_tensor_list = [backend.reshapem(k) for k in kraus_tensor_list]
+
     k = kraus_tensor_list[0]
     u = backend.kron(k, backend.conj(k))
     for k in kraus_tensor_list[1:]:
@@ -952,3 +962,26 @@ def check_rep_transformation(
     print("test evolution identity of kraus and superop")
     density_matrix3 = evol_superop(density_matrix, superop)
     np.testing.assert_allclose(density_matrix1, density_matrix3, atol=1e-5)
+
+
+def composedkraus(kraus1: KrausList, kraus2: KrausList) -> KrausList:
+    """
+    Compose the noise channels
+
+    :param kraus1: One noise channel
+    :type kraus1: KrausList
+    :param kraus2: Another noise channel
+    :type kraus2: KrausList
+    :return: Composed nosie channel
+    :rtype: KrausList
+    """
+    new_kraus = []
+    for i in kraus1:
+        for j in kraus2:
+            k = Gate(backend.reshapem(i.tensor) @ backend.reshapem(j.tensor))
+            new_kraus.append(k)
+    return KrausList(
+        new_kraus,
+        name=kraus1.name + "_" + kraus2.name,
+        is_unitary=kraus1.is_unitary and kraus2.is_unitary,
+    )

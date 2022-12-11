@@ -413,6 +413,16 @@ def test_expectation_ps():
     np.testing.assert_allclose(r, 1, atol=1e-5)
 
 
+def test_probability():
+    for c_cls in [tc.Circuit, tc.DMCircuit]:
+        c = c_cls(2)
+        c.h(0)
+        c.h(1)
+        np.testing.assert_allclose(
+            c.probability(), np.array([1, 1, 1, 1]) / 4, atol=1e-5
+        )
+
+
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_dqas_type_circuit(backend):
     eye = tc.gates.i().tensor

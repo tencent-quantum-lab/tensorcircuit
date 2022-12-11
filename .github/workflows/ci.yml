@@ -35,7 +35,7 @@ jobs:
         run: |
           pytest --cov=tensorcircuit --cov-report=xml -svv --benchmark-skip
       - name: Upload coverage to Codecov
-        if: matrix.os == 'ubuntu-18.04'
+        if: matrix.os == 'ubuntu-20.04'
         uses: codecov/codecov-action@v2
         with:
           verbose: true
@@ -48,6 +48,8 @@ jobs:
           python mcnoise_boost.py
           python quantumng.py
           python universal_lr.py
+          python parameter_shift.py
+          python mpsvsexact.py
       - name: setup build
         run: |
           python3 setup.py build

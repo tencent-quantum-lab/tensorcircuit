@@ -346,6 +346,11 @@ class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
     ) -> Tensor:
         return jnp.mean(a, axis=axis, keepdims=keepdims)
 
+    def std(
+        self, a: Tensor, axis: Optional[Sequence[int]] = None, keepdims: bool = False
+    ) -> Tensor:
+        return jnp.std(a, axis=axis, keepdims=keepdims)
+
     def min(self, a: Tensor, axis: Optional[int] = None) -> Tensor:
         return jnp.min(a, axis=axis)
 
