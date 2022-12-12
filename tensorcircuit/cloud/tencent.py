@@ -87,6 +87,7 @@ def submit_task(
     remarks: Optional[str] = None,
     compiling: bool = False,
     compiled_options: Optional[Dict[str, Any]] = None,
+    measure: Optional[Sequence[int]] = None,
 ) -> List[Task]:
     if source is None:
         if compiled_options is None:
@@ -96,14 +97,32 @@ def submit_task(
             }
 
         def c2qasm(c: Any, compiling: bool) -> str:
-            if compiling is True:
-                from qiskit.compiler import transpile
+            from qiskit.compiler import transpile
+            from qiskit.circuit import QuantumCircuit
 
-                c1 = transpile(c.to_qiskit(), **compiled_options)
+            if compiling is True:
+                if not isinstance(c, QuantumCircuit):
+                    c = c.to_qiskit()
+
+                nq = c.num_qubits
+                c1 = transpile(c, **compiled_options)
                 s = c1.qasm()
             else:
-                s = c.to_openqasm()
+                if isinstance(c, QuantumCircuit):
+                    s = c.qasm()
+                    nq = c.num_qubits
+                else:
+                    s = c.to_openqasm()
+                    nq = c._nqubits
             # s = _free_pi(s) # tQuk translation now supports this
+            if measure is not None:  # ad hoc partial measurement
+                slist = s.split("\n")[:-1]
+                if len(slist) > 3 and not slist[3].startswith("creg"):
+                    slist.insert(3, "creg c[%s];" % nq)
+                for m in measure:
+                    slist.append("measure q[%s]->c[%s];" % (m, m))
+                slist.append("")
+                s = "\n".join(slist)
             return s  # type: ignore
 
         if is_sequence(circuit):
