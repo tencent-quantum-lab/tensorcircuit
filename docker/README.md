@@ -14,9 +14,9 @@ sudo docker pull tensorcircuit/tensorcircuit
 Run the docker container by the following command:
 
 ```bash
-sudo docker run -it --network host --gpus all tensorcircuit
+sudo docker run -it --network host --gpus all tensorcircuit/tensorcircuit
 
-# if one also wants mount local source code, also add args `-v "$(pwd)":/app`
+# if one also wants mount local source code, also add args `-v "$(PWD)":/tmp`
 
 # for old dockerfile with no runtime env setting
 # sudo docker run -it --network host -e LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.0/targets/x86_64-linux/lib -e PYTHONPATH=/app -v "$(pwd)":/app  --gpus all tensorcircuit
