@@ -11,13 +11,14 @@ import sys
 
 from .abstraction import Provider, Device, Task, sep
 from . import tencent
+from . import local
 
 package_name = "tensorcircuit"
 thismodule = sys.modules[__name__]
 
 
 default_provider = Provider.from_name("tencent")
-avail_providers = ["tencent"]
+avail_providers = ["tencent", "local"]
 
 
 def list_providers() -> List[Provider]:
@@ -52,9 +53,19 @@ def set_device(
         provider, device = None, provider
     if device is None:
         device = default_device
-    device = Device.from_name(device, provider)
-    if provider is None:
-        provider = device.provider
+
+    if isinstance(device, str):
+        if len(device.split(sep)) > 1:
+            device = Device(device, provider)
+        else:
+            if provider is None:
+                provider = get_provider()
+            device = Device(device, provider)
+    else:
+        if provider is None:
+            provider = get_provider()
+        device = Device.from_name(device, provider)
+
     if set_global:
         for module in sys.modules:
             if module.startswith(package_name):
@@ -158,6 +169,8 @@ def list_devices(
         token = provider.get_token()
     if provider.name == "tencent":
         return tencent.list_devices(token)
+    elif provider.name == "local":
+        return local.list_devices(token)
     else:
         raise ValueError("Unsupported provider: %s" % provider.name)
 
@@ -212,6 +225,8 @@ def get_task_details(
 
     if provider.name == "tencent":
         return tencent.get_task_details(task, device, token)  # type: ignore
+    elif provider.name == "local":
+        return local.get_task_details(task, device, token)  # type: ignore
     else:
         raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
 
@@ -223,8 +238,14 @@ def submit_task(
     **task_kws: Any,
 ) -> List[Task]:
     if device is None:
-        device = default_device
-    device = Device.from_name(device, provider)
+        device = get_device()
+    if isinstance(device, str):
+        if len(device.split(sep)) > 1:
+            device = Device(device, provider)
+        else:
+            if provider is None:
+                provider = get_provider()
+            device = Device(device, provider)
     if provider is None:
         provider = device.provider
 
@@ -233,6 +254,8 @@ def submit_task(
 
     if provider.name == "tencent":  # type: ignore
         return tencent.submit_task(device, token, **task_kws)  # type: ignore
+    elif provider.name == "local":  # type: ignore
+        return local.submit_task(device, token, **task_kws)  # type: ignore
     else:
         raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
 
@@ -286,5 +309,7 @@ def list_tasks(
         device = Device.from_name(device)
     if provider.name == "tencent":  # type: ignore
         return tencent.list_tasks(device, token, **filter_kws)  # type: ignore
+    elif provider.name == "local":  # type: ignore
+        return local.list_tasks(device, token, **filter_kws)  # type: ignore
     else:
         raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
