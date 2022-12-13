@@ -534,7 +534,7 @@ class BaseCircuit(AbstractCircuit):
         :param batch: number of samples, defaults to None
         :type batch: Optional[int], optional
         :param allow_state: if true, we sample from the final state
-            if memory allsows, True is prefered, defaults to False
+            if memory allows, True is preferred, defaults to False
         :type allow_state: bool, optional
         :param readout_error: readout_error, defaults to None
         :type readout_error: Optional[Sequence[Any]]. Tensor, List, Tuple
@@ -546,8 +546,8 @@ class BaseCircuit(AbstractCircuit):
         :param status: external randomness given by tensor uniformly from [0, 1],
             if set, can overwrite random_generator
         :type status: Optional[Tensor]
-        :return: List (if batch) of tuple (binary configuration tensor and correponding probability)
-            if the format is None, and consitent with format when given
+        :return: List (if batch) of tuple (binary configuration tensor and corresponding probability)
+            if the format is None, and consistent with format when given
         :rtype: Any
         """
         # allow_state = False is compatibility issue
