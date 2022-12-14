@@ -63,7 +63,7 @@ def sample_expectation_ps(
     t = submit_task(circuit=c1, device=device, shots=shots)
     raw_counts = t.results(blocked=True)  # type: ignore
     x, y, z = list(x), list(y), list(z)
-    return counts.correlation(raw_counts, x + y + z)
+    return counts.expectation(raw_counts, x + y + z)
 
 
 # TODO(@refraction-ray): batch support
