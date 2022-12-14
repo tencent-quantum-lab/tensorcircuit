@@ -30,6 +30,7 @@ from .gates import num_to_tensor, array_to_tensor
 from .vis import qir2tex, render_pdf
 from . import interfaces
 from . import templates
+from . import results
 from . import quantum
 from .quantum import QuOperator, QuVector, QuAdjointVector, QuScalar
 

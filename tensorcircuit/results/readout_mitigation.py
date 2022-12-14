@@ -1,13 +1,13 @@
 """
 readout error mitigation functionalities
 """
-# Part of the code in this file is from mthree: https://github.com/Qiskit-Partners/mthree
+# Part of the code in this file is from mthree: https://github.com/Qiskit-Partners/mthree (Apache2)
 
 from typing import Any, Callable, List, Sequence, Optional, Union
 import warnings
 from time import perf_counter
-
 import psutil
+
 import numpy as np
 import scipy.linalg as la
 import scipy.sparse.linalg as spla
@@ -53,7 +53,13 @@ class ReadoutMit:
 
         self.iter_threshold = iter_threshold
 
-        self.execute_fun = execute
+        if isinstance(execute, str):
+            # execute is a device name str
+            from ..cloud.wrapper import batch_submit_template
+
+            self.execute_fun: Callable[..., List[ct]] = batch_submit_template(execute)
+        else:
+            self.execute_fun = execute
 
     def ubs(self, i: int) -> int:
         """

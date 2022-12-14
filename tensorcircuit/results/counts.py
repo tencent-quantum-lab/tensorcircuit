@@ -1,10 +1,9 @@
 """
 dict related functionalities
 """
-from typing import Any, Dict, Sequence, Tuple
+from typing import Any, Dict, Optional, Sequence
 
 import numpy as np
-import qiskit
 
 
 Tensor = Any
@@ -28,6 +27,8 @@ def normalized_count(count: ct) -> Dict[str, float]:
 
 
 def marginal_count(count: ct, keep_list: Sequence[int]) -> ct:
+    import qiskit
+
     count = reverse_count(count)
     ncount = qiskit.result.utils.marginal_distribution(count, keep_list)
     return reverse_count(ncount)
@@ -70,16 +71,49 @@ def kl_divergence(c1: ct, c2: ct) -> float:
     return kl
 
 
-def correlation(
-    count: ct, zlist: Sequence[int], values: Tuple[int, int] = (1, -1)
+def expectation(
+    count: ct, z: Optional[Sequence[int]] = None, diagonal_op: Optional[Tensor] = None
 ) -> float:
-    map_dict = {"0": values[0], "1": values[1]}
+    """
+    compute diagonal operator expectation value from bit string count dictionary
+
+    :param count: count dict for bitstring histogram
+    :type count: ct
+    :param z: if defaults as None, then ``diagonal_op`` must be set
+        a list of qubit that we measure Z op on
+    :type z: Optional[Sequence[int]]
+    :param diagoal_op: shape [n, 2], explicitly indicate the diagonal op on each qubit
+        eg. [1, -1] for z [1, 1] for I, etc.
+    :type diagoal_op: Tensor
+    :return: the expectation value
+    :rtype: float
+    """
+    if z is None and diagonal_op is None:
+        raise ValueError("One of `z` and `diagonal_op` must be set")
+    n = len(list(count.keys())[0])
+    if z is not None:
+        diagonal_op = [[1, -1] if i in z else [1, 1] for i in range(n)]
     r = 0
     shots = 0
     for k, v in count.items():
-        ct = 1.0
-        for i in zlist:
-            ct *= map_dict[k[i]]
-        r += ct * v  # type: ignore
+        cr = 1.0
+        for i in range(n):
+            cr *= diagonal_op[i][int(k[i])]  # type: ignore
+        r += cr * v  # type: ignore
         shots += v
     return r / shots
+
+
+# def correlation(
+#     count: ct, zlist: Sequence[int], values: Tuple[int, int] = (1, -1)
+# ) -> float:
+#     map_dict = {"0": values[0], "1": values[1]}
+#     r = 0
+#     shots = 0
+#     for k, v in count.items():
+#         ct = 1.0
+#         for i in zlist:
+#             ct *= map_dict[k[i]]
+#         r += ct * v  # type: ignore
+#         shots += v
+#     return r / shots
