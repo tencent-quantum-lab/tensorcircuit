@@ -22,8 +22,9 @@ def test_kl():
     assert counts.kl_divergence(a, a) == 0
 
 
-def test_correlation():
-    assert counts.correlation(d, [0, 1]) == -5 / 9
+def test_expectation():
+    assert counts.expectation(d, [0, 1]) == -5 / 9
+    assert counts.expectation(d, None, [[1, -1], [1, 0], [1, 1]]) == -5 / 9
 
 
 def test_readout():
