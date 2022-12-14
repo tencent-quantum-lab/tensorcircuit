@@ -230,15 +230,19 @@ class Task:
 
             nqubit = len(list(r.keys())[0])
             shots = self.details()["shots"]
-            mit = rem.ReadoutMit(run)
+            readout_mit = rem.ReadoutMit(run)
             if calibriation_options is None:
                 calibriation_options = {}
-            mit.cals_from_system(list(range(nqubit)), shots, **calibriation_options)
+            readout_mit.cals_from_system(
+                list(range(nqubit)), shots, **calibriation_options
+            )
             self.readout_mit = readout_mit
         elif readout_mit is None:
             readout_mit = self.readout_mit
 
         if mitigation_options is None:
             mitigation_options = {}
-        miti_count = mit.apply_correction(r, list(range(nqubit)), **mitigation_options)
+        miti_count = readout_mit.apply_correction(
+            r, list(range(nqubit)), **mitigation_options
+        )
         return counts.sort_count(miti_count)
