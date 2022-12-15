@@ -282,7 +282,7 @@ class ReadoutMit:
         shots = sum([v for k, v in raw_count.items()])
         probability = self.mitigate_probability(probability, method=method)
         probability = probability * shots
-        return vec2count(probability)
+        return vec2count(probability, prune=True)
 
     def apply_correction(
         self,
