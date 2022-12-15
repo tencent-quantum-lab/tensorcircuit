@@ -210,6 +210,7 @@ class Task:
             r = self.results(format=format, blocked=False, mitigated=False)
         if mitigated is False:
             return r
+        nqubit = len(list(r.keys())[0])
 
         # mitigated is True:
         if readout_mit is None and getattr(self, "readout_mit", None) is None:
@@ -228,7 +229,6 @@ class Task:
                     time.sleep(0.5)
                 return [t.results(blocked=True) for t in ts]  # type: ignore
 
-            nqubit = len(list(r.keys())[0])
             shots = self.details()["shots"]
             readout_mit = rem.ReadoutMit(run)
             if calibriation_options is None:
