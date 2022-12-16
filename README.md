@@ -7,7 +7,7 @@
 <p align="center">
   <!-- tests (GitHub actions) -->
   <a href="https://github.com/tencent-quantum-lab/tensorcircuit/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/workflow/status/tencent-quantum-lab/tensorcircuit/ci/master?logo=github&logo=github" />
+    <img src="https://img.shields.io/github/actions/workflow/status/tencent-quantum-lab/tensorcircuit/ci.yml?branch=master" />
   </a>
   <!-- docs -->
   <a href="https://tensorcircuit.readthedocs.io/">
