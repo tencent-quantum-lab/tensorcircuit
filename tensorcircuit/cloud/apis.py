@@ -9,7 +9,7 @@ import json
 import os
 import sys
 
-from .abstraction import Provider, Device, Task, sep
+from .abstraction import Provider, Device, Task, sep, sep2
 from . import tencent
 from . import local
 
@@ -205,6 +205,9 @@ def get_task(
         provider, device = None, provider
     if device is not None:  # device can be None for identify tasks
         device = Device.from_name(device, provider)
+    elif len(taskid.split(sep2)) > 1:
+        device = Device(taskid.split(sep2)[0])
+        taskid = taskid.split(sep2)[1]
     return Task(taskid, device=device)
 
 

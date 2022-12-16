@@ -152,13 +152,16 @@ class Device:
         return list_tasks(self.provider, self, **filter_kws)
 
 
+sep2 = "~~"
+
+
 class Task:
     def __init__(self, id_: str, device: Optional[Device] = None):
         self.id_ = id_
         self.device = device
 
     def __repr__(self) -> str:
-        return self.device.__repr__() + "~~" + self.id_
+        return self.device.__repr__() + sep2 + self.id_
 
     __str__ = __repr__
 
@@ -204,7 +207,11 @@ class Task:
             s = self.state()
             while s != "completed":
                 if s in ["failed"]:
-                    raise ValueError("Task %s is in %s state" % (self.id_, s))
+                    err = self.details().get("err", "")
+                    raise ValueError(
+                        "Task %s is in %s state with err message %s"
+                        % (self.id_, s, err)
+                    )
                 time.sleep(0.5)
                 s = self.state()
             r = self.results(format=format, blocked=False, mitigated=False)
