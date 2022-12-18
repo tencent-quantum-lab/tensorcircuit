@@ -453,7 +453,9 @@ class AbstractCircuit:
                 name = g1
                 break
         if name not in sgates + vgates + mpogates:
-            logger.warning("gate name not in the common gate set that tc supported")
+            logger.warning(
+                "gate name %s not in the common gate set that tc supported" % name
+            )
         return name
 
     def gate_count(self, gate_list: Optional[Sequence[str]] = None) -> int:
