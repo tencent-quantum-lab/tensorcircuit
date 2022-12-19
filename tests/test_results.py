@@ -1,3 +1,4 @@
+import pytest
 import numpy as np
 
 
@@ -28,25 +29,26 @@ def test_expectation():
     assert counts.expectation(d, None, [[1, -1], [1, 0], [1, 1]]) == -5 / 9
 
 
+def run(cs, shots):
+    nqubit = cs[0]._nqubits
+    gg = []
+    for i in range(2 * nqubit):
+        gg.append(np.sin(i) * 0.02 + 0.978)
+    readout_error = np.reshape(gg, (nqubit, 2))
+
+    ts = []
+    for c in cs:
+        count = c.sample(
+            batch=shots,
+            allow_state=True,
+            readout_error=readout_error,
+            format="count_dict_bin",
+        )
+        ts.append(count)
+    return ts
+
+
 def test_readout():
-    def run(cs, shots):
-        nqubit = cs[0]._nqubits
-        gg = []
-        for i in range(2 * nqubit):
-            gg.append(np.sin(i) * 0.02 + 0.978)
-        readout_error = np.reshape(gg, (nqubit, 2))
-
-        ts = []
-        for c in cs:
-            count = c.sample(
-                batch=shots,
-                allow_state=True,
-                readout_error=readout_error,
-                format="count_dict_bin",
-            )
-            ts.append(count)
-        return ts
-
     nqubit = 4
     shots = 4096
     c = tc.Circuit(nqubit)
@@ -67,14 +69,10 @@ def test_readout():
     mit_count2 = mit.apply_correction(
         raw_count, [1, 3, 2], method="constrained_least_square"
     )
-    mit_count3 = mit.apply_correction(raw_count, [1, 3, 2], method="M3_direct")
-    mit_count4 = mit.apply_correction(raw_count, [1, 3, 2], method="M3_iterative")
     idea_count2 = counts.marginal_count(idea_count, [1, 3, 2])
 
     assert counts.kl_divergence(idea_count2, mit_count1) < 0.05
     assert counts.kl_divergence(idea_count2, mit_count2) < 0.05
-    assert counts.kl_divergence(idea_count2, mit_count3) < 0.05
-    assert counts.kl_divergence(idea_count2, mit_count4) < 0.05
 
     # test "global" and "equal"
     mit = ReadoutMit(execute=run)
@@ -96,23 +94,6 @@ def test_readout():
 
 
 def test_readout_expv():
-    def run(cs, shots):
-        nqubit = cs[0]._nqubits
-        gg = []
-        for i in range(2 * nqubit):
-            gg.append(np.sin(i) * 0.02 + 0.978)
-        readout_error = np.reshape(gg, (nqubit, 2))
-
-        ts = []
-        for c in cs:
-            count = c.sample(
-                batch=shots,
-                allow_state=True,
-                readout_error=readout_error,
-                format="count_dict_bin",
-            )
-            ts.append(count)
-        return ts
 
     nqubit = 4
     c = tc.Circuit(nqubit)
@@ -167,12 +148,52 @@ def test_readout_expv():
 
     mit = ReadoutMit(execute=run)
     mit.cals_from_system(cal_qubits, shots=100000, method="local")
-    mit_count = mit.apply_correction(raw_count, use_qubits, method="M3_auto")
-    mit_value = counts.expectation(mit_count, z=list(range(nqubit)))
+    mit_value1 = mit.expectation(raw_count, z=list(range(nqubit)), method="inverse")
+
+    np.testing.assert_allclose(idea_value, mit_value1, atol=1e-1)
+
+
+def test_M3():
+
+    try:
+        import mthree  # pylint: disable=unused-import
+    except ImportError:
+        pytest.skip("****** No mthree, skipping test suit *******")
+
+    nqubit = 20
+    c = tc.Circuit(nqubit)
+    c.H(0)
+    for i in range(nqubit - 1):
+        c.cnot(i, i + 1)
+    c.rx(1, theta=0.9)
+
+    idea_count = c.sample(batch=100000, allow_state=True, format="count_dict_bin")
+    raw_count = run([c], 100000)[0]
+
+    cal_qubits = list(range(nqubit))
+    use_qubits = list(range(nqubit))
+
+    idea_count2 = counts.marginal_count(idea_count, use_qubits)
+    idea_value = counts.expectation(idea_count2, z=list(range(nqubit)))
 
     mit = ReadoutMit(execute=run)
     mit.cals_from_system(cal_qubits, shots=100000, method="local")
-    mit_value1 = mit.expectation(raw_count, z=list(range(nqubit)), method="inverse")
-
+    mit_count = mit.apply_correction(raw_count, use_qubits, method="M3_auto")
+    mit_value = counts.expectation(mit_count, z=list(range(nqubit)))
     np.testing.assert_allclose(idea_value, mit_value, atol=1e-1)
-    np.testing.assert_allclose(idea_value, mit_value1, atol=1e-1)
+
+    nqubit = 4
+    shots = 4096
+    c = tc.Circuit(nqubit)
+    c.H(0)
+    c.cnot(0, 1)
+    c.x(3)
+
+    idea_count = c.sample(batch=shots, allow_state=True, format="count_dict_bin")
+    raw_count = run([c], shots)[0]
+
+    mit_count3 = mit.apply_correction(raw_count, [1, 3, 2], method="M3_direct")
+    mit_count4 = mit.apply_correction(raw_count, [1, 3, 2], method="M3_iterative")
+    idea_count2 = counts.marginal_count(idea_count, [1, 3, 2])
+    assert counts.kl_divergence(idea_count2, mit_count3) < 0.05
+    assert counts.kl_divergence(idea_count2, mit_count4) < 0.05
