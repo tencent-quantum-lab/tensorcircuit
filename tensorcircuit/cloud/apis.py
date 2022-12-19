@@ -329,6 +329,16 @@ def get_task(
 def get_task_details(
     taskid: Union[str, Task], token: Optional[str] = None
 ) -> Dict[str, Any]:
+    """
+    Get task details dict given task id
+
+    :param taskid: _description_
+    :type taskid: Union[str, Task]
+    :param token: _description_, defaults to None
+    :type token: Optional[str], optional
+    :return: _description_
+    :rtype: Dict[str, Any]
+    """
     if isinstance(taskid, str):
         task = Task(taskid)
     else:
@@ -355,6 +365,22 @@ def submit_task(
     token: Optional[str] = None,
     **task_kws: Any,
 ) -> List[Task]:
+    """
+    submit task to the cloud platform, batch submission default enabled
+
+    :param provider: _description_, defaults to None
+    :type provider: Optional[Union[str, Provider]], optional
+    :param device: _description_, defaults to None
+    :type device: Optional[Union[str, Device]], optional
+    :param token: _description_, defaults to None
+    :type token: Optional[str], optional
+    :param task_kws: all necessary keywords arguments for task submission,
+        see detailed API in each provider backend:
+        1. tencent - :py:meth:`tensorcircuit.cloud.tencent.submit_task`
+    :type task_kws: Any
+    :return: The task object
+    :rtype: List[Task]
+    """
     # if device is None:
     #     device = get_device()
     # if isinstance(device, str):
@@ -383,6 +409,16 @@ def resubmit_task(
     task: Optional[Union[str, Task]],
     token: Optional[str] = None,
 ) -> Task:
+    """
+    Rerun the given task
+
+    :param task: _description_
+    :type task: Optional[Union[str, Task]]
+    :param token: _description_, defaults to None
+    :type token: Optional[str], optional
+    :return: _description_
+    :rtype: Task
+    """
     if isinstance(task, str):
         task = Task(task)
     device = task.get_device()  # type: ignore
@@ -419,6 +455,18 @@ def list_tasks(
     token: Optional[str] = None,
     **filter_kws: Any,
 ) -> List[Task]:
+    """
+    List tasks based on given filters
+
+    :param provider: _description_, defaults to None
+    :type provider: Optional[Union[str, Provider]], optional
+    :param device: _description_, defaults to None
+    :type device: Optional[Union[str, Device]], optional
+    :param token: _description_, defaults to None
+    :type token: Optional[str], optional
+    :return: list of task object that satisfy these filter criteria
+    :rtype: List[Task]
+    """
     if provider is None:
         provider = default_provider
     provider = Provider.from_name(provider)
