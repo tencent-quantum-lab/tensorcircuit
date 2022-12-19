@@ -178,15 +178,15 @@ class Device:
 
         return list_properties(self.provider, self)
 
-    def submit_task(self, **task_kws: Any) -> List["Task"]:
-        from .apis import submit_task
-
-        return submit_task(provider=self.provider, device=self, **task_kws)
-
     def get_task(self, taskid: str) -> "Task":
         from .apis import get_task
 
         return get_task(taskid, device=self)
+
+    def submit_task(self, **task_kws: Any) -> List["Task"]:
+        from .apis import submit_task
+
+        return submit_task(provider=self.provider, device=self, **task_kws)
 
     def list_tasks(self, **filter_kws: Any) -> List["Task"]:
         from .apis import list_tasks

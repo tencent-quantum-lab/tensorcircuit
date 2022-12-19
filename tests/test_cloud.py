@@ -71,6 +71,19 @@ def test_resubmit_task():
     print(t1.details())
 
 
+def test_get_task():
+    apis.set_device("simulator:tcn1")
+    c = tc.Circuit(2)
+    c.cx(0, 1)
+    t = apis.submit_task(circuit=c)
+    t1 = apis.get_task(t.id_)
+    assert t1.id_ == t.id_
+    t2 = apis.get_device("tencent::simulator:tcn1").get_task(t.id_)
+    assert t2.id_ == t.id_
+
+    apis.set_device()
+
+
 def test_list_tasks():
     d = apis.get_device(device="simulator:aer")
     print(d.list_tasks())

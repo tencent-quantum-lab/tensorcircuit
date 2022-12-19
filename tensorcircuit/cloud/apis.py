@@ -2,7 +2,7 @@
 main entrypoints of cloud module
 """
 
-from typing import Any, List, Optional, Dict, Union
+from typing import Any, List, Optional, Dict, Union, Tuple
 from base64 import b64decode, b64encode
 from functools import partial
 import json
@@ -120,22 +120,60 @@ def b64decode_s(s: str) -> str:
 saved_token: Dict[str, Any] = {}
 
 
+def _preprocess(
+    provider: Optional[Union[str, Provider]] = None,
+    device: Optional[Union[str, Device]] = None,
+) -> Tuple[Provider, Device]:
+    """
+    Smartly determine the provider and device based on the input
+
+    :param provider: _description_, defaults to None
+    :type provider: Optional[Union[str, Provider]], optional
+    :param device: _description_, defaults to None
+    :type device: Optional[Union[str, Device]], optional
+    :return: a pair of provider and device after preprocessing
+    :rtype: Tuple[Provider, Device]
+    """
+    if provider is not None and device is None:
+        provider, device = None, provider
+    if device is None:
+        device = get_device()
+    if isinstance(device, str):
+        if len(device.split(sep)) > 1:
+            device = Device.from_name(device, provider)
+        else:
+            if provider is None:
+                provider = get_provider()
+            device = Device.from_name(device, provider)
+    if provider is None:
+        provider = device.provider
+    return provider, device  # type: ignore
+
+
 def set_token(
     token: Optional[str] = None,
     provider: Optional[Union[str, Provider]] = None,
     device: Optional[Union[str, Device]] = None,
     cached: bool = True,
 ) -> Dict[str, Any]:
+    """
+    Set API token for given provider or specifically to given device
+
+    :param token: the API token, defaults to None
+    :type token: Optional[str], optional
+    :param provider: _description_, defaults to None
+    :type provider: Optional[Union[str, Provider]], optional
+    :param device: _description_, defaults to None
+    :type device: Optional[Union[str, Device]], optional
+    :param cached: whether save on the disk, defaults to True
+    :type cached: bool, optional
+    :return: _description_
+    :rtype: Dict[str, Any]
+    """
     global saved_token
     homedir = os.path.expanduser("~")
     authpath = os.path.join(homedir, ".tc.auth.json")
-    if provider is None:
-        provider = default_provider
-    provider = Provider.from_name(provider)
-    if device is not None:
-        device = Device.from_name(device, provider)
-    # if device is None:
-    #     device = default_device
+    provider, device = _preprocess(provider, device)
 
     if token is None:
         if cached and os.path.exists(authpath):
@@ -173,13 +211,23 @@ def get_token(
     provider: Optional[Union[str, Provider]] = None,
     device: Optional[Union[str, Device]] = None,
 ) -> Optional[str]:
+    """
+    Get API token setted for given provider or device,
+    if no device token saved, the corresponding provider tken is returned
+
+    :param provider: _description_, defaults to None
+    :type provider: Optional[Union[str, Provider]], optional
+    :param device: _description_, defaults to None
+    :type device: Optional[Union[str, Device]], optional
+    :return: _description_
+    :rtype: Optional[str]
+    """
     if provider is None:
-        provider = default_provider
+        provider = get_provider()
     provider = Provider.from_name(provider)
-    if device is not None:
-        device = Device.from_name(device, provider)
     target = provider.name + sep
     if device is not None:
+        device = Device.from_name(device, provider)
         target = target + device.name
     for k, v in saved_token.items():
         if k == target:
@@ -193,7 +241,17 @@ def get_token(
 
 def list_devices(
     provider: Optional[Union[str, Provider]] = None, token: Optional[str] = None
-) -> Any:
+) -> List[Device]:
+    """
+    List all devices under a provider
+
+    :param provider: _description_, defaults to None
+    :type provider: Optional[Union[str, Provider]], optional
+    :param token: _description_, defaults to None
+    :type token: Optional[str], optional
+    :return: _description_
+    :rtype: Any
+    """
     if provider is None:
         provider = default_provider
     provider = Provider.from_name(provider)
@@ -212,13 +270,26 @@ def list_properties(
     device: Optional[Union[str, Device]] = None,
     token: Optional[str] = None,
 ) -> Dict[str, Any]:
-    if provider is not None and device is None:
-        provider, device = None, provider
-    if device is None:
-        device = default_device
-    device = Device.from_name(device, provider)
-    if provider is None:
-        provider = device.provider
+    """
+    List properties of a given device
+
+    :param provider: _description_, defaults to None
+    :type provider: Optional[Union[str, Provider]], optional
+    :param device: _description_, defaults to None
+    :type device: Optional[Union[str, Device]], optional
+    :param token: _description_, defaults to None
+    :type token: Optional[str], optional
+    :return: Propeties dict
+    :rtype: Dict[str, Any]
+    """
+    # if provider is not None and device is None:
+    #     provider, device = None, provider
+    # if device is None:
+    #     device = default_device
+    # device = Device.from_name(device, provider)
+    # if provider is None:
+    #     provider = device.provider
+    provider, device = _preprocess(provider, device)
 
     if token is None:
         token = device.get_token()  # type: ignore
@@ -233,6 +304,18 @@ def get_task(
     provider: Optional[Union[str, Provider]] = None,
     device: Optional[Union[str, Device]] = None,
 ) -> Task:
+    """
+    Get ``Task`` object from task string, the binding device can also be provided
+
+    :param taskid: _description_
+    :type taskid: str
+    :param provider: _description_, defaults to None
+    :type provider: Optional[Union[str, Provider]], optional
+    :param device: _description_, defaults to None
+    :type device: Optional[Union[str, Device]], optional
+    :return: _description_
+    :rtype: Task
+    """
     if provider is not None and device is None:
         provider, device = None, provider
     if device is not None:  # device can be None for identify tasks
@@ -272,17 +355,18 @@ def submit_task(
     token: Optional[str] = None,
     **task_kws: Any,
 ) -> List[Task]:
-    if device is None:
-        device = get_device()
-    if isinstance(device, str):
-        if len(device.split(sep)) > 1:
-            device = Device(device, provider)
-        else:
-            if provider is None:
-                provider = get_provider()
-            device = Device(device, provider)
-    if provider is None:
-        provider = device.provider
+    # if device is None:
+    #     device = get_device()
+    # if isinstance(device, str):
+    #     if len(device.split(sep)) > 1:
+    #         device = Device(device, provider)
+    #     else:
+    #         if provider is None:
+    #             provider = get_provider()
+    #         device = Device(device, provider)
+    # if provider is None:
+    #     provider = device.provider
+    provider, device = _preprocess(provider, device)
 
     if token is None:
         token = device.get_token()  # type: ignore
