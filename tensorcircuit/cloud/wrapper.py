@@ -2,7 +2,6 @@
 higher level wrapper shortcut for submit_task
 """
 from typing import Any, Callable, List, Optional, Sequence, Union
-import time
 
 import numpy as np
 

@@ -3,13 +3,47 @@ Abstraction for Provider, Device and Task
 """
 
 from typing import Any, Dict, List, Optional, Union
+from functools import partial
 import time
 
 from ..results import readout_mitigation as rem
 from ..results import counts
+from ..utils import arg_alias
+
+
+class TCException(BaseException):
+    pass
+
+
+class TaskException(TCException):
+    pass
+
+
+class TaskUnfinished(TaskException):
+    def __init__(self, taskid: str, state: str):
+        self.taskid = taskid
+        self.state = state
+        super().__init__(
+            "Task %s is not completed yet, now in %s state" % (self.taskid, self.state)
+        )
+
+
+class TaskFailed(TaskException):
+    def __init__(self, taskid: str, state: str, message: str):
+        self.taskid = taskid
+        self.state = state
+        self.message = message
+        super().__init__(
+            "Task %s is in %s state with err message %s"
+            % (self.taskid, self.state, self.message)
+        )
 
 
 class Provider:
+    """
+    Provider abstraction for cloud connection, eg. "tencent", "local"
+    """
+
     activated_providers: Dict[str, "Provider"] = {}
 
     def __init__(self, name: str, lower: bool = True):
@@ -70,6 +104,10 @@ sep = "::"
 
 
 class Device:
+    """
+    Device abstraction for cloud connection, eg. quantum chips
+    """
+
     activated_devices: Dict[str, "Device"] = {}
 
     def __init__(
@@ -156,6 +194,10 @@ sep2 = "~~"
 
 
 class Task:
+    """
+    Task abstraction for quantum jobs on the cloud
+    """
+
     def __init__(self, id_: str, device: Optional[Device] = None):
         self.id_ = id_
         self.device = device
@@ -166,27 +208,52 @@ class Task:
     __str__ = __repr__
 
     def get_device(self) -> Device:
+        """
+        Query which device the task is run on
+
+        :return: _description_
+        :rtype: Device
+        """
         if self.device is None:
             return Device.from_name(self.details()["device"])
         else:
             return Device.from_name(self.device)
 
     def details(self) -> Dict[str, Any]:
+        """
+        Get the current task details
+
+        :return: _description_
+        :rtype: Dict[str, Any]
+        """
         from .apis import get_task_details
 
         return get_task_details(self)
 
     def state(self) -> str:
+        """
+        Query the current task status
+
+        :return: _description_
+        :rtype: str
+        """
         r = self.details()
         return r["state"]  # type: ignore
 
     status = state
 
     def resubmit(self) -> "Task":
+        """
+        resubmit the task
+
+        :return: the resubmitted task
+        :rtype: Task
+        """
         from .apis import resubmit_task
 
         return resubmit_task(self)
 
+    @partial(arg_alias, alias_dict={"format": ["format_"]})
     def results(
         self,
         format: Optional[str] = None,
@@ -195,28 +262,47 @@ class Task:
         calibriation_options: Optional[Dict[str, Any]] = None,
         readout_mit: Optional[rem.ReadoutMit] = None,
         mitigation_options: Optional[Dict[str, Any]] = None,
-    ) -> Any:
-        # TODO(@refraction-ray): support different formats compatible with tc,
-        # also support format_ alias
+    ) -> counts.ct:
+        """
+        get task results of the qjob
+
+        :param format: unsupported now, defaults to None, which is "count_dict_bin"
+        :type format: Optional[str], optional
+        :param blocked: whether blocked to wait until the result is returned, defaults to False,
+            which raise error when the task is unfinished
+        :type blocked: bool, optional
+        :param mitigated: whether enable readout error mitigation, defaults to False
+        :type mitigated: bool, optional
+        :param calibriation_options: option dict for ``ReadoutMit.cals_from_system``,
+            defaults to None
+        :type calibriation_options: Optional[Dict[str, Any]], optional
+        :param readout_mit: if given, directly use the calibriation info on ``readout_mit``,
+            defaults to None
+        :type readout_mit: Optional[rem.ReadoutMit], optional
+        :param mitigation_options: option dict for ``ReadoutMit.apply_correction``, defaults to None
+        :type mitigation_options: Optional[Dict[str, Any]], optional
+        :return: count dict results
+        :rtype: Any
+        """
         if not blocked:
-            if self.state() != "completed":
-                raise ValueError("Task %s is not completed yet" % self.id_)
+            s = self.state()
+            if s != "completed":
+                raise TaskUnfinished(self.id_, s)
             r = self.details()["results"]
             r = counts.sort_count(r)  # type: ignore
         else:
             s = self.state()
+            tries = 0
             while s != "completed":
                 if s in ["failed"]:
                     err = self.details().get("err", "")
-                    raise ValueError(
-                        "Task %s is in %s state with err message %s"
-                        % (self.id_, s, err)
-                    )
-                time.sleep(0.5)
+                    raise TaskFailed(self.id_, s, err)
+                time.sleep(0.5 + tries / 10)
+                tries += 1
                 s = self.state()
             r = self.results(format=format, blocked=False, mitigated=False)
         if mitigated is False:
-            return r
+            return r  # type: ignore
         nqubit = len(list(r.keys())[0])
 
         # mitigated is True:
@@ -228,12 +314,13 @@ class Task:
                 """
                 from .apis import submit_task
 
-                ts = []
-                for c in cs:
-                    ts.append(
-                        submit_task(circuit=c, shots=shots, device=self.get_device())
-                    )
-                    time.sleep(0.3)
+                # ts = []
+                # for c in cs:
+                #     ts.append(
+                #         submit_task(circuit=c, shots=shots, device=self.get_device())
+                #     )
+                #     time.sleep(0.3)
+                ts = submit_task(circuit=cs, shots=shots, device=self.get_device())
                 return [t.results(blocked=True) for t in ts]  # type: ignore
 
             shots = self.details()["shots"]
