@@ -233,7 +233,7 @@ class Task:
                     ts.append(
                         submit_task(circuit=c, shots=shots, device=self.get_device())
                     )
-                    time.sleep(0.5)
+                    time.sleep(0.3)
                 return [t.results(blocked=True) for t in ts]  # type: ignore
 
             shots = self.details()["shots"]

@@ -26,9 +26,10 @@ def batch_submit_template(device: str) -> Callable[..., List[counts.ct]]:
             cs = [cs]  # type: ignore
             single = True
         ts = []
-        for c in cs:  # type: ignore
-            ts.append(submit_task(circuit=c, shots=shots, device=device))
-            time.sleep(0.5)
+        # for c in cs:  # type: ignore
+        #     ts.append(submit_task(circuit=c, shots=shots, device=device))
+        #     time.sleep(0.3)
+        ts = submit_task(circuit=cs, shots=shots, device=device)
         l = [t.results(blocked=True) for t in ts]  # type: ignore
         if single is False:
             return l
