@@ -22,12 +22,29 @@ avail_providers = ["tencent", "local"]
 
 
 def list_providers() -> List[Provider]:
+    """
+    list all providers that tensorcircuit supports
+
+    :return: _description_
+    :rtype: List[Provider]
+    """
     return [get_provider(s) for s in avail_providers]
 
 
 def set_provider(
     provider: Optional[Union[str, Provider]] = None, set_global: bool = True
 ) -> Provider:
+    """
+    set default provider for the program
+
+    :param provider: _description_, defaults to None
+    :type provider: Optional[Union[str, Provider]], optional
+    :param set_global: whether set, defaults to True,
+        if False, equivalent to ``get_provider``
+    :type set_global: bool, optional
+    :return: _description_
+    :rtype: Provider
+    """
     if provider is None:
         provider = default_provider
     provider = Provider.from_name(provider)
@@ -41,7 +58,7 @@ def set_provider(
 set_provider()
 get_provider = partial(set_provider, set_global=False)
 
-default_device = Device.from_name("tencent::simulator:aer")
+default_device = Device.from_name("tencent::simulator:tc")
 
 
 def set_device(
@@ -49,8 +66,23 @@ def set_device(
     device: Optional[Union[str, Device]] = None,
     set_global: bool = True,
 ) -> Device:
+    """
+    _summary_
+
+    :param provider: provider of the device, defaults to None
+    :type provider: Optional[Union[str, Provider]], optional
+    :param device: the device, defaults to None
+    :type device: Optional[Union[str, Device]], optional
+    :param set_global: whether set, defaults to True,
+        if False, equivalent to ``get_device``, defaults to True
+    :type set_global: bool, optional
+    :return: _description_
+    :rtype: Device
+    """
     if provider is not None and device is None:
         provider, device = None, provider
+    if device is None and provider is not None:
+        raise ValueError("Please specify the device apart from the provider")
     if device is None:
         device = default_device
 

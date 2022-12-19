@@ -34,6 +34,7 @@ def submit_task(
     shots: Union[int, Sequence[int]] = 1024,
     version: str = "1",
     circuit: Optional[Union[AbstractCircuit, Sequence[AbstractCircuit]]] = None,
+    **kws: Any
 ) -> List[Task]:
     def _circuit2result(c: AbstractCircuit) -> Dict[str, Any]:
         if device.name == "testing":

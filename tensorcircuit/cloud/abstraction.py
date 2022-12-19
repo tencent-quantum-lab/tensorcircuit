@@ -125,10 +125,14 @@ class Device:
             else:
                 self.name = name
         else:  # no explicit provider
-            if len(name.split(sep)) == 1:
-                name = "tencent" + sep + name  # default provider
-            self.name = name.split(sep)[1]
-            self.provider = Provider.from_name(name.split(sep)[0])
+            if len(name.split(sep)) > 1:
+                self.name = name.split(sep)[1]
+                self.provider = Provider.from_name(name.split(sep)[0])
+            else:
+                from .apis import get_provider
+
+                self.name = name
+                self.provider = get_provider()
 
     def __str__(self) -> str:
         return self.provider.name + sep + self.name
@@ -138,11 +142,11 @@ class Device:
     @classmethod
     def from_name(
         cls,
-        device: Optional[Union[str, "Device"]] = None,
+        device: Union[str, "Device"],
         provider: Optional[Union[str, Provider]] = None,
     ) -> "Device":
-        if device is None:
-            raise ValueError("Must specify on device instead of default ``None``")
+        # if device is None:
+        # raise ValueError("Must specify on device instead of default ``None``")
         if isinstance(device, cls):
             d = device
         elif isinstance(device, str):
