@@ -359,7 +359,10 @@ def expectation_noisfy(
     if noise_conf is None:
         noise_conf = NoiseConf()
 
-    num_quantum = c.gate_count(list(noise_conf.nc.keys()))
+    lgate = list(noise_conf.nc.keys())
+    if "readout" in lgate:
+        lgate.remove("readout")
+    num_quantum = c.gate_count(lgate)
 
     if noise_conf.has_readout is True:
         logger.warning("expectation_ps_noisfy can't support readout error.")

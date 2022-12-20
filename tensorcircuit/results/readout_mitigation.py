@@ -2,6 +2,7 @@
 readout error mitigation functionalities
 """
 # Part of the code in this file is from mthree: https://github.com/Qiskit-Partners/mthree (Apache2)
+# https://journals.aps.org/prxquantum/pdf/10.1103/PRXQuantum.2.040326
 
 from typing import Any, Callable, List, Sequence, Optional, Union
 import warnings
@@ -25,7 +26,7 @@ try:
 except ImportError:
     mthree_installed = False
 
-from .counts import count2vec, vec2count, ct, marginal_count
+from .counts import count2vec, vec2count, ct, marginal_count, expectation
 from ..circuit import Circuit
 from ..utils import is_sequence
 
@@ -61,12 +62,14 @@ class ReadoutMit:
         else:
             self.execute_fun = execute
 
-    def ubs(self, i: int) -> int:
+    def ubs(self, i: int, qubits: Optional[Sequence[Any]]) -> int:
         """
         Help omit calibration results that not in used qubit list.
 
         :param i: index
         :type i: int
+        :param qubits: used qubit list
+        :type qubits: Sequence[Any]
         :return: omitation related value
         :rtype: int
         """
@@ -74,23 +77,25 @@ class ReadoutMit:
         lisbs = [int(x) for x in name.format(i)]
 
         vomit = 0
-        for k in list(filter(lambda x: x not in self.use_qubits, self.cal_qubits)):  # type: ignore
+        for k in list(filter(lambda x: x not in qubits, self.cal_qubits)):  # type: ignore
             vomit += lisbs[self.cal_qubits.index(k)]  # type: ignore
         return vomit
 
-    def newrange(self, m: int) -> int:
+    def newrange(self, m: int, qubits: Optional[Sequence[Any]]) -> int:
         """
         Rerange the order according to used qubit list.
 
         :param m: index
         :type m: int
+        :param qubits: used qubit list
+        :type qubits: Sequence[Any]
         :return: new index
         :rtype: int
         """
         sorted_index = sorted(
-            range(len(self.use_qubits)), key=lambda k: self.use_qubits[k]  # type: ignore
+            range(len(qubits)), key=lambda k: qubits[k]  # type: ignore
         )
-        name = "{:0" + str(len(self.use_qubits)) + "b}"  # type: ignore
+        name = "{:0" + str(len(qubits)) + "b}"  # type: ignore
         lisbs = [int(x) for x in name.format(m)]
         lisbs2 = [lisbs[i] for i in sorted_index]
 
@@ -110,7 +115,10 @@ class ReadoutMit:
         """
 
         if qubits is None:
-            qubits = self.use_qubits
+            if self.use_qubits is not None:
+                qubits = self.use_qubits
+            else:
+                qubits = self.cal_qubits
 
         if self.local is False:
 
@@ -119,10 +127,10 @@ class ReadoutMit:
 
             m = 0
             for i in range(len(lbs)):
-                vv = self.ubs(i)
+                vv = self.ubs(i, qubits)
                 if vv == 0:
                     for s in lbs[i]:
-                        calmatrix[int(s, 2)][self.newrange(m)] = (
+                        calmatrix[int(s, 2)][self.newrange(m, qubits)] = (
                             lbs[i][s] / self.cal_shots
                         )
                     m += 1
@@ -289,7 +297,7 @@ class ReadoutMit:
         counts: ct,
         qubits: Sequence[int],
         distance: Optional[int] = None,
-        method: str = "square",
+        method: str = "constrained_least_square",
         max_iter: int = 25,
         tol: float = 1e-5,
         return_mitigation_overhead: bool = False,
@@ -328,10 +336,10 @@ class ReadoutMit:
         counts = marginal_count(counts, self.use_qubits)  # type: ignore
 
         # methods for small system, "global" calibration only fit for those methods.
-        if method == "inverse":
+        if method in ["inverse", "pseudo_inverse"]:
             mitcounts = self.apply_readout_mitigation(counts, method="inverse")
             return mitcounts
-        elif method == "square":
+        elif method in ["square", "constrained_least_square"]:
             mitcounts = self.apply_readout_mitigation(counts, method="square")
             return mitcounts
         if mthree_installed is False:
@@ -424,17 +432,24 @@ class ReadoutMit:
             )
             self._grab_additional_cals(missing_qubits, method=self.cal_method)  # type: ignore
 
-        if method == "Max1":
+        if method == "M3_auto":
+
+            if self.local is False:
+                raise ValueError("M3 methods need local calibration")
+
             current_free_mem = psutil.virtual_memory().available / 1024**3
             # First check if direct method can be run
             if num_elems <= self.iter_threshold and (
                 (num_elems**2 + num_elems) * 8 / 1024**3 < current_free_mem / 2
             ):
-                method = "direct"
+                method = "M3_direct"
             else:
-                method = "iterative"
+                method = "M3_iterative"
 
-        if method == "Max2":
+        if method == "M3_direct":
+            if self.local is False:
+                raise ValueError("M3 methods need local calibration")
+
             st = perf_counter()
             mit_counts, col_norms, gamma = self._direct_solver(
                 counts, qubits, distance, return_mitigation_overhead
@@ -449,7 +464,10 @@ class ReadoutMit:
                 return mit_counts, info
             return mit_counts
 
-        elif method == "Max3":
+        elif method == "M3_iterative":
+            if self.local is False:
+                raise ValueError("M3 methods need local calibration")
+
             iter_count = np.zeros(1, dtype=int)
 
             def callback(_):  # type: ignore
@@ -571,3 +589,58 @@ class ReadoutMit:
         if details:
             return quasi, M.get_col_norms(), gamma
         return quasi, gamma
+
+    def expectation(
+        self,
+        counts: ct,
+        z: Optional[Sequence[int]] = None,
+        diagonal_op: Optional[Tensor] = None,
+        method: str = "constrained_least_square",
+    ) -> float:
+        """
+        Calculate expectation value after readout error mitigation
+
+        :param counts: raw counts
+        :type counts: ct
+        :param z: if defaults as None, then ``diagonal_op`` must be set
+            a list of qubit that we measure Z op on
+        :type z: Optional[Sequence[int]]
+        :param diagoal_op: shape [n, 2], explicitly indicate the diagonal op on each qubit
+            eg. [1, -1] for z [1, 1] for I, etc.
+        :type diagoal_op: Tensor
+        :param method: readout mitigation method, defaults to "constrained_least_square"
+        :type method: str, optional
+        :return: expectation value after readout error mitigation
+        :rtype: float
+        """
+        # https://arxiv.org/pdf/2006.14044.pdf
+
+        if z is None and diagonal_op is None:
+            raise ValueError("One of `z` and `diagonal_op` must be set")
+        n = len(list(counts.keys())[0])
+
+        if self.local is True:
+            inv_single_qubit_cals = []
+            for i in range(n):
+                inv_single_qubit_cals.append(np.linalg.pinv(self.single_qubit_cals[i]))
+
+            if z is None:
+                diagonal_op = [
+                    diagonal_op[i] @ inv_single_qubit_cals[i]
+                    for i in range(diagonal_op)
+                ]
+            else:
+                diagonal_op = [
+                    [1, -1] @ inv_single_qubit_cals[i]
+                    if i in z
+                    else [1, 1] @ inv_single_qubit_cals[i]
+                    for i in range(n)
+                ]
+
+            mit_value = expectation(counts, diagonal_op=diagonal_op)
+
+        else:
+            mit_count = self.apply_correction(counts, list(range(n)), method=method)
+            mit_value = expectation(mit_count, z, diagonal_op)
+
+        return mit_value
