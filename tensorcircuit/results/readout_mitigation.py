@@ -2,6 +2,7 @@
 readout error mitigation functionalities
 """
 # Part of the code in this file is from mthree: https://github.com/Qiskit-Partners/mthree (Apache2)
+# https://journals.aps.org/prxquantum/pdf/10.1103/PRXQuantum.2.040326
 
 from typing import Any, Callable, List, Sequence, Optional, Union
 import warnings
@@ -338,7 +339,7 @@ class ReadoutMit:
         if method in ["inverse", "pseudo_inverse"]:
             mitcounts = self.apply_readout_mitigation(counts, method="inverse")
             return mitcounts
-        elif method == "constrained_least_square":
+        elif method in ["square", "constrained_least_square"]:
             mitcounts = self.apply_readout_mitigation(counts, method="square")
             return mitcounts
         if mthree_installed is False:
@@ -612,6 +613,7 @@ class ReadoutMit:
         :return: expectation value after readout error mitigation
         :rtype: float
         """
+        # https://arxiv.org/pdf/2006.14044.pdf
 
         if z is None and diagonal_op is None:
             raise ValueError("One of `z` and `diagonal_op` must be set")

@@ -122,7 +122,7 @@ def test_readout_expv():
 
     mit = ReadoutMit(execute=run)
     mit.cals_from_system(cal_qubits, shots=100000, method="global")
-    mit_value2 = mit.expectation(raw_count, z=[0, 1], method="inverse")
+    mit_value2 = mit.expectation(raw_count, z=[0, 1], method="square")
 
     np.testing.assert_allclose(idea_value, mit_value, atol=1e-2)
     np.testing.assert_allclose(idea_value, mit_value1, atol=1e-2)
