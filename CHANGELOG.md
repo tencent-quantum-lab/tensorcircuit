@@ -6,13 +6,15 @@
 
 - Add `c.probability()` method to return probability amplitude
 
-- Add results module including funtionalities on count dict manipulation and readout error mitigation
+- Add results module including funtionalities on count dict manipulation and readout error mitigation (local/global calibriation, scalable counts and expectation mitigation from research papers)
 
 ### Fixed
 
 - Fix adjoint possible bug with agnostic backend
 
 - Fix `sigmoid` bug on pytorch backend
+
+- Ignore ComplexWarning for ``cast`` method on numpy and jax backend
 
 ## 0.6.0
 
