@@ -30,6 +30,7 @@ def test_expectation():
 
 
 def run(cs, shots):
+    # customized backend for mitigation test
     nqubit = cs[0]._nqubits
     gg = []
     for i in range(2 * nqubit):

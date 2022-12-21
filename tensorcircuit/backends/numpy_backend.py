@@ -4,6 +4,7 @@ Backend magic inherited from tensornetwork: numpy backend
 # pylint: disable=invalid-name
 
 import logging
+import warnings
 from typing import Any, Callable, Optional, Sequence, Tuple, Union
 
 import numpy as np
@@ -205,9 +206,11 @@ class NumpyBackend(numpy_backend.NumPyBackend, ExtendedBackend):  # type: ignore
         return np.imag(a)
 
     def cast(self, a: Tensor, dtype: str) -> Tensor:
-        if isinstance(dtype, str):
-            return a.astype(getattr(np, dtype))
-        return a.astype(dtype)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", np.ComplexWarning)
+            if isinstance(dtype, str):
+                return a.astype(getattr(np, dtype))
+            return a.astype(dtype)
 
     def arange(self, start: int, stop: Optional[int] = None, step: int = 1) -> Tensor:
         if stop is None:

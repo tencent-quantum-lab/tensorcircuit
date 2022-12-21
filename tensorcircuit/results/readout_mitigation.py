@@ -7,7 +7,6 @@ readout error mitigation functionalities
 from typing import Any, Callable, List, Sequence, Optional, Union
 import warnings
 from time import perf_counter
-import psutil
 
 import numpy as np
 import scipy.linalg as la
@@ -400,6 +399,8 @@ class ReadoutMit:
         return_mitigation_overhead=False,
         details=False,
     ):
+        if self.local is False:
+            raise ValueError("M3 methods need local calibration")
 
         # This is needed because counts is a Counts object in Qiskit not a dict.
         counts = dict(counts)
@@ -434,8 +435,7 @@ class ReadoutMit:
 
         if method == "M3_auto":
 
-            if self.local is False:
-                raise ValueError("M3 methods need local calibration")
+            import psutil
 
             current_free_mem = psutil.virtual_memory().available / 1024**3
             # First check if direct method can be run
@@ -447,9 +447,6 @@ class ReadoutMit:
                 method = "M3_iterative"
 
         if method == "M3_direct":
-            if self.local is False:
-                raise ValueError("M3 methods need local calibration")
-
             st = perf_counter()
             mit_counts, col_norms, gamma = self._direct_solver(
                 counts, qubits, distance, return_mitigation_overhead
@@ -465,9 +462,6 @@ class ReadoutMit:
             return mit_counts
 
         elif method == "M3_iterative":
-            if self.local is False:
-                raise ValueError("M3 methods need local calibration")
-
             iter_count = np.zeros(1, dtype=int)
 
             def callback(_):  # type: ignore

@@ -5,6 +5,7 @@ Backend magic inherited from tensornetwork: jax backend
 
 from functools import partial
 import logging
+import warnings
 from typing import Any, Callable, Optional, Sequence, Tuple, Union
 
 import numpy as np
@@ -306,9 +307,11 @@ class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
         return a.dtype.__str__()  # type: ignore
 
     def cast(self, a: Tensor, dtype: str) -> Tensor:
-        if isinstance(dtype, str):
-            return a.astype(getattr(jnp, dtype))
-        return a.astype(dtype)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", np.ComplexWarning)
+            if isinstance(dtype, str):
+                return a.astype(getattr(jnp, dtype))
+            return a.astype(dtype)
 
     def arange(self, start: int, stop: Optional[int] = None, step: int = 1) -> Tensor:
         if stop is None:
