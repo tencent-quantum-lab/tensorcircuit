@@ -344,3 +344,18 @@ class Task:
             r, list(range(nqubit)), **mitigation_options
         )
         return counts.sort_count(miti_count)
+
+    def get_compiled_details(self) -> Any:
+        """
+        Experimental, the compiled artifact format is not guaranteed
+
+        :return: [description]
+        :rtype: Any
+        """
+        results = {}
+        d = self.details()
+        if "source" in d:
+            results["frontend"] = d["source"]
+        if "optimization" in d and d["state"] == "completed":
+            results["backend"] = d["optimization"]
+        return results

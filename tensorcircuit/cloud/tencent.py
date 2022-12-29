@@ -93,6 +93,50 @@ def submit_task(
     enable_qos_initial_mapping: bool = False,
     qos_dry_run: bool = False,
 ) -> List[Task]:
+    """
+    Submit task via tencent provider
+
+    :param device: [description]
+    :type device: Device
+    :param token: [description]
+    :type token: str
+    :param lang: language choice for ``source``, defaults to "OPENQASM"
+    :type lang: str, optional
+    :param shots: number of measurement shots, defaults to 1024
+    :type shots: Union[int, Sequence[int]], optional
+    :param version: submit task protocol version, defaults to "1"
+    :type version: str, optional
+    :param prior: priority for the task queue, defaults to 1
+    :type prior: int, optional
+    :param circuit: tensorcircuit or qiskit circuit object, defaults to None
+    :type circuit: Optional[Union[AbstractCircuit, Sequence[AbstractCircuit]]], optional
+    :param source: directly given circuit representation, defaults to None
+    :type source: Optional[Union[str, Sequence[str]]], optional
+    :param remarks: remarks on the task, defaults to None
+    :type remarks: Optional[str], optional
+    :param compiling: whether compiling in tc via qiskit compiling system,
+        defaults to False
+    :type compiling: bool, optional
+    :param compiled_options: compiling options for qiskit ``transpile`` method,
+        defaults to None
+    :type compiled_options: Optional[Dict[str, Any]], optional
+    :param measure: which group of qubit to measure,
+        defaults to None, the measure result is in the order of qubit index
+        instead of the ``measure`` list
+    :type measure: Optional[Sequence[int]], optional
+    :param enable_qos_qubit_mapping: whether to insert swap if necessary in qos, defaults to True
+    :type enable_qos_qubit_mapping: bool, optional
+    :param enable_qos_gate_decomposition: whether to compile the gate in qos, defaults to True
+    :type enable_qos_gate_decomposition: bool, optional
+    :param enable_qos_initial_mapping: whether to run an initial qubit mapping in qos,
+        defaults to False
+    :type enable_qos_initial_mapping: bool, optional
+    :param qos_dry_run: when dry run, only compiled circuit is returned (no real circuit execution),
+        defaults to False
+    :type qos_dry_run: bool, optional
+    :return: Task object or List of Task for batch submission
+    :rtype: List[Task]
+    """
     if source is None:
         if compiled_options is None:
             compiled_options = {
