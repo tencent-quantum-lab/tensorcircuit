@@ -88,6 +88,10 @@ def submit_task(
     compiling: bool = False,
     compiled_options: Optional[Dict[str, Any]] = None,
     measure: Optional[Sequence[int]] = None,
+    enable_qos_qubit_mapping: bool = True,
+    enable_qos_gate_decomposition: bool = True,
+    enable_qos_initial_mapping: bool = False,
+    qos_dry_run: bool = False,
 ) -> List[Task]:
     if source is None:
         if compiled_options is None:
@@ -130,6 +134,21 @@ def submit_task(
         else:
             source = c2qasm(circuit, compiling)
         lang = "OPENQASM"
+
+    if len(device.name.split("?")) > 1:
+        device_str = device.name
+    else:
+        oint = 0
+        if enable_qos_qubit_mapping:
+            oint += 1
+        if enable_qos_gate_decomposition:
+            oint += 2
+        if enable_qos_initial_mapping:
+            oint += 4
+        device_str = device.name + "?o=" + str(oint)
+    if qos_dry_run:
+        device_str += "&dry"
+
     if is_sequence(source):
         # batched mode
         json = []
@@ -138,7 +157,7 @@ def submit_task(
         for sc, sh in zip(source, shots):  # type: ignore
             json.append(
                 {
-                    "device": device.name,
+                    "device": device_str,
                     "shots": sh,
                     "source": sc,
                     "version": version,
@@ -150,7 +169,7 @@ def submit_task(
 
     else:
         json = {  # type: ignore
-            "device": device.name,
+            "device": device_str,
             "shots": shots,
             "source": source,
             "version": version,
