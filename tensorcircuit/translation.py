@@ -63,14 +63,19 @@ def _merge_extra_qir(
     qir: List[Dict[str, Any]], extra_qir: List[Dict[str, Any]]
 ) -> List[Dict[str, Any]]:
     nqir = []
-    inds = {d["pos"]: d for d in extra_qir}
+    # caution on the same pos!
+    inds: Dict[int, List[Dict[str, Any]]] = {}
+    for d in extra_qir:
+        if d["pos"] not in inds:
+            inds[d["pos"]] = []
+        inds[d["pos"]].append(d)
     for i, q in enumerate(qir):
         if i in inds:
-            nqir.append(inds[i])
+            nqir += inds[i]
         nqir.append(q)
     for k in inds:
         if k >= len(qir):
-            nqir.append(inds[k])
+            nqir += inds[k]
     return nqir
 
 
@@ -101,7 +106,7 @@ def qir2qiskit(
     :return: qiskit QuantumCircuit object
     :rtype: Any
     """
-    if extra_qir is not None:
+    if extra_qir is not None and len(extra_qir) > 0:
         qir = _merge_extra_qir(qir, extra_qir)
         qiskit_circ = QuantumCircuit(n, n)
     else:

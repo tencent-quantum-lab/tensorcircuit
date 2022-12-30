@@ -25,7 +25,7 @@ try:
 except ImportError:
     mthree_installed = False
 
-from .counts import count2vec, vec2count, ct, marginal_count, expectation
+from .counts import count2vec, vec2count, ct, marginal_count, expectation, sort_count
 from ..circuit import Circuit
 from ..utils import is_sequence
 
@@ -333,7 +333,7 @@ class ReadoutMit:
             )
 
         counts = marginal_count(counts, self.use_qubits)  # type: ignore
-
+        shots = sum([v for _, v in counts.items()])
         # methods for small system, "global" calibration only fit for those methods.
         if method in ["inverse", "pseudo_inverse"]:
             mitcounts = self.apply_readout_mitigation(counts, method="inverse")
@@ -384,7 +384,11 @@ class ReadoutMit:
             )
 
         if not given_list:
-            return quasi_out[0]  # type: ignore
+            r = quasi_out[0]
+            r = sort_count(r)
+            r = {k: v * shots for k, v in r.items()}
+            return r  # type: ignore
+            # return quasi_out[0]  # type: ignore
         mitcounts = QuasiCollection(quasi_out)
         return mitcounts.nearest_probability_distribution()  # type: ignore
 
