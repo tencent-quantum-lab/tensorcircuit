@@ -139,6 +139,7 @@ class MPSCircuit(AbstractCircuit):
         self._nqubits = nqubits
         self._fidelity = 1.0
         self._qir: List[Dict[str, Any]] = []
+        self._extra_qir: List[Dict[str, Any]] = []
 
     # `MPSCircuit` does not has `replace_inputs` like `Circuit`
     # because the gates are immediately absorted into the MPS when applied,

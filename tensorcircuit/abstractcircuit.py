@@ -66,6 +66,7 @@ gate_aliases = [
 class AbstractCircuit:
     _nqubits: int
     _qir: List[Dict[str, Any]]
+    _extra_qir: List[Dict[str, Any]]
     inputs: Tensor
     circuit_param: Dict[str, Any]
     is_mps: bool
@@ -500,16 +501,54 @@ class AbstractCircuit:
             summary[d["name"]] = summary.get(d["name"], 0) + 1
         return summary
 
-    def to_qiskit(self) -> Any:
+    def measure_instruction(self, index: int) -> None:
+        """
+        add a measurement instruction flag, no effect on numerical simulation
+
+        :param index: the corresponding qubit
+        :type index: int
+        """
+        l = len(self._qir)
+        d = {
+            "index": index,
+            "name": "measure",
+            "gatef": "measure",
+            "instruction": True,
+            "pos": l,
+        }
+        self._extra_qir.append(d)
+
+    def reset_instruction(self, index: int) -> None:
+        """
+        add a reset instruction flag, no effect on numerical simulation
+
+        :param index: the corresponding qubit
+        :type index: int
+        """
+        l = len(self._qir)
+        d = {
+            "index": index,
+            "name": "reset",
+            "gatef": "reset",
+            "instruction": True,
+            "pos": l,
+        }
+        self._extra_qir.append(d)
+
+    def to_qiskit(self, enable_instruction: bool = False) -> Any:
         """
         Translate ``tc.Circuit`` to a qiskit QuantumCircuit object.
 
+        :param enable_instruction: whether also export measurement and reset instructions
+        :type enable_instruction: bool, defaults to False
         :return: A qiskit object of this circuit.
         """
         from .translation import qir2qiskit
 
         qir = self.to_qir()
-        return qir2qiskit(qir, n=self._nqubits)
+        if enable_instruction is False:
+            return qir2qiskit(qir, n=self._nqubits)
+        return qir2qiskit(qir, n=self._nqubits, extra_qir=self._extra_qir)
 
     def to_openqasm(self, **kws: Any) -> str:
         """
@@ -520,7 +559,7 @@ class AbstractCircuit:
         :return: circuit representation in openqasm format
         :rtype: str
         """
-        return self.to_qiskit().qasm(**kws)  # type: ignore
+        return self.to_qiskit(enable_instruction=True).qasm(**kws)  # type: ignore
 
     @classmethod
     def from_openqasm(
@@ -561,7 +600,7 @@ class AbstractCircuit:
         q_2: ┤ X ├─────
              └───┘
         """
-        return self.to_qiskit().draw(**kws)
+        return self.to_qiskit(enable_instruction=True).draw(**kws)
 
     @classmethod
     def from_qiskit(

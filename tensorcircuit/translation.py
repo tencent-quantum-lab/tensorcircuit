@@ -59,7 +59,24 @@ def _get_float(parameters: Any, key: str, default: int = 0) -> float:
     return np.real(backend.numpy(gates.array_to_tensor(parameters.get(key, default)))).item()  # type: ignore
 
 
-def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
+def _merge_extra_qir(
+    qir: List[Dict[str, Any]], extra_qir: List[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
+    nqir = []
+    inds = {d["pos"]: d for d in extra_qir}
+    for i, q in enumerate(qir):
+        if i in inds:
+            nqir.append(inds[i])
+        nqir.append(q)
+    for k in inds:
+        if k >= len(qir):
+            nqir.append(inds[k])
+    return nqir
+
+
+def qir2qiskit(
+    qir: List[Dict[str, Any]], n: int, extra_qir: Optional[List[Dict[str, Any]]] = None
+) -> Any:
     r"""
     Generate a qiskit quantum circuit using the quantum intermediate
     representation (qir) in tensorcircuit.
@@ -78,10 +95,17 @@ def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
     :type qir: List[Dict[str, Any]]
     :param n: # of qubits
     :type n: int
+    :param extra_qir: The extra quantum IR of tc circuit including measure and reset on hardware,
+        defaults to None
+    :type extra_qir: Optional[List[Dict[str, Any]]]
     :return: qiskit QuantumCircuit object
     :rtype: Any
     """
-    qiskit_circ = QuantumCircuit(n)
+    if extra_qir is not None:
+        qir = _merge_extra_qir(qir, extra_qir)
+        qiskit_circ = QuantumCircuit(n, n)
+    else:
+        qiskit_circ = QuantumCircuit(n)
     for gate_info in qir:
         index = gate_info["index"]
         gate_name = str(gate_info["gatef"])
@@ -164,6 +188,10 @@ def qir2qiskit(qir: List[Dict[str, Any]], n: int) -> Any:
                 )
             )
             qiskit_circ.unitary(qop, index[::-1], label=qis_name)
+        elif gate_name == "measure":
+            qiskit_circ.measure(index, index)
+        elif gate_name == "reset":
+            qiskit_circ.reset(index)
         else:  # r cr any gate
             gatem = np.reshape(
                 backend.numpy(gate_info["gatef"](**parameters).tensor),
@@ -305,6 +333,16 @@ def qiskit2tc(
                 tc_circuit.multicontrol(
                     *idx, ctrl=ctrl_state, unitary=base_gate.to_matrix()
                 )
+        elif gate_name == "measure":
+            tc_circuit.measure_instruction(*idx)
+            # logger.warning(
+            #     "qiskit to tc translation currently doesn't support measure instruction, just skipping"
+            # )
+        elif gate_name == "reset":
+            tc_circuit.reset_instruction(*idx)
+            # logger.warning(
+            #     "qiskit to tc translation currently doesn't support reset instruction, just skipping"
+            # )
         else:  # unitary gate
             idx_inverse = (x for x in idx[::-1])
             tc_circuit.any(*idx_inverse, unitary=gate_info[0].to_matrix())
