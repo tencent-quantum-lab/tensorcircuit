@@ -109,6 +109,7 @@ class Circuit(BaseCircuit):
         # self._qcode = ""  # deprecated
         # self._qcode += str(self._nqubits) + "\n"
         self._qir: List[Dict[str, Any]] = []
+        self._extra_qir: List[Dict[str, Any]] = []
 
     def replace_mps_inputs(self, mps_inputs: QuOperator) -> None:
         """

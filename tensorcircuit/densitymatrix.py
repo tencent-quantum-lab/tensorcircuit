@@ -128,6 +128,7 @@ class DMCircuit(BaseCircuit):
         }
 
         self._qir: List[Dict[str, Any]] = []
+        self._extra_qir: List[Dict[str, Any]] = []
 
     def _double_nodes_front(self) -> None:
         lnodes, lfront = self.copy(self._nodes, self._front, conj=True)

@@ -1232,6 +1232,7 @@ def test_to_openqasm():
     c.rzz(0, 1, theta=-1.0)
     c.ccx(1, 2, 0)
     c.u(2, theta=0.5, lbd=1.3)
+    c.measure_instruction(1)
     print(c.to_openqasm(formatted=True))
     s = c.to_openqasm()
     c1 = tc.Circuit.from_openqasm(s)

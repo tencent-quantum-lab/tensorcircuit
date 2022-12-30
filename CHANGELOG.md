@@ -8,6 +8,12 @@
 
 - Add results module including funtionalities on count dict manipulation and readout error mitigation (local/global calibriation, scalable counts and expectation mitigation from research papers)
 
+- Add `_extra_qir` to store information on hardware level measurement and reset
+
+- Add `enable_instruction` option in `to_qiskit` method that enables measurements in qiskit export
+
+- Add circuit method `measure_instruction` and `reset_instruction` for hardware level instruction flags
+
 ### Fixed
 
 - Fix adjoint possible bug with agnostic backend
