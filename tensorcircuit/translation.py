@@ -2,7 +2,7 @@
 Circuit object translation in different packages
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from copy import deepcopy
 import logging
 import numpy as np
@@ -463,3 +463,32 @@ def json2qir(tcqasm: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             }
         )
     return qir
+
+
+def eqasm2tc(
+    eqasm: str, nqubits: Optional[int] = None, headers: Tuple[int, int] = (6, 1)
+) -> Circuit:
+    eqasm_list = eqasm.split("\n")
+    if nqubits is None:
+        nqubits = len(eqasm_list[2].split(","))
+    eqasm_list = eqasm_list[headers[0] : -headers[1]]
+    c = Circuit(nqubits)
+    # measure z not considered
+    for inst in eqasm_list:
+        if inst.startswith("bs"):
+            inst_list = inst.split(" ")
+            if inst_list[2].startswith("RZ"):
+                exponent = int(inst_list[2][3:])
+                index = (int(inst_list[3][1:]),)
+                c.rz(*index, theta=2 * np.pi / 2**exponent)  # type: ignore
+            else:
+                gate_name = inst_list[2].lower()
+                if len(inst_list) == 4:
+                    index = (int(inst_list[3][1:]),)
+                elif len(inst_list) == 5:
+                    index = (int(inst_list[3][2:-1]), int(inst_list[4][1:-1]))  # type: ignore
+                else:
+                    raise ValueError("Unknown format for eqasm: %s" % str(inst_list))
+                getattr(c, gate_name)(*index)
+
+    return c
