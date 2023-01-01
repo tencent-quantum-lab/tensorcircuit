@@ -143,7 +143,7 @@ def submit_task(
     if source is None:
         if compiled_options is None:
             compiled_options = {
-                "basis_gates": ["h", "rz", "x", "y", "z", "cx"],
+                "basis_gates": ["h", "rz", "x", "y", "z", "cx", "cz"],
                 "optimization_level": 2,
             }
 
