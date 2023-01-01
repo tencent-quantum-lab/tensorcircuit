@@ -223,7 +223,7 @@ class Task:
         else:
             return Device.from_name(self.device)
 
-    def details(self) -> Dict[str, Any]:
+    def details(self, **kws: Any) -> Dict[str, Any]:
         """
         Get the current task details
 
@@ -232,7 +232,7 @@ class Task:
         """
         from .apis import get_task_details
 
-        return get_task_details(self)
+        return get_task_details(self, **kws)
 
     def state(self) -> str:
         """
@@ -344,18 +344,3 @@ class Task:
             r, list(range(nqubit)), **mitigation_options
         )
         return counts.sort_count(miti_count)
-
-    def get_compiled_details(self) -> Any:
-        """
-        Experimental, the compiled artifact format is not guaranteed
-
-        :return: [description]
-        :rtype: Any
-        """
-        results = {}
-        d = self.details()
-        if "source" in d:
-            results["frontend"] = d["source"]
-        if "optimization" in d and d["state"] == "completed":
-            results["backend"] = d["optimization"]
-        return results

@@ -22,7 +22,9 @@ def list_devices(token: Optional[str] = None) -> List[Device]:
     return rs
 
 
-def get_task_details(task: Task, device: Device, token: str) -> Dict[str, Any]:
+def get_task_details(
+    task: Task, device: Device, token: str, prettify: bool
+) -> Dict[str, Any]:
     if task.id_ in task_list:
         return task_list[task.id_]  # type: ignore
     raise ValueError("no task with id: %s" % task.id_)

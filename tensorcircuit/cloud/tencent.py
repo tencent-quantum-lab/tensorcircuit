@@ -3,6 +3,7 @@ Cloud provider from Tencent
 """
 
 from typing import Any, Dict, List, Optional, Sequence, Union
+from datetime import datetime
 from json import dumps
 import logging
 from functools import partial
@@ -13,6 +14,8 @@ from .utils import rpost_json
 from .abstraction import Device, sep, Task
 from ..abstractcircuit import AbstractCircuit
 from ..utils import is_sequence, arg_alias
+from ..circuit import Circuit
+from ..translation import eqasm2tc
 
 logger = logging.getLogger(__name__)
 
@@ -288,7 +291,9 @@ def list_tasks(device: Device, token: str, **filter_kws: Any) -> List[Task]:
         raise ValueError(dumps(r))
 
 
-def get_task_details(task: Task, device: Device, token: str) -> Dict[str, Any]:
+def get_task_details(
+    task: Task, device: Device, token: str, prettify: bool
+) -> Dict[str, Any]:
     json = {"id": task.id_}
     r = rpost_json(
         tencent_base_url + "task/detail", json=json, headers=tencent_headers(token)
@@ -300,7 +305,20 @@ def get_task_details(task: Task, device: Device, token: str) -> Dict[str, Any]:
                 r["task"]["results"] = r["task"]["result"]["counts"]
             else:
                 r["task"]["results"] = r["task"]["result"]
-        return r["task"]  # type: ignore
+        if prettify is False:
+            return r["task"]  # type: ignore
+        # make the results more readable
+        r = r["task"]
+        if "at" in r:
+            r["at"] = datetime.fromtimestamp(r["at"] / 1e6)
+        if "ts" in r:
+            for k in r["ts"]:
+                r["ts"][k] = datetime.fromtimestamp(r["ts"][k] / 1e6)
+        if "source" in r:
+            r["frontend"] = Circuit.from_openqasm(r["source"])
+        if "optimization" in r and r["state"] == "completed":
+            r["backend"] = eqasm2tc(r["optimization"]["progs"][0]["code"])
+        return r  # type: ignore
     except KeyError:
         raise ValueError(dumps(r))
 

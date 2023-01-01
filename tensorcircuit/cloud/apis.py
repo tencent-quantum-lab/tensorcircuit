@@ -327,7 +327,7 @@ def get_task(
 
 
 def get_task_details(
-    taskid: Union[str, Task], token: Optional[str] = None
+    taskid: Union[str, Task], token: Optional[str] = None, prettify: bool = False
 ) -> Dict[str, Any]:
     """
     Get task details dict given task id
@@ -336,6 +336,9 @@ def get_task_details(
     :type taskid: Union[str, Task]
     :param token: _description_, defaults to None
     :type token: Optional[str], optional
+    :param prettify: whether make the returned dict more readable and more phythonic,
+        defaults to False
+    :type prettify: bool
     :return: _description_
     :rtype: Dict[str, Any]
     """
@@ -352,9 +355,9 @@ def get_task_details(
     provider = device.provider
 
     if provider.name == "tencent":
-        return tencent.get_task_details(task, device, token)  # type: ignore
+        return tencent.get_task_details(task, device, token, prettify)  # type: ignore
     elif provider.name == "local":
-        return local.get_task_details(task, device, token)  # type: ignore
+        return local.get_task_details(task, device, token, prettify)  # type: ignore
     else:
         raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
 
