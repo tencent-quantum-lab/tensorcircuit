@@ -56,6 +56,7 @@ def test_inputs_multiple(backend):
     n = 3
     p = 0.1
     K = tc.backend
+    torchb = tc.get_backend("pytorch")
 
     def f(state, noise, weights):
         c = tc.Circuit(n, inputs=state)
@@ -66,8 +67,11 @@ def test_inputs_multiple(backend):
         return K.real(c.expectation_ps(x=[0]))
 
     layer = tc.TorchLayer(f, [n], use_vmap=True, vectorized_argnums=[0, 1])
-    l = layer(
-        tc.get_backend("pytorch").ones([2, 2**n]) / 2 ** (n / 2),
-        0.2 * tc.get_backend("pytorch").ones([2, n], dtype="float32"),
-    )
+    state = torchb.ones([2, 2**n]) / 2 ** (n / 2)
+    noise = 0.2 * torchb.ones([2, n], dtype="float32")
+    l = layer(state, noise)
+    lsum = torchb.sum(l)
     print(l)
+    lsum.backward()
+    for p in layer.parameters():
+        print(p.grad)

@@ -692,6 +692,11 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend, ExtendedBackend): 
             t.watch(inputs)
             y = f(*inputs)
         g = t.gradient(y, inputs, v)
+        g = list(g)
+        for i, gi in enumerate(g):
+            if gi is None:
+                g[i] = tf.zeros_like(inputs[i])
+        g = tuple(g)
         if one_input:
             g = g[0]
         return y, g

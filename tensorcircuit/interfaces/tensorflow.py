@@ -58,7 +58,7 @@ def tensorflow_interface(
         f = tc.interfaces.tf_interface(f, ydtype=tf.float32, jit=True)
 
         tfb = tc.get_backend("tensorflow")
-        grads = tfb.jit(tfb.grad(f))(tc.get_backend("tensorflow").ones([2]))
+        grads = tfb.jit(tfb.grad(f))(tfb.ones([2]))
 
     :param fun: The quantum function with tensor in and tensor out
     :type fun: Callable[..., Any]
