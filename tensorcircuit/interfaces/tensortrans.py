@@ -44,6 +44,8 @@ def which_backend(a: Tensor, return_backend: bool = True) -> Any:
 def tensor_to_numpy(t: Tensor) -> Array:
     if isinstance(t, int) or isinstance(t, float):
         return t
+    if t is None:
+        return
     return which_backend(t).numpy(t)
 
 

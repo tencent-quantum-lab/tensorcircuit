@@ -22,6 +22,8 @@
 
 - Ignore ComplexWarning for ``cast`` method on numpy and jax backend
 
+- Fix `vjp` method bug on tensorflow backend, where none is replaced with zeros
+
 ## 0.6.0
 
 ### Added

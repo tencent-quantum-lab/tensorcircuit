@@ -28,6 +28,8 @@ Overview of Modules
 
 - :py:mod:`tensorcircuit.densitymatrix`: Referenced and highly efficient implementation of ``tc.DMCircuit`` class, with similar set API of ``tc.Circuit`` while simulating the noise in the full form of the density matrix.
 
+- :py:mod:`tensorcircuit.noisemodel`: The global noise configuration and circuit noisy method APIs
+
 **ML Interfaces Related Modules:**
 
 - :py:mod:`tensorcircuit.interfaces`: Provide interfaces when quantum simulation backend is different from neural libraries. Currently include PyTorch and scipy optimizer interfaces.
@@ -57,6 +59,10 @@ Overview of Modules
 - :py:mod:`tensorcircuit.vis`: Visualization code for circuit drawing.
 
 - :py:mod:`tensorcircuit.translation`: Translate circuit object to circuit object in other quantum packages.
+
+**Processing and error mitigation on sample results:**
+
+- :py:mod:`tensorcircuit.results`: Provide tools to process count dict and to apply error mitigation
 
 **Shortcuts and Templates for Circuit Manipulation:**
 

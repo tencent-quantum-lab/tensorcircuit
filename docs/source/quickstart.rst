@@ -262,9 +262,12 @@ and the other part is implemented in `TensorCircuit package <modules.html#module
     'cosh',
     'cumsum',
     'deserialize_tensor',
+    'device',
+    'device_move',
     'diagflat',
     'diagonal',
     'divide',
+    'dtype',
     'eigh',
     'eigs',
     'eigsh',
@@ -275,6 +278,7 @@ and the other part is implemented in `TensorCircuit package <modules.html#module
     'exp',
     'expm',
     'eye',
+    'from_dlpack',
     'gather1d',
     'get_random_state',
     'gmres',
@@ -302,7 +306,6 @@ and the other part is implemented in `TensorCircuit package <modules.html#module
     'max',
     'mean',
     'min',
-    'minor',
     'mod',
     'multiply',
     'name',
@@ -311,10 +314,10 @@ and the other part is implemented in `TensorCircuit package <modules.html#module
     'one_hot',
     'onehot',
     'ones',
-    'optimizer',
     'outer_product',
     'pivot',
     'power',
+    'probability_sample',
     'qr',
     'randn',
     'random_split',
@@ -328,6 +331,7 @@ and the other part is implemented in `TensorCircuit package <modules.html#module
     'right_shift',
     'rq',
     'scatter',
+    'searchsorted',
     'serialize_tensor',
     'set_random_state',
     'shape_concat',
@@ -351,6 +355,7 @@ and the other part is implemented in `TensorCircuit package <modules.html#module
     'stateful_randc',
     'stateful_randn',
     'stateful_randu',
+    'std',
     'stop_gradient',
     'subtraction',
     'sum',
@@ -360,8 +365,8 @@ and the other part is implemented in `TensorCircuit package <modules.html#module
     'tanh',
     'tensordot',
     'tile',
-    'tnbackend',
     'to_dense',
+    'to_dlpack',
     'trace',
     'transpose',
     'tree_flatten',
@@ -640,6 +645,71 @@ As we have mentioned in the backend section, the PyTorch backend may lack advanc
     c.backward()
 
     print(a.grad)
+
+For a GPU/CPU, torch/tensorflow, quantum/classical hybrid machine learning pipeline enabled by tensorcircuit, see `example script <https://github.com/tencent-quantum-lab/tensorcircuit/blob/master/examples/hybrid_gpu_pipeline.py>`__.
+
+We also provider wrapper of quantum function for torch module as :py:meth:`tensorcircuit.TorchLayer` alias to :py:meth:`tensorcircuit.torchnn.QuantumNet`.
+
+For ``TorchLayer``, ``use_interface=True`` is by default, which natively allow the quantum function defined on other tensorcircuit backends, such as jax or tf for speed consideration.
+
+``TorchLayer`` can process multiple input arguments as multiple function inputs, following torch practice.
+
+.. code-block:: python
+
+    n = 3
+    p = 0.1
+    K = tc.backend
+    torchb = tc.get_backend("pytorch")
+
+    def f(state, noise, weights):
+        c = tc.Circuit(n, inputs=state)
+        for i in range(n):
+            c.rz(i, theta=weights[i])
+        for i in range(n):
+            c.depolarizing(i, px=p, py=p, pz=p, status=noise[i])
+        return K.real(c.expectation_ps(x=[0]))
+
+    layer = tc.TorchLayer(f, [n], use_vmap=True, vectorized_argnums=[0, 1])
+    state = torchb.ones([2, 2**n]) / 2 ** (n / 2)
+    noise = 0.2 * torchb.ones([2, n], dtype="float32")
+    l = layer(state,noise)
+    lsum = torchb.sum(l)
+    print(l)
+    lsum.backward()
+    for p in layer.parameters():
+        print(p.grad)
+
+
+**TensorFlow interfaces:**
+
+Similar rules apply similar as torch interface. The interface can even be used within jit environment outside.
+See :py:meth:`tensorcircuit.interfaces.tensorflow.tensorflow_interface`.
+
+We also provider ``enable_dlpack=True`` option in torch and tf interfaces, which allow the tensor transformation happen without memory transfer via dlpack,
+higher version of tf or torch package required.
+
+We also provider wrapper of quantum function for keras layer as :py:meth:`tensorcircuit.KerasLayer` alias to :py:meth:`tensorcircuit.keras.KerasLayer`.
+
+``KerasLayer`` can process multiple input arguments with the input as a dict, following the common keras practice, see example below.
+
+.. code-block:: python
+
+    def f(inputs, weights):
+        state = inputs["state"]
+        noise = inputs["noise"]
+        c = tc.Circuit(n, inputs=state)
+        for i in range(n):
+            c.rz(i, theta=weights[i])
+        for i in range(n):
+            c.depolarizing(i, px=p, py=p, pz=p, status=noise[i])
+        return K.real(c.expectation_ps(x=[0]))
+
+    layer = tc.KerasLayer(f, [n])
+    v = {"state": K.ones([1, 2**n]) / 2 ** (n / 2), "noise": 0.2 * K.ones([1, n])}
+    with tf.GradientTape() as tape:
+        l = layer(v)
+    grad = tape.gradient(l, layer.trainable_variables)
+
 
 
 **Scipy Interface to Utilize Scipy Optimizers:**
