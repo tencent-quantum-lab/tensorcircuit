@@ -173,7 +173,7 @@ def set_token(
     global saved_token
     homedir = os.path.expanduser("~")
     authpath = os.path.join(homedir, ".tc.auth.json")
-    provider, device = _preprocess(provider, device)
+    # provider, device = _preprocess(provider, device)
 
     if token is None:
         if cached and os.path.exists(authpath):
@@ -186,12 +186,18 @@ def set_token(
         file_token.update(saved_token)
         saved_token = file_token
     else:  # with token
+        if isinstance(provider, str):
+            provider = Provider.from_name(provider)
         if device is None:
             if provider is None:
-                provider = Provider.from_name("tencent")
+                provider = default_provider
             added_token = {provider.name + sep: token}
         else:
-            added_token = {provider.name + sep + device.name: token}
+            if provider is None:
+                provider = device.provider  # type: ignore
+            if provider is None:
+                provider = default_provider
+            added_token = {provider.name + sep + device.name: token}  # type: ignore
         saved_token.update(added_token)
 
     if cached:
