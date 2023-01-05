@@ -43,6 +43,7 @@ def get_backend(backend: Union[Text, bk]) -> bk:
     """
     if isinstance(backend, tnbackend):
         return backend
+    backend = backend.lower()
     if backend not in _BACKENDS:
         raise ValueError("Backend '{}' does not exist".format(backend))
     if backend in _INSTANTIATED_BACKENDS:

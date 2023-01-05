@@ -974,6 +974,7 @@ def test_qiskit2tc():
     qisc.swap(0, 1)
     qisc.iswap(0, 1)
     qisc.toffoli(0, 1, 2)
+    qisc.barrier(0, 1, 2)
     qisc.s(1)
     qisc.t(1)
     qisc.sdg(2)

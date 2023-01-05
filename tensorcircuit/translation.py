@@ -275,6 +275,8 @@ def qiskit2tc(
                 tc_circuit.multicontrol(
                     *idx, ctrl=ctrl_state, unitary=gates._x_matrix, name="x"
                 )
+        elif gate_name == "barrier":
+            pass
         elif gate_name[:3] == "mcx":
             if gate_name[3:] == "":
                 tc_circuit.multicontrol(
