@@ -94,6 +94,16 @@ def test_readout():
     assert counts.kl_divergence(mit_countg, mit_countl) < 0.05
 
 
+def test_readout_masks():
+    mit = ReadoutMit(execute=run)
+    mit.cals_from_system(
+        [1, 2, 4], shots=8192, method="local", masks=["01010", "10101", "11111"]
+    )
+    np.testing.assert_allclose(
+        mit.single_qubit_cals[1][0, 0], 0.02 * np.sin(2) + 0.978, atol=1e-3
+    )
+
+
 def test_readout_expv():
 
     nqubit = 4
