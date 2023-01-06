@@ -170,6 +170,17 @@ class ReadoutMit:
         miticirc.append(c)
         return miticirc
 
+    def local_miti_readout_circ_by_mask(self, bsl: List[str]) -> List[Circuit]:
+        cs = []
+        n = max(self.cal_qubits) + 1  # type: ignore
+        for bs in bsl:
+            c = Circuit(n)
+            for j, i in enumerate(bs):
+                if i == "1":
+                    c.X(j)  # type: ignore
+            cs.append(c)
+        return cs
+
     def global_miti_readout_circ(self) -> List[Circuit]:
         """
          Generate circuits for global calibration.
@@ -189,7 +200,11 @@ class ReadoutMit:
         return miticirc
 
     def cals_from_system(  # type: ignore
-        self, qubits: Union[int, List[int]], shots: int = 8192, method: str = "local"
+        self,
+        qubits: Union[int, List[int]],
+        shots: int = 8192,
+        method: str = "local",
+        masks: Optional[List[str]] = None,
     ):
         """
         Get calibrattion information from system.
@@ -209,29 +224,60 @@ class ReadoutMit:
 
         if method == "local":
             self.local = True  # type: ignore
-            miticirc = self.local_miti_readout_circ()
-            lbsall = self.execute_fun(miticirc, self.cal_shots)
-            lbs = [marginal_count(i, self.cal_qubits) for i in lbsall]  # type: ignore
+            if masks is None:
+                miticirc = self.local_miti_readout_circ()
+                lbsall = self.execute_fun(miticirc, self.cal_shots)
+                lbs = [marginal_count(i, self.cal_qubits) for i in lbsall]  # type: ignore
 
-            self.single_qubit_cals = [None] * (max(self.cal_qubits) + 1)  # type: ignore
-            for i in range(len(self.cal_qubits)):  # type: ignore
-                error00 = 0
-                for s in lbs[0]:
-                    if s[i] == "0":
-                        error00 = error00 + lbs[0][s] / self.cal_shots  # type: ignore
+                self.single_qubit_cals = [None] * (max(self.cal_qubits) + 1)  # type: ignore
+                for i in range(len(self.cal_qubits)):  # type: ignore
+                    error00 = 0
+                    for s in lbs[0]:
+                        if s[i] == "0":
+                            error00 = error00 + lbs[0][s] / self.cal_shots  # type: ignore
 
-                error10 = 0
-                for s in lbs[1]:
-                    if s[i] == "0":
-                        error10 = error10 + lbs[1][s] / self.cal_shots  # type: ignore
+                    error10 = 0
+                    for s in lbs[1]:
+                        if s[i] == "0":
+                            error10 = error10 + lbs[1][s] / self.cal_shots  # type: ignore
 
-                readout_single = np.array(
-                    [
-                        [error00, error10],
-                        [1 - error00, 1 - error10],
-                    ]
-                )
-                self.single_qubit_cals[self.cal_qubits[i]] = readout_single  # type: ignore
+                    readout_single = np.array(
+                        [
+                            [error00, error10],
+                            [1 - error00, 1 - error10],
+                        ]
+                    )
+                    self.single_qubit_cals[self.cal_qubits[i]] = readout_single  # type: ignore
+
+            else:
+                miticirc = self.local_miti_readout_circ_by_mask(masks)
+                lbsall = self.execute_fun(miticirc, self.cal_shots)
+                # lbs = [marginal_count(i, self.cal_qubits) for i in lbsall]  # type: ignore
+                self.single_qubit_cals = [None] * (max(self.cal_qubits) + 1)  # type: ignore
+                for i in self.cal_qubits:  # type: ignore
+                    error00n = 0
+                    error00d = 0
+                    error11n = 0
+                    error11d = 0
+                    for j, bs in enumerate(lbsall):
+                        ans = masks[j][i]
+                        if ans == "0":
+                            error00d += self.cal_shots
+                        else:  # ans == "1"
+                            error11d += self.cal_shots
+                        for s in bs:
+                            if s[i] == ans and ans == "0":
+                                error00n += bs[s]
+                            elif s[i] == ans and ans == "1":
+                                error11n += bs[s]
+
+                    readout_single = np.array(
+                        [
+                            [error00n / error00d, 1 - error11n / error11d],
+                            [1 - error00n / error00d, error11n / error11d],
+                        ]
+                    )
+                    self.single_qubit_cals[i] = readout_single  # type: ignore
 
         elif method == "global":
             self.local = False  # type: ignore
