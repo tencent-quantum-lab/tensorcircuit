@@ -223,16 +223,27 @@ class Task:
         else:
             return Device.from_name(self.device)
 
-    def details(self, **kws: Any) -> Dict[str, Any]:
+    def details(self, blocked: bool = False, **kws: Any) -> Dict[str, Any]:
         """
         Get the current task details
 
+
+        :param blocked: whether return until task is finished, defaults to False
+        :type blocked: bool
         :return: _description_
         :rtype: Dict[str, Any]
         """
         from .apis import get_task_details
 
-        return get_task_details(self, **kws)
+        if blocked is False:
+            return get_task_details(self, **kws)
+        s = self.state()
+        tries = 0
+        while s == "pending":
+            time.sleep(0.5 + tries / 10)
+            tries += 1
+            s = self.state()
+        return self.details(**kws)
 
     def state(self) -> str:
         """
