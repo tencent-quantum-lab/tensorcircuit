@@ -669,7 +669,7 @@ class BaseCircuit(AbstractCircuit):
         :param status: external randomness given by tensor uniformly from [0, 1],
             if set, can overwrite random_generator
         :type status: Optional[Tensor]
-        :param readout_error: readout_error, defaults to None
+        :param readout_error: readout_error, defaults to None. Overrided if noise_conf is provided.
         :type readout_error: Optional[Sequence[Any]]. Tensor, List, Tuple
         :param noise_conf: Noise Configuration, defaults to None
         :type noise_conf: Optional[NoiseConf], optional
