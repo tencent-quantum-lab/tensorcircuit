@@ -308,8 +308,6 @@ def qiskit2tc(
                 tc_circuit.multicontrol(
                     *idx, ctrl=ctrl_state, unitary=gates._x_matrix, name="x"
                 )
-        elif gate_name == "barrier":
-            pass
         elif gate_name[:3] == "mcx":
             if gate_name[3:] == "":
                 tc_circuit.multicontrol(
@@ -320,7 +318,7 @@ def qiskit2tc(
                 tc_circuit.multicontrol(
                     *idx, ctrl=ctrl_state, unitary=gates._x_matrix, name="x"
                 )
-        elif gate_name[0] == "c":
+        elif gate_name[0] == "c" and gate_name[:7] != "circuit":
             for i in range(1, len(gate_name)):
                 if (gate_name[-i] == "o") & (gate_name[-i - 1] == "_"):
                     break
@@ -350,6 +348,16 @@ def qiskit2tc(
             # logger.warning(
             #     "qiskit to tc translation currently doesn't support reset instruction, just skipping"
             # )
+        elif not hasattr(gate_info[0], "__array__"):
+            # an instruction containing a lot of gates.
+            # the condition is based on
+            # https://github.com/Qiskit/qiskit-terra/blob/2f5944d60140ceb6e30d5b891e8ffec735247ce9/qiskit/circuit/gate.py#L43
+            qiskit_circuit = gate_info[0].definition
+            if qiskit_circuit is None:
+                # handles barrier
+                continue
+            c = Circuit.from_qiskit(qiskit_circuit)
+            tc_circuit.append(c, idx)
         else:  # unitary gate
             idx_inverse = (x for x in idx[::-1])
             tc_circuit.any(*idx_inverse, unitary=gate_info[0].to_matrix())

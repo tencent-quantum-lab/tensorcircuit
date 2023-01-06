@@ -872,7 +872,9 @@ class AbstractCircuit:
         self.__dict__.update(newc.__dict__)
         return self
 
-    def append(self, c: "AbstractCircuit") -> "AbstractCircuit":
+    def append(
+        self, c: "AbstractCircuit", indices: Optional[List[int]] = None
+    ) -> "AbstractCircuit":
         """
         append circuit ``c`` before
 
@@ -894,11 +896,21 @@ class AbstractCircuit:
 
         :param c: The other circuit to be appended
         :type c: BaseCircuit
+        :param indices: the qubit indices to which ``c`` is appended on
+        :type indices: List[int]
         :return: The composed circuit
         :rtype: BaseCircuit
         """
         qir1 = self.to_qir()
         qir2 = c.to_qir()
+        if indices is not None:
+            qir2_old = qir2
+            qir2 = []
+            for d in qir2_old:
+                # avoid modifying the original circuit
+                d = d.copy()
+                d["index"] = [indices[i] for i in d["index"]]
+                qir2.append(d)
         newc = type(self).from_qir(qir1 + qir2, self.circuit_param)
         self.__dict__.update(newc.__dict__)
         return self
