@@ -147,7 +147,7 @@ def qir2qiskit(
                 _get_float(parameters, "theta"),
                 _get_float(parameters, "phi"),
                 _get_float(parameters, "lbd"),
-                *index
+                *index,
             )
         elif gate_name == "cu":
             getattr(qiskit_circ, "cu")(
@@ -155,7 +155,7 @@ def qir2qiskit(
                 _get_float(parameters, "phi"),
                 _get_float(parameters, "lbd"),
                 0,  # gamma
-                *index
+                *index,
             )
         elif gate_name == "iswap":
             qiskit_circ.append(
@@ -197,6 +197,8 @@ def qir2qiskit(
             qiskit_circ.measure(index, index)
         elif gate_name == "reset":
             qiskit_circ.reset(index)
+        elif gate_name == "barrier":
+            qiskit_circ.barrier(index)
         else:  # r cr any gate
             gatem = np.reshape(
                 backend.numpy(gate_info["gatef"](**parameters).tensor),
@@ -348,13 +350,17 @@ def qiskit2tc(
             # logger.warning(
             #     "qiskit to tc translation currently doesn't support reset instruction, just skipping"
             # )
+        elif gate_name == "barrier":
+            tc_circuit.barrier_instruction(*idx)
         elif not hasattr(gate_info[0], "__array__"):
             # an instruction containing a lot of gates.
             # the condition is based on
             # https://github.com/Qiskit/qiskit-terra/blob/2f5944d60140ceb6e30d5b891e8ffec735247ce9/qiskit/circuit/gate.py#L43
             qiskit_circuit = gate_info[0].definition
             if qiskit_circuit is None:
-                # handles barrier
+                logger.warning(
+                    f"qiskit to tc translation doesn't support {gate_name} instruction, skipping"
+                )
                 continue
             c = Circuit.from_qiskit(qiskit_circuit)
             tc_circuit.append(c, idx)

@@ -1023,6 +1023,10 @@ def test_qiskit2tc():
     qis_unitary = np.reshape(qis_unitary, [2**n, 2**n])
     p_mat = perm_matrix(n)
     np.testing.assert_allclose(p_mat @ tc_unitary @ p_mat, qis_unitary, atol=1e-5)
+    qisc_from_tc = c.to_qiskit(enable_instruction=True)
+    qis_unitary2 = qi.Operator(qisc_from_tc)
+    qis_unitary2 = np.reshape(qis_unitary2, [2**n, 2**n])
+    np.testing.assert_allclose(qis_unitary2, qis_unitary, atol=1e-5)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])

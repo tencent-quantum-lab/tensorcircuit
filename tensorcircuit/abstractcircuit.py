@@ -535,6 +535,23 @@ class AbstractCircuit:
         }
         self._extra_qir.append(d)
 
+    def barrier_instruction(self, *index: List[int]) -> None:
+        """
+        add a barrier instruction flag, no effect on numerical simulation
+
+        :param index: the corresponding qubits
+        :type index: List[int]
+        """
+        l = len(self._qir)
+        d = {
+            "index": index,
+            "name": "barrier",
+            "gatef": "barrier",
+            "instruction": True,
+            "pos": l,
+        }
+        self._extra_qir.append(d)
+
     def to_qiskit(self, enable_instruction: bool = False) -> Any:
         """
         Translate ``tc.Circuit`` to a qiskit QuantumCircuit object.
@@ -896,8 +913,9 @@ class AbstractCircuit:
 
         :param c: The other circuit to be appended
         :type c: BaseCircuit
-        :param indices: the qubit indices to which ``c`` is appended on
-        :type indices: List[int]
+        :param indices: the qubit indices to which ``c`` is appended on.
+            Defaults to None, which means plain concatenation.
+        :type indices: Optional[List[int]], optional
         :return: The composed circuit
         :rtype: BaseCircuit
         """
