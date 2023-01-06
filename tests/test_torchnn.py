@@ -14,7 +14,7 @@ import tensorcircuit as tc
 try:
     import torch
 except ImportError:
-    pytestmark = pytest.mark.skip
+    pytest.skip("torch is not installed")
 
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])
