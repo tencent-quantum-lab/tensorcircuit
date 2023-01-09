@@ -4,6 +4,7 @@ Methods for abstract circuits independent of nodes, edges and contractions
 # pylint: disable=invalid-name
 
 from typing import Any, Callable, Dict, List, Optional, Sequence, Union, Tuple
+from copy import deepcopy
 from functools import reduce
 from operator import add
 import json
@@ -438,6 +439,53 @@ class AbstractCircuit:
         """
         self._apply_qir(self, qir)
 
+    def initial_mapping(
+        self,
+        logical_physical_mapping: Dict[int, int],
+        n: Optional[int] = None,
+        circuit_params: Optional[Dict[str, Any]] = None,
+    ) -> "AbstractCircuit":
+        """
+        generate a new circuit with the qubit mapping given by ``logical_physical_mapping``
+
+        :param logical_physical_mapping: how to map logical qubits to the physical qubits on the new circuit
+        :type logical_physical_mapping: Dict[int, int]
+        :param n: number of qubit of the new circuit, can be different from the original one, defaults to None
+        :type n: Optional[int], optional
+        :param circuit_params: _description_, defaults to None
+        :type circuit_params: Optional[Dict[str, Any]], optional
+        :return: _description_
+        :rtype: AbstractCircuit
+        """
+        if circuit_params is None:
+            circuit_params = {}
+        if "nqubits" not in circuit_params:
+            if n is not None:
+                circuit_params["nqubits"] = n
+            else:
+                circuit_params["nqubits"] = self._nqubits
+
+        c = type(self)(**circuit_params)
+
+        for d in self.to_qir():
+            mapped_index = [logical_physical_mapping[i] for i in d["index"]]
+
+            if "parameters" not in d:
+                c.apply_general_gate_delayed(d["gatef"], d["name"], mpo=d["mpo"])(
+                    c, *mapped_index, split=d["split"]
+                )
+            else:
+                c.apply_general_variable_gate_delayed(
+                    d["gatef"], d["name"], mpo=d["mpo"]
+                )(c, *mapped_index, **d["parameters"], split=d["split"])
+        for d in self._extra_qir:
+            mapped_index = [logical_physical_mapping[i] for i in d["index"]]
+            dc = deepcopy(d)
+            dc["index"] = mapped_index
+            c._extra_qir.append(dc)
+
+        return c
+
     @staticmethod
     def standardize_gate(name: str) -> str:
         """
@@ -510,7 +558,7 @@ class AbstractCircuit:
         """
         l = len(self._qir)
         d = {
-            "index": index,
+            "index": [index],
             "name": "measure",
             "gatef": "measure",
             "instruction": True,
@@ -527,7 +575,7 @@ class AbstractCircuit:
         """
         l = len(self._qir)
         d = {
-            "index": index,
+            "index": [index],
             "name": "reset",
             "gatef": "reset",
             "instruction": True,

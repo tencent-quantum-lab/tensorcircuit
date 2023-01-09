@@ -194,9 +194,9 @@ def qir2qiskit(
             )
             qiskit_circ.unitary(qop, index[::-1], label=qis_name)
         elif gate_name == "measure":
-            qiskit_circ.measure(index, index)
+            qiskit_circ.measure(index[0], index[0])
         elif gate_name == "reset":
-            qiskit_circ.reset(index)
+            qiskit_circ.reset(index[0])
         elif gate_name == "barrier":
             qiskit_circ.barrier(*index)
         else:  # r cr any gate
@@ -484,6 +484,18 @@ def json2qir(tcqasm: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 def eqasm2tc(
     eqasm: str, nqubits: Optional[int] = None, headers: Tuple[int, int] = (6, 1)
 ) -> Circuit:
+    """
+    Translation qexe/eqasm instruction to tensorcircuit Circuit object
+
+    :param eqasm: _description_
+    :type eqasm: str
+    :param nqubits: _description_, defaults to None
+    :type nqubits: Optional[int], optional
+    :param headers: lines of ignored code at the head and the tail, defaults to (6, 1)
+    :type headers: Tuple[int, int], optional
+    :return: _description_
+    :rtype: Circuit
+    """
     eqasm_list = eqasm.split("\n")
     if nqubits is None:
         nqubits = len(eqasm_list[2].split(","))

@@ -1270,3 +1270,31 @@ measure q[0] -> c[0];"""
     c.to_openqasm().split("\n")[-2][-3] == "1"
     c = tc.Circuit.from_openqasm(qasm_str, keep_measure_order=True)
     c.to_openqasm().split("\n")[-2][-3] == "0"
+
+
+def test_initial_mapping():
+    c = tc.Circuit(3)
+    c.cnot(0, 1)
+    c.h(1)
+    c.rx(1, theta=0.5)
+    c.cz(2, 1)
+    c.measure_instruction(2)
+
+    c1 = c.initial_mapping({0: 1, 1: 2, 2: 0})
+    print(c1.draw())
+
+    np.testing.assert_allclose(
+        c.expectation_ps(z=[1]), c1.expectation_ps(z=[2]), atol=1e-5
+    )
+    assert c1._extra_qir[0]["index"][0] == 0
+
+    c2 = c1.initial_mapping({1: 0, 2: 1, 0: 2})
+    np.testing.assert_allclose(
+        c.expectation_ps(z=[1]), c2.expectation_ps(z=[1]), atol=1e-5
+    )
+
+    c3 = c.initial_mapping({0: 2, 1: 7, 2: 0}, n=9)
+    np.testing.assert_allclose(
+        c.expectation_ps(z=[1]), c3.expectation_ps(z=[7]), atol=1e-5
+    )
+    print(c3.draw())
