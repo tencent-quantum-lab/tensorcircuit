@@ -12,7 +12,10 @@
 
 - Add `enable_instruction` option in `to_qiskit` method that enables measurements in qiskit export
 
-- Add circuit method `measure_instruction` and `reset_instruction` for hardware level instruction flags
+- Add circuit method `measure_instruction`, `barrier_instruction` and `reset_instruction` for hardware level
+  instruction flags
+
+- Auto unroll composite qiskit instructions when translating to tc circuit
 
 ### Fixed
 
@@ -20,7 +23,9 @@
 
 - Fix `sigmoid` bug on pytorch backend
 
-- Ignore ComplexWarning for ``cast`` method on numpy and jax backend
+- Fix `relu` bug on pytorch backend
+
+- Ignore ComplexWarning for `cast` method on numpy and jax backend
 
 - Fix `vjp` method bug on tensorflow backend, where none is replaced with zeros
 

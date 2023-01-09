@@ -354,7 +354,7 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend, ExtendedBackend):  # type: 
         return torchlib.sigmoid(a)
 
     def relu(self, a: Tensor) -> Tensor:
-        return torchlib.nn.ReLU(a)
+        return torchlib.relu(a)
 
     def softmax(self, a: Sequence[Tensor], axis: Optional[int] = None) -> Tensor:
         return torchlib.nn.Softmax(a, dim=axis)

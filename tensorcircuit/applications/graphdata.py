@@ -322,7 +322,7 @@ def ensemble_maxcut_solution(g: Graph, samples: int = 100) -> Tuple[float, float
     r = []
     for _ in range(samples):
         r.append(maxcut_solution_bruteforce(g.send(None))[0])
-    return np.mean(r), np.std(r) / np.sqrt(len(r))
+    return np.mean(r), np.std(r) / np.sqrt(len(r))  # type: ignore
 
 
 def reduce_edges(g: Graph, m: int = 1) -> Sequence[Graph]:

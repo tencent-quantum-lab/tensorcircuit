@@ -110,13 +110,6 @@ def test_backend_methods(backend):
         atol=1e-4,
     )
 
-    arr = np.random.normal(size=(6, 6))
-    np.testing.assert_allclose(
-        tc.backend.relu(tc.array_to_tensor(arr, dtype="float32")),
-        np.maximum(arr, 0),
-        atol=1e-4,
-    )
-
     np.testing.assert_allclose(
         tc.backend.adjoint(tc.array_to_tensor(arr + 1.0j * arr)),
         arr.T - 1.0j * arr.T,
@@ -297,6 +290,12 @@ def test_backend_methods_2(backend):
         tc.backend.std(tc.backend.cast(tc.backend.arange(1, 4), "float32")),
         0.81649658,
         atol=1e-5,
+    )
+    arr = np.random.normal(size=(6, 6))
+    np.testing.assert_allclose(
+        tc.backend.relu(tc.array_to_tensor(arr, dtype="float32")),
+        np.maximum(arr, 0),
+        atol=1e-4,
     )
 
 
