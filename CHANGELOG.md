@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.7.0
+
 ### Added
 
 - Add `c.probability()` method to return probability amplitude
