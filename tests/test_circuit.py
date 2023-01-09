@@ -1256,3 +1256,17 @@ def test_to_openqasm():
     c.to_openqasm(filename="test.qasm")
     c2 = tc.Circuit.from_openqasm_file("test.qasm")
     np.testing.assert_allclose(c.state(), c2.state())
+
+
+def test_from_qasm_keep_measure_order():
+    qasm_str = """OPENQASM 2.0;
+include "qelib1.inc";
+qreg q[2];
+creg c[2];
+h q[0];
+measure q[1] -> c[1];
+measure q[0] -> c[0];"""
+    c = tc.Circuit.from_openqasm(qasm_str)
+    c.to_openqasm().split("\n")[-2][-3] == "1"
+    c = tc.Circuit.from_openqasm(qasm_str, keep_measure_order=True)
+    c.to_openqasm().split("\n")[-2][-3] == "0"

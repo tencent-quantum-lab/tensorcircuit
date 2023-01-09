@@ -17,6 +17,8 @@
 
 - Auto unroll composite qiskit instructions when translating to tc circuit
 
+- Add `keep_measure_order` bool option to `from_openqasm` methods so that the measure instruction order is kept by qiskit
+
 ### Fixed
 
 - Fix adjoint possible bug with agnostic backend
