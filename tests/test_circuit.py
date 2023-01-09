@@ -795,6 +795,12 @@ def test_append_circuit(backend):
     c.prepend(c1)
     np.testing.assert_allclose(c.expectation_ps(z=[1]), -1.0)
 
+    c = tc.Circuit(2)
+    c1 = tc.Circuit(1)
+    c1.x(0)
+    c.append(c1, [1])
+    np.testing.assert_allclose(c.state(), [0, 1, 0, 0])
+
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_apply_mpo_gate(backend):
@@ -974,6 +980,10 @@ def test_qiskit2tc():
     qisc.swap(0, 1)
     qisc.iswap(0, 1)
     qisc.toffoli(0, 1, 2)
+    # test Instructions
+    qisc2 = QuantumCircuit(1)
+    qisc2.h(0)
+    qisc.compose(qisc2, qubits=[1], inplace=True, wrap=True)
     qisc.barrier(0, 1, 2)
     qisc.s(1)
     qisc.t(1)
@@ -1013,6 +1023,10 @@ def test_qiskit2tc():
     qis_unitary = np.reshape(qis_unitary, [2**n, 2**n])
     p_mat = perm_matrix(n)
     np.testing.assert_allclose(p_mat @ tc_unitary @ p_mat, qis_unitary, atol=1e-5)
+    qisc_from_tc = c.to_qiskit(enable_instruction=True)
+    qis_unitary2 = qi.Operator(qisc_from_tc)
+    qis_unitary2 = np.reshape(qis_unitary2, [2**n, 2**n])
+    np.testing.assert_allclose(qis_unitary2, qis_unitary, atol=1e-5)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
