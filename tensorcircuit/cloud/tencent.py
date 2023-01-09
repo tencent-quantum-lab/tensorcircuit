@@ -317,7 +317,10 @@ def get_task_details(
         if "source" in r:
             r["frontend"] = Circuit.from_openqasm(r["source"])
         if "optimization" in r and r["state"] == "completed":
-            r["backend"] = eqasm2tc(r["optimization"]["progs"][0]["code"])
+            try:
+                r["backend"] = eqasm2tc(r["optimization"]["progs"][0]["code"])
+            except KeyError:
+                pass
         return r  # type: ignore
     except KeyError:
         raise ValueError(dumps(r))
