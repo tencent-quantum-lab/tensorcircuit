@@ -198,7 +198,7 @@ def qir2qiskit(
         elif gate_name == "reset":
             qiskit_circ.reset(index)
         elif gate_name == "barrier":
-            qiskit_circ.barrier(index)
+            qiskit_circ.barrier(*index)
         else:  # r cr any gate
             gatem = np.reshape(
                 backend.numpy(gate_info["gatef"](**parameters).tensor),
