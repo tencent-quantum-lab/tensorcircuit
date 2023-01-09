@@ -17,7 +17,7 @@ try:
     from qiskit.extensions.exceptions import ExtensionError
 except ImportError:
     logger.warning(
-        "Please first ``pip install -U qiskit`` to enable related functionality"
+        "Please first ``pip install -U qiskit`` to enable related functionality in translation module"
     )
 
 from . import gates
@@ -508,3 +508,31 @@ def eqasm2tc(
                 getattr(c, gate_name)(*index)
 
     return c
+
+
+def qiskit_from_qasm_str_ordered_measure(qasm_str: str) -> Any:
+    """
+    qiskit ``from_qasm_str`` method cannot keep the order of measure as the qasm file,
+    we provide this alternative function in case the order of measure instruction matters
+
+    :param qasm_str: open qasm str
+    :type qasm_str: str
+    :return: ``qiskit.circuit.QuantumCircuit``
+    :rtype: Any
+    """
+    measure_sequence = []
+    qasm_instruction = []
+    for line in qasm_str.split("\n"):
+        if line.startswith("measure"):
+            print(line)
+            index = int(line.split(" ")[1][2:-1])
+            cindex = int(line.split(" ")[3].strip(";")[2:-1])
+
+            measure_sequence.append((index, cindex))
+        else:
+            qasm_instruction.append(line)
+
+    qc = QuantumCircuit.from_qasm_str("\n".join(qasm_instruction))
+    for qid, cid in measure_sequence:
+        qc.measure(qid, cid)
+    return qc

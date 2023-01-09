@@ -580,21 +580,39 @@ class AbstractCircuit:
 
     @classmethod
     def from_openqasm(
-        cls, qasmstr: str, circuit_params: Optional[Dict[str, Any]] = None
+        cls,
+        qasmstr: str,
+        circuit_params: Optional[Dict[str, Any]] = None,
+        keep_measure_order: bool = False,
     ) -> "AbstractCircuit":
         from qiskit.circuit import QuantumCircuit
 
-        qiskit_circ = QuantumCircuit.from_qasm_str(qasmstr)
+        if keep_measure_order is True:
+            from .translation import qiskit_from_qasm_str_ordered_measure
+
+            qiskit_circ = qiskit_from_qasm_str_ordered_measure(qasmstr)
+        else:
+            qiskit_circ = QuantumCircuit.from_qasm_str(qasmstr)
         c = cls.from_qiskit(qiskit_circ, circuit_params=circuit_params)
         return c
 
     @classmethod
     def from_openqasm_file(
-        cls, file: str, circuit_params: Optional[Dict[str, Any]] = None
+        cls,
+        file: str,
+        circuit_params: Optional[Dict[str, Any]] = None,
+        keep_measure_order: bool = False,
     ) -> "AbstractCircuit":
         from qiskit.circuit import QuantumCircuit
 
-        qiskit_circ = QuantumCircuit.from_qasm_file(file)
+        if keep_measure_order is True:
+            from .translation import qiskit_from_qasm_str_ordered_measure
+
+            with open(file) as f:
+                qasmstr = f.read()
+            qiskit_circ = qiskit_from_qasm_str_ordered_measure(qasmstr)
+        else:
+            qiskit_circ = QuantumCircuit.from_qasm_file(file)
         c = cls.from_qiskit(qiskit_circ, circuit_params=circuit_params)
         return c
 

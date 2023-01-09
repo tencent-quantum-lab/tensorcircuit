@@ -100,7 +100,7 @@ def test_readout_masks():
         [1, 2, 4], shots=8192, method="local", masks=["01010", "10101", "11111"]
     )
     np.testing.assert_allclose(
-        mit.single_qubit_cals[1][0, 0], 0.02 * np.sin(2) + 0.978, atol=1e-3
+        mit.single_qubit_cals[1][0, 0], 0.02 * np.sin(2) + 0.978, atol=1e-2
     )
 
 

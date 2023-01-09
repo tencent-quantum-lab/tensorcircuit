@@ -1387,7 +1387,7 @@ try:
         return tf.SparseTensor(indices=indices, values=values, dense_shape=(s, s))  # type: ignore
 
 except (NameError, ImportError):
-    logger.warning(
+    logger.info(
         "tensorflow is not installed, and sparse Hamiltonian generation utilities are disabled"
     )
 
