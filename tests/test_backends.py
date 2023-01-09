@@ -110,6 +110,8 @@ def test_backend_methods(backend):
         atol=1e-4,
     )
 
+    arr = np.random.normal(size=(6, 6))
+
     np.testing.assert_allclose(
         tc.backend.adjoint(tc.array_to_tensor(arr + 1.0j * arr)),
         arr.T - 1.0j * arr.T,
