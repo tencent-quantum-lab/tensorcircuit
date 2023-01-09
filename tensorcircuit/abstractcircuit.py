@@ -692,6 +692,7 @@ class AbstractCircuit:
         n: Optional[int] = None,
         inputs: Optional[List[float]] = None,
         circuit_params: Optional[Dict[str, Any]] = None,
+        binding_params: Optional[Union[Sequence, Dict]] = None,
     ) -> "AbstractCircuit":
         """
         Import Qiskit QuantumCircuit object as a ``tc.Circuit`` object.
@@ -711,6 +712,12 @@ class AbstractCircuit:
         :type n: int
         :param inputs: possible input wavefunction for ``tc.Circuit``, defaults to None
         :type inputs: Optional[List[float]], optional
+        :param circuit_params: circuit attributes such as the number of qubits
+        :type circuit_params: Optional[Dict[str, Any]]
+        :param binding_params: (variational) parameters for the circuit.
+            Could be either a sequence or dictionary depending on the type of parameters in the Qiskit circuit.
+            For ``ParameterVectorElement`` use sequence. For ``Parameter`` use dictionary
+        :type binding_params: Optional[Union[Sequence, Dict]]
         :return: The same circuit but as tensorcircuit object
         :rtype: Circuit
         """
@@ -719,7 +726,7 @@ class AbstractCircuit:
         if n is None:
             n = qc.num_qubits
 
-        return qiskit2tc(qc.data, n, inputs, is_dm=cls.is_dm, circuit_params=circuit_params)  # type: ignore
+        return qiskit2tc(qc.data, n, inputs, is_dm=cls.is_dm, circuit_params=circuit_params, binding_params=binding_params)  # type: ignore
 
     def vis_tex(self, **kws: Any) -> str:
         """
