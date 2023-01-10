@@ -1033,7 +1033,7 @@ def test_qiskit2tc():
 def test_qiskit2tc_parameterized(backend):
     try:
         from qiskit.circuit import QuantumCircuit, Parameter
-        from qiskit.quantum_info import Statevector, Operator
+        from qiskit.quantum_info import Operator
         from qiskit.circuit.library import TwoLocal
         from qiskit_nature.second_q.circuit.library import UCCSD
         from qiskit_nature.second_q.mappers import ParityMapper, QubitConverter
@@ -1059,6 +1059,7 @@ def test_qiskit2tc_parameterized(backend):
         qiskit_unitary = Operator(qisc)
         qiskit_unitary = np.reshape(qiskit_unitary, [2**n, 2**n])
 
+        # test jit
         @tc.backend.jit
         def get_unitary(_params):
             return tc.Circuit.from_qiskit(
@@ -1071,6 +1072,20 @@ def test_qiskit2tc_parameterized(backend):
         np.testing.assert_allclose(
             p_mat @ tc_unitary @ p_mat, qiskit_unitary, atol=1e-5
         )
+
+        # test grad
+        def cost_fn(_params):
+            return tc.backend.real(tc.backend.sum(get_unitary(_params)))
+
+        if ansatz in [ansatz1, ansatz2]:
+            grad = tc.backend.grad(cost_fn)(tc.backend.convert_to_tensor(params))
+            assert np.sum(np.isnan(grad)) == 0
+        else:
+            # tf only supports tf tensor as input
+            grad = tc.backend.grad(cost_fn)(
+                {ansatz3_param: tc.backend.convert_to_tensor(0.618)}
+            )
+            assert not np.isnan(grad[ansatz3_param])
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])

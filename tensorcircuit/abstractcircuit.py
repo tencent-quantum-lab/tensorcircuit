@@ -71,6 +71,7 @@ class AbstractCircuit:
     inputs: Tensor
     circuit_param: Dict[str, Any]
     is_mps: bool
+    is_dm: bool
 
     sgates = sgates
     vgates = vgates
@@ -726,7 +727,14 @@ class AbstractCircuit:
         if n is None:
             n = qc.num_qubits
 
-        return qiskit2tc(qc.data, n, inputs, is_dm=cls.is_dm, circuit_params=circuit_params, binding_params=binding_params)  # type: ignore
+        return qiskit2tc(  # type: ignore
+            qc.data,
+            n,
+            inputs,
+            is_dm=cls.is_dm,
+            circuit_params=circuit_params,
+            binding_params=binding_params,
+        )
 
     def vis_tex(self, **kws: Any) -> str:
         """

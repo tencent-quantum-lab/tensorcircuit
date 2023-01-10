@@ -82,8 +82,8 @@ We currently support transform ``tc.Circuit`` from and to Qiskit ``QuantumCircui
 Export to Qiskit (possible for further hardware experiment, compiling, and visualization): ``c.to_qiskit()``.
 
 Import from Qiskit: ``c = tc.Circuit.from_qiskit(QuantumCircuit, n)``.
-Parameterized Qiskit circuit is supported by passing the parameters to the ``from_qiskit`` function,
-similar to the ``assign_parameters`` function in Qiskit.
+Parameterized Qiskit circuit is supported by passing the parameters to the ``binding_parameters`` argument
+of the ``from_qiskit`` function, similar to the ``assign_parameters`` function in Qiskit.
 
 **Circuit Visualization:** 
 
