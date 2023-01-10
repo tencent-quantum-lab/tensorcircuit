@@ -15,6 +15,9 @@ try:
     from qiskit.circuit.library import XXPlusYYGate
     import qiskit.quantum_info as qi
     from qiskit.extensions.exceptions import ExtensionError
+    from qiskit.circuit.quantumcircuitdata import CircuitInstruction
+    from qiskit.circuit.parametervector import ParameterVectorElement
+    from qiskit.circuit import Parameter, ParameterExpression
 except ImportError:
     logger.warning(
         "Please first ``pip install -U qiskit`` to enable related functionality in translation module"
@@ -219,11 +222,11 @@ def qir2qiskit(
     return qiskit_circ
 
 
-def _translate_qiskit_params(gate_info, binding_params):
+def _translate_qiskit_params(
+    gate_info: CircuitInstruction, binding_params: Any
+) -> List[float]:
     parameters = []
     for p in gate_info[0].params:
-        from qiskit.circuit.parametervector import ParameterVectorElement
-        from qiskit.circuit import Parameter, ParameterExpression
 
         if isinstance(p, ParameterVectorElement):
             parameters.append(binding_params[p.index])
@@ -266,12 +269,12 @@ def ctrl_str2ctrl_state(ctrl_str: str, nctrl: int) -> List[int]:
 
 
 def qiskit2tc(
-    qcdata: List[List[Any]],
+    qcdata: List[CircuitInstruction],
     n: int,
     inputs: Optional[List[float]] = None,
     is_dm: bool = False,
     circuit_params: Optional[Dict[str, Any]] = None,
-    binding_params: Optional[Union[Sequence, Dict]] = None,
+    binding_params: Optional[Union[Sequence[float], Dict[Any, float]]] = None,
 ) -> Any:
     r"""
     Generate a tensorcircuit circuit using the quantum circuit data in qiskit.
@@ -286,17 +289,17 @@ def qiskit2tc(
     h
 
     :param qcdata: Quantum circuit data from qiskit.
-    :type qcdata: List[List[Any]]
+    :type qcdata: List[CircuitInstruction]
     :param n: # of qubits
     :type n: int
     :param inputs: Input state of the circuit. Default is None.
     :type inputs: Optional[List[float]]
-    :param circuit_params: circuit attributes such as the number of qubits
+    :param circuit_params: kwargs given in Circuit.__init__ construction function, default to None.
     :type circuit_params: Optional[Dict[str, Any]]
     :param binding_params: (variational) parameters for the circuit.
         Could be either a sequence or dictionary depending on the type of parameters in the Qiskit circuit.
         For ``ParameterVectorElement`` use sequence. For ``Parameter`` use dictionary
-    :type binding_params: Optional[Union[Sequence, Dict]]
+    :type binding_params: Optional[Union[Sequence[float], Dict[Any, float]]]
     :return: A quantum circuit in tensorcircuit
     :rtype: Any
     """
