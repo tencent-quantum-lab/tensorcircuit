@@ -1029,6 +1029,65 @@ def test_qiskit2tc():
     np.testing.assert_allclose(qis_unitary2, qis_unitary, atol=1e-5)
 
 
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_qiskit2tc_parameterized(backend):
+    try:
+        from qiskit.circuit import QuantumCircuit, Parameter
+        from qiskit.quantum_info import Operator
+        from qiskit.circuit.library import TwoLocal
+        from qiskit_nature.second_q.circuit.library import UCCSD
+        from qiskit_nature.second_q.mappers import ParityMapper, QubitConverter
+    except ImportError:
+        pytest.skip("qiskit or qiskit-nature is not installed")
+    from tensorcircuit.translation import perm_matrix
+
+    mapper = ParityMapper()
+    converter = QubitConverter(mapper=mapper, two_qubit_reduction=True)
+    ansatz1 = UCCSD(2, [1, 1], converter)
+    ansatz2 = TwoLocal(2, rotation_blocks="ry", entanglement_blocks="cz")
+    ansatz3 = QuantumCircuit(1)
+    ansatz3_param = Parameter("θ")
+    ansatz3.rx(ansatz3_param, 0)
+    ansatz_list = [ansatz1, ansatz2, ansatz3]
+    for ansatz in ansatz_list:
+        n = ansatz.num_qubits
+        if ansatz in [ansatz1, ansatz2]:
+            params = np.random.rand(ansatz.num_parameters)
+        else:
+            params = {ansatz3_param: 0.618}
+        qisc = ansatz.assign_parameters(params)
+        qiskit_unitary = Operator(qisc)
+        qiskit_unitary = np.reshape(qiskit_unitary, [2**n, 2**n])
+
+        # test jit
+        @tc.backend.jit
+        def get_unitary(_params):
+            return tc.Circuit.from_qiskit(
+                ansatz, inputs=np.eye(2**n), binding_params=_params
+            ).state()
+
+        tc_unitary = get_unitary(params)
+        tc_unitary = np.reshape(tc_unitary, [2**n, 2**n])
+        p_mat = perm_matrix(n)
+        np.testing.assert_allclose(
+            p_mat @ tc_unitary @ p_mat, qiskit_unitary, atol=1e-5
+        )
+
+        # test grad
+        def cost_fn(_params):
+            return tc.backend.real(tc.backend.sum(get_unitary(_params)))
+
+        if ansatz in [ansatz1, ansatz2]:
+            grad = tc.backend.grad(cost_fn)(tc.backend.convert_to_tensor(params))
+            assert np.sum(np.isnan(grad)) == 0
+        else:
+            # tf only supports tf tensor as input
+            grad = tc.backend.grad(cost_fn)(
+                {ansatz3_param: tc.backend.convert_to_tensor(0.618)}
+            )
+            assert not np.isnan(grad[ansatz3_param])
+
+
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_batch_sample(backend):
     c = tc.Circuit(3)

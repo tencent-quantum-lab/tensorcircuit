@@ -1,4 +1,5 @@
 # extra dependencies for ci
 qiskit
+qiskit-nature
 torch
 jupyter

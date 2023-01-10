@@ -23,6 +23,8 @@
 
 - Auto unroll composite qiskit instructions when translating to tc circuit
 
+- Add `binding_parameters` argument for translating parameterized qiskit circuit to tc circuit
+
 - Add `keep_measure_order` bool option to `from_openqasm` methods so that the measure instruction order is kept by qiskit
 
 ### Fixed
