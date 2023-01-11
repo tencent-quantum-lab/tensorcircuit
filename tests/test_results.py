@@ -29,26 +29,6 @@ def test_expectation():
     assert counts.expectation(d, None, [[1, -1], [1, 0], [1, 1]]) == -5 / 9
 
 
-def run(cs, shots):
-    # customized backend for mitigation test
-    nqubit = cs[0]._nqubits
-    gg = []
-    for i in range(2 * nqubit):
-        gg.append(np.sin(i) * 0.02 + 0.978)
-    readout_error = np.reshape(gg, (nqubit, 2))
-
-    ts = []
-    for c in cs:
-        count = c.sample(
-            batch=shots,
-            allow_state=True,
-            readout_error=readout_error,
-            format="count_dict_bin",
-        )
-        ts.append(count)
-    return ts
-
-
 def test_readout():
     nqubit = 4
     shots = 4096
@@ -208,3 +188,166 @@ def test_M3():
     idea_count2 = counts.marginal_count(idea_count, [1, 3, 2])
     assert counts.kl_divergence(idea_count2, mit_count3) < 0.05
     assert counts.kl_divergence(idea_count2, mit_count4) < 0.05
+
+
+def partial_sample(c, batch, readout_error=None):
+    measure_index = []
+    for inst in c._extra_qir:
+        if inst["name"] == "measure":
+            measure_index.append(inst["index"])
+    if len(measure_index) == 0:
+        measure_index = list(range(c._nqubits))
+
+    ct = c.sample(
+        allow_state=True,
+        batch=batch,
+        readout_error=readout_error,
+        format="count_dict_bin",
+    )
+    return tc.results.counts.marginal_count(ct, measure_index)
+
+
+def run(cs, shots):
+    # customized backend for mitigation test
+    nqubit = cs[0]._nqubits
+    gg = []
+    for i in range(2 * nqubit):
+        gg.append(np.sin(i) * 0.02 + 0.978)
+        # gg.append(0.98 - i * 0.01)
+    readout_error = np.reshape(gg, (nqubit, 2))
+
+    ts = []
+    for c in cs:
+        count = c.sample(
+            batch=shots,
+            allow_state=True,
+            readout_error=readout_error,
+            format="count_dict_bin",
+        )
+        ts.append(count)
+    return ts
+
+
+def simulator(c, shots, logical_physical_mapping):
+    # with readout_error noise
+    nqubit = c._nqubits
+    gg = []
+    for i in range(200):
+        gg.append(np.sin(i) * 0.02 + 0.978)
+        # gg.append(0.98 - i * 0.01)
+    readout_error = np.reshape(gg[0 : nqubit * 2], (nqubit, 2))
+    mapped_readout_error = [[1, 1]] * nqubit
+    for lq, phyq in logical_physical_mapping.items():
+        mapped_readout_error[lq] = readout_error[phyq]
+    return partial_sample(c, shots, mapped_readout_error)
+
+
+def test_mapping2():
+    nqubit = 15
+    shots = 100000
+    c = tc.Circuit(nqubit)
+    c.H(4)
+    c.cnot(4, 5)
+    c.cnot(5, 6)
+    c.cnot(6, 7)
+    c.rx(4, theta=0.8)
+    c.rx(7, theta=1.8)
+    c.measure_instruction(4)
+    c.measure_instruction(5)
+    c.measure_instruction(6)
+    c.measure_instruction(7)
+
+    mit = ReadoutMit(execute=run)
+    mit.cals_from_system(list(range(15)), shots=100000, method="local")
+
+    show_qubits = [6, 7, 5]
+
+    idea_count = c.sample(batch=shots, allow_state=True, format="count_dict_bin")
+    idea_count1 = counts.marginal_count(idea_count, show_qubits)
+
+    def hh(logical_physical_mapping):
+        listtt = []
+        for _ in range(10):
+            raw_count = simulator(c, shots, logical_physical_mapping)
+            mit_count1 = mit.apply_correction(
+                raw_count,
+                qubits=show_qubits,
+                positional_logical_mapping={0: 4, 1: 5, 2: 6, 3: 7},
+                logical_physical_mapping=logical_physical_mapping,
+                method="square",
+            )
+            listtt.append(counts.kl_divergence(idea_count1, mit_count1))
+        # print("std", np.std(listtt), np.mean(listtt)) # smaller error rate and larger shots, better mititation.
+        np.testing.assert_allclose(np.mean(listtt), 0.01, atol=1e-2)
+
+    logical_physical_mapping = {4: 0, 5: 1, 6: 2, 7: 3}
+    hh(logical_physical_mapping)
+
+    logical_physical_mapping = {4: 4, 5: 5, 6: 6, 7: 7}
+    hh(logical_physical_mapping)
+
+    logical_physical_mapping = {4: 8, 5: 9, 6: 10, 7: 11}
+    hh(logical_physical_mapping)
+
+
+def test_readout_expv_map():
+    shots = 100000
+    nqubit = 9
+    c = tc.Circuit(nqubit)
+    c.H(3)
+    c.cnot(3, 4)
+    c.cnot(4, 5)
+    c.rx(3, theta=0.8)
+    c.rx(4, theta=1.2)
+    c.measure_instruction(3)
+    c.measure_instruction(4)
+    c.measure_instruction(5)
+
+    idea_count = c.sample(batch=100000, allow_state=True, format="count_dict_bin")
+    idea_value = counts.expectation(idea_count, z=[4, 5])
+
+    # logical_physical_mapping = {3: 3, 4: 4, 5: 5}
+    logical_physical_mapping = {3: 1, 4: 8, 5: 3}
+    positional_logical_mapping = {0: 3, 1: 4, 2: 5}
+
+    raw_count = simulator(c, shots, logical_physical_mapping)
+
+    cal_qubits = list(range(nqubit))
+    mit = ReadoutMit(execute=run)
+    mit.cals_from_system(cal_qubits, shots=100000, method="global")
+    mit_count = mit.apply_correction(
+        raw_count,
+        qubits=[3, 4, 5],
+        positional_logical_mapping=positional_logical_mapping,
+        logical_physical_mapping=logical_physical_mapping,
+        method="inverse",
+    )
+    mit_value = counts.expectation(mit_count, z=[1, 2])
+    # print("idea", idea_value)
+    # print("mit", mit_value)
+
+    mit = ReadoutMit(execute=run)
+    mit.cals_from_system(cal_qubits, shots=100000, method="local")
+    mit_value1 = mit.expectation(
+        raw_count,
+        z=[4, 5],
+        positional_logical_mapping=positional_logical_mapping,
+        logical_physical_mapping=logical_physical_mapping,
+        method="inverse",
+    )
+
+    mit = ReadoutMit(execute=run)
+    mit.cals_from_system(cal_qubits, shots=100000, method="global")
+    mit_value2 = mit.expectation(
+        raw_count,
+        z=[4, 5],
+        positional_logical_mapping=positional_logical_mapping,
+        logical_physical_mapping=logical_physical_mapping,
+        method="inverse",
+    )
+
+    # print("mit1", mit_value1)
+    # print("mit2", mit_value2)
+    np.testing.assert_allclose(idea_value, mit_value, atol=1e-2)
+    np.testing.assert_allclose(idea_value, mit_value1, atol=1e-2)
+    np.testing.assert_allclose(idea_value, mit_value2, atol=1e-2)
