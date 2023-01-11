@@ -697,11 +697,11 @@ def contraction_info_decorator(algorithm: Callable[..., Any]) -> Callable[..., A
         print("------ contraction cost summary ------")
         print(
             "log10[FLOPs]: ",
-            "%.3f" % np.log10(tree.total_flops()),
+            "%.3f" % np.log10(float(tree.total_flops())),
             " log2[SIZE]: ",
             "%.0f" % tree.contraction_width(),
             " log2[WRITE]: ",
-            "%.3f" % np.log2(tree.total_write()),
+            "%.3f" % np.log2(float(tree.total_write())),
         )
         return path
 
