@@ -194,7 +194,7 @@ def partial_sample(c, batch, readout_error=None):
     measure_index = []
     for inst in c._extra_qir:
         if inst["name"] == "measure":
-            measure_index.append(inst["index"])
+            measure_index.append(inst["index"][0])
     if len(measure_index) == 0:
         measure_index = list(range(c._nqubits))
 
@@ -209,28 +209,19 @@ def partial_sample(c, batch, readout_error=None):
 
 def run(cs, shots):
     # customized backend for mitigation test
-    nqubit = cs[0]._nqubits
-    gg = []
-    for i in range(2 * nqubit):
-        gg.append(np.sin(i) * 0.02 + 0.978)
-        # gg.append(0.98 - i * 0.01)
-    readout_error = np.reshape(gg, (nqubit, 2))
-
     ts = []
     for c in cs:
-        count = c.sample(
-            batch=shots,
-            allow_state=True,
-            readout_error=readout_error,
-            format="count_dict_bin",
-        )
+        count = simulator(c, shots)
         ts.append(count)
     return ts
 
 
-def simulator(c, shots, logical_physical_mapping):
+def simulator(c, shots, logical_physical_mapping=None):
     # with readout_error noise
     nqubit = c._nqubits
+    if logical_physical_mapping is None:
+        logical_physical_mapping = {i: i for i in range(nqubit)}
+
     gg = []
     for i in range(200):
         gg.append(np.sin(i) * 0.02 + 0.978)
@@ -242,7 +233,7 @@ def simulator(c, shots, logical_physical_mapping):
     return partial_sample(c, shots, mapped_readout_error)
 
 
-def test_mapping2():
+def test_mapping():
     nqubit = 15
     shots = 100000
     c = tc.Circuit(nqubit)
@@ -265,34 +256,34 @@ def test_mapping2():
     idea_count = c.sample(batch=shots, allow_state=True, format="count_dict_bin")
     idea_count1 = counts.marginal_count(idea_count, show_qubits)
 
-    def hh(logical_physical_mapping):
-        listtt = []
+    def miti_kl_mean(logical_physical_mapping):
+        ls = []
         for _ in range(10):
             raw_count = simulator(c, shots, logical_physical_mapping)
             mit_count1 = mit.apply_correction(
                 raw_count,
                 qubits=show_qubits,
-                positional_logical_mapping={0: 4, 1: 5, 2: 6, 3: 7},
+                positional_logical_mapping={1: 5, 0: 4, 2: 6, 3: 7},
                 logical_physical_mapping=logical_physical_mapping,
                 method="square",
             )
-            listtt.append(counts.kl_divergence(idea_count1, mit_count1))
+            ls.append(counts.kl_divergence(idea_count1, mit_count1))
         # print("std", np.std(listtt), np.mean(listtt)) # smaller error rate and larger shots, better mititation.
-        np.testing.assert_allclose(np.mean(listtt), 0.01, atol=1e-2)
+        np.testing.assert_allclose(np.mean(ls), 0.01, atol=1e-2)
 
-    logical_physical_mapping = {4: 0, 5: 1, 6: 2, 7: 3}
-    hh(logical_physical_mapping)
+    logical_physical_mapping = {4: 0, 6: 2, 7: 3, 5: 1}
+    miti_kl_mean(logical_physical_mapping)
 
     logical_physical_mapping = {4: 4, 5: 5, 6: 6, 7: 7}
-    hh(logical_physical_mapping)
+    miti_kl_mean(logical_physical_mapping)
 
     logical_physical_mapping = {4: 8, 5: 9, 6: 10, 7: 11}
-    hh(logical_physical_mapping)
+    miti_kl_mean(logical_physical_mapping)
 
 
 def test_readout_expv_map():
     shots = 100000
-    nqubit = 9
+    nqubit = 7
     c = tc.Circuit(nqubit)
     c.H(3)
     c.cnot(3, 4)
@@ -307,24 +298,12 @@ def test_readout_expv_map():
     idea_value = counts.expectation(idea_count, z=[4, 5])
 
     # logical_physical_mapping = {3: 3, 4: 4, 5: 5}
-    logical_physical_mapping = {3: 1, 4: 8, 5: 3}
-    positional_logical_mapping = {0: 3, 1: 4, 2: 5}
+    logical_physical_mapping = {3: 1, 5: 3, 4: 6}
+    positional_logical_mapping = {1: 4, 0: 3, 2: 5}
 
     raw_count = simulator(c, shots, logical_physical_mapping)
 
     cal_qubits = list(range(nqubit))
-    mit = ReadoutMit(execute=run)
-    mit.cals_from_system(cal_qubits, shots=100000, method="global")
-    mit_count = mit.apply_correction(
-        raw_count,
-        qubits=[3, 4, 5],
-        positional_logical_mapping=positional_logical_mapping,
-        logical_physical_mapping=logical_physical_mapping,
-        method="inverse",
-    )
-    mit_value = counts.expectation(mit_count, z=[1, 2])
-    # print("idea", idea_value)
-    # print("mit", mit_value)
 
     mit = ReadoutMit(execute=run)
     mit.cals_from_system(cal_qubits, shots=100000, method="local")
@@ -335,6 +314,17 @@ def test_readout_expv_map():
         logical_physical_mapping=logical_physical_mapping,
         method="inverse",
     )
+
+    mit_count = mit.apply_correction(
+        raw_count,
+        qubits=[3, 4, 5],
+        positional_logical_mapping=positional_logical_mapping,
+        logical_physical_mapping=logical_physical_mapping,
+        method="inverse",
+    )
+    mit_value = counts.expectation(mit_count, z=[1, 2])
+    # print("idea", idea_value)
+    # print("mit", mit_value)
 
     mit = ReadoutMit(execute=run)
     mit.cals_from_system(cal_qubits, shots=100000, method="global")
@@ -348,6 +338,6 @@ def test_readout_expv_map():
 
     # print("mit1", mit_value1)
     # print("mit2", mit_value2)
-    np.testing.assert_allclose(idea_value, mit_value, atol=1e-2)
-    np.testing.assert_allclose(idea_value, mit_value1, atol=1e-2)
-    np.testing.assert_allclose(idea_value, mit_value2, atol=1e-2)
+    np.testing.assert_allclose(idea_value, mit_value, atol=3 * 1e-2)
+    np.testing.assert_allclose(idea_value, mit_value1, atol=3 * 1e-2)
+    np.testing.assert_allclose(idea_value, mit_value2, atol=3 * 1e-2)

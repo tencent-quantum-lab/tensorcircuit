@@ -96,8 +96,9 @@ class ReadoutMit:
         #     range(len(qubits)), key=lambda k: qubits[k]  # type: ignore
         # )
         sorted_index = []
+        qubits1 = sorted(qubits)  # type: ignore
         for i in qubits:  # type: ignore
-            sorted_index.append(sorted(qubits).index(i))  # type: ignore
+            sorted_index.append(qubits1.index(i))
 
         name = "{:0" + str(len(qubits)) + "b}"  # type: ignore
         lisbs = [int(x) for x in name.format(m)]
@@ -376,24 +377,18 @@ class ReadoutMit:
         if not is_sequence(qubits):
             qubits = list(range(qubits))  # type: ignore
 
+        if positional_logical_mapping is None:
+            use_position_qubits = qubits
+        else:
+            logical_positional_mapping = {
+                v: k for k, v in positional_logical_mapping.items()
+            }
+            use_position_qubits = [logical_positional_mapping[lq] for lq in qubits]
+
         if logical_physical_mapping is None:
             self.use_qubits = qubits  # type: ignore
-
-            if positional_logical_mapping is None:
-                use_position_qubits = self.use_qubits
-            else:
-                logical_qubits = list(positional_logical_mapping.values())
-                use_position_qubits = []
-                for i in qubits:
-                    use_position_qubits.append(logical_qubits.index(i))
-
         else:
-            logical_qubits = list(logical_physical_mapping.keys())
-            self.use_qubits = []  # type: ignore
-            use_position_qubits = []
-            for i in qubits:
-                self.use_qubits.append(logical_physical_mapping[i])  # type: ignore
-                use_position_qubits.append(logical_qubits.index(i))
+            self.use_qubits = [logical_physical_mapping[lq] for lq in qubits]  # type: ignore
 
         counts = marginal_count(counts, use_position_qubits)
 
@@ -754,15 +749,14 @@ class ReadoutMit:
 
         n = len(list(counts.keys())[0])
 
+        if positional_logical_mapping is None:
+            logical_qubits = list(range(n))
+        else:
+            logical_qubits = [positional_logical_mapping[pq] for pq in range(n)]
         if logical_physical_mapping is None:
-            if positional_logical_mapping is None:
-                logical_qubits = list(range(n))
-            else:
-                logical_qubits = list(positional_logical_mapping.values())
             physical_qubits = logical_qubits
         else:
-            logical_qubits = list(logical_physical_mapping.keys())
-            physical_qubits = list(logical_physical_mapping.values())
+            physical_qubits = [logical_physical_mapping[i] for i in logical_qubits]
 
         if z is None:
             z1 = None
