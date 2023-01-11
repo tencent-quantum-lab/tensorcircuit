@@ -229,7 +229,7 @@ class NumpyBackend(numpy_backend.NumPyBackend, ExtendedBackend):  # type: ignore
     def solve(self, A: Tensor, b: Tensor, assume_a: str = "gen") -> Tensor:  # type: ignore
         # gen, sym, her, pos
         # https://stackoverflow.com/questions/44672029/difference-between-numpy-linalg-solve-and-numpy-linalg-lu-solve/44710451
-        return solve(A, b, assume_a)
+        return solve(A, b, assume_a=assume_a)
 
     def searchsorted(self, a: Tensor, v: Tensor, side: str = "left") -> Tensor:
         return np.searchsorted(a, v, side=side)  # type: ignore

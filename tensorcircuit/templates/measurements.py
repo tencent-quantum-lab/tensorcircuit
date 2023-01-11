@@ -218,7 +218,7 @@ def heisenberg_measurements(
     hy: float = 0.0,
     reuse: bool = True,
 ) -> Tensor:
-    """
+    r"""
     Evaluate Heisenberg energy expectation, whose Hamiltonian is defined on the lattice graph ``g`` as follows:
     (e are edges in graph ``g`` where e1 and e2 are two nodes for edge e and v are nodes in graph ``g``)
 

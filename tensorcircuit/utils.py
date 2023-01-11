@@ -136,7 +136,7 @@ def arg_alias(
             if isinstance(vs, str):
                 vs = []
             for v in vs:
-                if kws.get(v, "qazxswedcvfr198") != "qazxswedcvfr198":
+                if v in kws:
                     # in case it is None by design!
                     kws[k] = kws[v]
                     del kws[v]

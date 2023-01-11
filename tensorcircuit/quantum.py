@@ -711,7 +711,7 @@ class QuOperator:
         return list(nodes)[0].tensor
 
     def eval_matrix(self, final_edge_order: Optional[Sequence[Edge]] = None) -> Tensor:
-        """
+        r"""
         Contracts the tensor network in place and returns the final tensor
         in two dimentional matrix.
         The default ordering for the axes of the final tensor is:
@@ -2176,7 +2176,7 @@ def spin_by_basis(n: int, m: int, elements: Tuple[int, int] = (1, -1)) -> Tensor
 
 
 def correlation_from_samples(index: Sequence[int], results: Tensor, n: int) -> Tensor:
-    """
+    r"""
     Compute :math:`\prod_{i\in \\text{index}} s_i (s=\pm 1)`,
     Results is in the format of "sample_int" or "sample_bin"
 
@@ -2200,7 +2200,7 @@ def correlation_from_samples(index: Sequence[int], results: Tensor, n: int) -> T
 
 
 def correlation_from_counts(index: Sequence[int], results: Tensor) -> Tensor:
-    """
+    r"""
     Compute :math:`\prod_{i\in \\text{index}} s_i`,
     where the probability for each bitstring is given as a vector ``results``.
     Results is in the format of "count_vector"
