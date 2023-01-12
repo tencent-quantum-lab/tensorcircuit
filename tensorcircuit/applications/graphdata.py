@@ -290,7 +290,7 @@ def regular_graph_generator(d: int, n: int, weights: bool = False) -> Iterator[G
 
 
 def _maxcut(g: Graph, values: Sequence[int]) -> float:
-    """
+    r"""
     To get the max-cut for the graph g by given values $$\pm 1$$ on each vertex as a list.
 
     :param g: The graph

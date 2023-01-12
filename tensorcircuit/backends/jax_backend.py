@@ -395,7 +395,7 @@ class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
         return False
 
     def solve(self, A: Tensor, b: Tensor, assume_a: str = "gen") -> Tensor:  # type: ignore
-        return jsp.linalg.solve(A, b, assume_a)
+        return jsp.linalg.solve(A, b, assume_a=assume_a)
 
     def searchsorted(self, a: Tensor, v: Tensor, side: str = "left") -> Tensor:
         if not self.is_tensor(a):
@@ -408,10 +408,10 @@ class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
         return libjax.tree_map(f, *pytrees)
 
     def tree_flatten(self, pytree: Any) -> Tuple[Any, Any]:
-        return libjax.tree_flatten(pytree)  # type: ignore
+        return libjax.tree_util.tree_flatten(pytree)  # type: ignore
 
     def tree_unflatten(self, treedef: Any, leaves: Any) -> Any:
-        return libjax.tree_unflatten(treedef, leaves)
+        return libjax.tree_util.tree_unflatten(treedef, leaves)
 
     def from_dlpack(self, a: Any) -> Tensor:
         import jax.dlpack

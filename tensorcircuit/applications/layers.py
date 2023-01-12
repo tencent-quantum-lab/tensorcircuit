@@ -81,7 +81,7 @@ def generate_double_gate(gates: str) -> None:
 
 
 def generate_gate_layer(gate: str) -> None:
-    """
+    r"""
     $$e^{-i\theta \sigma}$$
 
     :param gate:
@@ -108,7 +108,7 @@ def generate_gate_layer(gate: str) -> None:
 
 
 def generate_any_gate_layer(gate: str) -> None:
-    """
+    r"""
     $$e^{-i\theta_i \sigma}$$
 
     :param gate:
@@ -392,7 +392,7 @@ try:
         return circuit
 
     def generate_cirq_gate_layer(gate: str) -> None:
-        """
+        r"""
         $$e^{-i\theta \sigma}$$
 
         :param gate:
@@ -422,7 +422,7 @@ try:
         setattr(thismodule, "cirq" + gate + "layer", f)
 
     def generate_cirq_any_gate_layer(gate: str) -> None:
-        """
+        r"""
         $$e^{-i\theta \sigma}$$
 
         :param gate:

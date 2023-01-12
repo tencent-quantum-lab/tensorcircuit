@@ -102,7 +102,7 @@ def qir2tex(
             p = max(flag[min(idx) : max(idx) + 1]) + 1
             for i in range(min(idx), max(idx) + 1):
                 tex_string_table[i] += [r"\qw "] * (p - flag[i] - 1)
-                tex_string_table[i] += [r"\ghost{" + x["name"][7:] + "}\qw "]
+                tex_string_table[i] += [r"\ghost{" + x["name"][7:] + r"}\qw "]
                 flag[i] = p
         else:
             ctrl_number, gate_name = gate_name_trans(x["name"])
