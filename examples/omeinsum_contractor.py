@@ -2,6 +2,7 @@ import os
 import json
 from typing import List, Set, Dict, Tuple
 import tempfile
+import warnings
 import cotengra as ctg
 
 # Prerequisites for running this example:
@@ -12,6 +13,10 @@ import cotengra as ctg
 # Step 3: install juliacall via `pip install juliacall`, this example was tested with juliacall 0.9.9
 # Step 4: install julia package `OMEinsum`, this example was tested with OMEinsum v0.7.2,
 # see https://docs.julialang.org/en/v1/stdlib/Pkg/ for more details on julia's package manager
+# Step 5: for julia multi-threading, set env variable PYTHON_JULIACALL_THREADS=<N|auto>.
+# However, in order to use julia multi-threading in juliacall,
+# we have to turn off julia GC at the risk of OOM.
+# See see https://github.com/cjdoris/PythonCall.jl/issues/219 for more details.
 from juliacall import Main as jl
 
 jl.seval("using OMEinsum")
@@ -84,7 +89,21 @@ class OMEinsumTreeSAOptimizer(object):
             sc_weight=self.sc_weight,
             rw_weight=self.rw_weight,
         )
+
+        nthreads = jl.Threads.nthreads()
+        if nthreads > 1:
+            warnings.warn(
+                "Julia receives Threads.nthreads()={0}. "
+                "However, in order to use julia multi-threading in juliacall, "
+                "we have to turn off julia GC at the risk of OOM. "
+                "That means you may need a large memory machine. "
+                "Please see https://github.com/cjdoris/PythonCall.jl/issues/219 "
+                "for more details.".format(nthreads)
+            )
+            jl.GC.enable(False)
         optcode = jl.OMEinsum.optimize_code(eincode, size_dict, algorithm)
+        if nthreads > 1:
+            jl.GC.enable(True)
         # jl.println("time and space complexity computed by OMEinsum: ",
         #    jl.OMEinsum.timespace_complexity(optcode, size_dict))
 
