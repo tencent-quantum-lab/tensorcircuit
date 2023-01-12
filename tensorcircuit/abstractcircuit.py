@@ -487,6 +487,28 @@ class AbstractCircuit:
 
         return c
 
+    def get_positional_logical_mapping(self) -> Dict[int, int]:
+        """
+        Get positional logical mapping dict based on measure instruction.
+        This function is useful when we only measure part of the qubits in the circuit,
+        to process the count result from partial measurement, we must be aware of the mapping,
+        i.e. for each position in the count bitstring, what is the corresponding qubits (logical)
+        defined on the circuit
+
+        :return: ``positional_logical_mapping``
+        :rtype: Dict[int, int]
+        """
+        id_mapping = {i: i for i in range(self._nqubits)}
+        if len(self._extra_qir) == 0:
+            return id_mapping
+        measure_index = []
+        for inst in self._extra_qir:
+            if inst["name"] == "measure":
+                measure_index.append(inst["index"][0])
+        if len(measure_index) == 0:
+            return id_mapping
+        return {i: j for i, j in enumerate(measure_index)}
+
     @staticmethod
     def standardize_gate(name: str) -> str:
         """
