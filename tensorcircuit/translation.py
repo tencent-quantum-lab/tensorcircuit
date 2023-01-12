@@ -587,7 +587,6 @@ def qiskit_from_qasm_str_ordered_measure(qasm_str: str) -> Any:
     qasm_instruction = []
     for line in qasm_str.split("\n"):
         if line.startswith("measure"):
-            print(line)
             index = int(line.split(" ")[1][2:-1])
             cindex = int(line.split(" ")[3].strip(";")[2:-1])
 

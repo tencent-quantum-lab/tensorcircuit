@@ -3,3 +3,4 @@ qiskit
 qiskit-nature
 torch
 jupyter
+mthree==1.1.0
