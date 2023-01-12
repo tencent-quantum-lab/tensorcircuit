@@ -1357,3 +1357,17 @@ def test_initial_mapping():
         c.expectation_ps(z=[1]), c3.expectation_ps(z=[7]), atol=1e-5
     )
     print(c3.draw())
+
+
+def test_get_positional_logical_mapping():
+    c = tc.Circuit(3)
+    c.cx(0, 1)
+    c.cz(1, 2)
+    c.h(1)
+    assert c.get_positional_logical_mapping() == {0: 0, 1: 1, 2: 2}
+    c = tc.Circuit(3)
+    c.cx(0, 1)
+    c.h(1)
+    c.measure_instruction(2)
+    c.measure_instruction(0)
+    assert c.get_positional_logical_mapping() == {0: 2, 1: 0}

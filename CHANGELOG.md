@@ -4,7 +4,19 @@
 
 ### Added
 
-- Add `initial_mapping` circuit method to return a new circuit with the `logical_physical_mapping`
+- Add `initial_mapping` circuit method to return a new circuit with given `logical_physical_mapping`
+
+- Add `get_positional_logical_mapping` circuit method to return the mapping when only part of the qubits are measured
+
+- `results.rem.ReadoutMit` class now support three layers of abstriction on qubits: positional, logical, and physical
+
+- Add an example script demonstrating how tc can use external contraction path finder wirtten in Julia
+
+### Fixed
+
+- Circuit nosify in noise model now support all circuit attributs apart from qubit number
+
+- Some string warnings are fixed by using r-string
 
 ## 0.7.0
 
