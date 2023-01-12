@@ -4,7 +4,7 @@ readout error mitigation functionalities
 # Part of the code in this file is from mthree: https://github.com/Qiskit-Partners/mthree (Apache2)
 # https://journals.aps.org/prxquantum/pdf/10.1103/PRXQuantum.2.040326
 
-from typing import Any, Callable, List, Sequence, Optional, Union
+from typing import Any, Callable, List, Sequence, Optional, Union, Dict
 import warnings
 from time import perf_counter
 
@@ -78,6 +78,7 @@ class ReadoutMit:
         vomit = 0
         for k in list(filter(lambda x: x not in qubits, self.cal_qubits)):  # type: ignore
             vomit += lisbs[self.cal_qubits.index(k)]  # type: ignore
+
         return vomit
 
     def newrange(self, m: int, qubits: Optional[Sequence[Any]]) -> int:
@@ -91,9 +92,14 @@ class ReadoutMit:
         :return: new index
         :rtype: int
         """
-        sorted_index = sorted(
-            range(len(qubits)), key=lambda k: qubits[k]  # type: ignore
-        )
+        # sorted_index = sorted(
+        #     range(len(qubits)), key=lambda k: qubits[k]  # type: ignore
+        # )
+        sorted_index = []
+        qubits1 = sorted(qubits)  # type: ignore
+        for i in qubits:  # type: ignore
+            sorted_index.append(qubits1.index(i))
+
         name = "{:0" + str(len(qubits)) + "b}"  # type: ignore
         lisbs = [int(x) for x in name.format(m)]
         lisbs2 = [lisbs[i] for i in sorted_index]
@@ -127,6 +133,7 @@ class ReadoutMit:
             m = 0
             for i in range(len(lbs)):
                 vv = self.ubs(i, qubits)
+
                 if vv == 0:
                     for s in lbs[i]:
                         calmatrix[int(s, 2)][self.newrange(m, qubits)] = (
@@ -337,10 +344,67 @@ class ReadoutMit:
         probability = probability * shots
         return vec2count(probability, prune=True)
 
+    def mapping_preprocess(
+        self,
+        counts: ct,
+        qubits: Sequence[int],
+        positional_logical_mapping: Optional[Dict[int, int]] = None,
+        logical_physical_mapping: Optional[Dict[int, int]] = None,
+    ) -> ct:
+        """
+        Preprocessing to deal with qubit mapping, including positional_logical_mapping and
+        logical_physical_mapping. Return self.use_qubits(physical) and corresponding counts.
+
+        :param counts: raw_counts on positional_qubits
+        :type counts: ct
+        :param qubits: user-defined logical qubits to show final mitted results
+        :type qubits: Sequence[int]
+        :param positional_logical_mapping: positional_logical_mapping, defaults to None.
+        :type positional_logical_mapping: Optional[Dict[int, int]], optional
+        :param logical_physical_mapping: logical_physical_mapping, defaults to None
+        :type logical_physical_mapping: Optional[Dict[int, int]], optional
+        :return: counts on self.use_qubit(physical)
+        :rtype: ct
+        """
+        # counts [0,1,2] / logic_qubit(circuit,meas) [3,4,6] / physic_qubit [2,8,6]
+        # / use_logic_qubits [4,3] / cal_qubits[0-8]
+        # input: counts [0,1,2], use_logical_qubits [4,3],  logic_physic_mapping {3:2,4:8,6:6},
+        # input: position_logical_mapping{0:3,1:4,2:6}
+        # self.use_qubits(physic)[8,2]
+        # use_position_qubits [1,0]
+        # counts = marginal_count(counts[0,1,2], [1,0])  corresponds to self.use_qubits(physic)
+
+        if not is_sequence(qubits):
+            qubits = list(range(qubits))  # type: ignore
+
+        if positional_logical_mapping is None:
+            use_position_qubits = qubits
+        else:
+            logical_positional_mapping = {
+                v: k for k, v in positional_logical_mapping.items()
+            }
+            use_position_qubits = [logical_positional_mapping[lq] for lq in qubits]
+
+        if logical_physical_mapping is None:
+            self.use_qubits = qubits  # type: ignore
+        else:
+            self.use_qubits = [logical_physical_mapping[lq] for lq in qubits]  # type: ignore
+
+        counts = marginal_count(counts, use_position_qubits)
+
+        if not set(self.use_qubits).issubset(set(self.cal_qubits)):  # type: ignore
+            raise ValueError(
+                "The qubit list used in calculation must included in  the calibration qubit list."
+            )
+
+        return counts
+
     def apply_correction(
         self,
         counts: ct,
         qubits: Sequence[int],
+        positional_logical_mapping: Optional[Dict[int, int]] = None,
+        logical_physical_mapping: Optional[Dict[int, int]] = None,
         distance: Optional[int] = None,
         method: str = "constrained_least_square",
         max_iter: int = 25,
@@ -353,8 +417,12 @@ class ReadoutMit:
 
         :param counts: raw count
         :type counts: ct
-        :param qubits: used qubit list
-        :type qubits: Sequence[Any]
+        :param qubits: user-defined logical qubits to show final mitted results
+        :type qubits: Sequence[int]
+        :param positional_logical_mapping: positional_logical_mapping, defaults to None.
+        :type positional_logical_mapping: Optional[Dict[int, int]], optional
+        :param logical_physical_mapping: logical_physical_mapping, defaults to None
+        :type logical_physical_mapping: Optional[Dict[int, int]], optional
         :param distance:  defaults to None
         :type distance: int, optional
         :param method: mitigation method, defaults to "square"
@@ -370,15 +438,25 @@ class ReadoutMit:
         :return: mitigated count
         :rtype: ct
         """
-        if not is_sequence(qubits):
-            qubits = list(range(qubits))  # type: ignore
-        self.use_qubits = qubits  # type: ignore
-        if not set(self.use_qubits).issubset(set(self.cal_qubits)):  # type: ignore
-            raise ValueError(
-                "The qubit list used in calculation must included in  the calibration qubit list."
-            )
+        # if not is_sequence(qubits):
+        #     qubits = list(range(qubits))  # type: ignore
+        # self.use_qubits = qubits  # type: ignore
+        # if not set(self.use_qubits).issubset(set(self.cal_qubits)):  # type: ignore
+        #     raise ValueError(
+        #         "The qubit list used in calculation must included in  the calibration qubit list."
+        #     )
 
-        counts = marginal_count(counts, self.use_qubits)  # type: ignore
+        # counts = marginal_count(counts, self.use_qubits)  # type: ignore
+
+        counts = self.mapping_preprocess(
+            counts=counts,
+            qubits=qubits,
+            positional_logical_mapping=positional_logical_mapping,
+            logical_physical_mapping=logical_physical_mapping,
+        )
+
+        qubits = self.use_qubits  # type: ignore
+
         shots = sum([v for _, v in counts.items()])
         # methods for small system, "global" calibration only fit for those methods.
         if method in ["inverse", "pseudo_inverse"]:
@@ -639,6 +717,8 @@ class ReadoutMit:
         counts: ct,
         z: Optional[Sequence[int]] = None,
         diagonal_op: Optional[Tensor] = None,
+        positional_logical_mapping: Optional[Dict[int, int]] = None,
+        logical_physical_mapping: Optional[Dict[int, int]] = None,
         method: str = "constrained_least_square",
     ) -> float:
         """
@@ -652,6 +732,10 @@ class ReadoutMit:
         :param diagoal_op: shape [n, 2], explicitly indicate the diagonal op on each qubit
             eg. [1, -1] for z [1, 1] for I, etc.
         :type diagoal_op: Tensor
+        :param positional_logical_mapping: positional_logical_mapping, defaults to None.
+        :type positional_logical_mapping: Optional[Dict[int, int]], optional
+        :param logical_physical_mapping: logical_physical_mapping, defaults to None
+        :type logical_physical_mapping: Optional[Dict[int, int]], optional
         :param method: readout mitigation method, defaults to "constrained_least_square"
         :type method: str, optional
         :return: expectation value after readout error mitigation
@@ -659,13 +743,31 @@ class ReadoutMit:
         """
         # https://arxiv.org/pdf/2006.14044.pdf
 
-        if z is None and diagonal_op is None:
-            raise ValueError("One of `z` and `diagonal_op` must be set")
+        # count[0,1,2], logical[3,4,5], physic[6,7,8], z=[4,5](logical)
+        # z1=[1,2](position), z=[7,8] (physic)
+        # diagonal_op [i6 z7 z8 ]
+
         n = len(list(counts.keys())[0])
+
+        if positional_logical_mapping is None:
+            logical_qubits = list(range(n))
+        else:
+            logical_qubits = [positional_logical_mapping[pq] for pq in range(n)]
+        if logical_physical_mapping is None:
+            physical_qubits = logical_qubits
+        else:
+            physical_qubits = [logical_physical_mapping[i] for i in logical_qubits]
+
+        if z is None:
+            z1 = None
+            if diagonal_op is None:
+                raise ValueError("One of `z` and `diagonal_op` must be set")
+        else:
+            z1 = [logical_qubits.index(i) for i in z]
 
         if self.local is True:
             inv_single_qubit_cals = []
-            for i in range(n):
+            for i in physical_qubits:
                 inv_single_qubit_cals.append(np.linalg.pinv(self.single_qubit_cals[i]))
 
             if z is None:
@@ -676,7 +778,7 @@ class ReadoutMit:
             else:
                 diagonal_op = [
                     [1, -1] @ inv_single_qubit_cals[i]
-                    if i in z
+                    if i in z1
                     else [1, 1] @ inv_single_qubit_cals[i]
                     for i in range(n)
                 ]
@@ -684,7 +786,14 @@ class ReadoutMit:
             mit_value = expectation(counts, diagonal_op=diagonal_op)
 
         else:
-            mit_count = self.apply_correction(counts, list(range(n)), method=method)
-            mit_value = expectation(mit_count, z, diagonal_op)
+            mit_count = self.apply_correction(
+                counts,
+                qubits=logical_qubits,
+                positional_logical_mapping=positional_logical_mapping,
+                logical_physical_mapping=logical_physical_mapping,
+                method=method,
+            )
+
+            mit_value = expectation(mit_count, z1, diagonal_op)
 
         return mit_value
