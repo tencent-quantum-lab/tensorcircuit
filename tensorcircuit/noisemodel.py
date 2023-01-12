@@ -186,9 +186,9 @@ def circuit_with_noise(
     qir = c.to_qir()
     cnew: AbstractCircuit
     if isinstance(c, DMCircuit):
-        cnew = DMCircuit(c._nqubits)
+        cnew = DMCircuit(**c.circuit_param)
     else:
-        cnew = Circuit(c._nqubits)
+        cnew = Circuit(**c.circuit_param)
     cnew = apply_qir_with_noise(cnew, qir, noise_conf, status)
     return cnew
 

@@ -75,10 +75,10 @@ class DMCircuit(BaseCircuit):
                 n = int(np.log(N) / np.log(2))
                 assert n == nqubits
                 inputs = backend.reshape(inputs, [2 for _ in range(n)])
-                inputs = Gate(inputs)
-                self._nodes = [inputs]
+                inputs_gate = Gate(inputs)
+                self._nodes = [inputs_gate]
                 self.coloring_nodes(self._nodes)
-                self._front = [inputs.get_edge(i) for i in range(n)]
+                self._front = [inputs_gate.get_edge(i) for i in range(n)]
                 self._double_nodes_front()
 
             elif mps_inputs is not None:
@@ -94,9 +94,9 @@ class DMCircuit(BaseCircuit):
                 dminputs = backend.convert_to_tensor(dminputs)
                 dminputs = backend.cast(dminputs, dtype=dtypestr)
                 dminputs = backend.reshape(dminputs, [2 for _ in range(2 * nqubits)])
-                dminputs = Gate(dminputs)
-                nodes = [dminputs]
-                self._front = [dminputs.get_edge(i) for i in range(2 * nqubits)]
+                dminputs_gate = Gate(dminputs)
+                nodes = [dminputs_gate]
+                self._front = [dminputs_gate.get_edge(i) for i in range(2 * nqubits)]
                 self._nodes = nodes
                 self.coloring_nodes(self._nodes)
 
