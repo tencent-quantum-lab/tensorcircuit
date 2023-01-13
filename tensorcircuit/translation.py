@@ -273,6 +273,7 @@ def qiskit2tc(
     n: int,
     inputs: Optional[List[float]] = None,
     is_dm: bool = False,
+    circuit_constructor: Any = None,
     circuit_params: Optional[Dict[str, Any]] = None,
     binding_params: Optional[Union[Sequence[float], Dict[Any, float]]] = None,
 ) -> Any:
@@ -294,6 +295,8 @@ def qiskit2tc(
     :type n: int
     :param inputs: Input state of the circuit. Default is None.
     :type inputs: Optional[List[float]]
+    :param circuit_constructor: ``Circuit``, ``DMCircuit`` or ``MPSCircuit``
+    :type circuit_contructor: Any
     :param circuit_params: kwargs given in Circuit.__init__ construction function, default to None.
     :type circuit_params: Optional[Dict[str, Any]]
     :param binding_params: (variational) parameters for the circuit.
@@ -303,7 +306,9 @@ def qiskit2tc(
     :return: A quantum circuit in tensorcircuit
     :rtype: Any
     """
-    if is_dm:
+    if circuit_constructor is not None:
+        Circ = circuit_constructor
+    elif is_dm:
         Circ = DMCircuit2
     else:
         Circ = Circuit  # type: ignore

@@ -41,6 +41,8 @@
 
 - Add Chinese translation for doc Sharpbit
 
+- Add `circuit_constructor` argument for `qiskit2tc` method, so that we can support more circuit class than circuit and dmcircuit
+
 ### Fixed
 
 - Fix adjoint possible bug with agnostic backend

@@ -7,6 +7,7 @@ from copy import deepcopy
 from functools import reduce, partial
 from typing import Any, Callable, Optional, Sequence, List, Union, Tuple
 from operator import mul
+import warnings
 
 import numpy as np
 import tensornetwork as tn
@@ -893,7 +894,11 @@ def multicontrol_gate(unitary: Tensor, ctrl: Union[int, Sequence[int]] = 1) -> O
     eps = 1e-5
     if isinstance(ctrl, int):
         ctrl = [ctrl]
-    if int(ctrl[0] + eps) == 1:
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", np.ComplexWarning)
+        print(ctrl)
+        ctrl0_int = int(ctrl[0] + eps)
+    if ctrl0_int == 1:
         leftend = np.zeros([2, 2, 2])
         leftend[1, 1, 0] = 1
         leftend[0, 0, 1] = 1

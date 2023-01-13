@@ -71,7 +71,6 @@ class AbstractCircuit:
     inputs: Tensor
     circuit_param: Dict[str, Any]
     is_mps: bool
-    is_dm: bool
 
     sgates = sgates
     vgates = vgates
@@ -753,7 +752,7 @@ class AbstractCircuit:
             qc.data,
             n,
             inputs,
-            is_dm=cls.is_dm,
+            circuit_constructor=cls,
             circuit_params=circuit_params,
             binding_params=binding_params,
         )
