@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tensorcircuit \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-16 15:04+0800\n"
+"POT-Creation-Date: 2023-01-13 11:04+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,111 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
+
+#: ../../source/contribs/development_MacM1.rst:2
+msgid "Run TensorCircuit on TensorlowBackend with Apple M1"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:3
+msgid "Contributed by (Yuqin Chen)"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:6
+msgid "Why We Can't Run TensorCircuit on TensorlowBackend with Apple M1"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:7
+msgid ""
+"TensorCircuit requires Tensorflow to support TensorflowBackend. However "
+"for Apple M1, Tensorflow package cannot be properly installed by a usual "
+"method like \"pip install tensorflow\". As well, the TensorCircuit "
+"package cannot be properly installed by a usual method \"pip install "
+"tensorcircuit\" All we need is to properly install tensorflow on Apple M1"
+" Pro and then download the TensorCircuit package to the local and install"
+" it."
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:11
+msgid "Install tensorflow on Apple M1"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:12
+msgid ""
+"According to the instructions below or the installation manual on Apple's"
+" official website `tensorflow-metal PluggableDevice "
+"<https://developer.apple.com/metal/tensorflow-plugin/>`_, you can install"
+" tensorflow step by step."
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:14
+msgid "**Step1: Environment setup**"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:16
+msgid "x86 : AMD Create virtual environment (recommended):"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:27
+msgid "NOTE: python version 3.8 required"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:29
+msgid "arm64 : Apple Silicon"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:31
+msgid "Download and install Conda env:"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:41
+msgid "Install the TensorFlow dependencies:"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:47
+msgid "When upgrading to new base TensorFlow version, recommend:"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:65
+msgid "tensorflow-deps versions are following base TensorFlow versions so:"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:67
+msgid "for v2.5"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:75
+msgid "for v2.6"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:82
+msgid "**Step2: Install base TensorFlow**"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:88
+msgid "**Step3: Install tensorflow-metal plugin**"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:96
+msgid "Install TensorCircuit on Apple M1"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:97
+msgid ""
+"After properly install tensorflow, you can continue install "
+"TensorCircuit. Up to now, for Apple M1, the Tensorcircuit package can not"
+" be installed by simply conducting \"pip install tensorcircuit\", which "
+"will lead to improper way for Tensorflow installation. One need to "
+"download the installation package to the local, only in this way the "
+"installation proceess can recognize the Apple M1 environment."
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:102
+msgid "One should download the TensorCircuit package to local at first."
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:109
+msgid "Then unpackage it, and cd into the folder with \"setup.py\". Conducting"
+msgstr ""
 
 #: ../../source/contribs/development_windows.rst:2
 msgid "Run TensorCircuit on Windows Machine with Docker"
@@ -268,5 +373,144 @@ msgstr ""
 msgid ""
 "*Please don't hesitate to create a New issue in GitHub if you find "
 "problems or have anything for discussion with other contributors*"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:2
+msgid "Run TensorCirit on Windows with WSL2 (Windows Subsystem for Linux 2)"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:4
+msgid "Contributed by `YHPeter <https://github.com/YHPeter>`_ (Peter Yu)"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:6
+msgid ""
+"Reminder, if you are not supposed to use JAX, you can still use "
+"Numpy/Tensorflow/Pytorch backend to run demonstrations."
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:8
+msgid ""
+"Step 1. Install WSL2, follow the official installation instruction: "
+"https://docs.microsoft.com/en-us/windows/wsl/install"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:11
+msgid ""
+"Step 2. Install CUDA for GPU support, if you want to used GPU "
+"accelerator. The official CUDA installation for WSL2: "
+"https://docs.nvidia.com/cuda/wsl-user-guide/index.html#ch02-getting-"
+"started"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:15
+msgid "Step 3. Follow the Linux Installation Instructions to finish installing."
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:18
+msgid "**System Support Summary**"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:21
+msgid "Backend"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:22
+msgid "Numpy"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:23
+msgid "TensorFlow"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:24
+msgid "JAX"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:25
+msgid "Pytorch"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:26
+msgid "Suggested Package Version"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:27
+msgid ">= 1.20.0"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:28
+msgid ">= 2.7.0"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:29
+msgid ">= 0.3.0"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:30
+msgid ">= 1.12"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:31
+msgid "OS Support without GPU Accelerator"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:32
+#: ../../source/contribs/development_wsl2.rst:33
+#: ../../source/contribs/development_wsl2.rst:34
+#: ../../source/contribs/development_wsl2.rst:35
+msgid "Windows/MacOS/Linux"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:36
+msgid "OS Support with GPU Accelerator"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:37
+msgid "No Support for GPU"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:38
+msgid ""
+"Windows(WSL2, docker)/`MacOS <https://developer.apple.com/metal"
+"/tensorflow-plugin>`_/Linux"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:39
+msgid "Windows(WSL2, docker)/MacOS/Linux"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:40
+msgid "Windows(WSL2, docker)/MacOS(torch>=1.12)/Linux"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:41
+msgid "Platform with TPU Accelerator"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:42
+msgid "No Support for TPU"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:43
+msgid ""
+"`GCP - Tensorflow with TPU <https://cloud.google.com/tpu/docs/run-"
+"calculation-tensorflow>`_"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:44
+msgid ""
+"`GCP - JAX with TPU <https://cloud.google.com/tpu/docs/run-calculation-"
+"jax>`_"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:45
+msgid ""
+"`GCP - Pytorch with TPU <https://cloud.google.com/tpu/docs/run-"
+"calculation-pytorch>`_"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:47
+msgid "Tips: Currently, we don't suggest you to use TPU accelerator."
 msgstr ""
 

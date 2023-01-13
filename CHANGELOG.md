@@ -39,6 +39,10 @@
 
 - Add `keep_measure_order` bool option to `from_openqasm` methods so that the measure instruction order is kept by qiskit
 
+- Add Chinese translation for doc Sharpbit
+
+- Add `circuit_constructor` argument for `qiskit2tc` method, so that we can support more circuit class than circuit and dmcircuit
+
 ### Fixed
 
 - Fix adjoint possible bug with agnostic backend

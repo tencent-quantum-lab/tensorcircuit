@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-01 10:20+0800\n"
+"POT-Creation-Date: 2023-01-13 11:04+0800\n"
 "PO-Revision-Date: 2022-04-16 22:37+0800\n"
 "Last-Translator: Xinghan Yang\n"
 "Language: cn\n"
@@ -85,55 +85,58 @@ msgstr "PyPI 页面: https://pypi.org/project/tensorcircuit"
 msgid ""
 "DockerHub page: "
 "https://hub.docker.com/repository/docker/tensorcircuit/tensorcircuit"
-msgstr "DockerHub 页面: https://hub.docker.com/repository/docker/tensorcircuit/tensorcircuit"
-
-#: ../../source/index.rst:36
-msgid ""
-"Binder online: https://mybinder.org/v2/gh/refraction-ray/tc-"
-"env/master?urlpath=git-pull?repo=https://github.com/tencent-quantum-"
-"lab/tensorcircuit&urlpath=lab/tree/tensorcircuit/&branch=master"
 msgstr ""
-"在线 Binder Jupyter: https://mybinder.org/v2/gh/refraction-ray/tc-"
-"env/master?urlpath=git-pull?repo=https://github.com/tencent-quantum-"
-"lab/tensorcircuit&urlpath=lab/tree/tensorcircuit/&branch=master"
+"DockerHub 页面: "
+"https://hub.docker.com/repository/docker/tensorcircuit/tensorcircuit"
 
-#: ../../source/index.rst:41
+#: ../../source/index.rst:39
 msgid "Reference Documentation"
 msgstr "参考文档"
 
-#: ../../source/index.rst:43
+#: ../../source/index.rst:41
 msgid ""
 "The following documentation sections briefly introduce TensorCircuit to "
 "the users and developpers."
 msgstr "以下文档向用户和开发者简要介绍了 TensorCircuit 软件。"
 
-#: ../../source/index.rst:56
+#: ../../source/index.rst:54
 msgid "Tutorials"
 msgstr "教程"
 
-#: ../../source/index.rst:58
+#: ../../source/index.rst:56
 msgid ""
 "The following documentation sections include integrated examples in the "
 "form of Jupyter Notebook."
 msgstr "以下 Jupyter Notebook 格式的文档包括了一系列使用 TensorCircuit 的集成案例。"
 
-#: ../../source/index.rst:72
+#: ../../source/index.rst:70
 msgid "API References"
 msgstr "API 参考"
 
-#: ../../source/index.rst:81
+#: ../../source/index.rst:79
 msgid "Indices and Tables"
 msgstr "索引和表格"
 
-#: ../../source/index.rst:83
+#: ../../source/index.rst:81
 msgid ":ref:`genindex`"
 msgstr ":ref:`genindex`"
 
-#: ../../source/index.rst:84
+#: ../../source/index.rst:82
 msgid ":ref:`modindex`"
 msgstr ":ref:`modindex`"
 
-#: ../../source/index.rst:85
+#: ../../source/index.rst:83
 msgid ":ref:`search`"
 msgstr ":ref:`search`"
+
+#~ msgid ""
+#~ "Binder online: https://mybinder.org/v2/gh/refraction-"
+#~ "ray/tc-env/master?urlpath=git-pull?repo=https://github.com"
+#~ "/tencent-quantum-"
+#~ "lab/tensorcircuit&urlpath=lab/tree/tensorcircuit/&branch=master"
+#~ msgstr ""
+#~ "在线 Binder Jupyter: https://mybinder.org/v2/gh"
+#~ "/refraction-ray/tc-env/master?urlpath=git-"
+#~ "pull?repo=https://github.com/tencent-quantum-"
+#~ "lab/tensorcircuit&urlpath=lab/tree/tensorcircuit/&branch=master"
 
