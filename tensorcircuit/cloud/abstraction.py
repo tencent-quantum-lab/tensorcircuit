@@ -2,9 +2,11 @@
 Abstraction for Provider, Device and Task
 """
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, Tuple
 from functools import partial
 import time
+
+import networkx as nx
 
 from ..results import readout_mitigation as rem
 from ..results import counts
@@ -174,9 +176,75 @@ class Device:
         return get_token(provider=self.provider)
 
     def list_properties(self) -> Dict[str, Any]:
+        """
+        List all device properties in as dict
+
+        :return: [description]
+        :rtype: Dict[str, Any]
+        """
         from .apis import list_properties
 
         return list_properties(self.provider, self)
+
+    def topology(self) -> List[Tuple[int, int]]:
+        """
+        Get the bidirectional topology link list of the device
+
+        :return: [description]
+        :rtype: List[Tuple[int, int]]
+        """
+        properties = self.list_properties()
+        if "links" not in properties:
+            return  # type: ignore
+        links = []
+        for link in properties["links"]:
+            links.append((link[0], link[1]))
+            links.append((link[1], link[0]))
+        links = list(set(links))
+        return links
+
+    def topology_graph(self, visualize: bool = False) -> nx.Graph:
+        """
+        Get the qubit topology in ``nx.Graph`` or directly visualize it
+
+        :param visualize: [description], defaults to False
+        :type visualize: bool, optional
+        :return: [description]
+        :rtype: nx.Graph
+        """
+        pro = self.list_properties()
+        if not ("links" in pro and "bits" in pro):
+            return  # type: ignore
+        g = nx.Graph()
+        node_color = []
+        edge_color = []
+        for i in pro["bits"]:
+            g.add_node(i)
+            node_color.append(pro["bits"][i]["T1"])
+        for e1, e2 in pro["links"]:
+            g.add_edge(e1, e2)
+            edge_color.append(pro["links"][(e1, e2)]["CZErrRate"])
+        if visualize is False:
+            return g
+        from matplotlib import colormaps
+
+        # pos1 = nx.planar_layout(g)
+        # pos2 = nx.spring_layout(g, pos=pos1, k=2)
+        pos = nx.kamada_kawai_layout(g)
+        return nx.draw(
+            g,
+            pos=pos,
+            with_labels=True,
+            node_size=600,
+            node_color=node_color,
+            cmap=colormaps["Wistia"],
+            vmin=max(min(node_color) - 5, 0),
+            width=2.5,
+            edge_color=edge_color,
+            edge_cmap=colormaps["gray"],
+            edge_vmin=0,
+            edge_vmax=max(edge_color) * 1.2,
+        )
 
     def get_task(self, taskid: str) -> "Task":
         from .apis import get_task

@@ -55,9 +55,39 @@ def list_properties(device: Device, token: Optional[str] = None) -> Dict[str, An
     )
     r = error_handling(r)
     if "device" in r:
-        return r["device"]  # type: ignore
+        r = r["device"]
+        if "links" in r:
+            links_dict = {}
+            for link in r["links"]:
+                links_dict[(link["A"], link["B"])] = link
+            r["links"] = links_dict
+        if "bits" in r:
+            bits_dict = {}
+            for bit in r["bits"]:
+                bits_dict[bit["Qubit"]] = bit
+            r["bits"] = bits_dict
+        return r  # type: ignore
     else:
         raise ValueError("No device with the name: %s" % device)
+
+    # list properties should at least contain the following items
+    """
+    {'id': '20xmon',
+     'type': 'CHIP',
+     'state': 'on',
+     'links': {(0, 1): { 'CZErrRate': 0.03, 'at': 1673605888},
+                ...},
+     'bits': {0: { 'At': 1673605888,
+                'Freqency': 4420,
+                'ReadoutF0Err': 0.0415,
+                'ReadoutF1Err': 0.1006,
+                'SingleQubitErrRate': 0.00095,
+                'SingleQubitGateLenInNs': 30,
+                'T1': 35.5,
+                'T2': 5.4},
+                ...,},
+    'langs': ['tQASM', 'eQASM']}
+    """
 
 
 def _free_pi(s: str) -> str:

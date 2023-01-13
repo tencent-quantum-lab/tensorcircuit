@@ -32,6 +32,7 @@ connection_errors = (
     requests.exceptions.RequestException,
     requests.exceptions.ConnectionError,
     requests.exceptions.SSLError,
+    ValueError,
     # JSONDecodeError,
 )
 
