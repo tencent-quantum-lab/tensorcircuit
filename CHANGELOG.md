@@ -8,6 +8,8 @@
 
 - Add results module including funtionalities on count dict manipulation and readout error mitigation
 
+- Add Chinese translation for doc Sharpbit
+
 ### Fixed
 
 - Fix adjoint possible bug with agnostic backend
