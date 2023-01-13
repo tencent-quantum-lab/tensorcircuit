@@ -39,6 +39,8 @@
 
 - Add `keep_measure_order` bool option to `from_openqasm` methods so that the measure instruction order is kept by qiskit
 
+- Add Chinese translation for doc Sharpbit
+
 ### Fixed
 
 - Fix adjoint possible bug with agnostic backend
