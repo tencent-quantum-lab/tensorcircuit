@@ -7,14 +7,14 @@ import warnings
 import cotengra as ctg
 
 # Prerequisites for running this example:
-# Step 1: install julia, see https://julialang.org/download/,
+# Step 1: install julia, see https://julialang.org/download/.
 # Please install julia >= 1.8.5, the 1.6.7 LTS version raises:
 # `Error in python: free(): invalid pointer`
 # Step 2: add julia path to the PATH env variable so that juliacall can find it
 # Step 3: install juliacall via `pip install juliacall`, this example was tested with juliacall 0.9.9
 # Step 4: install julia package `OMEinsum`, this example was tested with OMEinsum v0.7.2,
 # see https://docs.julialang.org/en/v1/stdlib/Pkg/ for more details on julia's package manager
-# Step 5: for julia multi-threading, set env variable PYTHON_JULIACALL_THREADS=<N|auto>.
+# Step 5: for julia multi-threading, set env variable `PYTHON_JULIACALL_THREADS=<N|auto>`.
 # However, in order to use julia multi-threading in juliacall,
 # we have to turn off julia GC at the risk of OOM.
 # See see https://github.com/cjdoris/PythonCall.jl/issues/219 for more details.
