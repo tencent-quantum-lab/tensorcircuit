@@ -1127,6 +1127,7 @@ try:
     ) -> Tensor:
         """
         Generate Heisenberg Hamiltonian with possible external fields.
+        Currently requires tensorflow installed
 
         :Example:
 
@@ -1214,7 +1215,9 @@ try:
         numpy: bool = False,
     ) -> Tensor:
         """
-        Generate dense matrix from Pauli string sum
+        Generate dense matrix from Pauli string sum.
+        Currently requires tensorflow installed.
+
 
         :param ls: 2D Tensor, each row is for a Pauli string,
             e.g. [1, 0, 0, 3, 2] is for :math:`X_0Z_3Y_4`
@@ -1257,7 +1260,8 @@ try:
         numpy: bool = False,
     ) -> Tensor:
         """
-        Generate sparse tensor from Pauli string sum
+        Generate sparse tensor from Pauli string sum.
+        Currently requires tensorflow installed
 
         :param ls: 2D Tensor, each row is for a Pauli string,
             e.g. [1, 0, 0, 3, 2] is for :math:`X_0Z_3Y_4`
