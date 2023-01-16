@@ -1,19 +1,20 @@
 import os
 import json
+import time
 from typing import List, Set, Dict, Tuple
 import tempfile
 import warnings
 import cotengra as ctg
 
 # Prerequisites for running this example:
-# Step 1: install julia, see https://julialang.org/download/,
+# Step 1: install julia, see https://julialang.org/download/.
 # Please install julia >= 1.8.5, the 1.6.7 LTS version raises:
 # `Error in python: free(): invalid pointer`
 # Step 2: add julia path to the PATH env variable so that juliacall can find it
 # Step 3: install juliacall via `pip install juliacall`, this example was tested with juliacall 0.9.9
 # Step 4: install julia package `OMEinsum`, this example was tested with OMEinsum v0.7.2,
 # see https://docs.julialang.org/en/v1/stdlib/Pkg/ for more details on julia's package manager
-# Step 5: for julia multi-threading, set env variable PYTHON_JULIACALL_THREADS=<N|auto>.
+# Step 5: for julia multi-threading, set env variable `PYTHON_JULIACALL_THREADS=<N|auto>`.
 # However, in order to use julia multi-threading in juliacall,
 # we have to turn off julia GC at the risk of OOM.
 # See see https://github.com/cjdoris/PythonCall.jl/issues/219 for more details.
@@ -21,12 +22,13 @@ from juliacall import Main as jl
 
 jl.seval("using OMEinsum")
 
+from omeinsum_treesa_optimizer import OMEinsumTreeSAOptimizer
 import tensorcircuit as tc
 
 tc.set_backend("tensorflow")
 
 
-class OMEinsumTreeSAOptimizer(object):
+class OMEinsumTreeSAOptimizerJuliaCall(OMEinsumTreeSAOptimizer):
     def __init__(
         self,
         sc_target: float = 20,
@@ -36,34 +38,7 @@ class OMEinsumTreeSAOptimizer(object):
         sc_weight: float = 1.0,
         rw_weight: float = 0.2,
     ):
-        self.sc_target = sc_target
-        self.betas = betas
-        self.ntrials = ntrials
-        self.niters = niters
-        self.sc_weight = sc_weight
-        self.rw_weight = rw_weight
-
-    def _contraction_tree_to_contraction_path(self, ei, queue, path, idx):
-        if ei["isleaf"]:
-            # OMEinsum provide 1-based index
-            # but in contraction path we want 0-based index
-            ei["tensorindex"] -= 1
-            return idx
-        assert len(ei["args"]) == 2, "must be a binary tree"
-        for child in ei["args"]:
-            idx = self._contraction_tree_to_contraction_path(child, queue, path, idx)
-            assert "tensorindex" in child
-
-        lhs_args = sorted(
-            [queue.index(child["tensorindex"]) for child in ei["args"]], reverse=True
-        )
-        for arg in lhs_args:
-            queue.pop(arg)
-
-        ei["tensorindex"] = idx
-        path.append(lhs_args)
-        queue.append(idx)
-        return idx + 1
+        super().__init__(sc_target, betas, ntrials, niters, sc_weight, rw_weight)
 
     def __call__(
         self,
@@ -101,7 +76,10 @@ class OMEinsumTreeSAOptimizer(object):
                 "for more details.".format(nthreads)
             )
             jl.GC.enable(False)
+        t0 = time.time()
         optcode = jl.OMEinsum.optimize_code(eincode, size_dict, algorithm)
+        running_time = time.time() - t0
+        print(f"running_time: {running_time}")
         if nthreads > 1:
             jl.GC.enable(True)
         # jl.println("time and space complexity computed by OMEinsum: ",
@@ -144,7 +122,9 @@ tc.set_contractor(
 c.expectation_ps(z=[0], reuse=False)
 
 print("OMEinsum contractor")
-opt_treesa = OMEinsumTreeSAOptimizer(sc_target=30, sc_weight=0.0, rw_weight=0.0)
+opt_treesa = OMEinsumTreeSAOptimizerJuliaCall(
+    sc_target=30, sc_weight=0.0, rw_weight=0.0
+)
 tc.set_contractor(
     "custom",
     optimizer=opt_treesa,
