@@ -201,7 +201,8 @@ class Device:
             links.append((link[0], link[1]))
             links.append((link[1], link[0]))
         links = list(set(links))
-        links = [list(link) for link in links]  # compatible with coupling_map in qiskit
+        links = [list(link) for link in links]  # type: ignore
+        # compatible with coupling_map in qiskit
         return links
 
     def topology_graph(self, visualize: bool = False) -> nx.Graph:
