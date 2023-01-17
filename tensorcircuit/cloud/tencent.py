@@ -129,7 +129,8 @@ def submit_task(
     """
     Submit task via tencent provider, we suggest to enable one of the compiling functionality:
     either in tc: frontend or in qos: backend. If both are enabled, try on your own risk, some
-    qubit mapping may fail silently.
+    qubit mapping may fail silently. If the user directly provide ``source`` or qiskit Circuit in ``circuit``,
+    the qubit mapping should be taken care of by the users.
 
     :param device: [description]
     :type device: Device
@@ -350,6 +351,11 @@ def get_task_details(
                     int(k): int(v)
                     for k, v in r["task"]["optimization"]["pairs"].items()
                 }
+                # r["logical_physical_mapping"] = r["task"]["optimization"]["pairs"]
+
+        # if not "logical_physical_mapping" in r["task"]:
+        # r["task"]["logical_physical_mapping"] = None
+
         if prettify is False:
             return r["task"]  # type: ignore
         # make the results more readable

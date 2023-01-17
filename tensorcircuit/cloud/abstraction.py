@@ -275,6 +275,7 @@ class Task:
     def __init__(self, id_: str, device: Optional[Device] = None):
         self.id_ = id_
         self.device = device
+        self.more_details: Dict[str, Any] = {}
 
     def __repr__(self) -> str:
         return self.device.__repr__() + sep2 + self.id_
@@ -306,7 +307,9 @@ class Task:
         from .apis import get_task_details
 
         if blocked is False:
-            return get_task_details(self, **kws)
+            dt = get_task_details(self, **kws)
+            dt.update(self.more_details)
+            return dt
         s = self.state()
         tries = 0
         while s == "pending":
@@ -314,6 +317,9 @@ class Task:
             tries += 1
             s = self.state()
         return self.details(**kws)
+
+    def add_details(self, **kws: Any) -> None:
+        self.more_details.update(kws)
 
     def state(self) -> str:
         """
