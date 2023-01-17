@@ -603,3 +603,23 @@ def qiskit_from_qasm_str_ordered_measure(qasm_str: str) -> Any:
     for qid, cid in measure_sequence:
         qc.measure(qid, cid)
     return qc
+
+
+def get_mappings_from_qiskit(qc: Any) -> Tuple[Dict[int, int], Dict[int, int]]:
+    """
+    get the ``positional_logical_mapping`` and ``logical_physical_mapping`` from qiskit Circuit
+
+    :param qc: qiskit ``QuantumCircuit``
+    :type qc: Any
+    :return: _description_
+    :rtype: Tuple[Dict[int, int], Dict[int, int]]
+    """
+    logical_physical_mapping = {}
+    positional_logical_mapping = {}
+    i = 0
+    for inst in qc.data:
+        if inst[0].name == "measure":
+            logical_physical_mapping[inst[2][0].index] = inst[1][0].index
+            positional_logical_mapping[i] = inst[2][0].index
+            i += 1
+    return positional_logical_mapping, logical_physical_mapping

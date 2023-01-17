@@ -57,9 +57,11 @@ class ReadoutMit:
             # execute is a device name str
             from ..cloud.wrapper import batch_submit_template
 
+            self.devstr: Optional[str] = execute
             self.execute_fun: Callable[..., List[ct]] = batch_submit_template(execute)
         else:
             self.execute_fun = execute
+            self.devstr = None
 
     def ubs(self, i: int, qubits: Optional[Sequence[Any]]) -> int:
         """
@@ -206,17 +208,56 @@ class ReadoutMit:
             miticirc.append(c)
         return miticirc
 
-    def cals_from_system(  # type: ignore
+    def cals_from_api(
+        self, qubits: Union[int, List[int]], device: Optional[str] = None
+    ) -> None:
+        """
+        Get local calibriation matrix from cloud API from tc supported providers
+
+        :param qubits: list of physical qubits to be calibriated
+        :type qubits: Union[int, List[int]]
+        :param device: the device str to qurey for the info, defaults to None
+        :type device: Optional[str], optional
+        """
+        if device is None and self.devstr is None:
+            raise ValueError("device argument cannot be None")
+        if device is None:
+            device = self.devstr.split("?")[0]  # type: ignore
+
+        if isinstance(qubits, int):
+            qubits = list(range(qubits))
+
+        self.cal_qubits = qubits  # type: ignore
+        self.local = True  # type: ignore
+        self.single_qubit_cals = [None] * (max(self.cal_qubits) + 1)  # type: ignore
+
+        from ..cloud.apis import list_properties
+
+        pro = list_properties(device)
+
+        for q in qubits:
+            error01 = pro["bits"][q]["ReadoutF0Err"]
+            error10 = pro["bits"][q]["ReadoutF1Err"]
+            readout_single = np.array(
+                [
+                    [1 - error01, error10],
+                    [error01, 1 - error10],
+                ]
+            )
+            self.single_qubit_cals[q] = readout_single  # type: ignore
+            # only works in zero based qubit information
+
+    def cals_from_system(
         self,
         qubits: Union[int, List[int]],
         shots: int = 8192,
         method: str = "local",
         masks: Optional[List[str]] = None,
-    ):
+    ) -> None:
         """
         Get calibrattion information from system.
 
-        :param qubits: calibration qubit list
+        :param qubits: calibration qubit list (physical qubits on device)
         :type qubits: Sequence[Any]
         :param shots: shots used for runing the circuit, defaults to 8192
         :type shots: int, optional
