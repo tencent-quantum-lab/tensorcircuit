@@ -176,16 +176,7 @@ def test_backend_methods(backend):
         np.array([2, 1, 0]),
         atol=1e-5,
     )
-    np.testing.assert_allclose(
-        tc.backend.copy(arr),
-        arr,
-        atol=1e-5,
-    )
-    np.testing.assert_allclose(
-        tc.backend.power(arr,6),
-        np.power(arr,6),
-        atol=1e-5
-    )
+    
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])
@@ -293,6 +284,17 @@ def test_backend_methods_2(backend):
         tc.backend.arange(1, 5, 2),
         np.array([1, 3]),
     )
+    arr = np.random.normal(size=(6, 6))
+    np.testing.assert_allclose(
+        tc.backend.copy(arr),
+        arr,
+        atol=1e-5,
+    )
+    np.testing.assert_allclose(
+        tc.backend.power(arr,6),
+        np.power(arr,6),
+        atol=1e-5
+    )
     assert tc.backend.dtype(tc.backend.ones([])) == "complex64"
     edges = [-1, 3.3, 9.1, 10.0]
     values = tc.backend.convert_to_tensor(np.array([0.0, 4.1, 12.0], dtype=np.float32))
@@ -319,7 +321,7 @@ def test_backend_methods_2(backend):
         np.maximum(arr, 0),
         atol=1e-4,
     )
-
+test_backend_methods_2("pytorch")
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])
 def test_device_cpu_only(backend):
