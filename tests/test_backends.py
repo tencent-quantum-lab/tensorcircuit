@@ -176,6 +176,16 @@ def test_backend_methods(backend):
         np.array([2, 1, 0]),
         atol=1e-5,
     )
+    np.testing.assert_allclose(
+        tc.backend.copy(arr),
+        arr,
+        atol=1e-5,
+    )
+    np.testing.assert_allclose(
+        tc.backend.power(arr,6),
+        np.power(arr,6),
+        atol=1e-5
+    )
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])
@@ -239,6 +249,16 @@ def test_backend_methods_2(backend):
     np.testing.assert_allclose(
         tc.backend.sinh(0.5 * tc.backend.ones([2], dtype="float32")),
         np.sinh(0.5 * tc.backend.ones([2])),
+        atol=1e-5,
+    )
+    np.testing.assert_allclose(
+        tc.backend.sin(0.5*tc.backend.ones([2],dtype="float32")),
+        np.sin(0.5*tc.backend.ones([2])),
+        atol=1e-5,
+    )
+    np.testing.assert_allclose(
+        tc.backend.cos(0.5*tc.backend.ones([2],dtype="float32")),
+        np.cos(0.5*tc.backend.ones([2])),
         atol=1e-5,
     )
     np.testing.assert_allclose(
