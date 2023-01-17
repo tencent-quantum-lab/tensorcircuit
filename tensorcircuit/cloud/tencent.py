@@ -127,7 +127,9 @@ def submit_task(
     qos_dry_run: bool = False,
 ) -> List[Task]:
     """
-    Submit task via tencent provider
+    Submit task via tencent provider, we suggest to enable one of the compiling functionality:
+    either in tc: frontend or in qos: backend. If both are enabled, try on your own risk, some
+    qubit mapping may fail silently.
 
     :param device: [description]
     :type device: Device
@@ -153,7 +155,7 @@ def submit_task(
     :param compiled_options: compiling options for qiskit ``transpile`` method,
         defaults to None
     :type compiled_options: Optional[Dict[str, Any]], optional
-    :param measure: which group of qubit to measure,
+    :param measure: [deprecated] which group of qubit to measure,
         defaults to None, the measure result is in the order of qubit index
         instead of the ``measure`` list
     :type measure: Optional[Sequence[int]], optional
@@ -180,6 +182,7 @@ def submit_task(
         def c2qasm(c: Any, compiling: bool) -> str:
             from qiskit.compiler import transpile
             from qiskit.circuit import QuantumCircuit
+            from qiskit.transpiler.passes import RemoveBarriers
 
             if compiling is True:
                 if not isinstance(c, QuantumCircuit):
@@ -187,6 +190,8 @@ def submit_task(
 
                 nq = c.num_qubits
                 c1 = transpile(c, **compiled_options)
+                c1 = RemoveBarriers()(c1)
+                # initial_mapping introduce barrier in the qiskit circuit
                 s = c1.qasm()
             else:
                 if isinstance(c, QuantumCircuit):
@@ -264,7 +269,8 @@ def submit_task(
             if "err" in t:
                 logger.warning(t["err"])
             else:
-                rtn.append(Task(id_=t["id"], device=device))
+                ti = Task(id_=t["id"], device=device)
+                rtn.append(ti)
         if len(rtn) == 1:
             return rtn[0]  # type: ignore
         else:
@@ -335,6 +341,15 @@ def get_task_details(
                 r["task"]["results"] = r["task"]["result"]["counts"]
             else:
                 r["task"]["results"] = r["task"]["result"]
+        if "optimization" in r["task"]:
+            if (
+                "pairs" in r["task"]["optimization"]
+                and r["task"]["optimization"]["pairs"] is not None
+            ):
+                r["task"]["optimization"]["pairs"] = {
+                    int(k): int(v)
+                    for k, v in r["task"]["optimization"]["pairs"].items()
+                }
         if prettify is False:
             return r["task"]  # type: ignore
         # make the results more readable
