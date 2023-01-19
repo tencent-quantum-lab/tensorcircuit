@@ -857,6 +857,104 @@ def test_circuit_quoperator(backend):
     qo = c.quoperator()
     np.testing.assert_allclose(qo.eval_matrix(), c.matrix(), atol=1e-5)
 
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_qir2cirq(backend):
+    try:
+        import cirq
+        from tensorcircuit.translation import perm_matrix
+    except ImportError:
+        pytest.skip("cirq is not installed")
+    n = 6
+    c = tc.Circuit(n)
+    for i in range(n):
+        c.H(i)
+    zz = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
+    # for i in range(n):
+    #     c.exp(
+    #         i,
+    #         (i + 1) % n,
+    #         theta=tc.array_to_tensor(np.random.uniform()),
+    #         unitary=tc.array_to_tensor(zz),
+    #         name="zz",
+    #     )
+    # c.exp1(
+    #     1, 3, theta=tc.array_to_tensor(0.0j), unitary=tc.array_to_tensor(zz), name="zz"
+    # )
+    c.fredkin(0, 1, 2)
+    c.cswap(1, 2, 3)
+    c.ccnot(1, 2, 3)
+    c.cx(2, 3)
+    c.swap(0, 1)
+    c.iswap(0, 1)
+    c.iswap(1, 3, theta=-1.9)
+    c.toffoli(0, 1, 2)
+    c.s(1)
+    c.t(1)
+    c.sd(1)
+    c.td(1)
+    c.x(2)
+    c.y(2)
+    c.z(2)
+    c.wroot(3)
+    c.cnot(0, 1)
+    c.cy(0, 1)
+    c.cz(0, 1)
+    c.oy(4, 3)
+    c.oz(4, 3)
+    c.ox(4, 3)
+    c.oy(4, 3)
+    c.oz(4, 3)
+    c.ox(3, 4)
+    c.phase(2, theta=0.3)
+    c.cphase(1, 0, theta=-1.2)
+    c.rxx(0, 2, theta=0.9)
+    c.ryy(1, 4, theta=-2.0)
+    c.rzz(1, 3, theta=0.5)
+    c.u(2, theta=0, lbd=4.6, phi=-0.3)
+    # c.cu(4, 1, theta=1.2)
+    c.rx(1, theta=tc.array_to_tensor(np.random.uniform()))
+    c.r(5, theta=tc.array_to_tensor(np.random.uniform()))
+    c.cr(
+        1,
+        2,
+        theta=tc.array_to_tensor(np.random.uniform()),
+        alpha=tc.array_to_tensor(np.random.uniform()),
+        phi=tc.array_to_tensor(np.random.uniform()),
+    )
+    c.ry(1, theta=tc.array_to_tensor(np.random.uniform()))
+    c.rz(1, theta=tc.array_to_tensor(np.random.uniform()))
+    c.crz(2, 3, theta=tc.array_to_tensor(np.random.uniform()))
+    c.crx(5, 3, theta=tc.array_to_tensor(np.random.uniform()))
+    c.cry(1, 3, theta=tc.array_to_tensor(np.random.uniform()))
+    c.orx(5, 3, theta=tc.array_to_tensor(np.random.uniform()))
+    c.ory(5, 3, theta=tc.array_to_tensor(np.random.uniform()))
+    c.orz(5, 3, theta=tc.array_to_tensor(np.random.uniform()))
+
+    c.any(1, 3, unitary=tc.array_to_tensor(np.reshape(zz, [2, 2, 2, 2])))
+
+    # gate = tc.gates.multicontrol_gate(
+    #     tc.array_to_tensor(tc.gates._x_matrix), ctrl=[1, 0]
+    # )
+    # c.mpo(0, 1, 2, mpo=gate.copy())
+    # c.multicontrol(
+    #     0,
+    #     2,
+    #     4,
+    #     1,
+    #     5,
+    #     ctrl=[0, 1, 0],
+    #     unitary=tc.array_to_tensor(tc.gates._zz_matrix),
+    #     name="zz",
+    # )
+    tc_unitary = c.matrix()
+    tc_unitary = np.reshape(tc_unitary, [2**n, 2**n])
+
+    cirq = c.to_cirq()
+    cirq_unitary = cirq.unitary()
+    cirq_unitary = np.reshape(cirq_unitary, [2**n, 2**n])
+
+    np.testing.assert_allclose(tc_unitary, cirq_unitary, atol = 1e-5)
+
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_qir2qiskit(backend):

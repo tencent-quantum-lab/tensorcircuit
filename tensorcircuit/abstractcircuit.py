@@ -622,6 +622,21 @@ class AbstractCircuit:
         }
         self._extra_qir.append(d)
 
+    def to_cirq(self, enable_instruction: bool = False) -> Any:
+        """
+        Translate ``tc.Circuit`` to a cirq circuit object.
+
+        :param enable_instruction: whether also export measurement and reset instructions
+        :type enable_instruction: bool, defaults to False
+        :return: A cirq circuit of this circuit.
+        """
+        from .translation import qir2cirq
+
+        qir = self.to_qir()
+        if enable_instruction is False:
+            return qir2cirq(qir, n=self._nqubits)
+        return qir2cirq(qir, n=self._nqubits, extra_qir=self._extra_qir)
+
     def to_qiskit(self, enable_instruction: bool = False) -> Any:
         """
         Translate ``tc.Circuit`` to a qiskit QuantumCircuit object.
