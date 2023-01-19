@@ -1,6 +1,7 @@
 import OMEinsum
 import ArgParse
 import JSON
+using KaHyPar
 
 function parse_commandline()
     s = ArgParse.ArgParseSettings()
@@ -13,8 +14,8 @@ function parse_commandline()
             arg_type = String
             default = "opteinsum.json"
         "--sc_target"
-            arg_type = Float64
-            default = 20.0
+            arg_type = Int
+            default = 20
         "--beta_start"
             arg_type = Float64
             default = 0.01
@@ -36,6 +37,8 @@ function parse_commandline()
         "--rw_weight"
             arg_type = Float64
             default = 0.2
+        "--kahypar_init"
+            action = :store_true
     end
 
     return ArgParse.parse_args(s)
@@ -59,13 +62,21 @@ function main()
     for (k, v) in contraction_args["size"]
         size_dict[k] = v
     end
+
+    if parsed_args["kahypar_init"]
+        eincode = OMEinsum.optimize_code(eincode, size_dict, OMEinsum.KaHyParBipartite(
+            sc_target=parsed_args["sc_target"],
+            max_group_size=50))
+    end
+
     algorithm = OMEinsum.TreeSA(
             sc_target=parsed_args["sc_target"],
             βs=parsed_args["beta_start"]:parsed_args["beta_step"]:parsed_args["beta_stop"],
             ntrials=parsed_args["ntrials"],
             niters=parsed_args["niters"],
             sc_weight=parsed_args["sc_weight"],
-            rw_weight=parsed_args["rw_weight"]
+            rw_weight=parsed_args["rw_weight"],
+            initializer=parsed_args["kahypar_init"] ? :specified : :greedy
         )
     # println(parsed_args["beta_start"]:parsed_args["beta_step"]:parsed_args["beta_stop"])
     # println(algorithm)
