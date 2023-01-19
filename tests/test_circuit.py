@@ -869,17 +869,17 @@ def test_qir2cirq(backend):
     for i in range(n):
         c.H(i)
     zz = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
-    # for i in range(n):
-    #     c.exp(
-    #         i,
-    #         (i + 1) % n,
-    #         theta=tc.array_to_tensor(np.random.uniform()),
-    #         unitary=tc.array_to_tensor(zz),
-    #         name="zz",
-    #     )
-    # c.exp1(
-    #     1, 3, theta=tc.array_to_tensor(0.0j), unitary=tc.array_to_tensor(zz), name="zz"
-    # )
+    for i in range(n):
+        c.exp(
+            i,
+            (i + 1) % n,
+            theta=tc.array_to_tensor(np.random.uniform()),
+            unitary=tc.array_to_tensor(zz),
+            name="zz",
+        )
+    c.exp1(
+        1, 3, theta=tc.array_to_tensor(0.0j), unitary=tc.array_to_tensor(zz), name="zz"
+    )
     c.fredkin(0, 1, 2)
     c.cswap(1, 2, 3)
     c.ccnot(1, 2, 3)
@@ -911,7 +911,7 @@ def test_qir2cirq(backend):
     c.ryy(1, 4, theta=-2.0)
     c.rzz(1, 3, theta=0.5)
     c.u(2, theta=0, lbd=4.6, phi=-0.3)
-    # c.cu(4, 1, theta=1.2)
+    c.cu(4, 1, theta=1.2)
     c.rx(1, theta=tc.array_to_tensor(np.random.uniform()))
     c.r(5, theta=tc.array_to_tensor(np.random.uniform()))
     c.cr(
@@ -932,20 +932,20 @@ def test_qir2cirq(backend):
 
     c.any(1, 3, unitary=tc.array_to_tensor(np.reshape(zz, [2, 2, 2, 2])))
 
-    # gate = tc.gates.multicontrol_gate(
-    #     tc.array_to_tensor(tc.gates._x_matrix), ctrl=[1, 0]
-    # )
-    # c.mpo(0, 1, 2, mpo=gate.copy())
-    # c.multicontrol(
-    #     0,
-    #     2,
-    #     4,
-    #     1,
-    #     5,
-    #     ctrl=[0, 1, 0],
-    #     unitary=tc.array_to_tensor(tc.gates._zz_matrix),
-    #     name="zz",
-    # )
+    gate = tc.gates.multicontrol_gate(
+        tc.array_to_tensor(tc.gates._x_matrix), ctrl=[1, 0]
+    )
+    c.mpo(0, 1, 2, mpo=gate.copy())
+    c.multicontrol(
+        0,
+        2,
+        4,
+        1,
+        5,
+        ctrl=[0, 1, 0],
+        unitary=tc.array_to_tensor(tc.gates._zz_matrix),
+        name="zz",
+    )
     tc_unitary = c.matrix()
     tc_unitary = np.reshape(tc_unitary, [2**n, 2**n])
 

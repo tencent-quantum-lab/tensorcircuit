@@ -123,24 +123,46 @@ def qir2cirq(
     :type extra_qir: Optional[List[Dict[str, Any]]]
     :return: qiskit cirq object
     :rtype: Any
+
+    todo:
+    add default theta to iswap gate
+    add more cirq built-in gate instead of customized
+    add unitary test with tolerance
+    add support of cirq built-in ControlledGate for multiplecontroll
+    support more element in qir, e.g. barrier, measure...
+    disable outputting controlled bit when creating controlled gate
     """
     if extra_qir is not None and len(extra_qir) > 0:
         qir = _merge_extra_qir(qir, extra_qir)
-    qbits     = cirq.LineQubit.range(n)
-    cmd       = []
+    qbits = cirq.LineQubit.range(n)
+    cmd   = []
     for gate_info in qir:
-        # print(gate_info)
         index = [qbits[i] for i in gate_info["index"]]
         gate_name = str(gate_info["gatef"])
         if "parameters" in gate_info:
             parameters = gate_info["parameters"]
-            # print(parameters)
-        # if gate_name in ["h","i","x","y","z","s","t","swap","cnot","fredkin","toffoli","iswap"]:
-        #     cmd.append(getattr(cirq, gate_name.upper())(*index))
-        if gate_name in ["h","i","x","y","z","s","fredkin","toffoli","cnot","iswap"]:
+        if gate_name in ["h","i","x","y","z","s","t","fredkin","toffoli","cnot","swap"]:
             cmd.append(getattr(cirq, gate_name.upper())(*index))
         elif gate_name in ["rx", "ry", "rz"]:
             cmd.append(getattr(cirq, gate_name)(_get_float(parameters, "theta")).on(*index))
+        elif gate_name == "iswap":
+            if "theta" not in parameters:
+                cmd.append(cirq.ISWAP(*index))
+                # when ISWAP theta is not specified, _get_float will return default value of 0.0 instead of 1.0
+            else:
+                cmd.append(cirq.ISwapPowGate(exponent = _get_float(parameters, "theta")).on(*index))
+        # elif gate_name in ["exp", "exp1"]:
+        #     print(gate_info)
+        elif gate_name in ["mpo", "multicontrol"]:
+            gatem = np.reshape(
+                    backend.numpy(gate_info["gatef"](**parameters).eval_matrix()),
+                    [2 ** len(index), 2 ** len(index)],
+                )
+            ci_name = gate_info["name"]
+            # qiskit_circ.unitary(qop, index[::-1], label=qis_name)
+            cgate = CustomizedCirqGate(gatem, ci_name, len(index))
+            # cgate   = CustomizedCirqGate(gatem, gate_name, len(index))
+            cmd.append(cgate.on(*index))
         else:
             # Add Customized Gate if there is no match
             gatem = np.reshape(gate_info["gate"].tensor,[2 ** len(index), 2 ** len(index)],
