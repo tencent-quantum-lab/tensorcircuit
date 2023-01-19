@@ -31,7 +31,7 @@ tc.set_backend("tensorflow")
 class OMEinsumTreeSAOptimizerJuliaCall(OMEinsumTreeSAOptimizer):
     def __init__(
         self,
-        sc_target: float = 20,
+        sc_target: int = 20,
         betas: Tuple[float, float, float] = (0.01, 0.01, 15),
         ntrials: int = 10,
         niters: int = 50,
