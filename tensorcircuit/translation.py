@@ -151,30 +151,19 @@ def qir2cirq(
                 # when ISWAP theta is not specified, _get_float will return default value of 0.0 instead of 1.0
             else:
                 cmd.append(cirq.ISwapPowGate(exponent = _get_float(parameters, "theta")).on(*index))
-        # elif gate_name in ["exp", "exp1"]:
-        #     print(gate_info)
         elif gate_name in ["mpo", "multicontrol"]:
             gatem = np.reshape(
                     backend.numpy(gate_info["gatef"](**parameters).eval_matrix()),
                     [2 ** len(index), 2 ** len(index)],
                 )
             ci_name = gate_info["name"]
-            # qiskit_circ.unitary(qop, index[::-1], label=qis_name)
             cgate = CustomizedCirqGate(gatem, ci_name, len(index))
-            # cgate   = CustomizedCirqGate(gatem, gate_name, len(index))
             cmd.append(cgate.on(*index))
         else:
             # Add Customized Gate if there is no match
             gatem = np.reshape(gate_info["gate"].tensor,[2 ** len(index), 2 ** len(index)],
             )
-            # Note: unitary test is not working for some of the generated matrix, probably add tolerance test later
-            # if not cirq.is_unitary(gatem):
-            #     logger.warning(
-            #         "omit non unitary gate in tensorcircuit when transforming to cirq: %s"
-            #         % gate_name
-            #     )
-            #     cmd.append(cirq.identity_each(*index))
-            #     continue
+            # Note: unitary test is not working for some of the generated matrix, probably add tolerance unitary test later
             cgate = CustomizedCirqGate(gatem, gate_name, len(index))
             cmd.append(cgate.on(*index))
     cirq_circuit = cirq.Circuit(*cmd)
