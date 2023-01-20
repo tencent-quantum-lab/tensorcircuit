@@ -31,7 +31,7 @@ tc.set_backend("tensorflow")
 class OMEinsumTreeSAOptimizerJuliaCall(OMEinsumTreeSAOptimizer):
     def __init__(
         self,
-        sc_target: float = 20,
+        sc_target: int = 20,
         betas: Tuple[float, float, float] = (0.01, 0.01, 15),
         ntrials: int = 10,
         niters: int = 50,
@@ -104,32 +104,37 @@ class OMEinsumTreeSAOptimizerJuliaCall(OMEinsumTreeSAOptimizer):
         return path
 
 
-# For more random circuits, please refer to
-# https://datadryad.org/stash/dataset/doi:10.5061/dryad.k6t1rj8
-c = tc.Circuit.from_qsim_file("circuit_n12_m14_s0_e0_pEFGH.qsim")
+if __name__ == "__main__":
+    # For more random circuits, please refer to
+    # https://datadryad.org/stash/dataset/doi:10.5061/dryad.k6t1rj8
+    c = tc.Circuit.from_qsim_file("circuit_n12_m14_s0_e0_pEFGH.qsim")
 
-opt = ctg.ReusableHyperOptimizer(
-    methods=["greedy", "kahypar"],
-    parallel=True,
-    minimize="flops",
-    max_repeats=1024,
-    progbar=False,
-)
-print("cotengra contractor")
-tc.set_contractor(
-    "custom", optimizer=opt, preprocessing=True, contraction_info=True, debug_level=2
-)
-c.expectation_ps(z=[0], reuse=False)
+    opt = ctg.ReusableHyperOptimizer(
+        methods=["greedy", "kahypar"],
+        parallel=True,
+        minimize="flops",
+        max_repeats=1024,
+        progbar=False,
+    )
+    print("cotengra contractor")
+    tc.set_contractor(
+        "custom",
+        optimizer=opt,
+        preprocessing=True,
+        contraction_info=True,
+        debug_level=2,
+    )
+    c.expectation_ps(z=[0], reuse=False)
 
-print("OMEinsum contractor")
-opt_treesa = OMEinsumTreeSAOptimizerJuliaCall(
-    sc_target=30, sc_weight=0.0, rw_weight=0.0
-)
-tc.set_contractor(
-    "custom",
-    optimizer=opt_treesa,
-    preprocessing=True,
-    contraction_info=True,
-    debug_level=2,
-)
-c.expectation_ps(z=[0], reuse=False)
+    print("OMEinsum contractor")
+    opt_treesa = OMEinsumTreeSAOptimizerJuliaCall(
+        sc_target=30, sc_weight=0.0, rw_weight=0.0
+    )
+    tc.set_contractor(
+        "custom",
+        optimizer=opt_treesa,
+        preprocessing=True,
+        contraction_info=True,
+        debug_level=2,
+    )
+    c.expectation_ps(z=[0], reuse=False)
