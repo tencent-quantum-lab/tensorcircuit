@@ -857,11 +857,11 @@ def test_circuit_quoperator(backend):
     qo = c.quoperator()
     np.testing.assert_allclose(qo.eval_matrix(), c.matrix(), atol=1e-5)
 
+
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_qir2cirq(backend):
     try:
         import cirq
-        from tensorcircuit.translation import perm_matrix
     except ImportError:
         pytest.skip("cirq is not installed")
     n = 6
@@ -953,7 +953,7 @@ def test_qir2cirq(backend):
     cirq_unitary = cirq.unitary()
     cirq_unitary = np.reshape(cirq_unitary, [2**n, 2**n])
 
-    np.testing.assert_allclose(tc_unitary, cirq_unitary, atol = 1e-5)
+    np.testing.assert_allclose(tc_unitary, cirq_unitary, atol=1e-5)
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
