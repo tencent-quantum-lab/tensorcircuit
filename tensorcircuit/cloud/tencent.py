@@ -107,7 +107,49 @@ def _free_pi(s: str) -> str:
     return "\n".join(rs)
 
 
-@partial(arg_alias, alias_dict={"compiling": ["compiled"]})
+def _comment_qasm(s: str) -> str:
+    """
+    return the qasm str in comment format
+
+    :param s: _description_
+    :type s: str
+    :return: _description_
+    :rtype: str
+    """
+    nslist = []
+    nslist.append("//circuit begins")
+    for line in s.split("\n"):
+        nslist.append("//" + line)
+    nslist.append("//circuit ends")
+    return "\n".join(nslist)
+
+
+def _comment_dict(d: Dict[int, int], name: str = "logical_physical_mapping") -> str:
+    """
+    save a dict in commented qasm
+
+    :param d: _description_
+    :type d: Dict[int, int]
+    :param name: _description_, defaults to "logical_physical_mapping"
+    :type name: str, optional
+    :return: _description_
+    :rtype: str
+    """
+    nslist = []
+    nslist.append("//%s begins" % name)
+    for k, v in d.items():
+        nslist.append("// " + str(k) + " : " + str(v))
+    nslist.append("//%s ends" % name)
+    return "\n".join(nslist)
+
+
+@partial(
+    arg_alias,
+    alias_dict={
+        "compiling": ["compiled"],
+        "compiled_options": ["qiskit_compiled_options"],
+    },
+)
 def submit_task(
     device: Device,
     token: str,
@@ -120,6 +162,7 @@ def submit_task(
     remarks: Optional[str] = None,
     compiling: bool = False,
     compiled_options: Optional[Dict[str, Any]] = None,
+    enable_qiskit_initial_mapping: bool = False,
     measure: Optional[Sequence[int]] = None,
     enable_qos_qubit_mapping: bool = True,
     enable_qos_gate_decomposition: bool = True,
@@ -175,9 +218,20 @@ def submit_task(
     """
     if source is None:
         if compiled_options is None:
+            links = device.topology()
+            if (
+                enable_qiskit_initial_mapping is True
+                and isinstance(links, list)
+                and len(links) > 1
+                and isinstance(links[0], list)
+            ):
+                coupling_map = links
+            else:
+                coupling_map = None
             compiled_options = {
                 "basis_gates": ["h", "rz", "x", "y", "z", "cx", "cz"],
                 "optimization_level": 2,
+                "coupling_map": coupling_map,
             }
 
         def c2qasm(c: Any, compiling: bool) -> str:
