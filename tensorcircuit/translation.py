@@ -121,7 +121,6 @@ def qir2cirq(
     add unitary test with tolerance
     add support of cirq built-in ControlledGate for multiplecontroll
     support more element in qir, e.g. barrier, measure...
-    disable outputting controlled bit when creating controlled gate
     """
 
     class CustomizedCirqGate(cirq.Gate):
@@ -187,7 +186,8 @@ def qir2cirq(
                 gate_info["gate"].tensor,
                 [2 ** len(index), 2 ** len(index)],
             )
-            # Note: unitary test is not working for some of the generated matrix, probably add tolerance unitary test later
+            # Note: unitary test is not working for some of the generated matrix,
+            # probably add tolerance unitary test later
             cgate = CustomizedCirqGate(gatem, gate_name, len(index))
             cmd.append(cgate.on(*index))
     cirq_circuit = cirq.Circuit(*cmd)

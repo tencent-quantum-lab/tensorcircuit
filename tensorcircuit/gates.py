@@ -896,7 +896,6 @@ def multicontrol_gate(unitary: Tensor, ctrl: Union[int, Sequence[int]] = 1) -> O
         ctrl = [ctrl]
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", np.ComplexWarning)
-        print(ctrl)
         ctrl0_int = int(ctrl[0] + eps)
     if ctrl0_int == 1:
         leftend = np.zeros([2, 2, 2])
