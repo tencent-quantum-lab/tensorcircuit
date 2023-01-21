@@ -23,6 +23,13 @@ except ImportError:
         "Please first ``pip install -U qiskit`` to enable related functionality in translation module"
     )
 
+try:
+    import cirq
+except ImportError:
+    logger.warning(
+        "Please first ``pip install -U cirq`` to enable related functionality in translation module"
+    )
+
 from . import gates
 from .circuit import Circuit
 from .densitymatrix import DMCircuit2
@@ -80,6 +87,111 @@ def _merge_extra_qir(
         if k >= len(qir):
             nqir += inds[k]
     return nqir
+
+
+def qir2cirq(
+    qir: List[Dict[str, Any]], n: int, extra_qir: Optional[List[Dict[str, Any]]] = None
+) -> Any:
+    r"""
+    Generate a cirq circuit using the quantum intermediate
+    representation (qir) in tensorcircuit.
+
+    :Example:
+
+    >>> c = tc.Circuit(2)
+    >>> c.H(1)
+    >>> c.X(1)
+    >>> cisc = tc.translation.qir2cirq(c.to_qir(), 2)
+    >>> print(cisc)
+    1: ───H───X───
+
+    :param qir: The quantum intermediate representation of a circuit.
+    :type qir: List[Dict[str, Any]]
+    :param n: # of qubits
+    :type n: int
+    :param extra_qir: The extra quantum IR of tc circuit including measure and reset on hardware,
+        defaults to None
+    :type extra_qir: Optional[List[Dict[str, Any]]]
+    :return: qiskit cirq object
+    :rtype: Any
+
+    #TODO(@erertertet):
+    add default theta to iswap gate
+    add more cirq built-in gate instead of customized
+    add unitary test with tolerance
+    add support of cirq built-in ControlledGate for multiplecontroll
+    support more element in qir, e.g. barrier, measure...
+    """
+
+    class CustomizedCirqGate(cirq.Gate):
+        def __init__(self, uMatrix: Any, name: str, nqubit: int):
+            super(CustomizedCirqGate, self)
+            self.uMatrix = uMatrix
+            self.name = name
+            self.nqubit = nqubit
+
+        def _num_qubits_(self) -> int:
+            return self.nqubit
+
+        def _unitary_(self) -> Any:
+            return self.uMatrix
+
+        def _circuit_diagram_info_(self) -> List[str]:
+            return [self.name] * self.nqubit
+
+    if extra_qir is not None and len(extra_qir) > 0:
+        qir = _merge_extra_qir(qir, extra_qir)
+    qbits = cirq.LineQubit.range(n)
+    cmd = []
+    for gate_info in qir:
+        index = [qbits[i] for i in gate_info["index"]]
+        gate_name = str(gate_info["gatef"])
+        if "parameters" in gate_info:
+            parameters = gate_info["parameters"]
+        if gate_name in [
+            "h",
+            "i",
+            "x",
+            "y",
+            "z",
+            "s",
+            "t",
+            "fredkin",
+            "toffoli",
+            "cnot",
+            "swap",
+        ]:
+            cmd.append(getattr(cirq, gate_name.upper())(*index))
+        elif gate_name in ["rx", "ry", "rz"]:
+            cmd.append(
+                getattr(cirq, gate_name)(_get_float(parameters, "theta")).on(*index)
+            )
+        elif gate_name == "iswap":
+            cmd.append(
+                cirq.ISwapPowGate(
+                    exponent=_get_float(parameters, "theta", default=1)
+                ).on(*index)
+            )
+        elif gate_name in ["mpo", "multicontrol"]:
+            gatem = np.reshape(
+                backend.numpy(gate_info["gatef"](**parameters).eval_matrix()),
+                [2 ** len(index), 2 ** len(index)],
+            )
+            ci_name = gate_info["name"]
+            cgate = CustomizedCirqGate(gatem, ci_name, len(index))
+            cmd.append(cgate.on(*index))
+        else:
+            # Add Customized Gate if there is no match
+            gatem = np.reshape(
+                gate_info["gate"].tensor,
+                [2 ** len(index), 2 ** len(index)],
+            )
+            # Note: unitary test is not working for some of the generated matrix,
+            # probably add tolerance unitary test later
+            cgate = CustomizedCirqGate(gatem, gate_name, len(index))
+            cmd.append(cgate.on(*index))
+    cirq_circuit = cirq.Circuit(*cmd)
+    return cirq_circuit
 
 
 def qir2qiskit(

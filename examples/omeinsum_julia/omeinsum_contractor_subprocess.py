@@ -7,6 +7,7 @@
 # see https://docs.julialang.org/en/v1/stdlib/Pkg/ for more details on julia's package manager
 
 import os
+import sys
 import json
 import time
 from typing import List, Set, Dict, Tuple
@@ -16,20 +17,23 @@ import cotengra as ctg
 from omeinsum_treesa_optimizer import OMEinsumTreeSAOptimizer
 import tensorcircuit as tc
 
+sys.setrecursionlimit(10000)
 tc.set_backend("tensorflow")
 
 
 class OMEinsumTreeSAOptimizerSubprocess(OMEinsumTreeSAOptimizer):
     def __init__(
         self,
-        sc_target: float = 20,
+        sc_target: int = 20,
         betas: Tuple[float, float, float] = (0.01, 0.01, 15),
         ntrials: int = 10,
         niters: int = 50,
         sc_weight: float = 1.0,
         rw_weight: float = 0.2,
+        kahypar_init: bool = False,
     ):
         super().__init__(sc_target, betas, ntrials, niters, sc_weight, rw_weight)
+        self.kahypar_init = kahypar_init
 
     def __call__(
         self,
@@ -73,6 +77,9 @@ class OMEinsumTreeSAOptimizerSubprocess(OMEinsumTreeSAOptimizer):
             )
         )
 
+        if self.kahypar_init:
+            cmd += " --kahypar_init"
+
         print(cmd)
         p = subprocess.Popen(
             cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE
@@ -104,32 +111,50 @@ class OMEinsumTreeSAOptimizerSubprocess(OMEinsumTreeSAOptimizer):
         return path
 
 
-# For more random circuits, please refer to
-# https://datadryad.org/stash/dataset/doi:10.5061/dryad.k6t1rj8
-c = tc.Circuit.from_qsim_file("circuit_n12_m14_s0_e0_pEFGH.qsim")
+if __name__ == "__main__":
+    # For more random circuits, please refer to
+    # https://datadryad.org/stash/dataset/doi:10.5061/dryad.k6t1rj8
+    c = tc.Circuit.from_qsim_file("circuit_n12_m14_s0_e0_pEFGH.qsim")
 
-opt = ctg.ReusableHyperOptimizer(
-    methods=["greedy", "kahypar"],
-    parallel=True,
-    minimize="flops",
-    max_repeats=1024,
-    progbar=False,
-)
-print("cotengra contractor")
-tc.set_contractor(
-    "custom", optimizer=opt, preprocessing=True, contraction_info=True, debug_level=2
-)
-c.expectation_ps(z=[0], reuse=False)
+    opt = ctg.ReusableHyperOptimizer(
+        methods=["greedy", "kahypar"],
+        parallel=True,
+        minimize="flops",
+        max_repeats=1024,
+        progbar=False,
+    )
+    print("cotengra contractor")
+    tc.set_contractor(
+        "custom",
+        optimizer=opt,
+        preprocessing=True,
+        contraction_info=True,
+        debug_level=2,
+    )
+    c.expectation_ps(z=[0], reuse=False)
 
-print("OMEinsum contractor")
-opt_treesa = OMEinsumTreeSAOptimizerSubprocess(
-    sc_target=30, sc_weight=0.0, rw_weight=0.0
-)
-tc.set_contractor(
-    "custom",
-    optimizer=opt_treesa,
-    preprocessing=True,
-    contraction_info=True,
-    debug_level=2,
-)
-c.expectation_ps(z=[0], reuse=False)
+    print("OMEinsum contractor")
+    opt_treesa = OMEinsumTreeSAOptimizerSubprocess(
+        sc_target=30, sc_weight=0.0, rw_weight=0.0
+    )
+    tc.set_contractor(
+        "custom",
+        optimizer=opt_treesa,
+        preprocessing=True,
+        contraction_info=True,
+        debug_level=2,
+    )
+    c.expectation_ps(z=[0], reuse=False)
+
+    print("OMEinsum contractor with kahypar init")
+    opt_treesa = OMEinsumTreeSAOptimizerSubprocess(
+        sc_target=30, sc_weight=0.0, rw_weight=0.0, kahypar_init=True
+    )
+    tc.set_contractor(
+        "custom",
+        optimizer=opt_treesa,
+        preprocessing=True,
+        contraction_info=True,
+        debug_level=2,
+    )
+    c.expectation_ps(z=[0], reuse=False)
