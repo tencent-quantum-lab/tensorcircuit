@@ -555,7 +555,7 @@ class ReadoutMit:
             return r  # type: ignore
             # return quasi_out[0]  # type: ignore
         mitcounts = QuasiCollection(quasi_out)
-        return mitcounts.nearest_probability_distribution()  # type: ignore
+        return sort_count(mitcounts.nearest_probability_distribution())  # type: ignore
 
     def _apply_correction(  # type: ignore
         self,
