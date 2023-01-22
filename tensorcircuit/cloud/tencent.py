@@ -7,7 +7,6 @@ from datetime import datetime
 from json import dumps
 import logging
 from functools import partial
-import re
 
 from .config import tencent_base_url
 from .utils import rpost_json
@@ -88,59 +87,6 @@ def list_properties(device: Device, token: Optional[str] = None) -> Dict[str, An
                 ...,},
     'langs': ['tQASM', 'eQASM']}
     """
-
-
-def _free_pi(s: str) -> str:
-    # dirty trick to get rid of pi in openqasm from qiskit
-    rs = []
-    pistr = "3.141592653589793"
-    s = s.replace("pi", pistr)
-    for r in s.split("\n"):
-        inc = re.search(r"\(.*\)", r)
-        if inc is None:
-            rs.append(r)
-        else:
-            v = r[inc.start() : inc.end()]
-            v = eval(v)
-            r = r[: inc.start()] + "(" + str(v) + ")" + r[inc.end() :]
-            rs.append(r)
-    return "\n".join(rs)
-
-
-def _comment_qasm(s: str) -> str:
-    """
-    return the qasm str in comment format
-
-    :param s: _description_
-    :type s: str
-    :return: _description_
-    :rtype: str
-    """
-    nslist = []
-    nslist.append("//circuit begins")
-    for line in s.split("\n"):
-        nslist.append("//" + line)
-    nslist.append("//circuit ends")
-    return "\n".join(nslist)
-
-
-def _comment_dict(d: Dict[int, int], name: str = "logical_physical_mapping") -> str:
-    """
-    save a dict in commented qasm
-
-    :param d: _description_
-    :type d: Dict[int, int]
-    :param name: _description_, defaults to "logical_physical_mapping"
-    :type name: str, optional
-    :return: _description_
-    :rtype: str
-    """
-    nslist = []
-    nslist.append("//%s begins" % name)
-    for k, v in d.items():
-        nslist.append("// " + str(k) + " : " + str(v))
-    nslist.append("//%s ends" % name)
-    return "\n".join(nslist)
 
 
 @partial(
