@@ -14,6 +14,8 @@
 
 - Add `cals_from_api` method for `ReadoutMit` class which can acquire the readout error information from the api
 
+- Add experimental compiler module
+
 ### Fixed
 
 - Circuit nosify in noise model now support all circuit attributs apart from qubit number
