@@ -109,7 +109,7 @@ def submit_task(
     compiling: bool = False,
     compiled_options: Optional[Dict[str, Any]] = None,
     enable_qiskit_initial_mapping: bool = False,
-    measure: Optional[Sequence[int]] = None,
+    # measure: Optional[Sequence[int]] = None,
     enable_qos_qubit_mapping: bool = True,
     enable_qos_gate_decomposition: bool = True,
     enable_qos_initial_mapping: bool = False,
@@ -145,10 +145,6 @@ def submit_task(
     :param compiled_options: compiling options for qiskit ``transpile`` method,
         defaults to None
     :type compiled_options: Optional[Dict[str, Any]], optional
-    :param measure: [deprecated] which group of qubit to measure,
-        defaults to None, the measure result is in the order of qubit index
-        instead of the ``measure`` list
-    :type measure: Optional[Sequence[int]], optional
     :param enable_qos_qubit_mapping: whether to insert swap if necessary in qos, defaults to True
     :type enable_qos_qubit_mapping: bool, optional
     :param enable_qos_gate_decomposition: whether to compile the gate in qos, defaults to True
@@ -162,6 +158,10 @@ def submit_task(
     :return: Task object or List of Task for batch submission
     :rtype: List[Task]
     """
+    # :param measure: [deprecated] which group of qubit to measure,
+    #     defaults to None, the measure result is in the order of qubit index
+    #     instead of the ``measure`` list
+    # :type measure: Optional[Sequence[int]], optional
     if source is None:
         if compiled_options is None:
             links = device.topology()
@@ -181,35 +181,29 @@ def submit_task(
             }
 
         def c2qasm(c: Any, compiling: bool) -> str:
-            from qiskit.compiler import transpile
+            from ..compiler.qiskit_compiler import qiskit_compile
             from qiskit.circuit import QuantumCircuit
-            from qiskit.transpiler.passes import RemoveBarriers
 
             if compiling is True:
-                if not isinstance(c, QuantumCircuit):
-                    c = c.to_qiskit()
-
-                nq = c.num_qubits
-                c1 = transpile(c, **compiled_options)
-                c1 = RemoveBarriers()(c1)
-                # initial_mapping introduce barrier in the qiskit circuit
-                s = c1.qasm()
+                s = qiskit_compile(
+                    c, output="qasm", info=True, compiled_options=compiled_options
+                )
             else:
                 if isinstance(c, QuantumCircuit):
                     s = c.qasm()
-                    nq = c.num_qubits
+                    # nq = c.num_qubits
                 else:
                     s = c.to_openqasm()
-                    nq = c._nqubits
+                    # nq = c._nqubits
             # s = _free_pi(s) # tQuk translation now supports this
-            if measure is not None:  # ad hoc partial measurement
-                slist = s.split("\n")[:-1]
-                if len(slist) > 3 and not slist[3].startswith("creg"):
-                    slist.insert(3, "creg c[%s];" % nq)
-                for m in measure:
-                    slist.append("measure q[%s]->c[%s];" % (m, m))
-                slist.append("")
-                s = "\n".join(slist)
+            # if measure is not None:  # ad hoc partial measurement
+            #     slist = s.split("\n")[:-1]
+            #     if len(slist) > 3 and not slist[3].startswith("creg"):
+            #         slist.insert(3, "creg c[%s];" % nq)
+            #     for m in measure:
+            #         slist.append("measure q[%s]->c[%s];" % (m, m))
+            #     slist.append("")
+            #     s = "\n".join(slist)
             return s  # type: ignore
 
         if is_sequence(circuit):
