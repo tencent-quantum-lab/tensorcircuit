@@ -397,6 +397,9 @@ class Task:
         nqubit = len(list(r.keys())[0])
 
         # mitigated is True:
+        device = self.get_device()
+        if device.provider.name != "tencent":
+            raise ValueError("Only tencent provider supports auto readout mitigation")
         if readout_mit is None and getattr(self, "readout_mit", None) is None:
 
             def run(cs: Any, shots: Any) -> Any:
@@ -405,13 +408,7 @@ class Task:
                 """
                 from .apis import submit_task
 
-                # ts = []
-                # for c in cs:
-                #     ts.append(
-                #         submit_task(circuit=c, shots=shots, device=self.get_device())
-                #     )
-                #     time.sleep(0.3)
-                ts = submit_task(circuit=cs, shots=shots, device=self.get_device())
+                ts = submit_task(circuit=cs, shots=shots, device=device.name + "?o=0")
                 return [t.results(blocked=True) for t in ts]  # type: ignore
 
             shots = self.details()["shots"]
@@ -426,7 +423,9 @@ class Task:
             readout_mit = self.readout_mit
 
         if mitigation_options is None:
-            mitigation_options = {}
+            mitigation_options = {
+                "logical_physical_mapping": self.details()["optimization"]["pairs"]
+            }
         miti_count = readout_mit.apply_correction(
             r, list(range(nqubit)), **mitigation_options
         )

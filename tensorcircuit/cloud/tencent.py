@@ -89,6 +89,22 @@ def list_properties(device: Device, token: Optional[str] = None) -> Dict[str, An
     """
 
 
+def _replace_rz_to_st(qasm: str) -> str:
+    nqasm = []
+    for line in qasm.split("\n"):
+        if line.startswith("rz(pi/2)") or line.startswith("rz(5*pi/2)"):
+            line = " ".join(["s"] + line.split(" ")[1:])
+        elif line.startswith("rz(-pi/2)") or line.startswith("rz(3*pi/2)"):
+            line = " ".join(["sdg"] + line.split(" ")[1:])
+        elif line.startswith("rz(pi/4)"):
+            line = " ".join(["t"] + line.split(" ")[1:])
+        elif line.startswith("rz(-pi/4)"):
+            line = " ".join(["tdg"] + line.split(" ")[1:])
+
+        nqasm.append(line)
+    return "\n".join(nqasm)
+
+
 @partial(
     arg_alias,
     alias_dict={
@@ -175,7 +191,7 @@ def submit_task(
             else:
                 coupling_map = None
             compiled_options = {
-                "basis_gates": ["h", "rz", "x", "y", "z", "cx", "cz"],
+                "basis_gates": ["h", "x", "y", "z", "s", "t", "rz", "cx", "cz"],
                 "optimization_level": 2,
                 "coupling_map": coupling_map,
             }
@@ -204,6 +220,7 @@ def submit_task(
             #         slist.append("measure q[%s]->c[%s];" % (m, m))
             #     slist.append("")
             #     s = "\n".join(slist)
+            s = _replace_rz_to_st(s)
             return s  # type: ignore
 
         if is_sequence(circuit):
