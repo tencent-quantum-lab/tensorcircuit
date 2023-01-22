@@ -163,7 +163,7 @@ def submit_task(
     #     instead of the ``measure`` list
     # :type measure: Optional[Sequence[int]], optional
     if source is None:
-        if compiled_options is None:
+        if compiled_options is None and compiling is True:
             links = device.topology()
             if (
                 enable_qiskit_initial_mapping is True
@@ -186,7 +186,7 @@ def submit_task(
 
             if compiling is True:
                 s = qiskit_compile(
-                    c, output="qasm", info=True, compiled_options=compiled_options
+                    c, output="qasm", info=False, compiled_options=compiled_options
                 )
             else:
                 if isinstance(c, QuantumCircuit):
