@@ -1,0 +1,36 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "refraction-ray",
+      "name": "Shixin Zhang",
+      "avatar_url": "https://avatars.githubusercontent.com/u/35157286?v=4",
+      "profile": "https://re-ra.xyz",
+      "contributions": [
+        "code",
+        "doc",
+        "example",
+        "ideas",
+        "infra",
+        "maintenance",
+        "research",
+        "review",
+        "translation",
+        "test",
+        "tutorial",
+        "talk"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "tensorcircuit-dev",
+  "projectOwner": "refraction-ray"
+}
