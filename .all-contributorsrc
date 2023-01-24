@@ -131,6 +131,16 @@
         "translation",
         "tutorial"
       ]
+    },
+    {
+      "login": "JachyMeow",
+      "name": "JachyMeow",
+      "avatar_url": "https://avatars.githubusercontent.com/u/114171061?v=4",
+      "profile": "https://github.com/JachyMeow",
+      "contributions": [
+        "tutorial",
+        "translation"
+      ]
     }
   ],
   "contributorsPerLine": 6,
