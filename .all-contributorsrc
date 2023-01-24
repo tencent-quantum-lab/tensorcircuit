@@ -53,6 +53,19 @@
         "ideas",
         "research"
       ]
+    },
+    {
+      "login": "liwt31",
+      "name": "Weitang Li",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22628546?v=4",
+      "profile": "http://liwt31.github.io",
+      "contributions": [
+        "code",
+        "doc",
+        "ideas",
+        "test",
+        "talk"
+      ]
     }
   ],
   "contributorsPerLine": 7,
