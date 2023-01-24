@@ -63,6 +63,7 @@
         "code",
         "doc",
         "ideas",
+        "research",
         "test",
         "talk"
       ]
@@ -91,6 +92,7 @@
         "doc",
         "example",
         "ideas",
+        "research",
         "test",
         "tutorial"
       ]
@@ -102,6 +104,7 @@
       "profile": "https://github.com/ls-iastu",
       "contributions": [
         "example",
+        "research",
         "tutorial"
       ]
     }
