@@ -162,6 +162,7 @@ We welcome [issues](https://github.com/tencent-quantum-lab/tensorcircuit/issues)
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/yicongzheng"><img src="https://avatars.githubusercontent.com/u/107173985?v=4?s=100" width="100px;" alt="yicongzheng"/><br /><sub><b>yicongzheng</b></sub></a><br /><a href="#tutorial-yicongzheng" title="Tutorials">✅</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://marksong.tech"><img src="https://avatars.githubusercontent.com/u/78847784?v=4?s=100" width="100px;" alt="Zixuan Song"/><br /><sub><b>Zixuan Song</b></sub></a><br /><a href="https://github.com/refraction-ray/tensorcircuit-dev/commits?author=MarkSong535" title="Documentation">📖</a> <a href="#translation-MarkSong535" title="Translation">🌍</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/buwantaiji"><img src="https://avatars.githubusercontent.com/u/25216189?v=4?s=100" width="100px;" alt="Hao Xie"/><br /><sub><b>Hao Xie</b></sub></a><br /><a href="https://github.com/refraction-ray/tensorcircuit-dev/commits?author=buwantaiji" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/pramitsingh0"><img src="https://avatars.githubusercontent.com/u/52959209?v=4?s=100" width="100px;" alt="Pramit Singh"/><br /><sub><b>Pramit Singh</b></sub></a><br /><a href="https://github.com/refraction-ray/tensorcircuit-dev/commits?author=pramitsingh0" title="Tests">⚠️</a></td>
     </tr>
   </tbody>
 </table>
