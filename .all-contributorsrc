@@ -28,7 +28,7 @@
     },
     {
       "login": "yutuer21",
-      "name": "Yu-Qin Chen",
+      "name": "Yuqin Chen",
       "avatar_url": "https://avatars.githubusercontent.com/u/83822724?v=4",
       "profile": "https://github.com/yutuer21",
       "contributions": [
@@ -134,7 +134,7 @@
     },
     {
       "login": "JachyMeow",
-      "name": "JachyMeow",
+      "name": "Jiaqi Miu",
       "avatar_url": "https://avatars.githubusercontent.com/u/114171061?v=4",
       "profile": "https://github.com/JachyMeow",
       "contributions": [
@@ -144,7 +144,7 @@
     },
     {
       "login": "Mzye21",
-      "name": "Mzye21",
+      "name": "Zhaofeng Ye",
       "avatar_url": "https://avatars.githubusercontent.com/u/86239031?v=4",
       "profile": "https://github.com/Mzye21",
       "contributions": [
@@ -164,7 +164,7 @@
     },
     {
       "login": "yicongzheng",
-      "name": "yicongzheng",
+      "name": "Yicong Zheng",
       "avatar_url": "https://avatars.githubusercontent.com/u/107173985?v=4",
       "profile": "https://github.com/yicongzheng",
       "contributions": [
@@ -201,7 +201,7 @@
     },
     {
       "login": "JAllcock",
-      "name": "JAllcock",
+      "name": "Jonathan Allcock",
       "avatar_url": "https://avatars.githubusercontent.com/u/26302022?v=4",
       "profile": "https://github.com/JAllcock",
       "contributions": [
@@ -215,6 +215,6 @@
   "skipCi": true,
   "repoType": "github",
   "repoHost": "https://github.com",
-  "projectName": "tensorcircuit-dev",
-  "projectOwner": "refraction-ray"
+  "projectName": "tensorcircuit",
+  "projectOwner": "tencent-quantum-lab"
 }
