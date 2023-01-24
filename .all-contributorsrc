@@ -150,6 +150,17 @@
       "contributions": [
         "design"
       ]
+    },
+    {
+      "login": "erertertet",
+      "name": "erertertet",
+      "avatar_url": "https://avatars.githubusercontent.com/u/41342153?v=4",
+      "profile": "https://github.com/erertertet",
+      "contributions": [
+        "code",
+        "doc",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 6,
