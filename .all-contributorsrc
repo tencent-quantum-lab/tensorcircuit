@@ -94,6 +94,16 @@
         "test",
         "tutorial"
       ]
+    },
+    {
+      "login": "ls-iastu",
+      "name": "ls-iastu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/70554346?v=4",
+      "profile": "https://github.com/ls-iastu",
+      "contributions": [
+        "example",
+        "tutorial"
+      ]
     }
   ],
   "contributorsPerLine": 6,
