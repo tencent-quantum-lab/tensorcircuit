@@ -160,6 +160,7 @@ We welcome [issues](https://github.com/tencent-quantum-lab/tensorcircuit/issues)
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/yicongzheng"><img src="https://avatars.githubusercontent.com/u/107173985?v=4?s=100" width="100px;" alt="yicongzheng"/><br /><sub><b>yicongzheng</b></sub></a><br /><a href="#tutorial-yicongzheng" title="Tutorials">✅</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://marksong.tech"><img src="https://avatars.githubusercontent.com/u/78847784?v=4?s=100" width="100px;" alt="Zixuan Song"/><br /><sub><b>Zixuan Song</b></sub></a><br /><a href="https://github.com/refraction-ray/tensorcircuit-dev/commits?author=MarkSong535" title="Documentation">📖</a> <a href="#translation-MarkSong535" title="Translation">🌍</a></td>
     </tr>
   </tbody>
 </table>
