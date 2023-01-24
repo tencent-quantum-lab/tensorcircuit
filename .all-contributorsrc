@@ -170,6 +170,16 @@
       "contributions": [
         "tutorial"
       ]
+    },
+    {
+      "login": "MarkSong535",
+      "name": "Zixuan Song",
+      "avatar_url": "https://avatars.githubusercontent.com/u/78847784?v=4",
+      "profile": "https://marksong.tech",
+      "contributions": [
+        "doc",
+        "translation"
+      ]
     }
   ],
   "contributorsPerLine": 6,
