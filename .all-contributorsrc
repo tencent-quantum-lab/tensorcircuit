@@ -198,6 +198,17 @@
       "contributions": [
         "test"
       ]
+    },
+    {
+      "login": "JAllcock",
+      "name": "JAllcock",
+      "avatar_url": "https://avatars.githubusercontent.com/u/26302022?v=4",
+      "profile": "https://github.com/JAllcock",
+      "contributions": [
+        "doc",
+        "ideas",
+        "talk"
+      ]
     }
   ],
   "contributorsPerLine": 6,
