@@ -158,6 +158,9 @@ We welcome [issues](https://github.com/tencent-quantum-lab/tensorcircuit/issues)
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/Mzye21"><img src="https://avatars.githubusercontent.com/u/86239031?v=4?s=100" width="100px;" alt="Mzye21"/><br /><sub><b>Mzye21</b></sub></a><br /><a href="#design-Mzye21" title="Design">🎨</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/erertertet"><img src="https://avatars.githubusercontent.com/u/41342153?v=4?s=100" width="100px;" alt="erertertet"/><br /><sub><b>erertertet</b></sub></a><br /><a href="https://github.com/refraction-ray/tensorcircuit-dev/commits?author=erertertet" title="Code">💻</a> <a href="https://github.com/refraction-ray/tensorcircuit-dev/commits?author=erertertet" title="Documentation">📖</a> <a href="https://github.com/refraction-ray/tensorcircuit-dev/commits?author=erertertet" title="Tests">⚠️</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/yicongzheng"><img src="https://avatars.githubusercontent.com/u/107173985?v=4?s=100" width="100px;" alt="yicongzheng"/><br /><sub><b>yicongzheng</b></sub></a><br /><a href="#tutorial-yicongzheng" title="Tutorials">✅</a></td>
+    </tr>
   </tbody>
 </table>
 
