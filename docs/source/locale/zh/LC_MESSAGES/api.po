@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-13 11:04+0800\n"
+"POT-Creation-Date: 2023-01-24 13:45+0800\n"
 "PO-Revision-Date: 2022-04-13 14:58+0800\n"
 "Last-Translator: Xinghan Yang\n"
 "Language: cn\n"
@@ -106,6 +106,7 @@ msgstr ""
 #: tensorcircuit.abstractcircuit.AbstractCircuit.reset_instruction
 #: tensorcircuit.abstractcircuit.AbstractCircuit.select_gate
 #: tensorcircuit.abstractcircuit.AbstractCircuit.standardize_gate
+#: tensorcircuit.abstractcircuit.AbstractCircuit.to_cirq
 #: tensorcircuit.abstractcircuit.AbstractCircuit.to_json
 #: tensorcircuit.abstractcircuit.AbstractCircuit.to_qiskit
 #: tensorcircuit.applications.dqas.DQAS_search
@@ -591,6 +592,7 @@ msgstr ""
 #: tensorcircuit.results.readout_mitigation.ReadoutMit.__init__
 #: tensorcircuit.results.readout_mitigation.ReadoutMit.apply_correction
 #: tensorcircuit.results.readout_mitigation.ReadoutMit.apply_readout_mitigation
+#: tensorcircuit.results.readout_mitigation.ReadoutMit.cals_from_api
 #: tensorcircuit.results.readout_mitigation.ReadoutMit.cals_from_system
 #: tensorcircuit.results.readout_mitigation.ReadoutMit.expectation
 #: tensorcircuit.results.readout_mitigation.ReadoutMit.get_matrix
@@ -617,8 +619,9 @@ msgstr ""
 #: tensorcircuit.templates.measurements.sparse_expectation
 #: tensorcircuit.templates.measurements.spin_glass_measurements
 #: tensorcircuit.torchnn.QuantumNet.__init__ tensorcircuit.translation.eqasm2tc
-#: tensorcircuit.translation.perm_matrix tensorcircuit.translation.qir2json
-#: tensorcircuit.translation.qir2qiskit tensorcircuit.translation.qiskit2tc
+#: tensorcircuit.translation.perm_matrix tensorcircuit.translation.qir2cirq
+#: tensorcircuit.translation.qir2json tensorcircuit.translation.qir2qiskit
+#: tensorcircuit.translation.qiskit2tc
 #: tensorcircuit.translation.qiskit_from_qasm_str_ordered_measure
 #: tensorcircuit.utils.append tensorcircuit.utils.arg_alias
 #: tensorcircuit.utils.benchmark tensorcircuit.utils.return_partial
@@ -794,6 +797,7 @@ msgstr ""
 #: tensorcircuit.abstractcircuit.AbstractCircuit.inverse
 #: tensorcircuit.abstractcircuit.AbstractCircuit.prepend
 #: tensorcircuit.abstractcircuit.AbstractCircuit.standardize_gate
+#: tensorcircuit.abstractcircuit.AbstractCircuit.to_cirq
 #: tensorcircuit.abstractcircuit.AbstractCircuit.to_json
 #: tensorcircuit.abstractcircuit.AbstractCircuit.to_openqasm
 #: tensorcircuit.abstractcircuit.AbstractCircuit.to_qir
@@ -1449,8 +1453,8 @@ msgstr ""
 #: tensorcircuit.templates.measurements.sparse_expectation
 #: tensorcircuit.templates.measurements.spin_glass_measurements
 #: tensorcircuit.translation.eqasm2tc tensorcircuit.translation.perm_matrix
-#: tensorcircuit.translation.qir2json tensorcircuit.translation.qir2qiskit
-#: tensorcircuit.translation.qiskit2tc
+#: tensorcircuit.translation.qir2cirq tensorcircuit.translation.qir2json
+#: tensorcircuit.translation.qir2qiskit tensorcircuit.translation.qiskit2tc
 #: tensorcircuit.translation.qiskit_from_qasm_str_ordered_measure
 #: tensorcircuit.utils.append tensorcircuit.utils.arg_alias
 #: tensorcircuit.utils.benchmark tensorcircuit.utils.is_m1mac
@@ -2089,8 +2093,8 @@ msgstr ""
 #: tensorcircuit.templates.measurements.sparse_expectation
 #: tensorcircuit.templates.measurements.spin_glass_measurements
 #: tensorcircuit.translation.eqasm2tc tensorcircuit.translation.perm_matrix
-#: tensorcircuit.translation.qir2json tensorcircuit.translation.qir2qiskit
-#: tensorcircuit.translation.qiskit2tc
+#: tensorcircuit.translation.qir2cirq tensorcircuit.translation.qir2json
+#: tensorcircuit.translation.qir2qiskit tensorcircuit.translation.qiskit2tc
 #: tensorcircuit.translation.qiskit_from_qasm_str_ordered_measure
 #: tensorcircuit.utils.append tensorcircuit.utils.arg_alias
 #: tensorcircuit.utils.benchmark tensorcircuit.utils.is_m1mac
@@ -2235,7 +2239,7 @@ msgstr ""
 #: tensorcircuit.quantum.quantum_constructor
 #: tensorcircuit.quantum.renyi_free_energy tensorcircuit.quantum.spin_by_basis
 #: tensorcircuit.quantum.trace_product tensorcircuit.simplify.infer_new_shape
-#: tensorcircuit.torchnn.QuantumNet.__init__
+#: tensorcircuit.torchnn.QuantumNet.__init__ tensorcircuit.translation.qir2cirq
 #: tensorcircuit.translation.qir2qiskit tensorcircuit.translation.qiskit2tc
 #: tensorcircuit.utils.append tensorcircuit.utils.return_partial
 #: tensorcircuit.vis.gate_name_trans tensorcircuit.vis.qir2tex
@@ -2448,6 +2452,7 @@ msgid "Restore the circuit from the quantum intermediate representation."
 msgstr ""
 
 #: of tensorcircuit.abstractcircuit.AbstractCircuit.from_qir:21
+#: tensorcircuit.translation.qir2cirq:13
 #: tensorcircuit.translation.qir2qiskit:14
 msgid "The quantum intermediate representation of a circuit."
 msgstr ""
@@ -2477,12 +2482,12 @@ msgid "possible input wavefunction for ``tc.Circuit``, defaults to None"
 msgstr ""
 
 #: of tensorcircuit.abstractcircuit.AbstractCircuit.from_qiskit:18
-#: tensorcircuit.translation.qiskit2tc:18
+#: tensorcircuit.translation.qiskit2tc:20
 msgid "kwargs given in Circuit.__init__ construction function, default to None."
 msgstr ""
 
 #: of tensorcircuit.abstractcircuit.AbstractCircuit.from_qiskit:20
-#: tensorcircuit.translation.qiskit2tc:20
+#: tensorcircuit.translation.qiskit2tc:22
 msgid ""
 "(variational) parameters for the circuit. Could be either a sequence or "
 "dictionary depending on the type of parameters in the Qiskit circuit. For"
@@ -2602,6 +2607,19 @@ msgstr ""
 msgid "Latex string that can be directly compiled via, e.g. latexit"
 msgstr ""
 
+#: of tensorcircuit.abstractcircuit.AbstractCircuit.to_cirq:1
+msgid "Translate ``tc.Circuit`` to a cirq circuit object."
+msgstr ""
+
+#: of tensorcircuit.abstractcircuit.AbstractCircuit.to_cirq:3
+#: tensorcircuit.abstractcircuit.AbstractCircuit.to_qiskit:3
+msgid "whether also export measurement and reset instructions"
+msgstr ""
+
+#: of tensorcircuit.abstractcircuit.AbstractCircuit.to_cirq:5
+msgid "A cirq circuit of this circuit."
+msgstr ""
+
 #: of tensorcircuit.abstractcircuit.AbstractCircuit.to_json:1
 msgid "circuit dumps to json"
 msgstr ""
@@ -2644,10 +2662,6 @@ msgstr ""
 
 #: of tensorcircuit.abstractcircuit.AbstractCircuit.to_qiskit:1
 msgid "Translate ``tc.Circuit`` to a qiskit QuantumCircuit object."
-msgstr ""
-
-#: of tensorcircuit.abstractcircuit.AbstractCircuit.to_qiskit:3
-msgid "whether also export measurement and reset instructions"
 msgstr ""
 
 #: of tensorcircuit.abstractcircuit.AbstractCircuit.to_qiskit:5
@@ -12832,6 +12846,26 @@ msgstr ""
 msgid "The result of :math:`\\langle bra\\vert ops \\vert ket\\rangle`."
 msgstr ""
 
+#: ../../source/api/cloud.rst:2
+msgid "tensorcircuit.cloud"
+msgstr ""
+
+#: ../../source/api/cloud/config.rst:2
+msgid "tensorcircuit.cloud.config"
+msgstr ""
+
+#: ../../source/api/compiler.rst:2
+msgid "tensorcircuit.compiler"
+msgstr ""
+
+#: ../../source/api/compiler/qiskit_compiler.rst:2
+msgid "tensorcircuit.compiler.qiskit_compiler"
+msgstr ""
+
+#: of tensorcircuit.compiler.qiskit_compiler:1
+msgid "compiler interface via qiskit"
+msgstr ""
+
 #: ../../source/api/cons.rst:2
 msgid "tensorcircuit.cons"
 msgstr ""
@@ -14802,37 +14836,39 @@ msgstr ""
 
 #: of tensorcircuit.quantum.PauliStringSum2COO:1
 #: tensorcircuit.quantum.PauliStringSum2COO_numpy:1
-msgid "Generate sparse tensor from Pauli string sum"
+msgid ""
+"Generate sparse tensor from Pauli string sum. Currently requires "
+"tensorflow installed"
 msgstr ""
 
-#: of tensorcircuit.quantum.PauliStringSum2COO:3
-#: tensorcircuit.quantum.PauliStringSum2COO_numpy:3
+#: of tensorcircuit.quantum.PauliStringSum2COO:4
+#: tensorcircuit.quantum.PauliStringSum2COO_numpy:4
 #: tensorcircuit.quantum.PauliStringSum2COO_tf:3
-#: tensorcircuit.quantum.PauliStringSum2Dense:3
+#: tensorcircuit.quantum.PauliStringSum2Dense:5
 msgid ""
 "2D Tensor, each row is for a Pauli string, e.g. [1, 0, 0, 3, 2] is for "
 ":math:`X_0Z_3Y_4`"
 msgstr ""
 
-#: of tensorcircuit.quantum.PauliStringSum2COO:6
-#: tensorcircuit.quantum.PauliStringSum2COO_numpy:6
+#: of tensorcircuit.quantum.PauliStringSum2COO:7
+#: tensorcircuit.quantum.PauliStringSum2COO_numpy:7
 #: tensorcircuit.quantum.PauliStringSum2COO_tf:6
-#: tensorcircuit.quantum.PauliStringSum2Dense:6
+#: tensorcircuit.quantum.PauliStringSum2Dense:8
 msgid ""
 "1D Tensor, each element corresponds the weight for each Pauli string "
 "defaults to None (all Pauli strings weight 1.0)"
 msgstr ""
 
-#: of tensorcircuit.quantum.PauliStringSum2COO:9
-#: tensorcircuit.quantum.PauliStringSum2COO_numpy:9
-#: tensorcircuit.quantum.PauliStringSum2Dense:9
+#: of tensorcircuit.quantum.PauliStringSum2COO:10
+#: tensorcircuit.quantum.PauliStringSum2COO_numpy:10
+#: tensorcircuit.quantum.PauliStringSum2Dense:11
 msgid ""
 "default False. If True, return numpy coo else return backend compatible "
 "sparse tensor"
 msgstr ""
 
-#: of tensorcircuit.quantum.PauliStringSum2COO:12
-#: tensorcircuit.quantum.PauliStringSum2COO_numpy:12
+#: of tensorcircuit.quantum.PauliStringSum2COO:13
+#: tensorcircuit.quantum.PauliStringSum2COO_numpy:13
 msgid "the scipy coo sparse matrix"
 msgstr ""
 
@@ -14841,10 +14877,12 @@ msgid "the tensorflow coo sparse matrix"
 msgstr ""
 
 #: of tensorcircuit.quantum.PauliStringSum2Dense:1
-msgid "Generate dense matrix from Pauli string sum"
+msgid ""
+"Generate dense matrix from Pauli string sum. Currently requires "
+"tensorflow installed."
 msgstr ""
 
-#: of tensorcircuit.quantum.PauliStringSum2Dense:12
+#: of tensorcircuit.quantum.PauliStringSum2Dense:14
 msgid "the tensorflow dense matrix"
 msgstr ""
 
@@ -15447,46 +15485,48 @@ msgid "The Gibbs state of ``h`` with the given ``beta``."
 msgstr ""
 
 #: of tensorcircuit.quantum.heisenberg_hamiltonian:1
-msgid "Generate Heisenberg Hamiltonian with possible external fields."
+msgid ""
+"Generate Heisenberg Hamiltonian with possible external fields. Currently "
+"requires tensorflow installed"
 msgstr ""
 
-#: of tensorcircuit.quantum.heisenberg_hamiltonian:12
+#: of tensorcircuit.quantum.heisenberg_hamiltonian:13
 msgid "input circuit graph"
 msgstr ""
 
-#: of tensorcircuit.quantum.heisenberg_hamiltonian:14
+#: of tensorcircuit.quantum.heisenberg_hamiltonian:15
 msgid "zz coupling, default is 1.0"
 msgstr ""
 
-#: of tensorcircuit.quantum.heisenberg_hamiltonian:16
+#: of tensorcircuit.quantum.heisenberg_hamiltonian:17
 msgid "xx coupling, default is 1.0"
 msgstr ""
 
-#: of tensorcircuit.quantum.heisenberg_hamiltonian:18
+#: of tensorcircuit.quantum.heisenberg_hamiltonian:19
 msgid "yy coupling, default is 1.0"
 msgstr ""
 
-#: of tensorcircuit.quantum.heisenberg_hamiltonian:20
+#: of tensorcircuit.quantum.heisenberg_hamiltonian:21
 msgid "External field on z direction, default is 0.0"
 msgstr ""
 
-#: of tensorcircuit.quantum.heisenberg_hamiltonian:22
+#: of tensorcircuit.quantum.heisenberg_hamiltonian:23
 msgid "External field on y direction, default is 0.0"
 msgstr ""
 
-#: of tensorcircuit.quantum.heisenberg_hamiltonian:24
+#: of tensorcircuit.quantum.heisenberg_hamiltonian:25
 msgid "External field on x direction, default is 0.0"
 msgstr ""
 
-#: of tensorcircuit.quantum.heisenberg_hamiltonian:26
+#: of tensorcircuit.quantum.heisenberg_hamiltonian:27
 msgid "Whether to return sparse Hamiltonian operator, default is True."
 msgstr ""
 
-#: of tensorcircuit.quantum.heisenberg_hamiltonian:28
+#: of tensorcircuit.quantum.heisenberg_hamiltonian:29
 msgid "whether return the matrix in numpy or tensorflow form"
 msgstr ""
 
-#: of tensorcircuit.quantum.heisenberg_hamiltonian:31
+#: of tensorcircuit.quantum.heisenberg_hamiltonian:32
 msgid "Hamiltonian measurements"
 msgstr ""
 
@@ -15937,12 +15977,24 @@ msgstr ""
 msgid "mitigated count"
 msgstr ""
 
+#: of tensorcircuit.results.readout_mitigation.ReadoutMit.cals_from_api:1
+msgid "Get local calibriation matrix from cloud API from tc supported providers"
+msgstr ""
+
+#: of tensorcircuit.results.readout_mitigation.ReadoutMit.cals_from_api:3
+msgid "list of physical qubits to be calibriated"
+msgstr ""
+
+#: of tensorcircuit.results.readout_mitigation.ReadoutMit.cals_from_api:5
+msgid "the device str to qurey for the info, defaults to None"
+msgstr ""
+
 #: of tensorcircuit.results.readout_mitigation.ReadoutMit.cals_from_system:1
 msgid "Get calibrattion information from system."
 msgstr ""
 
 #: of tensorcircuit.results.readout_mitigation.ReadoutMit.cals_from_system:3
-msgid "calibration qubit list"
+msgid "calibration qubit list (physical qubits on device)"
 msgstr ""
 
 #: of tensorcircuit.results.readout_mitigation.ReadoutMit.cals_from_system:5
@@ -17291,6 +17343,7 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.translation.perm_matrix:7
+#: tensorcircuit.translation.qir2cirq:15
 #: tensorcircuit.translation.qir2qiskit:16
 #: tensorcircuit.translation.qiskit2tc:14 tensorcircuit.vis.qir2tex:12
 msgid "# of qubits"
@@ -17298,6 +17351,31 @@ msgstr ""
 
 #: of tensorcircuit.translation.perm_matrix:9
 msgid "The permutation matrix P"
+msgstr ""
+
+#: of tensorcircuit.translation.qir2cirq:1
+msgid ""
+"Generate a cirq circuit using the quantum intermediate representation "
+"(qir) in tensorcircuit."
+msgstr ""
+
+#: of tensorcircuit.translation.qir2cirq:17
+#: tensorcircuit.translation.qir2qiskit:18
+msgid ""
+"The extra quantum IR of tc circuit including measure and reset on "
+"hardware, defaults to None"
+msgstr ""
+
+#: of tensorcircuit.translation.qir2cirq:20
+msgid "qiskit cirq object"
+msgstr ""
+
+#: of tensorcircuit.translation.qir2cirq:23
+msgid ""
+"#TODO(@erertertet): add default theta to iswap gate add more cirq built-"
+"in gate instead of customized add unitary test with tolerance add support"
+" of cirq built-in ControlledGate for multiplecontroll support more "
+"element in qir, e.g. barrier, measure..."
 msgstr ""
 
 #: of tensorcircuit.translation.qir2json:1
@@ -17310,12 +17388,6 @@ msgstr ""
 msgid ""
 "Generate a qiskit quantum circuit using the quantum intermediate "
 "representation (qir) in tensorcircuit."
-msgstr ""
-
-#: of tensorcircuit.translation.qir2qiskit:18
-msgid ""
-"The extra quantum IR of tc circuit including measure and reset on "
-"hardware, defaults to None"
 msgstr ""
 
 #: of tensorcircuit.translation.qir2qiskit:21
@@ -17334,7 +17406,11 @@ msgstr ""
 msgid "Input state of the circuit. Default is None."
 msgstr ""
 
-#: of tensorcircuit.translation.qiskit2tc:24
+#: of tensorcircuit.translation.qiskit2tc:18
+msgid "``Circuit``, ``DMCircuit`` or ``MPSCircuit``"
+msgstr ""
+
+#: of tensorcircuit.translation.qiskit2tc:26
 msgid "A quantum circuit in tensorcircuit"
 msgstr ""
 
@@ -21985,5 +22061,17 @@ msgstr ""
 #~ " where the probability for each "
 #~ "bitstring is given as a vector "
 #~ "``results``."
+#~ msgstr ""
+
+#~ msgid "Generate sparse tensor from Pauli string sum"
+#~ msgstr ""
+
+#~ msgid "Generate dense matrix from Pauli string sum"
+#~ msgstr ""
+
+#~ msgid "Generate Heisenberg Hamiltonian with possible external fields."
+#~ msgstr ""
+
+#~ msgid "calibration qubit list"
 #~ msgstr ""
 
