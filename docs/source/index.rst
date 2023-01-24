@@ -19,19 +19,19 @@ TensorCircuit is an open source quantum circuit and algorithm simulation framewo
 Links
 ----------
 
-This project is released by `Tencent Quantum Lab <https://quantum.tencent.com/>`_ and is created and maintained by `Shi-Xin Zhang <https://github.com/refraction-ray>`_.
-The current core authors are `Shi-Xin Zhang <https://github.com/refraction-ray>`_ and `Yu-Qin Chen <https://github.com/yutuer21>`_.
+TensorCircuit is created and maintained by `Shi-Xin Zhang <https://github.com/refraction-ray>`_ and this version of the software is released by `Tencent Quantum Lab <https://quantum.tencent.com/>`_.
+The current core authors of TensorCircuit are `Shi-Xin Zhang <https://github.com/refraction-ray>`_ and `Yu-Qin Chen <https://github.com/yutuer21>`_.
 We also thank `contributions <https://github.com/tencent-quantum-lab/tensorcircuit/graphs/contributors>`_ from the lab and the open source community.
 
 * Source code: https://github.com/tencent-quantum-lab/tensorcircuit
 
-* Issue Tracker: https://github.com/tencent-quantum-lab/tensorcircuit/issues
-
-* Forum: https://github.com/tencent-quantum-lab/tensorcircuit/discussions
+* Software Whitepaper: https://arxiv.org/abs/2205.10091
 
 * Documentation: https://tensorcircuit.readthedocs.io 
 
-* Whitepaper: https://arxiv.org/abs/2205.10091
+* Issue Tracker: https://github.com/tencent-quantum-lab/tensorcircuit/issues
+
+* Forum: https://github.com/tencent-quantum-lab/tensorcircuit/discussions
 
 * PyPI page: https://pypi.org/project/tensorcircuit
 
