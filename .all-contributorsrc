@@ -80,6 +80,20 @@
         "research",
         "test"
       ]
+    },
+    {
+      "login": "Zhouquan-Wan",
+      "name": "Zhouquan-Wan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/54523490?v=4",
+      "profile": "https://github.com/Zhouquan-Wan",
+      "contributions": [
+        "code",
+        "doc",
+        "example",
+        "ideas",
+        "test",
+        "tutorial"
+      ]
     }
   ],
   "contributorsPerLine": 7,
