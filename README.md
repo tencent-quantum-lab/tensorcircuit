@@ -121,7 +121,7 @@ We also have [Docker support](/docker).
 
 ## Citing TensorCircuit
 
-This project is released by [Tencent Quantum Lab](https://quantum.tencent.com/) and is currently maintained by [Shi-Xin Zhang](https://github.com/refraction-ray) with contributions from the lab and the open source community.
+This project is released by [Tencent Quantum Lab](https://quantum.tencent.com/) and is created and maintained by [Shi-Xin Zhang](https://github.com/refraction-ray) with current core authors [Shi-Xin Zhang](https://github.com/refraction-ray) and [Yu-Qin Chen](https://github.com/yutuer21). We also thank [contributions](https://github.com/tencent-quantum-lab/tensorcircuit/graphs/contributors) from the lab and the open source community.
 
 If this project helps in your research, please cite our software whitepaper:
 
@@ -134,6 +134,17 @@ which is also a good introduction to the software.
 For contribution guidelines and notes, see [CONTRIBUTING](/CONTRIBUTING.md).
 
 We welcome [issues](https://github.com/tencent-quantum-lab/tensorcircuit/issues), [PRs](https://github.com/tencent-quantum-lab/tensorcircuit/pulls), and [discussions](https://github.com/tencent-quantum-lab/tensorcircuit/discussions) from everyone, and these are all hosted on GitHub.
+
+## Contributors
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
 ## Research and Applications
 
