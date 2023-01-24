@@ -115,15 +115,19 @@ pip install tensorcircuit-nightly
 
   - API 设计：人类可理解的量子，更少的代码，更多的可能
 
-## 引用
+## 贡献
+
+### 现况
 
 该项目由[腾讯量子实验室](https://quantum.tencent.com/)发布，由 [Shi-Xin Zhang](https://github.com/refraction-ray) 创造并维护。当前核心作者包括 [Shi-Xin Zhang](https://github.com/refraction-ray) 和 [Yu-Qin Chen](https://github.com/yutuer21)。我们也感谢来自实验室和开源社区的[贡献](https://github.com/tencent-quantum-lab/tensorcircuit/graphs/contributors)。
+
+### 引用
 
 如果该软件对您的研究有帮助, 请引用我们的白皮书文章:
 
 [TensorCircuit: a Quantum Software Framework for the NISQ Era](https://arxiv.org/abs/2205.10091).
 
-## 贡献
+### 说明
 
 有关贡献指南和说明，请参阅 [贡献](/CONTRIBUTING.md)。
 
