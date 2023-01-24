@@ -209,6 +209,15 @@
         "ideas",
         "talk"
       ]
+    },
+    {
+      "login": "nealchen2003",
+      "name": "nealchen2003",
+      "avatar_url": "https://avatars.githubusercontent.com/u/45502551?v=4",
+      "profile": "https://github.com/nealchen2003",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 6,
