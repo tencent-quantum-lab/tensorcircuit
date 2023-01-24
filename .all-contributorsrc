@@ -25,6 +25,21 @@
         "tutorial",
         "talk"
       ]
+    },
+    {
+      "login": "yutuer21",
+      "name": "yutuer",
+      "avatar_url": "https://avatars.githubusercontent.com/u/83822724?v=4",
+      "profile": "https://github.com/yutuer21",
+      "contributions": [
+        "code",
+        "doc",
+        "example",
+        "ideas",
+        "research",
+        "test",
+        "tutorial"
+      ]
     }
   ],
   "contributorsPerLine": 7,
