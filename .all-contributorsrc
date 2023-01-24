@@ -40,6 +40,18 @@
         "test",
         "tutorial"
       ]
+    },
+    {
+      "login": "xptree",
+      "name": "Jiezhong Qiu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3853009?v=4",
+      "profile": "http://jiezhongqiu.com",
+      "contributions": [
+        "code",
+        "example",
+        "ideas",
+        "research"
+      ]
     }
   ],
   "contributorsPerLine": 7,
