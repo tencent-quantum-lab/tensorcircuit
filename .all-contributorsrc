@@ -180,6 +180,15 @@
         "doc",
         "translation"
       ]
+    },
+    {
+      "login": "buwantaiji",
+      "name": "Hao Xie",
+      "avatar_url": "https://avatars.githubusercontent.com/u/25216189?v=4",
+      "profile": "https://github.com/buwantaiji",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 6,
