@@ -120,6 +120,17 @@
         "test",
         "tutorial"
       ]
+    },
+    {
+      "login": "SexyCarrots",
+      "name": "Xinghan Yang",
+      "avatar_url": "https://avatars.githubusercontent.com/u/63588721?v=4",
+      "profile": "https://github.com/SexyCarrots",
+      "contributions": [
+        "doc",
+        "translation",
+        "tutorial"
+      ]
     }
   ],
   "contributorsPerLine": 6,
