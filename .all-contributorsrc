@@ -66,6 +66,20 @@
         "test",
         "talk"
       ]
+    },
+    {
+      "login": "SUSYUSTC",
+      "name": "Jiace Sun",
+      "avatar_url": "https://avatars.githubusercontent.com/u/30529122?v=4",
+      "profile": "https://github.com/SUSYUSTC",
+      "contributions": [
+        "code",
+        "doc",
+        "example",
+        "ideas",
+        "research",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
