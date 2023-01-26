@@ -149,3 +149,30 @@ def example_block(
         for i in range(n):
             c.rx(i, theta=param[2 * j + 1, i])
     return c
+    
+#import matplotlib
+#import qiskit
+# import tensorcircuit as tc
+# from tensorcircuit import Circuit
+
+
+def qft(c, *index):
+    index = sorted(list(set(index)))
+    
+    for i in range(len(index)):
+        c.H(index[i])
+        rotation = np.pi/2
+        for j in range(i + 1, len(index)):
+            c.cphase(index[j], index[i], theta=rotation) #control bit, target bit, degree of control
+            rotation/=2
+        c.barrier_instruction()
+
+    for i in range(len(index)//2):
+        c.swap(index[i],index[len(index)-1-i])
+
+    #c.draw(output='mpl')
+###test
+# total = 7
+# qc = Circ(total)
+# qft(qc,2,4,3,5)
+# qc.draw(output='mpl')
