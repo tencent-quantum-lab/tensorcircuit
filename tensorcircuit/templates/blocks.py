@@ -151,7 +151,6 @@ def example_block(
     return c
 
 
-
 def qft(c, *index):
     index = list(index)
     for q in index:
