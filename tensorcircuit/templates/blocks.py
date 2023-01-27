@@ -152,15 +152,22 @@ def example_block(
 
 
 def qft(c: Circuit, *index: int) -> None:
-    for q in index:
-        if index.count(q) > 1:
-            raise TypeError("There should not be any repetitive qubits")
+    """
+    This function applies quantum fourier transformation (QFT) to the selected circuit lines
+
+    :param c: Circuit in
+    :type c: Circuit
+    :param *index: the indices of the circuit lines to apply QFT
+    :type *index: Tuple[int, int]
+    :return: None
+    :rtype: None
+    """
+    assert len(set(index)) == len(index), "There should not be any repetitive qubits"
     for i in range(len(index)):
         c.H(index[i])
         rotation = np.pi / 2
         for j in range(i + 1, len(index)):
             c.cphase(index[j], index[i], theta=rotation)
             rotation /= 2
-        c.barrier_instruction()
     for i in range(len(index) // 2):
         c.swap(index[i], index[len(index) - 1 - i])
