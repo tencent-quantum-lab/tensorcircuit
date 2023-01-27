@@ -151,8 +151,7 @@ def example_block(
     return c
 
 
-def qft(c, *index):
-    index = list(index)
+def qft(c: Circuit, *index: int) -> None:
     for q in index:
         if index.count(q) > 1:
             raise TypeError("There should not be any repetitive qubits")
