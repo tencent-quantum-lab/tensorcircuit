@@ -152,7 +152,11 @@ def example_block(
 
 
 def qft(
-    c: Circuit, *index: int, do_swaps: bool, inverse: bool, insert_barriers: bool
+    c: Circuit,
+    *index: int,
+    do_swaps: bool = False,
+    inverse: bool = False,
+    insert_barriers: bool = False
 ) -> Circuit:
     """
     This function applies quantum fourier transformation (QFT) to the selected circuit lines

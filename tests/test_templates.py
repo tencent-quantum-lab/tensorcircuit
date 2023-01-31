@@ -66,7 +66,7 @@ def test_bell_block():
 
 def test_qft_block() -> None:
     c = tc.Circuit(4)
-    c = tc.templates.blocks.qft(c, 0, 1, 2, 3, False, False, False)
+    c = tc.templates.blocks.qft(c, 0, 1, 2, 3)
     s = c.perfect_sampling()
     assert s[1] - 0.0624999 < 10e-6
 
