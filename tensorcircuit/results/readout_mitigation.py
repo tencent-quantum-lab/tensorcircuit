@@ -552,7 +552,7 @@ class ReadoutMit:
             r = quasi_out[0]
             r = sort_count(r)
             r = {k: v * shots for k, v in r.items()}
-            return r  # type: ignore
+            return sort_count(r)  # type: ignore
             # return quasi_out[0]  # type: ignore
         mitcounts = QuasiCollection(quasi_out)
         return sort_count(mitcounts.nearest_probability_distribution())  # type: ignore
