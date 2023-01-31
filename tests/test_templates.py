@@ -63,6 +63,13 @@ def test_bell_block():
         assert s[0] != s[1]
         assert s[2] != s[3]
 
+def test_qft_block():
+    c = tc.Circuit(4)
+    tc.templates.blocks.qft(c, 0, 1, 2, 3)
+    s = c.perfect_sampling()
+    assert s[1] - 0.0624999 < 10e-6
+
+
 
 def test_grid_coord():
     cd = tc.templates.graphs.Grid2DCoord(3, 2)
