@@ -128,24 +128,39 @@ def set_dtype(dtype: Optional[str] = None, set_global: bool = True) -> Tuple[str
     """
     Set the global runtime numerical dtype of tensors.
 
-    :param dtype: "complex64" or "complex128", defaults to None, which is equivalent to "complex64".
+    :param dtype: "complex64"/"float32" or "complex128"/"float64",
+        defaults to None, which is equivalent to "complex64".
     :type dtype: Optional[str], optional
     :return: complex dtype str and the corresponding real dtype str
     :rtype: Tuple[str, str]
     """
     if not dtype:
         dtype = "complex64"
+
     if dtype == "complex64":
         rdtype = "float32"
-    else:
+    elif dtype == "complex128":
         rdtype = "float64"
-    if backend.name == "jax":
-        from jax.config import config
+    elif dtype == "float32":
+        dtype = "complex64"
+        rdtype = "float32"
+    elif dtype == "float64":
+        dtype = "complex128"
+        rdtype = "float64"
+    else:
+        raise ValueError(f"Unsupported data type: {dtype}")
 
+    try:
+        from jax.config import config
+    except ImportError:
+        config = None  # type: ignore
+
+    if config is not None:
         if dtype == "complex128":
             config.update("jax_enable_x64", True)
         elif dtype == "complex64":
             config.update("jax_enable_x64", False)
+
     if set_global:
         npdtype = getattr(np, dtype)
         for module in sys.modules:
@@ -620,7 +635,7 @@ def custom(
     memory_limit: Optional[int] = None,
     output_edge_order: Optional[List[Any]] = None,
     ignore_edge_order: bool = False,
-    **kws: Any
+    **kws: Any,
 ) -> Any:
     if len(nodes) < 5:
         alg = opt_einsum.paths.optimal
@@ -653,7 +668,7 @@ def custom_stateful(
     opt_conf: Optional[Dict[str, Any]] = None,
     output_edge_order: Optional[List[Any]] = None,
     ignore_edge_order: bool = False,
-    **kws: Any
+    **kws: Any,
 ) -> Any:
     if len(nodes) < 5:
         alg = opt_einsum.paths.optimal
@@ -690,7 +705,7 @@ def contraction_info_decorator(algorithm: Callable[..., Any]) -> Callable[..., A
         input_sets: Dict[Any, int],
         output_set: Dict[Any, int],
         size_dict: Dict[Any, int],
-        **kws: Any
+        **kws: Any,
     ) -> Any:
         path = algorithm(input_sets, output_set, size_dict, **kws)
         tree = ContractionTree.from_path(input_sets, output_set, size_dict, path=path)
@@ -716,7 +731,7 @@ def set_contractor(
     set_global: bool = True,
     contraction_info: bool = False,
     debug_level: int = 0,
-    **kws: Any
+    **kws: Any,
 ) -> Callable[..., Any]:
     """
     To set runtime contractor of the tensornetwork for a better contraction path.
@@ -757,7 +772,7 @@ def set_contractor(
             opt_conf=opt_conf,
             contraction_info=contraction_info,
             debug_level=debug_level,
-            **kws
+            **kws,
         )
 
     else:
@@ -774,7 +789,7 @@ def set_contractor(
             optimizer=optimizer,
             memory_limit=memory_limit,
             debug_level=debug_level,
-            **kws
+            **kws,
         )
     if set_global:
         for module in sys.modules:
