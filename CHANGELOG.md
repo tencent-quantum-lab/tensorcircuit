@@ -22,6 +22,8 @@
 
 - Some string warnings are fixed by using r-string
 
+- Fix bug in `tc.quantum.quimb2qop` when mps is the input
+
 ## 0.7.0
 
 ### Added
