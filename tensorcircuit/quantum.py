@@ -1085,19 +1085,28 @@ def quimb2qop(qb_mpo: Any) -> QuOperator:
     nwires = len(qb_mpo)
     assert nwires >= 3, "number of tensors must be larger than 2"
     mpo = []
+    edges = []
     for i in range(nwires):
         mpo.append(Node(qb_mpo[i].data))
-    pbc = len(qb_mpo[0].shape) == 4
-    if pbc:
-        for i in range(nwires):
-            connect(mpo[i][1], mpo[(i + 1) % nwires][0])
-    else:
-        for i in range(1, nwires - 1):
-            connect(mpo[i][1], mpo[i + 1][0])
-        connect(mpo[0][0], mpo[1][0])
+        for j, ind in enumerate(qb_mpo[i].inds):
+            edges.append((i, j, ind))
+
+    out_edges = []
+    in_edges = []
+
+    for i, e1 in enumerate(edges):
+        if e1[2].startswith("k"):
+            out_edges.append(mpo[e1[0]][e1[1]])
+        elif e1[2].startswith("b"):
+            in_edges.append(mpo[e1[0]][e1[1]])
+        else:
+            for j, e2 in enumerate(edges[i + 1 :]):
+                if e2[2] == e1[2]:
+                    connect(mpo[e1[0]][e1[1]], mpo[e2[0]][e2[1]])
+
     qop = quantum_constructor(
-        [mpo[i][-2] for i in range(nwires)],  # out_edges
-        [mpo[i][-1] for i in range(nwires)],  # in_edges
+        out_edges,  # out_edges
+        in_edges,  # in_edges
         [],
         [],  # ignore_edges
     )

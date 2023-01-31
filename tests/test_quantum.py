@@ -389,7 +389,7 @@ def test_qb2qop(backend):
     except ImportError:
         pytest.skip("quimb is not installed")
     nwires = 6
-    qb_mpo = quimb.tensor.tensor_gen.MPO_ham_ising(nwires, 4, 2, cyclic=True)
+    qb_mpo = quimb.tensor.tensor_builder.MPO_ham_ising(nwires, 4, 2, cyclic=True)
     qu_mpo = tc.quantum.quimb2qop(qb_mpo)
     h1 = qu_mpo.eval_matrix()
     g = tc.templates.graphs.Line1D(nwires, pbc=True)
@@ -399,7 +399,7 @@ def test_qb2qop(backend):
     np.testing.assert_allclose(h1, h2, atol=1e-5)
 
     # in out edge order test
-    builder = quimb.tensor.tensor_gen.SpinHam()
+    builder = quimb.tensor.tensor_builder.SpinHam1D()
     # new version quimb breaking API change: SpinHam1D -> SpinHam
     builder += 1, "Y"
     builder += 1, "X"
@@ -410,6 +410,14 @@ def test_qb2qop(backend):
     m2 = tc.quantum.heisenberg_hamiltonian(
         g, hzz=0, hxx=0, hyy=0, hz=0, hy=0.5, hx=0.5, sparse=False, numpy=True
     )
+    np.testing.assert_allclose(m1, m2, atol=1e-5)
+
+    # test mps case
+
+    s1 = quimb.tensor.tensor_builder.MPS_rand_state(3, 4)
+    s2 = tc.quantum.quimb2qop(s1)
+    m1 = s1.to_dense()
+    m2 = s2.eval_matrix()
     np.testing.assert_allclose(m1, m2, atol=1e-5)
 
 
