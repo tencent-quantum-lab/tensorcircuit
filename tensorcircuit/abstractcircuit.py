@@ -350,6 +350,7 @@ class AbstractCircuit:
         :return: The circuit have same gates in the qir.
         :rtype: Circuit
         """
+        # TODO(@refraction-ray): add extra_qir support
         if circuit_params is None:
             circuit_params = {}
         if "nqubits" not in circuit_params:
