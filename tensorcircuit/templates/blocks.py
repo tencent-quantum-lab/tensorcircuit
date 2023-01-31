@@ -149,3 +149,54 @@ def example_block(
         for i in range(n):
             c.rx(i, theta=param[2 * j + 1, i])
     return c
+
+
+def qft(
+    c: Circuit,
+    *index: int,
+    do_swaps: bool = True,
+    inverse: bool = False,
+    insert_barriers: bool = False
+) -> Circuit:
+    """
+    This function applies quantum fourier transformation (QFT) to the selected circuit lines
+
+    :param c: Circuit in
+    :type c: Circuit
+    :param *index: the indices of the circuit lines to apply QFT
+    :type *index: List[int]
+    :param do_swaps: Whether to include the final swaps in the QFT
+    :type do_swaps: bool
+    :param inverse: If True, the inverse Fourier transform is constructed
+    :type inverse: bool
+    :param insert_barriers: If True, barriers are inserted as visualization improvement
+    :type insert_barriers: bool
+    :return: Circuit c
+    :rtype: Circuit
+    """
+    assert len(set(index)) == len(index), "There should not be any repetitive qubits"
+    if inverse:
+        if do_swaps:
+            for i in range(len(index) // 2):
+                c.swap(index[i], index[len(index) - 1 - i])
+        for i in range(len(index) - 1, -1, -1):
+            rotation = -np.pi / 2
+            for j in range(len(index) - 1, i, -1):
+                c.cphase(index[j], index[i], theta=rotation)
+                rotation /= 2
+            c.H(index[i])
+            if insert_barriers:
+                c.barrier_instruction(range(min(index), max(index) + 1))
+    else:
+        for i in range(len(index)):
+            c.H(index[i])
+            rotation = np.pi / 2
+            for j in range(i + 1, len(index)):
+                c.cphase(index[j], index[i], theta=rotation)
+                rotation /= 2
+            if insert_barriers:
+                c.barrier_instruction(range(min(index), max(index) + 1))
+        if do_swaps:
+            for i in range(len(index) // 2):
+                c.swap(index[i], index[len(index) - 1 - i])
+    return c
