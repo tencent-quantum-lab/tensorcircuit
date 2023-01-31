@@ -154,7 +154,7 @@ def example_block(
 def qft(
     c: Circuit,
     *index: int,
-    do_swaps: bool = False,
+    do_swaps: bool = True,
     inverse: bool = False,
     insert_barriers: bool = False
 ) -> Circuit:
