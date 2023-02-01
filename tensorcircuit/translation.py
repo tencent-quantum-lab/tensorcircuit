@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 try:
     from qiskit import QuantumCircuit
     from qiskit.circuit.library import XXPlusYYGate
+    from qiskit.extensions import UnitaryGate
     import qiskit.quantum_info as qi
     from qiskit.extensions.exceptions import ExtensionError
     from qiskit.circuit.quantumcircuitdata import CircuitInstruction
@@ -22,6 +23,7 @@ except ImportError:
     logger.warning(
         "Please first ``pip install -U qiskit`` to enable related functionality in translation module"
     )
+    CircuitInstruction = Any
 
 try:
     import cirq
@@ -300,7 +302,14 @@ def qir2qiskit(
             qiskit_circ.hamiltonian(
                 exp_op, time=theta, qubits=index_reversed, label=qis_name
             )
-        elif gate_name in ["mpo", "multicontrol"]:
+        elif gate_name == "multicontrol":
+            unitary = backend.numpy(backend.convert_to_tensor(parameters["unitary"]))
+            ctrl_str = "".join(map(str, parameters["ctrl"]))[::-1]
+            gate = UnitaryGate(unitary, label=qis_name).control(
+                len(ctrl_str), ctrl_state=ctrl_str
+            )
+            qiskit_circ.append(gate, gate_info["index"])
+        elif gate_name == "mpo":
             qop = qi.Operator(
                 np.reshape(
                     backend.numpy(gate_info["gatef"](**parameters).eval_matrix()),
@@ -550,14 +559,21 @@ def tensor_to_json(a: Any) -> Any:
     a = tensor_to_numpy(a)
 
     ar = np.real(a)
-    ai = np.imag(a)
-    return [ar.tolist(), ai.tolist()]
+    if np.iscomplexobj(a):
+        ai = np.imag(a)
+        return [ar.tolist(), ai.tolist()]
+    else:
+        return [ar.tolist()]
 
 
 def json_to_tensor(a: Any) -> Any:
     ar = np.array(a[0])
-    ai = np.array(a[1])
-    return ar + 1.0j * ai
+    if len(a) == 1:
+        return ar
+    else:
+        assert len(a) == 2
+        ai = np.array(a[1])
+        return ar + 1.0j * ai
 
 
 def qir2json(
