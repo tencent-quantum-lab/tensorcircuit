@@ -26,7 +26,7 @@ def test_qsikit_compiler():
 
     c1, info = qiskit_compile(
         c,
-        info=True,
+        info=None,
         output="qasm",
         compiled_options={
             "basis_gates": ["cz", "rz", "h"],
@@ -43,7 +43,7 @@ def test_qsikit_compiler():
     c.measure_instruction(1)
     c1, info = qiskit_compile(
         c,
-        info=True,
+        info=None,
         output="tc",
         compiled_options={
             "basis_gates": ["cx", "rz", "h"],
@@ -58,3 +58,15 @@ def test_qsikit_compiler():
     print(c1.draw())
     assert info["logical_physical_mapping"][1] in [0, 2]
     print(info)
+    c2, info2 = qiskit_compile(
+        c1,
+        info=info,
+        output="tc",
+        compiled_options={
+            "basis_gates": ["cx", "rz", "h"],
+            "optimization_level": 3,
+            "coupling_map": [[0, 2], [2, 0], [1, 0], [0, 1]],
+        },
+    )
+    assert info2["positional_logical_mapping"] == {0: 1}
+    print(c2.draw())
