@@ -23,6 +23,7 @@ except ImportError:
     logger.warning(
         "Please first ``pip install -U qiskit`` to enable related functionality in translation module"
     )
+    CircuitInstruction = Any
 
 try:
     import cirq
