@@ -2,6 +2,41 @@
 Quick Start
 ================
 
+Installation
+--------------
+
+- For x86 Linux or Mac, 
+
+``pip install tensorcircuit`` 
+
+is in general enough. 
+Either pip from conda or other python env managers is fine.
+
+Since there are many optional packages for various features, 
+the users may need to install more pip packages when required. 
+
+- For Linux with Nvidia GPU,
+please refer to the GPU aware installation guide of corresponding machine learning frameworks: 
+`TensorFlow <https://www.tensorflow.org/install/gpu>`_, 
+`Jax <https://github.com/google/jax#pip-installation-gpu-cuda>`_, 
+or `PyTorch <https://pytorch.org/get-started/locally/>`_.
+
+Docker is also recommended (especially Linux + Nvidia GPU setup): 
+
+``sudo docker run -it --network host --gpus all tensorcircuit/tensorcircuit``.
+
+- For Windows, due to the lack of support for Jax, we recommend to use docker or WSL, please refer to `TC via windows docker <contribs/development_windows.html>`_ or `TC via WSL <contribs/development_wsl2.html>`_.
+
+- For Mac with M series chips (arm architecture), please refer to `TC on Mac M series <contribs/development_MacARM.html>`_.
+
+Overall, the installation of TensorCircuit is simple, since it is purely in Python and hence very portable. 
+As long as the users can take care of the installation of ML frameworks on the corresponding system, TensorCircuit will work as expected.
+
+.. Note::
+    We also provide a nightly build of tensorcircuit via PyPI which can be accessed by
+    ``pip uninstall tensorcircuit``, then
+    ``pip install tensorcircuit-nightly``
+
 
 Circuit Object
 ------------------

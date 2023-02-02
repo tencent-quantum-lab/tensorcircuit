@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tensorcircuit \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-02 13:41+0800\n"
+"POT-Creation-Date: 2023-02-02 14:19+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,78 +30,78 @@ msgstr ""
 msgid "Starting From Scratch"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:6
+#: ../../source/contribs/development_MacARM.md:7
 msgid "For completely new macos or macos without xcode and brew"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:7
+#: ../../source/contribs/development_MacARM.md:9
 msgid "Install Xcode Command Line Tools"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:8
+#: ../../source/contribs/development_MacARM.md:11
 msgid "<font color=gray><em>Need graphical access to the machine.</em></font>"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:10
+#: ../../source/contribs/development_MacARM.md:13
 msgid "Run `xcode-select --install` to install if on optimal internet."
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:12
+#: ../../source/contribs/development_MacARM.md:15
 msgid ""
-"Or Download from [Apple](https://developer.apple.com/download/more/)  "
+"Or Download from [Apple](https://developer.apple.com/download/more/) "
 "Command Line Tools installation image then install if internet connection"
 " is weak."
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:13
+#: ../../source/contribs/development_MacARM.md:17
 msgid "Install Miniconda"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:14
+#: ../../source/contribs/development_MacARM.md:19
 msgid ""
 "Due to the limitation of MacOS and packages, the lastest version of "
 "python does not always function as desired, thus miniconda installation "
 "is advised to solve the issues."
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:21
+#: ../../source/contribs/development_MacARM.md:28
 msgid "Install TC Prerequisites"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:25
+#: ../../source/contribs/development_MacARM.md:34
 msgid "Install TC Backends"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:26
-msgid "There are four backends to choose from, Tensorflow, Jax, Torch."
+#: ../../source/contribs/development_MacARM.md:36
+msgid "There are four backends to choose from, Numpy, Tensorflow, Jax, Torch."
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:27
+#: ../../source/contribs/development_MacARM.md:38
 msgid "Install Jax, Pytorch, Qiskit, Cirq (Optional)"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:31
+#: ../../source/contribs/development_MacARM.md:44
 msgid "Install Tensorflow (Optional)"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:32
+#: ../../source/contribs/development_MacARM.md:46
 msgid "Install Tensorflow (Recommended Approach)"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:33
+#: ../../source/contribs/development_MacARM.md:48
 msgid ""
 "❗️ Tensorflow with MacOS optimization would not function correctly in "
 "version 2.11.0 and before. Do not use this version of tensorflow if you "
 "intented to train any machine learning model."
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:35
+#: ../../source/contribs/development_MacARM.md:50
 msgid ""
-"FYI:  Error can occur when machine learning training or gpu related code "
+"FYI: Error can occur when machine learning training or gpu related code "
 "is involved."
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:37
+#: ../../source/contribs/development_MacARM.md:52
 msgid ""
 "⚠️ Tensorflow without macos optimization does not support Metal API and "
 "utilizing GPU (both intel chips and M-series chips) until at least "
@@ -109,39 +109,39 @@ msgid ""
 "`tc.backend.to_dense()`"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:43
+#: ../../source/contribs/development_MacARM.md:60
 msgid "Verify Tensorflow Installation"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:59
+#: ../../source/contribs/development_MacARM.md:78
 msgid "Install Tensorcircuit"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:64
-msgid "Testing Platform"
+#: ../../source/contribs/development_MacARM.md:84
+msgid "Testing Platform (Tested Feb 2023)"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:65
+#: ../../source/contribs/development_MacARM.md:86
 msgid "Platform 1:"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:66
+#: ../../source/contribs/development_MacARM.md:87
 msgid "MacOS Ventura 13.1 (Build version 22C65)"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:67
+#: ../../source/contribs/development_MacARM.md:88
 msgid "M1 Ultra"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:68
+#: ../../source/contribs/development_MacARM.md:89
 msgid "Platform 2:"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:69
+#: ../../source/contribs/development_MacARM.md:90
 msgid "MacOS Ventura 13.2 (Build version 22D49)"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:70
+#: ../../source/contribs/development_MacARM.md:91
 msgid "M1 Ultra (Virtual)"
 msgstr ""
 
@@ -646,4 +646,23 @@ msgstr ""
 #: ../../source/contribs/development_wsl2.rst:47
 msgid "Tips: Currently, we don't suggest you to use TPU accelerator."
 msgstr ""
+
+#~ msgid ""
+#~ "Or Download from "
+#~ "[Apple](https://developer.apple.com/download/more/)  Command "
+#~ "Line Tools installation image then "
+#~ "install if internet connection is weak."
+#~ msgstr ""
+
+#~ msgid "There are four backends to choose from, Tensorflow, Jax, Torch."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "FYI:  Error can occur when machine "
+#~ "learning training or gpu related code"
+#~ " is involved."
+#~ msgstr ""
+
+#~ msgid "Testing Platform"
+#~ msgstr ""
 
