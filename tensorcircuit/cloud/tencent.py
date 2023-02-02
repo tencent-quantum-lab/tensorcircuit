@@ -65,6 +65,7 @@ def list_properties(device: Device, token: Optional[str] = None) -> Dict[str, An
             for bit in r["bits"]:
                 bits_dict[bit["Qubit"]] = bit
             r["bits"] = bits_dict
+        r["native_gates"] = ["h", "rz", "x", "y", "z", "cx", "cz"]  # handcoded
         return r  # type: ignore
     else:
         raise ValueError("No device with the name: %s" % device)
@@ -74,6 +75,7 @@ def list_properties(device: Device, token: Optional[str] = None) -> Dict[str, An
     {'id': '20xmon',
      'type': 'CHIP',
      'state': 'on',
+     'native_gates': ["rz"]
      'links': {(0, 1): { 'CZErrRate': 0.03, 'at': 1673605888},
                 ...},
      'bits': {0: { 'At': 1673605888,
@@ -201,8 +203,8 @@ def submit_task(
             from qiskit.circuit import QuantumCircuit
 
             if compiling is True:
-                s = qiskit_compile(
-                    c, output="qasm", info=False, compiled_options=compiled_options
+                s, _ = qiskit_compile(
+                    c, output="qasm", info=None, compiled_options=compiled_options
                 )
             else:
                 if isinstance(c, QuantumCircuit):

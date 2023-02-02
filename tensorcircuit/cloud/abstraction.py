@@ -186,6 +186,19 @@ class Device:
 
         return list_properties(self.provider, self)
 
+    def native_gates(self) -> List[str]:
+        """
+        List native gates supported for the device, str conforms qiskit convention
+
+        :return: _description_
+        :rtype: List[str]
+        """
+        properties = self.list_properties()
+
+        if "native_gates" in properties:
+            return properties["native_gates"]  # type: ignore
+        return []
+
     def topology(self) -> List[Tuple[int, int]]:
         """
         Get the bidirectional topology link list of the device
@@ -423,9 +436,12 @@ class Task:
             readout_mit = self.readout_mit
 
         if mitigation_options is None:
-            mitigation_options = {
-                "logical_physical_mapping": self.details()["optimization"]["pairs"]
-            }
+            try:
+                mitigation_options = {
+                    "logical_physical_mapping": self.details()["optimization"]["pairs"]
+                }
+            except KeyError:
+                mitigation_options = {}
         miti_count = readout_mit.apply_correction(
             r, list(range(nqubit)), **mitigation_options
         )
