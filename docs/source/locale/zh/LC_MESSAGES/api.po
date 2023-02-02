@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-24 13:45+0800\n"
+"POT-Creation-Date: 2023-02-02 13:41+0800\n"
 "PO-Revision-Date: 2022-04-13 14:58+0800\n"
 "Last-Translator: Xinghan Yang\n"
 "Language: cn\n"
@@ -604,6 +604,7 @@ msgstr ""
 #: tensorcircuit.simplify.pseudo_contract_between
 #: tensorcircuit.templates.blocks.Bell_pair_block
 #: tensorcircuit.templates.blocks.example_block
+#: tensorcircuit.templates.blocks.qft
 #: tensorcircuit.templates.blocks.state_centric
 #: tensorcircuit.templates.chems.get_ps
 #: tensorcircuit.templates.graphs.Grid2DCoord.__init__
@@ -1439,6 +1440,7 @@ msgstr ""
 #: tensorcircuit.simplify.pseudo_contract_between
 #: tensorcircuit.templates.blocks.Bell_pair_block
 #: tensorcircuit.templates.blocks.example_block
+#: tensorcircuit.templates.blocks.qft
 #: tensorcircuit.templates.blocks.state_centric
 #: tensorcircuit.templates.chems.get_ps
 #: tensorcircuit.templates.graphs.Grid2DCoord.all_cols
@@ -2079,6 +2081,7 @@ msgstr ""
 #: tensorcircuit.simplify.pseudo_contract_between
 #: tensorcircuit.templates.blocks.Bell_pair_block
 #: tensorcircuit.templates.blocks.example_block
+#: tensorcircuit.templates.blocks.qft
 #: tensorcircuit.templates.blocks.state_centric
 #: tensorcircuit.templates.chems.get_ps
 #: tensorcircuit.templates.graphs.Grid2DCoord.all_cols
@@ -12915,11 +12918,11 @@ msgstr ""
 
 #: of tensorcircuit.cons.get_dtype:3 tensorcircuit.cons.set_dtype:3
 msgid ""
-"\"complex64\" or \"complex128\", defaults to None, which is equivalent to"
-" \"complex64\"."
+"\"complex64\"/\"float32\" or \"complex128\"/\"float64\", defaults to "
+"None, which is equivalent to \"complex64\"."
 msgstr ""
 
-#: of tensorcircuit.cons.get_dtype:5 tensorcircuit.cons.set_dtype:5
+#: of tensorcircuit.cons.get_dtype:6 tensorcircuit.cons.set_dtype:6
 msgid "complex dtype str and the corresponding real dtype str"
 msgstr ""
 
@@ -16165,6 +16168,7 @@ msgid ""
 msgstr ""
 
 #: of tensorcircuit.templates.blocks.Bell_pair_block:3
+#: tensorcircuit.templates.blocks.qft:3
 msgid "Circuit in"
 msgstr ""
 
@@ -16203,6 +16207,32 @@ msgstr ""
 
 #: of tensorcircuit.templates.blocks.example_block:14
 msgid "The circuit with example ansatz attached"
+msgstr ""
+
+#: of tensorcircuit.templates.blocks.qft:1
+msgid ""
+"This function applies quantum fourier transformation (QFT) to the "
+"selected circuit lines"
+msgstr ""
+
+#: of tensorcircuit.templates.blocks.qft:5
+msgid "the indices of the circuit lines to apply QFT"
+msgstr ""
+
+#: of tensorcircuit.templates.blocks.qft:7
+msgid "Whether to include the final swaps in the QFT"
+msgstr ""
+
+#: of tensorcircuit.templates.blocks.qft:9
+msgid "If True, the inverse Fourier transform is constructed"
+msgstr ""
+
+#: of tensorcircuit.templates.blocks.qft:11
+msgid "If True, barriers are inserted as visualization improvement"
+msgstr ""
+
+#: of tensorcircuit.templates.blocks.qft:13
+msgid "Circuit c"
 msgstr ""
 
 #: of tensorcircuit.templates.blocks.state_centric:1

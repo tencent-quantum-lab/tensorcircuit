@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tensorcircuit \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-13 11:04+0800\n"
+"POT-Creation-Date: 2023-02-02 13:41+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,133 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
+
+#: ../../source/contribs/development_MacARM.md:1
+msgid "Tensorcircuit Installation Guide on MacOS"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:3
+msgid "Contributed by Mark (Zixuan) Song"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:5
+msgid "Starting From Scratch"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:6
+msgid "For completely new macos or macos without xcode and brew"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:7
+msgid "Install Xcode Command Line Tools"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:8
+msgid "<font color=gray><em>Need graphical access to the machine.</em></font>"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:10
+msgid "Run `xcode-select --install` to install if on optimal internet."
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:12
+msgid ""
+"Or Download from [Apple](https://developer.apple.com/download/more/)  "
+"Command Line Tools installation image then install if internet connection"
+" is weak."
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:13
+msgid "Install Miniconda"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:14
+msgid ""
+"Due to the limitation of MacOS and packages, the lastest version of "
+"python does not always function as desired, thus miniconda installation "
+"is advised to solve the issues."
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:21
+msgid "Install TC Prerequisites"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:25
+msgid "Install TC Backends"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:26
+msgid "There are four backends to choose from, Tensorflow, Jax, Torch."
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:27
+msgid "Install Jax, Pytorch, Qiskit, Cirq (Optional)"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:31
+msgid "Install Tensorflow (Optional)"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:32
+msgid "Install Tensorflow (Recommended Approach)"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:33
+msgid ""
+"❗️ Tensorflow with MacOS optimization would not function correctly in "
+"version 2.11.0 and before. Do not use this version of tensorflow if you "
+"intented to train any machine learning model."
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:35
+msgid ""
+"FYI:  Error can occur when machine learning training or gpu related code "
+"is involved."
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:37
+msgid ""
+"⚠️ Tensorflow without macos optimization does not support Metal API and "
+"utilizing GPU (both intel chips and M-series chips) until at least "
+"tensorflow 2.11. Tensorflow-macos would fail when running "
+"`tc.backend.to_dense()`"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:43
+msgid "Verify Tensorflow Installation"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:59
+msgid "Install Tensorcircuit"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:64
+msgid "Testing Platform"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:65
+msgid "Platform 1:"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:66
+msgid "MacOS Ventura 13.1 (Build version 22C65)"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:67
+msgid "M1 Ultra"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:68
+msgid "Platform 2:"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:69
+msgid "MacOS Ventura 13.2 (Build version 22D49)"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:70
+msgid "M1 Ultra (Virtual)"
+msgstr ""
 
 #: ../../source/contribs/development_MacM1.rst:2
 msgid "Run TensorCircuit on TensorlowBackend with Apple M1"
@@ -26,11 +153,17 @@ msgstr ""
 msgid "Contributed by (Yuqin Chen)"
 msgstr ""
 
-#: ../../source/contribs/development_MacM1.rst:6
+#: ../../source/contribs/development_MacM1.rst:7
+msgid ""
+"This page is deprecated. Please visit `the update tutorial "
+"<development_MacARM.html>`_ for latest information."
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:11
 msgid "Why We Can't Run TensorCircuit on TensorlowBackend with Apple M1"
 msgstr ""
 
-#: ../../source/contribs/development_MacM1.rst:7
+#: ../../source/contribs/development_MacM1.rst:12
 msgid ""
 "TensorCircuit requires Tensorflow to support TensorflowBackend. However "
 "for Apple M1, Tensorflow package cannot be properly installed by a usual "
@@ -41,11 +174,11 @@ msgid ""
 " it."
 msgstr ""
 
-#: ../../source/contribs/development_MacM1.rst:11
+#: ../../source/contribs/development_MacM1.rst:16
 msgid "Install tensorflow on Apple M1"
 msgstr ""
 
-#: ../../source/contribs/development_MacM1.rst:12
+#: ../../source/contribs/development_MacM1.rst:17
 msgid ""
 "According to the instructions below or the installation manual on Apple's"
 " official website `tensorflow-metal PluggableDevice "
@@ -53,59 +186,59 @@ msgid ""
 " tensorflow step by step."
 msgstr ""
 
-#: ../../source/contribs/development_MacM1.rst:14
+#: ../../source/contribs/development_MacM1.rst:19
 msgid "**Step1: Environment setup**"
 msgstr ""
 
-#: ../../source/contribs/development_MacM1.rst:16
+#: ../../source/contribs/development_MacM1.rst:21
 msgid "x86 : AMD Create virtual environment (recommended):"
 msgstr ""
 
-#: ../../source/contribs/development_MacM1.rst:27
+#: ../../source/contribs/development_MacM1.rst:32
 msgid "NOTE: python version 3.8 required"
 msgstr ""
 
-#: ../../source/contribs/development_MacM1.rst:29
+#: ../../source/contribs/development_MacM1.rst:34
 msgid "arm64 : Apple Silicon"
 msgstr ""
 
-#: ../../source/contribs/development_MacM1.rst:31
+#: ../../source/contribs/development_MacM1.rst:36
 msgid "Download and install Conda env:"
 msgstr ""
 
-#: ../../source/contribs/development_MacM1.rst:41
+#: ../../source/contribs/development_MacM1.rst:46
 msgid "Install the TensorFlow dependencies:"
 msgstr ""
 
-#: ../../source/contribs/development_MacM1.rst:47
+#: ../../source/contribs/development_MacM1.rst:52
 msgid "When upgrading to new base TensorFlow version, recommend:"
 msgstr ""
 
-#: ../../source/contribs/development_MacM1.rst:65
+#: ../../source/contribs/development_MacM1.rst:70
 msgid "tensorflow-deps versions are following base TensorFlow versions so:"
 msgstr ""
 
-#: ../../source/contribs/development_MacM1.rst:67
+#: ../../source/contribs/development_MacM1.rst:72
 msgid "for v2.5"
 msgstr ""
 
-#: ../../source/contribs/development_MacM1.rst:75
+#: ../../source/contribs/development_MacM1.rst:80
 msgid "for v2.6"
 msgstr ""
 
-#: ../../source/contribs/development_MacM1.rst:82
+#: ../../source/contribs/development_MacM1.rst:87
 msgid "**Step2: Install base TensorFlow**"
 msgstr ""
 
-#: ../../source/contribs/development_MacM1.rst:88
+#: ../../source/contribs/development_MacM1.rst:93
 msgid "**Step3: Install tensorflow-metal plugin**"
 msgstr ""
 
-#: ../../source/contribs/development_MacM1.rst:96
+#: ../../source/contribs/development_MacM1.rst:101
 msgid "Install TensorCircuit on Apple M1"
 msgstr ""
 
-#: ../../source/contribs/development_MacM1.rst:97
+#: ../../source/contribs/development_MacM1.rst:102
 msgid ""
 "After properly install tensorflow, you can continue install "
 "TensorCircuit. Up to now, for Apple M1, the Tensorcircuit package can not"
@@ -115,11 +248,11 @@ msgid ""
 "installation proceess can recognize the Apple M1 environment."
 msgstr ""
 
-#: ../../source/contribs/development_MacM1.rst:102
+#: ../../source/contribs/development_MacM1.rst:107
 msgid "One should download the TensorCircuit package to local at first."
 msgstr ""
 
-#: ../../source/contribs/development_MacM1.rst:109
+#: ../../source/contribs/development_MacM1.rst:114
 msgid "Then unpackage it, and cd into the folder with \"setup.py\". Conducting"
 msgstr ""
 
