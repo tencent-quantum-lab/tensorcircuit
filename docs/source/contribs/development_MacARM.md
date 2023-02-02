@@ -34,7 +34,7 @@ pip install [Package Name]
 
 FYI:  Error can occur when machine learning training or gpu related code is involved.
 
-⚠️ Tensorflow without macos optimization does not support Metal API and utilizing GPU (both intel chips and M-series chips) until at least tensorflow 2.11.
+⚠️ Tensorflow without macos optimization does not support Metal API and utilizing GPU (both intel chips and M-series chips) until at least tensorflow 2.11. Tensorflow-macos would fail when running `tc.backend.to_dense()`
 ```
 conda config --add channels conda-forge 
 conda config --set channel_priority strict
