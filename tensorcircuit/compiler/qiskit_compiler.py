@@ -2,11 +2,12 @@
 compiler interface via qiskit
 """
 
-from typing import Any, Dict, Tuple, Optional
+from typing import Any, Dict, Optional
 import re
 
 from ..abstractcircuit import AbstractCircuit
 from ..circuit import Circuit
+from ..translation import qiskit_from_qasm_str_ordered_measure
 
 
 def _free_pi(s: str) -> str:
@@ -62,24 +63,46 @@ def _comment_dict(d: Dict[int, int], name: str = "logical_physical_mapping") -> 
     return "\n".join(nslist)
 
 
-def _get_mappings_from_qiskit(qc: Any) -> Tuple[Dict[int, int], Dict[int, int]]:
-    """
-    get the ``positional_logical_mapping`` and ``logical_physical_mapping`` from qiskit Circuit
-
-    :param qc: qiskit ``QuantumCircuit``
-    :type qc: Any
-    :return: _description_
-    :rtype: Tuple[Dict[int, int], Dict[int, int]]
-    """
-    logical_physical_mapping = {}
-    positional_logical_mapping = {}
+def _get_positional_logical_mapping_from_qiskit(qc: Any) -> Dict[int, int]:
     i = 0
+    positional_logical_mapping = {}
     for inst in qc.data:
         if inst[0].name == "measure":
-            logical_physical_mapping[inst[2][0].index] = inst[1][0].index
-            positional_logical_mapping[i] = inst[2][0].index
+            positional_logical_mapping[i] = inst[1][0].index
             i += 1
-    return positional_logical_mapping, logical_physical_mapping
+
+    return positional_logical_mapping
+
+
+def _get_logical_physical_mapping_from_qiskit(
+    qc_after: Any, qc_before: Any = None
+) -> Dict[int, int]:
+    """
+    get ``logical_physical_mapping`` from qiskit Circuit by comparing the circuit after and before compiling
+
+    :param qc_after: qiskit ``QuantumCircuit`` after compiling
+    :type qc_after: Any
+    :param qc_before: qiskit ``QuantumCircuit`` before compiling,
+        if None, measure(q, q) is assumed
+    :type qc_before: Any
+    :return: logical_physical_mapping
+    :rtype: Dict[int, int]
+    """
+    logical_physical_mapping = {}
+    for inst in qc_after.data:
+        if inst[0].name == "measure":
+            if qc_before is None:
+                logical_q = inst[2][0].index
+            else:
+                for instb in qc_before.data:
+                    if (
+                        instb[0].name == "measure"
+                        and instb[2][0].index == inst[2][0].index
+                    ):
+                        logical_q = instb[1][0].index
+                        break
+            logical_physical_mapping[logical_q] = inst[1][0].index
+    return logical_physical_mapping
 
 
 def _add_measure_all_if_none(qc: Any) -> Any:
@@ -93,8 +116,8 @@ def _add_measure_all_if_none(qc: Any) -> Any:
 
 def qiskit_compile(
     circuit: Any,
+    info: Optional[Dict[str, Any]] = None,
     output: str = "tc",
-    info: bool = False,
     compiled_options: Optional[Dict[str, Any]] = None,
 ) -> Any:
     from qiskit.compiler import transpile
@@ -102,6 +125,8 @@ def qiskit_compile(
 
     if isinstance(circuit, AbstractCircuit):
         circuit = circuit.to_qiskit(enable_instruction=True)
+    elif isinstance(circuit, str):
+        circuit = qiskit_from_qasm_str_ordered_measure(circuit)
     # else qiskit circuit
     circuit = _add_measure_all_if_none(circuit)
     if compiled_options is None:
@@ -124,15 +149,21 @@ def qiskit_compile(
     else:
         raise ValueError("Unknown output format: %s" % output)
 
-    if info is False:
-        return r0
-
     r1 = {}
-
-    (
-        r1["positional_logical_mapping"],
-        r1["logical_physical_mapping"],
-    ) = _get_mappings_from_qiskit(ncircuit)
+    nlpm = _get_logical_physical_mapping_from_qiskit(ncircuit, circuit)
+    # new_logical_physical_mapping
+    if info is not None and "logical_physical_mapping" in info:
+        r1["logical_physical_mapping"] = {
+            k: nlpm[v] for k, v in info["logical_physical_mapping"].items()
+        }
+    else:
+        r1["logical_physical_mapping"] = nlpm
+    if info is not None and "positional_logical_mapping" in info:
+        r1["positional_logical_mapping"] = info["positional_logical_mapping"]
+    else:  # info is none, assume circuit is the logical circuit
+        r1["positional_logical_mapping"] = _get_positional_logical_mapping_from_qiskit(
+            circuit
+        )
     # TODO(@refraction-ray): more info to be added into r1 dict
 
     return (r0, r1)
