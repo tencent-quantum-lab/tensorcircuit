@@ -49,7 +49,7 @@ extensions = [
     "nbsphinx",
     "toctree_filter",
     "sphinx.ext.napoleon",
-    'myst_parser',
+    "myst_parser",
 ]
 
 autosectionlabel_prefix_document = True
