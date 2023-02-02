@@ -1,6 +1,6 @@
 # Tensorcircuit Installation Guide on MacOS
 
-Contributed by Mark Song
+Contributed by Mark (Zixuan) Song
 
 ## Starting From Scratch
 For completely new macos or macos without xcode and brew
@@ -29,10 +29,10 @@ There are four backends to choose from, Tensorflow, Jax, Torch.
 pip install [Package Name]
 ```
 ### Install Tensorflow (Optional)
-#### Install Tensorflow
+#### Install Tensorflow (Recommended Approach)
 ❗️ Tensorflow with MacOS optimization would not function correctly in version 2.11.0 and before. Do not use this version of tensorflow if you intented to train any machine learning model.
 
-FYI:  Error can occur when machine learning training or gpu related code is involved
+FYI:  Error can occur when machine learning training or gpu related code is involved.
 
 ⚠️ Tensorflow without macos optimization does not support Metal API and utilizing GPU (both intel chips and M-series chips) until at least tensorflow 2.11.
 ```
@@ -61,7 +61,6 @@ model.fit(x_train, y_train, epochs=5, batch_size=64)
 pip install tensorcircuit
 ```
 
-Comments:
 Testing Platform
 - Platform 1:
 	- MacOS Ventura 13.1 (Build version 22C65)
