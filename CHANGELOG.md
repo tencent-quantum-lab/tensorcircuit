@@ -16,6 +16,12 @@
 
 - Add experimental compiler module
 
+- Make the compiler infra more ready for a pipeline compling
+
+- When translating to qiskit, multicontrol gate is manipulated specifically instead of a general unitary
+
+- Add qft blocks in template module
+
 ### Fixed
 
 - Circuit nosify in noise model now support all circuit attributs apart from qubit number
@@ -23,6 +29,10 @@
 - Some string warnings are fixed by using r-string
 
 - Fix bug in `tc.quantum.quimb2qop` when mps is the input
+
+- Fix bug in translation.py when qiskit is not installed
+
+- Rem results after `apply_correction` is now sorted
 
 ## 0.7.0
 
