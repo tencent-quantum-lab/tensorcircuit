@@ -693,6 +693,11 @@ def eqasm2tc(
                 exponent = int(inst_list[2][3:])
                 index = (int(inst_list[3][1:]),)
                 c.rz(*index, theta=2 * np.pi / 2**exponent)  # type: ignore
+            elif inst_list[2] == "Z/2":
+                c.rz(*index, theta=-np.pi / 2)  # type: ignore
+            elif inst_list[2] == "-Z/2":
+                c.rz(*index, theta=np.pi / 2)  # type: ignore
+            # TODO(@refraction-ray): Z/2 convention to be double checked
             else:
                 gate_name = inst_list[2].lower()
                 if len(inst_list) == 4:
