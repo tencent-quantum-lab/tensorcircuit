@@ -48,6 +48,7 @@ extensions = [
     "sphinx_copybutton",
     "nbsphinx",
     "toctree_filter",
+    "myst_parser",
 ]
 
 autosectionlabel_prefix_document = True

@@ -2,6 +2,11 @@ Run TensorCircuit on TensorlowBackend with Apple M1
 ========================================================
 Contributed by (Yuqin Chen)
 
+
+.. warning::
+    This page is deprecated. Please visit `the update tutorial <development_MacARM.html>`_ for latest information.
+
+
 Why We Can't Run TensorCircuit on TensorlowBackend with Apple M1
 -----------------------------------------------------------------------
 TensorCircuit requires Tensorflow to support TensorflowBackend. However for Apple M1, Tensorflow package cannot be properly installed by a usual method like "pip install tensorflow". As well, the TensorCircuit package cannot be properly installed by a usual method "pip install tensorcircuit"

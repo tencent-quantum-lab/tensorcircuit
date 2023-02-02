@@ -22,6 +22,8 @@
 
 - Add qft blocks in template module
 
+- Add Tensorcircuit MacOS (univerisal) installation guide
+
 ### Fixed
 
 - Circuit nosify in noise model now support all circuit attributs apart from qubit number

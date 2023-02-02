@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-24 13:45+0800\n"
+"POT-Creation-Date: 2023-02-02 13:41+0800\n"
 "PO-Revision-Date: 2022-04-16 22:37+0800\n"
 "Last-Translator: Xinghan Yang\n"
 "Language: cn\n"
@@ -59,11 +59,12 @@ msgstr "重要链接"
 
 #: ../../source/index.rst:22
 msgid ""
-"This project is released by `Tencent Quantum Lab "
-"<https://quantum.tencent.com/>`_ and is created and maintained by `Shi-"
-"Xin Zhang <https://github.com/refraction-ray>`_ The current core authors "
-"are `Shi-Xin Zhang <https://github.com/refraction-ray>`_ and `Yu-Qin Chen"
-" <https://github.com/yutuer21>`_. We also thank `contributions "
+"TensorCircuit is created and maintained by `Shi-Xin Zhang "
+"<https://github.com/refraction-ray>`_ and this version of the software is"
+" released by `Tencent Quantum Lab <https://quantum.tencent.com/>`_. The "
+"current core authors of TensorCircuit are `Shi-Xin Zhang "
+"<https://github.com/refraction-ray>`_ and `Yu-Qin Chen "
+"<https://github.com/yutuer21>`_. We also thank `contributions "
 "<https://github.com/tencent-quantum-"
 "lab/tensorcircuit/graphs/contributors>`_ from the lab and the open source"
 " community."
@@ -74,20 +75,21 @@ msgid "Source code: https://github.com/tencent-quantum-lab/tensorcircuit"
 msgstr "源代码: https://github.com/tencent-quantum-lab/tensorcircuit"
 
 #: ../../source/index.rst:28
-msgid "Issue Tracker: https://github.com/tencent-quantum-lab/tensorcircuit/issues"
-msgstr "问题跟踪: https://github.com/tencent-quantum-lab/tensorcircuit/issues"
+#, fuzzy
+msgid "Software Whitepaper: https://arxiv.org/abs/2205.10091"
+msgstr "白皮书文章: https://arxiv.org/abs/2205.10091"
 
 #: ../../source/index.rst:30
-msgid "Forum: https://github.com/tencent-quantum-lab/tensorcircuit/discussions"
-msgstr "论坛社区: https://github.com/tencent-quantum-lab/tensorcircuit/discussions"
-
-#: ../../source/index.rst:32
 msgid "Documentation: https://tensorcircuit.readthedocs.io"
 msgstr "文档: https://tensorcircuit.readthedocs.io"
 
+#: ../../source/index.rst:32
+msgid "Issue Tracker: https://github.com/tencent-quantum-lab/tensorcircuit/issues"
+msgstr "问题跟踪: https://github.com/tencent-quantum-lab/tensorcircuit/issues"
+
 #: ../../source/index.rst:34
-msgid "Whitepaper: https://arxiv.org/abs/2205.10091"
-msgstr "白皮书文章: https://arxiv.org/abs/2205.10091"
+msgid "Forum: https://github.com/tencent-quantum-lab/tensorcircuit/discussions"
+msgstr "论坛社区: https://github.com/tencent-quantum-lab/tensorcircuit/discussions"
 
 #: ../../source/index.rst:36
 msgid "PyPI page: https://pypi.org/project/tensorcircuit"
@@ -151,4 +153,18 @@ msgstr ":ref:`search`"
 #~ "/refraction-ray/tc-env/master?urlpath=git-"
 #~ "pull?repo=https://github.com/tencent-quantum-"
 #~ "lab/tensorcircuit&urlpath=lab/tree/tensorcircuit/&branch=master"
+
+#~ msgid ""
+#~ "This project is released by `Tencent "
+#~ "Quantum Lab <https://quantum.tencent.com/>`_ and "
+#~ "is created and maintained by `Shi-"
+#~ "Xin Zhang <https://github.com/refraction-ray>`_ "
+#~ "The current core authors are `Shi-"
+#~ "Xin Zhang <https://github.com/refraction-ray>`_ "
+#~ "and `Yu-Qin Chen "
+#~ "<https://github.com/yutuer21>`_. We also thank "
+#~ "`contributions <https://github.com/tencent-quantum-"
+#~ "lab/tensorcircuit/graphs/contributors>`_ from the "
+#~ "lab and the open source community."
+#~ msgstr ""
 
