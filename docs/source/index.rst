@@ -25,7 +25,7 @@ We also thank `contributions <https://github.com/tencent-quantum-lab/tensorcircu
 
 * Source code: https://github.com/tencent-quantum-lab/tensorcircuit
 
-* Software Whitepaper: https://arxiv.org/abs/2205.10091
+* Software Whitepaper in Quantum: https://quantum-journal.org/papers/q-2023-02-02-912/
 
 * Documentation: https://tensorcircuit.readthedocs.io 
 

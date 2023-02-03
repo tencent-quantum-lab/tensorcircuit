@@ -34,6 +34,7 @@ sphinx-intl
 sphinx-copybutton
 nbsphinx
 furo
+myst-parser
 pylint
 pennylane
 tensorflow_quantum==0.6.1
