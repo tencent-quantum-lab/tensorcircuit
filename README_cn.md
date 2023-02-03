@@ -123,9 +123,9 @@ pip install tensorcircuit-nightly
 
 ### 引用
 
-如果该软件对您的研究有帮助, 请引用我们的白皮书文章:
+如果该软件对您的研究有帮助, 请引用我们发表在 Quantum 期刊的白皮书文章:
 
-[TensorCircuit: a Quantum Software Framework for the NISQ Era](https://arxiv.org/abs/2205.10091).
+[TensorCircuit: a Quantum Software Framework for the NISQ Era](https://quantum-journal.org/papers/q-2023-02-02-912/).
 
 ### 说明
 

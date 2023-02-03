@@ -1,0 +1,53 @@
+cff-version: 1.2.0
+message: "If you find this software helpful in your research, please cite it as below."
+authors:
+- family-names: "Zhang"
+  given-names: "Shi-Xin"
+- family-names: "Chen"
+  given-names: "Yu-Qin"
+title: "TensorCircuit"
+version: 0.7.0
+date-released: 2020-04-19
+url: "https://github.com/tencent-quantum-lab/tensorcircuit"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Zhang"
+    given-names: "Shi-Xin"
+  - family-names: "Allcock"
+    given-names: "Jonathan"
+  - family-names: "Wan"
+    given-names: "Zhou-Quan"
+  - family-names: "Liu"
+    given-names: "Shuo"
+  - family-names: "Sun"
+    given-names: "Jiace"
+  - family-names: "Yu"
+    given-names: "Hao"
+  - family-names: "Yang"
+    given-names: "Xing-Han"
+  - family-names: "Qiu"
+    given-names: "Jiezhong"
+  - family-names: "Ye"
+    given-names: "Zhaofeng"
+  - family-names: "Chen"
+    given-names: "Yu-Qin"
+  - family-names: "Lee"
+    given-names: "Chee-Kong"
+  - family-names: "Zheng"
+    given-names: "Yi-Cong"
+  - family-names: "Jian"
+    given-names: "Shao-Kai"
+  - family-names: "Yao"
+    given-names: "Hong"
+  - family-names: "Hsieh"
+    given-names: "Chang-Yu"
+  - family-names: "Zhang"
+    given-names: "Shengyu"
+  doi: "10.22331/q-2023-02-02-912"
+  journal: "Quantum"
+  month: 2
+  pages: 912
+  title: "TensorCircuit: a Quantum Software Framework for the NISQ Era"
+  volume: 7
+  year: 2023

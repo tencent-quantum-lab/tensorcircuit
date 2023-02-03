@@ -127,9 +127,9 @@ This project is released by [Tencent Quantum Lab](https://quantum.tencent.com/) 
 
 ### Citation
 
-If this project helps in your research, please cite our software whitepaper:
+If this project helps in your research, please cite our software whitepaper published in Quantum:
 
-[TensorCircuit: a Quantum Software Framework for the NISQ Era](https://arxiv.org/abs/2205.10091)
+[TensorCircuit: a Quantum Software Framework for the NISQ Era](https://quantum-journal.org/papers/q-2023-02-02-912/)
 
 which is also a good introduction to the software.
 
