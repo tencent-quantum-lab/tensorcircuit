@@ -12,6 +12,8 @@ We highly recommend to use the first solution based on subprocess, not only due 
 ## Experiments
 
 We test contractors from OMEinsum on Google random circuits ([available online](https://datadryad.org/stash/dataset/doi:10.5061/dryad.k6t1rj8)) and compare with the cotengra contractor. 
+For circuits only differ in PRNG seed number (which means with the same tensor network structure, but different tenser entries), we choose the one with the largest seed. For example, we benchmark `circuit_n12_m14_s9_e6_pEFGH.qsim`, but skip
+circuits like `circuit_n12_m14_s0_e6_pEFGH.qsim`. 
 We list experimental results in [benchmark_results.csv](benchmark_results.csv).
 
 
@@ -36,13 +38,13 @@ opt = OMEinsumTreeSAOptimizerSubprocess(
 * **treesa_kahypar**: TreeSA contractor with kahypar initialization, where the betas hyperparameters (initial temperature for SA) are [suggested by the author of OMEimsum](https://github.com/TensorBFS/OMEinsumContractionOrders.jl/issues/35#issuecomment-1397117653). More formally:
 ```python
 opt = OMEinsumTreeSAOptimizerSubprocess(
-        sc_target=60,
-        sc_weight=0.0,
-        rw_weight=0.0,
-        kahypar_init=True,
-        ntrials=16,
-        niters=64,
-        betas=(10, 0.01, 40),
+    sc_target=60,
+    sc_weight=0.0,
+    rw_weight=0.0,
+    kahypar_init=True,
+    ntrials=16,
+    niters=64,
+    betas=(10, 0.01, 40),
 )
 ```
 
@@ -66,6 +68,8 @@ Both OMEimsum and cotengra are able to optimize a weighted average of `log10[FLO
 However, OMEimsum and cotengra have different weight coefficient, which makes fair comparison difficult. 
 Thus we force each method to purely optimized `FLOPs`, but we do collect all contraction information in the table, including 
 `log10[FLOPs]`, `log2[SIZE]`, `log2[WRITE]`, `PathFindingTime`.
+
+For three circuits, namely `circuit_patch_n46_m14_s19_e21_pEFGH`, `circuit_patch_n44_m14_s19_e21_pEFGH` and `circuit_n42_m14_s9_e0_pEFGH`, we meet [errors in OMEinsum](https://github.com/TensorBFS/OMEinsumContractionOrders.jl/issues/35#issuecomment-1405236778), and there results are set to empty in [benchmark_results.csv](benchmark_results.csv).
 
 
 ## Details about subprocess and JuliaCall solutions
