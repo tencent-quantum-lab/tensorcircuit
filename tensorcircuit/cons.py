@@ -721,7 +721,7 @@ def contraction_info_decorator(algorithm: Callable[..., Any]) -> Callable[..., A
             " log2[WRITE]: ",
             "%.3f" % np.log2(float(tree.total_write())),
             " PathFindingTime: ",
-            "%.3f" % path_finding_time
+            "%.3f" % path_finding_time,
         )
         return path
 
