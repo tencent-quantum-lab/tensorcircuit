@@ -1,13 +1,15 @@
 """
 higher level wrapper shortcut for submit_task
 """
-from typing import Any, Callable, List, Optional, Sequence, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 
 import numpy as np
 
 from ..circuit import Circuit
 from ..results import counts
+from ..results.readout_mitigation import ReadoutMit
 from ..utils import is_sequence
+from ..compiler.qiskit_compiler import qiskit_compile
 from .apis import submit_task, get_device
 from .abstraction import Device
 
@@ -46,6 +48,7 @@ def sample_expectation_ps(
     device: Optional[Device] = None,
     **kws: Any,
 ) -> float:
+    # deprecated
     # TODO(@refraction-ray): integrated error mitigation
     c1 = Circuit.from_qir(c.to_qir())
     if x is None:
@@ -66,5 +69,70 @@ def sample_expectation_ps(
     return counts.expectation(raw_counts, x + y + z)
 
 
-# TODO(@refraction-ray): batch support
-# def batch_sample_expectation_ps(c, pss, ws, device, shots)
+def batch_sample_expectation_ps(
+    c: Circuit,
+    device: Any,
+    pss: List[List[int]],
+    ws: Optional[List[float]] = None,
+    shots: int = 8192,
+    with_rem: bool = True,
+) -> float:
+    cs = []
+    infos = []
+    exps = []
+    if isinstance(device, str):
+        device = get_device(device)
+    for ps in pss:
+        c1 = Circuit.from_qir(c.to_qir())
+        exp = []
+        for j, i in enumerate(ps):
+            if i == 1:
+                c1.H(i)  # type: ignore
+                exp.append(j)
+            elif i == 2:
+                c1.rx(i, theta=np.pi / 2)  # type: ignore
+                exp.append(j)
+            elif i == 3:
+                exp.append(j)
+        c1, info = qiskit_compile(
+            c1,
+            compiled_options={
+                "basis_gates": device.native_gates(),
+                "optimization_level": 3,
+                "coupling_map": device.topology(),
+            },
+        )
+        cs.append(c1)
+        infos.append(info)
+        exps.append(exp)
+    if ws is None:
+        ws = [1.0 for _ in range(len(pss))]
+
+    def run(cs: List[Any], shots: int) -> List[Dict[str, int]]:
+        ts = submit_task(
+            circuit=cs,
+            device=device,
+            shots=shots,
+            enable_qos_qubit_mapping=False,
+            enable_qos_gate_decomposition=False,
+        )
+        raw_counts = [t.results(blocked=True) for t in ts]
+        return raw_counts
+
+    raw_counts = run(cs, shots)
+
+    if with_rem:
+        mit = ReadoutMit(run)
+        # TODO(@refraction-ray) only work for tencent provider
+        mit.cals_from_system(device.list_properties()["qubits"])
+
+        results = [
+            mit.expectation(raw_counts[i], exps[i], **infos[i])
+            for i in range(len(raw_counts))
+        ]
+    else:
+        results = [
+            counts.expectation(raw_counts[i], exps[i]) for i in range(len(raw_counts))
+        ]
+    sumr = sum([w * r for w, r in zip(ws, results)])
+    return sumr
