@@ -5,6 +5,7 @@ Constants and setups
 
 import logging
 import sys
+import time
 from contextlib import contextmanager
 from functools import partial, reduce, wraps
 from operator import mul
@@ -707,7 +708,9 @@ def contraction_info_decorator(algorithm: Callable[..., Any]) -> Callable[..., A
         size_dict: Dict[Any, int],
         **kws: Any,
     ) -> Any:
+        t0 = time.time()
         path = algorithm(input_sets, output_set, size_dict, **kws)
+        path_finding_time = time.time() - t0
         tree = ContractionTree.from_path(input_sets, output_set, size_dict, path=path)
         print("------ contraction cost summary ------")
         print(
@@ -717,6 +720,8 @@ def contraction_info_decorator(algorithm: Callable[..., Any]) -> Callable[..., A
             "%.0f" % tree.contraction_width(),
             " log2[WRITE]: ",
             "%.3f" % np.log2(float(tree.total_write())),
+            " PathFindingTime: ",
+            "%.3f" % path_finding_time,
         )
         return path
 
