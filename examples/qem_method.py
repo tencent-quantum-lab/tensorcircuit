@@ -55,7 +55,7 @@ def apply_readout_mitigation():
     c.cnot(0, 1)
     c.x(3)
 
-    shots=10000
+    shots = 10000
 
     idea_count = c.sample(batch=shots, allow_state=True, format="count_dict_bin")
     raw_count = run([c], 100000)[0]
