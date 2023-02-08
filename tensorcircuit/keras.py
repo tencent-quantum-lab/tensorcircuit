@@ -123,6 +123,33 @@ class QuantumLayer(Layer):  # type: ignore
 KerasLayer = QuantumLayer
 
 
+class HardwareLayer(QuantumLayer):  # type: ignore
+    def call(
+        self,
+        inputs: tf.Tensor,
+        training: Optional[bool] = None,
+        mask: Optional[tf.Tensor] = None,
+        **kwargs: Any
+    ) -> tf.Tensor:
+        if inputs is None:  # not possible
+            result = self.f(*self.pqc_weights, **kwargs)
+        elif (
+            len(
+                backend.tree_map(backend.shape_tuple, backend.tree_flatten(inputs))[0][
+                    0
+                ]
+            )
+            == 1
+        ):
+            result = self.f(inputs, *self.pqc_weights, **kwargs)
+        else:
+            result = []
+            for inp in inputs:
+                result.append(self.f(inp, *self.pqc_weights, **kwargs))
+            result = tf.stack(result)
+        return result
+
+
 def output_asis_loss(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
     """
     The keras loss function that directly taking the model output as the loss.

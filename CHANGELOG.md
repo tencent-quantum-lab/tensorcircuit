@@ -24,6 +24,8 @@
 
 - Add Tensorcircuit MacOS (univerisal) installation guide
 
+- Add KerasLayer without jit (quantum hardware compatible)
+
 ### Fixed
 
 - Circuit nosify in noise model now support all circuit attributs apart from qubit number
