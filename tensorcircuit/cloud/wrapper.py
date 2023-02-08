@@ -83,6 +83,7 @@ def batch_sample_expectation_ps(
     if isinstance(device, str):
         device = get_device(device)
     for ps in pss:
+        # TODO(@refraction-ray): Pauli string grouping
         c1 = Circuit.from_qir(c.to_qir())
         exp = []
         for j, i in enumerate(ps):
@@ -122,9 +123,13 @@ def batch_sample_expectation_ps(
     raw_counts = run(cs, shots)
 
     if with_rem:
-        mit = ReadoutMit(run)
-        # TODO(@refraction-ray) only work for tencent provider
-        mit.cals_from_system(device.list_properties()["qubits"])
+        if getattr(device, "readout_mit", None) is None:
+            mit = ReadoutMit(run)
+            # TODO(@refraction-ray) only work for tencent provider
+            mit.cals_from_system(device.list_properties()["qubits"], shots=shots)
+            device.readout_mit = mit
+        else:
+            mit = device.readout_mit
 
         results = [
             mit.expectation(raw_counts[i], exps[i], **infos[i])

@@ -132,6 +132,7 @@ def submit_task(
     enable_qos_gate_decomposition: bool = True,
     enable_qos_initial_mapping: bool = False,
     qos_dry_run: bool = False,
+    **kws: Any
 ) -> List[Task]:
     """
     Submit task via tencent provider, we suggest to enable one of the compiling functionality:

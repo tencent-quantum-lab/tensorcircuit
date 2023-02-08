@@ -413,7 +413,7 @@ class Task:
         device = self.get_device()
         if device.provider.name != "tencent":
             raise ValueError("Only tencent provider supports auto readout mitigation")
-        if readout_mit is None and getattr(self, "readout_mit", None) is None:
+        if readout_mit is None and getattr(device, "readout_mit", None) is None:
 
             def run(cs: Any, shots: Any) -> Any:
                 """
@@ -431,9 +431,9 @@ class Task:
             readout_mit.cals_from_system(
                 list(range(nqubit)), shots, **calibriation_options
             )
-            self.readout_mit = readout_mit
+            device.readout_mit = readout_mit
         elif readout_mit is None:
-            readout_mit = self.readout_mit
+            readout_mit = device.readout_mit
 
         if mitigation_options is None:
             try:
