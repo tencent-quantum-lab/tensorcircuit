@@ -117,6 +117,8 @@ def batch_sample_expectation_ps(
             enable_qos_qubit_mapping=False,
             enable_qos_gate_decomposition=False,
         )
+        if not is_sequence(ts):
+            ts = [ts]
         raw_counts = [t.results(blocked=True) for t in ts]
         return raw_counts
 
