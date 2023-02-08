@@ -124,6 +124,7 @@ KerasLayer = QuantumLayer
 
 
 class HardwareLayer(QuantumLayer):  # type: ignore
+    @tf.autograph.experimental.do_not_convert
     def call(
         self,
         inputs: tf.Tensor,
