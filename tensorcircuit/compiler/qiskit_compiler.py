@@ -144,7 +144,11 @@ def qiskit_compile(
         r0 = ncircuit
 
     elif output.lower() in ["tc", "tensorcircuit"]:
-        r0 = Circuit.from_qiskit(ncircuit)
+        s = _free_pi(ncircuit.qasm())
+        r0 = Circuit.from_openqasm(
+            s,
+            keep_measure_order=True,
+        )
 
     else:
         raise ValueError("Unknown output format: %s" % output)
