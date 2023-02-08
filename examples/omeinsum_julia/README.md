@@ -7,15 +7,18 @@ We provide two solutions:
 * use subprocess to call a stand-alone julia script (**recommended**)
 * use juliacall to integrate julia script into python (seems to be more elegant, but not recommended)
 
-We highly recommend to use the first solution based on subprocess, not only due to its compatibility to julia multi-threading, but also because the experimental KaHyPar-based initialization is developed based on it.
+We highly recommend using the first solution based on subprocess, not only due to its compatibility with julia's multi-threading but also because the experimental KaHyPar-based initialization is developed based on it.
 
 ## Experiments
 
 We test contractors from OMEinsum on Google random circuits ([available online](https://datadryad.org/stash/dataset/doi:10.5061/dryad.k6t1rj8)) and compare with the cotengra contractor. 
-For circuits only differ in PRNG seed number (which means with the same tensor network structure, but different tensor entries), we choose the one with the largest seed. For example, we benchmark `circuit_n12_m14_s9_e6_pEFGH.qsim`, but skip
+We choose the one with the largest seed for circuits that only differ in PRNG seed number (which means with the same tensor network structure but different tensor entries). For example, we benchmark `circuit_n12_m14_s9_e6_pEFGH.qsim` but skip
 circuits like `circuit_n12_m14_s0_e6_pEFGH.qsim`. 
 We list experimental results in [benchmark_results.csv](benchmark_results.csv).
-All experiments are done with a 32GB CPU machine with 16 cores.
+All experiments are done with 
+1. a 32GB CPU machine with 16 cores
+2. TensorCircuit with TensorFlow backend
+3. without using jit
 
 
 Specifically, we test the following three methods:
@@ -66,7 +69,7 @@ c.expectation_ps(z=[0], reuse=False)
 ```
 
 Both OMEimsum and cotengra are able to optimize a weighted average of `log10[FLOPs]`, `log2[SIZE]` and `log2[WRITE]`.
-However, OMEimsum and cotengra have different weight coefficient, which makes fair comparison difficult. 
+However, OMEimsum and cotengra have different weight coefficients, which makes fair comparison difficult. 
 Thus we force each method to purely optimized `FLOPs`, but we do collect all contraction information in the table, including 
 `log10[FLOPs]`, `log2[SIZE]`, `log2[WRITE]`, `PathFindingTime`, `WallClockTime`.
 
@@ -89,19 +92,19 @@ This solution calls a stand-alone julia script [omeinsum.jl](omeinsum.jl) for te
 #### How to run
 
 Run
-`JULIA_NUM_THREADS=N python omeinsum_contractor_subprocess.py`. The env variable `JULIA_NUM_THREADS=N` will be passed to the julia script, so that you can enjoy the accelaration brought by julia multi-threading.
+`JULIA_NUM_THREADS=N python omeinsum_contractor_subprocess.py`. The env variable `JULIA_NUM_THREADS=N` will be passed to the julia script, so that you can enjoy the acceleration brought by julia multi-threading.
 
 
 #### KaHyPar initialization
 
 The choice of initial status plays an important role in simulated annealing.
 In a [discussion with the author of OMEinsum](https://github.com/TensorBFS/OMEinsumContractionOrders.jl/issues/35), we
-found that there was a way to run TreeSA with initialzier other than greedy or random. We demo how KaHyPar can be used to produce the initial status of simulated annealing. Although we haven't seen significant improvement by using KaHyPar initialization, we believe it is a interesting topic to explore.
+found that there was a way to run TreeSA with initializer other than greedy or random. We demo how KaHyPar can produce the initial status of simulated annealing. Although we have not seen significant improvement by using KaHyPar initialization, we believe it is an interesting topic to explore.
 
 ### JuliaCall solution (Not Recommended)
 
 JuliaCall seems to be a more elegant solution because all related code are integrated into a single python script.
-However, in order to use julia multi-threading in juliacall, we have to turn off julia GC at the risk of OOM. See see [this issue](https://github.com/cjdoris/PythonCall.jl/issues/219) for more details.
+However, in order to use julia multi-threading in juliacall, we have to turn off julia GC at the risk of OOM. See [this issue](https://github.com/cjdoris/PythonCall.jl/issues/219) for more details.
 
 
 #### Setup
