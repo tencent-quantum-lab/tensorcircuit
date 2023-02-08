@@ -135,6 +135,7 @@ class Device:
 
                 self.name = name
                 self.provider = get_provider()
+        self.readout_mit: Any = None
 
     def __str__(self) -> str:
         return self.provider.name + sep + self.name
