@@ -7,7 +7,7 @@ from typing import Any, Callable, List, Optional, Sequence, Text, Tuple, Union
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.layers import Layer
-from tensorflow.keras import initializers, constraints
+from tensorflow.keras import initializers, constraints, regularizers
 
 from .cons import rdtypestr, backend
 
@@ -23,6 +23,7 @@ class QuantumLayer(Layer):  # type: ignore
         weights_shape: Sequence[Tuple[int, ...]],
         initializer: Union[Text, Sequence[Text]] = "glorot_uniform",
         constraint: Optional[Union[Text, Sequence[Text]]] = None,
+        regularizer: Optional[Union[Text, Sequence[Text]]] = None,
         **kwargs: Any
     ) -> None:
         """
@@ -38,6 +39,8 @@ class QuantumLayer(Layer):  # type: ignore
         :type initializer: Union[Text, Sequence[Text]], optional
         :param constraint: [description], defaults to None
         :type constraint: Optional[Union[Text, Sequence[Text]]], optional
+        :param initializer: The regularizer of the weights, defaults to None
+        :type initializer: Union[Text, Sequence[Text]], optional
         """
 
         super().__init__(**kwargs)
@@ -58,14 +61,20 @@ class QuantumLayer(Layer):  # type: ignore
             constraints.get(item) if isinstance(item, str) else item
             for item in constraint
         ]
+        if not (isinstance(regularizer, list) or isinstance(regularizer, tuple)):
+            regularizer = [regularizer for _ in range(self.number_weights)]  # type: ignore
+        self.regularizer = [
+            regularizers.get(item) if isinstance(item, str) else item
+            for item in regularizer
+        ]
 
     def build(self, input_shape: Optional[List[int]] = None) -> None:
         if input_shape is None:
             input_shape = [1, 1]
         super().build(input_shape)
         self.pqc_weights = []
-        for i, (shape, init, cst) in enumerate(
-            zip(self.weights_shape, self.initializer, self.constraint)
+        for i, (shape, init, cst, reg) in enumerate(
+            zip(self.weights_shape, self.initializer, self.constraint, self.regularizer)
         ):
             self.pqc_weights.append(
                 self.add_weight(
@@ -75,6 +84,7 @@ class QuantumLayer(Layer):  # type: ignore
                     trainable=True,
                     initializer=init,
                     constraint=cst,
+                    regularizer=reg,
                 )
             )
 

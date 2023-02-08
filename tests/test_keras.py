@@ -113,6 +113,21 @@ def test_function_io(tfb, tmp_path, highp):
     print(loaded(weights=tf.ones([6, 6], dtype=tf.float64), nlayers=3, n=6))
 
 
+def test_keras_hardware(tfb):
+    n = 2
+
+    def qf(inputs, param):
+        c = tc.Circuit(n)
+        c.rx(0, theta=inputs[0])
+        c.rx(1, theta=inputs[1])
+        c.h(1)
+        c.rzz(0, 1, theta=param[0])
+        return tc.backend.stack([c.expectation_ps(z=[i]) for i in range(n)])
+
+    ql = tc.keras.HardwareLayer(qf, [1], regularizer=tf.keras.regularizers.l2(1e-3))
+    print(ql(tf.ones([1, 2])))
+
+
 def test_keras_layer_inputs_dict(tfb):
     n = 3
     p = 0.1
