@@ -354,6 +354,9 @@ def _translate_qiskit_params(
         elif isinstance(p, Parameter):
             parameters.append(binding_params[p])
         elif isinstance(p, ParameterExpression):
+            if len(p.parameters) == 0:
+                parameters.append(float(p))
+                continue
             if len(p.parameters) != 1:
                 raise ValueError(
                     f"Can't translate parameter expression with more than 1 parameters: {p}"
