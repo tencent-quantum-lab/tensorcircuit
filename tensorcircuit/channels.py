@@ -126,21 +126,17 @@ def generaldepolarizingchannel(
     """
 
     if num_qubits == 1:
-
         if isinstance(p, float):
-
             assert p > 0 and p < 1 / 3, "p should be >0 and <1/3"
             probs = [1 - 3 * p] + 3 * [p]
 
         elif isinstance(p, list):
-
             assert reduce(
                 and_, [pi > 0 and pi < 1 for pi in p]
             ), "p should be >0 and <1"
             probs = [1 - sum(p)] + p  # type: ignore
 
         elif isinstance(p, tuple):
-
             p = list[p]  # type: ignore
             assert reduce(
                 and_, [pi > 0 and pi < 1 for pi in p]
@@ -151,21 +147,17 @@ def generaldepolarizingchannel(
             raise ValueError("p should be float or list")
 
     elif num_qubits == 2:
-
         if isinstance(p, float):
-
             assert p > 0 and p < 1, "p should be >0 and <1/15"
             probs = [1 - 15 * p] + 15 * [p]
 
         elif isinstance(p, list):
-
             assert reduce(
                 and_, [pi > 0 and pi < 1 for pi in p]
             ), "p should be >0 and <1"
             probs = [1 - sum(p)] + p  # type: ignore
 
         elif isinstance(p, tuple):
-
             p = list[p]  # type: ignore
             assert reduce(
                 and_, [pi > 0 and pi < 1 for pi in p]
@@ -695,7 +687,6 @@ def choi_to_kraus(
         truncation_rules = {}
 
     if truncation_rules.get("max_singular_values", None) is not None:
-
         nkraus = truncation_rules["max_singular_values"]
         for i in range(nkraus):
             k = backend.sqrt(backend.cast(e[-(i + 1)], dtypestr)) * backend.transpose(

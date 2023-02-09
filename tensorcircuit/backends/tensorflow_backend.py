@@ -795,7 +795,6 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend, ExtendedBackend): 
                 return tf.vectorized_map(pf, args[0])
 
         else:
-
             # @self.jit  # otherwise, vectorized_map claim on retracing
             def wrapper(*args: Any, **kws: Any) -> Tensor:
                 # @self.jit

@@ -85,7 +85,6 @@ def test_readout_masks():
 
 
 def test_readout_expv():
-
     nqubit = 4
     c = tc.Circuit(nqubit)
     c.H(0)
@@ -145,7 +144,6 @@ def test_readout_expv():
 
 
 def test_M3():
-
     try:
         import mthree  # pylint: disable=unused-import
     except ImportError:

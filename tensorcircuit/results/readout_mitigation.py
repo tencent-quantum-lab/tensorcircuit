@@ -128,7 +128,6 @@ class ReadoutMit:
                 qubits = self.cal_qubits
 
         if self.local is False:
-
             lbs = [marginal_count(i, qubits) for i in self.global_cal]
             calmatrix = np.zeros((2 ** len(qubits), 2 ** len(qubits)))
 
@@ -153,7 +152,6 @@ class ReadoutMit:
         return calmatrix
 
     def _form_cals(self, qubits):  # type: ignore
-
         qubits = np.asarray(qubits, dtype=int)
         cals = np.zeros(4 * qubits.shape[0], dtype=float)
 
@@ -534,7 +532,6 @@ class ReadoutMit:
 
         quasi_out = []
         for idx, cnts in enumerate(counts):
-
             quasi_out.append(
                 self._apply_correction(
                     cnts,
@@ -603,7 +600,6 @@ class ReadoutMit:
             self._grab_additional_cals(missing_qubits, method=self.cal_method)  # type: ignore
 
         if method == "M3_auto":
-
             import psutil
 
             current_free_mem = psutil.virtual_memory().available / 1024**3
@@ -676,7 +672,6 @@ class ReadoutMit:
             raise M3Error("Invalid method: {}".format(method))
 
     def reduced_cal_matrix(self, counts, qubits, distance=None):  # type: ignore
-
         counts = dict(counts)
         # If distance is None, then assume max distance.
         num_bits = len(qubits)
@@ -698,7 +693,6 @@ class ReadoutMit:
     def _direct_solver(  # type: ignore
         self, counts, qubits, distance=None, return_mitigation_overhead=False
     ):
-
         cals = self._form_cals(qubits)
         num_bits = len(qubits)
         A, sorted_counts, col_norms = _reduced_cal_matrix(
@@ -724,7 +718,6 @@ class ReadoutMit:
         callback=None,
         return_mitigation_overhead=False,
     ):
-
         cals = self._form_cals(qubits)
         M = M3MatVec(dict(counts), cals, distance)
         L = spla.LinearOperator(

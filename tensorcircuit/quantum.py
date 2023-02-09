@@ -195,7 +195,7 @@ def check_spaces(edges_1: Sequence[Edge], edges_2: Sequence[Edge]) -> None:
             "with {} subsystems.".format(len(edges_1), len(edges_2))
         )
 
-    for (i, (e1, e2)) in enumerate(zip(edges_1, edges_2)):
+    for i, (e1, e2) in enumerate(zip(edges_1, edges_2)):
         if e1.dimension != e2.dimension:
             raise ValueError(
                 "Hilbert-space mismatch on subsystems {}: Input "
@@ -429,10 +429,10 @@ class QuOperator:
         there are no other dangling edges (except any specified in
         `ignore_edges`). If not, an exception is raised.
         """
-        for (i, e) in enumerate(self.out_edges):
+        for i, e in enumerate(self.out_edges):
             if not e.is_dangling():
                 raise ValueError("Output edge {} is not dangling!".format(i))
-        for (i, e) in enumerate(self.in_edges):
+        for i, e in enumerate(self.in_edges):
             if not e.is_dangling():
                 raise ValueError("Input edge {} is not dangling!".format(i))
         for e in self.ignore_edges:
@@ -511,7 +511,7 @@ class QuOperator:
         check_spaces(in_edges_trace, out_edges_trace)
 
         nodes_dict, edge_dict = copy(self.nodes, False)
-        for (e1, e2) in zip(out_edges_trace, in_edges_trace):
+        for e1, e2 in zip(out_edges_trace, in_edges_trace):
             edge_dict[e1] = edge_dict[e1] ^ edge_dict[e2]
 
         # get leftover edges in the original order
@@ -544,7 +544,7 @@ class QuOperator:
         nodes_dict2, edges_dict2 = copy(other.nodes, False)
 
         # connect edges to create network for the result
-        for (e1, e2) in zip(self.in_edges, other.out_edges):
+        for e1, e2 in zip(self.in_edges, other.out_edges):
             _ = edges_dict1[e1] ^ edges_dict2[e2]
 
         in_edges = [edges_dict2[e] for e in other.in_edges]

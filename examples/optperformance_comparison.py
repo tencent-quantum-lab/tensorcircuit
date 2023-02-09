@@ -59,7 +59,6 @@ energy_list = []
 
 
 if __name__ == "__main__":
-
     n = 12
     nlayers = 12
     nsteps = 250

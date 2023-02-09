@@ -33,7 +33,6 @@ def test_channel_identity(backend):
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_dep(backend):
-
     cs = tc.channels.generaldepolarizingchannel(0.1, 1)
     tc.channels.kraus_identity_check(cs)
 
@@ -46,7 +45,6 @@ def test_dep(backend):
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_rep_transformation(backend):
-
     kraus_set = []
     kraus_set.append(tc.channels.phasedampingchannel(0.2))
     kraus_set.append(tc.channels.resetchannel())
@@ -107,10 +105,8 @@ def test_thermal(backend):
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_noisecircuit(backend):
-
     # Monte carlo simulation
     def noisecircuit(X):
-
         n = 1
         c = tc.Circuit(n)
         c.x(0)
@@ -155,7 +151,6 @@ def test_noisecircuit(backend):
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_readout(backend):
-
     nqubit = 3
     c = tc.Circuit(nqubit)
     c.X(0)
@@ -299,7 +294,6 @@ def mitigate_probability(probability_noise, calmatrix, method="inverse"):
 
 
 def mitigate_readout(nqubit, circ, readout_error):
-
     key = tc.backend.get_random_state(42)
     keys = []
     for _ in range(2**nqubit):

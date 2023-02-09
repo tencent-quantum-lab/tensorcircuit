@@ -114,7 +114,6 @@ def apply_qir_with_noise(
     """
     quantum_index = 0
     for d in qir:
-
         d["name"] = AbstractCircuit.standardize_gate(d["name"])
 
         if "parameters" not in d:  # paramized gate
@@ -126,12 +125,10 @@ def apply_qir_with_noise(
 
         if isinstance(c, DMCircuit):
             if d["name"] in noise_conf.nc:
-
                 if (
                     "Default" in noise_conf.nc[d["name"]]
                     or d["index"] in noise_conf.nc[d["name"]]
                 ):
-
                     if "Default" in noise_conf.nc[d["name"]]:
                         noise_kraus = noise_conf.nc[d["name"]]["Default"]
                     if d["index"] in noise_conf.nc[d["name"]]:
@@ -141,12 +138,10 @@ def apply_qir_with_noise(
 
         else:
             if d["name"] in noise_conf.nc:
-
                 if (
                     "Default" in noise_conf.nc[d["name"]]
                     or d["index"] in noise_conf.nc[d["name"]]
                 ):
-
                     if "Default" in noise_conf.nc[d["name"]]:
                         noise_kraus = noise_conf.nc[d["name"]]["Default"]
                     if d["index"] in noise_conf.nc[d["name"]]:
@@ -290,7 +285,6 @@ def sample_expectation_ps_noisfy(
         readout_error = None
 
     if noise_conf.has_quantum is True:
-
         # density matrix
         if isinstance(c, DMCircuit):
             cnoise = circuit_with_noise(c, noise_conf)  #  type: ignore
@@ -368,7 +362,6 @@ def expectation_noisfy(
         logger.warning("expectation_ps_noisfy can't support readout error.")
 
     if noise_conf.has_quantum is True:
-
         # density matrix
         if isinstance(c, DMCircuit):
             cnoise = circuit_with_noise(c, noise_conf)

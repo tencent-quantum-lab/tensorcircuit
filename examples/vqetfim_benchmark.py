@@ -119,13 +119,11 @@ hamiltonian_sparse = K.coo_sparse_matrix(
 )
 
 if enable_dense is True:
-
     hamiltonian_dense = K.to_dense(hamiltonian_sparse)
 
     vqe3 = partial(vqe_template, op=hamiltonian_dense)
 
 else:
-
     vqe3 = vqe1
 
 # 4. sparse matrix

@@ -14,7 +14,6 @@ from tensorcircuit.channels import composedkraus
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_noisemodel(backend):
-
     # test data structure
     # noise_conf = NoiseConf()
     # noise_conf.add_noise("h1", "t0")
