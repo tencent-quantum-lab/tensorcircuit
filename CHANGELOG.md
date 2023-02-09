@@ -26,6 +26,8 @@
 
 - Add KerasLayer without jit (quantum hardware compatible)
 
+- Add regularizer support for KerasLayer
+
 ### Fixed
 
 - Circuit nosify in noise model now support all circuit attributs apart from qubit number
