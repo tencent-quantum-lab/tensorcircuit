@@ -681,6 +681,7 @@ def gatewise_vqe_vag(
 try:
     v = sympy.symbols("v_{0:64}")
     vv = sympy.symbols(["v_" + str(i) + "_0:32" for i in range(32)])
+
     # symbol pool
     def double_qubits_initial() -> Iterator[Sequence[Any]]:
         while True:
@@ -750,7 +751,6 @@ try:
 
     @lru_cache()
     def qft_circuit(n: int) -> cirq.Circuit:
-
         circuit = cirq.Circuit()
         for i in reversed(range(n)):
             circuit.append(cirq.H(q(i)))

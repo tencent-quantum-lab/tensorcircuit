@@ -19,7 +19,6 @@ except ImportError:
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])
 def test_quantumnet(backend):
-
     n = 6
     nlayers = 2
 

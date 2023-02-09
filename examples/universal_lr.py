@@ -27,6 +27,7 @@ def lr(xs, ys):
     """
     fully ML backend agnostic linear regression implementation
     """
+
     # construct the loss
     def loss_pointwise(x, y, param):
         k, b = param["k"], param["b"]
@@ -74,7 +75,6 @@ def lr(xs, ys):
 
 
 if __name__ == "__main__":
-
     for n in ["tensorflow", "jax"]:
         with tc.runtime_backend(n):  # runtime backend switch with context manager
             print("~~~~~~~~ using %s backend ~~~~~~~~" % n)

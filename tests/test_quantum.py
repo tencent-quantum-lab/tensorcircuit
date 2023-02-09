@@ -189,7 +189,6 @@ def test_mul(backend):
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_expectations(backend):
-
     psi_tensor = np.random.rand(2, 2, 2) + 1.0j * np.random.rand(2, 2, 2)
     op_tensor = np.random.rand(2, 2) + 1.0j * np.random.rand(2, 2)
 

@@ -54,7 +54,6 @@ def tfq_approach(n_qubits=10, depth=10, n_circuits=100):
         return circuit
 
     def process_batch(circuits, symbol, op):
-
         # Setup a simple layer to batch compute the expectation gradients.
         expectation = tfq.layers.Expectation()
 
@@ -125,7 +124,6 @@ op_expectation_vmap_vvag = K.jit(
 
 
 def pennylane_approach(n_qubits=10, depth=10, n_circuits=100):
-
     dev = qml.device("lightning.qubit", wires=n_qubits)
     gate_set = [qml.RX, qml.RY, qml.RZ]
 
@@ -161,7 +159,6 @@ benchmark(pennylane_approach)
 
 
 def tc_approach(n_qubits=10, depth=10, n_circuits=100):
-
     seed = tc.array_to_tensor(
         np.random.uniform(low=0.0, high=1.0, size=[n_circuits, n_qubits, depth]),
         dtype="float32",

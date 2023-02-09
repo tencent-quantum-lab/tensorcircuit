@@ -19,6 +19,7 @@ Tensor = Any
 
 class FiniteMPS(tn.FiniteMPS):  # type: ignore
     center_position: Optional[int]
+
     # TODO(@SUSYUSTC): Maybe more functions can be put here to disentangle with circuits
     def apply_two_site_gate(
         self,
@@ -264,7 +265,6 @@ class FiniteMPS(tn.FiniteMPS):  # type: ignore
 
         c = []
         if len(left_sites) > 0:
-
             A = Node(self.tensors[site1], backend=self.backend)
             O1 = Node(op1, backend=self.backend)
             conj_A = conj(A)

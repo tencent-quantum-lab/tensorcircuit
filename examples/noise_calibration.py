@@ -7,6 +7,7 @@ import numpy as np
 from scipy.optimize import minimize, curve_fit
 import tensorcircuit as tc
 
+
 # Add readout error and mitigate readout error with two methods.
 def miti_readout_circ(nqubit):
     miticirc = []
@@ -49,7 +50,6 @@ def mitigate_probability(probability_noise, calmatrix, method="inverse"):
 
 
 def mitigate_readout(nqubit, circ, readout_error):
-
     K = tc.set_backend("tensorflow")
 
     key = K.get_random_state(42)
@@ -125,12 +125,10 @@ def fit_function(x_values, y_values, function, init_params):
 
 
 def T1_cali(t1, t2, time, method, excitedstatepopulation):
-
     # calibrating experiments
     nstep = int(4 * t1 / time)
     pex = []
     for i in range(nstep):
-
         dmc = tc.DMCircuit(1)
         dmc.x(0)
         for _ in range(i):
@@ -155,12 +153,10 @@ def T1_cali(t1, t2, time, method, excitedstatepopulation):
 
 
 def T2_cali(t1, t2, time, method, excitedstatepopulation):
-
     # calibrating experiments
     nstep = int(4 * t2 / time)
     pex = []
     for i in range(nstep):
-
         dmc = tc.DMCircuit(1)
         dmc.h(0)
         for _ in range(0, i):

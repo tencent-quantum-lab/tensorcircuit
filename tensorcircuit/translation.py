@@ -348,7 +348,6 @@ def _translate_qiskit_params(
 ) -> List[float]:
     parameters = []
     for p in gate_info[0].params:
-
         if isinstance(p, ParameterVectorElement):
             parameters.append(binding_params[p.index])
         elif isinstance(p, Parameter):

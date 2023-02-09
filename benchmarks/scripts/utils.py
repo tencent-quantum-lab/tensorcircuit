@@ -128,6 +128,7 @@ def mnist_data_preprocessing(PCA_components=10):
     if qml_data == {}:
         if Path("mnist.npz").exists():
             print("load local dataset")
+
             # from https://www.kaggle.com/vikramtiwari/mnist-numpy
             def load_data(path):
                 with np.load(path) as f:

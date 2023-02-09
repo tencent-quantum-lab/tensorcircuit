@@ -95,7 +95,6 @@ def qir2tex(
 
     # apply gates in qir
     for x in qir:
-
         idx = x["index"]
         gate_length = len(idx)
         if x["name"].startswith("invisible"):

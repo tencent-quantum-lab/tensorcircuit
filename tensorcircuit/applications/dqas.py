@@ -778,7 +778,6 @@ def DQAS_search_pmb(
 
     try:
         for epoch in range(epochs):  # iteration to update strcuture param
-
             print("----------new epoch %s-----------" % epoch)
 
             deri_stp = []

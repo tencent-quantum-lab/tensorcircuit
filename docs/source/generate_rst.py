@@ -5,7 +5,6 @@ from os.path import join as pj
 
 
 class RSTGenerator:
-
     title_line = "=" * 50
     toctree = ".. toctree::\n    {}"
     automodule = ".. automodule:: {}\n    :members:\n    :undoc-members:\n    :show-inheritance:\n    :inherited-members:"
@@ -38,7 +37,6 @@ class RSTGenerator:
         """Process the module in the self.pfolder/*.py"""
 
         for module_name in glob.glob(pj(self.pfolder, "*.py")):
-
             module_name = os.path.basename(module_name)[:-3]
             if module_name in self.ingnored_modules:
                 continue

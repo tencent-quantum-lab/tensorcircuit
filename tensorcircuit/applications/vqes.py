@@ -282,7 +282,6 @@ class VQNHE:
         width: int = 2,
         **kws: Any,
     ) -> Model:
-
         model = tf.keras.Sequential()
         for _ in range(depth):
             model.add(tf.keras.layers.Dense(width * self.n, activation="relu"))
@@ -485,7 +484,6 @@ class VQNHE:
         :rtype: Tensor
         """
         with tf.GradientTape() as tape:
-
             c = self.circuit(cv)
             if not self.shortcut:
                 loss = tf.math.real(vqe_energy(c, self.hamiltonian))
