@@ -88,11 +88,11 @@ def set_device(
 
     if isinstance(device, str):
         if len(device.split(sep)) > 1:
-            device = Device(device, provider)
+            device = Device.from_name(device, provider)
         else:
             if provider is None:
                 provider = get_provider()
-            device = Device(device, provider)
+            device = Device.from_name(device, provider)
     else:
         if provider is None:
             provider = get_provider()

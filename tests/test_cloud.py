@@ -118,7 +118,7 @@ def test_local_batch_submit():
     c.ry(1, theta=0.8)
 
     ts = apis.submit_task(device="testing", circuit=[c, c])
-    print(ts[0].results(mitigated=True))
+    print(ts[0].results())
 
     apis.set_device("testing")
     ts = apis.submit_task(circuit=[c, c])

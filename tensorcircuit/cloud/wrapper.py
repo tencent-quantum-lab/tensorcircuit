@@ -2,6 +2,8 @@
 higher level wrapper shortcut for submit_task
 """
 from typing import Any, Callable, Dict, List, Optional, Sequence, Union
+import logging
+import time
 
 import numpy as np
 
@@ -13,6 +15,8 @@ from ..compiler.qiskit_compiler import qiskit_compile
 from .apis import submit_task, get_device
 from .abstraction import Device
 
+
+logger = logging.getLogger(__name__)
 Tensor = Any
 
 
@@ -76,7 +80,7 @@ def batch_sample_expectation_ps(
     ws: Optional[List[float]] = None,
     shots: int = 8192,
     with_rem: bool = True,
-) -> float:
+) -> Union[float, List[float]]:
     cs = []
     infos = []
     exps = []
@@ -106,10 +110,23 @@ def batch_sample_expectation_ps(
         cs.append(c1)
         infos.append(info)
         exps.append(exp)
-    if ws is None:
-        ws = [1.0 for _ in range(len(pss))]
+
+    reduced_cs = []
+    reduced_dict = {}
+    recover_dict = {}
+    # merge the same circuit
+    for j, ps in enumerate(pss):
+        ps = [i if i in [1, 2] else 0 for i in ps]
+        if tuple(ps) not in reduced_dict:
+            reduced_dict[tuple(ps)] = [j]
+            reduced_cs.append(cs[j])
+            recover_dict[tuple(ps)] = len(reduced_cs) - 1
+        else:
+            reduced_dict[tuple(ps)].append(j)
 
     def run(cs: List[Any], shots: int) -> List[Dict[str, int]]:
+        logger.info(f"submit task on {device.name} for {len(cs)} circuits")
+        time0 = time.time()
         ts = submit_task(
             circuit=cs,
             device=device,
@@ -120,9 +137,17 @@ def batch_sample_expectation_ps(
         if not is_sequence(ts):
             ts = [ts]  # type: ignore
         raw_counts = [t.results(blocked=True) for t in ts]
+        time1 = time.time()
+        logger.info(
+            f"finished collecting count results of {len(cs)} tasks in {round(time1-time0, 4)} seconds"
+        )
         return raw_counts
 
-    raw_counts = run(cs, shots)
+    reduced_raw_counts = run(reduced_cs, shots)
+    raw_counts: List[Dict[str, int]] = [None] * len(cs)  # type: ignore
+    for i in range(len(cs)):
+        ps = [i if i in [1, 2] else 0 for i in pss[i]]
+        raw_counts[i] = reduced_raw_counts[recover_dict[tuple(ps)]]
 
     if with_rem:
         if getattr(device, "readout_mit", None) is None:
@@ -141,5 +166,7 @@ def batch_sample_expectation_ps(
         results = [
             counts.expectation(raw_counts[i], exps[i]) for i in range(len(raw_counts))
         ]
-    sumr = sum([w * r for w, r in zip(ws, results)])
-    return sumr
+    if ws is not None:
+        sumr = sum([w * r for w, r in zip(ws, results)])
+        return sumr
+    return results
