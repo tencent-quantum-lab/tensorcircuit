@@ -6,6 +6,7 @@ dataset
 *.disable
 *.mo
 develop
+examples-ng
 .coverage*
 tutorials.po
 whitepaper.po
