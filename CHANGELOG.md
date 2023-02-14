@@ -28,6 +28,8 @@
 
 - Add regularizer support for KerasLayer
 
+- Add methods in quantum module for translating ps list and xyz argument dict
+
 ### Fixed
 
 - Circuit nosify in noise model now support all circuit attributs apart from qubit number

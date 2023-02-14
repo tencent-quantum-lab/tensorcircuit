@@ -638,20 +638,35 @@ class AbstractCircuit:
             return qir2cirq(qir, n=self._nqubits)
         return qir2cirq(qir, n=self._nqubits, extra_qir=self._extra_qir)
 
-    def to_qiskit(self, enable_instruction: bool = False) -> Any:
+    def to_qiskit(
+        self, enable_instruction: bool = False, enable_inputs: bool = False
+    ) -> Any:
         """
         Translate ``tc.Circuit`` to a qiskit QuantumCircuit object.
 
         :param enable_instruction: whether also export measurement and reset instructions
         :type enable_instruction: bool, defaults to False
+        :param enable_inputs: whether also export the inputs
+        :type enable_inputs: bool, defaults to False
         :return: A qiskit object of this circuit.
         """
-        from .translation import qir2qiskit
+        from .translation import qir2qiskit, perm_matrix
 
         qir = self.to_qir()
-        if enable_instruction is False:
-            return qir2qiskit(qir, n=self._nqubits)
-        return qir2qiskit(qir, n=self._nqubits, extra_qir=self._extra_qir)
+        if enable_instruction:
+            extra_qir = self._extra_qir
+        else:
+            extra_qir = None
+        if enable_inputs and self.circuit_param.get("inputs") is not None:
+            initialization = perm_matrix(self._nqubits).T @ self.circuit_param["inputs"]
+        else:
+            initialization = None
+        return qir2qiskit(
+            qir,
+            n=self._nqubits,
+            extra_qir=extra_qir,
+            initialization=initialization,
+        )
 
     def to_openqasm(self, **kws: Any) -> str:
         """

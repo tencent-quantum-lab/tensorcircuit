@@ -457,3 +457,12 @@ def test_measurement_results(backend):
             w, counts=c, format="count_dict_int", jittable=True
         )
         print(r)
+
+
+def test_ps2xyz():
+    xyz = {"x": [1], "z": [2]}
+    assert tc.quantum.xyz2ps(xyz) == [0, 1, 3]
+    assert tc.quantum.xyz2ps(xyz, 6) == [0, 1, 3, 0, 0, 0]
+    xyz.update({"y": []})
+    assert tc.quantum.ps2xyz([0, 1, 3]) == xyz
+    assert tc.quantum.ps2xyz([0, 1, 3, 0]) == xyz
