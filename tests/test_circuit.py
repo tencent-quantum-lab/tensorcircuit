@@ -1187,6 +1187,38 @@ def test_qiskit2tc_parameterized(backend):
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_qiskit_vs_tc_intialization(backend):
+    try:
+        from qiskit import QuantumCircuit
+        import qiskit.quantum_info as qi
+    except ImportError:
+        pytest.skip("qiskit is not installed")
+
+    n = 3
+
+    qis_c = QuantumCircuit(n)
+    qis_c.h(0)
+    qis_c.cnot(0, 1)
+    qis_c.y(2)
+    state = qi.Statevector(qis_c)
+    qis_c = QuantumCircuit(n)
+    qis_c.initialize(state)
+    qis_c.cnot(1, 2)
+    c = tc.Circuit.from_qiskit(qis_c)
+    c2 = tc.Circuit(n)
+    c2.h(0)
+    c2.cnot(0, 1)
+    c2.y(2)
+    c2.cnot(1, 2)
+    np.testing.assert_allclose(c.state(), c2.state(), atol=1e-8)
+    np.testing.assert_allclose(
+        qi.Statevector(c.to_qiskit(enable_inputs=True)),
+        qi.Statevector(qis_c),
+        atol=1e-8,
+    )
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_batch_sample(backend):
     c = tc.Circuit(3)
     c.H(0)
