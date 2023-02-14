@@ -2,13 +2,14 @@ import sys
 import os
 import time
 import pytest
+import numpy as np
 
 thisfile = os.path.abspath(__file__)
 modulepath = os.path.dirname(os.path.dirname(thisfile))
 
 sys.path.insert(0, modulepath)
 import tensorcircuit as tc
-from tensorcircuit.cloud import apis
+from tensorcircuit.cloud import apis, wrapper
 from tensorcircuit.results import counts
 
 
@@ -125,3 +126,19 @@ def test_local_batch_submit():
     print(ts[1].results())
     print(ts[1].details())
     apis.set_provider()
+
+
+def test_batch_exp_ps():
+    pss = [[1, 0], [0, 3]]
+    c = tc.Circuit(2)
+    c.h(0)
+    c.x(1)
+    np.testing.assert_allclose(wrapper.batch_expectation_ps(c, pss), [1, -1], atol=1e-5)
+    np.testing.assert_allclose(
+        wrapper.batch_expectation_ps(c, pss, ws=[1, -0.5]), 1.5, atol=1e-5
+    )
+    np.testing.assert_allclose(
+        wrapper.batch_expectation_ps(c, pss, device="simulator:tcn1"),
+        [1, -1],
+        atol=1e-3,
+    )

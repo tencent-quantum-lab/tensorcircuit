@@ -11,6 +11,8 @@ from ..circuit import Circuit
 from ..results import counts
 from ..results.readout_mitigation import ReadoutMit
 from ..utils import is_sequence
+from ..cons import backend
+from ..quantum import ps2xyz
 from ..compiler.qiskit_compiler import qiskit_compile
 from .apis import submit_task, get_device
 from .abstraction import Device
@@ -73,14 +75,22 @@ def sample_expectation_ps(
     return counts.expectation(raw_counts, x + y + z)
 
 
-def batch_sample_expectation_ps(
+def batch_expectation_ps(
     c: Circuit,
-    device: Any,
     pss: List[List[int]],
+    device: Any = None,
     ws: Optional[List[float]] = None,
     shots: int = 8192,
     with_rem: bool = True,
-) -> Union[float, List[float]]:
+) -> Union[Any, List[Any]]:
+    if device is None:
+        results = []
+        for ps in pss:
+            results.append(c.expectation_ps(**ps2xyz(ps)))  # type: ignore
+        if ws is None:
+            return backend.stack(results)
+        else:
+            return backend.sum([w * r for w, r in zip(ws, results)])
     cs = []
     infos = []
     exps = []
@@ -92,10 +102,10 @@ def batch_sample_expectation_ps(
         exp = []
         for j, i in enumerate(ps):
             if i == 1:
-                c1.H(i)  # type: ignore
+                c1.H(j)  # type: ignore
                 exp.append(j)
             elif i == 2:
-                c1.rx(i, theta=np.pi / 2)  # type: ignore
+                c1.rx(j, theta=np.pi / 2)  # type: ignore
                 exp.append(j)
             elif i == 3:
                 exp.append(j)
@@ -153,7 +163,10 @@ def batch_sample_expectation_ps(
         if getattr(device, "readout_mit", None) is None:
             mit = ReadoutMit(run)
             # TODO(@refraction-ray) only work for tencent provider
-            mit.cals_from_system(device.list_properties()["qubits"], shots=shots)
+            nq = device.list_properties().get("qubits", None)
+            if nq is None:
+                nq = c._nqubits
+            mit.cals_from_system(nq, shots=shots)
             device.readout_mit = mit
         else:
             mit = device.readout_mit
