@@ -1021,6 +1021,52 @@ class QuScalar(QuOperator):
         return cls(set([n]))
 
 
+def ps2xyz(ps: List[int]) -> Dict[str, List[int]]:
+    """
+    pauli string list to xyz dict
+
+    # ps2xyz([1, 2, 2, 0]) = {"x": [0], "y": [1, 2], "z": []}
+
+    :param ps: _description_
+    :type ps: List[int]
+    :return: _description_
+    :rtype: Dict[str, List[int]]
+    """
+    xyz: Dict[str, List[int]] = {"x": [], "y": [], "z": []}
+    for i, j in enumerate(ps):
+        if j == 1:
+            xyz["x"].append(i)
+        if j == 2:
+            xyz["y"].append(i)
+        if j == 3:
+            xyz["z"].append(i)
+    return xyz
+
+
+def xyz2ps(xyz: Dict[str, List[int]], n: Optional[int] = None) -> List[int]:
+    """
+    xyz dict to pauli string list
+
+    :param xyz: _description_
+    :type xyz: Dict[str, List[int]]
+    :param n: _description_, defaults to None
+    :type n: Optional[int], optional
+    :return: _description_
+    :rtype: List[int]
+    """
+    if n is None:
+        n = max(xyz.get("x", []) + xyz.get("y", []) + xyz.get("z", [])) + 1
+    ps = [0 for _ in range(n)]
+    for i in range(n):
+        if i in xyz.get("x", []):
+            ps[i] = 1
+        elif i in xyz.get("y", []):
+            ps[i] = 2
+        elif i in xyz.get("z", []):
+            ps[i] = 3
+    return ps
+
+
 def generate_local_hamiltonian(
     *hlist: Sequence[Tensor], matrix_form: bool = True
 ) -> Union[QuOperator, Tensor]:
