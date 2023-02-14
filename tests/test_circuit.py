@@ -1203,14 +1203,18 @@ def test_qiskit_vs_tc_intialization(backend):
     state = qi.Statevector(qis_c)
     qis_c = QuantumCircuit(n)
     qis_c.initialize(state)
+    qis_c.cnot(1, 2)
     c = tc.Circuit.from_qiskit(qis_c)
     c2 = tc.Circuit(n)
     c2.h(0)
     c2.cnot(0, 1)
     c2.y(2)
+    c2.cnot(1, 2)
     np.testing.assert_allclose(c.state(), c2.state(), atol=1e-8)
     np.testing.assert_allclose(
-        qi.Statevector(c.to_qiskit(enable_inputs=True)), state, atol=1e-8
+        qi.Statevector(c.to_qiskit(enable_inputs=True)),
+        qi.Statevector(qis_c),
+        atol=1e-8,
     )
 
 
