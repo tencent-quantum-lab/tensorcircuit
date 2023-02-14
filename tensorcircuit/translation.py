@@ -197,7 +197,10 @@ def qir2cirq(
 
 
 def qir2qiskit(
-    qir: List[Dict[str, Any]], n: int, extra_qir: Optional[List[Dict[str, Any]]] = None
+    qir: List[Dict[str, Any]],
+    n: int,
+    extra_qir: Optional[List[Dict[str, Any]]] = None,
+    initialization: Optional[Tensor] = None,
 ) -> Any:
     r"""
     Generate a qiskit quantum circuit using the quantum intermediate
@@ -220,6 +223,8 @@ def qir2qiskit(
     :param extra_qir: The extra quantum IR of tc circuit including measure and reset on hardware,
         defaults to None
     :type extra_qir: Optional[List[Dict[str, Any]]]
+    :param initialization: Circuit initial state in qiskit format
+    :type initialization: Optional[Tensor]
     :return: qiskit QuantumCircuit object
     :rtype: Any
     """
@@ -228,6 +233,8 @@ def qir2qiskit(
         qiskit_circ = QuantumCircuit(n, n)
     else:
         qiskit_circ = QuantumCircuit(n)
+    if initialization is not None:
+        qiskit_circ.initialize(initialization)
     for gate_info in qir:
         index = gate_info["index"]
         gate_name = str(gate_info["gatef"])
@@ -439,6 +446,8 @@ def qiskit2tc(
         circuit_params = {}
     if "nqubits" not in circuit_params:
         circuit_params["nqubits"] = n
+    if qcdata[0][0].name == "initialize" and "inputs" not in circuit_params:
+        circuit_params["inputs"] = perm_matrix(n) @ np.array(qcdata[0][0].params)
     if inputs is not None:
         circuit_params["inputs"] = inputs
 
@@ -531,6 +540,9 @@ def qiskit2tc(
             # )
         elif gate_name == "barrier":
             tc_circuit.barrier_instruction(*idx)
+        elif gate_name == "initialize":
+            # already taken care of when initializing
+            continue
         elif not hasattr(gate_info[0], "__array__"):
             # an instruction containing a lot of gates.
             # the condition is based on
