@@ -4,8 +4,6 @@ Some common noise quantum channels.
 
 import sys
 from typing import Any, Sequence, Union, Optional, Dict
-from operator import and_
-from functools import reduce
 from functools import partial
 import numpy as np
 
@@ -107,7 +105,27 @@ def generaldepolarizingchannel(
     p: Union[float, Sequence[Any]], num_qubits: int = 1
 ) -> Sequence[Gate]:
     r"""
-    Return a Depolarizing Channel for 1 qubit or 2 qubits
+    Return a Depolarizing Channel for 1 qubit or 2 qubits.
+    If :math:`p` is a float number, the one qubit channel is
+
+    .. math::
+
+        \mathcal{E}(\rho) = (1 - 3p)\rho + p(X\rho X + Y\rho Y + Z\rho Z)
+
+    Or alternatively
+
+    .. math::
+
+        \mathcal{E}(\rho) = \frac{4p}{3} \frac{I}{2} \rho + (1 - \frac{4p}{3}) \rho
+
+    And if :math:`p` is a list, the one qubit channel is
+
+    .. math::
+
+        \mathcal{E}(\rho) = (1 - \sum_i p_i) \rho + p_1 X\rho X + p_2 Y\rho Y + p_3 \rho Z
+
+    The logic for two-qubit channel follows similarly.
+    Higher qubit channels are not implemented.
 
     :Example:
 
@@ -127,49 +145,28 @@ def generaldepolarizingchannel(
 
     if num_qubits == 1:
         if isinstance(p, float):
-            assert p > 0 and p < 1 / 3, "p should be >0 and <1/3"
             probs = [1 - 3 * p] + 3 * [p]
-
         elif isinstance(p, list):
-            assert reduce(
-                and_, [pi > 0 and pi < 1 for pi in p]
-            ), "p should be >0 and <1"
             probs = [1 - sum(p)] + p  # type: ignore
-
-        elif isinstance(p, tuple):
-            p = list[p]  # type: ignore
-            assert reduce(
-                and_, [pi > 0 and pi < 1 for pi in p]
-            ), "p should be >0 and <1"
-            probs = [1 - sum(p)] + p  # type: ignore
-
         else:
             raise ValueError("p should be float or list")
-
     elif num_qubits == 2:
         if isinstance(p, float):
-            assert p > 0 and p < 1, "p should be >0 and <1/15"
             probs = [1 - 15 * p] + 15 * [p]
-
         elif isinstance(p, list):
-            assert reduce(
-                and_, [pi > 0 and pi < 1 for pi in p]
-            ), "p should be >0 and <1"
             probs = [1 - sum(p)] + p  # type: ignore
-
-        elif isinstance(p, tuple):
-            p = list[p]  # type: ignore
-            assert reduce(
-                and_, [pi > 0 and pi < 1 for pi in p]
-            ), "p should be >0 and <1"
-            probs = [1 - sum(p)] + p  # type: ignore
-
         else:
             raise ValueError("p should be float or list")
+    else:
+        raise ValueError(f"num_qubits should be 1 or 2. Got {num_qubits}")
+
+    if not np.all(np.array(probs) >= 0):
+        raise ValueError(f"Invalid probability input {p}")
 
     if num_qubits == 1:
         tup = [gates.i().tensor, gates.x().tensor, gates.y().tensor, gates.z().tensor]  # type: ignore
-    if num_qubits == 2:
+    else:
+        assert num_qubits == 2
         tup = [
             gates.ii().tensor,  # type: ignore
             gates.ix().tensor,  # type: ignore
