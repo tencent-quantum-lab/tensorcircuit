@@ -500,10 +500,10 @@ class ReadoutMit:
         # methods for small system, "global" calibration only fit for those methods.
         if method in ["inverse", "pseudo_inverse"]:
             mitcounts = self.apply_readout_mitigation(counts, method="inverse")
-            return mitcounts
+            return sort_count(mitcounts)
         elif method in ["square", "constrained_least_square"]:
             mitcounts = self.apply_readout_mitigation(counts, method="square")
-            return mitcounts
+            return sort_count(mitcounts)
         if mthree_installed is False:
             warnings.warn(
                 " To use [scalable-] related methods, please pip install mthree !"
