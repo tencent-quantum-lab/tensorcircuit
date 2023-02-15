@@ -1413,6 +1413,7 @@ def test_circuit_to_json(backend):
 
 def test_gate_count():
     c = tc.Circuit(3)
+    c.x(0)
     c.h(0)
     c.rx(1, theta=-0.2)
     c.h(2)
@@ -1420,12 +1421,14 @@ def test_gate_count():
     c.toffoli(0, 2, 1)
     c.ccnot(1, 2, 0)
     c.ccx(1, 2, 0)
-    assert c.gate_count() == 7
+    assert c.gate_count() == 8
     assert c.gate_count(["h"]) == 2
     assert c.gate_count(["ccnot"]) == 3
     assert c.gate_count(["rx", "multicontrol"]) == 2
+    assert c.gate_count_by_condition(lambda qir: qir["index"] == (0,)) == 2
+    assert c.gate_count_by_condition(lambda qir: qir["mpo"]) == 1
     print(c.gate_summary())
-    # {'h': 2, 'rx': 1, 'multicontrol': 1, 'toffoli': 3}
+    # {'x': 1, 'h': 2, 'rx': 1, 'multicontrol': 1, 'toffoli': 3}
 
 
 def test_to_openqasm():

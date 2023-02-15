@@ -556,9 +556,37 @@ class AbstractCircuit:
             gate_list = [self.standardize_gate(g) for g in gate_list]
             c = 0
             for d in self._qir:
-                if d["name"] in gate_list:
+                if d["gatef"].n in gate_list:
                     c += 1
             return c
+
+    def gate_count_by_condition(
+        self, cond_func: Callable[[Dict[str, Any]], bool]
+    ) -> int:
+        """
+        count the number of gates that satisfy certain condition
+
+        :Example:
+
+        >>> c = tc.Circuit(3)
+        >>> c.x(0)
+        >>> c.h(0)
+        >>> c.multicontrol(0, 1, 2, ctrl=[0, 1], unitary=tc.gates._x_matrix)
+        >>> c.gate_count_by_condition(lambda qir: qir["index"] == (0, ))
+        2
+        >>> c.gate_count_by_condition(lambda qir: qir["mpo"])
+        1
+
+        :param cond_func: the condition for counting the gate
+        :type cond_func: Callable[[Dict[str, Any]], bool]
+        :return: the total number of all gates which satisfy the ``condition``
+        :rtype: int
+        """
+        count = 0
+        for d in self._qir:
+            if cond_func(d):
+                count += 1
+        return count
 
     def gate_summary(self) -> Dict[str, int]:
         """
