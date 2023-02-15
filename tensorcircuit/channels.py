@@ -102,7 +102,7 @@ def depolarizingchannel(px: float, py: float, pz: float) -> Sequence[Gate]:
 
 
 def generaldepolarizingchannel(
-    p: Union[float, Sequence[Any]], num_qubits: int = 1
+    p: Union[float, Sequence[float]], num_qubits: int = 1
 ) -> Sequence[Gate]:
     r"""
     Return a Depolarizing Channel for 1 qubit or 2 qubits.
@@ -116,9 +116,9 @@ def generaldepolarizingchannel(
 
     .. math::
 
-        \mathcal{E}(\rho) = \frac{4p}{3} \frac{I}{2} \rho + (1 - \frac{4p}{3}) \rho
+        \mathcal{E}(\rho) = 4p \frac{I}{2} + (1 - 4p) \rho
 
-    And if :math:`p` is a list, the one qubit channel is
+    And if :math:`p` is a sequence, the one qubit channel is
 
     .. math::
 
@@ -146,14 +146,14 @@ def generaldepolarizingchannel(
     if num_qubits == 1:
         if isinstance(p, float):
             probs = [1 - 3 * p] + 3 * [p]
-        elif isinstance(p, list):
+        elif isinstance(p, Sequence):
             probs = [1 - sum(p)] + p  # type: ignore
         else:
             raise ValueError("p should be float or list")
     elif num_qubits == 2:
         if isinstance(p, float):
             probs = [1 - 15 * p] + 15 * [p]
-        elif isinstance(p, list):
+        elif isinstance(p, Sequence):
             probs = [1 - sum(p)] + p  # type: ignore
         else:
             raise ValueError("p should be float or list")
