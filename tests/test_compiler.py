@@ -70,3 +70,30 @@ def test_qsikit_compiler():
     )
     assert info2["positional_logical_mapping"] == {0: 1}
     print(c2.draw())
+
+
+def test_composed_compiler():
+    from tensorcircuit.compiler import default_compiler
+
+    c = tc.Circuit(3)
+    c.rx(0)
+    c.cx(0, 1)
+    c.cz(1, 0)
+    c.rxx(0, 2, theta=0.2)
+    c.measure_instruction(2)
+    c.measure_instruction(0)
+    c1, info = default_compiler(c)
+    print(c1.draw())
+    assert c1.gate_count_by_condition(lambda qir: qir["name"] == "cnot") == 4
+    assert info["positional_logical_mapping"][0] == 2
+
+    default_compiler.add_options(
+        {
+            "basis_gates": ["h", "rz", "cz"],
+            "optimization_level": 2,
+            "coupling_map": [[0, 1], [1, 2]],
+        }
+    )
+    c1, info = default_compiler(c)
+    assert c1.gate_count_by_condition(lambda qir: qir["name"] == "cnot") == 0
+    print(info)
