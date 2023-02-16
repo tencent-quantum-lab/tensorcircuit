@@ -101,11 +101,47 @@ def depolarizingchannel(px: float, py: float, pz: float) -> Sequence[Gate]:
     return KrausList([i, x, y, z], name="depolarizing", is_unitary=True)
 
 
+def isotropicdepolarizingchannel(p: float, num_qubits: int = 1) -> Sequence[Gate]:
+    r"""
+    Return an isotropic depolarizing channel.
+
+    .. math::
+
+        \mathcal{E}(\rho) = (1 - p)\rho + p/(4^n-1)\sum_j P_j \rho P_j
+
+    where $n$ is the number of qubits and $P_j$ are $n$-qubit Pauli strings except $I$.
+    Or alternatively
+
+    .. math::
+
+        \mathcal{E}(\rho) = \frac{4^n}{4^n-1}p \frac{I}{2} + (1 - \frac{4^n}{4^n-1}p) \rho
+
+    .. note::
+
+        The definition of ``p`` in this method is different from :func:`generaldepolarizingchannel`.
+
+    :Example:
+
+    >>> cs = tc.channels.isotropicdepolarizingchannel(0.30,2)
+    >>> tc.channels.kraus_identity_check(cs)
+
+
+    :param p: error probability
+    :type p: float
+    :param num_qubits: number of qubits, defaults 1
+    :type num_qubits: int, optional
+    :return: Sequences of Gates
+    :rtype: Sequence[Gate]
+    """
+    real_p = p / (4**num_qubits - 1)
+    return generaldepolarizingchannel(real_p, num_qubits)
+
+
 def generaldepolarizingchannel(
     p: Union[float, Sequence[float]], num_qubits: int = 1
 ) -> Sequence[Gate]:
     r"""
-    Return a Depolarizing Channel for 1 qubit or 2 qubits.
+    Return a depolarizing channel.
     If :math:`p` is a float number, the one qubit channel is
 
     .. math::
@@ -118,14 +154,18 @@ def generaldepolarizingchannel(
 
         \mathcal{E}(\rho) = 4p \frac{I}{2} + (1 - 4p) \rho
 
+    .. note::
+
+        The definition of ``p`` in this method is different from :func:`isotropicdepolarizingchannel`.
+
+
     And if :math:`p` is a sequence, the one qubit channel is
 
     .. math::
 
         \mathcal{E}(\rho) = (1 - \sum_i p_i) \rho + p_1 X\rho X + p_2 Y\rho Y + p_3 \rho Z
 
-    The logic for two-qubit channel follows similarly.
-    Higher qubit channels are not implemented.
+    The logic for two-qubit or more-qubit channel follows similarly.
 
     :Example:
 
@@ -137,54 +177,35 @@ def generaldepolarizingchannel(
 
     :param p: parameter for each Pauli channel
     :type p: Union[float, Sequence]
-    :param num_qubits: number of qubits, 1 and 2 are avaliable, defaults 1
+    :param num_qubits: number of qubits, defaults 1
     :type num_qubits: int, optional
     :return: Sequences of Gates
     :rtype: Sequence[Gate]
     """
-
-    if num_qubits == 1:
-        if isinstance(p, float):
-            probs = [1 - 3 * p] + 3 * [p]
-        elif isinstance(p, Sequence):
-            probs = [1 - sum(p)] + p  # type: ignore
-        else:
-            raise ValueError("p should be float or list")
-    elif num_qubits == 2:
-        if isinstance(p, float):
-            probs = [1 - 15 * p] + 15 * [p]
-        elif isinstance(p, Sequence):
-            probs = [1 - sum(p)] + p  # type: ignore
-        else:
-            raise ValueError("p should be float or list")
+    m = 4**num_qubits - 1
+    if isinstance(p, float):
+        probs = [1 - m * p] + m * [p]
+    elif isinstance(p, Sequence):
+        if not len(p) == m:
+            raise ValueError(f"Invalid probability input {p}")
+        probs = [1 - sum(p)] + list(p)
     else:
-        raise ValueError(f"num_qubits should be 1 or 2. Got {num_qubits}")
+        raise ValueError("p should be float or list")
 
     if not np.all(np.array(probs) >= 0):
         raise ValueError(f"Invalid probability input {p}")
 
-    if num_qubits == 1:
-        tup = [gates.i().tensor, gates.x().tensor, gates.y().tensor, gates.z().tensor]  # type: ignore
-    else:
-        assert num_qubits == 2
-        tup = [
-            gates.ii().tensor,  # type: ignore
-            gates.ix().tensor,  # type: ignore
-            gates.iy().tensor,  # type: ignore
-            gates.iz().tensor,  # type: ignore
-            gates.xi().tensor,  # type: ignore
-            gates.xx().tensor,  # type: ignore
-            gates.xy().tensor,  # type: ignore
-            gates.xz().tensor,  # type: ignore
-            gates.yi().tensor,  # type: ignore
-            gates.yx().tensor,  # type: ignore
-            gates.yy().tensor,  # type: ignore
-            gates.yz().tensor,  # type: ignore
-            gates.zi().tensor,  # type: ignore
-            gates.zx().tensor,  # type: ignore
-            gates.zy().tensor,  # type: ignore
-            gates.zz().tensor,  # type: ignore
-        ]
+    paulis = [gates.i().tensor, gates.x().tensor, gates.y().tensor, gates.z().tensor]  # type: ignore
+    tup = paulis
+    for _ in range(num_qubits - 1):
+        old_tup = tup
+        tup = []
+        for pauli in paulis:
+            for term in old_tup:
+                mat = np.kron(pauli, term).reshape([2, 2] * num_qubits)
+                tup.append(mat)
+
+    assert len(tup) == len(probs)
 
     Gkarus = []
     for pro, paugate in zip(probs, tup):

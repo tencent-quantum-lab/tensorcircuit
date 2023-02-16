@@ -42,6 +42,10 @@ def test_dep(backend):
     cs = tc.channels.generaldepolarizingchannel(0.02, 2)
     tc.channels.kraus_identity_check(cs)
 
+    cs2 = tc.channels.isotropicdepolarizingchannel(0.02 * 15, 2)
+    for c1, c2 in zip(cs, cs2):
+        np.testing.assert_allclose(c1.tensor, c2.tensor)
+
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_rep_transformation(backend):
