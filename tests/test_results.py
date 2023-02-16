@@ -29,6 +29,12 @@ def test_expectation():
     assert counts.expectation(d, None, [[1, -1], [1, 0], [1, 1]]) == -5 / 9
 
 
+def test_plot_histogram():
+    d = {"00": 10, "01": 2, "11": 8}
+    d1 = {"00": 11, "11": 9}
+    print(counts.plot_histogram([d, d1]))
+
+
 def test_readout():
     nqubit = 4
     shots = 4096

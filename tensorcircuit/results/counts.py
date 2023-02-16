@@ -104,16 +104,16 @@ def expectation(
     return r / shots
 
 
-# def correlation(
-#     count: ct, zlist: Sequence[int], values: Tuple[int, int] = (1, -1)
-# ) -> float:
-#     map_dict = {"0": values[0], "1": values[1]}
-#     r = 0
-#     shots = 0
-#     for k, v in count.items():
-#         ct = 1.0
-#         for i in zlist:
-#             ct *= map_dict[k[i]]
-#         r += ct * v  # type: ignore
-#         shots += v
-#     return r / shots
+def plot_histogram(data: Any, **kws: Any) -> Any:
+    """
+    See ``qiskit.visualization.plot_histogram``:
+    https://qiskit.org/documentation/stubs/qiskit.visualization.plot_histogram.html
+
+    :param data: _description_
+    :type data: Any
+    :return: _description_
+    :rtype: Any
+    """
+    from qiskit.visualization import plot_histogram
+
+    return plot_histogram(data)
