@@ -117,9 +117,11 @@ def apply_qir_with_noise(
         d["name"] = AbstractCircuit.standardize_gate(d["name"])
 
         if "parameters" not in d:  # paramized gate
-            c.apply_general_gate_delayed(d["gatef"], d["name"])(c, *d["index"])
+            c.apply_general_gate_delayed(d["gatef"], d["name"], d["mpo"])(
+                c, *d["index"]
+            )
         else:
-            c.apply_general_variable_gate_delayed(d["gatef"], d["name"])(
+            c.apply_general_variable_gate_delayed(d["gatef"], d["name"], d["mpo"])(
                 c, *d["index"], **d["parameters"]
             )
 
