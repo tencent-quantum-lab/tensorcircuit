@@ -65,7 +65,7 @@ def list_properties(device: Device, token: Optional[str] = None) -> Dict[str, An
             for bit in r["bits"]:
                 bits_dict[bit["Qubit"]] = bit
             r["bits"] = bits_dict
-        r["native_gates"] = ["h", "rz", "x", "y", "z", "cx", "cz"]  # handcoded
+        r["native_gates"] = ["h", "rz", "x", "y", "z", "cz"]  # handcoded
         return r  # type: ignore
     else:
         raise ValueError("No device with the name: %s" % device)
