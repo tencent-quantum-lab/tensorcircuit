@@ -128,7 +128,7 @@ def isotropicdepolarizingchannel(p: float, num_qubits: int = 1) -> Sequence[Gate
 
     :param p: error probability
     :type p: float
-    :param num_qubits: number of qubits, 1 and 2 are avaliable, defaults 1
+    :param num_qubits: number of qubits, defaults 1
     :type num_qubits: int, optional
     :return: Sequences of Gates
     :rtype: Sequence[Gate]
@@ -177,7 +177,7 @@ def generaldepolarizingchannel(
 
     :param p: parameter for each Pauli channel
     :type p: Union[float, Sequence]
-    :param num_qubits: number of qubits, 1 and 2 are avaliable, defaults 1
+    :param num_qubits: number of qubits, defaults 1
     :type num_qubits: int, optional
     :return: Sequences of Gates
     :rtype: Sequence[Gate]
