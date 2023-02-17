@@ -301,6 +301,8 @@ def list_properties(
         token = device.get_token()  # type: ignore
     if provider.name == "tencent":  # type: ignore
         return tencent.list_properties(device, token)
+    elif provider.name == "local":
+        raise ValueError("Unsupported method for local backend")
     else:
         raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
 
@@ -437,6 +439,8 @@ def resubmit_task(
 
     if provider.name == "tencent":  # type: ignore
         return tencent.resubmit_task(task, token)  # type: ignore
+    elif provider.name == "local":
+        raise ValueError("Unsupported method for local backend")
     else:
         raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
 
@@ -454,6 +458,8 @@ def remove_task(
 
     if provider.name == "tencent":  # type: ignore
         return tencent.remove_task(task, token)  # type: ignore
+    elif provider.name == "local":
+        raise ValueError("Unsupported method for local backend")
     else:
         raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
 
