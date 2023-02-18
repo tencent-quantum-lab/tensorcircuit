@@ -38,7 +38,7 @@ TSU_vmap = tc.backend.jit(
 )
 
 ninput = 2
-input_state = np.zeros((ninput, 2 ** nqubit))
+input_state = np.zeros((ninput, 2**nqubit))
 input_state[0, 0] = 1.0
 input_state[1, -1] = 1.0
 
