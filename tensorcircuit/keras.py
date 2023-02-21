@@ -20,7 +20,7 @@ class QuantumLayer(Layer):  # type: ignore
     def __init__(
         self,
         f: Callable[..., Any],
-        weights_shape: Sequence[Tuple[int, ...]],
+        weights_shape: Optional[Sequence[Tuple[int, ...]]] = None,
         initializer: Union[Text, Sequence[Text]] = "glorot_uniform",
         constraint: Optional[Union[Text, Sequence[Text]]] = None,
         regularizer: Optional[Union[Text, Sequence[Text]]] = None,
@@ -44,9 +44,12 @@ class QuantumLayer(Layer):  # type: ignore
         """
 
         super().__init__(**kwargs)
-        if isinstance(weights_shape[0], int):
+        if weights_shape is not None and isinstance(weights_shape[0], int):
             weights_shape = [weights_shape]
-        self.number_weights = len(weights_shape)
+        if weights_shape is not None:
+            self.number_weights = len(weights_shape)
+        else:
+            self.number_weights = 0
         self.f = f
         self.weights_shape = weights_shape
         if not (isinstance(initializer, list) or isinstance(initializer, tuple)):
@@ -73,20 +76,26 @@ class QuantumLayer(Layer):  # type: ignore
             input_shape = [1, 1]
         super().build(input_shape)
         self.pqc_weights = []
-        for i, (shape, init, cst, reg) in enumerate(
-            zip(self.weights_shape, self.initializer, self.constraint, self.regularizer)
-        ):
-            self.pqc_weights.append(
-                self.add_weight(
-                    name="PQCweights%s" % i,
-                    shape=shape,
-                    dtype=getattr(np, rdtypestr),
-                    trainable=True,
-                    initializer=init,
-                    constraint=cst,
-                    regularizer=reg,
+        if self.weights_shape is not None:
+            for i, (shape, init, cst, reg) in enumerate(
+                zip(
+                    self.weights_shape,
+                    self.initializer,
+                    self.constraint,
+                    self.regularizer,
                 )
-            )
+            ):
+                self.pqc_weights.append(
+                    self.add_weight(
+                        name="PQCweights%s" % i,
+                        shape=shape,
+                        dtype=getattr(np, rdtypestr),
+                        trainable=True,
+                        initializer=init,
+                        constraint=cst,
+                        regularizer=reg,
+                    )
+                )
 
     @tf.function  # type: ignore
     def call(
