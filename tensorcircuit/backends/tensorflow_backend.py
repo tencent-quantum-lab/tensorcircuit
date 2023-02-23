@@ -5,6 +5,7 @@ Backend magic inherited from tensornetwork: tensorflow backend
 
 from functools import reduce, partial
 from operator import mul
+from copy import deepcopy
 from typing import Any, Callable, Optional, Sequence, Tuple, Union
 
 from scipy.sparse import coo_matrix
@@ -24,6 +25,7 @@ class keras_optimizer:
     def __init__(self, optimizer: Any) -> None:
         self.optimizer = optimizer
         self.is_variable = True
+        self.is_initialized = False
 
     def _c2v(self, v: Tensor) -> Tensor:
         if not isinstance(v, tf.Variable):
@@ -31,13 +33,22 @@ class keras_optimizer:
             self.is_variable = False
         return v
 
-    def _apply_gradients(self, grads: Tensor, params: Tensor) -> None:
-        self.optimizer.apply_gradients([(grads, params)])
+    def _apply_gradients(self, opt: Any, grads: Tensor, params: Tensor) -> None:
+        opt.apply_gradients([(grads, params)])
 
     def update(self, grads: pytree, params: pytree) -> pytree:
+        if not self.is_initialized:
+            l, treedef = TensorFlowBackend.tree_flatten(None, params)
+            # https://github.com/tensorflow/tensorflow/issues/58973
+            # still breaks tf2.11
+            ol = [deepcopy(self.optimizer) for _ in l]
+            self.optimizer = TensorFlowBackend.tree_unflatten(None, treedef, ol)
+            self.is_initialized = True
         params = TensorFlowBackend.tree_map(None, self._c2v, params)
         # don't do the () initialization since cache is in upper level of backend_factory
-        TensorFlowBackend.tree_map(None, self._apply_gradients, grads, params)
+        TensorFlowBackend.tree_map(
+            None, self._apply_gradients, self.optimizer, grads, params
+        )
         if not self.is_variable:
             return TensorFlowBackend.tree_map(None, tf.convert_to_tensor, params)
         return params
