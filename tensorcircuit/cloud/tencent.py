@@ -278,20 +278,22 @@ def submit_task(
         tencent_base_url + "task/submit", json=json, headers=tencent_headers(token)
     )
     r = error_handling(r)
-    try:
-        rtn = []
-        for t in r["tasks"]:
+    rtn = []
+    for t in r["tasks"]:
+        if "err" in t or "id" not in t:
             if "err" in t:
                 logger.warning(t["err"])
             else:
-                ti = Task(id_=t["id"], device=device)
-                rtn.append(ti)
-        if len(rtn) == 1:
-            return rtn[0]  # type: ignore
+                logger.warning("unsuccessful submission of the task:\n" + dumps(r))
         else:
-            return rtn
-    except KeyError:
-        raise ValueError(dumps(r))
+            ti = Task(id_=t["id"], device=device)
+            rtn.append(ti)
+    if len(rtn) == 1:
+        return rtn[0]  # type: ignore
+    elif len(rtn) == 0:
+        raise ValueError("All tasks submitted failed")
+    else:
+        return rtn
 
 
 def resubmit_task(task: Task, token: str) -> Task:
