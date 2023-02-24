@@ -15,7 +15,7 @@ local_devices = ["testing"]
 task_list: Dict[str, Any] = {}  # memory only task cache
 
 
-def list_devices(token: Optional[str] = None) -> List[Device]:
+def list_devices(token: Optional[str] = None, **kws: Any) -> List[Device]:
     rs = []
     for d in local_devices:
         rs.append(Device.from_name("local" + sep + d))

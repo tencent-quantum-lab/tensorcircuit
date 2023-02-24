@@ -34,8 +34,8 @@ def error_handling(r: Dict[str, Any]) -> Dict[str, Any]:
     return r
 
 
-def list_devices(token: Optional[str] = None) -> List[Device]:
-    json: Dict[Any, Any] = {}
+def list_devices(token: Optional[str] = None, **kws: Any) -> List[Device]:
+    json: Dict[Any, Any] = kws
     r = rpost_json(
         tencent_base_url + "device/find", json=json, headers=tencent_headers(token)
     )

@@ -246,7 +246,9 @@ def get_token(
 
 
 def list_devices(
-    provider: Optional[Union[str, Provider]] = None, token: Optional[str] = None
+    provider: Optional[Union[str, Provider]] = None,
+    token: Optional[str] = None,
+    **kws: Any,
 ) -> List[Device]:
     """
     List all devices under a provider
@@ -264,9 +266,9 @@ def list_devices(
     if token is None:
         token = provider.get_token()
     if provider.name == "tencent":
-        return tencent.list_devices(token)
+        return tencent.list_devices(token, **kws)
     elif provider.name == "local":
-        return local.list_devices(token)
+        return local.list_devices(token, **kws)
     else:
         raise ValueError("Unsupported provider: %s" % provider.name)
 
