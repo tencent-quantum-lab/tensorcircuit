@@ -66,22 +66,26 @@ def test_noisemodel(backend):
 
     # with readout_error
     value = sample_expectation_ps_noisfy(dmc, x=[0, 1], noise_conf=noise_conf)
-    np.testing.assert_allclose(value, -0.11, atol=1e-1)
+    np.testing.assert_allclose(value, -0.12, atol=1e-2)
 
     value = sample_expectation_ps_noisfy(c, x=[0, 1], noise_conf=noise_conf, nmc=100000)
-    np.testing.assert_allclose(value, -0.11, atol=1e-1)
+    np.testing.assert_allclose(value, -0.12, atol=1e-2)
 
-    # test composed channel
+    # test composed channel and general condition
     newerror = composedkraus(error1, error3)
     noise_conf1 = NoiseConf()
     noise_conf1.add_noise("rx", [newerror, error1], [[0], [1]])
     noise_conf1.add_noise("h", [error3, error1], [[0], [1]])
     noise_conf1.add_noise("x", [error3], [[0]])
-    noise_conf1.add_noise("cnot", [error2], [[0, 1]])
+
+    def condition(d):
+        return d["name"] == "cnot" and d["index"] == (0, 1)
+
+    noise_conf1.add_noise_by_condition(condition, error2)
     noise_conf1.add_noise("readout", readout_error)
 
-    # value = expectation_ps_noisfy(c, x=[0, 1], noise_conf=noise_conf1, nmc=10000)
-    # np.testing.assert_allclose(value, 0.09, atol=1e-1)
+    value = sample_expectation_ps_noisfy(dmc, x=[0, 1], noise_conf=noise_conf1)
+    np.testing.assert_allclose(value, -0.12, atol=1e-2)
 
     # test standardized gate
     newerror = composedkraus(error1, error3)
@@ -92,8 +96,10 @@ def test_noisemodel(backend):
     noise_conf2.add_noise("cx", [error2], [[0, 1]])
     noise_conf2.add_noise("readout", readout_error)
 
-    # value = expectation_ps_noisfy(c, x=[0, 1], noise_conf=noise_conf2, nmc=10000)
-    # np.testing.assert_allclose(value, 0.09, atol=1e-1)
+    value = sample_expectation_ps_noisfy(
+        c, x=[0, 1], noise_conf=noise_conf2, nmc=100000
+    )
+    np.testing.assert_allclose(value, -0.12, atol=1e-2)
 
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
@@ -128,24 +134,23 @@ def test_general_noisemodel(backend):
     noise_conf.add_noise("cnot", [error2], [[0, 1]])
     noise_conf.add_noise("readout", readout_error)
 
+    nmc = 100000
     # # test sample_expectation_ps
-    value1 = sample_expectation_ps_noisfy(c, x=[0, 1], noise_conf=noise_conf, nmc=10000)
-    value2 = c.sample_expectation_ps(x=[0, 1], noise_conf=noise_conf, nmc=10000)
+    value1 = sample_expectation_ps_noisfy(c, x=[0, 1], noise_conf=noise_conf, nmc=nmc)
+    value2 = c.sample_expectation_ps(x=[0, 1], noise_conf=noise_conf, nmc=nmc)
     value3 = dmc.sample_expectation_ps(x=[0, 1], noise_conf=noise_conf)
-    np.testing.assert_allclose(value1, value2, atol=1e-1)
-    np.testing.assert_allclose(value3, value2, atol=1e-1)
+    np.testing.assert_allclose(value1, value2, atol=1e-2)
+    np.testing.assert_allclose(value3, value2, atol=1e-2)
 
     # test expectation
-    value1 = expectation_noisfy(
-        c, (tc.gates.z(), [0]), noise_conf=noise_conf, nmc=10000
-    )
-    value2 = c.expectation((tc.gates.z(), [0]), noise_conf=noise_conf, nmc=10000)
+    value1 = expectation_noisfy(c, (tc.gates.z(), [0]), noise_conf=noise_conf, nmc=nmc)
+    value2 = c.expectation((tc.gates.z(), [0]), noise_conf=noise_conf, nmc=nmc)
     value3 = dmc.expectation((tc.gates.z(), [0]), noise_conf=noise_conf)
-    np.testing.assert_allclose(value1, value2, atol=1e-1)
-    np.testing.assert_allclose(value3, value2, atol=1e-1)
+    np.testing.assert_allclose(value1, value2, atol=1e-2)
+    np.testing.assert_allclose(value3, value2, atol=1e-2)
 
     # test expectation_ps
     # value = expectation_ps_noisfy(c, x=[0], noise_conf=noise_conf, nmc=10000)
-    value1 = c.expectation_ps(x=[0], noise_conf=noise_conf, nmc=10000)
+    value1 = c.expectation_ps(x=[0], noise_conf=noise_conf, nmc=nmc)
     value2 = dmc.expectation_ps(x=[0], noise_conf=noise_conf)
-    np.testing.assert_allclose(value1, value2, atol=1e-1)
+    np.testing.assert_allclose(value1, value2, atol=1e-2)

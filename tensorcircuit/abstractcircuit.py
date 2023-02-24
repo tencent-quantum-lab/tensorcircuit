@@ -530,7 +530,7 @@ class AbstractCircuit:
             )
         return name
 
-    def gate_count(self, gate_list: Optional[Sequence[str]] = None) -> int:
+    def gate_count(self, gate_list: Optional[Union[str, Sequence[str]]] = None) -> int:
         """
         count the gate number of the circuit
 
@@ -545,7 +545,7 @@ class AbstractCircuit:
         >>> c.gate_count(["multicontrol", "toffoli"])
         2
 
-        :param gate_list: gate name list to be counted, defaults to None (counting all gates)
+        :param gate_list: gate name or gate name list to be counted, defaults to None (counting all gates)
         :type gate_list: Optional[Sequence[str]], optional
         :return: the total number of all gates or gates in the ``gate_list``
         :rtype: int
@@ -553,6 +553,8 @@ class AbstractCircuit:
         if gate_list is None:
             return len(self._qir)
         else:
+            if isinstance(gate_list, str):
+                gate_list = [gate_list]
             gate_list = [self.standardize_gate(g) for g in gate_list]
             c = 0
             for d in self._qir:
