@@ -2,7 +2,8 @@
 General Noise Model Construction.
 """
 import logging
-from typing import Any, Sequence, Optional, List, Dict, Tuple
+from functools import partial
+from typing import Any, Sequence, Optional, List, Dict, Tuple, Callable, Union
 
 import tensornetwork as tn
 
@@ -10,7 +11,7 @@ from .abstractcircuit import AbstractCircuit
 from . import gates
 from . import Circuit, DMCircuit
 from .cons import backend
-from .channels import KrausList, composedkraus
+from .channels import KrausList
 
 Gate = gates.Gate
 Tensor = Any
@@ -37,14 +38,15 @@ class NoiseConf:
         """
         Establish a noise configuration.
         """
-        self.nc = {}  # type: ignore
+        # description, condition and Kraus operators
+        self.nc: List[Tuple[Any, Callable[[Dict[str, Any]], bool], KrausList]] = []
         self.has_quantum = False
-        self.has_readout = False
+        self.readout_error = None
 
     def add_noise(
         self,
         gate_name: str,
-        kraus: Sequence[KrausList],
+        kraus: Union[KrausList, Sequence[KrausList]],
         qubit: Optional[Sequence[Any]] = None,
     ) -> None:
         """
@@ -57,40 +59,79 @@ class NoiseConf:
         :param qubit: the list of noisy qubit, defaults to None, indicating applying the noise channel on all qubits
         :type qubit: Optional[Sequence[Any]], optional
         """
-        if gate_name != "readout":
-            gate_name = AbstractCircuit.standardize_gate(gate_name)
+        if gate_name == "readout":
+            # probably need to refactor readout error
+            assert qubit is None
+            self.readout_error = kraus  # type:ignore
+            return
 
-        if gate_name not in self.nc:
-            qubit_kraus = {}
-        else:
-            qubit_kraus = self.nc[gate_name]
+        gate_name = AbstractCircuit.standardize_gate(gate_name)
+        description: Any
 
         if qubit is None:
-            if qubit_kraus:
-                for qname in qubit_kraus:
-                    qubit_kraus[qname] = composedkraus(qubit_kraus[qname], kraus)  # type: ignore
+            description = gate_name
+
+            def condition(d: Dict[str, Any]) -> bool:
+                return str(d["gatef"].n) == gate_name
+
+            if not isinstance(kraus, KrausList):
+                assert len(kraus) == 1
+                krauslist = kraus[0]
             else:
-                qubit_kraus["Default"] = kraus
+                krauslist = kraus
+            self.nc.append((description, condition, krauslist))
         else:
-            for i in range(len(qubit)):
-                if tuple(qubit[i]) in qubit_kraus:
-                    qubit_kraus[tuple(qubit[i])] = composedkraus(
-                        qubit_kraus[tuple(qubit[i])], kraus[i]
-                    )
-                else:
-                    if "Default" in qubit_kraus:
-                        qubit_kraus[tuple(qubit[i])] = composedkraus(
-                            qubit_kraus["Default"], kraus[i]
-                        )
-                    else:
-                        qubit_kraus[tuple(qubit[i])] = kraus[i]
+            for idx, krauslist in zip(qubit, kraus):
+                description = (gate_name, idx)
 
-        self.nc[gate_name] = qubit_kraus
+                # https://stackoverflow.com/questions/1107210/python-create-function-in-a-loop-capturing-the-loop-variable
+                def condition(  # type:ignore
+                    d: Dict[str, Any], _idx: Sequence[Any]
+                ) -> bool:
+                    # avoid bad black style because the long is too long
+                    b1 = d["gatef"].n == gate_name
+                    b2 = tuple(d["index"]) == tuple(_idx)
+                    return b1 and b2
 
-        if gate_name == "readout":
-            self.has_readout = True
-        else:
-            self.has_quantum = True
+                condition = partial(condition, _idx=idx)
+                self.nc.append((description, condition, krauslist))
+
+        self.has_quantum = True
+
+    def add_noise_by_condition(
+        self,
+        condition: Callable[[Dict[str, Any]], bool],
+        kraus: KrausList,
+        name: Optional[Any] = "custom",
+    ) -> None:
+        """
+        Add noise based on specified condition
+
+        :param condition: a function to decide if the noise should be added to the qir.
+        :type condition: Callable[[Dict[str, Any]], bool]
+        :param kraus: the error channel
+        :type kraus: KrausList
+        :param name: the name of the condition. A metadata that does not affect the numerics.
+        :type name: Any
+        """
+        self.nc.append((name, condition, kraus))
+
+    def channel_count(self, c: Circuit) -> int:
+        """
+        Count the total number of channels in a given circuit
+
+        :param c: the circuit to be counted
+        :type c: Circuit
+        :return: the count
+        :rtype: int
+        """
+        count = 0
+        for d in c.to_qir():
+            # pylint: disable-next=unused-variable
+            for _, condition, krauslist in self.nc:
+                if condition(d):
+                    count += 1
+        return count
 
 
 def apply_qir_with_noise(
@@ -126,38 +167,21 @@ def apply_qir_with_noise(
             )
 
         if isinstance(c, DMCircuit):
-            if d["name"] in noise_conf.nc:
-                if (
-                    "Default" in noise_conf.nc[d["name"]]
-                    or d["index"] in noise_conf.nc[d["name"]]
-                ):
-                    if "Default" in noise_conf.nc[d["name"]]:
-                        noise_kraus = noise_conf.nc[d["name"]]["Default"]
-                    if d["index"] in noise_conf.nc[d["name"]]:
-                        noise_kraus = noise_conf.nc[d["name"]][d["index"]]
-
-                    c.general_kraus(noise_kraus, *d["index"])
-
+            for _, condition, krauslist in noise_conf.nc:
+                if condition(d):
+                    c.general_kraus(krauslist, *d["index"])
         else:
-            if d["name"] in noise_conf.nc:
-                if (
-                    "Default" in noise_conf.nc[d["name"]]
-                    or d["index"] in noise_conf.nc[d["name"]]
-                ):
-                    if "Default" in noise_conf.nc[d["name"]]:
-                        noise_kraus = noise_conf.nc[d["name"]]["Default"]
-                    if d["index"] in noise_conf.nc[d["name"]]:
-                        noise_kraus = noise_conf.nc[d["name"]][d["index"]]
-
-                    if noise_kraus.is_unitary is True:
+            for _, condition, krauslist in noise_conf.nc:
+                if condition(d):
+                    if krauslist.is_unitary:
                         c.unitary_kraus(
-                            noise_kraus,
+                            krauslist,
                             *d["index"],
                             status=status[quantum_index],  #  type: ignore
                         )
                     else:
                         c.general_kraus(
-                            noise_kraus,
+                            krauslist,
                             *d["index"],
                             status=status[quantum_index],  #  type: ignore
                         )
@@ -188,50 +212,6 @@ def circuit_with_noise(
         cnew = Circuit(**c.circuit_param)
     cnew = apply_qir_with_noise(cnew, qir, noise_conf, status)
     return cnew
-
-
-# def expectation_ps_noisfy(
-#     c: Any,
-#     x: Optional[Sequence[int]] = None,
-#     y: Optional[Sequence[int]] = None,
-#     z: Optional[Sequence[int]] = None,
-#     noise_conf: Optional[NoiseConf] = None,
-#     nmc: int = 1000,
-#     status: Optional[Tensor] = None,
-# ) -> Tensor:
-
-#     if noise_conf is None:
-#         noise_conf = NoiseConf()
-
-#     num_quantum = c.gate_count(list(noise_conf.nc.keys()))
-
-#     if noise_conf.has_readout is True:
-#         logger.warning("expectation_ps_noisfy can't support readout error.")
-
-#     if noise_conf.has_quantum is True:
-
-#         # density matrix
-#         if isinstance(c, DMCircuit):
-#             cnoise = circuit_with_noise(c, noise_conf)
-#             return cnoise.expectation_ps(x=x, y=y, z=z)
-
-#         # monte carlo
-#         else:
-
-#             def mcsim(status: Optional[Tensor]) -> Tensor:
-#                 cnoise = circuit_with_noise(c, noise_conf, status)  #  type: ignore
-#                 return cnoise.expectation_ps(x=x, y=y, z=z)
-
-#             mcsim_vmap = backend.vmap(mcsim, vectorized_argnums=0)
-#             if status is None:
-#                 status = backend.implicit_randu([nmc, num_quantum])
-
-#             value = backend.mean(mcsim_vmap(status))
-
-#             return value
-
-#     else:
-#         return c.expectation_ps(x=x, y=y, z=z)
 
 
 def sample_expectation_ps_noisfy(
@@ -276,17 +256,9 @@ def sample_expectation_ps_noisfy(
     if noise_conf is None:
         noise_conf = NoiseConf()
 
-    lgate = list(noise_conf.nc.keys())
-    if "readout" in lgate:
-        lgate.remove("readout")
-    num_quantum = c.gate_count(lgate)
+    readout_error = noise_conf.readout_error
 
-    if noise_conf.has_readout is True:
-        readout_error = noise_conf.nc["readout"]["Default"]
-    else:
-        readout_error = None
-
-    if noise_conf.has_quantum is True:
+    if noise_conf.has_quantum:
         # density matrix
         if isinstance(c, DMCircuit):
             cnoise = circuit_with_noise(c, noise_conf)  #  type: ignore
@@ -310,6 +282,7 @@ def sample_expectation_ps_noisfy(
 
             mcsim_vmap = backend.vmap(mcsim, vectorized_argnums=(0, 1))
             if statusc is None:
+                num_quantum = noise_conf.channel_count(c)
                 statusc = backend.implicit_randu([nmc, num_quantum])
 
             if status is None:
@@ -355,15 +328,10 @@ def expectation_noisfy(
     if noise_conf is None:
         noise_conf = NoiseConf()
 
-    lgate = list(noise_conf.nc.keys())
-    if "readout" in lgate:
-        lgate.remove("readout")
-    num_quantum = c.gate_count(lgate)
-
-    if noise_conf.has_readout is True:
+    if noise_conf.readout_error is not None:
         logger.warning("expectation_ps_noisfy can't support readout error.")
 
-    if noise_conf.has_quantum is True:
+    if noise_conf.has_quantum:
         # density matrix
         if isinstance(c, DMCircuit):
             cnoise = circuit_with_noise(c, noise_conf)
@@ -378,6 +346,7 @@ def expectation_noisfy(
 
             mcsim_vmap = backend.vmap(mcsim, vectorized_argnums=0)
             if status is None:
+                num_quantum = noise_conf.channel_count(c)
                 status = backend.implicit_randu([nmc, num_quantum])
 
             value = backend.mean(mcsim_vmap(status))

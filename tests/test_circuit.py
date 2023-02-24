@@ -1422,7 +1422,7 @@ def test_gate_count():
     c.ccnot(1, 2, 0)
     c.ccx(1, 2, 0)
     assert c.gate_count() == 8
-    assert c.gate_count(["h"]) == 2
+    assert c.gate_count("h") == 2
     assert c.gate_count(["ccnot"]) == 3
     assert c.gate_count(["rx", "multicontrol"]) == 2
     assert c.gate_count_by_condition(lambda qir: qir["index"] == (0,)) == 2
