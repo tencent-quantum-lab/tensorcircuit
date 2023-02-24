@@ -60,7 +60,6 @@ class NoiseConf:
         :type qubit: Optional[Sequence[Any]], optional
         """
         if gate_name == "readout":
-            # probably need to refactor readout error
             assert qubit is None
             self.readout_error = kraus  # type:ignore
             return
@@ -127,8 +126,7 @@ class NoiseConf:
         """
         count = 0
         for d in c.to_qir():
-            # pylint: disable-next=unused-variable
-            for _, condition, krauslist in self.nc:
+            for _, condition, _ in self.nc:
                 if condition(d):
                     count += 1
         return count

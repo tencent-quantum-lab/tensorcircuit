@@ -134,24 +134,23 @@ def test_general_noisemodel(backend):
     noise_conf.add_noise("cnot", [error2], [[0, 1]])
     noise_conf.add_noise("readout", readout_error)
 
+    nmc = 100000
     # # test sample_expectation_ps
-    value1 = sample_expectation_ps_noisfy(c, x=[0, 1], noise_conf=noise_conf, nmc=10000)
-    value2 = c.sample_expectation_ps(x=[0, 1], noise_conf=noise_conf, nmc=10000)
+    value1 = sample_expectation_ps_noisfy(c, x=[0, 1], noise_conf=noise_conf, nmc=nmc)
+    value2 = c.sample_expectation_ps(x=[0, 1], noise_conf=noise_conf, nmc=nmc)
     value3 = dmc.sample_expectation_ps(x=[0, 1], noise_conf=noise_conf)
     np.testing.assert_allclose(value1, value2, atol=1e-2)
     np.testing.assert_allclose(value3, value2, atol=1e-2)
 
     # test expectation
-    value1 = expectation_noisfy(
-        c, (tc.gates.z(), [0]), noise_conf=noise_conf, nmc=10000
-    )
-    value2 = c.expectation((tc.gates.z(), [0]), noise_conf=noise_conf, nmc=10000)
+    value1 = expectation_noisfy(c, (tc.gates.z(), [0]), noise_conf=noise_conf, nmc=nmc)
+    value2 = c.expectation((tc.gates.z(), [0]), noise_conf=noise_conf, nmc=nmc)
     value3 = dmc.expectation((tc.gates.z(), [0]), noise_conf=noise_conf)
     np.testing.assert_allclose(value1, value2, atol=1e-2)
     np.testing.assert_allclose(value3, value2, atol=1e-2)
 
     # test expectation_ps
     # value = expectation_ps_noisfy(c, x=[0], noise_conf=noise_conf, nmc=10000)
-    value1 = c.expectation_ps(x=[0], noise_conf=noise_conf, nmc=10000)
+    value1 = c.expectation_ps(x=[0], noise_conf=noise_conf, nmc=nmc)
     value2 = dmc.expectation_ps(x=[0], noise_conf=noise_conf)
     np.testing.assert_allclose(value1, value2, atol=1e-2)
