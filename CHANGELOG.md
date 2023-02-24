@@ -42,6 +42,8 @@
 
 - Rem results after `apply_correction` is now sorted
 
+- Fix `KerasLayer` so that it supports null weights
+
 ## 0.7.0
 
 ### Added

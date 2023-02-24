@@ -80,8 +80,8 @@ def scipy_optimize_interface(
             scipy_vs = general_args_to_numpy(vs)
             gs = backend.reshape(gs, [-1])
             scipy_gs = general_args_to_numpy(gs)
-            scipy_vs = scipy_vs.astype(np.float64)
-            scipy_gs = scipy_gs.astype(np.float64)
+            scipy_vs = scipy_vs.real.astype(np.float64)
+            scipy_gs = scipy_gs.real.astype(np.float64)
             return scipy_vs, scipy_gs
 
         return scipy_vg
@@ -97,7 +97,7 @@ def scipy_optimize_interface(
             scipy_args = tuple(scipy_args)
         vs = fun(*scipy_args, **kws)
         scipy_vs = general_args_to_numpy(vs)
-        scipy_vs = scipy_vs.astype(np.float64)
+        scipy_vs = scipy_vs.real.astype(np.float64)
         return scipy_vs
 
     return scipy_v

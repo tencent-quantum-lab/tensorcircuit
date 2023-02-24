@@ -446,7 +446,11 @@ def qiskit2tc(
         circuit_params = {}
     if "nqubits" not in circuit_params:
         circuit_params["nqubits"] = n
-    if qcdata[0][0].name == "initialize" and "inputs" not in circuit_params:
+    if (
+        len(qcdata) > 0
+        and qcdata[0][0].name == "initialize"
+        and "inputs" not in circuit_params
+    ):
         circuit_params["inputs"] = perm_matrix(n) @ np.array(qcdata[0][0].params)
     if inputs is not None:
         circuit_params["inputs"] = inputs
