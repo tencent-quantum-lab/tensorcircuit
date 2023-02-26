@@ -2,10 +2,10 @@
 Useful utilities for ensemble
 """
 
+from typing import Any, List
 import tensorflow as tf
 import keras
 import numpy as np
-from typing import Any, Optional, Sequence, Tuple, List
 
 NDArray = Any
 kwargus = Any
@@ -56,9 +56,6 @@ class bagging:  # A.K.A. voting
             self.__train_model(i, **kwargs)
 
     def compile(self, **kwargs: kwargus) -> None:
-        """
-        Compile code
-        """
         self.permit_train = True
         for i in range(self.count):
             self.models[i].compile(**kwargs)

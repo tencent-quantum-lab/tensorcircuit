@@ -63,7 +63,4 @@ def test_ensemble_bagging():
     v_average = obj_bagging.predict(x_train, "average")
     validation_data = []
     validation_data.append(obj_bagging.eval([y_train, v_weight], "acc"))
-    validation_data.append(obj_bagging.eval([y_train, v_weight], "auc"))
-
-
-test_ensemble_bagging()
+    validation_data.append(obj_bagging.eval([y_train, v_average], "auc"))
