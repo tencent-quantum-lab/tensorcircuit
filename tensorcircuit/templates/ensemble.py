@@ -13,13 +13,15 @@ kwargus = Any
 
 class bagging:  # A.K.A. voting
     def __init__(self) -> None:
-        self.models: List[keras.engine.functional.Functional]= []
+        self.models: List[keras.engine.functional.Functional] = []
         self.model_trained: List[bool] = []
         self.count = 0
         self.need_confidence = True  # Help in reducing numbers of get_confidence runs
         self.permit_train = False
 
-    def append(self, model: keras.engine.functional.Functional, model_trained: bool) -> None:
+    def append(
+        self, model: keras.engine.functional.Functional, model_trained: bool
+    ) -> None:
         """
         Add model to the voting method
         """
@@ -43,7 +45,7 @@ class bagging:  # A.K.A. voting
         Expected to be run after finishing compile
         """
         if not self.permit_train:
-            #raise Exception("Needed to be compiled before training")
+            # raise Exception("Needed to be compiled before training")
             raise ValueError()
         for i in range(self.count):
             if "verbose" in kwargs:

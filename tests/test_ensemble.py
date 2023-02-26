@@ -65,4 +65,5 @@ def test_ensemble_bagging():
     validation_data.append(obj_bagging.eval([y_train, v_weight], "acc"))
     validation_data.append(obj_bagging.eval([y_train, v_weight], "auc"))
 
+
 test_ensemble_bagging()
