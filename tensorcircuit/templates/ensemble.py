@@ -46,7 +46,7 @@ class bagging:  # A.K.A. voting
         """
         if not self.permit_train:
             # raise Exception("Needed to be compiled before training")
-            raise ValueError()
+            raise ValueError("Models needed to be compiled before training")
         for i in range(self.count):
             if "verbose" in kwargs:
                 if kwargs["verbose"] == 1:
@@ -113,7 +113,7 @@ class bagging:  # A.K.A. voting
         elif voting_policy == "None" or voting_policy == "none":
             return self.predictions
         else:
-            raise ValueError()
+            raise ValueError("voting_policy must be none, weight, most, or average")
 
     def __acc_binarify(self, array: NDArray) -> NDArray:
         """
@@ -147,4 +147,4 @@ class bagging:  # A.K.A. voting
         elif evaluation_method == "auc":
             return self.__eval_auc(input_data)
         else:
-            raise ValueError()
+            raise ValueError("evaluation_method must be acc or auc")
