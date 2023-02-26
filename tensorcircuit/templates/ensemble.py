@@ -139,7 +139,8 @@ class bagging:  # A.K.A. voting
 
     def eval(self, input_data: List[NDArray], evaluation_method: str = "acc") -> float:
         """
-        Expect input data to be a 2D array, which a 1D array of yTrue followed by a 1D array of yPred is expected to be the components of the 2D array
+        Expect input data to be a 2D array
+        which a 1D array of yTrue followed by a 1D array of yPred is expected to be the components of the 2D array
         """
         if evaluation_method == "acc":
             return self.__eval_accuracy(input_data)
