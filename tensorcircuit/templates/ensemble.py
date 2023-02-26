@@ -62,7 +62,7 @@ class bagging: # A.K.A. voting
         Number of calling this function is reduced by self.need_confidence
         '''
         self.need_confidence = False
-        prediction = self.models[model_index].predict(input)
+        prediction = self.models[model_index].predict(input,verbose=0)
         prediction_returns = np.zeros(len(prediction))
         for i in range(len(prediction)):
             prediction_returns[i] = prediction[i][0]
