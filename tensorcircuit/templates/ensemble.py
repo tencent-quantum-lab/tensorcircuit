@@ -105,7 +105,7 @@ class bagging:  # A.K.A. voting
         return np.array(return_result)
 
     def predict(
-        self, input_data: NDArray, voting_policy: Optional[str] = "None"
+        self, input_data: NDArray, voting_policy: Optional[str] = None
     ) -> NDArray:
         """
         Input data is expected to be a 2D array that the first layer is different input data (into the trained models)
