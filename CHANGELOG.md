@@ -30,7 +30,7 @@
 
 - Add methods in quantum module for translating ps list and xyz argument dict
 
-- add `templates.ensemble.bagging` module for bagging ensemble method
+- Add `templates.ensemble.bagging` module for bagging ensemble method
 
 ### Fixed
 
