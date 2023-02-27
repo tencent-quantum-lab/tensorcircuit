@@ -2,7 +2,7 @@
 Useful utilities for ensemble
 """
 
-from typing import Any, List
+from typing import Any, List, Optional
 import tensorflow as tf
 import keras
 import numpy as np
@@ -94,7 +94,19 @@ class bagging:  # A.K.A. voting
         result = array * weight
         return float(np.sum(result))
 
-    def predict(self, input_data: NDArray, voting_policy: str = "None") -> NDArray:
+    def __voting_most(self, array: NDArray) -> NDArray:
+        return_result = []
+        for items in array:
+            items_ = items > 0.5
+            result = 0
+            for i in items_:
+                result += 1 if i else -1
+            return_result.append(1 if result > 0 else 0)
+        return np.array(return_result)
+
+    def predict(
+        self, input_data: NDArray, voting_policy: Optional[str] = "None"
+    ) -> NDArray:
         """
         Input data is expected to be a 2D array that the first layer is different input data (into the trained models)
         """
@@ -105,9 +117,11 @@ class bagging:  # A.K.A. voting
             self.predictions = np.transpose(np.array(predictions))
         if voting_policy == "weight":
             return self.__voting_weight(self.predictions)
+        elif voting_policy == "most":
+            return self.__voting_most(self.predictions)
         elif voting_policy == "average":
             return self.__voting_average(self.predictions)
-        elif voting_policy == "None":
+        elif voting_policy is None:
             return self.predictions
         else:
             raise ValueError("voting_policy must be none, weight, most, or average")
