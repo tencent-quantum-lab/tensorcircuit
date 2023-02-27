@@ -94,7 +94,7 @@ class bagging:  # A.K.A. voting
         result = array * weight
         return float(np.sum(result))
 
-    def predict(self, input_data: NDArray, voting_policy: str = None) -> NDArray:
+    def predict(self, input_data: NDArray, voting_policy: str = "None") -> NDArray:
         """
         Input data is expected to be a 2D array that the first layer is different input data (into the trained models)
         """
@@ -107,7 +107,7 @@ class bagging:  # A.K.A. voting
             return self.__voting_weight(self.predictions)
         elif voting_policy == "average":
             return self.__voting_average(self.predictions)
-        elif voting_policy is None:
+        elif voting_policy == "None":
             return self.predictions
         else:
             raise ValueError("voting_policy must be none, weight, most, or average")
