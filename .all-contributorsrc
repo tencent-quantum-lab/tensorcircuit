@@ -179,7 +179,9 @@
       "profile": "https://marksong.tech",
       "contributions": [
         "doc",
-        "translation"
+        "translation",
+        "code",
+        "test"
       ]
     },
     {
