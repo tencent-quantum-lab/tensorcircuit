@@ -7,7 +7,6 @@ tensorcircuit
     ./api/basecircuit.rst
     ./api/channels.rst
     ./api/circuit.rst
-    ./api/cloud.rst
     ./api/compiler.rst
     ./api/cons.rst
     ./api/densitymatrix.rst
