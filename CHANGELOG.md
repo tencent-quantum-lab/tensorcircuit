@@ -30,6 +30,8 @@
 
 - Add methods in quantum module for translating ps list and xyz argument dict
 
+- add `templates.ensemble.bagging` module for bagging ensemble method
+
 ### Fixed
 
 - Circuit nosify in noise model now support all circuit attributs apart from qubit number
