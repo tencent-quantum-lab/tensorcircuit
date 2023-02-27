@@ -360,7 +360,7 @@ def finite_difference_differentiator(
     def tf_function(*args: Any, **kwargs: Any) -> Any:
         y = f(*args, **kwargs)
 
-        def grad(*ybar: Any) -> Any:
+        def grad(ybar: Any) -> Any:
             # only support one output
             delta_ms = []
             for argnum in argnums:
@@ -369,26 +369,24 @@ def finite_difference_differentiator(
                 xi_size = xi.shape[0]
                 onehot = tf.one_hot(tf.range(xi_size), xi_size)
                 for j in range(xi_size):
-                    xi_plus = xi + shifts[0] * onehot[j]
-                    xi_minus = xi - shifts[0] * onehot[j]
+                    xi_plus = xi + tf.cast(shifts[0] * onehot[j], xi.dtype)
+                    xi_minus = xi - tf.cast(shifts[0] * onehot[j], xi.dtype)
                     args_plus = list(args)
-                    args_plus[argnum] = xi_plus
+                    args_plus[argnum] = tf.reshape(xi_plus, args[argnum].shape)
                     args_minus = list(args)
-                    args_minus[argnum] = xi_minus
+                    args_minus[argnum] = tf.reshape(xi_minus, args[argnum].shape)
                     dy = f(*args_plus, **kwargs) - f(*args_minus, **kwargs)
                     dy /= shifts[-1]
                     delta_m.append(tf.reshape(dy, [-1]))
                 delta_m = tf.stack(delta_m)
                 delta_m = tf.transpose(delta_m)
                 delta_ms.append(delta_m)
-            dxs = []
+            dxs = [tf.zeros_like(arg) for arg in args]
             ybar_flatten = tf.reshape(ybar, [1, -1])
             for i, argnum in enumerate(argnums):
-                dxs.append(
-                    tf.cast(
-                        tf.reshape(ybar_flatten @ delta_ms[i], args[i].shape),
-                        args[i].dtype,
-                    )
+                dxs[argnum] = tf.cast(
+                    tf.reshape(ybar_flatten @ delta_ms[i], args[argnum].shape),
+                    args[argnum].dtype,
                 )
 
             return tuple(dxs)
