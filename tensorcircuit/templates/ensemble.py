@@ -36,7 +36,6 @@ class bagging:  # A.K.A. voting
         if not self.model_trained[i]:
             self.need_confidence = True
             self.model_trained[i] = True
-            self.models[i].trainable
             self.models[i].fit(**kwargs)
 
     def train(self, **kwargs: kwargus) -> None:
@@ -45,7 +44,6 @@ class bagging:  # A.K.A. voting
         Expected to be run after finishing compile
         """
         if not self.permit_train:
-            # raise Exception("Needed to be compiled before training")
             raise ValueError("Models needed to be compiled before training")
         for i in range(self.count):
             if "verbose" in kwargs:
@@ -58,7 +56,8 @@ class bagging:  # A.K.A. voting
     def compile(self, **kwargs: kwargus) -> None:
         self.permit_train = True
         for i in range(self.count):
-            self.models[i].compile(**kwargs)
+            if not self.model_trained[i]:
+                self.models[i].compile(**kwargs)
 
     def __get_confidence(self, model_index: int, input: NDArray) -> NDArray:
         """
@@ -95,7 +94,7 @@ class bagging:  # A.K.A. voting
         result = array * weight
         return float(np.sum(result))
 
-    def predict(self, input_data: NDArray, voting_policy: str = "None") -> NDArray:
+    def predict(self, input_data: NDArray, voting_policy: str = None) -> NDArray:
         """
         Input data is expected to be a 2D array that the first layer is different input data (into the trained models)
         """
@@ -106,11 +105,9 @@ class bagging:  # A.K.A. voting
             self.predictions = np.transpose(np.array(predictions))
         if voting_policy == "weight":
             return self.__voting_weight(self.predictions)
-        elif voting_policy == "most":
-            return self.__voting_average(self.predictions)
         elif voting_policy == "average":
             return self.__voting_average(self.predictions)
-        elif voting_policy == "None" or voting_policy == "none":
+        elif voting_policy is None:
             return self.predictions
         else:
             raise ValueError("voting_policy must be none, weight, most, or average")
