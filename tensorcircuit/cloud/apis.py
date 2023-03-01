@@ -88,14 +88,18 @@ def set_device(
 
     if isinstance(device, str):
         if len(device.split(sep)) > 1:
+            provider, device = device.split(sep)
+            provider = Provider.from_name(provider)
             device = Device.from_name(device, provider)
         else:
             if provider is None:
                 provider = get_provider()
+            provider = Provider.from_name(provider)
             device = Device.from_name(device, provider)
     else:
         if provider is None:
             provider = get_provider()
+        provider = Provider.from_name(provider)
         device = Device.from_name(device, provider)
 
     if set_global:
@@ -147,6 +151,8 @@ def _preprocess(
             device = Device.from_name(device, provider)
     if provider is None:
         provider = device.provider
+    if isinstance(provider, str):
+        provider = Provider.from_name(provider)
     return provider, device  # type: ignore
 
 

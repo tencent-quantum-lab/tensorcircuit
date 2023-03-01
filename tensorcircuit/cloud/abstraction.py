@@ -86,10 +86,10 @@ class Provider:
 
         return get_token(self)  # type: ignore
 
-    def list_devices(self) -> Any:
+    def list_devices(self, **kws: Any) -> Any:
         from .apis import list_devices
 
-        return list_devices(self)
+        return list_devices(self, **kws)
 
     def get_device(self, device: Optional[Union[str, "Device"]]) -> "Device":
         from .apis import get_device
@@ -153,13 +153,24 @@ class Device:
         if isinstance(device, cls):
             d = device
         elif isinstance(device, str):
-            if device in cls.activated_devices:
-                return cls.activated_devices[device]
+            if len(device.split(sep)) > 1:
+                provider = device.split(sep)[0]
+                device = device.split(sep)[1]
+            if provider is None:
+                pn = ""
+            elif isinstance(provider, str):
+                pn = provider
+            else:
+                pn = provider.name
+            if pn + sep + device in cls.activated_devices:
+                return cls.activated_devices[pn + sep + device]
             else:
                 d = cls(device, provider)
-                cls.activated_devices[device] = d
+
+                cls.activated_devices[pn + sep + device] = d
         else:
             raise ValueError("Unsupported format for `provider` argument: %s" % device)
+
         return d
 
     def set_token(self, token: str, cached: bool = True) -> Any:

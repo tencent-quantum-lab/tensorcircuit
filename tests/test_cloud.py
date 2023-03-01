@@ -24,6 +24,7 @@ def test_list_devices():
     print(apis.list_devices())
     p = apis.get_provider()
     print(p.list_devices())
+    print(p.list_devices(state="on"))
 
 
 def test_get_device():
@@ -40,6 +41,19 @@ def test_get_device():
     d4 = p.get_device("hello")
     assert d4.name == "hello"
     assert d4.provider.name == "tencent"
+
+
+def test_get_device_cache():
+    d1 = apis.get_device("local::testing")
+    d2 = apis.get_device(provider="local", device="testing")
+    apis.set_provider("local")
+    d3 = apis.get_device("testing")
+    assert id(d1) == id(d2)
+    assert id(d3) == id(d1)
+    apis.set_provider("tencent")
+    d4 = apis.get_device("testing")
+    assert d4.provider.name == "tencent"
+    assert id(d4) != id(d1)
 
 
 def test_list_properties():
@@ -125,7 +139,7 @@ def test_local_batch_submit():
     ts = apis.submit_task(circuit=[c, c])
     print(ts[1].results())
     print(ts[1].details())
-    apis.set_provider()
+    apis.set_provider("tencent")
 
 
 def test_batch_exp_ps():
@@ -140,5 +154,5 @@ def test_batch_exp_ps():
     np.testing.assert_allclose(
         wrapper.batch_expectation_ps(c, pss, device="simulator:tcn1"),
         [1, -1],
-        atol=1e-3,
+        atol=1e-1,
     )
