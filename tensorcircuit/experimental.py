@@ -347,6 +347,55 @@ def parameter_shift_grad_v2(
 # TODO(@refraction-ray): add SPSA gradient wrapper similar to parameter shift
 
 
+def finite_difference_differentiator(
+    f: Callable[..., Any],
+    argnums: Tuple[int, ...] = (0,),
+    shifts: Tuple[float, float] = (0.001, 0.002),
+) -> Callable[..., Any]:
+    # \bar{x}_j = \sum_i \bar{y}_i \frac{\Delta y_i}{\Delta x_j}
+    # tf only now and designed for hardware, since we dont do batch evaluation
+    import tensorflow as tf
+
+    @tf.custom_gradient  # type: ignore
+    def tf_function(*args: Any, **kwargs: Any) -> Any:
+        y = f(*args, **kwargs)
+
+        def grad(ybar: Any) -> Any:
+            # only support one output
+            delta_ms = []
+            for argnum in argnums:
+                delta_m = []
+                xi = tf.reshape(args[argnum], [-1])
+                xi_size = xi.shape[0]
+                onehot = tf.one_hot(tf.range(xi_size), xi_size)
+                for j in range(xi_size):
+                    xi_plus = xi + tf.cast(shifts[0] * onehot[j], xi.dtype)
+                    xi_minus = xi - tf.cast(shifts[0] * onehot[j], xi.dtype)
+                    args_plus = list(args)
+                    args_plus[argnum] = tf.reshape(xi_plus, args[argnum].shape)
+                    args_minus = list(args)
+                    args_minus[argnum] = tf.reshape(xi_minus, args[argnum].shape)
+                    dy = f(*args_plus, **kwargs) - f(*args_minus, **kwargs)
+                    dy /= shifts[-1]
+                    delta_m.append(tf.reshape(dy, [-1]))
+                delta_m = tf.stack(delta_m)
+                delta_m = tf.transpose(delta_m)
+                delta_ms.append(delta_m)
+            dxs = [tf.zeros_like(arg) for arg in args]
+            ybar_flatten = tf.reshape(ybar, [1, -1])
+            for i, argnum in enumerate(argnums):
+                dxs[argnum] = tf.cast(
+                    tf.reshape(ybar_flatten @ delta_ms[i], args[argnum].shape),
+                    args[argnum].dtype,
+                )
+
+            return tuple(dxs)
+
+        return y, grad
+
+    return tf_function  # type: ignore
+
+
 def hamiltonian_evol(
     tlist: Tensor,
     h: Tensor,

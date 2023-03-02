@@ -46,6 +46,8 @@
 
 - Fix `KerasLayer` so that it supports null weights
 
+- Fix tf optimizer bug and optimizer compatibility issue with tf2.11
+
 ## 0.7.0
 
 ### Added

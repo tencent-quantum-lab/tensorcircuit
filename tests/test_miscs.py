@@ -181,3 +181,36 @@ def test_arg_alias():
     np.testing.assert_allclose(f(beta=0.2, alpha=0.1), 0.3, atol=1e-5)
     print(f.__doc__)
     assert len(f.__doc__.strip().split("\n")) == 12
+
+
+def test_finite_difference_tf(tfb):
+    def f(param1, param2):
+        n = 4
+        c = tc.Circuit(n)
+        for i in range(n):
+            c.rx(i, theta=param1[i])
+        for i in range(n - 1):
+            c.cx(i, i + 1)
+        for i in range(n - 1):
+            c.rzz(i, i + 1, theta=param2[i])
+        r = [c.expectation_ps(z=[i]) for i in range(n)]
+        return tc.backend.stack(r)
+
+    def fsum(param1, param2):
+        return tc.backend.mean(f(param1, param2))
+
+    p1 = tf.ones([4])
+    p2 = tf.ones([3])
+    g1, g2 = tc.backend.value_and_grad(fsum)(p1, p2)
+
+    f1 = experimental.finite_difference_differentiator(
+        f, argnums=(0, 1), shifts=(np.pi / 2, 2)
+    )
+
+    def fsum1(param1, param2):
+        return tc.backend.mean(f1(param1, param2))
+
+    g3, g4 = tc.backend.value_and_grad(fsum1)(p1, p2)
+
+    np.testing.assert_allclose(g1, g3, atol=1e-5)
+    np.testing.assert_allclose(g2, g4, atol=1e-5)
