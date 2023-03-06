@@ -8,7 +8,7 @@
 
 - Add `get_positional_logical_mapping` circuit method to return the mapping when only part of the qubits are measured
 
-- `results.rem.ReadoutMit` class now support three layers of abstriction on qubits: positional, logical, and physical
+- `results.rem.ReadoutMit` class now support three layers of abstraction on qubits: positional, logical, and physical
 
 - Add an example script demonstrating how tc can use external contraction path finder wirtten in Julia
 
@@ -30,9 +30,11 @@
 
 - Add methods in quantum module for translating ps list and xyz argument dict
 
+- Add `templates.ensemble.bagging` module for bagging ensemble method
+
 ### Fixed
 
-- Circuit nosify in noise model now support all circuit attributs apart from qubit number
+- Circuit nosify in noise model now support all circuit attributes apart from qubit number
 
 - Some string warnings are fixed by using r-string
 

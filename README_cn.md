@@ -138,14 +138,19 @@ pip install tensorcircuit-nightly
 ### DQAS
 
 可微量子架构搜索的应用见 [应用](/tensorcircuit/applications)。
-参考论文：https://arxiv.org/pdf/2010.08561.pdf
+参考论文：https://arxiv.org/pdf/2010.08561.pdf (QST)。
 
 ### VQNHE
 
 关于变分量子神经混合本征求解器的应用，请参见 [应用](tensorcircuit/applications)。
-参考论文：https://arxiv.org/pdf/2106.05105.pdf 和 https://arxiv.org/pdf/2112.10380.pdf 。
+参考论文：https://arxiv.org/pdf/2106.05105.pdf (PRL) 和 https://arxiv.org/pdf/2112.10380.pdf 。
 
 ### VQEX - MBL
 
 VQEX 在 MBL 相位识别上的应用见 [教程](/docs/source/tutorials/vqex_mbl.ipynb)。
-参考论文: https://arxiv.org/pdf/2111.13719.pdf 。
+参考论文: https://arxiv.org/pdf/2111.13719.pdf (PRB)。
+
+### Stark - DTC
+
+数值验证 Stark 多体局域化稳定的离散时间晶体，类似的 Floquet 系统模拟请参考 [例子](/examples/timeevolution_trotter.py).
+参考论文: https://arxiv.org/pdf/2208.02866.pdf (PRL).

@@ -193,14 +193,19 @@ We welcome [issues](https://github.com/tencent-quantum-lab/tensorcircuit/issues)
 ### DQAS
 
 For the application of Differentiable Quantum Architecture Search, see [applications](/tensorcircuit/applications).
-Reference paper: https://arxiv.org/pdf/2010.08561.pdf.
+Reference paper: https://arxiv.org/pdf/2010.08561.pdf (published in QST).
 
 ### VQNHE
 
 For the application of Variational Quantum-Neural Hybrid Eigensolver, see [applications](/tensorcircuit/applications).
-Reference paper: https://arxiv.org/pdf/2106.05105.pdf and https://arxiv.org/pdf/2112.10380.pdf.
+Reference paper: https://arxiv.org/pdf/2106.05105.pdf (published in PRL) and https://arxiv.org/pdf/2112.10380.pdf.
 
 ### VQEX - MBL
 
 For the application of VQEX on MBL phase identification, see the [tutorial](/docs/source/tutorials/vqex_mbl.ipynb).
-Reference paper: https://arxiv.org/pdf/2111.13719.pdf.
+Reference paper: https://arxiv.org/pdf/2111.13719.pdf (published in PRB).
+
+### Stark - DTC
+
+For the numerical demosntration of discrete time crystal enabled by Stark many-body localization, see the Floquet simulation [demo](/examples/timeevolution_trotter.py).
+Reference paper: https://arxiv.org/pdf/2208.02866.pdf (published in PRL).
