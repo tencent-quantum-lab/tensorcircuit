@@ -8,10 +8,24 @@ from functools import partial
 import json
 import os
 import sys
+import logging
 
 from .abstraction import Provider, Device, Task, sep, sep2
 from . import tencent
 from . import local
+
+logger = logging.getLogger(__name__)
+
+
+try:
+    from . import tencent  # type: ignore
+except (ImportError, ModuleNotFoundError):
+    logger.warning("fail to load cloud provider module: tencent")
+
+try:
+    from . import local
+except (ImportError, ModuleNotFoundError):
+    logger.warning("fail to load cloud provider module: local")
 
 package_name = "tensorcircuit"
 thismodule = sys.modules[__name__]
@@ -272,7 +286,7 @@ def list_devices(
     if token is None:
         token = provider.get_token()
     if provider.name == "tencent":
-        return tencent.list_devices(token, **kws)
+        return tencent.list_devices(token, **kws)  # type: ignore
     elif provider.name == "local":
         return local.list_devices(token, **kws)
     else:
@@ -308,7 +322,7 @@ def list_properties(
     if token is None:
         token = device.get_token()  # type: ignore
     if provider.name == "tencent":  # type: ignore
-        return tencent.list_properties(device, token)
+        return tencent.list_properties(device, token)  # type: ignore
     elif provider.name == "local":
         raise ValueError("Unsupported method for local backend")
     else:
