@@ -549,8 +549,9 @@ class Circuit(BaseCircuit):
             return backend.real(norm_square)
 
         prob = [calculate_kraus_p(i) for i in range(len(kraus))]
+        eps = 1e-10
         new_kraus = [
-            k / backend.cast(backend.sqrt(w), dtypestr)
+            k / backend.cast(backend.sqrt(w) + eps, dtypestr)
             for w, k in zip(prob, kraus_tensor)
         ]
 
