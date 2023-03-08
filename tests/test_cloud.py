@@ -83,7 +83,7 @@ def test_resubmit_task():
     time.sleep(15)
     t1 = apis.resubmit_task(t)
     print(t.details())
-    print(t1.details())
+    print(t1.details(wait=True))
 
 
 def test_get_task():
