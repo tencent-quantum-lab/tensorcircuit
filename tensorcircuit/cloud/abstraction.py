@@ -319,6 +319,7 @@ class Task:
         else:
             return Device.from_name(self.device)
 
+    @partial(arg_alias, alias_dict={"blocked": ["wait"]})
     def details(self, blocked: bool = False, **kws: Any) -> Dict[str, Any]:
         """
         Get the current task details
@@ -369,11 +370,11 @@ class Task:
 
         return resubmit_task(self)
 
-    @partial(arg_alias, alias_dict={"format": ["format_"]})
+    @partial(arg_alias, alias_dict={"format": ["format_"], "blocked": ["wait"]})
     def results(
         self,
         format: Optional[str] = None,
-        blocked: bool = False,
+        blocked: bool = True,
         mitigated: bool = False,
         calibriation_options: Optional[Dict[str, Any]] = None,
         readout_mit: Optional[rem.ReadoutMit] = None,
