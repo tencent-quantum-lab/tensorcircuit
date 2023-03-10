@@ -1518,6 +1518,7 @@ def entropy(rho: Union[Tensor, QuOperator], eps: float = 1e-12) -> Tensor:
     :return: Entropy on the given density matrix.
     :rtype: Tensor
     """
+    rho += eps * backend.cast(backend.eye(rho.shape[-1]), rho.dtype)  # type: ignore
     lbd = backend.real(backend.eigh(rho)[0])
     lbd = backend.relu(lbd)
     # we need the matrix anyway for AD.
