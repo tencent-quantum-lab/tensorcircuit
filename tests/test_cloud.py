@@ -73,6 +73,7 @@ def test_submit_task():
     r = t.details()
     assert r["state"] in ["pending", "completed"]
     print(t.results(blocked=True))
+    assert t.get_logical_physical_mapping() == {0: 0, 1: 1, 2: 2}
 
 
 def test_resubmit_task():
