@@ -342,7 +342,18 @@ class Task:
             time.sleep(0.5 + tries / 10)
             tries += 1
             s = self.state()
-        return self.details(**kws)
+        return self.details(**kws)  # type: ignore
+
+    def get_logical_physical_mapping(self) -> Optional[Dict[int, int]]:
+        d = self.details()
+        try:
+            mp = d["optimization"]["pairs"]
+        except KeyError:
+            if "qubits" in d and isinstance(d["qubits"], int):
+                mp = {i: i for i in range(d["qubits"])}
+            else:
+                mp = None
+        return mp  # type: ignore
 
     def add_details(self, **kws: Any) -> None:
         self.more_details.update(kws)
