@@ -4,6 +4,8 @@ Backend register
 
 from typing import Any, Dict, Text, Union
 
+import tensornetwork as tn
+
 try:  # old version tn compatiblity
     from tensornetwork.backends import base_backend
 
@@ -18,6 +20,7 @@ from .numpy_backend import NumpyBackend
 from .jax_backend import JaxBackend
 from .tensorflow_backend import TensorFlowBackend
 from .pytorch_backend import PyTorchBackend
+from .cupy_backend import CuPyBackend
 
 bk = Any  # tnbackend
 
@@ -26,7 +29,10 @@ _BACKENDS = {
     "jax": JaxBackend,
     "tensorflow": TensorFlowBackend,
     "pytorch": PyTorchBackend,  # no intention to fully maintain this one
+    "cupy": CuPyBackend,  # no intention to fully maintain this one
 }
+
+tn.backends.backend_factory._BACKENDS["cupy"] = CuPyBackend
 
 _INSTANTIATED_BACKENDS: Dict[str, bk] = dict()
 
