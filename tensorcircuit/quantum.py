@@ -1333,24 +1333,46 @@ try:
         # numpy version is 3* faster!
 
         nterms = len(ls)
-        n = len(ls[0])
-        s = 0b1 << n
+        # n = len(ls[0])
+        # s = 0b1 << n
         if weight is None:
             weight = [1.0 for _ in range(nterms)]
         if not (isinstance(weight, tf.Tensor) or isinstance(weight, tf.Variable)):
             weight = tf.constant(weight, dtype=getattr(tf, dtypestr))
-        rsparse = get_backend("numpy").coo_sparse_matrix(
-            indices=np.array([[0, 0]], dtype=np.int64),
-            values=np.array([0.0], dtype=getattr(np, dtypestr)),
-            shape=(s, s),
-        )
-        for i in range(nterms):
-            rsparse += get_backend("tensorflow").numpy(PauliString2COO(ls[i], weight[i]))  # type: ignore
-            # auto transformed into csr format!!
+        # rsparse = get_backend("numpy").coo_sparse_matrix(
+        #     indices=np.array([[0, 0]], dtype=np.int64),
+        #     values=np.array([0.0], dtype=getattr(np, dtypestr)),
+        #     shape=(s, s),
+        # )
+        rsparses = [
+            get_backend("tensorflow").numpy(PauliString2COO(ls[i], weight[i]))  # type: ignore
+            for i in range(nterms)
+        ]
+        rsparse = _dc_sum(rsparses)
+        # auto transformed into csr format!!
+
+        # for i in range(nterms):
+        #     rsparse += get_backend("tensorflow").numpy(PauliString2COO(ls[i], weight[i]))  # type: ignore
         rsparse = rsparse.tocoo()
         if numpy:
             return rsparse
         return backend.coo_sparse_matrix_from_numpy(rsparse)
+
+    def _dc_sum(l: List[Any]) -> Any:
+        """
+        For the sparse sum, the speed is determined by the non zero terms,
+        so the DC way to do the sum can indeed bring some speed advantage (several times)
+
+        :param l: _description_
+        :type l: List[Any]
+        :return: _description_
+        :rtype: Any
+        """
+        n = len(l)
+        if n > 2:
+            return _dc_sum(l[: n // 2]) + _dc_sum(l[n // 2 :])
+        else:
+            return sum(l)
 
     PauliStringSum2COO_numpy = partial(PauliStringSum2COO, numpy=True)
 
