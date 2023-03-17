@@ -32,6 +32,8 @@
 
 - Add `templates.ensemble.bagging` module for bagging ensemble method
 
+- The speed of Pauli string sum Hamiltonian generation is improved by a divide-and-conquer sum
+
 ### Fixed
 
 - Circuit nosify in noise model now support all circuit attributes apart from qubit number
