@@ -10,19 +10,25 @@ import os
 import sys
 import logging
 
+from .abstraction import Provider, Device, Task, sep, sep2
+
 logger = logging.getLogger(__name__)
 
-from .abstraction import Provider, Device, Task, sep, sep2
 
 try:
     from . import tencent  # type: ignore
-except ImportError as e:
+except (ImportError, ModuleNotFoundError):
     logger.warning("fail to load cloud provider module: tencent")
 
 try:
     from . import local
-except ImportError as e:
+except (ImportError, ModuleNotFoundError):
     logger.warning("fail to load cloud provider module: local")
+
+try:
+    from . import quafu_provider
+except (ImportError, ModuleNotFoundError):
+    logger.warning("fail to load cloud provider module: quafu")
 
 package_name = "tensorcircuit"
 thismodule = sys.modules[__name__]
@@ -385,6 +391,9 @@ def get_task_details(
         return tencent.get_task_details(task, device, token, prettify)  # type: ignore
     elif provider.name == "local":
         return local.get_task_details(task, device, token, prettify)  # type: ignore
+    elif provider.name == "quafu":
+        return quafu_provider.get_task_details(task, device, token, prettify)  # type: ignore
+
     else:
         raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
 
@@ -426,11 +435,12 @@ def submit_task(
 
     if token is None:
         token = device.get_token()  # type: ignore
-
     if provider.name == "tencent":  # type: ignore
         return tencent.submit_task(device, token, **task_kws)  # type: ignore
     elif provider.name == "local":  # type: ignore
         return local.submit_task(device, token, **task_kws)  # type: ignore
+    elif provider.name == "quafu":  # type: ignore
+        return quafu_provider.submit_task(device, token, **task_kws)  # type: ignore
     else:
         raise ValueError("Unsupported provider: %s" % provider.name)  # type: ignore
 
