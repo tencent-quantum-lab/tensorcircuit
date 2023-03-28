@@ -116,7 +116,7 @@ class Device:
         self,
         name: str,
         provider: Optional[Union[str, Provider]] = None,
-        lower: bool = True,
+        lower: bool = False,
     ):
         if lower is True:
             name = name.lower()
