@@ -178,6 +178,7 @@ def set_token(
     provider: Optional[Union[str, Provider]] = None,
     device: Optional[Union[str, Device]] = None,
     cached: bool = True,
+    clear: bool = False,
 ) -> Dict[str, Any]:
     """
     Set API token for given provider or specifically to given device
@@ -190,6 +191,8 @@ def set_token(
     :type device: Optional[Union[str, Device]], optional
     :param cached: whether save on the disk, defaults to True
     :type cached: bool, optional
+    :param clear: if True, clear all token saved, defaults to False
+    :type clear: bool, optional
     :return: _description_
     :rtype: Dict[str, Any]
     """
@@ -197,7 +200,8 @@ def set_token(
     homedir = os.path.expanduser("~")
     authpath = os.path.join(homedir, ".tc.auth.json")
     # provider, device = _preprocess(provider, device)
-
+    if clear is True:
+        saved_token = {}
     if token is None:
         if cached and os.path.exists(authpath):
             with open(authpath, "r") as f:
@@ -216,6 +220,7 @@ def set_token(
                 provider = default_provider
             added_token = {provider.name + sep: token}
         else:
+            device = Device.from_name(device)
             if provider is None:
                 provider = device.provider  # type: ignore
             if provider is None:
