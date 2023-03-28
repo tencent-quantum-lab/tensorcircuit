@@ -13,3 +13,5 @@
 **/*.result
 **/*.results
 **/*.data
+**/*.egg-info
+**/*examples-ng

@@ -21,8 +21,12 @@ qiskit
 openfermion
 quimb
 openfermionpyscf
+pennylane
+# tensorflow_quantum==0.6.1
+mthree
+mitiq
 # below is for development
-mypy==0.782
+mypy==0.982
 pytest
 pytest-cov
 pytest-benchmark
@@ -36,5 +40,3 @@ nbsphinx
 furo
 myst-parser
 pylint
-pennylane
-tensorflow_quantum==0.6.1
