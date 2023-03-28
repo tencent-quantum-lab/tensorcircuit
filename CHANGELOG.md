@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.8.0
+
 ### Added
 
 - Add `initial_mapping` circuit method to return a new circuit with given `logical_physical_mapping`

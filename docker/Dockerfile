@@ -33,7 +33,7 @@ COPY requirements/requirements-docker.txt /app/requirements-docker.txt
 
 RUN pip install -r /app/requirements-docker.txt
   
-RUN pip install jaxlib==0.3.2+cuda11.cudnn805 -f https://storage.googleapis.com/jax-releases/jax_releases.html
+RUN pip install jaxlib==0.3.2+cuda11.cudnn805 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 
 RUN pip install -U git+https://github.com/jcmgray/cotengra.git
 
