@@ -1,30 +1,13 @@
-from scipy.linalg import expm
-import numpy as np
-import inspect
-import tensorcircuit as tc
-import random
 import math
+import numpy as np
 import matplotlib.pyplot as plt
+import tensorcircuit as tc
 
 tc.set_backend("tensorflow")
-
-# calculate the matirx of kth qubit exert matrix[[a, b], [c, d]]
-def up_to_matrixx(k, a, b, c, d):
-    I2 = np.array([[1, 0], [0, 1]]) * (1 + 0j)
-    K = np.array([[a, b], [c, d]]) * (1 + 0j)
-    um = I2
-    if k == 0:
-        um = K
-    for i in range(1, N):
-        if i == k:
-            um = np.kron(um, K)
-        else:
-            um = np.kron(um, I2)
-    return um
-
+tc.set_dtype("complex64")
 
 # realize R gates in paper
-def R_gate(k, c):
+def R_gate(k, c, ODE_theta):
     if door[k][0] == 0:
         c.rx(door[k][1] + 1, theta=ODE_theta[k])
     if door[k][0] == 1:
@@ -46,130 +29,111 @@ def R_gate(k, c):
 
 
 # realize U gates in paper
-def U_gate(k, c):
+def U_gate_conditional(k):
     if door[k][0] == 0:
-        c.cx(0, door[k][1] + 1)
+        gate_now = tc.gates.multicontrol_gate(
+            np.kron(tc.gates._x_matrix, np.eye(2)), [1]
+        )
     if door[k][0] == 1:
-        c.cy(0, door[k][1] + 1)
+        gate_now = tc.gates.multicontrol_gate(
+            np.kron(tc.gates._y_matrix, np.eye(2)), [1]
+        )
     if door[k][0] == 2:
-        c.cz(0, door[k][1] + 1)
+        gate_now = tc.gates.multicontrol_gate(
+            np.kron(tc.gates._z_matrix, np.eye(2)), [1]
+        )
     if door[k][0] == 3:
-        c.multicontrol(
-            0, door[k][1] + 1, door[k][2] + 1, ctrl=[0], unitary=tc.gates._xx_matrix
-        )
+        gate_now = tc.gates.multicontrol_gate(tc.gates._xx_matrix, [1])
     if door[k][0] == 4:
-        c.multicontrol(
-            0, door[k][1] + 1, door[k][2] + 1, ctrl=[0], unitary=tc.gates._yy_matrix
-        )
+        gate_now = tc.gates.multicontrol_gate(tc.gates._yy_matrix, [1])
     if door[k][0] == 5:
-        c.multicontrol(
-            0, door[k][1] + 1, door[k][2] + 1, ctrl=[0], unitary=tc.gates._zz_matrix
-        )
-    if door[k][0] == 6:
-        c.multicontrol(
-            0,
-            door[k][1] + 1,
-            door[k][2] + 1,
-            ctrl=[0, door[k][1] + 1],
-            unitary=tc.gates._x_matrix,
-        )
-    if door[k][0] == 7:
-        c.multicontrol(
-            0,
-            door[k][1] + 1,
-            door[k][2] + 1,
-            ctrl=[0, door[k][1] + 1],
-            unitary=tc.gates._y_matrix,
-        )
-    if door[k][0] == 8:
-        c.multicontrol(
-            0,
-            door[k][1] + 1,
-            door[k][2] + 1,
-            ctrl=[0, door[k][1] + 1],
-            unitary=tc.gates._z_matrix,
-        )
+        gate_now = tc.gates.multicontrol_gate(tc.gates._zz_matrix, [1])
+    return gate_now.eval_matrix()
 
 
 # realize Hamilton gates in ancillary circuit
-def H_gate(q, c):
+def H_gate_conditional(q):
     if h_door[q][0] == 0:
-        c.cx(0, h_door[q][1] + 1)
+        gate_now = tc.gates.multicontrol_gate(
+            np.kron(tc.gates._x_matrix, np.eye(2)), [1]
+        )
     if h_door[q][0] == 1:
-        c.cy(0, h_door[q][1] + 1)
+        gate_now = tc.gates.multicontrol_gate(
+            np.kron(tc.gates._y_matrix, np.eye(2)), [1]
+        )
     if h_door[q][0] == 2:
-        c.cz(0, h_door[q][1] + 1)
+        gate_now = tc.gates.multicontrol_gate(
+            np.kron(tc.gates._z_matrix, np.eye(2)), [1]
+        )
     if h_door[q][0] == 3:
-        c.multicontrol(
-            0, h_door[q][1] + 1, h_door[q][2] + 1, ctrl=[0], unitary=tc.gates._xx_matrix
-        )
+        gate_now = tc.gates.multicontrol_gate(tc.gates._xx_matrix, [1])
     if h_door[q][0] == 4:
-        c.multicontrol(
-            0, h_door[q][1] + 1, h_door[q][2] + 1, ctrl=[0], unitary=tc.gates._yy_matrix
-        )
+        gate_now = tc.gates.multicontrol_gate(tc.gates._yy_matrix, [1])
     if h_door[q][0] == 5:
-        c.multicontrol(
-            0, h_door[q][1] + 1, h_door[q][2] + 1, ctrl=[0], unitary=tc.gates._zz_matrix
-        )
-    if h_door[q][0] == 6:
-        c.multicontrol(
-            0,
-            door[k][1] + 1,
-            door[k][2] + 1,
-            ctrl=[0, door[k][1] + 1],
-            unitary=tc.gates._x_matrix,
-        )
-    if h_door[q][0] == 7:
-        c.multicontrol(
-            0,
-            door[k][1] + 1,
-            door[k][2] + 1,
-            ctrl=[0, door[k][1] + 1],
-            unitary=tc.gates._y_matrix,
-        )
-    if h_door[q][0] == 8:
-        c.multicontrol(
-            0,
-            door[k][1] + 1,
-            door[k][2] + 1,
-            ctrl=[0, door[k][1] + 1],
-            unitary=tc.gates._z_matrix,
-        )
+        gate_now = tc.gates.multicontrol_gate(tc.gates._zz_matrix, [1])
+    return gate_now.eval_matrix()
 
 
 # use quantum circuit to calculate coefficient of variation A and C in paper
-def Calculation_A(mod, theta_x, k, q):
-    # mod: a in paper; theta_x: theta in paper; k, q: A[k, q] or C[k] qth term; whi: whi=0 A whi=1 C
-    ancilla = np.array([1, np.exp(1j * theta_x)]) / np.sqrt(2)
-    c = tc.Circuit(N + 1, inputs=np.kron(ancilla, state))
+@tc.backend.jit
+def Calculation_A(theta_x, is_k, is_q, ODE_theta):
+    # mod: a in paper; theta_x: theta in paper; k, q: A[k, q] or C[k] qth term(k <= q)
+    c = tc.Circuit(N + 1, inputs=np.kron([1, 1] / np.sqrt(2), state))
+    c.rz(0, theta=-theta_x)
     for i in range(len(door)):
-        if i == k:
-            c.x(0)
-            U_gate(i, c)
-            c.x(0)
-        if i == q:
-            U_gate(i, c)
-            R_gate(i, c)
-            break
-        R_gate(i, c)
-    pstar = np.real(np.array(c.expectation([np.array([[1, 1], [1, 1]]) / 2, [0]])))
-    return mod * (2 * pstar - 1)
+        c.conditional_gate(is_k[i], [np.eye(2), tc.gates._x_matrix], 0)
+        c.conditional_gate(
+            is_k[i],
+            [np.eye(8), U_gate_conditional(i)],
+            0,
+            door[i][1] + 1,
+            door[i][2] + 1,
+        )
+        c.conditional_gate(is_k[i], [np.eye(2), tc.gates._x_matrix], 0)
+        c.conditional_gate(
+            is_q[i],
+            [np.eye(8), U_gate_conditional(i)],
+            0,
+            door[i][1] + 1,
+            door[i][2] + 1,
+        )
+        R_gate(i, c, ODE_theta)
+    pstar = c.expectation([np.array([[1, 1], [1, 1]]) / 2, [0]])
+    return 2 * pstar - 1
 
 
-def Calculation_C(mod, theta_x, k, q):
-    # mod: a in paper; theta_x: theta in paper; k, q: A[k, q] or C[k] qth term; whi: whi=0 A whi=1 C
-    ancilla = np.array([1, np.exp(1j * theta_x)]) / np.sqrt(2)
-    c = tc.Circuit(N + 1, inputs=np.kron(ancilla, state))
+Calculation_A_vmap = tc.backend.vmap(Calculation_A, vectorized_argnums=[0, 1, 2])
+
+
+@tc.backend.jit
+def Calculation_C(theta_x, is_k, is_q, ODE_theta):
+    # mod: a in paper; theta_x: theta in paper; k, q: A[k, q] or C[k] qth term
+    c = tc.Circuit(N + 1, inputs=np.kron([1, 1] / np.sqrt(2), state))
+    c.rz(0, theta=-theta_x)
     for i in range(len(door)):
-        if i == k:
-            c.x(0)
-            U_gate(i, c)
-            c.x(0)
-        R_gate(i, c)
-    H_gate(q, c)
-    pstar = np.real(np.array(c.expectation([np.array([[1, 1], [1, 1]]) / 2, [0]])))
-    return mod * (2 * pstar - 1)
+        c.conditional_gate(is_k[i], [np.eye(2), tc.gates._x_matrix], 0)
+        c.conditional_gate(
+            is_k[i],
+            [np.eye(8), U_gate_conditional(i)],
+            0,
+            door[i][1] + 1,
+            door[i][2] + 1,
+        )
+        c.conditional_gate(is_k[i], [np.eye(2), tc.gates._x_matrix], 0)
+        R_gate(i, c, ODE_theta)
+    for i in range(len(h_door)):
+        c.conditional_gate(
+            is_q[i],
+            [np.eye(8), H_gate_conditional(i)],
+            0,
+            h_door[i][1] + 1,
+            h_door[i][2] + 1,
+        )
+    pstar = c.expectation([np.array([[1, 1], [1, 1]]) / 2, [0]])
+    return 2 * pstar - 1
 
+
+Calculation_C_vmap = tc.backend.vmap(Calculation_C, vectorized_argnums=[0, 1, 2])
 
 # use original quantum circuit simulate with c
 def simulation():
@@ -196,20 +160,26 @@ def simulation():
     return c
 
 
+def numdiff(i):
+    if i != 0:
+        return i - 1
+    return i + 1
+
+
 if __name__ == "__main__":
 
     # l: layers; h and J: coefficient of Hamilton; L_var and L_num: results of variation method and numerical method
     N = 3
     l = 2
     J = 1 / 4
-    dt = 0.05
+    dt = 0.01
     t = 1
     h = []
     L_var = []
     L_num = []
     x_value = []
 
-    how_variation = 0  # 0 McLachlan 1 time-dependent
+    how_variation = 0  # 0:McLachlan; 1:time-dependent
 
     # the priciple correspond with all gates
     # the first term: 0rx,1ry,2rz,3rxx,4ryy,5rzz,6crx,7cry,8crz;
@@ -221,7 +191,7 @@ if __name__ == "__main__":
     for k in range(l):
         for i in range(N):
             f.append(-0.5j)
-            door.append([0, i])
+            door.append([0, i, numdiff(i)])
         for i in range(N - 1):
             f.append(-1j)
             door.append([5, i, i + 1])
@@ -230,7 +200,7 @@ if __name__ == "__main__":
             door.append([3, i, i + 1])
     for i in range(N):
         h.append(1)
-        h_door.append([0, i])
+        h_door.append([0, i, numdiff(i)])
     for i in range(N - 1):
         h.append(J)
         h_door.append([5, i, i + 1])
@@ -240,32 +210,36 @@ if __name__ == "__main__":
     state[0] = 1
 
     # numerical realize H
+    ls = []
+    weight = []
     H = np.zeros((1 << N, 1 << N)) * 1j
     for q in range(len(h_door)):
         if h_door[q][0] == 0:
-            H += h[q] * up_to_matrixx(h_door[q][1], 0, 1, 1, 0)
+            r = [0 for _ in range(N)]
+            r[h_door[q][1]] = 1
         if h_door[q][0] == 1:
-            H += h[q] * up_to_matrixx(h_door[q][1], 0, -1j, 1j, 0)
+            r = [0 for _ in range(N)]
+            r[h_door[q][1]] = 2
         if h_door[q][0] == 2:
-            H += h[q] * up_to_matrixx(h_door[q][1], 1, 0, 0, -1)
+            r = [0 for _ in range(N)]
+            r[h_door[q][1]] = 3
         if h_door[q][0] == 3:
-            H += (
-                h[q]
-                * up_to_matrixx(h_door[q][1], 0, 1, 1, 0)
-                @ up_to_matrixx(h_door[q][2], 0, 1, 1, 0)
-            )
+            r = [0 for _ in range(N)]
+            r[h_door[q][1]] = 1
+            r[h_door[q][2]] = 1
         if h_door[q][0] == 4:
-            H += (
-                h[q]
-                * up_to_matrixx(h_door[q][1], 0, -1j, 1j, 0)
-                @ up_to_matrixx(h_door[q][2], 0, -1j, 1j, 0)
-            )
+            r = [0 for _ in range(N)]
+            r[h_door[q][1]] = 2
+            r[h_door[q][2]] = 2
         if h_door[q][0] == 5:
-            H += (
-                h[q]
-                * up_to_matrixx(h_door[q][1], 1, 0, 0, -1)
-                @ up_to_matrixx(h_door[q][2], 1, 0, 0, -1)
-            )
+            r = [0 for _ in range(N)]
+            r[h_door[q][1]] = 3
+            r[h_door[q][2]] = 3
+        ls.append(r)
+        weight.append(h[q])
+    ls = tc.array_to_tensor(ls)
+    weight = tc.array_to_tensor(weight)
+    H = tc.quantum.PauliStringSum2Dense(ls, weight, numpy=False)
 
     # variation realize
     ODE_theta = np.zeros(len(door))
@@ -273,55 +247,75 @@ if __name__ == "__main__":
         # calculate coefficient in paper
         A = np.zeros((len(door), len(door)))
         C = np.zeros(len(door))
+        batch_theta = []
+        batch_is_k = []
+        batch_is_q = []
         for k in range(len(door)):
             for q in range(len(door)):
-                if k > q:
-                    A[k, q] = A[q, k]
-                    continue
+                is_k = [0 for _ in range(len(door))]
+                is_k[k] = 1
+                is_q = [0 for _ in range(len(door))]
+                is_q[q] = 1
                 if how_variation == 0:
-                    A[k, q] = Calculation_A(
-                        abs(f[k] * f[q]), np.angle(f[q]) - np.angle(f[k]), k, q
-                    )
-                if how_variation == 1:
-                    A[k, q] = Calculation_A(
-                        abs(f[k] * f[q]),
-                        np.angle(f[q]) - np.angle(f[k]) - math.pi / 2,
-                        k,
-                        q,
-                    )
+                    batch_theta.append(np.angle(f[q]) - np.angle(f[k]))
+                else:
+                    batch_theta.append(np.angle(f[q]) - np.angle(f[k]) - math.pi / 2)
+                batch_is_k.append(is_k)
+                batch_is_q.append(is_q)
+        batch_theta = tc.array_to_tensor(batch_theta)
+        batch_is_k = tf.constant(batch_is_k)
+        batch_is_q = tf.constant(batch_is_q)
+        vmap_result = Calculation_A_vmap(batch_theta, batch_is_k, batch_is_q, ODE_theta)
         for k in range(len(door)):
-            for q in range(len(h)):
+            for q in range(len(door)):
+                A[k, q] = abs(f[k] * f[q]) * vmap_result[k * len(door) + q]
+
+        batch_theta = []
+        batch_is_k = []
+        batch_is_q = []
+        for k in range(len(door)):
+            for q in range(len(h_door)):
+                is_k = [0 for _ in range(len(door))]
+                is_k[k] = 1
+                is_q = [0 for _ in range(len(door))]
+                is_q[q] = 1
                 if how_variation == 0:
-                    C[k] += Calculation_C(
-                        abs(f[k] * h[q]),
-                        np.angle(h[q]) - np.angle(f[k]) - math.pi / 2,
-                        k,
-                        q,
-                    )
-                if how_variation == 1:
-                    C[k] += Calculation_C(
-                        -abs(f[k] * h[q]), np.angle(h[q]) - np.angle(f[k]), k, q
-                    )
+                    batch_theta.append(np.angle(h[q]) - np.angle(f[k]) - math.pi / 2)
+                else:
+                    batch_theta.append(np.angle(h[q]) - np.angle(f[k]) + math.pi)
+                batch_is_k.append(is_k)
+                batch_is_q.append(is_q)
+        batch_theta = tc.array_to_tensor(batch_theta)
+        batch_is_k = tf.constant(batch_is_k)
+        batch_is_q = tf.constant(batch_is_q)
+        vmap_result = Calculation_C_vmap(batch_theta, batch_is_k, batch_is_q, ODE_theta)
+        for k in range(len(door)):
+            for q in range(len(h_door)):
+                C[k] += abs(f[k] * h[q]) * vmap_result[k * len(h_door) + q]
 
         # calculate parameter and its derivative
         A += np.eye(len(door)) * 1e-5
-        ODE_dtheta = np.linalg.solve(A, C)
-        print(ODE_dtheta)
+        ODE_dtheta = tc.backend.solve(A, C)
         for i in range(len(door)):
             ODE_theta[i] += ODE_dtheta[i] * dt
 
         # numerical results
         c = simulation()
-        ep = expm(-1j * H * (T + 1) * dt) @ state
+        ep = np.array(tc.backend.expm(-1j * H * (T + 1) * dt)) @ state
         L_num.append(
-            np.real(np.array(ep.conj().T @ up_to_matrixx(1, 0, 1, 1, 0) @ ep)).tolist()
+            np.array(
+                tc.backend.real(
+                    tc.expectation([tc.gates.x(), [1]], ket=ep.astype("complex64"))
+                )
+            )
         )
 
         # variation results
         L_var.append(np.real(np.array(c.expectation([tc.gates.x(), [1]]))).tolist())
 
-        x_value.append((T + 1) * dt)
-        print([(T + 1) * dt, L_num[T] - L_var[T]])
+        x_value.append(round((T + 1) * dt, 3))
+        print("Now time:", x_value[T], "Loss:", L_num[T] - L_var[T])
+
     plt.plot(x_value, L_var, color="green")
     plt.plot(x_value, L_num, color="red")
     plt.show()
