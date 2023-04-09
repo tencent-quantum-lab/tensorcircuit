@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+import tensorflow as tf
 import tensorcircuit as tc
 
 tc.set_backend("tensorflow")
@@ -29,49 +30,32 @@ def R_gate(k, c, ODE_theta):
         c.crz(door[k][1] + 1, door[k][2] + 1, theta=ODE_theta[k])
 
 
-# realize U gates in paper
-def U_gate_conditional(k):
-    if door[k][0] == 0:
+# realize U and H gates in paper
+def U_H_gate(k, UHgate):
+    if UHgate[k][0] == 0:
         gate_now = tc.gates.multicontrol_gate(
             np.kron(tc.gates._x_matrix, np.eye(2)), [1]
         )
-    if door[k][0] == 1:
+    if UHgate[k][0] == 1:
         gate_now = tc.gates.multicontrol_gate(
             np.kron(tc.gates._y_matrix, np.eye(2)), [1]
         )
-    if door[k][0] == 2:
+    if UHgate[k][0] == 2:
         gate_now = tc.gates.multicontrol_gate(
             np.kron(tc.gates._z_matrix, np.eye(2)), [1]
         )
-    if door[k][0] == 3:
+    if UHgate[k][0] == 3:
         gate_now = tc.gates.multicontrol_gate(tc.gates._xx_matrix, [1])
-    if door[k][0] == 4:
+    if UHgate[k][0] == 4:
         gate_now = tc.gates.multicontrol_gate(tc.gates._yy_matrix, [1])
-    if door[k][0] == 5:
+    if UHgate[k][0] == 5:
         gate_now = tc.gates.multicontrol_gate(tc.gates._zz_matrix, [1])
-    return gate_now.eval_matrix()
-
-
-# realize Hamilton gates in ancillary circuit
-def H_gate_conditional(q):
-    if h_door[q][0] == 0:
-        gate_now = tc.gates.multicontrol_gate(
-            np.kron(tc.gates._x_matrix, np.eye(2)), [1]
-        )
-    if h_door[q][0] == 1:
-        gate_now = tc.gates.multicontrol_gate(
-            np.kron(tc.gates._y_matrix, np.eye(2)), [1]
-        )
-    if h_door[q][0] == 2:
-        gate_now = tc.gates.multicontrol_gate(
-            np.kron(tc.gates._z_matrix, np.eye(2)), [1]
-        )
-    if h_door[q][0] == 3:
-        gate_now = tc.gates.multicontrol_gate(tc.gates._xx_matrix, [1])
-    if h_door[q][0] == 4:
-        gate_now = tc.gates.multicontrol_gate(tc.gates._yy_matrix, [1])
-    if h_door[q][0] == 5:
-        gate_now = tc.gates.multicontrol_gate(tc.gates._zz_matrix, [1])
+    if UHgate[k][0] == 6:
+        gate_now = tc.gates.multicontrol_gate(tc.gates._x_matrix, [1, 1])
+    if UHgate[k][0] == 7:
+        gate_now = tc.gates.multicontrol_gate(tc.gates._y_matrix, [1, 1])
+    if UHgate[k][0] == 8:
+        gate_now = tc.gates.multicontrol_gate(tc.gates._z_matrix, [1, 1])
     return gate_now.eval_matrix()
 
 
@@ -85,7 +69,7 @@ def Calculation_A(theta_x, is_k, is_q, ODE_theta):
         c.conditional_gate(is_k[i], [np.eye(2), tc.gates._x_matrix], 0)
         c.conditional_gate(
             is_k[i],
-            [np.eye(8), U_gate_conditional(i)],
+            [np.eye(8), U_H_gate(i, door)],
             0,
             door[i][1] + 1,
             door[i][2] + 1,
@@ -93,7 +77,7 @@ def Calculation_A(theta_x, is_k, is_q, ODE_theta):
         c.conditional_gate(is_k[i], [np.eye(2), tc.gates._x_matrix], 0)
         c.conditional_gate(
             is_q[i],
-            [np.eye(8), U_gate_conditional(i)],
+            [np.eye(8), U_H_gate(i, door)],
             0,
             door[i][1] + 1,
             door[i][2] + 1,
@@ -115,7 +99,7 @@ def Calculation_C(theta_x, is_k, is_q, ODE_theta):
         c.conditional_gate(is_k[i], [np.eye(2), tc.gates._x_matrix], 0)
         c.conditional_gate(
             is_k[i],
-            [np.eye(8), U_gate_conditional(i)],
+            [np.eye(8), U_H_gate(i, door)],
             0,
             door[i][1] + 1,
             door[i][2] + 1,
@@ -125,7 +109,7 @@ def Calculation_C(theta_x, is_k, is_q, ODE_theta):
     for i in range(len(h_door)):
         c.conditional_gate(
             is_q[i],
-            [np.eye(8), H_gate_conditional(i)],
+            [np.eye(8), U_H_gate(i, h_door)],
             0,
             h_door[i][1] + 1,
             h_door[i][2] + 1,
@@ -138,7 +122,7 @@ Calculation_C_vmap = tc.backend.vmap(Calculation_C, vectorized_argnums=[0, 1, 2]
 
 
 # use original quantum circuit simulate with c
-def simulation():
+def simulation(ODE_theta):
     c = tc.Circuit(N, inputs=state)
     for k in range(len(door)):
         if door[k][0] == 0:
@@ -301,7 +285,6 @@ if __name__ == "__main__":
             ODE_theta[i] += ODE_dtheta[i] * dt
 
         # numerical results
-        c = simulation()
         ep = np.array(tc.backend.expm(-1j * H * (T + 1) * dt)) @ state
         L_num.append(
             np.array(
@@ -312,6 +295,7 @@ if __name__ == "__main__":
         )
 
         # variation results
+        c = simulation(ODE_theta)
         L_var.append(np.real(np.array(c.expectation([tc.gates.x(), [1]]))).tolist())
 
         x_value.append(round((T + 1) * dt, 3))
