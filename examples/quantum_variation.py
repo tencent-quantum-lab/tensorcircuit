@@ -6,6 +6,7 @@ import tensorcircuit as tc
 tc.set_backend("tensorflow")
 tc.set_dtype("complex64")
 
+
 # realize R gates in paper
 def R_gate(k, c, ODE_theta):
     if door[k][0] == 0:
@@ -135,6 +136,7 @@ def Calculation_C(theta_x, is_k, is_q, ODE_theta):
 
 Calculation_C_vmap = tc.backend.vmap(Calculation_C, vectorized_argnums=[0, 1, 2])
 
+
 # use original quantum circuit simulate with c
 def simulation():
     c = tc.Circuit(N, inputs=state)
@@ -167,7 +169,6 @@ def numdiff(i):
 
 
 if __name__ == "__main__":
-
     # l: layers; h and J: coefficient of Hamilton; L_var and L_num: results of variation method and numerical method
     N = 3
     l = 2
