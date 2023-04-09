@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add `tc.about()` to print related software versions and configs.
+
 ## 0.8.0
 
 ### Added
