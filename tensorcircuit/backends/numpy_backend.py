@@ -377,6 +377,7 @@ class NumpyBackend(numpy_backend.NumPyBackend, ExtendedBackend):  # type: ignore
         f: Callable[..., Any],
         static_argnums: Optional[Union[int, Sequence[int]]] = None,
         jit_compile: Optional[bool] = None,
+        **kws: Any
     ) -> Callable[..., Any]:
         logger.warning("numpy backend has no jit interface, just do nothing")
         return f

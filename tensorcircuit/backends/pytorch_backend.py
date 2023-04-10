@@ -6,7 +6,7 @@ Backend magic inherited from tensornetwork: pytorch backend
 import logging
 from typing import Any, Callable, Optional, Sequence, Tuple, Union
 from operator import mul
-from functools import reduce
+from functools import reduce, partial
 
 import tensornetwork
 from tensornetwork.backends.pytorch import pytorch_backend
@@ -24,6 +24,24 @@ logger = logging.getLogger(__name__)
 # TODO(@refraction-ray): lack scatter impl for now
 # TODO(@refraction-ray): lack sparse relevant methods for now
 # To be added once pytorch backend is ready
+
+
+class torch_jit_func:
+    """
+    Delay the tracing of torch jit to the first run time:
+    consistent with tf and jax mechanism
+    """
+
+    def __init__(self, f: Callable[..., Any]):
+        self.compiled = False
+        self.f = f
+
+    def __call__(self, *args: Any, **kws: Any) -> Any:
+        if self.compiled is False:
+            self.f = torchlib.jit.trace(self.f, example_inputs=args)
+            self.compiled = True
+
+        return self.f(*args, **kws)
 
 
 class torch_optimizer:
@@ -514,37 +532,43 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend, ExtendedBackend):  # type: 
         argnums: Union[int, Sequence[int]] = 0,
         has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
-        def ask_require(t: Tensor) -> Any:
-            t.requires_grad_(True)
-            return t
-
-        def get_grad(t: Tensor) -> Tensor:
-            return t.grad
-
         def wrapper(*args: Any, **kws: Any) -> Any:
-            x = []
-            if isinstance(argnums, int):
-                argnumsl = [argnums]
-                # if you also call lhs as argnums, something weird may happen
-                # the reason is that python then take it as local vars
-            else:
-                argnumsl = argnums  # type: ignore
-            for i, arg in enumerate(args):
-                if i in argnumsl:
-                    x.append(self.tree_map(ask_require, arg))
-                else:
-                    x.append(arg)
-            y = f(*x, **kws)
-            if has_aux:
-                y[0].backward()
-            else:
-                y.backward()
-            gs = [self.tree_map(get_grad, x[i]) for i in argnumsl]
-            if len(gs) == 1:
-                gs = gs[0]
-            return y, gs
+            gavf = torchlib.func.grad_and_value(f, argnums=argnums, has_aux=has_aux)
+            g, v = gavf(*args, **kws)
+            return v, g
 
         return wrapper
+        # def ask_require(t: Tensor) -> Any:
+        #     t.requires_grad_(True)
+        #     return t
+
+        # def get_grad(t: Tensor) -> Tensor:
+        #     return t.grad
+
+        # def wrapper(*args: Any, **kws: Any) -> Any:
+        #     # x = []
+        #     if isinstance(argnums, int):
+        #         argnumsl = [argnums]
+        #         # if you also call lhs as argnums, something weird may happen
+        #         # the reason is that python then take it as local vars
+        #     else:
+        #         argnumsl = argnums  # type: ignore
+        #     args = list(args)
+        #     for i, arg in enumerate(args):
+        #         if i in argnumsl:
+        #             args[i] = self.tree_map(ask_require, arg)
+        #     args = tuple(args)
+        #     y = f(*args, **kws)
+        #     if has_aux:
+        #         y[0].backward()
+        #     else:
+        #         y.backward()
+        #     gs = [self.tree_map(get_grad, x[i]) for i in argnumsl]
+        #     if len(gs) == 1:
+        #         gs = gs[0]
+        #     return y, gs
+
+        # return wrapper
 
     def vjp(
         self,
@@ -577,33 +601,43 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend, ExtendedBackend):  # type: 
     def vmap(
         self,
         f: Callable[..., Any],
-        vectorized_argnums: Optional[Union[int, Sequence[int]]] = None,
+        vectorized_argnums: Union[int, Sequence[int]] = 0,
     ) -> Any:
-        logger.warning(
-            "pytorch backend has no intrinsic vmap like interface"
-            ", use plain for loop for compatibility"
-        )
-        # the vmap support is vey limited, f must return one tensor
-        # nested list of tensor as return is not supported
         if isinstance(vectorized_argnums, int):
             vectorized_argnums = (vectorized_argnums,)
 
         def wrapper(*args: Any, **kws: Any) -> Tensor:
-            results = []
-            for barg in zip(*[args[i] for i in vectorized_argnums]):  # type: ignore
-                narg = []
-                j = 0
-                for k in range(len(args)):
-                    if k in vectorized_argnums:  # type: ignore
-                        narg.append(barg[j])
-                        j += 1
-                    else:
-                        narg.append(args[k])
-                results.append(f(*narg, **kws))
-            return torchlib.stack(results)
+            in_axes = tuple([0 if i in vectorized_argnums else None for i in range(len(args))])  # type: ignore
+            return torchlib.vmap(f, in_axes, 0)(*args, **kws)
 
         return wrapper
+        # v3
+        # logger.warning(
+        #     "pytorch backend has no intrinsic vmap like interface"
+        #     ", use plain for loop for compatibility"
+        # )
+        # # the vmap support is vey limited, f must return one tensor
+        # # nested list of tensor as return is not supported
+        # if isinstance(vectorized_argnums, int):
+        #     vectorized_argnums = (vectorized_argnums,)
 
+        # def wrapper(*args: Any, **kws: Any) -> Tensor:
+        #     results = []
+        #     for barg in zip(*[args[i] for i in vectorized_argnums]):  # type: ignore
+        #         narg = []
+        #         j = 0
+        #         for k in range(len(args)):
+        #             if k in vectorized_argnums:  # type: ignore
+        #                 narg.append(barg[j])
+        #                 j += 1
+        #             else:
+        #                 narg.append(args[k])
+        #         results.append(f(*narg, **kws))
+        #     return torchlib.stack(results)
+
+        # return wrapper
+
+        # v2
         # def vmapf(*args: Tensor, **kws: Any) -> Tensor:
         #     r = []
         #     for i in range(args[0].shape[0]):
@@ -613,6 +647,7 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend, ExtendedBackend):  # type: 
 
         # return vmapf
 
+        # v1
         # raise NotImplementedError("pytorch backend doesn't support vmap")
         # There seems to be no map like architecture in pytorch for now
         # see https://discuss.pytorch.org/t/fast-way-to-use-map-in-pytorch/70814
@@ -622,8 +657,13 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend, ExtendedBackend):  # type: 
         f: Callable[..., Any],
         static_argnums: Optional[Union[int, Sequence[int]]] = None,
         jit_compile: Optional[bool] = None,
+        **kws: Any
     ) -> Any:
-        return f  # do nothing here until I figure out what torch.jit is for and how does it work
+        if jit_compile is True:
+            # experimental feature reusing the jit_compile flag for tf
+            return torch_jit_func(f)
+        return f
+        # return f  # do nothing here until I figure out what torch.jit is for and how does it work
         # see https://github.com/pytorch/pytorch/issues/36910
 
     def vectorized_value_and_grad(
@@ -634,10 +674,33 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend, ExtendedBackend):  # type: 
         has_aux: bool = False,
     ) -> Callable[..., Tuple[Any, Any]]:
         # [WIP], not a consistent impl compared to tf and jax backend, but pytorch backend is not fully supported anyway
-        f = self.value_and_grad(f, argnums=argnums, has_aux=has_aux)
-        f = self.vmap(f, vectorized_argnums=vectorized_argnums)
-        # f = self.jit(f)
-        return f
+        if isinstance(vectorized_argnums, int):
+            vectorized_argnums = (vectorized_argnums,)
+
+        def wrapper(
+            *args: Any, **kws: Any
+        ) -> Tuple[Tensor, Union[Tensor, Tuple[Tensor, ...]]]:
+            jf = self.value_and_grad(f, argnums=argnums, has_aux=has_aux)
+            jf = self.vmap(jf, vectorized_argnums=vectorized_argnums)
+            vs, gs = jf(*args, **kws)
+
+            if isinstance(argnums, int):
+                argnums_list = [argnums]
+                gs = [gs]
+            else:
+                argnums_list = argnums  # type: ignore
+                gs = list(gs)
+            for i, (j, g) in enumerate(zip(argnums_list, gs)):
+                if j not in vectorized_argnums:  # type: ignore
+                    gs[i] = self.tree_map(partial(torchlib.sum, dim=0), g)
+            if isinstance(argnums, int):
+                gs = gs[0]
+            else:
+                gs = tuple(gs)
+
+            return vs, gs
+
+        return wrapper
 
     vvag = vectorized_value_and_grad
 

@@ -1,6 +1,7 @@
 tensorcircuit
 ==================================================
 .. toctree::
+    ./api/about.rst
     ./api/abstractcircuit.rst
     ./api/applications.rst
     ./api/backends.rst

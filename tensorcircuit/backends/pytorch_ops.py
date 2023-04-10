@@ -90,10 +90,24 @@ class torchqr(torch.autograd.Function):
     """
 
     @staticmethod
-    def forward(ctx, a: Array) -> Any:
+    def forward(a: Array) -> Any:
         q, r = torch.linalg.qr(a, mode="reduced")
-        ctx.save_for_backward(a, q, r)
+        # ctx.save_for_backward(a, q, r)
         return q, r
+
+    # setup_context is responsible for calling methods and/or assigning to
+    # the ctx object. Please do not do additional compute (e.g. add
+    # Tensors together) in setup_context.
+    # https://pytorch.org/docs/master/notes/extending.func.html
+    @staticmethod
+    def setup_context(ctx, inputs, output):
+        (a,) = inputs
+        q, r = output
+        # Tensors must be saved via ctx.save_for_backward. Please do not
+        # assign them directly onto the ctx object.
+        ctx.save_for_backward(a, q, r)
+        # Non-tensors may be saved by assigning them as attributes on the ctx object.
+        # ctx.dim = dim
 
     @staticmethod
     def backward(ctx, dq: Array, dr: Array) -> Any:
