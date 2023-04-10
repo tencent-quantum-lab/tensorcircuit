@@ -32,6 +32,8 @@ Docker is also recommended (especially Linux + Nvidia GPU setup):
 Overall, the installation of TensorCircuit is simple, since it is purely in Python and hence very portable. 
 As long as the users can take care of the installation of ML frameworks on the corresponding system, TensorCircuit will work as expected.
 
+To debug the installation issue or report bugs, please check the environment information by ``tc.about()``.
+
 .. Note::
     We also provide a nightly build of tensorcircuit via PyPI which can be accessed by
     ``pip uninstall tensorcircuit``, then
