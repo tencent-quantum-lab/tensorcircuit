@@ -189,6 +189,8 @@ if __name__ == "__main__":
     for i in range(N - 1):
         h.append(J)
         h_door.append([5, i, i + 1])
+    f = tf.constant(f, dtype="complex64")
+    h = tf.constant(h, dtype="float32")
 
     # initial state
     state = np.zeros(1 << N)
@@ -197,7 +199,6 @@ if __name__ == "__main__":
     # numerical realize H
     ls = []
     weight = []
-    H = np.zeros((1 << N, 1 << N)) * 1j
     for q in range(len(h_door)):
         if h_door[q][0] == 0:
             r = [0 for _ in range(N)]
@@ -227,7 +228,7 @@ if __name__ == "__main__":
     H = tc.quantum.PauliStringSum2Dense(ls, weight, numpy=False)
 
     # variation realize
-    ODE_theta = np.zeros(len(door))
+    ODE_theta = tf.zeros(len(door), dtype="float32")
     for T in range(int(t / dt)):
         # calculate coefficient in paper
         A = np.zeros((len(door), len(door)))
@@ -251,9 +252,9 @@ if __name__ == "__main__":
         batch_is_k = tf.constant(batch_is_k)
         batch_is_q = tf.constant(batch_is_q)
         vmap_result = Calculation_A_vmap(batch_theta, batch_is_k, batch_is_q, ODE_theta)
-        for k in range(len(door)):
-            for q in range(len(door)):
-                A[k, q] = abs(f[k] * f[q]) * vmap_result[k * len(door) + q]
+        A = tf.cast(
+            tf.tensordot(tf.abs(f), tf.abs(f), 0), dtype="float32"
+        ) * tf.reshape(tc.backend.real(vmap_result), [len(door), len(door)])
 
         batch_theta = []
         batch_is_k = []
@@ -274,15 +275,16 @@ if __name__ == "__main__":
         batch_is_k = tf.constant(batch_is_k)
         batch_is_q = tf.constant(batch_is_q)
         vmap_result = Calculation_C_vmap(batch_theta, batch_is_k, batch_is_q, ODE_theta)
-        for k in range(len(door)):
-            for q in range(len(h_door)):
-                C[k] += abs(f[k] * h[q]) * vmap_result[k * len(h_door) + q]
+        C = tf.reduce_sum(
+            tf.cast(tf.tensordot(tf.abs(f), tf.abs(h), 0), dtype="float32")
+            * tf.reshape(tc.backend.real(vmap_result), [len(door), len(h_door)]),
+            1,
+        )
 
         # calculate parameter and its derivative
         A += np.eye(len(door)) * 1e-5
         ODE_dtheta = tc.backend.solve(A, C)
-        for i in range(len(door)):
-            ODE_theta[i] += ODE_dtheta[i] * dt
+        ODE_theta += ODE_dtheta * dt
 
         # numerical results
         ep = np.array(tc.backend.expm(-1j * H * (T + 1) * dt)) @ state
