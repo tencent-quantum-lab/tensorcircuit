@@ -1606,6 +1606,7 @@ class ExtendedBackend:
         f: Callable[..., Any],
         static_argnums: Optional[Union[int, Sequence[int]]] = None,
         jit_compile: Optional[bool] = None,
+        **kws: Any
     ) -> Callable[..., Any]:
         """
         Return the jitted version of function ``f``.
