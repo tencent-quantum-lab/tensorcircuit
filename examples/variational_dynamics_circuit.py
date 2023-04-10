@@ -1,3 +1,7 @@
+"""
+Variational quantum simulation by directly contruct circuit for matrix elements
+"""
+
 import math
 import numpy as np
 import matplotlib.pyplot as plt
@@ -5,7 +9,7 @@ import tensorflow as tf
 import tensorcircuit as tc
 
 tc.set_backend("tensorflow")
-tc.set_dtype("complex64")
+tc.set_dtype("complex128")
 
 
 # realize R gates in paper
@@ -60,7 +64,6 @@ def U_H_gate(k, UHgate):
 
 
 # use quantum circuit to calculate coefficient of variation A and C in paper
-@tc.backend.jit
 def Calculation_A(theta_x, is_k, is_q, ODE_theta):
     # mod: a in paper; theta_x: theta in paper; k, q: A[k, q] or C[k] qth term(k <= q)
     c = tc.Circuit(N + 1, inputs=np.kron([1, 1] / np.sqrt(2), state))
@@ -87,10 +90,11 @@ def Calculation_A(theta_x, is_k, is_q, ODE_theta):
     return 2 * pstar - 1
 
 
-Calculation_A_vmap = tc.backend.vmap(Calculation_A, vectorized_argnums=[0, 1, 2])
+Calculation_A_vmap = tc.backend.jit(
+    tc.backend.vmap(Calculation_A, vectorized_argnums=[0, 1, 2])
+)
 
 
-@tc.backend.jit
 def Calculation_C(theta_x, is_k, is_q, ODE_theta):
     # mod: a in paper; theta_x: theta in paper; k, q: A[k, q] or C[k] qth term
     c = tc.Circuit(N + 1, inputs=np.kron([1, 1] / np.sqrt(2), state))
@@ -118,10 +122,13 @@ def Calculation_C(theta_x, is_k, is_q, ODE_theta):
     return 2 * pstar - 1
 
 
-Calculation_C_vmap = tc.backend.vmap(Calculation_C, vectorized_argnums=[0, 1, 2])
+Calculation_C_vmap = tc.backend.jit(
+    tc.backend.vmap(Calculation_C, vectorized_argnums=[0, 1, 2])
+)
 
 
 # use original quantum circuit simulate with c
+@tc.backend.jit
 def simulation(ODE_theta):
     c = tc.Circuit(N, inputs=state)
     for k in range(len(door)):
@@ -143,21 +150,20 @@ def simulation(ODE_theta):
             c.cry(door[k][1], door[k][2], theta=ODE_theta[k])
         if door[k][0] == 8:
             c.crz(door[k][1], door[k][2], theta=ODE_theta[k])
-    return c
+    return tc.backend.real(c.expectation([tc.gates.x(), [1]]))
 
 
 def numdiff(i):
-    if i != 0:
-        return i - 1
-    return i + 1
+    return (i + 1) % N
 
 
 if __name__ == "__main__":
-    # l: layers; h and J: coefficient of Hamilton; L_var and L_num: results of variation method and numerical method
+    # l: layers; h and J: coefficient of Hamiltonian;
+    # L_var and L_num: results of variation method and numerical method
     N = 3
-    l = 2
+    l = 4
     J = 1 / 4
-    dt = 0.01
+    dt = 0.005
     t = 1
     h = []
     L_var = []
@@ -228,7 +234,7 @@ if __name__ == "__main__":
     H = tc.quantum.PauliStringSum2Dense(ls, weight, numpy=False)
 
     # variation realize
-    ODE_theta = tf.zeros(len(door), dtype="float32")
+    ODE_theta = tf.zeros(len(door), dtype="float64")
     for T in range(int(t / dt)):
         # calculate coefficient in paper
         A = np.zeros((len(door), len(door)))
@@ -253,8 +259,10 @@ if __name__ == "__main__":
         batch_is_q = tf.constant(batch_is_q)
         vmap_result = Calculation_A_vmap(batch_theta, batch_is_k, batch_is_q, ODE_theta)
         A = tf.cast(
-            tf.tensordot(tf.abs(f), tf.abs(f), 0), dtype="float32"
-        ) * tf.reshape(tc.backend.real(vmap_result), [len(door), len(door)])
+            tf.tensordot(tf.abs(f), tf.abs(f), 0), dtype="float64"
+        ) * tf.reshape(
+            tc.backend.cast(vmap_result, dtype="float64"), [len(door), len(door)]
+        )
 
         batch_theta = []
         batch_is_k = []
@@ -276,13 +284,15 @@ if __name__ == "__main__":
         batch_is_q = tf.constant(batch_is_q)
         vmap_result = Calculation_C_vmap(batch_theta, batch_is_k, batch_is_q, ODE_theta)
         C = tf.reduce_sum(
-            tf.cast(tf.tensordot(tf.abs(f), tf.abs(h), 0), dtype="float32")
-            * tf.reshape(tc.backend.real(vmap_result), [len(door), len(h_door)]),
+            tf.cast(tf.tensordot(tf.abs(f), tf.abs(h), 0), dtype="float64")
+            * tf.reshape(
+                tc.backend.cast(vmap_result, dtype="float64"), [len(door), len(h_door)]
+            ),
             1,
         )
 
         # calculate parameter and its derivative
-        A += np.eye(len(door)) * 1e-5
+        A += np.eye(len(door)) * 1e-7
         ODE_dtheta = tc.backend.solve(A, C)
         ODE_theta += ODE_dtheta * dt
 
@@ -291,14 +301,13 @@ if __name__ == "__main__":
         L_num.append(
             np.array(
                 tc.backend.real(
-                    tc.expectation([tc.gates.x(), [1]], ket=ep.astype("complex64"))
+                    tc.expectation([tc.gates.x(), [1]], ket=ep.astype("complex128"))
                 )
             )
         )
 
         # variation results
-        c = simulation(ODE_theta)
-        L_var.append(np.real(np.array(c.expectation([tc.gates.x(), [1]]))).tolist())
+        L_var.append(tc.backend.numpy(simulation(ODE_theta)).tolist())
 
         x_value.append(round((T + 1) * dt, 3))
         print("Now time:", x_value[T], "Loss:", L_num[T] - L_var[T])
