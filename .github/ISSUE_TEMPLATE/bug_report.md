@@ -25,3 +25,5 @@ assignees: ""
 ## Environment Context
 
 <--! Please report your OS version, Python environment and version, TensorCircuit version and necessary dependent package (NumPy, TensorFlow, Jax, Jaxlib, PyTorch) version here. -->
+
+Output of `tc.about()` and `tc.__version__`.

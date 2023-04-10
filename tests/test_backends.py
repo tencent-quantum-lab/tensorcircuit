@@ -18,12 +18,6 @@ sys.path.insert(0, modulepath)
 import tensorcircuit as tc
 
 dtype = np.complex64
-ii = np.eye(4, dtype=dtype)
-iir = ii.reshape([2, 2, 2, 2])
-ym = np.array([[0, -1.0j], [1.0j, 0]], dtype=dtype)
-zm = np.array([[1.0, 0.0], [0.0, -1.0]], dtype=dtype)
-yz = np.kron(ym, zm)
-yzr = yz.reshape([2, 2, 2, 2])
 
 
 def universal_vmap():
@@ -50,9 +44,9 @@ def test_vmap_tf(tfb):
     assert r.numpy()[0, 0] == 3.0
 
 
-@pytest.mark.skip(
-    reason="pytorch backend to be fixed with newly added complex dtype support"
-)
+# @pytest.mark.skip(
+#     reason="pytorch backend to be fixed with newly added complex dtype support"
+# )
 def test_vmap_torch(torchb):
     r = universal_vmap()
     assert r.numpy()[0, 0] == 3.0
@@ -61,6 +55,7 @@ def test_vmap_torch(torchb):
 def test_grad_torch(torchb):
     a = tc.backend.ones([2], dtype="float32")
 
+    # @partial(tc.backend.jit, jit_compile=True)
     @tc.backend.grad
     def f(x):
         return tc.backend.sum(x)
@@ -419,12 +414,13 @@ def vqe_energy(inputs, param, n, nlayers):
         c.H(i)
     for j in range(nlayers):
         for i in range(n - 1):
-            c.any(
-                i,
-                i + 1,
-                unitary=tc.backend.cos(paramc[2 * j, i]) * iir
-                + tc.backend.sin(paramc[2 * j, i]) * 1.0j * yzr,
-            )
+            c.ryy(i, i + 1, theta=paramc[2 * j, i])
+            # c.any(
+            #     i,
+            #     i + 1,
+            #     unitary=tc.backend.cos(paramc[2 * j, i]) * iir
+            #     + tc.backend.sin(paramc[2 * j, i]) * 1.0j * yzr,
+            # )
         for i in range(n):
             c.rx(i, theta=paramc[2 * j + 1, i])
     e = 0.0
@@ -436,14 +432,14 @@ def vqe_energy(inputs, param, n, nlayers):
     return e
 
 
-@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])
 def test_vvag(backend):
     n = 4
     nlayers = 3
     inp = tc.backend.ones([2**n]) / 2 ** (n / 2)
     param = tc.backend.ones([2 * nlayers, n])
-    inp = tc.backend.cast(inp, "complex64")
-    param = tc.backend.cast(param, "complex64")
+    # inp = tc.backend.cast(inp, "complex64")
+    # param = tc.backend.cast(param, "complex64")
 
     vqe_energy_p = partial(vqe_energy, n=n, nlayers=nlayers)
 
@@ -456,6 +452,7 @@ def test_vvag(backend):
 
     pvag = tc.backend.vvag(vqe_energy_p, argnums=(0, 1))
     v1, (g10, g11) = pvag(inps, param)
+    print(v1.shape, g10.shape, g11.shape)
     np.testing.assert_allclose(v1[0], v0, atol=1e-4)
     np.testing.assert_allclose(g10[0], g00, atol=1e-4)
     np.testing.assert_allclose(g11 / batch, g01, atol=1e-4)

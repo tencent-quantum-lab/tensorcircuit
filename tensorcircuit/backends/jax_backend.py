@@ -686,6 +686,7 @@ class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
         f: Callable[..., Any],
         static_argnums: Optional[Union[int, Sequence[int]]] = None,
         jit_compile: Optional[bool] = None,
+        **kws: Any,
     ) -> Any:
         return libjax.jit(f, static_argnums=static_argnums)
 
