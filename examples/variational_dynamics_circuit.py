@@ -184,10 +184,10 @@ if __name__ == "__main__":
             f.append(-0.5j)
             door.append([0, i, numdiff(i)])
         for i in range(N - 1):
-            f.append(-1j)
+            f.append(-0.5j)
             door.append([5, i, i + 1])
         for i in range(N - 1):
-            f.append(-1j)
+            f.append(-0.5j)
             door.append([3, i, i + 1])
     for i in range(N):
         h.append(1)
@@ -235,54 +235,60 @@ if __name__ == "__main__":
 
     # variation realize
     ODE_theta = tf.zeros(len(door), dtype="float64")
+
+    a_batch_theta = []
+    a_batch_is_k = []
+    a_batch_is_q = []
+    for k in range(len(door)):
+        for q in range(len(door)):
+            is_k = [0 for _ in range(len(door))]
+            is_k[k] = 1
+            is_q = [0 for _ in range(len(door))]
+            is_q[q] = 1
+            if how_variation == 0:
+                a_batch_theta.append(np.angle(f[q]) - np.angle(f[k]))
+            else:
+                a_batch_theta.append(np.angle(f[q]) - np.angle(f[k]) - math.pi / 2)
+            a_batch_is_k.append(is_k)
+            a_batch_is_q.append(is_q)
+    a_batch_theta = tc.array_to_tensor(a_batch_theta)
+    a_batch_is_k = tf.constant(a_batch_is_k)
+    a_batch_is_q = tf.constant(a_batch_is_q)
+
+    c_batch_theta = []
+    c_batch_is_k = []
+    c_batch_is_q = []
+    for k in range(len(door)):
+        for q in range(len(h_door)):
+            is_k = [0 for _ in range(len(door))]
+            is_k[k] = 1
+            is_q = [0 for _ in range(len(door))]
+            is_q[q] = 1
+            c_batch_is_k.append(is_k)
+            c_batch_is_q.append(is_q)
+            if how_variation == 0:
+                c_batch_theta.append(np.angle(h[q]) - np.angle(f[k]) - math.pi / 2)
+            else:
+                c_batch_theta.append(np.angle(h[q]) - np.angle(f[k]) + math.pi)
+    c_batch_theta = tc.array_to_tensor(c_batch_theta)
+    c_batch_is_k = tf.constant(c_batch_is_k)
+    c_batch_is_q = tf.constant(c_batch_is_q)
+
     for T in range(int(t / dt)):
         # calculate coefficient in paper
-        A = np.zeros((len(door), len(door)))
-        C = np.zeros(len(door))
-        batch_theta = []
-        batch_is_k = []
-        batch_is_q = []
-        for k in range(len(door)):
-            for q in range(len(door)):
-                is_k = [0 for _ in range(len(door))]
-                is_k[k] = 1
-                is_q = [0 for _ in range(len(door))]
-                is_q[q] = 1
-                if how_variation == 0:
-                    batch_theta.append(np.angle(f[q]) - np.angle(f[k]))
-                else:
-                    batch_theta.append(np.angle(f[q]) - np.angle(f[k]) - math.pi / 2)
-                batch_is_k.append(is_k)
-                batch_is_q.append(is_q)
-        batch_theta = tc.array_to_tensor(batch_theta)
-        batch_is_k = tf.constant(batch_is_k)
-        batch_is_q = tf.constant(batch_is_q)
-        vmap_result = Calculation_A_vmap(batch_theta, batch_is_k, batch_is_q, ODE_theta)
+
+        vmap_result = Calculation_A_vmap(
+            a_batch_theta, a_batch_is_k, a_batch_is_q, ODE_theta
+        )
         A = tf.cast(
             tf.tensordot(tf.abs(f), tf.abs(f), 0), dtype="float64"
         ) * tf.reshape(
             tc.backend.cast(vmap_result, dtype="float64"), [len(door), len(door)]
         )
 
-        batch_theta = []
-        batch_is_k = []
-        batch_is_q = []
-        for k in range(len(door)):
-            for q in range(len(h_door)):
-                is_k = [0 for _ in range(len(door))]
-                is_k[k] = 1
-                is_q = [0 for _ in range(len(door))]
-                is_q[q] = 1
-                if how_variation == 0:
-                    batch_theta.append(np.angle(h[q]) - np.angle(f[k]) - math.pi / 2)
-                else:
-                    batch_theta.append(np.angle(h[q]) - np.angle(f[k]) + math.pi)
-                batch_is_k.append(is_k)
-                batch_is_q.append(is_q)
-        batch_theta = tc.array_to_tensor(batch_theta)
-        batch_is_k = tf.constant(batch_is_k)
-        batch_is_q = tf.constant(batch_is_q)
-        vmap_result = Calculation_C_vmap(batch_theta, batch_is_k, batch_is_q, ODE_theta)
+        vmap_result = Calculation_C_vmap(
+            c_batch_theta, c_batch_is_k, c_batch_is_q, ODE_theta
+        )
         C = tf.reduce_sum(
             tf.cast(tf.tensordot(tf.abs(f), tf.abs(h), 0), dtype="float64")
             * tf.reshape(
