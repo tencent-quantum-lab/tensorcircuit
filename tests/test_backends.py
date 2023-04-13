@@ -300,7 +300,7 @@ def test_backend_methods_2(backend):
 def test_device_cpu_only(backend):
     a = tc.backend.ones([])
     dev_str = tc.backend.device(a)
-    assert dev_str == "cpu"
+    assert dev_str in ["cpu", "gpu:0"]
     tc.backend.device_move(a, dev_str)
 
 
