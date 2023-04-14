@@ -49,6 +49,18 @@ def torchb():
 
 
 @pytest.fixture(scope="function")
+def cpb():
+    try:
+        tc.set_backend("cupy")
+        yield
+        tc.set_backend("numpy")
+    except ImportError as e:
+        print(e)
+        tc.set_backend("numpy")
+        pytest.skip("****** No cupy backend found, skipping test suit *******")
+
+
+@pytest.fixture(scope="function")
 def highp():
     tc.set_dtype("complex128")
     yield

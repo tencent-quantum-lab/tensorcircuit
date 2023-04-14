@@ -812,7 +812,7 @@ def exponential_gate(unitary: Tensor, theta: float, name: str = "none") -> Gate:
     :return: Exponential Gate
     :rtype: Gate
     """
-    theta = num_to_tensor(theta)
+    theta, unitary = num_to_tensor(theta, unitary)
     mat = backend.expm(-backend.i() * theta * unitary)
     dimension = reduce(mul, mat.shape)
     nolegs = int(np.log(dimension) / np.log(2))
