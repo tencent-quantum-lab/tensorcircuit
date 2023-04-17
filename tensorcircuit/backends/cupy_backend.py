@@ -8,6 +8,7 @@ import warnings
 from typing import Any, Callable, Optional, Sequence, Tuple, Union
 
 import numpy as np
+import scipy
 
 try:  # old version tn compatiblity
     from tensornetwork.backends import base_backend
@@ -62,6 +63,18 @@ class CuPyBackend(tnbackend, ExtendedBackend):  # type: ignore
     ) -> Tensor:
         return cp.sum(a, axis=axis, keepdims=keepdims)
 
+    def conj(self, tensor: Tensor) -> Tensor:
+        return tensor.conj()
+
+    def sign(self, tensor: Tensor) -> Tensor:
+        return cp.sign(tensor)
+
+    def multiply(self, tensor1: Tensor, tensor2: Tensor) -> Tensor:
+        return tensor1 * tensor2
+
+    def norm(self, tensor: Tensor) -> Tensor:
+        return cp.linalg.norm(tensor)
+
     def shape_tuple(self, tensor: Tensor) -> Tuple[int]:
         return tensor.shape  # type:ignore
 
@@ -100,7 +113,7 @@ class CuPyBackend(tnbackend, ExtendedBackend):  # type: ignore
         return a.copy()
 
     def expm(self, a: Tensor) -> Tensor:
-        raise NotImplementedError
+        return self.convert_to_tensor(scipy.linalg.expm(self.numpy(a)))
 
     def abs(self, a: Tensor) -> Tensor:
         return cp.abs(a)
@@ -307,7 +320,7 @@ class CuPyBackend(tnbackend, ExtendedBackend):  # type: ignore
             dtype = dtype[-2:]
         if isinstance(shape, int):
             shape = (shape,)
-        r = g.uniform(low=low, high=high, size=shape)
+        r = g.random(shape) * (high - low) + low
         if dtype == "32":
             r = r.astype(np.float32)
         elif dtype == "64":
