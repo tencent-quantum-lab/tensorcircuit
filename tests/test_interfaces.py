@@ -297,6 +297,7 @@ def test_dlpack_transformation(backend):
             target_backend=b,
             enable_dlpack=True,
         )
+        ans = tc.interfaces.which_backend(ans).device_move(ans, "cpu")
         np.testing.assert_allclose(ans, np.ones([2]))
 
 

@@ -31,6 +31,10 @@ check_pairs = [
 ]
 
 
+def test_about():
+    print(tc.about())
+
+
 def test_ps2coo(tfb):
     for l, a in check_pairs:
         r1 = PauliString2COO(tf.constant(l, dtype=tf.int64))
