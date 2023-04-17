@@ -381,22 +381,22 @@ class CuPyBackend(tnbackend, ExtendedBackend):  # type: ignore
         return branches[index]()
 
     def device(self, a: Tensor) -> str:
-        return "gpu"
+        return self._dev2str(a.device)
 
     def device_move(self, a: Tensor, dev: Any) -> Tensor:
-        if dev == "gpu":
-            return a
-        raise ValueError("CuPy backend only support GPU device")
+        if isinstance(dev, str):
+            dev = self._str2dev(dev)
+        with dev:
+            return cp.asarray(a)
 
     def _dev2str(self, dev: Any) -> str:
-        if dev == "gpu":
-            return "gpu"
-        raise ValueError("CuPy backend only support GPU device")
+        return f"gpu:{dev.id}"
 
     def _str2dev(self, str_: str) -> Any:
-        if str_ == "gpu":
-            return "gpu"
-        raise ValueError("CuPy backend only support GPU device")
+        if str_ == "cpu":
+            raise ValueError("CuPy backend only support GPU device")
+        else:
+            return cp.cuda.Device(int(str_.split(":")[-1]))
 
     def stop_gradient(self, a: Tensor) -> Tensor:
         raise NotImplementedError("CuPy backend doesn't support AD")
@@ -422,7 +422,7 @@ class CuPyBackend(tnbackend, ExtendedBackend):  # type: ignore
         f: Callable[..., Any],
         static_argnums: Optional[Union[int, Sequence[int]]] = None,
         jit_compile: Optional[bool] = None,
-        **kws: Any
+        **kws: Any,
     ) -> Callable[..., Any]:
         logger.warning("CuPy backend has no jit interface, just do nothing")
         return f
