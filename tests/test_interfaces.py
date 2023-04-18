@@ -109,6 +109,74 @@ def test_torch_interface(backend):
 
 
 @pytest.mark.skipif(is_torch is False, reason="torch not installed")
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_torch_interface_kws(backend):
+    def f(param, n):
+        c = tc.Circuit(n)
+        c = tc.templates.blocks.example_block(c, param)
+        loss = c.expectation(
+            [
+                tc.gates.x(),
+                [
+                    1,
+                ],
+            ]
+        )
+        return tc.backend.real(loss)
+
+    f_jit_torch = tc.interfaces.torch_interface_kws(f, jit=True, enable_dlpack=True)
+
+    param = torch.ones([4, 4], requires_grad=True)
+    l = f_jit_torch(param, n=4)
+    l = l**2
+    l.backward()
+
+    pg = param.grad
+    np.testing.assert_allclose(pg.shape, [4, 4])
+    np.testing.assert_allclose(pg[0, 1], -2.146e-3, atol=1e-5)
+
+    def f2(paramzz, paramx, n, nlayer):
+        c = tc.Circuit(n)
+        for i in range(n):
+            c.H(i)
+        for j in range(nlayer):  # 2
+            for i in range(n - 1):
+                c.exp1(i, i + 1, unitary=tc.gates._zz_matrix, theta=paramzz[j, i])
+            for i in range(n):
+                c.rx(i, theta=paramx[j, i])
+        loss1 = c.expectation(
+            [
+                tc.gates.x(),
+                [
+                    1,
+                ],
+            ]
+        )
+        loss2 = c.expectation(
+            [
+                tc.gates.x(),
+                [
+                    2,
+                ],
+            ]
+        )
+        return tc.backend.real(loss1), tc.backend.real(loss2)
+
+    f2_torch = tc.interfaces.torch_interface_kws(f2, jit=True, enable_dlpack=True)
+
+    paramzz = torch.ones([2, 4], requires_grad=True)
+    paramx = torch.ones([2, 4], requires_grad=True)
+
+    l1, l2 = f2_torch(paramzz, paramx, n=4, nlayer=2)
+    l = l1 - l2
+    l.backward()
+
+    pg = paramzz.grad
+    np.testing.assert_allclose(pg.shape, [2, 4])
+    np.testing.assert_allclose(pg[0, 0], -0.41609, atol=1e-5)
+
+
+@pytest.mark.skipif(is_torch is False, reason="torch not installed")
 @pytest.mark.xfail(
     (int(tf.__version__.split(".")[1]) < 9)
     or (int("".join(jax.__version__.split(".")[1:])) < 314),
