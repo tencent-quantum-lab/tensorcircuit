@@ -8,6 +8,12 @@
 
 - Torch support is updraded to 2.0, and now support native vmap and native functional grad, and thus `vvag`. Still jit support is conflict with these functional transformations and be turned off by default
 
+- Add `torch_interfaces_kws` that support static keyword arguments when wrapping with the interface
+
+### Fixed
+
+- Add tests and fixed some missing methods for cupy backend, cupy backend is now ready to use (though still not guaranteed)
+
 ## 0.8.0
 
 ### Added

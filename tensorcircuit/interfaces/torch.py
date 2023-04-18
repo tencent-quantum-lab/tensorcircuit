@@ -2,7 +2,8 @@
 Interface wraps quantum function as a torch function
 """
 
-from typing import Any, Callable, Tuple
+from typing import Any, Callable, Dict, Tuple
+from functools import partial
 
 from ..cons import backend
 from ..utils import is_sequence
@@ -112,3 +113,51 @@ def torch_interface(
 
 
 pytorch_interface = torch_interface
+
+
+def torch_interface_kws(
+    f: Callable[..., Any], jit: bool = True, enable_dlpack: bool = False
+) -> Callable[..., Any]:
+    """
+    similar to py:meth:`tensorcircuit.interfaces.torch.torch_interface`,
+    but now the interface support static arguments for function ``f``,
+    which is not a tensor and can be used with keyword arguments
+
+    :Example:
+
+    .. code-block:: python
+
+        tc.set_backend("tensorflow")
+
+        def f(tensor, integer):
+            r = 0.
+            for i in range(integer):
+                r += tensor
+            return r
+
+        fnew = torch_interface_kws(f)
+
+        print(fnew(torch.ones([2]), integer=3))
+        print(fnew(torch.ones([2]), integer=4))
+
+    :param f: _description_
+    :type f: Callable[..., Any]
+    :param jit: _description_, defaults to True
+    :type jit: bool, optional
+    :param enable_dlpack: _description_, defaults to False
+    :type enable_dlpack: bool, optional
+    :return: _description_
+    :rtype: Callable[..., Any]
+    """
+    cache_dict: Dict[Tuple[Any, ...], Callable[..., Any]] = {}
+
+    def wrapper(*args: Any, **kws: Any) -> Any:
+        key = tuple([(k, v) for k, v in kws.items()])
+        if key not in cache_dict:
+            fnew = torch_interface(
+                partial(f, **kws), jit=jit, enable_dlpack=enable_dlpack
+            )
+            cache_dict[key] = fnew
+        return cache_dict[key](*args)
+
+    return wrapper

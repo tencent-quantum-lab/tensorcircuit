@@ -12,5 +12,5 @@ from .tensortrans import (
 )
 from .numpy import numpy_interface, np_interface
 from .scipy import scipy_interface, scipy_optimize_interface
-from .torch import torch_interface, pytorch_interface
+from .torch import torch_interface, pytorch_interface, torch_interface_kws
 from .tensorflow import tensorflow_interface, tf_interface
