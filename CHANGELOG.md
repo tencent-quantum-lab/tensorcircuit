@@ -4,7 +4,7 @@
 
 ### Added
 
-- Add `tc.about()` to print related software versions and configs.
+- Add `tc.about()` to print related software versions and configs
 
 - Torch support is updraded to 2.0, and now support native vmap and native functional grad, and thus `vvag`. Still jit support is conflict with these functional transformations and be turned off by default
 

@@ -135,7 +135,7 @@ def torch_interface_kws(
                 r += tensor
             return r
 
-        fnew = torch_interface_kws(f)
+        fnew = tc.interfaces.torch_interface_kws(f)
 
         print(fnew(torch.ones([2]), integer=3))
         print(fnew(torch.ones([2]), integer=4))
