@@ -141,6 +141,53 @@ Similarly, conditional gate application must be takend carefully.
     # <tf.Tensor: shape=(2,), dtype=complex64, numpy=array([0.99999994+0.j, 0.        +0.j], dtype=complex64)>
 
 
+Tensor variables consistency
+-------------------------------------------------------
+
+
+All tensor variables' backend (tf vs jax vs ..), dtype (float vs complex), shape and device (cpu vs gpu) must be compatible/consistent.
+
+Inspect the backend, dtype, shape and device using the following codes.
+
+.. code-block:: python
+
+    for backend in ["numpy", "tensorflow", "jax", "pytorch"]:
+        with tc.runtime_backend(backend):
+            a = tc.backend.ones([2, 3])
+            print("tensor backend:", tc.interfaces.which_backend(a))
+            print("tensor dtype:", tc.backend.dtype(a))
+            print("tensor shape:", tc.backend.shape_tuple(a))
+            print("tensor device:", tc.backend.device(a))
+
+If the backend is inconsistent, one can convert the tensor backend via :py:meth:`tensorcircuit.interfaces.tensortrans.general_args_to_backend`.
+
+.. code-block:: python
+
+    for backend in ["numpy", "tensorflow", "jax", "pytorch"]:
+        with tc.runtime_backend(backend):
+            a = tc.backend.ones([2, 3])
+            print("tensor backend:", tc.interfaces.which_backend(a))
+            b = tc.interfaces.general_args_to_backend(a, target_backend="jax", enable_dlpack=False)
+            print("tensor backend:", tc.interfaces.which_backend(b))
+
+If the dtype is inconsistent, one can convert the tensor dtype using ``tc.backend.cast``.
+
+.. code-block:: python
+
+    for backend in ["numpy", "tensorflow", "jax", "pytorch"]:
+        with tc.runtime_backend(backend):
+            a = tc.backend.ones([2, 3])
+            print("tensor dtype:", tc.backend.dtype(a))
+            b = tc.backend.cast(a, dtype="float64")
+            print("tensor dtype:", tc.backend.dtype(b))
+
+Also note the jax issue on float64/complex128, see `jax gotcha <https://github.com/google/jax#current-gotchas>`_.
+
+If the shape is not consistent, one can convert the shape by ``tc.backend.reshape``.
+
+If the device is not consistent, one can move the tensor between devices by ``tc.backend.device_move``.
+
+
 AD Consistency
 ---------------------
 
