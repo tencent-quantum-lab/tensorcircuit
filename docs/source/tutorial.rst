@@ -20,3 +20,4 @@ Jupyter Tutorials
     tutorials/vqex_mbl.ipynb
     tutorials/dqas.ipynb
     tutorials/barren_plateaus.ipynb
+    tutorials/qaoa_portfolio_optimization.ipynb

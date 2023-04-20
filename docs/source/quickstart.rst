@@ -318,6 +318,7 @@ and the other part is implemented in `TensorCircuit package <modules.html#module
     'expm',
     'eye',
     'from_dlpack',
+    'g',
     'gather1d',
     'get_random_state',
     'gmres',
@@ -345,6 +346,7 @@ and the other part is implemented in `TensorCircuit package <modules.html#module
     'max',
     'mean',
     'min',
+    'minor',
     'mod',
     'multiply',
     'name',
@@ -353,6 +355,7 @@ and the other part is implemented in `TensorCircuit package <modules.html#module
     'one_hot',
     'onehot',
     'ones',
+    'optimizer',
     'outer_product',
     'pivot',
     'power',
@@ -419,6 +422,7 @@ and the other part is implemented in `TensorCircuit package <modules.html#module
     'vvag',
     'zeros']
 
+​
 
 Switch the Dtype
 --------------------
@@ -686,6 +690,20 @@ As we have mentioned in the backend section, the PyTorch backend may lack advanc
     print(a.grad)
 
 For a GPU/CPU, torch/tensorflow, quantum/classical hybrid machine learning pipeline enabled by tensorcircuit, see `example script <https://github.com/tencent-quantum-lab/tensorcircuit/blob/master/examples/hybrid_gpu_pipeline.py>`__.
+
+There is also a more flexible torch interface that support static non-tensor inputs as keyword arguments, which can be utilized as below:
+
+.. code-block:: python
+
+    def f(a, i):
+    s = 0.
+    for _ in range(i):
+        s += a
+    return s
+
+    f_torch = tc.interfaces.torch_interface_kws(f)
+    f_torch(torch.ones([2]), i=3)
+
 
 We also provider wrapper of quantum function for torch module as :py:meth:`tensorcircuit.TorchLayer` alias to :py:meth:`tensorcircuit.torchnn.QuantumNet`.
 
