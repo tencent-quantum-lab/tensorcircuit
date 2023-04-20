@@ -14,6 +14,8 @@
 
 - Add tests and fixed some missing methods for cupy backend, cupy backend is now ready to use (though still not guaranteed)
 
+- Fix adjoint gate numpy conversion for fixed gate case
+
 ## 0.8.0
 
 ### Added
