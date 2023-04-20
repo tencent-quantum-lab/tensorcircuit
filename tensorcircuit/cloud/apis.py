@@ -28,7 +28,8 @@ except (ImportError, ModuleNotFoundError):
 try:
     from . import quafu_provider
 except (ImportError, ModuleNotFoundError):
-    logger.warning("fail to load cloud provider module: quafu")
+    pass
+    # logger.warning("fail to load cloud provider module: quafu")
 
 package_name = "tensorcircuit"
 thismodule = sys.modules[__name__]
