@@ -24,7 +24,7 @@ Tensor = Any
 def _sum_numpy(
     self: Any, a: Tensor, axis: Optional[Sequence[int]] = None, keepdims: bool = False
 ) -> Tensor:
-    return np.sum(a, axis=axis, keepdims=keepdims)  # type: ignore
+    return np.sum(a, axis=axis, keepdims=keepdims)
     # see https://github.com/google/TensorNetwork/issues/952
 
 
@@ -161,7 +161,7 @@ class NumpyBackend(numpy_backend.NumPyBackend, ExtendedBackend):  # type: ignore
         return np.std(a, axis=axis, keepdims=keepdims)
 
     def unique_with_counts(self, a: Tensor, **kws: Any) -> Tuple[Tensor, Tensor]:
-        return np.unique(a, return_counts=True)  # type: ignore
+        return np.unique(a, return_counts=True)
 
     def min(self, a: Tensor, axis: Optional[int] = None) -> Tensor:
         return np.min(a, axis=axis)

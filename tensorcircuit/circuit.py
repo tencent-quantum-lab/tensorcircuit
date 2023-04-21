@@ -774,7 +774,7 @@ class Circuit(BaseCircuit):
 
     # TODO(@refraction-ray): more _before function like state_before? and better API?
 
-    def expectation(  # type: ignore
+    def expectation(
         self,
         *ops: Tuple[tn.Node, List[int]],
         reuse: bool = True,

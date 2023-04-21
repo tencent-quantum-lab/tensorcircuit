@@ -142,7 +142,7 @@ class QuantumLayer(Layer):  # type: ignore
 KerasLayer = QuantumLayer
 
 
-class HardwareLayer(QuantumLayer):  # type: ignore
+class HardwareLayer(QuantumLayer):
     @tf.autograph.experimental.do_not_convert  # type: ignore
     def call(
         self,

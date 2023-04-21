@@ -522,8 +522,8 @@ class MPSCircuit(AbstractCircuit):
         ordered = np.all(np.diff(index) > 0)
         if not ordered:
             order = np.argsort(index)
-            order2 = order + len(index)  # type: ignore
-            order_all = order.tolist() + order2.tolist()  # type: ignore
+            order2 = order + len(index)
+            order_all = order.tolist() + order2.tolist()
             newgate = backend.transpose(gate.tensor, order_all)
             index = np.sort(index).tolist()
             self.apply_nqubit_gate(newgate, *index, split=split)
@@ -814,7 +814,7 @@ class MPSCircuit(AbstractCircuit):
         )
         return mps
 
-    def expectation(  # type: ignore
+    def expectation(
         self,
         *ops: Tuple[Gate, List[int]],
         reuse: bool = True,

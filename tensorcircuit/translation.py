@@ -441,7 +441,7 @@ def qiskit2tc(
     elif is_dm:
         Circ = DMCircuit2
     else:
-        Circ = Circuit  # type: ignore
+        Circ = Circuit
     if circuit_params is None:
         circuit_params = {}
     if "nqubits" not in circuit_params:

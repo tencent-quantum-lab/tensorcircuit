@@ -26,13 +26,13 @@ pennylane
 mthree
 mitiq
 # below is for development
-mypy==0.982
+mypy==1.2.0
 pytest
 pytest-cov
 pytest-benchmark
 pytest-xdist
 pytest-lazy-fixture
-black==23.1.0
+black==23.3.0
 sphinx>=4.0
 sphinx-intl
 sphinx-copybutton
