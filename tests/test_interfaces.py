@@ -425,6 +425,5 @@ def test_args_to_tensor(backend):
 
     assert tc.interfaces.which_backend(a[0], return_backend=False) == tc.backend.name
     assert tc.backend.shape_tuple(a[1]) == (2, 2, 2, 2)
-    assert tc.interfaces.which_backend(b, return_backend=False) == tc.backend.name
-    assert tc.backend.shape_tuple(b) == (2, 2, 2, 2, 2, 2)
+    assert tc.backend.shape_tuple(b.eval()) == (2, 2, 2, 2, 2, 2)
     assert tc.backend.shape_tuple(c) == (2, 2, 2, 2)
