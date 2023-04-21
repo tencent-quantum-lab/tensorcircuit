@@ -1516,14 +1516,16 @@ def test_get_positional_logical_mapping():
     c.measure_instruction(0)
     assert c.get_positional_logical_mapping() == {0: 2, 1: 0}
 
+
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_inverse_jit(backend):
     K = tc.backend
+
     def simple_ansatz(param):
         c = tc.Circuit(3)
         for i in range(3):
-            c.cx(i, (i+1)%3)
-            c.rzz(i, (i+1)%3, theta=param[i])
+            c.cx(i, (i + 1) % 3)
+            c.rzz(i, (i + 1) % 3, theta=param[i])
         c1 = c.inverse()
         c2 = tc.Circuit(3)
         c2.x(1)
@@ -1533,4 +1535,4 @@ def test_inverse_jit(backend):
     v_ansatz = K.jit(K.vvag(simple_ansatz))
     vs, gs = v_ansatz(K.ones([2, 3], dtype="float32"))
     assert K.shape_tuple(gs) == (2, 3)
-    np.testing.assert_allclose(K.numpy(vs), -1.*K.ones([2]), atol=1e-5)
+    np.testing.assert_allclose(K.numpy(vs), -1.0 * K.ones([2]), atol=1e-5)
