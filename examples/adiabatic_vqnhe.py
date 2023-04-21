@@ -1,6 +1,7 @@
 """
 Calculate the molecule dissociation curve using VQNHE.
 """
+
 from functools import partial
 import sys
 

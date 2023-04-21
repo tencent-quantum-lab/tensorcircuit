@@ -2,6 +2,7 @@
 example showcasing how circuit can be load from and dump to json:
 useful for storage or restful api
 """
+
 import numpy as np
 import tensorcircuit as tc
 

@@ -1,6 +1,7 @@
 """
 Some chaotic properties calculations from the circuit state.
 """
+
 from functools import partial
 import sys
 
