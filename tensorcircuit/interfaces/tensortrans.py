@@ -50,9 +50,11 @@ def tensor_to_numpy(t: Tensor) -> Array:
 
 
 def tensor_to_backend_jittable(t: Tensor) -> Tensor:
-    if which_backend(t, return_backend=False) == backend.name:
-        return t
     if isinstance(t, int) or isinstance(t, float):
+        return t
+    if isinstance(t, QuOperator):
+        return t
+    if which_backend(t, return_backend=False) == backend.name:
         return t
     return backend.convert_to_tensor(which_backend(t).numpy(t))
 
@@ -281,9 +283,20 @@ def args_to_tensor(
                         partial(qop_to_matrix, is_reshapem=qop_as_matrix), arg
                     )
                 arg = backend.tree_map(tensor_to_backend_jittable, arg)
+
                 # arg = backend.tree_map(backend.convert_to_tensor, arg)
+                def _cast(a: Tensor, dtype: str) -> Tensor:
+                    if isinstance(a, QuOperator):
+                        return a
+                    return backend.cast(a, dtype)
+
+                def _reshapem(a: Tensor) -> Tensor:
+                    if isinstance(a, QuOperator):
+                        return a
+                    return backend.reshapem(a)
+
                 if cast_dtype:
-                    arg = backend.tree_map(partial(backend.cast, dtype=dtypestr), arg)
+                    arg = backend.tree_map(partial(_cast, dtype=dtypestr), arg)
                 if tensor_as_matrix:
                     arg = backend.tree_map(backend.reshapem, arg)
 
