@@ -1,6 +1,7 @@
 """
 demo example of mipt in tc style
 """
+
 from functools import partial
 import time
 import numpy as np

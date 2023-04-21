@@ -1,3 +1,7 @@
+"""
+Depracated, using ``vectorized_value_and_grad`` instead for batched optimization
+"""
+
 import sys
 
 sys.path.insert(0, "../")
