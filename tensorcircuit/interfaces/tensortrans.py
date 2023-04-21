@@ -276,7 +276,7 @@ def args_to_tensor(
                     arg = backend.tree_map(
                         partial(gate_to_matrix, is_reshapem=gate_as_matrix), arg
                     )
-                if qop_to_matrix:
+                if qop_as_matrix:
                     arg = backend.tree_map(
                         partial(qop_to_matrix, is_reshapem=qop_as_matrix), arg
                     )
