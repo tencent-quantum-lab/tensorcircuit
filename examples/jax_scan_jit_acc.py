@@ -1,5 +1,7 @@
 """
-reducing jax jit compiling time by some magic
+reducing jax jit compiling time by some magic:
+for backend agnostic but similar approach,
+see `hea_scan_jit_acc.py`
 """
 
 import numpy as np
