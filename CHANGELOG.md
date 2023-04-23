@@ -12,6 +12,10 @@
 
 - Add `gpu_memory_share` function and enable it by default
 
+- Add `scan` methods for backends
+
+- Add example demontrating how jax compiling time can be accelerated by `jax.lax.scan`
+
 ### Fixed
 
 - Add tests and fixed some missing methods for cupy backend, cupy backend is now ready to use (though still not guaranteed)
