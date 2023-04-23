@@ -172,6 +172,12 @@ def test_backend_methods(backend):
         atol=1e-5,
     )
 
+    def sum_(carry, x):
+        return carry + x
+
+    r = tc.backend.scan(sum_, tc.backend.ones([10, 2]), tc.backend.zeros([2]))
+    np.testing.assert_allclose(r, 10 * np.ones([2]), atol=1e-5)
+
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])
 def test_backend_methods_2(backend):

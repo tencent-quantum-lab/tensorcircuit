@@ -582,10 +582,13 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend, ExtendedBackend): 
     ) -> Tensor:
         return tf.cond(pred, true_fun, false_fun)
 
-    def switch(
-        self: Any, index: Tensor, branches: Sequence[Callable[[], Tensor]]
-    ) -> Tensor:
+    def switch(self, index: Tensor, branches: Sequence[Callable[[], Tensor]]) -> Tensor:
         return tf.switch_case(index, branches)
+
+    def scan(
+        self, f: Callable[[Tensor, Tensor], Tensor], xs: Tensor, init: Tensor
+    ) -> Tensor:
+        return tf.scan(f, xs, init)[-1]
 
     def device(self, a: Tensor) -> str:
         dev = a.device

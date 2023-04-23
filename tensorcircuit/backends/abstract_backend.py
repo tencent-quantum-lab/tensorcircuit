@@ -1334,6 +1334,28 @@ class ExtendedBackend:
             "Backend '{}' has not implemented `switch`.".format(self.name)
         )
 
+    def scan(
+        self: Any, f: Callable[[Tensor, Tensor], Tensor], xs: Tensor, init: Tensor
+    ) -> Tensor:
+        # use restricted f as tensorflow
+        """
+        This API follows ``tf.scan`` covention,
+        i.e. no ys supported as jax
+
+        :param f: _description_
+        :type f: Callable[Tuple[Tensor, Tensor], Tensor]
+        :param xs: _description_
+        :type xs: Tensor
+        :param init: _description_
+        :type init: Tensor
+        :return: _description_
+        :rtype: Tensor
+        """
+        carry = init
+        for x in xs:
+            carry = f(carry, x)
+        return carry
+
     def stop_gradient(self: Any, a: Tensor) -> Tensor:
         """
         Stop backpropagation from ``a``.
