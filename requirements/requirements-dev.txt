@@ -1,9 +1,9 @@
-mypy==0.982
+mypy==1.2.0
 pytest==6.2.4
 pytest-cov
 pytest-benchmark
 pytest-xdist
-black==23.1.0
+black==23.3.0
 sphinx>=4.0
 pytest-lazy-fixture
 pylint==2.11.1

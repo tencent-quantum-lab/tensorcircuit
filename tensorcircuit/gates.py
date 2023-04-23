@@ -14,7 +14,6 @@ import tensornetwork as tn
 from scipy.stats import unitary_group
 
 from .cons import backend, dtypestr, npdtype
-from .backends import get_backend
 from .utils import arg_alias
 
 thismodule = sys.modules[__name__]
@@ -257,22 +256,18 @@ class GateF:
         self.ctrl = ctrl
 
     def __call__(self, *args: Any, **kws: Any) -> Gate:
-        # m = array_to_tensor(self.m)
+        m1 = array_to_tensor(self.m)
         # m = backend.cast(m, dtypestr)
-        m = self.m.astype(npdtype)
-        return Gate(deepcopy(m), name=self.n)
+        m1 = backend.cast(m1, dtypestr)
+        return Gate(m1, name=self.n)
 
     def adjoint(self) -> "GateF":
         m = self.__call__()
-        npb = get_backend("numpy")
-        shape0 = npb.shape_tuple(m.tensor)
-        m0 = npb.reshapem(m.tensor)
-        ma = npb.adjoint(m0)
-        if np.allclose(m0, ma, atol=1e-5):
-            name = self.n
-        else:
-            name = self.n + "d"
-        ma = npb.reshape(ma, shape0)
+        shape0 = backend.shape_tuple(m.tensor)
+        m0 = backend.reshapem(m.tensor)
+        ma = backend.adjoint(m0)
+        name = self.n + "d"
+        ma = backend.reshape(ma, shape0)
         return GateF(ma, name, self.ctrl)
 
     # TODO(@refraction-ray): adjoint gate convention finally determined

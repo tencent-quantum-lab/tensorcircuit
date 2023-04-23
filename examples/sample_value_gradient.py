@@ -1,6 +1,7 @@
 """
 Evaluate expectation and gradient on Pauli string sum with finite measurement shots
 """
+
 from functools import partial
 import numpy as np
 import tensorcircuit as tc

@@ -696,10 +696,10 @@ There is also a more flexible torch interface that support static non-tensor inp
 .. code-block:: python
 
     def f(a, i):
-    s = 0.
-    for _ in range(i):
-        s += a
-    return s
+        s = 0.
+        for _ in range(i):
+            s += a
+        return s
 
     f_torch = tc.interfaces.torch_interface_kws(f)
     f_torch(torch.ones([2]), i=3)

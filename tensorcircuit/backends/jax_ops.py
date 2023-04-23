@@ -92,7 +92,7 @@ def jaxqr_bwd(res: Sequence[Array], tangents: Sequence[Array]) -> Tuple[Array]:
     dr = dr.conj()
 
     def _TriangularSolve(x: Array, r: Array) -> Array:
-        return jax.scipy.linalg.solve_triangular(  # type: ignore
+        return jax.scipy.linalg.solve_triangular(
             r, x.T.conj(), lower=False, trans=0
         ).T.conj()
 

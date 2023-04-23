@@ -2,6 +2,10 @@ __version__ = "0.8.0"
 __author__ = "TensorCircuit Authors"
 __creator__ = "refraction-ray"
 
+from .utils import gpu_memory_share
+
+gpu_memory_share()
+
 from .about import about
 from .cons import (
     backend,

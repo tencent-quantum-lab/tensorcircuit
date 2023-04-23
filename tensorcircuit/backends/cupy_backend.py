@@ -275,7 +275,7 @@ class CuPyBackend(tnbackend, ExtendedBackend):  # type: ignore
         raise NotImplementedError
 
     def searchsorted(self, a: Tensor, v: Tensor, side: str = "left") -> Tensor:
-        return cp.searchsorted(a, v, side=side)  # type: ignore
+        return cp.searchsorted(a, v, side=side)
 
     def set_random_state(
         self, seed: Optional[int] = None, get_only: bool = False

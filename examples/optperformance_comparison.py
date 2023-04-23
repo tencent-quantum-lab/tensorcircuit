@@ -2,6 +2,7 @@
 Optimization for performance comparison for different densities of two-qubit gates
 (random layouts averaged).
 """
+
 import sys
 
 sys.path.insert(0, "../")

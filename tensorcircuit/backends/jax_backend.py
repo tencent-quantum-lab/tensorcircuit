@@ -577,6 +577,16 @@ class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
         branches_null = [lambda _, f=b: f() for b in branches]
         return libjax.lax.switch(index, branches_null, None)
 
+    def scan(
+        self, f: Callable[[Tensor, Tensor], Tensor], xs: Tensor, init: Tensor
+    ) -> Tensor:
+        def f_jax(*args: Any, **kws: Any) -> Any:
+            r = f(*args, **kws)
+            return r, None
+
+        carry, _ = libjax.lax.scan(f_jax, init, xs)
+        return carry
+
     def scatter(self, operand: Tensor, indices: Tensor, updates: Tensor) -> Tensor:
         rank = len(operand.shape)
         dnums = libjax.lax.ScatterDimensionNumbers(

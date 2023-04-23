@@ -6,13 +6,25 @@
 
 - Add `tc.about()` to print related software versions and configs
 
-- Torch support is updraded to 2.0, and now support native vmap and native functional grad, and thus `vvag`. Still jit support is conflict with these functional transformations and be turned off by default
+- Torch support is upgraded to 2.0, and now support native vmap and native functional grad, and thus `vvag`. Still jit support is conflict with these functional transformations and be turned off by default
 
 - Add `torch_interfaces_kws` that support static keyword arguments when wrapping with the interface
+
+- Add `gpu_memory_share` function and enable it by default
+
+- Add `scan` methods for backends
+
+- Add example demontrating how jax compiling time can be accelerated by `jax.lax.scan`
 
 ### Fixed
 
 - Add tests and fixed some missing methods for cupy backend, cupy backend is now ready to use (though still not guaranteed)
+
+- Fix adjoint gate numpy conversion for fixed gate case
+
+### Changed
+
+- Upgraded black and mypy==1.2.0 (breaking change for developers)
 
 ## 0.8.0
 
