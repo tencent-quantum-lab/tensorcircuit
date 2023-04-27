@@ -22,6 +22,8 @@
 
 - Fix adjoint gate numpy conversion for fixed gate case
 
+- Sometime, tf just return IndexedSlice instead of tensor from gradient API, partially fix this in tc backend methods
+
 ### Changed
 
 - Upgraded black and mypy==1.2.0 (breaking change for developers)
