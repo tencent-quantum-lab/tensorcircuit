@@ -725,6 +725,11 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend, ExtendedBackend): 
         for i, gi in enumerate(g):
             if gi is None:
                 g[i] = tf.zeros_like(inputs[i])
+            if isinstance(gi, tf.IndexedSlices):
+                # gradient can return sth weird
+                # TODO(@refraction-ray): check whether other AD tf methods have such issues
+                # shape is still unkown, dense_shape attr doesn't work?
+                g[i] = tf.convert_to_tensor(gi)
         g = tuple(g)
         if one_input:
             g = g[0]
