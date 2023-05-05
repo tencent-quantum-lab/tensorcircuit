@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changed
+
+- Add compiler and cloud namespace to the global tensorcircuit namespace
+
 ## 0.9.0
 
 ### Added

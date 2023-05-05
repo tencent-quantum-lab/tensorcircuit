@@ -38,6 +38,8 @@ from . import templates
 from . import results
 from . import quantum
 from .quantum import QuOperator, QuVector, QuAdjointVector, QuScalar
+from . import compiler
+from . import cloud
 
 try:
     from . import keras
