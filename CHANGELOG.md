@@ -4,6 +4,8 @@
 
 ### Added
 
+- Cloud module for Tencent QCloud is now merged into the master branch and ready to release
+
 - Add `tc.about()` to print related software versions and configs
 
 - Torch support is upgraded to 2.0, and now support native vmap and native functional grad, and thus `vvag`. Still jit support is conflict with these functional transformations and be turned off by default
