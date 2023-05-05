@@ -12,6 +12,10 @@ import tensorcircuit as tc
 from tensorcircuit.cloud import apis, wrapper
 from tensorcircuit.results import counts
 
+if "TC_CLOUD_TEST" not in os.environ:
+    pytest.skip(allow_module_level=True)
+    # skip on CI due to no token
+
 
 def test_get_token():
     print(apis.get_token(provider="Tencent"))
