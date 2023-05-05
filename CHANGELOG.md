@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.9.0
+
 ### Added
 
 - Cloud module for Tencent QCloud is now merged into the master branch and ready to release
