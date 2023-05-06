@@ -4,12 +4,11 @@ Run the following command to build the docker for tensorcircuit at parent path:
 sudo docker build . -f docker/Dockerfile -t tensorcircuit
 ```
 
-One can also pull the [official image](https://hub.docker.com/repository/docker/tensorcircuit/tensorcircuit) from DockerHub as 
+One can also pull the [official image](https://hub.docker.com/repository/docker/tensorcircuit/tensorcircuit) from DockerHub as
 
 ```bash
 sudo docker pull tensorcircuit/tensorcircuit
 ```
-
 
 Run the docker container by the following command:
 
@@ -26,4 +25,4 @@ sudo docker run -it --network host --gpus all tensorcircuit
 
 `export TF_CPP_MIN_LOG_LEVEL=3` maybe necessary since jax suprisingly frequently complain about ptxas version problem. And `export CUDA_VISIBLE_DEVICES=-1` if you want to test only on CPU.
 
-The built docker has no tensorcircuit installed but left with a tensorcircuit source code dir. So one can `python setup.py develop` to install tensorcircuit locally (in which one can also mount the tensorcircuit codebase on host) or `pip install tensorcircuit` within the running docker.
+The built docker has no tensorcircuit pip package installed but left with a tensorcircuit source code dir. So one can `python setup.py develop` to install tensorcircuit locally (one can also mount the tensorcircuit codebase on host) or `pip install tensorcircuit` within the running docker.

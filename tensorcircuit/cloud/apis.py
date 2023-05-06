@@ -41,7 +41,7 @@ avail_providers = ["tencent", "local"]
 
 def list_providers() -> List[Provider]:
     """
-    list all providers that tensorcircuit supports
+    list all cloud providers that tensorcircuit supports
 
     :return: _description_
     :rtype: List[Provider]
@@ -85,7 +85,7 @@ def set_device(
     set_global: bool = True,
 ) -> Device:
     """
-    _summary_
+    set the default device
 
     :param provider: provider of the device, defaults to None
     :type provider: Optional[Union[str, Provider]], optional
@@ -412,6 +412,10 @@ def submit_task(
 ) -> List[Task]:
     """
     submit task to the cloud platform, batch submission default enabled
+
+    .. seealso::
+
+        :py:meth:`tensorcircuit.cloud.tencent.submit_task`
 
     :param provider: _description_, defaults to None
     :type provider: Optional[Union[str, Provider]], optional

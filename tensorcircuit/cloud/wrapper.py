@@ -23,7 +23,7 @@ Tensor = Any
 
 
 def batch_submit_template(device: str) -> Callable[..., List[counts.ct]]:
-    # TODO(@refraction-ray): fixed when batch submission really works
+    # TODO(@refraction-ray): adpative batch
     def run(cs: Union[Circuit, Sequence[Circuit]], shots: int) -> List[counts.ct]:
         """
         batch circuit running alternative
@@ -54,8 +54,12 @@ def sample_expectation_ps(
     device: Optional[Device] = None,
     **kws: Any,
 ) -> float:
-    # deprecated
-    # TODO(@refraction-ray): integrated error mitigation
+    """
+    Deprecated, please use :py:meth:`tensorcircuit.cloud.wrapper.batch_expectation_ps`.
+    """
+    logger.warning(
+        "This method is deprecated and not maintained, please use `tensorcircuit.cloud.wrapper.batch_expectation_ps` instead"
+    )
     c1 = Circuit.from_qir(c.to_qir())
     if x is None:
         x = []
@@ -83,14 +87,50 @@ def batch_expectation_ps(
     shots: int = 8192,
     with_rem: bool = True,
 ) -> Union[Any, List[Any]]:
+    """
+    Unified interface to compute the Pauli string expectation lists or sums via simulation or on real qpu.
+    Error mitigation, circuit compilation and Pauli string grouping are all built-in.
+
+    One line access to unlock the whole power or real quantum hardware on quantum cloud.
+
+    :Example:
+
+    .. code-block:: python
+
+        c = tc.Circuit(2)
+        c.h(0)
+        c.x(1)
+        tc.cloud.wrapper.batch_expectation_ps(c, [[1, 0], [0, 3]], device=None)
+        # array([ 0.99999994, -0.99999994], dtype=float32)
+        tc.cloud.wrapper.batch_expectation_ps(c, [[1, 0], [0, 3]], device="tencent::9gmon")
+        # array([ 1.03093477, -1.11715944])
+
+    :param c: The target circuit to compute expectation
+    :type c: Circuit
+    :param pss: List of Pauli string list, eg. [[0, 1, 0], [2, 3, 3]] represents [X1, Y0Z1Z2].
+    :type pss: List[List[int]]
+    :param device: The device str or object for quantum cloud module,
+        defaults to None, None is for analytical exact simulation
+    :type device: Any, optional
+    :param ws: List of float to indicate the final return is the weighted sum of Pauli string expectations,
+        e.g. [2., -0.3] represents the final results is 2* ``pss`` [0]-0.3* ``pss`` [1]
+        defaults to None, None indicate the list of expectations for ``pss`` are all returned
+    :type ws: Optional[List[float]], optional
+    :param shots: measurement shots for each expectation estimation, defaults to 8192
+    :type shots: int, optional
+    :param with_rem: whether enable readout error mitigation for the result, defaults to True
+    :type with_rem: bool, optional
+    :return: List of Pauli string expectation or a weighted sum float for Pauli strings, depending on ``ws``
+    :rtype: Union[Any, List[Any]]
+    """
     if device is None:
         results = []
         for ps in pss:
             results.append(c.expectation_ps(**ps2xyz(ps)))  # type: ignore
         if ws is None:
-            return backend.stack(results)
+            return backend.real(backend.stack(results))
         else:
-            return backend.sum([w * r for w, r in zip(ws, results)])
+            return backend.real(backend.sum([w * r for w, r in zip(ws, results)]))
     cs = []
     infos = []
     exps = []
@@ -113,6 +153,7 @@ def batch_expectation_ps(
             c1,
             compiled_options={
                 "basis_gates": device.native_gates(),
+                # whether + "cx" here?
                 "optimization_level": 3,
                 "coupling_map": device.topology(),
             },
@@ -180,6 +221,6 @@ def batch_expectation_ps(
             counts.expectation(raw_counts[i], exps[i]) for i in range(len(raw_counts))
         ]
     if ws is not None:
-        sumr = sum([w * r for w, r in zip(ws, results)])
+        sumr = backend.sum([w * r for w, r in zip(ws, results)])
         return sumr
-    return results
+    return backend.stack(results)
