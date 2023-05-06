@@ -139,6 +139,7 @@ def batch_expectation_ps(
         device = get_device(device)
     for ps in pss:
         # TODO(@refraction-ray): Pauli string grouping
+        # https://docs.pennylane.ai/en/stable/_modules/pennylane/pauli/grouping/group_observables.html
         c1 = Circuit.from_qir(c.to_qir())
         exp = []
         for j, i in enumerate(ps):
