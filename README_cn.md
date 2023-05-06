@@ -35,7 +35,7 @@ TensorCircuit 现在支持真实量子硬件连接和实验，并提供优雅的
 
 请从 [快速上手](/docs/source/quickstart.rst) 和 [Jupyter 教程](/docs/source/tutorials) 开始。
 
-有关更多信息和介绍，请参阅有用的 [示例脚本](/examples) 和 [完整文档](https://tensorcircuit.readthedocs.io/zh/latest/)。 [测试](/tests) 中的 API docstring 和测试用例也提供了丰富的信息。
+有关更多信息和介绍，请参阅有用的 [示例脚本](/examples) 和 [完整文档](https://tensorcircuit.readthedocs.io/zh/latest/)。 [测试](/tests)用例和 API docstring 也提供了丰富的使用信息。
 
 以下是一些最简易的演示。
 
@@ -140,29 +140,35 @@ pip install tensorcircuit-nightly
 ### DQAS
 
 可微量子架构搜索的应用见 [应用](/tensorcircuit/applications)。
+
 参考论文：https://arxiv.org/abs/2010.08561 (QST)。
 
 ### VQNHE
 
 关于变分量子神经混合本征求解器的应用，请参见 [应用](tensorcircuit/applications)。
+
 参考论文：https://arxiv.org/abs/2106.05105 (PRL) 和 https://arxiv.org/abs/2112.10380 。
 
-### VQEX - MBL
+### VQEX-MBL
 
 VQEX 在 MBL 相位识别上的应用见 [教程](/docs/source/tutorials/vqex_mbl.ipynb)。
+
 参考论文: https://arxiv.org/abs/2111.13719 (PRB)。
 
-### Stark - DTC
+### Stark-DTC
 
-数值验证 Stark 多体局域化稳定的离散时间晶体，类似的 Floquet 系统模拟请参考 [例子](/examples/timeevolution_trotter.py).
-参考论文: https://arxiv.org/abs/2208.02866 (PRL).
+数值验证 Stark 多体局域化稳定的离散时间晶体，类似的 Floquet 系统模拟请参考 [例子](/examples/timeevolution_trotter.py)。
+
+参考论文: https://arxiv.org/abs/2208.02866 (PRL)。
 
 ### EMQAOA-DARBO
 
-数值模拟和带错误消除的真实量子硬件实验验证 QAOA 优化的代码请参考 [项目](https://github.com/sherrylixuecheng/EMQAOA-DARBO).
-参考论文: https://arxiv.org/abs/2303.14877.
+数值模拟和带错误消除的真实量子硬件实验验证 QAOA 优化的代码请参考 [项目](https://github.com/sherrylixuecheng/EMQAOA-DARBO)。
+
+参考论文: https://arxiv.org/abs/2303.14877。
 
 ### TenCirChem
 
 [TenCirChem](https://github.com/tencent-quantum-lab/TenCirChem) 是高效的，专注于处理和计算分子性质的量子计算软件。其基于 TensorCircuit 并为量子化学任务进行了专门的优化。
-参考论文: https://arxiv.org/abs/2303.10825.
+
+参考论文: https://arxiv.org/abs/2303.10825。

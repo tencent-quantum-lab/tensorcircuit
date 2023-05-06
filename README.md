@@ -194,29 +194,35 @@ We welcome [issues](https://github.com/tencent-quantum-lab/tensorcircuit/issues)
 ### DQAS
 
 For the application of Differentiable Quantum Architecture Search, see [applications](/tensorcircuit/applications).
+
 Reference paper: https://arxiv.org/abs/2010.08561 (published in QST).
 
 ### VQNHE
 
 For the application of Variational Quantum-Neural Hybrid Eigensolver, see [applications](/tensorcircuit/applications).
+
 Reference paper: https://arxiv.org/abs/2106.05105 (published in PRL) and https://arxiv.org/abs/2112.10380.
 
-### VQEX - MBL
+### VQEX-MBL
 
 For the application of VQEX on MBL phase identification, see the [tutorial](/docs/source/tutorials/vqex_mbl.ipynb).
+
 Reference paper: https://arxiv.org/abs/2111.13719 (published in PRB).
 
-### Stark - DTC
+### Stark-DTC
 
 For the numerical demosntration of discrete time crystal enabled by Stark many-body localization, see the Floquet simulation [demo](/examples/timeevolution_trotter.py).
+
 Reference paper: https://arxiv.org/abs/2208.02866 (published in PRL).
 
 ### EMQAOA-DARBO
 
 For the numerical simulation and hardware experiments with error mitigation on QAOA, see the [project repo](https://github.com/sherrylixuecheng/EMQAOA-DARBO).
+
 Reference paper: https://arxiv.org/abs/2303.14877.
 
 ### TenCirChem
 
 [TenCirChem](https://github.com/tencent-quantum-lab/TenCirChem) is an efficient and versatile quantum computation package for molecular properties. TenCirChem is based on TensorCircuit and is optimized for chemistry applications.
+
 Reference paper: https://arxiv.org/abs/2303.10825.
