@@ -58,7 +58,8 @@ def sample_expectation_ps(
     Deprecated, please use :py:meth:`tensorcircuit.cloud.wrapper.batch_expectation_ps`.
     """
     logger.warning(
-        "This method is deprecated and not maintained, please use `tensorcircuit.cloud.wrapper.batch_expectation_ps` instead"
+        "This method is deprecated and not maintained, \
+        please use `tensorcircuit.cloud.wrapper.batch_expectation_ps` instead"
     )
     c1 = Circuit.from_qir(c.to_qir())
     if x is None:

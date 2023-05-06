@@ -29,9 +29,9 @@
 
 <p align="center"> English | <a href="README_cn.md"> 简体中文 </a></p>
 
-TensorCircuit is the next generation of quantum circuit simulators with support for automatic differentiation, just-in-time compiling, hardware acceleration, and vectorized parallelism.
+TensorCircuit is the next generation of quantum software framework with support for automatic differentiation, just-in-time compiling, hardware acceleration, and vectorized parallelism.
 
-TensorCircuit is built on top of modern machine learning frameworks and is machine learning backend agnostic. It is specifically suitable for highly efficient simulations of quantum-classical hybrid paradigm and variational quantum algorithms.
+TensorCircuit is built on top of modern machine learning frameworks and is machine learning backend agnostic. It is specifically suitable for highly efficient simulations of quantum-classical hybrid paradigm and variational quantum algorithms. It also supports real quantum hardware access and provides CPU/GPU/QPU hybrid deployment solutions since v0.9.
 
 ## Getting Started
 
@@ -90,7 +90,7 @@ We recommend you install this package with tensorflow also installed as:
 pip install tensorcircuit[tensorflow]
 ```
 
-Other optional dependencies include `[torch]`, `[jax]` and `[qiskit]`.
+Other optional dependencies include `[torch]`, `[jax]`, `[qiskit]` and `[cloud]`.
 
 For the nightly build of tensorcircuit with new features, try:
 

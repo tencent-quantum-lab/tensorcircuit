@@ -32,7 +32,7 @@ Overview of Modules
 
 **ML Interfaces Related Modules:**
 
-- :py:mod:`tensorcircuit.interfaces`: Provide interfaces when quantum simulation backend is different from neural libraries. Currently include PyTorch and scipy optimizer interfaces.
+- :py:mod:`tensorcircuit.interfaces`: Provide interfaces when quantum simulation backend is different from neural libraries. Currently include PyTorch, TensorFlow, NumPy and SciPy optimizer interfaces.
 
 - :py:mod:`tensorcircuit.keras`: Provide TensorFlow Keras layers, as well as wrappers of jitted function, save/load from tf side.
 
@@ -62,7 +62,13 @@ Overview of Modules
 
 **Processing and error mitigation on sample results:**
 
-- :py:mod:`tensorcircuit.results`: Provide tools to process count dict and to apply error mitigation
+- :py:mod:`tensorcircuit.results`: Provide tools to process count dict and to apply error mitigation.
+
+**Cloud quantum hardware access module:**
+
+- :py:mod:`tensorcircuit.cloud`: Provide quantum cloud SDK that can access and program the real quantum hardware.
+
+- :py:mod:`tensorcircuit.compiler`: Provide compiler chains to compile and transform quantum circuits.
 
 **Shortcuts and Templates for Circuit Manipulation:**
 
