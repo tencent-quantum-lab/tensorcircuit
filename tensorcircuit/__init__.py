@@ -43,13 +43,13 @@ from . import cloud
 
 try:
     from . import keras
-    from .keras import QuantumLayer as KerasLayer
+    from .keras import KerasLayer, KerasHardwareLayer
 except ModuleNotFoundError:
     pass  # in case tf is not installed
 
 try:
     from . import torchnn
-    from .torchnn import QuantumNet as TorchLayer
+    from .torchnn import TorchLayer, TorchHardwareLayer
 except ModuleNotFoundError:
     pass  # in case torch is not installed
 

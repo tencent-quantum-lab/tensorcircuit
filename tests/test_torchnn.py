@@ -74,3 +74,26 @@ def test_inputs_multiple(backend):
     lsum.backward()
     for p in layer.parameters():
         print(p.grad)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])
+def test_torchnn_hardware(backend):
+    n = 2
+
+    def qf(inputs, param):
+        inputs = tc.backend.convert_to_tensor(tc.get_backend("pytorch").numpy(inputs))
+        param = tc.backend.convert_to_tensor(tc.get_backend("pytorch").numpy(param))
+
+        c = tc.Circuit(n)
+        c.rx(0, theta=inputs[0])
+        c.rx(1, theta=inputs[1])
+        c.h(1)
+        c.rzz(0, 1, theta=param[0])
+        r = tc.backend.stack([c.expectation_ps(z=[i]) for i in range(n)])
+
+        r = tc.get_backend("pytorch").convert_to_tensor(tc.backend.numpy(r))
+        return torch.real(r)
+
+    ql = tc.torchnn.HardwareNet(qf, [1])
+    qnet = torch.nn.Sequential(ql, torch.nn.Linear(2, 1))
+    print(qnet(torch.ones([5, 2])))

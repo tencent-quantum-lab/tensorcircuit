@@ -97,3 +97,42 @@ class QuantumNet(torch.nn.Module):
 
 
 TorchLayer = QuantumNet
+
+
+class HardwareNet(QuantumNet):
+    """
+    PyTorch Layer wrapping quantum function with cloud qpu access
+    (using :py:mod:`tensorcircuit.cloud` module)
+    """
+
+    def __init__(
+        self,
+        f: Callable[..., Any],
+        weights_shape: Sequence[Tuple[int, ...]],
+        initializer: Union[Any, Sequence[Any]] = None,
+        use_vmap: bool = True,
+    ):
+        super().__init__(
+            f,
+            weights_shape,
+            initializer,
+            use_vmap=False,
+            use_interface=False,
+            use_jit=False,
+        )
+        self.batch_support = use_vmap
+
+    def forward(self, *inputs: Tensor) -> Tensor:
+        if self.batch_support:
+            ypred = []
+            batch = inputs[0].shape[0]
+            for i in range(batch):
+                inp = tuple([a[i] for a in inputs])
+                ypred.append(self.f(*inp, *self.q_weights))
+            ypred = torch.stack(ypred)  # type: ignore
+        else:
+            ypred = self.f(*inputs, *self.q_weights)
+        return ypred
+
+
+TorchHardwareLayer = HardwareNet
