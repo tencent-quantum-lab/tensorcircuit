@@ -30,7 +30,7 @@ We also thank `contributions <https://github.com/tencent-quantum-lab/tensorcircu
 
 * Documentation: https://tensorcircuit.readthedocs.io 
 
-* Software Whitepaper published in Quantum: https://quantum-journal.org/papers/q-2023-02-02-912/
+* Software Whitepaper (published in Quantum): https://quantum-journal.org/papers/q-2023-02-02-912/
 
 * Issue Tracker: https://github.com/tencent-quantum-lab/tensorcircuit/issues
 
@@ -39,6 +39,10 @@ We also thank `contributions <https://github.com/tencent-quantum-lab/tensorcircu
 * PyPI page: https://pypi.org/project/tensorcircuit
 
 * DockerHub page: https://hub.docker.com/repository/docker/tensorcircuit/tensorcircuit
+
+* Research and projects based on TensorCircuit: https://github.com/tencent-quantum-lab/tensorcircuit#research-and-applications
+
+* Tencent Quantum Cloud Service: https://quantum.tencent.com/cloud/
 
 If you have any further questions or collaboration ideas in terms of TensorCircuit, please send email to shixinzhang#tencent.com.
 

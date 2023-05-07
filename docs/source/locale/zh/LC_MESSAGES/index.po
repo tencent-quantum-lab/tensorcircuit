@@ -6,17 +6,18 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version:  tensorcircuit\n"
+"Project-Id-Version: tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-02 13:41+0800\n"
-"PO-Revision-Date: 2022-04-16 22:37+0800\n"
+"POT-Creation-Date: 2023-05-07 10:47+0800\n"
+"PO-Revision-Date: 2023-05-07 11:00+0800\n"
 "Last-Translator: Xinghan Yang\n"
-"Language: cn\n"
 "Language-Team: \n"
+"Language: cn\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: ../../source/index.rst:2
 msgid "Guide to TensorCircuit"
@@ -42,129 +43,144 @@ msgstr "先进张量网络引擎赋能。🔋"
 
 #: ../../source/index.rst:15
 msgid ""
+"It is ready for quantum hardware access with CPU/GPU/QPU hybrid deployment "
+"solutions. 🖥"
+msgstr "量子硬件支持，优雅 CPU/GPU/QPU 混合部署方案。 🖥"
+
+#: ../../source/index.rst:17
+msgid ""
 "It is implemented with industry-standard machine learning frameworks: "
 "TensorFlow, JAX, and PyTorch. 🤖"
 msgstr "业界标准机器学习框架 TensorFlow，JAX，PyTorch 实现。🤖"
 
-#: ../../source/index.rst:17
+#: ../../source/index.rst:19
 msgid ""
 "It is compatible with machine learning engineering paradigms: automatic "
-"differentiation, just-in-time compilation, vectorized parallelism and GPU"
-" acceleration. 🛠"
+"differentiation, just-in-time compilation, vectorized parallelism and GPU "
+"acceleration. 🛠"
 msgstr "与机器学习工程实践兼容：自动微分，即时编译，向量并行化和 GPU 加速。🛠"
 
-#: ../../source/index.rst:20
+#: ../../source/index.rst:23
 msgid "Links"
 msgstr "重要链接"
 
-#: ../../source/index.rst:22
+#: ../../source/index.rst:25
 msgid ""
-"TensorCircuit is created and maintained by `Shi-Xin Zhang "
-"<https://github.com/refraction-ray>`_ and this version of the software is"
-" released by `Tencent Quantum Lab <https://quantum.tencent.com/>`_. The "
-"current core authors of TensorCircuit are `Shi-Xin Zhang "
-"<https://github.com/refraction-ray>`_ and `Yu-Qin Chen "
-"<https://github.com/yutuer21>`_. We also thank `contributions "
-"<https://github.com/tencent-quantum-"
-"lab/tensorcircuit/graphs/contributors>`_ from the lab and the open source"
-" community."
+"TensorCircuit is created and maintained by `Shi-Xin Zhang <https://github.com/"
+"refraction-ray>`_ and this version of the software is released by `Tencent "
+"Quantum Lab <https://quantum.tencent.com/>`_. The current core authors of "
+"TensorCircuit are `Shi-Xin Zhang <https://github.com/refraction-ray>`_ and `Yu-"
+"Qin Chen <https://github.com/yutuer21>`_. We also thank `contributions <https://"
+"github.com/tencent-quantum-lab/tensorcircuit/graphs/contributors>`_ from the "
+"lab and the open source community."
 msgstr ""
 
-#: ../../source/index.rst:26
+#: ../../source/index.rst:29
 msgid "Source code: https://github.com/tencent-quantum-lab/tensorcircuit"
 msgstr "源代码: https://github.com/tencent-quantum-lab/tensorcircuit"
 
-#: ../../source/index.rst:28
-#, fuzzy
-msgid "Software Whitepaper: https://arxiv.org/abs/2205.10091"
-msgstr "白皮书文章: https://arxiv.org/abs/2205.10091"
-
-#: ../../source/index.rst:30
+#: ../../source/index.rst:31
 msgid "Documentation: https://tensorcircuit.readthedocs.io"
 msgstr "文档: https://tensorcircuit.readthedocs.io"
 
-#: ../../source/index.rst:32
+#: ../../source/index.rst:33
+msgid ""
+"Software Whitepaper (published in Quantum): https://quantum-journal.org/papers/"
+"q-2023-02-02-912/"
+msgstr ""
+"软件白皮书 (发表于 Quantum): https://quantum-journal.org/papers/"
+"q-2023-02-02-912/"
+
+#: ../../source/index.rst:35
 msgid "Issue Tracker: https://github.com/tencent-quantum-lab/tensorcircuit/issues"
 msgstr "问题跟踪: https://github.com/tencent-quantum-lab/tensorcircuit/issues"
 
-#: ../../source/index.rst:34
+#: ../../source/index.rst:37
 msgid "Forum: https://github.com/tencent-quantum-lab/tensorcircuit/discussions"
-msgstr "论坛社区: https://github.com/tencent-quantum-lab/tensorcircuit/discussions"
+msgstr ""
+"论坛社区: https://github.com/tencent-quantum-lab/tensorcircuit/discussions"
 
-#: ../../source/index.rst:36
+#: ../../source/index.rst:39
 msgid "PyPI page: https://pypi.org/project/tensorcircuit"
 msgstr "PyPI 页面: https://pypi.org/project/tensorcircuit"
 
-#: ../../source/index.rst:38
+#: ../../source/index.rst:41
 msgid ""
-"DockerHub page: "
-"https://hub.docker.com/repository/docker/tensorcircuit/tensorcircuit"
+"DockerHub page: https://hub.docker.com/repository/docker/tensorcircuit/"
+"tensorcircuit"
 msgstr ""
-"DockerHub 页面: "
-"https://hub.docker.com/repository/docker/tensorcircuit/tensorcircuit"
+"DockerHub 页面: https://hub.docker.com/repository/docker/tensorcircuit/"
+"tensorcircuit"
 
 #: ../../source/index.rst:43
+msgid ""
+"Research and projects based on TensorCircuit: https://github.com/tencent-"
+"quantum-lab/tensorcircuit#research-and-applications"
+msgstr ""
+"基于 TensorCircuit 的研究和项目: https://github.com/tencent-quantum-lab/"
+"tensorcircuit#research-and-applications"
+
+#: ../../source/index.rst:45
+msgid "Tencent Quantum Cloud Service: https://quantum.tencent.com/cloud/"
+msgstr "腾讯量子云服务: https://quantum.tencent.com/cloud/"
+
+#: ../../source/index.rst:47
+msgid ""
+"If you have any further questions or collaboration ideas in terms of "
+"TensorCircuit, please send email to shixinzhang#tencent.com."
+msgstr ""
+"如果关于 TensorCircuit 有任何其他问题咨询或合作意向，请发送邮件到 "
+"shixinzhang#tencent.com。"
+
+#: ../../source/index.rst:51
 msgid "Reference Documentation"
 msgstr "参考文档"
 
-#: ../../source/index.rst:45
+#: ../../source/index.rst:53
 msgid ""
-"The following documentation sections briefly introduce TensorCircuit to "
-"the users and developpers."
+"The following documentation sections briefly introduce TensorCircuit to the "
+"users and developpers."
 msgstr "以下文档向用户和开发者简要介绍了 TensorCircuit 软件。"
 
-#: ../../source/index.rst:58
+#: ../../source/index.rst:66
 msgid "Tutorials"
 msgstr "教程"
 
-#: ../../source/index.rst:60
+#: ../../source/index.rst:68
 msgid ""
-"The following documentation sections include integrated examples in the "
-"form of Jupyter Notebook."
-msgstr "以下 Jupyter Notebook 格式的文档包括了一系列使用 TensorCircuit 的集成案例。"
+"The following documentation sections include integrated examples in the form of "
+"Jupyter Notebook."
+msgstr ""
+"以下 Jupyter Notebook 格式的文档包括了一系列使用 TensorCircuit 的集成案例。"
 
-#: ../../source/index.rst:74
+#: ../../source/index.rst:82
 msgid "API References"
 msgstr "API 参考"
 
-#: ../../source/index.rst:83
+#: ../../source/index.rst:91
 msgid "Indices and Tables"
 msgstr "索引和表格"
 
-#: ../../source/index.rst:85
+#: ../../source/index.rst:93
 msgid ":ref:`genindex`"
 msgstr ":ref:`genindex`"
 
-#: ../../source/index.rst:86
+#: ../../source/index.rst:94
 msgid ":ref:`modindex`"
 msgstr ":ref:`modindex`"
 
-#: ../../source/index.rst:87
+#: ../../source/index.rst:95
 msgid ":ref:`search`"
 msgstr ":ref:`search`"
 
 #~ msgid ""
-#~ "Binder online: https://mybinder.org/v2/gh/refraction-"
-#~ "ray/tc-env/master?urlpath=git-pull?repo=https://github.com"
-#~ "/tencent-quantum-"
-#~ "lab/tensorcircuit&urlpath=lab/tree/tensorcircuit/&branch=master"
+#~ "Binder online: https://mybinder.org/v2/gh/refraction-ray/tc-env/master?"
+#~ "urlpath=git-pull?repo=https://github.com/tencent-quantum-lab/"
+#~ "tensorcircuit&urlpath=lab/tree/tensorcircuit/&branch=master"
 #~ msgstr ""
-#~ "在线 Binder Jupyter: https://mybinder.org/v2/gh"
-#~ "/refraction-ray/tc-env/master?urlpath=git-"
-#~ "pull?repo=https://github.com/tencent-quantum-"
-#~ "lab/tensorcircuit&urlpath=lab/tree/tensorcircuit/&branch=master"
+#~ "在线 Binder Jupyter: https://mybinder.org/v2/gh/refraction-ray/tc-env/master?"
+#~ "urlpath=git-pull?repo=https://github.com/tencent-quantum-lab/"
+#~ "tensorcircuit&urlpath=lab/tree/tensorcircuit/&branch=master"
 
-#~ msgid ""
-#~ "This project is released by `Tencent "
-#~ "Quantum Lab <https://quantum.tencent.com/>`_ and "
-#~ "is created and maintained by `Shi-"
-#~ "Xin Zhang <https://github.com/refraction-ray>`_ "
-#~ "The current core authors are `Shi-"
-#~ "Xin Zhang <https://github.com/refraction-ray>`_ "
-#~ "and `Yu-Qin Chen "
-#~ "<https://github.com/yutuer21>`_. We also thank "
-#~ "`contributions <https://github.com/tencent-quantum-"
-#~ "lab/tensorcircuit/graphs/contributors>`_ from the "
-#~ "lab and the open source community."
-#~ msgstr ""
-
+#~ msgid "Software Whitepaper: https://arxiv.org/abs/2205.10091"
+#~ msgstr "白皮书文章: https://arxiv.org/abs/2205.10091"

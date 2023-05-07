@@ -135,6 +135,10 @@ pip install tensorcircuit-nightly
 
 我们欢迎大家提出 [issues](https://github.com/tencent-quantum-lab/tensorcircuit/issues), [PR](https://github.com/tencent-quantum-lab/tensorcircuit/pulls), 和 [讨论](https://github.com/tencent-quantum-lab/tensorcircuit/discussions)，这些都托管在 GitHub 上。
 
+### 协议
+
+TensorCircuit 是基于 Apache License 2.0 的开源软件。
+
 ## 研究和应用
 
 ### DQAS
