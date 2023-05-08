@@ -758,6 +758,32 @@ def set_contractor(
         method = "greedy"
         # auto for small size fallbacks to dp, which has bug for now
         # see: https://github.com/dgasmith/opt_einsum/issues/172
+    if method.startswith("cotengra"):
+        # cotengra shortcut
+        import cotengra
+
+        if method == "cotengra":
+            method = "custom"
+            optimizer = cotengra.ReusableHyperOptimizer(
+                methods=["greedy", "kahypar"],
+                parallel=True,
+                minimize="combo",
+                max_time=30,
+                max_repeats=64,
+                progbar=True,
+            )
+        else:  # "cotengra-30-64"
+            _, mt, mr = method.split("-")
+            method = "custom"
+            optimizer = cotengra.ReusableHyperOptimizer(
+                methods=["greedy", "kahypar"],
+                parallel=True,
+                minimize="combo",
+                max_time=int(mt),
+                max_repeats=int(mr),
+                progbar=True,
+            )
+
     if method == "plain":
         cf = plain_contractor
     elif method == "plain-experimental":

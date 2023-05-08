@@ -205,10 +205,14 @@ def set_token(
         saved_token = {}
     if token is None:
         if cached and os.path.exists(authpath):
-            with open(authpath, "r") as f:
-                file_token = json.load(f)
-                file_token = {k: b64decode_s(v) for k, v in file_token.items()}
-                # file_token = backend.tree_map(b64decode_s, file_token)
+            try:
+                with open(authpath, "r") as f:
+                    file_token = json.load(f)
+                    file_token = {k: b64decode_s(v) for k, v in file_token.items()}
+                    # file_token = backend.tree_map(b64decode_s, file_token)
+            except json.JSONDecodeError:
+                logger.warning("token file loading failure, set empty token instead")
+                file_token = {}
         else:
             file_token = {}
         file_token.update(saved_token)

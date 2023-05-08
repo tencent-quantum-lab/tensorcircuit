@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Added
+
+- Add `tc.TorchHardwarLayer` for shortcut layer construction of quantum hardware experiments
+
+- Add cotengra contractor setup shortcut
+
 ### Changed
 
 - Add compiler and cloud namespace to the global tensorcircuit namespace
