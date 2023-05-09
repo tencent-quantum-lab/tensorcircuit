@@ -25,13 +25,18 @@ class Compiler:
     def add_options(
         self, compiled_options: Optional[List[Dict[str, Any]]] = None
     ) -> None:
-        if not is_sequence(compiled_options):
-            self.compiled_options = [compiled_options for _ in self.compile_funcs]
+        if compiled_options is None:
+            self.compiled_options = [{} for _ in range(len(self.compile_funcs))]  # type: ignore
+        elif not is_sequence(compiled_options):
+            self.compiled_options = [compiled_options for _ in self.compile_funcs]  # type: ignore
         else:
             assert len(compiled_options) == len(  # type: ignore
                 self.compile_funcs
             ), "`compiled_options` must have the same list length as `compile_funcs`"
             self.compiled_options = list(compiled_options)  # type: ignore
+            for i, c in enumerate(self.compiled_options):
+                if c is None:
+                    self.compiled_options[i] = {}
 
     def __call__(
         self, circuit: AbstractCircuit, info: Optional[Dict[str, Any]] = None
@@ -39,7 +44,7 @@ class Compiler:
         for f, d in zip(self.compile_funcs, self.compiled_options):
             result = f(circuit, info, compiled_options=d)  # type: ignore
             if not isinstance(result, tuple):
-                result = (result, None)
+                result = (result, info)
             circuit, info = result
         return circuit, info
 

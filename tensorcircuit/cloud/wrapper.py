@@ -154,12 +154,13 @@ def batch_expectation_ps(
         c1, info = qiskit_compile(
             c1,
             compiled_options={
-                "basis_gates": device.native_gates(),
+                "basis_gates": device.native_gates() + ["cx"],
                 # whether + "cx" here?
-                "optimization_level": 3,
+                "optimization_level": 2,
                 "coupling_map": device.topology(),
             },
         )
+        # change the compiler to DefaultCompiler when it matures
         cs.append(c1)
         infos.append(info)
         exps.append(exp)
