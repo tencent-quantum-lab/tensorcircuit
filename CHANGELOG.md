@@ -14,7 +14,7 @@
 
 - Add compiler and cloud namespace to the global tensorcircuit namespace
 
-- Refactor composed compiler pipeline interface to include simple_compiler (breaking)
+- Refactor composed compiler pipeline interface to include simple_compiler, using `DefaultCompiler` for now (breaking)
 
 ## 0.9.0
 
