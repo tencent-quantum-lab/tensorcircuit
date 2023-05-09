@@ -7,6 +7,7 @@ from typing import Any, Callable, Dict, List, Optional, Union
 from ..utils import is_sequence
 from ..abstractcircuit import AbstractCircuit
 from .qiskit_compiler import qiskit_compile
+from .simple_compiler import simple_compile
 
 
 class Compiler:
@@ -36,8 +37,33 @@ class Compiler:
         self, circuit: AbstractCircuit, info: Optional[Dict[str, Any]] = None
     ) -> Any:
         for f, d in zip(self.compile_funcs, self.compiled_options):
-            circuit, info = f(circuit, info, compiled_options=d)  # type: ignore
+            result = f(circuit, info, compiled_options=d)  # type: ignore
+            if not isinstance(result, tuple):
+                result = (result, None)
+            circuit, info = result
         return circuit, info
 
 
-default_compiler = Compiler(qiskit_compile)
+class DefaultCompiler(Compiler):
+    def __init__(self, qiskit_compiled_options: Optional[Dict[str, Any]] = None):
+        """
+        A fallback choice to compile circuit running on tencent quantum cloud with rz as native gate
+
+        :param qiskit_compiled_options: qiskit compiled options to be added
+            options documented in `qiskit.transpile` method,
+            to use tencent quantum cloud, `{"coupling_map": d.topology()}` is in general enough,
+            where d is a device object,
+            defaults to None, i.e. no qubit mapping is applied
+        :type qiskit_compiled_options: Optional[Dict[str, Any]], optional
+        """
+        compiled_options = {
+            "optimization_level": 3,
+            "basis_gates": ["u3", "h", "cx", "cz"],
+        }
+        # rz target is bad for qiskit
+        if qiskit_compiled_options:
+            compiled_options.update(qiskit_compiled_options)
+        super().__init__(
+            [qiskit_compile, simple_compile],
+            [compiled_options, None],  # type: ignore
+        )

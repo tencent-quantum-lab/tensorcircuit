@@ -22,7 +22,10 @@ def _free_pi(s: str) -> str:
         else:
             v = r[inc.start() : inc.end()]
             v = eval(v)
-            r = r[: inc.start()] + "(" + str(v) + ")" + r[inc.end() :]
+            if not isinstance(v, tuple):
+                r = r[: inc.start()] + "(" + str(v) + ")" + r[inc.end() :]
+            else:  # u gate case
+                r = r[: inc.start()] + str(v) + r[inc.end() :]
             rs.append(r)
     return "\n".join(rs)
 
@@ -120,6 +123,20 @@ def qiskit_compile(
     output: str = "tc",
     compiled_options: Optional[Dict[str, Any]] = None,
 ) -> Any:
+    """
+    compile the circuit using ``qiskit.transpile`` method with some tricks and hacks
+
+    :param circuit: circuit in ``tc.Circuit`` or ``qiskit.QuantumCircuit`` form
+    :type circuit: Any
+    :param info: info for qubit mappings, defaults to None
+    :type info: Optional[Dict[str, Any]], optional
+    :param output: output circuit format, defaults to "tc"
+    :type output: str, optional
+    :param compiled_options: ``qiskit.transpile`` options in a dict, defaults to None
+    :type compiled_options: Optional[Dict[str, Any]], optional
+    :return: Tuple containing the output circuit and the qubit mapping info dict
+    :rtype: Any
+    """
     from qiskit.compiler import transpile
     from qiskit.transpiler.passes import RemoveBarriers
 
@@ -132,7 +149,7 @@ def qiskit_compile(
     if compiled_options is None:
         compiled_options = {
             "basis_gates": ["h", "rz", "cx"],
-            "optimization_level": 2,
+            "optimization_level": 2,  # 3 can induce bugs...
         }
     ncircuit = transpile(circuit, **compiled_options)
     ncircuit = RemoveBarriers()(ncircuit)

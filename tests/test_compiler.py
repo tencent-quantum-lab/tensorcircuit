@@ -1,6 +1,7 @@
 import sys
 import os
 import pytest
+import numpy as np
 
 # from pytest_lazyfixture import lazy_fixture as lf
 
@@ -73,7 +74,7 @@ def test_qsikit_compiler():
 
 
 def test_composed_compiler():
-    from tensorcircuit.compiler import default_compiler
+    from tensorcircuit.compiler import DefaultCompiler
 
     c = tc.Circuit(3)
     c.rx(0)
@@ -82,18 +83,65 @@ def test_composed_compiler():
     c.rxx(0, 2, theta=0.2)
     c.measure_instruction(2)
     c.measure_instruction(0)
+    default_compiler = DefaultCompiler()
     c1, info = default_compiler(c)
     print(c1.draw())
-    assert c1.gate_count_by_condition(lambda qir: qir["name"] == "cnot") == 4
+    assert c1.gate_count_by_condition(lambda qir: qir["name"] == "cnot") == 3
     assert info["positional_logical_mapping"][0] == 2
 
-    default_compiler.add_options(
+    default_compiler = DefaultCompiler(
         {
             "basis_gates": ["h", "rz", "cz"],
             "optimization_level": 2,
             "coupling_map": [[0, 1], [1, 2]],
         }
     )
+
     c1, info = default_compiler(c)
     assert c1.gate_count_by_condition(lambda qir: qir["name"] == "cnot") == 0
     print(info)
+
+
+def test_replace_r():
+    c = tc.Circuit(3)
+    c.rz(0, theta=0.1)
+    c.cx(0, 2)
+    c.ry(1)
+    c.rxx(1, 0, theta=0.2)
+    c.rx(0, theta=3.9)
+    c.ry(1, theta=-0.2)
+    c.rzz(1, 0, theta=-0.3)
+    c.ryy(1, 0, theta=-0.6)
+    c.rx(2)
+
+    print(c.draw())
+    c1 = tc.compiler.simple_compiler.replace_r(c)
+    print(c1.draw())
+    np.testing.assert_allclose(c.matrix(), c1.matrix(), atol=1e-5)
+
+
+def test_default_compiler():
+    c = tc.Circuit(3)
+    c.cx(0, 1)
+    c.rx(0, theta=1e-5)
+    c.x(1)
+    c.y(1)
+    c.z(1)
+    c.h(1)
+    c.cz(2, 0)
+    c.h(1)
+    c.cz(2, 0)
+    c.s(2)
+    c.sd(2)
+    c.s(2)
+    c.s(2)
+    c.y(2)
+    c.ry(2, theta=0.1)
+    c.t(2)
+    c.td(2)
+    c.ry(2, theta=-0.1)
+    c.rz(1, theta=0.3)
+
+    c1, _ = tc.compiler.simple_compiler.simple_compile(c)
+    print(c1.draw())
+    assert c1.gate_count() == 3

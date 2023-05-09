@@ -8,9 +8,13 @@
 
 - Add cotengra contractor setup shortcut
 
+- Add simplecompiler module to assite qiskit compile for better performance when targeting rz native basis
+
 ### Changed
 
 - Add compiler and cloud namespace to the global tensorcircuit namespace
+
+- Refactor composed compiler pipeline interface to include simple_compiler (breaking)
 
 ## 0.9.0
 
