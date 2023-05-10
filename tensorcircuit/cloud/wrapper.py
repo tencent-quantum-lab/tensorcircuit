@@ -13,7 +13,7 @@ from ..results.readout_mitigation import ReadoutMit
 from ..utils import is_sequence
 from ..cons import backend
 from ..quantum import ps2xyz
-from ..compiler.qiskit_compiler import qiskit_compile
+from ..compiler import DefaultCompiler
 from .apis import submit_task, get_device
 from .abstraction import Device
 
@@ -137,6 +137,12 @@ def batch_expectation_ps(
     exps = []
     if isinstance(device, str):
         device = get_device(device)
+
+    dc = DefaultCompiler(
+        {
+            "coupling_map": device.topology(),
+        }
+    )
     for ps in pss:
         # TODO(@refraction-ray): Pauli string grouping
         # https://docs.pennylane.ai/en/stable/_modules/pennylane/pauli/grouping/group_observables.html
@@ -151,16 +157,8 @@ def batch_expectation_ps(
                 exp.append(j)
             elif i == 3:
                 exp.append(j)
-        c1, info = qiskit_compile(
-            c1,
-            compiled_options={
-                "basis_gates": device.native_gates() + ["cx"],
-                # whether + "cx" here?
-                "optimization_level": 2,
-                "coupling_map": device.topology(),
-            },
-        )
-        # change the compiler to DefaultCompiler when it matures
+        c1, info = dc(c1)
+        # TODO(@refraction-ray): two steps compiling with pre compilation
         cs.append(c1)
         infos.append(info)
         exps.append(exp)
