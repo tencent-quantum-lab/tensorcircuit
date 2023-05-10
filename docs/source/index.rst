@@ -21,7 +21,7 @@ TensorCircuit is an open-source high-performance quantum computing software fram
 
 * It is compatible with machine learning engineering paradigms: automatic differentiation, just-in-time compilation, vectorized parallelism and GPU acceleration. 🛠
 
-With the help of TensorCircuit, now get ready to efficiently and elegantly solve interesting and challenging quantum computing problems from academic research prototype to industry application deployment.
+With the help of TensorCircuit, now get ready to efficiently and elegantly solve interesting and challenging quantum computing problems: from academic research prototype to industry application deployment.
 
 
 

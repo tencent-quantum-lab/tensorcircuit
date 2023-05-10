@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-05-10 22:01+0800\n"
-"PO-Revision-Date: 2023-05-10 22:06+0800\n"
+"PO-Revision-Date: 2023-05-10 22:30+0800\n"
 "Last-Translator: Xinghan Yang\n"
 "Language-Team: \n"
 "Language: cn\n"
@@ -20,7 +20,6 @@ msgstr ""
 "X-Generator: Poedit 3.2.2\n"
 
 #: ../../source/index.rst:2
-#, fuzzy
 msgid "TensorCircuit Documentation"
 msgstr "参考文档"
 
@@ -32,10 +31,9 @@ msgstr "**祝贺你发现了 TensorCircuit！** 👏"
 msgid ""
 "TensorCircuit is an open-source high-performance quantum computing software "
 "framework in Python."
-msgstr "TensorCircuit 是 Python 编写的开源高性能量子计算软件框架。"
+msgstr "TensorCircuit 是基于 Python 的开源高性能量子计算软件框架。"
 
 #: ../../source/index.rst:12
-#, fuzzy
 msgid "It is built for humans. 👽"
 msgstr "适合人类。👽"
 
@@ -48,7 +46,6 @@ msgid "It is empowered by advanced tensor network simulator engine. 🔋"
 msgstr "先进张量网络引擎赋能。🔋"
 
 #: ../../source/index.rst:18
-#, fuzzy
 msgid ""
 "It is ready for quantum hardware access with CPU/GPU/QPU (local/cloud) hybrid "
 "solutions. 🖥"
@@ -73,8 +70,8 @@ msgid ""
 "solve interesting and challenging quantum computing problems from academic "
 "research prototype to industry application deployment."
 msgstr ""
-"有了 TensorCircuit，你现在可以高效和优雅的解决量子计算中的各种问题：从学术研究的"
-"原型开发到工业应用的部署。"
+"有了 TensorCircuit，你现在可以高效优雅地解决量子计算中的各种问题：从学术研究的原"
+"型开发到工业应用的部署。"
 
 #: ../../source/index.rst:29
 msgid "Relevant Links"
@@ -86,6 +83,8 @@ msgid ""
 "refraction-ray>`_ and this version is released by `Tencent Quantum Lab <https://"
 "quantum.tencent.com/>`_."
 msgstr ""
+"TensorCircuit 由 `Shi-Xin Zhang <https://github.com/refraction-ray>`_ 创造和维"
+"护；此版本由 `腾讯量子实验室 <https://quantum.tencent.com/>`_ 发布。"
 
 #: ../../source/index.rst:33
 msgid ""
@@ -94,6 +93,10 @@ msgid ""
 "thank `contributions <https://github.com/tencent-quantum-lab/tensorcircuit/"
 "graphs/contributors>`_ from the lab and the open source community."
 msgstr ""
+"TensorCircuit 当前主要作者为 `Shi-Xin Zhang <https://github.com/refraction-"
+"ray>`_ ，`Yu-Qin Chen <https://github.com/yutuer21>`_。 同时感谢来自实验室和开源"
+"社区的 `贡献 <https://github.com/tencent-quantum-lab/tensorcircuit/graphs/"
+"contributors>`_ 。"
 
 #: ../../source/index.rst:36
 msgid ""
