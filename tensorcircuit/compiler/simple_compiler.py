@@ -2,7 +2,7 @@
 Very simple transformations that qiskit may even fail or hard to control
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 from copy import copy
 
 import numpy as np
@@ -93,30 +93,61 @@ def replace_u(circuit: AbstractCircuit, **kws: Any) -> AbstractCircuit:
     return c  # type: ignore
 
 
-def prune(
-    circuit: AbstractCircuit, rtol: float = 1e-3, atol: float = 1e-3, **kws: Any
-) -> AbstractCircuit:
-    qir = circuit.to_qir()
-    c = type(circuit)(**circuit.circuit_param)
-    for d in qir:
-        if isinstance(d["gate"], QuOperator):
-            m = backend.numpy(d["gate"].eval_matrix())
-        else:
-            m = backend.numpy(backend.reshapem(d["gate"].tensor))
-        if not np.allclose(
-            m / (m[0, 0] + 1e-8), np.eye(m.shape[0]), rtol=rtol, atol=atol
-        ):
-            # upto a phase
-            if "parameters" not in d:
-                c.apply_general_gate_delayed(d["gatef"], d["name"], mpo=d["mpo"])(
-                    c, *d["index"], split=d["split"]
-                )
-            else:
-                c.apply_general_variable_gate_delayed(
-                    d["gatef"], d["name"], mpo=d["mpo"]
-                )(c, *d["index"], **d["parameters"], split=d["split"])
+def _get_matrix(qir_item: Dict[str, Any]) -> Any:
+    if "gate" in qir_item:
+        op = qir_item["gate"]
+    else:
+        op = qir_item["gatef"](**qir_item["parameters"])
+    if isinstance(op, QuOperator):
+        m = backend.numpy(op.eval_matrix())
+    else:
+        m = backend.numpy(backend.reshapem(op.tensor))
+    return m
 
-    return c
+
+def prune(
+    circuit: Union[AbstractCircuit, List[Dict[str, Any]]],
+    rtol: float = 1e-3,
+    atol: float = 1e-3,
+    **kws: Any
+) -> Any:
+    if isinstance(circuit, list):
+        qir = circuit
+        output = "qir"
+    else:
+        qir = circuit.to_qir()
+        output = "tc"
+    if output in ["tc", "circuit"]:
+        c: Any = type(circuit)(**circuit.circuit_param)  # type: ignore
+        for d in qir:
+            m = _get_matrix(d)
+
+            if not np.allclose(
+                m / (m[0, 0] + 1e-8), np.eye(m.shape[0]), rtol=rtol, atol=atol
+            ):
+                # upto a phase
+                if "parameters" not in d:
+                    c.apply_general_gate_delayed(d["gatef"], d["name"], mpo=d["mpo"])(
+                        c, *d["index"], split=d["split"]
+                    )
+                else:
+                    c.apply_general_variable_gate_delayed(
+                        d["gatef"], d["name"], mpo=d["mpo"]
+                    )(c, *d["index"], **d["parameters"], split=d["split"])
+        return c
+
+    elif output in ["qir"]:
+        nqir = []
+        for d in qir:
+            m = _get_matrix(d)
+
+            if not np.allclose(
+                m / (m[0, 0] + 1e-8), np.eye(m.shape[0]), rtol=rtol, atol=atol
+            ):
+                nqir.append(d)
+                # upto a phase
+
+        return nqir
 
 
 # upto global phase
@@ -151,8 +182,11 @@ default_merge_rules = {
 
 
 def _find_next(qir: List[Dict[str, Any]], i: int) -> Optional[int]:
+    # if qir[i] is None:
+    # return None
     index = qir[i]["index"]
     for j, item in enumerate(qir[i + 1 :]):
+        # if item is not None:
         if item["index"] == index:
             return j + i + 1
         for ind in item["index"]:
@@ -172,6 +206,7 @@ def _merge(
     qir: List[Dict[str, Any]], rules: Dict[Tuple[str, ...], str]
 ) -> Tuple[List[Dict[str, Any]], bool]:
     i = 0
+    flg = False
     while i < len(qir) - 1:
         j = _find_next(qir, i)
 
@@ -181,6 +216,8 @@ def _merge(
                 if nn == "i":
                     del qir[i]
                     del qir[j - 1]
+                    # qir[i] = None
+                    # qir[j] = None
                 else:
                     param = {}
                     if nn.startswith("r") or nn.startswith("cr"):
@@ -194,33 +231,45 @@ def _merge(
                         "index": qir[i]["index"],
                     }
                     del qir[j]
-                return qir, True
+                    # qir[j] = None
+                flg = True
+                # return qir, flg
             elif (
                 qir[i]["gatef"].n == qir[j]["gatef"].n + "d"
                 or qir[i]["gatef"].n + "d" == qir[j]["gatef"].n
             ):
                 del qir[i]
                 del qir[j - 1]
-                return qir, True
+                # qir[i] = None
+                # qir[j] = None
+                flg = True
+                # return qir, True
         i += 1
-    return qir, False
+    return qir, flg
 
 
 def merge(
-    circuit: AbstractCircuit,
+    circuit: Union[AbstractCircuit, List[Dict[str, Any]]],
     rules: Optional[Dict[Tuple[str, ...], str]] = None,
     **kws: Any
-) -> AbstractCircuit:
+) -> Any:
     merge_rules = copy(default_merge_rules)
     if rules is not None:
         merge_rules.update(rules)  # type: ignore
-
-    qir = circuit.to_qir()
+    if isinstance(circuit, list):
+        qir = circuit
+        output = "qir"
+    else:
+        qir = circuit.to_qir()
+        output = "tc"
     flg = True
     while flg:
         qir, flg = _merge(qir, merge_rules)  # type: ignore
-    c = type(circuit).from_qir(qir, circuit.circuit_param)
-    return c
+    if output in ["qir"]:
+        return qir
+    elif output in ["tc", "circuit"]:
+        c: Any = type(circuit).from_qir(qir, circuit.circuit_param)  # type: ignore
+        return c
 
 
 def simple_compile(
@@ -233,14 +282,18 @@ def simple_compile(
         compiled_options = {}
     c = replace_r(circuit, **compiled_options)
     c = replace_u(circuit, **compiled_options)
-    qasm = c.to_openqasm()
-    c = merge(c, **compiled_options)
-    c = prune(c, **compiled_options)
-    qasm1 = c.to_openqasm()
-    while qasm1 != qasm:
-        qasm = qasm1
-        c = merge(c, **compiled_options)
-        c = prune(c, **compiled_options)
-        qasm1 = c.to_openqasm()
+    qir = c.to_qir()
+    len0 = len(qir)
+    qir = merge(qir, **compiled_options)
+    qir = prune(qir, **compiled_options)
+    len1 = len(qir)
+    while len1 != len0:
+        len0 = len1
+        qir = merge(qir, **compiled_options)
+        if len(qir) == len0:
+            break
+        qir = prune(qir, **compiled_options)
+        len1 = len(qir)
 
+    c = type(circuit).from_qir(qir, circuit.circuit_param)
     return (c, info)

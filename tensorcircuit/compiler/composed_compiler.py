@@ -2,7 +2,7 @@
 object oriented compiler pipeline
 """
 
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 from ..utils import is_sequence
 from ..abstractcircuit import AbstractCircuit
@@ -72,3 +72,13 @@ class DefaultCompiler(Compiler):
             [qiskit_compile, simple_compile],
             [compiled_options, None],  # type: ignore
         )
+
+
+def default_compile(
+    circuit: AbstractCircuit,
+    info: Optional[Dict[str, Any]] = None,
+    compiled_options: Optional[Dict[str, Any]] = None,
+) -> Tuple[AbstractCircuit, Dict[str, Any]]:
+    dc = DefaultCompiler(compiled_options)
+    c, info = dc(circuit, info)
+    return c, info  # type: ignore
