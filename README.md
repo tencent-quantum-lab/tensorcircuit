@@ -105,7 +105,9 @@ We also have [Docker support](/docker).
 
 - Tensor network simulation engine based
 
-- JIT, AD, vectorized parallelism compatible, GPU support
+- JIT, AD, vectorized parallelism compatible
+
+- GPU support, quantum device access support, hybrid deployment support
 
 - Efficiency
 

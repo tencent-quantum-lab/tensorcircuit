@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-07 10:47+0800\n"
-"PO-Revision-Date: 2023-05-07 11:00+0800\n"
+"POT-Creation-Date: 2023-05-10 22:01+0800\n"
+"PO-Revision-Date: 2023-05-10 22:06+0800\n"
 "Last-Translator: Xinghan Yang\n"
 "Language-Team: \n"
 "Language: cn\n"
@@ -20,70 +20,98 @@ msgstr ""
 "X-Generator: Poedit 3.2.2\n"
 
 #: ../../source/index.rst:2
-msgid "Guide to TensorCircuit"
-msgstr "TensorCircuit 指南"
+#, fuzzy
+msgid "TensorCircuit Documentation"
+msgstr "参考文档"
 
-#: ../../source/index.rst:7
+#: ../../source/index.rst:8
+msgid "**Welcome and congratulations! You have found TensorCircuit.** 👏"
+msgstr "**祝贺你发现了 TensorCircuit！** 👏"
+
+#: ../../source/index.rst:10
 msgid ""
-"TensorCircuit is an open source quantum circuit and algorithm simulation "
-"framework."
-msgstr "TensorCircuit 是开源的量子线路和量子算法模拟软件框架。"
+"TensorCircuit is an open-source high-performance quantum computing software "
+"framework in Python."
+msgstr "TensorCircuit 是 Python 编写的开源高性能量子计算软件框架。"
 
-#: ../../source/index.rst:9
-msgid "It is built for human beings. 👽"
+#: ../../source/index.rst:12
+#, fuzzy
+msgid "It is built for humans. 👽"
 msgstr "适合人类。👽"
 
-#: ../../source/index.rst:11
+#: ../../source/index.rst:14
 msgid "It is designed for speed, flexibility and elegance. 🚀"
 msgstr "速度，灵活，优雅。🚀"
 
-#: ../../source/index.rst:13
+#: ../../source/index.rst:16
 msgid "It is empowered by advanced tensor network simulator engine. 🔋"
 msgstr "先进张量网络引擎赋能。🔋"
 
-#: ../../source/index.rst:15
+#: ../../source/index.rst:18
+#, fuzzy
 msgid ""
-"It is ready for quantum hardware access with CPU/GPU/QPU hybrid deployment "
+"It is ready for quantum hardware access with CPU/GPU/QPU (local/cloud) hybrid "
 "solutions. 🖥"
 msgstr "量子硬件支持，优雅 CPU/GPU/QPU 混合部署方案。 🖥"
 
-#: ../../source/index.rst:17
+#: ../../source/index.rst:20
 msgid ""
 "It is implemented with industry-standard machine learning frameworks: "
 "TensorFlow, JAX, and PyTorch. 🤖"
 msgstr "业界标准机器学习框架 TensorFlow，JAX，PyTorch 实现。🤖"
 
-#: ../../source/index.rst:19
+#: ../../source/index.rst:22
 msgid ""
 "It is compatible with machine learning engineering paradigms: automatic "
 "differentiation, just-in-time compilation, vectorized parallelism and GPU "
 "acceleration. 🛠"
 msgstr "与机器学习工程实践兼容：自动微分，即时编译，向量并行化和 GPU 加速。🛠"
 
-#: ../../source/index.rst:23
-msgid "Links"
-msgstr "重要链接"
-
-#: ../../source/index.rst:25
+#: ../../source/index.rst:24
 msgid ""
-"TensorCircuit is created and maintained by `Shi-Xin Zhang <https://github.com/"
-"refraction-ray>`_ and this version of the software is released by `Tencent "
-"Quantum Lab <https://quantum.tencent.com/>`_. The current core authors of "
-"TensorCircuit are `Shi-Xin Zhang <https://github.com/refraction-ray>`_ and `Yu-"
-"Qin Chen <https://github.com/yutuer21>`_. We also thank `contributions <https://"
-"github.com/tencent-quantum-lab/tensorcircuit/graphs/contributors>`_ from the "
-"lab and the open source community."
+"With the help of TensorCircuit, now get ready to efficiently and elegantly "
+"solve interesting and challenging quantum computing problems from academic "
+"research prototype to industry application deployment."
 msgstr ""
+"有了 TensorCircuit，你现在可以高效和优雅的解决量子计算中的各种问题：从学术研究的"
+"原型开发到工业应用的部署。"
 
 #: ../../source/index.rst:29
+msgid "Relevant Links"
+msgstr "相关链接"
+
+#: ../../source/index.rst:31
+msgid ""
+"TensorCircuit is created and maintained by `Shi-Xin Zhang <https://github.com/"
+"refraction-ray>`_ and this version is released by `Tencent Quantum Lab <https://"
+"quantum.tencent.com/>`_."
+msgstr ""
+
+#: ../../source/index.rst:33
+msgid ""
+"The current core authors of TensorCircuit are `Shi-Xin Zhang <https://github."
+"com/refraction-ray>`_ and `Yu-Qin Chen <https://github.com/yutuer21>`_. We also "
+"thank `contributions <https://github.com/tencent-quantum-lab/tensorcircuit/"
+"graphs/contributors>`_ from the lab and the open source community."
+msgstr ""
+
+#: ../../source/index.rst:36
+msgid ""
+"If you have any further questions or collaboration ideas, please use the issue "
+"tracker or forum below, or send email to shixinzhang#tencent.com."
+msgstr ""
+"如果关于 TensorCircuit 有任何问题咨询或合作意向，请在 issue 或 discussion 提问，"
+"或发送邮件到 shixinzhang#tencent.com。"
+
+#: ../../source/index.rst:39
 msgid "Source code: https://github.com/tencent-quantum-lab/tensorcircuit"
 msgstr "源代码: https://github.com/tencent-quantum-lab/tensorcircuit"
 
-#: ../../source/index.rst:31
+#: ../../source/index.rst:41
 msgid "Documentation: https://tensorcircuit.readthedocs.io"
 msgstr "文档: https://tensorcircuit.readthedocs.io"
 
-#: ../../source/index.rst:33
+#: ../../source/index.rst:43
 msgid ""
 "Software Whitepaper (published in Quantum): https://quantum-journal.org/papers/"
 "q-2023-02-02-912/"
@@ -91,20 +119,20 @@ msgstr ""
 "软件白皮书 (发表于 Quantum): https://quantum-journal.org/papers/"
 "q-2023-02-02-912/"
 
-#: ../../source/index.rst:35
+#: ../../source/index.rst:45
 msgid "Issue Tracker: https://github.com/tencent-quantum-lab/tensorcircuit/issues"
 msgstr "问题跟踪: https://github.com/tencent-quantum-lab/tensorcircuit/issues"
 
-#: ../../source/index.rst:37
+#: ../../source/index.rst:47
 msgid "Forum: https://github.com/tencent-quantum-lab/tensorcircuit/discussions"
 msgstr ""
 "论坛社区: https://github.com/tencent-quantum-lab/tensorcircuit/discussions"
 
-#: ../../source/index.rst:39
+#: ../../source/index.rst:49
 msgid "PyPI page: https://pypi.org/project/tensorcircuit"
 msgstr "PyPI 页面: https://pypi.org/project/tensorcircuit"
 
-#: ../../source/index.rst:41
+#: ../../source/index.rst:51
 msgid ""
 "DockerHub page: https://hub.docker.com/repository/docker/tensorcircuit/"
 "tensorcircuit"
@@ -112,7 +140,7 @@ msgstr ""
 "DockerHub 页面: https://hub.docker.com/repository/docker/tensorcircuit/"
 "tensorcircuit"
 
-#: ../../source/index.rst:43
+#: ../../source/index.rst:53
 msgid ""
 "Research and projects based on TensorCircuit: https://github.com/tencent-"
 "quantum-lab/tensorcircuit#research-and-applications"
@@ -120,56 +148,48 @@ msgstr ""
 "基于 TensorCircuit 的研究和项目: https://github.com/tencent-quantum-lab/"
 "tensorcircuit#research-and-applications"
 
-#: ../../source/index.rst:45
+#: ../../source/index.rst:55
 msgid "Tencent Quantum Cloud Service: https://quantum.tencent.com/cloud/"
 msgstr "腾讯量子云服务: https://quantum.tencent.com/cloud/"
 
-#: ../../source/index.rst:47
-msgid ""
-"If you have any further questions or collaboration ideas in terms of "
-"TensorCircuit, please send email to shixinzhang#tencent.com."
-msgstr ""
-"如果关于 TensorCircuit 有任何其他问题咨询或合作意向，请发送邮件到 "
-"shixinzhang#tencent.com。"
-
-#: ../../source/index.rst:51
+#: ../../source/index.rst:61
 msgid "Reference Documentation"
 msgstr "参考文档"
 
-#: ../../source/index.rst:53
+#: ../../source/index.rst:63
 msgid ""
 "The following documentation sections briefly introduce TensorCircuit to the "
 "users and developpers."
 msgstr "以下文档向用户和开发者简要介绍了 TensorCircuit 软件。"
 
-#: ../../source/index.rst:66
+#: ../../source/index.rst:76
 msgid "Tutorials"
 msgstr "教程"
 
-#: ../../source/index.rst:68
+#: ../../source/index.rst:78
 msgid ""
 "The following documentation sections include integrated examples in the form of "
 "Jupyter Notebook."
 msgstr ""
 "以下 Jupyter Notebook 格式的文档包括了一系列使用 TensorCircuit 的集成案例。"
 
-#: ../../source/index.rst:82
+#: ../../source/index.rst:92
 msgid "API References"
 msgstr "API 参考"
 
-#: ../../source/index.rst:91
+#: ../../source/index.rst:101
 msgid "Indices and Tables"
 msgstr "索引和表格"
 
-#: ../../source/index.rst:93
+#: ../../source/index.rst:103
 msgid ":ref:`genindex`"
 msgstr ":ref:`genindex`"
 
-#: ../../source/index.rst:94
+#: ../../source/index.rst:104
 msgid ":ref:`modindex`"
 msgstr ":ref:`modindex`"
 
-#: ../../source/index.rst:95
+#: ../../source/index.rst:105
 msgid ":ref:`search`"
 msgstr ":ref:`search`"
 
@@ -184,3 +204,9 @@ msgstr ":ref:`search`"
 
 #~ msgid "Software Whitepaper: https://arxiv.org/abs/2205.10091"
 #~ msgstr "白皮书文章: https://arxiv.org/abs/2205.10091"
+
+#~ msgid "Guide to TensorCircuit"
+#~ msgstr "TensorCircuit 指南"
+
+#~ msgid "Links"
+#~ msgstr "重要链接"

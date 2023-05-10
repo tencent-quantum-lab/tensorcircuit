@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-07 10:47+0800\n"
+"POT-Creation-Date: 2023-05-10 22:01+0800\n"
 "PO-Revision-Date: 2022-04-13 14:58+0800\n"
 "Last-Translator: Xinghan Yang\n"
 "Language: cn\n"
@@ -587,6 +587,8 @@ msgstr ""
 #: tensorcircuit.cloud.apis.submit_task tensorcircuit.cloud.tencent.submit_task
 #: tensorcircuit.cloud.utils.set_proxy
 #: tensorcircuit.cloud.wrapper.batch_expectation_ps
+#: tensorcircuit.compiler.composed_compiler.DefaultCompiler.__init__
+#: tensorcircuit.compiler.qiskit_compiler.qiskit_compile
 #: tensorcircuit.cons.get_contractor tensorcircuit.cons.get_dtype
 #: tensorcircuit.cons.plain_contractor tensorcircuit.cons.runtime_backend
 #: tensorcircuit.cons.runtime_dtype tensorcircuit.cons.set_contractor
@@ -1526,6 +1528,7 @@ msgstr ""
 #: tensorcircuit.cloud.apis.submit_task tensorcircuit.cloud.tencent.submit_task
 #: tensorcircuit.cloud.utils.set_proxy
 #: tensorcircuit.cloud.wrapper.batch_expectation_ps
+#: tensorcircuit.compiler.qiskit_compiler.qiskit_compile
 #: tensorcircuit.cons.get_contractor tensorcircuit.cons.get_dtype
 #: tensorcircuit.cons.plain_contractor tensorcircuit.cons.set_contractor
 #: tensorcircuit.cons.set_dtype tensorcircuit.cons.set_function_backend
@@ -2307,6 +2310,7 @@ msgstr ""
 #: tensorcircuit.cloud.apis.set_provider tensorcircuit.cloud.apis.set_token
 #: tensorcircuit.cloud.apis.submit_task tensorcircuit.cloud.tencent.submit_task
 #: tensorcircuit.cloud.wrapper.batch_expectation_ps
+#: tensorcircuit.compiler.qiskit_compiler.qiskit_compile
 #: tensorcircuit.cons.get_contractor tensorcircuit.cons.get_dtype
 #: tensorcircuit.cons.plain_contractor tensorcircuit.cons.runtime_backend
 #: tensorcircuit.cons.runtime_contractor tensorcircuit.cons.runtime_dtype
@@ -14324,12 +14328,64 @@ msgstr ""
 msgid "object oriented compiler pipeline"
 msgstr ""
 
+#: of tensorcircuit.compiler.composed_compiler.DefaultCompiler:1
+msgid "Bases: :py:class:`~tensorcircuit.compiler.composed_compiler.Compiler`"
+msgstr ""
+
+#: of tensorcircuit.compiler.composed_compiler.DefaultCompiler.__init__:1
+msgid ""
+"A fallback choice to compile circuit running on tencent quantum cloud "
+"with rz as native gate"
+msgstr ""
+
+#: of tensorcircuit.compiler.composed_compiler.DefaultCompiler.__init__:3
+msgid ""
+"qiskit compiled options to be added options documented in "
+"`qiskit.transpile` method, to use tencent quantum cloud, "
+"`{\"coupling_map\": d.topology()}` is in general enough, where d is a "
+"device object, defaults to None, i.e. no qubit mapping is applied"
+msgstr ""
+
 #: ../../source/api/compiler/qiskit_compiler.rst:2
 msgid "tensorcircuit.compiler.qiskit_compiler"
 msgstr ""
 
 #: of tensorcircuit.compiler.qiskit_compiler:1
 msgid "compiler interface via qiskit"
+msgstr ""
+
+#: of tensorcircuit.compiler.qiskit_compiler.qiskit_compile:1
+msgid ""
+"compile the circuit using ``qiskit.transpile`` method with some tricks "
+"and hacks"
+msgstr ""
+
+#: of tensorcircuit.compiler.qiskit_compiler.qiskit_compile:3
+msgid "circuit in ``tc.Circuit`` or ``qiskit.QuantumCircuit`` form"
+msgstr ""
+
+#: of tensorcircuit.compiler.qiskit_compiler.qiskit_compile:5
+msgid "info for qubit mappings, defaults to None"
+msgstr ""
+
+#: of tensorcircuit.compiler.qiskit_compiler.qiskit_compile:7
+msgid "output circuit format, defaults to \"tc\""
+msgstr ""
+
+#: of tensorcircuit.compiler.qiskit_compiler.qiskit_compile:9
+msgid "``qiskit.transpile`` options in a dict, defaults to None"
+msgstr ""
+
+#: of tensorcircuit.compiler.qiskit_compiler.qiskit_compile:11
+msgid "Tuple containing the output circuit and the qubit mapping info dict"
+msgstr ""
+
+#: ../../source/api/compiler/simple_compiler.rst:2
+msgid "tensorcircuit.compiler.simple_compiler"
+msgstr ""
+
+#: of tensorcircuit.compiler.simple_compiler:1
+msgid "Very simple transformations that qiskit may even fail or hard to control"
 msgstr ""
 
 #: ../../source/api/cons.rst:2
