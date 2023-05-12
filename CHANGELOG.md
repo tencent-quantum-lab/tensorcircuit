@@ -16,6 +16,13 @@
 
 - Refactor composed compiler pipeline interface to include simple_compiler, using `DefaultCompiler` for now (breaking)
 
+- Refactor `batch_submit_template` wrapper to make it a standard abstraction layer between tc cloud infras and `batch_expectation_ps` abstraction, providing another way to adpot other cloud providers with only `batch_submit_template` implemented
+
+### Fixed
+
+- `submit_task` return (list of dict vs dict) follows the data type of provided circuit instead of the number of circuits
+
+
 ## 0.9.0
 
 ### Added

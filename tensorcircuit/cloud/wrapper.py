@@ -22,9 +22,13 @@ logger = logging.getLogger(__name__)
 Tensor = Any
 
 
-def batch_submit_template(device: str) -> Callable[..., List[counts.ct]]:
+def batch_submit_template(
+    device: str, batch_limit: int = 64, **kws: Any
+) -> Callable[..., List[counts.ct]]:
     # TODO(@refraction-ray): adpative batch
-    def run(cs: Union[Circuit, Sequence[Circuit]], shots: int) -> List[counts.ct]:
+    def run(
+        cs: Union[Circuit, Sequence[Circuit]], shots: int = 8192, **nkws: Any
+    ) -> List[counts.ct]:
         """
         batch circuit running alternative
         """
@@ -32,12 +36,36 @@ def batch_submit_template(device: str) -> Callable[..., List[counts.ct]]:
         if not is_sequence(cs):
             cs = [cs]  # type: ignore
             single = True
-        ts = []
         # for c in cs:  # type: ignore
         #     ts.append(submit_task(circuit=c, shots=shots, device=device))
         #     time.sleep(0.3)
-        ts = submit_task(circuit=cs, shots=shots, device=device)
-        l = [t.results(blocked=True) for t in ts]  # type: ignore
+        kws.update(nkws)
+        if len(cs) <= batch_limit:
+            css = [cs]
+        else:
+            ntimes = len(cs) // batch_limit
+            if ntimes * batch_limit == len(cs):
+                css = [
+                    cs[i * batch_limit : (i + 1) * batch_limit] for i in range(ntimes)
+                ]
+            else:
+                css = [
+                    cs[i * batch_limit : (i + 1) * batch_limit] for i in range(ntimes)
+                ] + [cs[ntimes * batch_limit :]]
+        tss = []
+        logger.info(f"submit task on {device} for {len(cs)} circuits")
+        time0 = time.time()
+        for i, cssi in enumerate(css):
+            tss += submit_task(circuit=cssi, shots=shots, device=device, **kws)
+            if i < len(css) - 1:
+                time.sleep(1.5)
+            # TODO(@refraction-ray) whether the sleep time is enough for tquk?
+            # incase duplicae request error protection
+        l = [t.results() for t in tss]
+        time1 = time.time()
+        logger.info(
+            f"finished collecting count results of {len(cs)} tasks in {round(time1-time0, 4)} seconds"
+        )
         if single is False:
             return l
         return l[0]  # type: ignore
@@ -80,6 +108,39 @@ def sample_expectation_ps(
     return counts.expectation(raw_counts, x + y + z)
 
 
+def reduce_and_evaluate(
+    cs: List[Circuit], shots: int, run: Callable[..., Any]
+) -> List[counts.ct]:
+    reduced_cs = []
+    reduced_dict = {}
+    recover_dict = {}
+    # merge the same circuit
+    for j, c in enumerate(cs):
+        key = hash(c.to_openqasm())
+        if key not in reduced_dict:
+            reduced_dict[key] = [j]
+            reduced_cs.append(c)
+            recover_dict[key] = len(reduced_cs) - 1
+        else:
+            reduced.dict[key].append([j])
+
+    # for j, ps in enumerate(pss):
+    #     ps = [i if i in [1, 2] else 0 for i in ps]
+    #     if tuple(ps) not in reduced_dict:
+    #         reduced_dict[tuple(ps)] = [j]
+    #         reduced_cs.append(cs[j])
+    #         recover_dict[tuple(ps)] = len(reduced_cs) - 1
+    #     else:
+    #         reduced_dict[tuple(ps)].append(j)
+
+    reduced_raw_counts = run(reduced_cs, shots)
+    raw_counts: List[Dict[str, int]] = [None] * len(cs)  # type: ignore
+    for i, c in enumerate(cs):
+        key = hash(c.to_openqasm())
+        raw_counts[i] = reduced_raw_counts[recover_dict[key]]
+    return raw_counts
+
+
 def batch_expectation_ps(
     c: Circuit,
     pss: List[List[int]],
@@ -87,6 +148,8 @@ def batch_expectation_ps(
     ws: Optional[List[float]] = None,
     shots: int = 8192,
     with_rem: bool = True,
+    batch_limit: int = 64,
+    batch_submit_func: Optional[Callable[..., List[counts.ct]]] = None,
 ) -> Union[Any, List[Any]]:
     """
     Unified interface to compute the Pauli string expectation lists or sums via simulation or on real qpu.
@@ -163,43 +226,55 @@ def batch_expectation_ps(
         infos.append(info)
         exps.append(exp)
 
-    reduced_cs = []
-    reduced_dict = {}
-    recover_dict = {}
-    # merge the same circuit
-    for j, ps in enumerate(pss):
-        ps = [i if i in [1, 2] else 0 for i in ps]
-        if tuple(ps) not in reduced_dict:
-            reduced_dict[tuple(ps)] = [j]
-            reduced_cs.append(cs[j])
-            recover_dict[tuple(ps)] = len(reduced_cs) - 1
-        else:
-            reduced_dict[tuple(ps)].append(j)
+    # reduced_cs = []
+    # reduced_dict = {}
+    # recover_dict = {}
+    # # merge the same circuit
+    # for j, ps in enumerate(pss):
+    #     ps = [i if i in [1, 2] else 0 for i in ps]
+    #     if tuple(ps) not in reduced_dict:
+    #         reduced_dict[tuple(ps)] = [j]
+    #         reduced_cs.append(cs[j])
+    #         recover_dict[tuple(ps)] = len(reduced_cs) - 1
+    #     else:
+    #         reduced_dict[tuple(ps)].append(j)
 
-    def run(cs: List[Any], shots: int) -> List[Dict[str, int]]:
-        logger.info(f"submit task on {device.name} for {len(cs)} circuits")
-        time0 = time.time()
-        ts = submit_task(
-            circuit=cs,
-            device=device,
-            shots=shots,
+    if batch_submit_func is None:
+        run = batch_submit_template(
+            device,
+            batch_limit,
             enable_qos_qubit_mapping=False,
             enable_qos_gate_decomposition=False,
         )
-        if not is_sequence(ts):
-            ts = [ts]  # type: ignore
-        raw_counts = [t.results(blocked=True) for t in ts]
-        time1 = time.time()
-        logger.info(
-            f"finished collecting count results of {len(cs)} tasks in {round(time1-time0, 4)} seconds"
-        )
-        return raw_counts
+    else:
+        run = batch_submit_func
 
-    reduced_raw_counts = run(reduced_cs, shots)
-    raw_counts: List[Dict[str, int]] = [None] * len(cs)  # type: ignore
-    for i in range(len(cs)):
-        ps = [i if i in [1, 2] else 0 for i in pss[i]]
-        raw_counts[i] = reduced_raw_counts[recover_dict[tuple(ps)]]
+    raw_counts = reduce_and_evaluate(cs, shots, run)
+
+    # def run(cs: List[Any], shots: int) -> List[Dict[str, int]]:
+    #     logger.info(f"submit task on {device.name} for {len(cs)} circuits")
+    #     time0 = time.time()
+    #     ts = submit_task(
+    #         circuit=cs,
+    #         device=device,
+    #         shots=shots,
+    #         enable_qos_qubit_mapping=False,
+    #         enable_qos_gate_decomposition=False,
+    #     )
+    #     if not is_sequence(ts):
+    #         ts = [ts]  # type: ignore
+    #     raw_counts = [t.results(blocked=True) for t in ts]
+    #     time1 = time.time()
+    #     logger.info(
+    #         f"finished collecting count results of {len(cs)} tasks in {round(time1-time0, 4)} seconds"
+    #     )
+    #     return raw_counts
+
+    # reduced_raw_counts = run(reduced_cs, shots)
+    # raw_counts: List[Dict[str, int]] = [None] * len(cs)  # type: ignore
+    # for i in range(len(cs)):
+    #     ps = [i if i in [1, 2] else 0 for i in pss[i]]
+    #     raw_counts[i] = reduced_raw_counts[recover_dict[tuple(ps)]]
 
     if with_rem:
         if getattr(device, "readout_mit", None) is None:

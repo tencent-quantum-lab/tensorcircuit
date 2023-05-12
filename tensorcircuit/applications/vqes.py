@@ -28,6 +28,9 @@ Model = Any
 dtype = np.complex128
 # only guarantee compatible with float64 mode
 # only support tf backend
+# i.e. use the following setup in the code
+# tc.set_backend("tensorflow")
+# tc.set_dtype("complex128")
 
 x = np.array([[0, 1.0], [1.0, 0]], dtype=dtype)
 y = np.array([[0, -1j], [1j, 0]], dtype=dtype)
@@ -376,7 +379,11 @@ class VQNHE:
             return self.create_hea2_circuit(**kws)
         if choose == "hn":
             return self.create_hn_circuit(**kws)
-        raise ValueError("no such choose option: %s" % choose)
+        return self.create_functional_circuit(**kws)
+
+    def create_functional_circuit(self, **kws: Any):
+        func = kws.get("func")
+        return func
 
     def create_hn_circuit(self, **kws: Any) -> Callable[[Tensor], Tensor]:
         def circuit(a: Tensor) -> Tensor:

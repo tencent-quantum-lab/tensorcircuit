@@ -288,7 +288,7 @@ def submit_task(
         else:
             ti = Task(id_=t["id"], device=device)
             rtn.append(ti)
-    if len(rtn) == 1:
+    if not is_sequence(source):
         return rtn[0]  # type: ignore
     elif len(rtn) == 0:
         raise ValueError("All tasks submitted failed")

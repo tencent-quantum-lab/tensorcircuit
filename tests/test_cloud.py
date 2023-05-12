@@ -161,3 +161,19 @@ def test_batch_exp_ps():
         [1, -1],
         atol=1e-1,
     )
+
+
+def test_batch_submit_template():
+    run = tc.cloud.wrapper.batch_submit_template(
+        device="simulator:tc", batch_limit=2, prior=10
+    )
+    cs = []
+    for i in range(4):
+        c = tc.Circuit(4)
+        c.h(i)
+        cs.append(c)
+
+    rs = run(cs[:3], prior=1)
+    assert len(rs) == 3
+    rs = run(cs[:4])
+    assert len(rs) == 4
