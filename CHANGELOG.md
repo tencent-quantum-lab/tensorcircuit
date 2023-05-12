@@ -22,6 +22,7 @@
 
 - `submit_task` return (list of dict vs dict) follows the data type of provided circuit instead of the number of circuits
 
+- Fix qubit mapping related bug when using `batch_expectation_ps` or `simple_compile`
 
 ## 0.9.0
 

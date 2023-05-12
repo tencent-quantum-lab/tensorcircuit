@@ -280,6 +280,14 @@ def simple_compile(
 ) -> Any:
     if compiled_options is None:
         compiled_options = {}
+    len0 = len(circuit.to_qir())
+    for d in circuit._extra_qir:
+        if d["pos"] < len0 - 1:
+            raise ValueError(
+                "TC's simple compiler doesn't support measurement/reset instructions \
+                in the middle of the circuit"
+            )
+
     c = replace_r(circuit, **compiled_options)
     c = replace_u(circuit, **compiled_options)
     qir = c.to_qir()
@@ -296,4 +304,8 @@ def simple_compile(
         len1 = len(qir)
 
     c = type(circuit).from_qir(qir, circuit.circuit_param)
+
+    for d in circuit._extra_qir:
+        d["pos"] = len1
+        c._extra_qir.append(d)
     return (c, info)

@@ -40,20 +40,22 @@ def batch_submit_template(
         #     ts.append(submit_task(circuit=c, shots=shots, device=device))
         #     time.sleep(0.3)
         kws.update(nkws)
-        if len(cs) <= batch_limit:
+        if len(cs) <= batch_limit:  # type: ignore
             css = [cs]
         else:
-            ntimes = len(cs) // batch_limit
-            if ntimes * batch_limit == len(cs):
+            ntimes = len(cs) // batch_limit  # type: ignore
+            if ntimes * batch_limit == len(cs):  # type: ignore
                 css = [
-                    cs[i * batch_limit : (i + 1) * batch_limit] for i in range(ntimes)
+                    cs[i * batch_limit : (i + 1) * batch_limit] for i in range(ntimes)  # type: ignore
                 ]
             else:
                 css = [
-                    cs[i * batch_limit : (i + 1) * batch_limit] for i in range(ntimes)
-                ] + [cs[ntimes * batch_limit :]]
+                    cs[i * batch_limit : (i + 1) * batch_limit] for i in range(ntimes)  # type: ignore
+                ] + [
+                    cs[ntimes * batch_limit :]  # type: ignore
+                ]
         tss = []
-        logger.info(f"submit task on {device} for {len(cs)} circuits")
+        logger.info(f"submit task on {device} for {len(cs)} circuits")  # type: ignore
         time0 = time.time()
         for i, cssi in enumerate(css):
             tss += submit_task(circuit=cssi, shots=shots, device=device, **kws)
@@ -64,7 +66,7 @@ def batch_submit_template(
         l = [t.results() for t in tss]
         time1 = time.time()
         logger.info(
-            f"finished collecting count results of {len(cs)} tasks in {round(time1-time0, 4)} seconds"
+            f"finished collecting count results of {len(cs)} tasks in {round(time1-time0, 4)} seconds"  # type: ignore
         )
         if single is False:
             return l
@@ -122,7 +124,7 @@ def reduce_and_evaluate(
             reduced_cs.append(c)
             recover_dict[key] = len(reduced_cs) - 1
         else:
-            reduced.dict[key].append([j])
+            reduced_dict[key].append(j)
 
     # for j, ps in enumerate(pss):
     #     ps = [i if i in [1, 2] else 0 for i in ps]
@@ -220,7 +222,10 @@ def batch_expectation_ps(
                 exp.append(j)
             elif i == 3:
                 exp.append(j)
+        for i in range(c1._nqubits):
+            c1.measure_instruction(i)
         c1, info = dc(c1)
+        # bug for measure instruction!
         # TODO(@refraction-ray): two steps compiling with pre compilation
         cs.append(c1)
         infos.append(info)
@@ -249,7 +254,7 @@ def batch_expectation_ps(
     else:
         run = batch_submit_func
 
-    raw_counts = reduce_and_evaluate(cs, shots, run)
+    raw_counts = reduce_and_evaluate(cs, shots, run)  # type: ignore
 
     # def run(cs: List[Any], shots: int) -> List[Dict[str, int]]:
     #     logger.info(f"submit task on {device.name} for {len(cs)} circuits")

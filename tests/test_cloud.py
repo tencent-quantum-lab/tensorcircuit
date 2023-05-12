@@ -177,3 +177,37 @@ def test_batch_submit_template():
     assert len(rs) == 3
     rs = run(cs[:4])
     assert len(rs) == 4
+
+
+def test_allz_batch():
+    n = 5
+
+    def makec(inputs, params):
+        c = tc.Circuit(n)
+        for i in range(n):
+            c.rx(i, theta=inputs[i])
+        for i in range(n):
+            c.rz(i, theta=params[0, i])
+        for i in range(n - 1):
+            c.cx(i, i + 1)
+        for i in range(n):
+            c.rx(i, theta=params[1, i])
+        return c
+
+    pss = []
+    for i in range(n):
+        ps = [0 for _ in range(n)]
+        ps[i] = 3
+        pss.append(ps)
+
+    def exp_val(c, device=None):
+        rs = tc.cloud.wrapper.batch_expectation_ps(c, pss, device)
+        return tc.backend.stack(rs)
+
+    def qmlf(inputs, params, device=None):
+        c = makec(inputs, params)
+        return exp_val(c, device)
+
+    inputs = tc.array_to_tensor(np.array([0, 1, 0, 1, 0]))
+    params = np.ones([2, n])
+    print(qmlf(inputs, params, device="9gmon"))

@@ -379,11 +379,11 @@ class VQNHE:
             return self.create_hea2_circuit(**kws)
         if choose == "hn":
             return self.create_hn_circuit(**kws)
-        return self.create_functional_circuit(**kws)
+        return self.create_functional_circuit(**kws)  # type: ignore
 
-    def create_functional_circuit(self, **kws: Any):
+    def create_functional_circuit(self, **kws: Any) -> Callable[[Tensor], Tensor]:
         func = kws.get("func")
-        return func
+        return func  # type: ignore
 
     def create_hn_circuit(self, **kws: Any) -> Callable[[Tensor], Tensor]:
         def circuit(a: Tensor) -> Tensor:
