@@ -211,3 +211,4 @@ def test_allz_batch():
     inputs = tc.array_to_tensor(np.array([0, 1, 0, 1, 0]))
     params = np.ones([2, n])
     print(qmlf(inputs, params, device="9gmon"))
+    print(qmlf(inputs, params))

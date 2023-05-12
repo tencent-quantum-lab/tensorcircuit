@@ -156,3 +156,28 @@ The convention to define the ``QuOperator`` is firstly giving ``out_edges`` (lef
 
 Such QuOperator/QuVector abstraction support various calculations only possible on matrix/vectors, such as matmul (``@``), adjoint (``.adjoint()``), scalar multiplication (``*``), tensor product (``|``), and partial trace (``.partial_trace(subsystems_to_trace_out)``).
 To extract the matrix information of these objects, we can use ``.eval()`` or ``.eval_matrix()``, the former keeps the shape information of the tensor network while the latter gives the matrix representation with shape rank 2.
+
+
+Quantum Cloud SDK: Layerwise API design
+-----------------------------------------------------
+
+From lower level to higher level, a view of API layers invoking QPU calls
+
+- Vendor specific implementation of functional API in, e.g., :py:mod:`tensorcircuit.cloud.tencent`
+
+- Provider agnostic functional lower level API for task/device management in :py:mod:`tensorcircuit.cloud.apis`
+
+- Object oriented abstraction for Provider/Device/Task in :py:mod:`tensorcircuit.cloud.abstraction`
+
+- Unified batch submission interface as standarized in :py:meth:`tensorcircuit.cloud.wrapper.batch_submit_template`
+
+- Numerical and experimental unified all-in-one interface as :py:meth:`tensorcircuit.cloud.wrapper.batch_expectation_ps`
+
+- Application level code with QPU calls built directly on ``batch_expectation_ps`` or more fancy algorithms can be built on ``batch_submit_func`` so that these algorithms can be reused as long as one function ``batch_submit_func`` is defined for a given vendor (cheaper than defining a new provider from lower level).
+
+
+.. Note::
+
+    For compiler, error mitigation and results post-processing parts, they can be carefully designed to decouple with the QPU calls,
+    so they are separately implemented in :py:mod:`tensorcircuit.compiler` and :py:mod:`tensorcircuit.results`, 
+    and they can be independently useful even without tc's cloud access.
