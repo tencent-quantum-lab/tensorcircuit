@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.9.1
+
 ### Added
 
 - Add `tc.TorchHardwarLayer` for shortcut layer construction of quantum hardware experiments
