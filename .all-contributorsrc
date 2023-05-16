@@ -240,6 +240,15 @@
       "contributions": [
         "example"
       ]
+    },
+    {
+      "login": "FelixXu35",
+      "name": "Felix Xu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/61252303?v=4",
+      "profile": "https://www.linkedin.com/in/felix-xu-16a153196/",
+      "contributions": [
+        "tutorial"
+      ]
     }
   ],
   "contributorsPerLine": 6,
