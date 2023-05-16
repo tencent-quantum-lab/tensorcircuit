@@ -179,6 +179,7 @@ TensorCircuit is open source, released under the Apache License, Version 2.0.
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/eurethia"><img src="https://avatars.githubusercontent.com/u/84611606?v=4?s=100" width="100px;" alt="隐公观鱼"/><br /><sub><b>隐公观鱼</b></sub></a><br /><a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=eurethia" title="Code">💻</a> <a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=eurethia" title="Tests">⚠️</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/WiuYuan"><img src="https://avatars.githubusercontent.com/u/108848998?v=4?s=100" width="100px;" alt="WiuYuan"/><br /><sub><b>WiuYuan</b></sub></a><br /><a href="#example-WiuYuan" title="Examples">💡</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://www.linkedin.com/in/felix-xu-16a153196/"><img src="https://avatars.githubusercontent.com/u/61252303?v=4?s=100" width="100px;" alt="Felix Xu"/><br /><sub><b>Felix Xu</b></sub></a><br /><a href="#tutorial-FelixXu35" title="Tutorials">✅</a></td>
     </tr>
   </tbody>
 </table>
