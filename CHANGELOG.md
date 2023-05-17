@@ -10,6 +10,10 @@
 
 - `tc.results.counts.plot_histogram` now can dispatch kws to corresponding qiskit method
 
+- New implementation for `c.inverse()` to partially avoid unrecognized gate name issue
+
+- Fixed bug for `batch_expectation_ps` for jax backend
+
 ## 0.9.1
 
 ### Added

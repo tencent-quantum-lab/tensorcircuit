@@ -1303,6 +1303,25 @@ def test_circuit_inverse(backend):
     np.testing.assert_allclose(c.state(), inputs, atol=1e-5)
 
 
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_circuit_inverse_2(backend):
+    inputs = np.random.uniform(size=[8])
+    inputs /= np.linalg.norm(inputs)
+    c = tc.Circuit(3, inputs=inputs)
+    c.iswap(0, 1)
+    c.iswap(1, 0, theta=0.6)
+    c.rxx(1, 2, theta=-0.2)
+    c.cu(0, 1, lbd=2.0, theta=-0.7)
+    c.r(2, alpha=0.3)
+    c.sd(2)
+    c.cx(1, 2)
+    c.unitary(0, unitary=tc.gates._x_matrix)
+    c1 = c.inverse()
+    c.append(c1)
+    print(c.draw())
+    np.testing.assert_allclose(c.state(), inputs, atol=1e-5)
+
+
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_jittable_amplitude(backend):
     # @tc.backend.jit

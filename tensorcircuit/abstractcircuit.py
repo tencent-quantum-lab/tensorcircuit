@@ -406,13 +406,58 @@ class AbstractCircuit:
         c = type(self)(**circuit_params)
         for d in reversed(self._qir):
             if "parameters" not in d:
-                self.apply_general_gate_delayed(
-                    d["gatef"].adjoint(), d["name"], mpo=d["mpo"]
-                )(c, *d["index"], split=d["split"])
+                if d["gatef"].n in self.sgates and d["gatef"].n not in [
+                    "wroot",
+                    "sd",
+                    "td",
+                ]:
+                    self.apply_general_gate_delayed(
+                        d["gatef"], d["name"], mpo=d["mpo"]
+                    )(c, *d["index"], split=d["split"])
+                elif d["gatef"].n in ["sd", "td"]:
+                    self.apply_general_gate_delayed(
+                        getattr(gates, d["gatef"].n[:-1]), d["name"], mpo=d["mpo"]
+                    )(c, *d["index"], split=d["split"])
+                else:
+                    self.apply_general_gate_delayed(
+                        d["gatef"].adjoint(), d["name"], mpo=d["mpo"]
+                    )(c, *d["index"], split=d["split"])
             else:
-                self.apply_general_variable_gate_delayed(
-                    d["gatef"].adjoint(), d["name"], mpo=d["mpo"]
-                )(c, *d["index"], **d["parameters"], split=d["split"])
+                if d["gatef"].n in ["r", "cr"]:
+                    params = {k: v for k, v in d["parameters"].items()}
+                    if "theta" in params:
+                        params["theta"] = -params.get("theta", 0.0)
+                    self.apply_general_variable_gate_delayed(
+                        d["gatef"], d["name"], mpo=d["mpo"]
+                    )(c, *d["index"], **params, split=d["split"])
+                elif d["gatef"].n in ["u", "cu"]:
+                    params = {k: v for k, v in d["parameters"].items()}
+                    # deepcopy fail with tf+jit
+                    params["lbd"] = -d["parameters"].get("phi", 0) + np.pi
+                    params["phi"] = -d["parameters"].get("lbd", 0) + np.pi
+                    self.apply_general_variable_gate_delayed(
+                        d["gatef"], d["name"], mpo=d["mpo"]
+                    )(c, *d["index"], **params, split=d["split"])
+                elif d["gatef"].n in self.vgates and d["gatef"].n not in [
+                    "any",
+                    "exp",
+                    "exp1",
+                ]:
+                    params = {k: v for k, v in d["parameters"].items()}
+                    df = 0.0
+                    if d["gatef"].n == "iswap":
+                        df = 1.0
+                    params["theta"] = -params.get("theta", df)
+                    self.apply_general_variable_gate_delayed(
+                        d["gatef"], d["name"], mpo=d["mpo"]
+                    )(c, *d["index"], **params, split=d["split"])
+
+                # TODO(@refraction-ray): multi control gate?
+
+                else:
+                    self.apply_general_variable_gate_delayed(
+                        d["gatef"].adjoint(), d["name"], mpo=d["mpo"]
+                    )(c, *d["index"], **d["parameters"], split=d["split"])
 
         return c
 

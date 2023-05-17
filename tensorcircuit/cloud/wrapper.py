@@ -302,6 +302,6 @@ def batch_expectation_ps(
             counts.expectation(raw_counts[i], exps[i]) for i in range(len(raw_counts))
         ]
     if ws is not None:
-        sumr = backend.sum([w * r for w, r in zip(ws, results)])
-        return sumr
+        sumr = sum([w * r for w, r in zip(ws, results)])
+        return backend.convert_to_tensor(sumr)
     return backend.stack(results)
