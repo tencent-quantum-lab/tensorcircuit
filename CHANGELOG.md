@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Added
+
+- `c.measure_instruction(*qubits)` now supports multiple ints specified at the same time
+
+### Fixed
+
+- `tc.results.counts.plot_histogram` now can dispatch kws to corresponding qiskit method
+
 ## 0.9.1
 
 ### Added

@@ -602,39 +602,41 @@ class AbstractCircuit:
             summary[d["name"]] = summary.get(d["name"], 0) + 1
         return summary
 
-    def measure_instruction(self, index: int) -> None:
+    def measure_instruction(self, *index: int) -> None:
         """
         add a measurement instruction flag, no effect on numerical simulation
 
-        :param index: the corresponding qubit
+        :param index: the corresponding qubits
         :type index: int
         """
         l = len(self._qir)
-        d = {
-            "index": [index],
-            "name": "measure",
-            "gatef": "measure",
-            "instruction": True,
-            "pos": l,
-        }
-        self._extra_qir.append(d)
+        for ind in index:
+            d = {
+                "index": [ind],
+                "name": "measure",
+                "gatef": "measure",
+                "instruction": True,
+                "pos": l,
+            }
+            self._extra_qir.append(d)
 
-    def reset_instruction(self, index: int) -> None:
+    def reset_instruction(self, *index: int) -> None:
         """
         add a reset instruction flag, no effect on numerical simulation
 
-        :param index: the corresponding qubit
+        :param index: the corresponding qubits
         :type index: int
         """
         l = len(self._qir)
-        d = {
-            "index": [index],
-            "name": "reset",
-            "gatef": "reset",
-            "instruction": True,
-            "pos": l,
-        }
-        self._extra_qir.append(d)
+        for ind in index:
+            d = {
+                "index": [ind],
+                "name": "reset",
+                "gatef": "reset",
+                "instruction": True,
+                "pos": l,
+            }
+            self._extra_qir.append(d)
 
     def barrier_instruction(self, *index: List[int]) -> None:
         """
@@ -752,6 +754,7 @@ class AbstractCircuit:
         Visualise the circuit.
         This method recevies the keywords as same as qiskit.circuit.QuantumCircuit.draw.
         More details can be found here: https://qiskit.org/documentation/stubs/qiskit.circuit.QuantumCircuit.draw.html.
+        Interesting kws options include: ``idle_wires``(bool)
 
         :Example:
         >>> c = tc.Circuit(3)

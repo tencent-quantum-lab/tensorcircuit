@@ -109,6 +109,8 @@ def plot_histogram(data: Any, **kws: Any) -> Any:
     See ``qiskit.visualization.plot_histogram``:
     https://qiskit.org/documentation/stubs/qiskit.visualization.plot_histogram.html
 
+    interesting kw options include: ``number_to_keep`` (int)
+
     :param data: _description_
     :type data: Any
     :return: _description_
@@ -116,4 +118,4 @@ def plot_histogram(data: Any, **kws: Any) -> Any:
     """
     from qiskit.visualization import plot_histogram
 
-    return plot_histogram(data)
+    return plot_histogram(data, **kws)

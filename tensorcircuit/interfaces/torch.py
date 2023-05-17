@@ -12,6 +12,8 @@ from .tensortrans import general_args_to_backend
 
 Tensor = Any
 
+# TODO(@refraction-ray): new paradigm compatible with torch functional trasnformation
+
 
 def torch_interface(
     fun: Callable[..., Any], jit: bool = False, enable_dlpack: bool = False
