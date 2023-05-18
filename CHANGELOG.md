@@ -6,6 +6,8 @@
 
 - `c.measure_instruction(*qubits)` now supports multiple ints specified at the same time
 
+- `c.expectation_ps()` now also supports `ps` argument directly (pauli structures)
+
 ### Fixed
 
 - `tc.results.counts.plot_histogram` now can dispatch kws to corresponding qiskit method

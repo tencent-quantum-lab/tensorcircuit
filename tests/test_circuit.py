@@ -422,6 +422,10 @@ def test_expectation_ps(backend):
     c.H(0)
     r = c.expectation_ps(z=[1], x=[0])
     np.testing.assert_allclose(tc.backend.numpy(r), 1, atol=1e-5)
+    r1 = c.expectation_ps(ps=[1, 3])
+    np.testing.assert_allclose(tc.backend.numpy(r1), 1, atol=1e-5)
+    r1 = c.expectation_ps(z=[1, 2], ps=[1, 3])
+    np.testing.assert_allclose(tc.backend.numpy(r1), 1, atol=1e-5)
 
 
 def test_probability():

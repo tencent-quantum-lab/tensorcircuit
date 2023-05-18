@@ -1160,6 +1160,7 @@ class AbstractCircuit:
         x: Optional[Sequence[int]] = None,
         y: Optional[Sequence[int]] = None,
         z: Optional[Sequence[int]] = None,
+        ps: Optional[Sequence[int]] = None,
         reuse: bool = True,
         noise_conf: Optional[Any] = None,
         nmc: int = 1000,
@@ -1198,6 +1199,10 @@ class AbstractCircuit:
         :type y: Optional[Sequence[int]], optional
         :param z: sites to apply Z gate, defaults to None
         :type z: Optional[Sequence[int]], optional
+        :param ps: or one can apply a ps structures instead of ``x``, ``y``, ``z``,
+            e.g. [0, 1, 3, 0, 2, 2] for X_1Z_2Y_4Y_5
+            defaults to None, ``ps`` can overwrite ``x``, ``y`` and ``z``
+        :type ps: Optional[Sequence[int]], optional
         :param reuse: whether to cache and reuse the wavefunction, defaults to True
         :type reuse: bool, optional
         :param noise_conf: Noise Configuration, defaults to None
@@ -1211,6 +1216,14 @@ class AbstractCircuit:
         :rtype: Tensor
         """
         obs = []
+        if ps is not None:
+            from .quantum import ps2xyz
+
+            d = ps2xyz(ps)  # type: ignore
+            x = d.get("x", None)
+            y = d.get("y", None)
+            z = d.get("z", None)
+
         if x is not None:
             for i in x:
                 obs.append([gates.x(), [i]])  # type: ignore

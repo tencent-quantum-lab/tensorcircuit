@@ -302,6 +302,14 @@ def test_backend_methods_2(backend):
     )
 
 
+# @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])
+# def test_backend_array(backend):
+#     a = tc.backend.array([[0, 1], [1, 0]])
+#     assert tc.interfaces.which_backend(a).name == tc.backend.name
+#     a = tc.backend.array([[0, 1], [1, 0]], dtype=tc.rdtypestr)
+#     assert tc.dtype(a) == "float32"
+
+
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])
 def test_device_cpu_only(backend):
     a = tc.backend.ones([])
