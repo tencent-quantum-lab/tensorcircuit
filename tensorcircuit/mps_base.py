@@ -127,7 +127,6 @@ class FiniteMPS(tn.FiniteMPS):  # type: ignore
 
         if center_position is None:
             center_position = site1
-
         if use_svd:
             U, S, V, tw = self.backend.svd(
                 tensor,
@@ -136,6 +135,7 @@ class FiniteMPS(tn.FiniteMPS):  # type: ignore
                 max_truncation_error=max_truncation_err,
                 relative=relative,
             )
+
             # Note: fix the center position bug here
             if center_position == site2:
                 left_tensor = U

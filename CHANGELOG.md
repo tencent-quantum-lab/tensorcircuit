@@ -16,6 +16,8 @@
 
 - Fixed bug for `batch_expectation_ps` for jax backend
 
+- Partially fix the SVD numerical stability bug on tf backend when using `MPSCircuit`
+
 ## 0.9.1
 
 ### Added

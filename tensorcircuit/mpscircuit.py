@@ -52,6 +52,10 @@ def split_tensor(
             return backend.qr(tensor)  # type: ignore
 
 
+# TODO(@refraction-ray): AD + MPS can lead to numerical stability issue
+# E ./tensorflow/core/kernels/linalg/svd_op_impl.h:110] Eigen::BDCSVD failed with error code 3
+
+
 class MPSCircuit(AbstractCircuit):
     """
     ``MPSCircuit`` class.
