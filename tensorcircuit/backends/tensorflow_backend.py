@@ -229,7 +229,7 @@ def _rq_tf(
 def _svd_tf(
     self: Any,
     tensor: Tensor,
-    pivot_axis: int,
+    pivot_axis: int = -1,
     max_singular_values: Optional[int] = None,
     max_truncation_error: Optional[float] = None,
     relative: Optional[bool] = False,
