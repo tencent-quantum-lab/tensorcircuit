@@ -39,9 +39,12 @@ def about() -> None:
         print(f"TensorNetwork is not installed")
 
     try:
-        import cotengra as _
+        import cotengra
 
-        print(f"Cotengra: installed")
+        try:
+            print(f"Cotengra version: {cotengra.__version__}")
+        except AttributeError:
+            print(f"Cotengra: installed")
     except ModuleNotFoundError:
         print(f"Cotengra is not installed")
 
@@ -106,6 +109,10 @@ def about() -> None:
         print(f"Cirq version: {cirq.__version__}")
     except ModuleNotFoundError:
         print(f"Cirq is not installed")
+
+    from tensorcircuit import __version__
+
+    print(f"TensorCircuit version {__version__}")
 
 
 if __name__ == "__main__":
