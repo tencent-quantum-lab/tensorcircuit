@@ -17,6 +17,7 @@ from . import gates
 from .cons import backend, dtypestr
 from .vis import qir2tex
 from .quantum import QuOperator
+from .utils import is_sequence
 
 logger = logging.getLogger(__name__)
 
@@ -128,7 +129,25 @@ class AbstractCircuit:
                 ir_dict=gate_dict,
             )
 
-        return apply
+        def apply_list(self: "AbstractCircuit", *index: int, **vars: Any) -> None:
+            if isinstance(index[0], int):
+                apply(self, *index, **vars)
+            elif is_sequence(index[0]):
+                for i, ind in enumerate(zip(*index)):
+                    nvars = {}
+                    for k, v in vars.items():
+                        try:
+                            nvars[k] = v[i]
+                        except Exception:  # pylint: disable=W0703
+                            # (TypeError, IndexError) is not enough,
+                            # tensorflow.python.framework.errors_impl.InvalidArgumentError
+                            # not ideally captured here
+                            nvars[k] = v
+                    apply(self, *ind, **nvars)
+            else:
+                raise ValueError("Illegal index specification")
+
+        return apply_list
 
     @staticmethod
     def apply_general_gate_delayed(
@@ -167,7 +186,16 @@ class AbstractCircuit:
                 ir_dict=gate_dict,
             )
 
-        return apply
+        def apply_list(self: "AbstractCircuit", *index: int, **kws: Any) -> None:
+            if isinstance(index[0], int):
+                apply(self, *index, **kws)
+            elif is_sequence(index[0]):
+                for ind in zip(*index):
+                    apply(self, *ind, **kws)
+            else:
+                raise ValueError("Illegal index specification")
+
+        return apply_list
 
     @classmethod
     def _meta_apply(cls) -> None:

@@ -1559,3 +1559,17 @@ def test_inverse_jit(backend):
     vs, gs = v_ansatz(K.ones([2, 3], dtype="float32"))
     assert K.shape_tuple(gs) == (2, 3)
     np.testing.assert_allclose(K.numpy(vs), -1.0 * K.ones([2]), atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("npb")])
+def test_fancy_circuit_indexing(backend):
+    c = tc.Circuit(4)
+    c.cx([0, 1], [-1, -2])
+    c.h(list(range(c._nqubits)))
+    c.rz([0], theta=0.2)
+    c.rx([1, 2], theta=[0.3, 0.5])
+    c.rzz([2, 3], [0, 1], theta=tc.backend.ones([2]))
+    c.rxx([2, 0, 1], [0, 1, 2], theta=tc.backend.ones([1]))
+    assert c.gate_count("h") == 4
+    assert c.gate_count("rzz") == 2
+    assert c.gate_count("rxx") == 3

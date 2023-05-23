@@ -10,6 +10,8 @@
 
 - Add tc version print in `tc.about()` method
 
+- tc now supports fancy batch indexing for gates, e.g. `c.rxx([0, 1, 2], [1, 2, 3], theta=K.ones([3]))`
+
 ### Fixed
 
 - `tc.results.counts.plot_histogram` now can dispatch kws to corresponding qiskit method
