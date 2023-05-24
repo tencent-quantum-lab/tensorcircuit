@@ -222,14 +222,20 @@ For the numerical demosntration of discrete time crystal enabled by Stark many-b
 
 Reference paper: https://arxiv.org/abs/2208.02866 (published in PRL).
 
-### EMQAOA-DARBO
+### RA-Training
 
-For the numerical simulation and hardware experiments with error mitigation on QAOA, see the [project repo](https://github.com/sherrylixuecheng/EMQAOA-DARBO).
+For the numerical simulation of variational quantum algorithm training using random gate activation strategy by us, see the [project repo](https://github.com/ls-iastu/RAtraining).
 
-Reference paper: https://arxiv.org/abs/2303.14877.
+Reference paper: https://arxiv.org/abs/2303.08154.
 
 ### TenCirChem
 
 [TenCirChem](https://github.com/tencent-quantum-lab/TenCirChem) is an efficient and versatile quantum computation package for molecular properties. TenCirChem is based on TensorCircuit and is optimized for chemistry applications.
 
 Reference paper: https://arxiv.org/abs/2303.10825.
+
+### EMQAOA-DARBO
+
+For the numerical simulation and hardware experiments with error mitigation on QAOA, see the [project repo](https://github.com/sherrylixuecheng/EMQAOA-DARBO).
+
+Reference paper: https://arxiv.org/abs/2303.14877.

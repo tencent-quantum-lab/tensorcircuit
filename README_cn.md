@@ -167,14 +167,20 @@ VQEX 在 MBL 相位识别上的应用见 [教程](/docs/source/tutorials/vqex_mb
 
 参考论文: https://arxiv.org/abs/2208.02866 (PRL)。
 
-### EMQAOA-DARBO
+### RA-Training
 
-数值模拟和带错误消除的真实量子硬件实验验证 QAOA 优化的代码请参考 [项目](https://github.com/sherrylixuecheng/EMQAOA-DARBO)。
+利用我们提出的随机量子门激活策略训练优化变分量子算法的实现请参考 [项目](https://github.com/ls-iastu/RAtraining).
 
-参考论文: https://arxiv.org/abs/2303.14877。
+参考论文: https://arxiv.org/abs/2303.08154.
 
 ### TenCirChem
 
 [TenCirChem](https://github.com/tencent-quantum-lab/TenCirChem) 是高效的，专注于处理和计算分子性质的量子计算软件。其基于 TensorCircuit 并为量子化学任务进行了专门的优化。
 
 参考论文: https://arxiv.org/abs/2303.10825。
+
+### EMQAOA-DARBO
+
+数值模拟和带错误消除的真实量子硬件实验验证 QAOA 优化的代码请参考 [项目](https://github.com/sherrylixuecheng/EMQAOA-DARBO)。
+
+参考论文: https://arxiv.org/abs/2303.14877。
