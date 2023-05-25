@@ -25,11 +25,11 @@
 
 <p align="center"> <a href="README.md">English</a> |  简体中文 </p>
 
-TensorCircuit 是下一代量子软件框架，支持自动微分、即时编译、硬件加速和向量并行化。
+TensorCircuit 是下一代量子软件框架，完美支持自动微分、即时编译、硬件加速和向量并行化。
 
-TensorCircuit 建立在现代机器学习框架之上，并且与机器学习后端无关。 它特别适用于量子经典混合范式和变分量子算法的高效模拟。
+TensorCircuit 建立在现代机器学习框架 Jax, TensorFlow, PyTorch 之上，支持机器学习后端无关的统一界面。 其特别适用于理想情况、含噪声情况及可控近似情况下，大规模量子经典混合范式和变分量子算法的高效模拟。
 
-TensorCircuit 现在支持真实量子硬件连接和实验，并提供优雅的 CPU/GPU/QPU 混合部署方案（v0.9+）。
+TensorCircuit 现在支持真实量子硬件连接和实验，并提供优雅的 CPU/GPU/QPU 混合部署训练方案（v0.9+）。
 
 ## 入门
 
@@ -52,7 +52,7 @@ print(c.expectation_ps(z=[0, 1]))
 print(c.sample(allow_state=True, batch=1024, format="count_dict_bin"))
 ```
 
-- 运行时特性定制:
+- 运行时特性设置:
 
 ```python
 tc.set_backend("tensorflow")
@@ -115,7 +115,7 @@ pip install tensorcircuit-nightly
 
 - 优雅
 
-  - 灵活性：自定义张量收缩、多种 ML 后端/接口选择、多种数值精度
+  - 灵活性：自定义张量收缩、多种 ML 后端/接口选择、多种数值精度、多种量子硬件
 
   - API 设计：人类可理解的量子，更少的代码，更多的可能
 
