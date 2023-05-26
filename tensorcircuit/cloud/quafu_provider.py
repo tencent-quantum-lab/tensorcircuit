@@ -10,6 +10,7 @@ from quafu import Task as Task_
 
 from .abstraction import Device, sep, Task
 from ..abstractcircuit import AbstractCircuit
+from ..utils import is_sequence
 
 logger = logging.getLogger(__name__)
 
@@ -43,18 +44,28 @@ def submit_task(
                 s = c.to_openqasm()
             return s  # type: ignore
 
-        source = c2qasm(circuit)
+        if not is_sequence(circuit):
+            source = c2qasm(circuit)
+        else:
+            source = [c2qasm(c) for c in circuit]  # type: ignore
     user = User()
     user.save_apitoken(token)
-    nq = int(source.split("\n")[2].split("[")[1].split("]")[0])  # type: ignore
-    qc = QuantumCircuit(nq)
-    qc.from_openqasm(source)
-    task = Task_()
-    device_name = device.name.split(sep)[-1]
-    task.config(backend=device_name, shots=shots, compile=compile)
-    res = task.send(qc, wait=False)
-    wrapper = Task(res.taskid, device=device)
-    return wrapper
+
+    def c2task(source: str) -> Task:
+        nq = int(source.split("\n")[2].split("[")[1].split("]")[0])  # type: ignore
+        qc = QuantumCircuit(nq)
+        qc.from_openqasm(source)
+        task = Task_()
+        device_name = device.name.split(sep)[-1]
+        task.config(backend=device_name, shots=shots, compile=compile)
+        res = task.send(qc, wait=False)
+        wrapper = Task(res.taskid, device=device)
+        return wrapper
+
+    if not is_sequence(source):
+        return c2task(source)  # type: ignore
+    else:
+        return [c2task(s) for s in source]  # type: ignore
 
 
 def resubmit_task(task: Task, token: str) -> Task:
