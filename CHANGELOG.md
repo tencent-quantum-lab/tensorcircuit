@@ -12,6 +12,8 @@
 
 - tc now supports fancy batch indexing for gates, e.g. `c.rxx([0, 1, 2], [1, 2, 3], theta=K.ones([3]))`
 
+- Task management via group tag (when `submit_task` and `list_tasks`)
+
 ### Fixed
 
 - `tc.results.counts.plot_histogram` now can dispatch kws to corresponding qiskit method

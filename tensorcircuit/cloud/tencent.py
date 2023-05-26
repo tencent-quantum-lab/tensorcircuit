@@ -124,6 +124,7 @@ def submit_task(
     circuit: Optional[Union[AbstractCircuit, Sequence[AbstractCircuit]]] = None,
     source: Optional[Union[str, Sequence[str]]] = None,
     remarks: Optional[str] = None,
+    group: Optional[str] = None,
     compiling: bool = False,
     compiled_options: Optional[Dict[str, Any]] = None,
     enable_qiskit_initial_mapping: bool = False,
@@ -261,6 +262,7 @@ def submit_task(
                     "lang": lang,
                     "prior": prior,
                     "remarks": remarks,
+                    "group": group,
                 }
             )
 
@@ -273,6 +275,7 @@ def submit_task(
             "lang": lang,
             "prior": prior,
             "remarks": remarks,
+            "group": group,
         }
     r = rpost_json(
         tencent_base_url + "task/submit", json=json, headers=tencent_headers(token)
