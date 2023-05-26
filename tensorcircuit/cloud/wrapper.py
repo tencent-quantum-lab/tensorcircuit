@@ -196,7 +196,8 @@ def batch_expectation_ps(
         if ws is None:
             return backend.real(backend.stack(results))
         else:
-            return backend.real(backend.sum([w * r for w, r in zip(ws, results)]))
+            sumr = sum([w * r for w, r in zip(ws, results)])
+            return backend.convert_to_tensor(sumr)
     cs = []
     infos = []
     exps = []
