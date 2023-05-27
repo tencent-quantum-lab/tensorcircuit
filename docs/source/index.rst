@@ -40,65 +40,56 @@ We also thank `contributions <https://github.com/tencent-quantum-lab/tensorcircu
 If you have any further questions or collaboration ideas, please use the issue tracker or forum below, or send email to shixinzhang#tencent.com.
 
 
-.. card-carousel:: 9
+.. card-carousel:: 2
 
    .. card:: Source code
       :link: https://github.com/tencent-quantum-lab/tensorcircuit
-      :width: 25%
       :shadow: md
 
 
    .. card:: Documentation
       :link: https://tensorcircuit.readthedocs.io
-      :width: 25%
       :shadow: md
 
 
    .. card:: Whitepaper
       :link: https://quantum-journal.org/papers/q-2023-02-02-912/
-      :width: 25%
       :shadow: md
 
-      published in Quantum journal
+      published in *Quantum*
 
 
    .. card:: Issue Tracker
       :link: https://github.com/tencent-quantum-lab/tensorcircuit/issues
-      :width: 25%
       :shadow: md
 
 
    .. card:: Forum
       :link: https://github.com/tencent-quantum-lab/tensorcircuit/discussions
-      :width: 25%
       :shadow: md
 
 
    .. card:: PyPI
       :link:  https://pypi.org/project/tensorcircuit
-      :width: 25%
       :shadow: md
 
 
    .. card:: DockerHub
       :link: https://hub.docker.com/repository/docker/tensorcircuit/tensorcircuit
-      :width: 25%
       :shadow: md
 
 
-   .. card:: Applications
+   .. card:: Application
       :link: https://github.com/tencent-quantum-lab/tensorcircuit#research-and-applications
-      :width: 25%
       :shadow: md
 
-      Research based on TC
+      Research using TC
 
 
    .. card:: Cloud
       :link: https://quantum.tencent.com/cloud
-      :width: 25%
 
-      Tencent Quantum Cloud Service
+      Tencent Quantum Cloud
 
 
 
