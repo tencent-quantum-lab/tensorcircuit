@@ -7,6 +7,9 @@ TensorCircuit Documentation
 
 **Welcome and congratulations! You have found TensorCircuit.** 👏 
 
+Introduction
+---------------
+
 TensorCircuit is an open-source high-performance quantum computing software framework in Python.
 
 * It is built for humans. 👽
@@ -25,6 +28,7 @@ With the help of TensorCircuit, now get ready to efficiently and elegantly solve
 
 
 
+
 Relevant Links
 --------------------
 
@@ -36,23 +40,153 @@ We also thank `contributions <https://github.com/tencent-quantum-lab/tensorcircu
 If you have any further questions or collaboration ideas, please use the issue tracker or forum below, or send email to shixinzhang#tencent.com.
 
 
-* Source code: https://github.com/tencent-quantum-lab/tensorcircuit
+.. card-carousel:: 9
 
-* Documentation: https://tensorcircuit.readthedocs.io 
+   .. card:: Source code
+      :link: https://github.com/tencent-quantum-lab/tensorcircuit
+      :width: 25%
+      :shadow: md
 
-* Software Whitepaper (published in Quantum): https://quantum-journal.org/papers/q-2023-02-02-912/
 
-* Issue Tracker: https://github.com/tencent-quantum-lab/tensorcircuit/issues
+   .. card:: Documentation
+      :link: https://tensorcircuit.readthedocs.io
+      :width: 25%
+      :shadow: md
 
-* Forum: https://github.com/tencent-quantum-lab/tensorcircuit/discussions
 
-* PyPI page: https://pypi.org/project/tensorcircuit
+   .. card:: Whitepaper
+      :link: https://quantum-journal.org/papers/q-2023-02-02-912/
+      :width: 25%
+      :shadow: md
 
-* DockerHub page: https://hub.docker.com/repository/docker/tensorcircuit/tensorcircuit
+      published in Quantum journal
 
-* Research and projects based on TensorCircuit: https://github.com/tencent-quantum-lab/tensorcircuit#research-and-applications
 
-* Tencent Quantum Cloud Service: https://quantum.tencent.com/cloud/
+   .. card:: Issue Tracker
+      :link: https://github.com/tencent-quantum-lab/tensorcircuit/issues
+      :width: 25%
+      :shadow: md
+
+
+   .. card:: Forum
+      :link: https://github.com/tencent-quantum-lab/tensorcircuit/discussions
+      :width: 25%
+      :shadow: md
+
+
+   .. card:: PyPI
+      :link:  https://pypi.org/project/tensorcircuit
+      :width: 25%
+      :shadow: md
+
+
+   .. card:: DockerHub
+      :link: https://hub.docker.com/repository/docker/tensorcircuit/tensorcircuit
+      :width: 25%
+      :shadow: md
+
+
+   .. card:: Applications
+      :link: https://github.com/tencent-quantum-lab/tensorcircuit#research-and-applications
+      :width: 25%
+      :shadow: md
+
+      Research based on TC
+
+
+   .. card:: Cloud
+      :link: https://quantum.tencent.com/cloud
+      :width: 25%
+
+      Tencent Quantum Cloud Service
+
+
+
+
+..
+   * Source code: https://github.com/tencent-quantum-lab/tensorcircuit
+
+   * Documentation: https://tensorcircuit.readthedocs.io
+
+   * Software Whitepaper (published in Quantum): https://quantum-journal.org/papers/q-2023-02-02-912/
+
+   * Issue Tracker: https://github.com/tencent-quantum-lab/tensorcircuit/issues
+
+   * Forum: https://github.com/tencent-quantum-lab/tensorcircuit/discussions
+
+   * PyPI page: https://pypi.org/project/tensorcircuit
+
+   * DockerHub page: https://hub.docker.com/repository/docker/tensorcircuit/tensorcircuit
+
+   * Research and projects based on TensorCircuit: https://github.com/tencent-quantum-lab/tensorcircuit#research-and-applications
+
+   * Tencent Quantum Cloud Service: https://quantum.tencent.com/cloud/
+
+
+
+Unified Quantum Programming
+------------------------------
+
+TensorCircuit is unifying infrastructures and interfaces for quantum computing.
+
+.. grid:: 1 2 4 4
+   :margin: 0
+   :padding: 0
+   :gutter: 2
+
+   .. grid-item-card:: Unified Backends
+      :columns: 12 6 3 3
+      :shadow: md
+
+      Jax/TensorFlow/PyTorch/Numpy/Cupy
+
+   .. grid-item-card:: Unified Devices
+      :columns: 12 6 3 3
+      :shadow: md
+
+      CPU/GPU/TPU
+
+   .. grid-item-card:: Unified Providers
+      :columns: 12 6 3 3
+      :shadow: md
+
+      QPUs from different vendors
+
+   .. grid-item-card:: Unified Resources
+      :columns: 12 6 3 3
+      :shadow: md
+
+      local/cloud/HPC
+
+
+.. grid:: 1 2 4 4
+   :margin: 0
+   :padding: 0
+   :gutter: 2
+
+   .. grid-item-card:: Unified Interfaces
+      :columns: 12 6 3 3
+      :shadow: md
+
+      numerical sim/hardware exp
+
+   .. grid-item-card:: Unified Engines
+      :columns: 12 6 3 3
+      :shadow: md
+
+      ideal/noisy/approximate simulation
+
+   .. grid-item-card:: Unified Representations
+      :columns: 12 6 3 3
+      :shadow: md
+
+      from/to_IR/qiskit/openqasm/json
+
+   .. grid-item-card:: Unified Pipelines
+      :columns: 12 6 3 3
+      :shadow: md
+
+      stateless functional programming/stateful ML models
 
 
 

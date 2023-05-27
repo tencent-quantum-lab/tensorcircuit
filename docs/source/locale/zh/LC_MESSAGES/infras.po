@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-07 10:47+0800\n"
+"POT-Creation-Date: 2023-05-27 18:52+0800\n"
 "PO-Revision-Date: 2022-04-18 20:44+0800\n"
 "Last-Translator: Xinghan Yang\n"
 "Language: cn\n"
@@ -402,6 +402,62 @@ msgstr ""
 "(``.adjoint()``)、标量乘法 "
 "(``*``)、张量乘积（``|``）和偏迹（``.partial_trace(subsystems_to_trace_out)``）。要提取这些对象的矩阵信息，我们可以使用"
 " ``.eval()`` 或 ``.eval_matrix() ``，前者保留了张量网络的形状信息，而后者给出了形状秩为2的矩阵表示。"
+
+#: ../../source/infras.rst:162
+msgid "Quantum Cloud SDK: Layerwise API design"
+msgstr ""
+
+#: ../../source/infras.rst:164
+msgid "From lower level to higher level, a view of API layers invoking QPU calls"
+msgstr ""
+
+#: ../../source/infras.rst:166
+msgid ""
+"Vendor specific implementation of functional API in, e.g., "
+":py:mod:`tensorcircuit.cloud.tencent`"
+msgstr ""
+
+#: ../../source/infras.rst:168
+msgid ""
+"Provider agnostic functional lower level API for task/device management "
+"in :py:mod:`tensorcircuit.cloud.apis`"
+msgstr ""
+
+#: ../../source/infras.rst:170
+msgid ""
+"Object oriented abstraction for Provider/Device/Task in "
+":py:mod:`tensorcircuit.cloud.abstraction`"
+msgstr ""
+
+#: ../../source/infras.rst:172
+msgid ""
+"Unified batch submission interface as standarized in "
+":py:meth:`tensorcircuit.cloud.wrapper.batch_submit_template`"
+msgstr ""
+
+#: ../../source/infras.rst:174
+msgid ""
+"Numerical and experimental unified all-in-one interface as "
+":py:meth:`tensorcircuit.cloud.wrapper.batch_expectation_ps`"
+msgstr ""
+
+#: ../../source/infras.rst:176
+msgid ""
+"Application level code with QPU calls built directly on "
+"``batch_expectation_ps`` or more fancy algorithms can be built on "
+"``batch_submit_func`` so that these algorithms can be reused as long as "
+"one function ``batch_submit_func`` is defined for a given vendor (cheaper"
+" than defining a new provider from lower level)."
+msgstr ""
+
+#: ../../source/infras.rst:181
+msgid ""
+"For compiler, error mitigation and results post-processing parts, they "
+"can be carefully designed to decouple with the QPU calls, so they are "
+"separately implemented in :py:mod:`tensorcircuit.compiler` and "
+":py:mod:`tensorcircuit.results`, and they can be independently useful "
+"even without tc's cloud access."
+msgstr ""
 
 #~ msgid ""
 #~ ":py:mod:`tensorcircuit.densitymatrix2`: Highly efficient"

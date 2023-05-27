@@ -50,6 +50,7 @@ extensions = [
     "toctree_filter",
     "sphinx.ext.napoleon",
     "myst_parser",
+    "sphinx_design",
 ]
 
 nbsphinx_allow_errors = True
