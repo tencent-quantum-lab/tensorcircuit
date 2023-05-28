@@ -1,7 +1,7 @@
 """
 higher level wrapper shortcut for submit_task
 """
-from typing import Any, Callable, Dict, List, Optional, Sequence, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 import logging
 import time
 
@@ -150,6 +150,7 @@ def batch_expectation_ps(
     ws: Optional[List[float]] = None,
     shots: int = 8192,
     with_rem: bool = True,
+    compile_func: Optional[Callable[[Circuit], Tuple[Circuit, Dict[str, Any]]]] = None,
     batch_limit: int = 64,
     batch_submit_func: Optional[Callable[..., List[counts.ct]]] = None,
 ) -> Union[Any, List[Any]]:
@@ -204,11 +205,17 @@ def batch_expectation_ps(
     if isinstance(device, str):
         device = get_device(device)
 
-    dc = DefaultCompiler(
-        {
-            "coupling_map": device.topology(),
-        }
-    )
+    if compile_func is None:
+        try:
+            coupling_map = device.topology()
+            compile_func = DefaultCompiler(
+                {
+                    "coupling_map": coupling_map,
+                }
+            )
+        except (AttributeError, ValueError):
+            compile_func = DefaultCompiler()
+
     for ps in pss:
         # TODO(@refraction-ray): Pauli string grouping
         # https://docs.pennylane.ai/en/stable/_modules/pennylane/pauli/grouping/group_observables.html
@@ -225,8 +232,7 @@ def batch_expectation_ps(
                 exp.append(j)
         for i in range(c1._nqubits):
             c1.measure_instruction(i)
-        c1, info = dc(c1)
-        # bug for measure instruction!
+        c1, info = compile_func(c1)  # type: ignore
         # TODO(@refraction-ray): two steps compiling with pre compilation
         cs.append(c1)
         infos.append(info)

@@ -14,6 +14,8 @@
 
 - Task management via group tag (when `submit_task` and `list_tasks`)
 
+- `batch_expectation_ps` now supports local device without topology and thus unify the interface for numerical exact simulation, numerical simulation with measurement shots and QPU experiments
+
 ### Fixed
 
 - `tc.results.counts.plot_histogram` now can dispatch kws to corresponding qiskit method

@@ -161,6 +161,11 @@ def test_batch_exp_ps():
         [1, -1],
         atol=1e-1,
     )
+    np.testing.assert_allclose(
+        wrapper.batch_expectation_ps(c, pss, device="local::default", with_rem=False),
+        [1, -1],
+        atol=1e-1,
+    )
 
 
 def test_batch_submit_template():

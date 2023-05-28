@@ -39,7 +39,7 @@ def submit_task(
     **kws: Any
 ) -> List[Task]:
     def _circuit2result(c: AbstractCircuit) -> Dict[str, Any]:
-        if device.name == "testing":
+        if device.name in ["testing", "default"]:
             count = c.sample(batch=shots, allow_state=True, format="count_dict_bin")  # type: ignore
         else:
             raise ValueError("Unsupported device from local provider: %s" % device.name)
