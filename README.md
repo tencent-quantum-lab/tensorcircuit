@@ -31,13 +31,13 @@
 
 TensorCircuit is the next generation of quantum software framework with support for automatic differentiation, just-in-time compiling, hardware acceleration, and vectorized parallelism.
 
-TensorCircuit is built on top of modern machine learning frameworks: Jax, TensorFlow, and PyTorch. It is specifically suitable for highly efficient simulations of quantum-classical hybrid paradigm and variational quantum algorithms in ideal, noisy and approximation cases. It also supports real quantum hardware access and provides CPU/GPU/QPU hybrid deployment solutions since v0.9.
+TensorCircuit is built on top of modern machine learning frameworks: Jax, TensorFlow, and PyTorch. It is specifically suitable for highly efficient simulations of quantum-classical hybrid paradigm and variational quantum algorithms in ideal, noisy and approximate cases. It also supports real quantum hardware access and provides CPU/GPU/QPU hybrid deployment solutions since v0.9.
 
 ## Getting Started
 
-Please begin with [Quick Start](/docs/source/quickstart.rst).
+Please begin with [Quick Start](/docs/source/quickstart.rst) in the [full documentation](https://tensorcircuit.readthedocs.io/).
 
-For more information and introductions, please refer to helpful [example scripts](/examples) and [full documentation](https://tensorcircuit.readthedocs.io/). API docstrings and test cases in [tests](/tests) are also informative.
+For more information on software usage, sota algorithm implementation and engineer paradigm demonstration, please refer to 60+ [example scripts](/examples) and 30+ [tutorial notebooks](https://tensorcircuit.readthedocs.io/en/latest/#tutorials). API docstrings and test cases in [tests](/tests) are also informative.
 
 The following are some minimal demos.
 
@@ -120,6 +120,7 @@ We also have [Docker support](/docker).
   - Flexibility: customized contraction, multiple ML backend/interface choices, multiple dtype precisions, multiple QPU providers
 
   - API design: quantum for humans, less code, more power
+
 
 ## Contributing
 
