@@ -1565,7 +1565,7 @@ def test_inverse_jit(backend):
 def test_fancy_circuit_indexing(backend):
     c = tc.Circuit(4)
     c.cx([0, 1], [-1, -2])
-    c.h(list(range(c._nqubits)))
+    c.h(range(c._nqubits))
     c.rz([0], theta=0.2)
     c.rx([1, 2], theta=[0.3, 0.5])
     c.rzz([2, 3], [0, 1], theta=tc.backend.ones([2]))

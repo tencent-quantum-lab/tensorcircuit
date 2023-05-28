@@ -132,7 +132,7 @@ class AbstractCircuit:
         def apply_list(self: "AbstractCircuit", *index: int, **vars: Any) -> None:
             if isinstance(index[0], int):
                 apply(self, *index, **vars)
-            elif is_sequence(index[0]):
+            elif is_sequence(index[0]) or isinstance(index[0], range):
                 for i, ind in enumerate(zip(*index)):
                     nvars = {}
                     for k, v in vars.items():
@@ -189,7 +189,7 @@ class AbstractCircuit:
         def apply_list(self: "AbstractCircuit", *index: int, **kws: Any) -> None:
             if isinstance(index[0], int):
                 apply(self, *index, **kws)
-            elif is_sequence(index[0]):
+            elif is_sequence(index[0]) or isinstance(index[0], range):
                 for ind in zip(*index):
                     apply(self, *ind, **kws)
             else:

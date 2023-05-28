@@ -26,6 +26,8 @@
 
 - Partially fix the SVD numerical stability bug on tf backend when using `MPSCircuit`
 
+- List syntax for gate now supports range
+
 ## 0.9.1
 
 ### Added
