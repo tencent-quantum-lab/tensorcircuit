@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tensorcircuit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-27 18:52+0800\n"
-"PO-Revision-Date: 2023-05-27 19:00+0800\n"
+"POT-Creation-Date: 2023-05-28 14:36+0800\n"
+"PO-Revision-Date: 2023-05-28 14:39+0800\n"
 "Last-Translator: Xinghan Yang\n"
 "Language-Team: \n"
 "Language: cn\n"
@@ -114,161 +114,185 @@ msgstr ""
 msgid "Source code"
 msgstr "源代码"
 
-#: ../../source/index.rst:51
+#: ../../source/index.rst:49
+msgid "GitHub"
+msgstr ""
+
+#: ../../source/index.rst:52
 msgid "Documentation"
 msgstr "参考文档"
 
-#: ../../source/index.rst:57
+#: ../../source/index.rst:56
+msgid "Readthedocs"
+msgstr ""
+
+#: ../../source/index.rst:59
 msgid "Whitepaper"
 msgstr "白皮书"
 
-#: ../../source/index.rst:62
-msgid "published in Quantum journal"
-msgstr "Quantum 期刊发表"
+#: ../../source/index.rst:63
+msgid "*Quantum* journal"
+msgstr "Quantum 期刊"
 
-#: ../../source/index.rst:65
+#: ../../source/index.rst:66
 msgid "Issue Tracker"
 msgstr "问题跟踪"
 
-#: ../../source/index.rst:71
+#: ../../source/index.rst:70
+msgid "GitHub Issues"
+msgstr ""
+
+#: ../../source/index.rst:73
 msgid "Forum"
 msgstr "论坛"
 
 #: ../../source/index.rst:77
+msgid "GitHub Discussions"
+msgstr ""
+
+#: ../../source/index.rst:80
 msgid "PyPI"
 msgstr ""
 
-#: ../../source/index.rst:83
+#: ../../source/index.rst:84
+msgid "``pip install``"
+msgstr ""
+
+#: ../../source/index.rst:87
 msgid "DockerHub"
 msgstr ""
 
-#: ../../source/index.rst:89
-msgid "Applications"
-msgstr "应用"
+#: ../../source/index.rst:91
+msgid "``docker pull``"
+msgstr ""
 
 #: ../../source/index.rst:94
-msgid "Research based on TC"
-msgstr "基于 TC 的研究项目"
+msgid "Application"
+msgstr "应用"
 
-#: ../../source/index.rst:97
+#: ../../source/index.rst:98
+msgid "Research using TC"
+msgstr "研究项目"
+
+#: ../../source/index.rst:101
 msgid "Cloud"
 msgstr "量子云"
 
-#: ../../source/index.rst:101
-msgid "Tencent Quantum Cloud Service"
+#: ../../source/index.rst:104
+msgid "Tencent Quantum Cloud"
 msgstr "腾讯量子云平台"
 
-#: ../../source/index.rst:128
+#: ../../source/index.rst:131
 msgid "Unified Quantum Programming"
 msgstr "统一量子编程"
 
-#: ../../source/index.rst:130
+#: ../../source/index.rst:133
 msgid ""
 "TensorCircuit is unifying infrastructures and interfaces for quantum computing."
 msgstr "TensorCircuit 尝试统一量子计算的基础设施和编程界面。"
 
-#: ../../source/index.rst:137
+#: ../../source/index.rst:140
 msgid "Unified Backends"
 msgstr "统一后端"
 
-#: ../../source/index.rst:141
+#: ../../source/index.rst:144
 msgid "Jax/TensorFlow/PyTorch/Numpy/Cupy"
 msgstr ""
 
-#: ../../source/index.rst:143
+#: ../../source/index.rst:146
 msgid "Unified Devices"
 msgstr "统一设备"
 
-#: ../../source/index.rst:147
+#: ../../source/index.rst:150
 msgid "CPU/GPU/TPU"
 msgstr ""
 
-#: ../../source/index.rst:149
+#: ../../source/index.rst:152
 msgid "Unified Providers"
 msgstr "统一平台"
 
-#: ../../source/index.rst:153
+#: ../../source/index.rst:156
 msgid "QPUs from different vendors"
 msgstr "不同供应商的 QPU"
 
-#: ../../source/index.rst:155
+#: ../../source/index.rst:158
 msgid "Unified Resources"
 msgstr "统一资源"
 
-#: ../../source/index.rst:159
+#: ../../source/index.rst:162
 msgid "local/cloud/HPC"
 msgstr "本地/云/集群"
 
-#: ../../source/index.rst:167
+#: ../../source/index.rst:170
 msgid "Unified Interfaces"
 msgstr "统一接口"
 
-#: ../../source/index.rst:171
+#: ../../source/index.rst:174
 msgid "numerical sim/hardware exp"
 msgstr "数值模拟/硬件实验"
 
-#: ../../source/index.rst:173
+#: ../../source/index.rst:176
 msgid "Unified Engines"
 msgstr "统一引擎"
 
-#: ../../source/index.rst:177
+#: ../../source/index.rst:180
 msgid "ideal/noisy/approximate simulation"
 msgstr "理想/含噪/近似模拟"
 
-#: ../../source/index.rst:179
+#: ../../source/index.rst:182
 msgid "Unified Representations"
 msgstr "统一表示"
 
-#: ../../source/index.rst:183
+#: ../../source/index.rst:186
 msgid "from/to_IR/qiskit/openqasm/json"
 msgstr ""
 
-#: ../../source/index.rst:185
+#: ../../source/index.rst:188
 msgid "Unified Pipelines"
 msgstr "统一流程"
 
-#: ../../source/index.rst:189
+#: ../../source/index.rst:192
 msgid "stateless functional programming/stateful ML models"
 msgstr "函数式编程/面向对象模型"
 
-#: ../../source/index.rst:195
+#: ../../source/index.rst:198
 msgid "Reference Documentation"
 msgstr "参考文档"
 
-#: ../../source/index.rst:197
+#: ../../source/index.rst:200
 msgid ""
 "The following documentation sections briefly introduce TensorCircuit to the "
 "users and developpers."
 msgstr "以下文档向用户和开发者简要介绍了 TensorCircuit 软件。"
 
-#: ../../source/index.rst:210
+#: ../../source/index.rst:213
 msgid "Tutorials"
 msgstr "教程"
 
-#: ../../source/index.rst:212
+#: ../../source/index.rst:215
 msgid ""
 "The following documentation sections include integrated examples in the form of "
 "Jupyter Notebook."
 msgstr ""
 "以下 Jupyter Notebook 格式的文档包括了一系列使用 TensorCircuit 的集成案例。"
 
-#: ../../source/index.rst:226
+#: ../../source/index.rst:229
 msgid "API References"
 msgstr "API 参考"
 
-#: ../../source/index.rst:235
+#: ../../source/index.rst:238
 msgid "Indices and Tables"
 msgstr "索引和表格"
 
-#: ../../source/index.rst:237
+#: ../../source/index.rst:240
 msgid ":ref:`genindex`"
 msgstr ":ref:`genindex`"
 
-#: ../../source/index.rst:238
+#: ../../source/index.rst:241
 msgid ":ref:`modindex`"
 msgstr ":ref:`modindex`"
 
-#: ../../source/index.rst:239
+#: ../../source/index.rst:242
 msgid ":ref:`search`"
 msgstr ":ref:`search`"
 
@@ -330,3 +354,6 @@ msgstr ":ref:`search`"
 
 #~ msgid "Tencent Quantum Cloud Service: https://quantum.tencent.com/cloud/"
 #~ msgstr "腾讯量子云服务: https://quantum.tencent.com/cloud/"
+
+#~ msgid "Research based on TC"
+#~ msgstr "基于 TC 的研究项目"

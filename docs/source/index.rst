@@ -46,38 +46,50 @@ If you have any further questions or collaboration ideas, please use the issue t
       :link: https://github.com/tencent-quantum-lab/tensorcircuit
       :shadow: md
 
+      GitHub
+
 
    .. card:: Documentation
       :link: https://tensorcircuit.readthedocs.io
       :shadow: md
+
+      Readthedocs
 
 
    .. card:: Whitepaper
       :link: https://quantum-journal.org/papers/q-2023-02-02-912/
       :shadow: md
 
-      published in *Quantum*
+      *Quantum* journal
 
 
    .. card:: Issue Tracker
       :link: https://github.com/tencent-quantum-lab/tensorcircuit/issues
       :shadow: md
 
+      GitHub Issues
+
 
    .. card:: Forum
       :link: https://github.com/tencent-quantum-lab/tensorcircuit/discussions
       :shadow: md
+
+      GitHub Discussions
 
 
    .. card:: PyPI
       :link:  https://pypi.org/project/tensorcircuit
       :shadow: md
 
+      ``pip install``
+
 
    .. card:: DockerHub
       :link: https://hub.docker.com/repository/docker/tensorcircuit/tensorcircuit
       :shadow: md
 
+      ``docker pull``
+      
 
    .. card:: Application
       :link: https://github.com/tencent-quantum-lab/tensorcircuit#research-and-applications
