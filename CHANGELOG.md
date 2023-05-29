@@ -16,6 +16,8 @@
 
 - `batch_expectation_ps` now supports local device without topology and thus unify the interface for numerical exact simulation, numerical simulation with measurement shots and QPU experiments
 
+- introduce two stage compiling for `batch_expectation_ps` to save some compiling overhead
+
 ### Fixed
 
 - `tc.results.counts.plot_histogram` now can dispatch kws to corresponding qiskit method

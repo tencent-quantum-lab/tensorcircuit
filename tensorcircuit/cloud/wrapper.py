@@ -26,7 +26,6 @@ Tensor = Any
 def batch_submit_template(
     device: str, batch_limit: int = 64, **kws: Any
 ) -> Callable[..., List[counts.ct]]:
-    # TODO(@refraction-ray): adpative batch
     def run(
         cs: Union[Circuit, Sequence[Circuit]], shots: int = 8192, **nkws: Any
     ) -> List[counts.ct]:
@@ -239,7 +238,7 @@ def batch_expectation_ps(
         for i in range(c._nqubits):
             c2.measure_instruction(info["logical_physical_mapping"][i])
         # c1, info = compile_func(c1)  # type: ignore
-        # TODO(@refraction-ray): two steps compiling with pre compilation
+        # TODO(@refraction-ray): two steps compiling with pre compilation: basically done, require some fine tuning for performance
         cs.append(c2)
         infos.append(info)
         exps.append(exp)
