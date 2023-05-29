@@ -14,6 +14,7 @@ from ..utils import is_sequence
 from ..cons import backend
 from ..quantum import ps2xyz
 from ..compiler import DefaultCompiler
+from ..compiler.simple_compiler import simple_compile
 from .apis import submit_task, get_device
 from .abstraction import Device
 
@@ -215,26 +216,31 @@ def batch_expectation_ps(
             )
         except (AttributeError, ValueError):
             compile_func = DefaultCompiler()
-
+    c1, info = compile_func(c)  # type: ignore
+    if not info.get("logical_physical_mapping", None):
+        info["logical_physical_mapping"] = {i: i for i in range(c._nqubits)}
     for ps in pss:
         # TODO(@refraction-ray): Pauli string grouping
         # https://docs.pennylane.ai/en/stable/_modules/pennylane/pauli/grouping/group_observables.html
-        c1 = Circuit.from_qir(c.to_qir())
+        c2 = Circuit.from_qir(c1.to_qir())
         exp = []
         for j, i in enumerate(ps):
             if i == 1:
-                c1.H(j)  # type: ignore
+                c2.H(info["logical_physical_mapping"][j])  # type: ignore
+                c2, _ = simple_compile(c2)
                 exp.append(j)
+
             elif i == 2:
-                c1.rx(j, theta=np.pi / 2)  # type: ignore
+                c2.rx(info["logical_physical_mapping"][j], theta=np.pi / 2)  # type: ignore
+                c2, _ = simple_compile(c2)
                 exp.append(j)
             elif i == 3:
                 exp.append(j)
-        for i in range(c1._nqubits):
-            c1.measure_instruction(i)
-        c1, info = compile_func(c1)  # type: ignore
+        for i in range(c._nqubits):
+            c2.measure_instruction(info["logical_physical_mapping"][i])
+        # c1, info = compile_func(c1)  # type: ignore
         # TODO(@refraction-ray): two steps compiling with pre compilation
-        cs.append(c1)
+        cs.append(c2)
         infos.append(info)
         exps.append(exp)
 
