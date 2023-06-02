@@ -18,6 +18,8 @@
 
 - introduce two stage compiling for `batch_expectation_ps` to save some compiling overhead
 
+- Add experimental support for ODE backend pulse level control simulation/analog quantum computing
+
 ### Fixed
 
 - `tc.results.counts.plot_histogram` now can dispatch kws to corresponding qiskit method

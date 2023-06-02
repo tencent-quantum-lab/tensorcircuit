@@ -218,3 +218,33 @@ def test_finite_difference_tf(tfb):
 
     np.testing.assert_allclose(g1, g3, atol=1e-5)
     np.testing.assert_allclose(g2, g4, atol=1e-5)
+
+
+def test_evol(jaxb):
+    def h_square(t, b):
+        return (tc.backend.sign(t - 1.0) + 1) / 2 * b * tc.gates.x().tensor
+
+    c = tc.Circuit(3)
+    c.x(0)
+    c.cx(0, 1)
+    c.h(2)
+    c = experimental.evol_local(
+        c, [1], h_square, 2.0, tc.backend.convert_to_tensor(0.2)
+    )
+    c.rx(1, theta=np.pi - 0.4)
+    np.testing.assert_allclose(c.expectation_ps(z=[1]), 1.0, atol=1e-5)
+
+    ixi = tc.quantum.PauliStringSum2COO([[0, 1, 0]])
+
+    def h_square_sparse(t, b):
+        return (tc.backend.sign(t - 1.0) + 1) / 2 * b * ixi
+
+    c = tc.Circuit(3)
+    c.x(0)
+    c.cx(0, 1)
+    c.h(2)
+    c = experimental.evol_global(
+        c, h_square_sparse, 2.0, tc.backend.convert_to_tensor(0.2)
+    )
+    c.rx(1, theta=np.pi - 0.4)
+    np.testing.assert_allclose(c.expectation_ps(z=[1]), 1.0, atol=1e-5)

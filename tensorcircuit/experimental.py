@@ -7,9 +7,11 @@ from typing import Any, Callable, Optional, Tuple, Sequence, Union
 
 import numpy as np
 
-from .cons import backend, dtypestr
+from .cons import backend, dtypestr, contractor, rdtypestr
+from .gates import Gate, array_to_tensor
 
 Tensor = Any
+Circuit = Any
 
 
 def adaptive_vmap(
@@ -433,3 +435,86 @@ def hamiltonian_evol(
         return callback(psi_exact)
 
     return backend.stack([_evol(t) for t in tlist])
+
+
+def evol_local(
+    c: Circuit,
+    index: Sequence[int],
+    h_fun: Callable[..., Tensor],
+    t: float,
+    *args: Any,
+    **solver_kws: Any
+) -> Circuit:
+    """
+    ode evolution of time dependent Hamiltonian on circuit of given indices
+    [only jax backend support for now]
+
+    :param c: _description_
+    :type c: Circuit
+    :param index: _description_
+    :type index: Sequence[int]
+    :param h_fun: h_fun should return a dense Hamiltonian matrix
+        with input arguments time and *args
+    :type h_fun: Callable[..., Tensor]
+    :param t: evolution time
+    :type t: float
+    :return: _description_
+    :rtype: Circuit
+    """
+    from jax.experimental.ode import odeint
+
+    s = c.state()
+    n = c._nqubits
+    l = len(index)
+
+    def f(y: Tensor, t: Tensor, *args: Any) -> Tensor:
+        y = backend.reshape2(y)
+        y = Gate(y)
+        h = -1.0j * h_fun(t, *args)
+        h = backend.reshape2(h)
+        h = Gate(h)
+        edges = []
+        for i in range(n):
+            if i not in index:
+                edges.append(y[i])
+            else:
+                j = index.index(i)
+                edges.append(h[j])
+                h[j + l] ^ y[i]
+        y = contractor([y, h], output_edge_order=edges)
+        return backend.reshape(y.tensor, [-1])
+
+    t = array_to_tensor([0, t], dtype=rdtypestr)
+    s1 = odeint(f, s, t, *args, **solver_kws)
+    return type(c)(n, inputs=s1[-1])
+
+
+def evol_global(
+    c: Circuit, h_fun: Callable[..., Tensor], t: float, *args: Any, **solver_kws: Any
+) -> Circuit:
+    """
+    ode evolution of time dependent Hamiltonian on circuit of all qubits
+    [only jax backend support for now]
+
+    :param c: _description_
+    :type c: Circuit
+    :param h_fun: h_fun should return a **SPARSE** Hamiltonian matrix
+        with input arguments time and *args
+    :type h_fun: Callable[..., Tensor]
+    :param t: _description_
+    :type t: float
+    :return: _description_
+    :rtype: Circuit
+    """
+    from jax.experimental.ode import odeint
+
+    s = c.state()
+    n = c._nqubits
+
+    def f(y: Tensor, t: Tensor, *args: Any) -> Tensor:
+        h = -1.0j * h_fun(t, *args)
+        return backend.sparse_dense_matmul(h, y)
+
+    t = array_to_tensor([0, t], dtype=rdtypestr)
+    s1 = odeint(f, s, t, *args, **solver_kws)
+    return type(c)(n, inputs=s1[-1])
