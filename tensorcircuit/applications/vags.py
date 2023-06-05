@@ -208,34 +208,35 @@ def _overlap_fun(s: Any, overlap_threhold: float = 0.0) -> Tensor:
     return 0.0
 
 
-def cvar(r: List[float], p: Tensor, percent: float = 0.2) -> Sequence[float]:
+def cvar(r: List[float], p: Tensor, percent: float = 0.2) -> float:
     """
     as f3
+    calculate the Conditional Value-at-Risk (CVaR)
 
-    :param r:
-    :param p:
-    :param percent:
-    :return:
+    :param r: list of losses of protfolio selections
+    :param p: list of corresponding probabilities
+    :param percent: the cut of point on the distribution
+    :return: the CVaR of a given distribution
     """
 
     rs = sorted(
         [(i, j) for i, j in enumerate(r)], key=lambda s: -s[1]
     )  # larger to smaller
-    sump = 0.0
+    sump = 0.0  # the sum of probability
     count = 0
+    cvar_result = 0.0
     while sump < percent:
         if sump + p[rs[count][0]] > percent:
-            r[rs[count][0]] = (percent - sump) / (p[rs[count][0]]) * r[rs[count][0]]
+            cvar_result += r[rs[count][0]] * (percent - sump)
             count += 1
             break
         else:
             sump += p[rs[count][0]]
+            cvar_result += r[rs[count][0]] * p[rs[count][0]]
             count += 1
 
-    for i in range(count, len(r)):
-        r[rs[i][0]] = 0
-    r = [k / percent for k in r]
-    return r
+    cvar_result /= percent
+    return cvar_result
 
 
 def qaoa_vag(
