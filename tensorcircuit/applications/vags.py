@@ -226,7 +226,7 @@ def cvar(r: List[float], p: Tensor, percent: float = 0.2) -> float:
     count = 0
     cvar_result = 0.0
     while sump < percent:
-        if sump + p[rs[count][0]] > percent:
+        if round(sump + p[rs[count][0]], 7) > percent:
             cvar_result += r[rs[count][0]] * (percent - sump)
             count += 1
             break
