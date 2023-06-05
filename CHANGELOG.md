@@ -20,6 +20,8 @@
 
 - Add experimental support for ODE backend pulse level control simulation/analog quantum computing
 
+- make the pulse level control support differentiating the end time
+
 ### Fixed
 
 - `tc.results.counts.plot_histogram` now can dispatch kws to corresponding qiskit method

@@ -8,7 +8,7 @@ from typing import Any, Callable, Optional, Tuple, Sequence, Union
 import numpy as np
 
 from .cons import backend, dtypestr, contractor, rdtypestr
-from .gates import Gate, array_to_tensor
+from .gates import Gate
 
 Tensor = Any
 Circuit = Any
@@ -484,8 +484,9 @@ def evol_local(
         y = contractor([y, h], output_edge_order=edges)
         return backend.reshape(y.tensor, [-1])
 
-    t = array_to_tensor([0, t], dtype=rdtypestr)
-    s1 = odeint(f, s, t, *args, **solver_kws)
+    ts = backend.stack([0.0, t])
+    ts = backend.cast(ts, dtype=rdtypestr)
+    s1 = odeint(f, s, ts, *args, **solver_kws)
     return type(c)(n, inputs=s1[-1])
 
 
@@ -515,6 +516,7 @@ def evol_global(
         h = -1.0j * h_fun(t, *args)
         return backend.sparse_dense_matmul(h, y)
 
-    t = array_to_tensor([0, t], dtype=rdtypestr)
-    s1 = odeint(f, s, t, *args, **solver_kws)
+    ts = backend.stack([0.0, t])
+    ts = backend.cast(ts, dtype=rdtypestr)
+    s1 = odeint(f, s, ts, *args, **solver_kws)
     return type(c)(n, inputs=s1[-1])
