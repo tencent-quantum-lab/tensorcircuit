@@ -6,7 +6,15 @@ FiniteMPS from tensornetwork with bug fixed
 from typing import Any, Optional, List, Sequence
 
 import numpy as np
-from tensornetwork.linalg.node_linalg import conj
+
+try:
+    from tensornetwork.linalg.node_linalg import conj
+
+    # google tn
+except ModuleNotFoundError:
+    # tc tn
+    from tensornetwork.matrixproductstates.utils import conj
+
 import tensornetwork as tn
 import tensornetwork.ncon_interface as ncon
 from tensornetwork.network_components import Node
