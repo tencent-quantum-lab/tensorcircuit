@@ -47,7 +47,7 @@ if __name__ == "__main__":
         mit = tc.results.rem.ReadoutMit(runp)
         mit.cals_from_system(n)
         for i in range(n):
-            print(i, "\n" ,mit.single_qubit_cals[i])
+            print(i, "\n", mit.single_qubit_cals[i])
         rs = []
         for i in range(n):
             rs.append([i, np.abs(mit.expectation(r, list(range(i))))])
