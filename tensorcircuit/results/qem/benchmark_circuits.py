@@ -1,22 +1,25 @@
+"""
+circuits for quantum chip benchmark
+"""
+
+from typing import Any, List, Dict, Tuple
+
 from mitiq.benchmarks import (
     generate_ghz_circuit,
     generate_mirror_circuit,
-    generate_quantum_volume_circuit,
     generate_rb_circuits,
     generate_w_circuit,
 )
-
 from mitiq.interface import (
-    CircuitConversionError,
-    convert_to_mitiq,
     convert_from_mitiq,
 )
+import networkx as nx
 
 
 from ... import Circuit
 
 
-def ghz_circuit(num_qubits):  # type: ignore
+def ghz_circuit(num_qubits: int) -> Tuple[Any, Dict[str, float]]:
     cirq = generate_ghz_circuit(num_qubits)
     ideal = {"0" * num_qubits: 0.5, "1" * num_qubits: 0.5}
     qisc = convert_from_mitiq(cirq, "qiskit")
@@ -24,7 +27,7 @@ def ghz_circuit(num_qubits):  # type: ignore
     return circuit, ideal
 
 
-def w_circuit(num_qubits):  # type: ignore
+def w_circuit(num_qubits: int) -> Tuple[Any, Dict[str, float]]:
     # Efficient quantum algorithms for GHZ and W states https://arxiv.org/abs/1807.05572
     # Werner-state with linear complexity  {'1000': 0.25, '0100': 0.25, '0010': 0.25, '0001': 0.25}
     cirq = generate_w_circuit(num_qubits)
@@ -39,7 +42,7 @@ def w_circuit(num_qubits):  # type: ignore
     return circuit, ideal
 
 
-def rb_circuit(num_qubits, depth):  # type: ignore
+def rb_circuit(num_qubits: int, depth: int) -> Tuple[Any, Dict[str, float]]:
     # num_qubits limited to 1 or 2
     cirq = generate_rb_circuits(num_qubits, depth)[0]
     ideal = {"0" * num_qubits: 1.0}
@@ -48,9 +51,13 @@ def rb_circuit(num_qubits, depth):  # type: ignore
     return circuit, ideal
 
 
-def mirror_circuit(  # type: ignore
-    depth, two_qubit_gate_prob, connectivity_graph, seed, two_qubit_gate_name="CNOT"
-):
+def mirror_circuit(
+    depth: int,
+    two_qubit_gate_prob: float,
+    connectivity_graph: nx.Graph,
+    seed: int,
+    two_qubit_gate_name: str = "CNOT",
+) -> Tuple[Any, Dict[str, float]]:
     # Measuring the Capabilities of Quantum Computers https://arxiv.org/pdf/2008.11294.pdf
     cirq, bitstring_list = generate_mirror_circuit(
         nlayers=depth,
@@ -66,7 +73,9 @@ def mirror_circuit(  # type: ignore
     return circuit, ideal
 
 
-def QAOA_circuit(graph, weight, params):  # type: ignore
+def QAOA_circuit(
+    graph: List[Tuple[int]], weight: List[float], params: List[float]
+) -> Any:
     nlayers = len(params)
 
     qlist = []

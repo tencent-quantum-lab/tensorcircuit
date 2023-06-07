@@ -1,7 +1,7 @@
+from functools import partial
 import pytest
 from pytest_lazyfixture import lazy_fixture as lf
 import numpy as np
-from functools import partial
 import networkx as nx
 
 import tensorcircuit as tc
@@ -120,8 +120,8 @@ def test_dd(backend):
         iscount=True,
     )
 
-    # washcircuit based on use_qubits and washout iden gates
-    _ = qem.washcircuit(c, qlist=list(range(c.circuit_param["nqubits"])))
+    # wash circuit based on use_qubits and washout iden gates
+    _ = qem.prune_ddcircuit(c, qlist=list(range(c.circuit_param["nqubits"])))
 
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])

@@ -1,39 +1,44 @@
+"""
+quantum error mitigation functionalities
+"""
+
+from typing import Any, List, Union, Optional, Dict, Tuple, Callable, Sequence
+from itertools import product
+import functools
+from functools import partial
+import collections
+import operator
+from random import choice
+
+import numpy as np
 from mitiq import zne, ddd
 from mitiq.zne.inference import Factory
 from mitiq.zne.scaling import fold_gates_at_random
-from typing import Any, Sequence, Union, Optional, Dict, Tuple, Callable
-import numpy as np
-from random import choice
-from itertools import product
 import cirq
-from functools import partial
-import collections
-import functools
-import operator
-
 
 from ... import Circuit
 from ... import backend, gates
 from ...compiler import simple_compiler
 
+Gate = gates.Gate
 
 zne_option = zne
 
 
 def apply_zne(
     circuit: Any,
-    executor: Callable[[Any], float],
+    executor: Callable[[Union[Any, Sequence[Any]]], Any],
     factory: Optional[Factory],
     scale_noise: Callable[[Any, float], Any] = fold_gates_at_random,
     num_to_average: int = 1,
     **kws: Any,
-) -> float:
+) -> Any:
     """Apply zero-noise extrapolation (ZNE) and return the mitigated results.
 
     :param circuit: The aim circuit.
     :type circuit: Any
-    :param executor: A executor that executes a circuit and return results.
-    :type executor: Callable[[Any], float]
+    :param executor: A executor that executes a single circuit or a batch of circuits and return results.
+    :type executor: Callable[[Union[Any, Sequence[Any]]], Any]
     :param factory: Determines the extropolation method.
     :type factory: Optional[Factory]
     :param scale_noise: The scaling function for the aim circuit, defaults to fold_gates_at_random
@@ -58,11 +63,12 @@ def apply_zne(
         num_to_average=num_to_average,
         **kws,
     )
-    return result  # type:ignore
+    return result
 
 
-def washcircuit(c: Any, qlist: list) -> Any:  # type:ignore
-    """Discard DD sequence on idle qubits and Discard identity gate (no identity/idle gate on device now) filled in DD sequence.
+def prune_ddcircuit(c: Any, qlist: List[int]) -> Any:
+    """Discard DD sequence on idle qubits and Discard identity gate
+    (no identity/idle gate on device now) filled in DD sequence.
 
     :param c: circuit
     :type c: Any
@@ -88,13 +94,13 @@ def washcircuit(c: Any, qlist: list) -> Any:  # type:ignore
     return cnew
 
 
-def use_qubits(c: Any) -> list:  # type:ignore
+def used_qubits(c: Any) -> List[int]:
     """Create a qubit list that includes all qubits having gate manipulation.
 
     :param c: a circuit
     :type c: Any
     :return: qubit list
-    :rtype: list
+    :rtype: List
     """
     qir = c.to_qir()
     qlist = []
@@ -124,29 +130,33 @@ def add_dd(c: Any, rule: Callable[[int], Any]) -> Any:
 
 dd_option = ddd
 
+# pylint: disable=dangerous-default-value
+
 
 def apply_dd(
     circuit: Any,
-    executor: Callable[[Any], float],
-    rule: Union[Callable[[int], Any], list],  # type:ignore
+    executor: Callable[[Any], Any],
+    rule: Union[Callable[[int], Any], List[str]],
     rule_args: Dict[str, Any] = {},
     num_trials: int = 1,
     full_output: bool = False,
     ignore_idle_qubit: bool = True,
     fulldd: bool = False,
     iscount: bool = False,
-) -> Union[float, Tuple[float, Dict[str, Any]]]:
+) -> Union[
+    float, Tuple[float, List[Any]], Dict[str, float], Tuple[Dict[str, float], List[Any]]
+]:
     """Apply dynamic decoupling (DD) and return the mitigated results.
 
 
     :param circuit: The aim circuit.
     :type circuit: Any
     :param executor: A executor that executes a circuit and return results.
-    :type executor: Callable[[Any], float]
+    :type executor: Callable[[Any], Any]
     :param rule: The rule to construct DD sequence, can use default rule "dd_option.rules.xx"
     or custom rule "['X','X']"
-    :type rule: Union[Callable[[int], Any], list]
-    :param rule_args:An optional dictionary of keyword arguments for ``rule``, defaults to {}. Can set {"spacing": -1},{"spacing": 3}
+    :type rule: Union[Callable[[int], Any], List[str]]
+    :param rule_args:An optional dictionary of keyword arguments for ``rule``, defaults to {}.
     :type rule_args: Dict[str, Any], optional
     :param num_trials: The number of independent experiments to average over, defaults to 1
     :type num_trials: int, optional
@@ -164,7 +174,7 @@ def apply_dd(
     :rtype: Union[float, Tuple[float, Dict[str, Any]]]
     """
 
-    def dd_rule(slack_length: int, spacing: int = -1):  # type:ignore
+    def dd_rule(slack_length: int, spacing: int = -1) -> Any:
         """Set DD rule.
 
         :param slack_length: Length of idle window to fill. Automatically calculated for a circuit.
@@ -187,7 +197,7 @@ def apply_dd(
         rule = dd_rule
 
     if ignore_idle_qubit is True:
-        qlist = use_qubits(circuit)
+        qlist = used_qubits(circuit)
     else:
         qlist = list(range(circuit.circuit_param["nqubits"]))
 
@@ -196,15 +206,15 @@ def apply_dd(
     )  # rule_args influence the finall DD sequence
     c2 = circuit
     c3 = add_dd(c2, rule_partial)
-    c3 = washcircuit(c3, qlist)
+    c3 = prune_ddcircuit(c3, qlist)
     if fulldd is True:
         while c2.to_openqasm() != c3.to_openqasm():
             c2 = c3
             c3 = add_dd(c2, rule_partial)
-            c3 = washcircuit(c3, qlist)
+            c3 = prune_ddcircuit(c3, qlist)
 
     exp = []
-    for i in range(num_trials):
+    for i in range(num_trials):  # type: ignore
         exp.append(executor(c3))
 
     if iscount is True:
@@ -220,7 +230,7 @@ def apply_dd(
 
     # def executortc(c):
     #     c = Circuit.from_qiskit(c, c.num_qubits)
-    #     c = washcircuit(c,qlist)
+    #     c = prune_ddcircuit(c,qlist)
     #     return executor(c)
     # circuit = circuit.to_qiskit()
     # result = ddd.execute_with_ddd(
@@ -235,7 +245,7 @@ def apply_dd(
     return result  # type:ignore
 
 
-def rc_candidates(gate):  # type:ignore
+def rc_candidates(gate: Gate) -> List[Any]:
     pauli = [m.tensor for m in gates.pauli_gates]
     if isinstance(gate, gates.Gate):
         gate = gate.tensor
@@ -254,7 +264,7 @@ def rc_candidates(gate):  # type:ignore
     return r
 
 
-def apply_gate(c, i, j):  # type:ignore
+def _apply_gate(c: Any, i: int, j: int) -> Any:
     if i == 0:
         c.i(j)
     elif i == 1:
@@ -266,15 +276,15 @@ def apply_gate(c, i, j):  # type:ignore
     return c
 
 
-def rc_circuit(c):  # type:ignore
+def rc_circuit(c: Any) -> Any:
     qir = c.to_qir()
     cnew = Circuit(c.circuit_param["nqubits"])
     for d in qir:
         if len(d["index"]) == 2:
             rc_list = choice(rc_candidates(d["gate"]))
 
-            cnew = apply_gate(cnew, rc_list[0], d["index"][0])
-            cnew = apply_gate(cnew, rc_list[1], d["index"][1])
+            cnew = _apply_gate(cnew, rc_list[0], d["index"][0])
+            cnew = _apply_gate(cnew, rc_list[1], d["index"][1])
             if "parameters" not in d:
                 cnew.apply_general_gate_delayed(d["gatef"], d["name"])(
                     cnew, *d["index"]
@@ -283,8 +293,8 @@ def rc_circuit(c):  # type:ignore
                 cnew.apply_general_variable_gate_delayed(d["gatef"], d["name"])(
                     cnew, *d["index"], **d["parameters"]
                 )
-            cnew = apply_gate(cnew, rc_list[2], d["index"][0])
-            cnew = apply_gate(cnew, rc_list[3], d["index"][1])
+            cnew = _apply_gate(cnew, rc_list[2], d["index"][0])
+            cnew = _apply_gate(cnew, rc_list[3], d["index"][1])
         else:
             if "parameters" not in d:
                 cnew.apply_general_gate_delayed(d["gatef"], d["name"])(
@@ -299,18 +309,18 @@ def rc_circuit(c):  # type:ignore
 
 def apply_rc(
     circuit: Any,
-    executor: Callable[[Any], float],
+    executor: Callable[[Any], Any],
     num_to_average: int = 1,
     simplify: bool = True,
     iscount: bool = False,
     **kws: Any,
-) -> float:
+) -> Tuple[float, List[Any]]:
     """Apply Randomized Compiling or Pauli twirling on two-qubit gates.
 
     :param circuit: Input circuit
     :type circuit: Any
     :param executor: A executor that executes a circuit and return results.
-    :type executor: Callable[[Any], float]
+    :type executor: Callable[[Any], Any]
     :param num_to_average: Number of circuits for RC, defaults to 1
     :type num_to_average: int, optional
     :param simplify: Whether simplify the circuits by merging single qubit gates, defaults to True
@@ -326,7 +336,7 @@ def apply_rc(
         circuit1 = rc_circuit(circuit)
 
         if simplify is True:
-            circuit1 = washcircuit(
+            circuit1 = prune_ddcircuit(
                 circuit1, qlist=list(range(circuit1.circuit_param["nqubits"]))
             )
             circuit1 = simple_compiler.merge(circuit1)
@@ -343,3 +353,6 @@ def apply_rc(
         result = np.mean(exp)  # type:ignore
 
     return result, circuit_list  # type:ignore
+
+
+# TODO(yuqinchen) add executor with batch ability
