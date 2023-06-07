@@ -21,3 +21,7 @@ Jupyter Tutorials
     tutorials/dqas.ipynb
     tutorials/barren_plateaus.ipynb
     tutorials/qaoa_portfolio_optimization.ipynb
+
+    Tutorials demosntrating QPU access:
+
+    tutorials/qcloud_sdk_demo.ipynb

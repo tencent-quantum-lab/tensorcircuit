@@ -24,7 +24,7 @@ def run(cs, shots, p=0.1):
     # we assume only all 0 and all 1 results for simplicity
     rds = []
     for c in cs:
-        if len(c.to_qir()) < 10:
+        if len(c.to_qir()) < 2:
             ans = "0" * c._nqubits
         else:
             ans = "1" * c._nqubits
@@ -46,6 +46,8 @@ if __name__ == "__main__":
         r = runp([c], 8192)[0]
         mit = tc.results.rem.ReadoutMit(runp)
         mit.cals_from_system(n)
+        for i in range(n):
+            print(i, "\n" ,mit.single_qubit_cals[i])
         rs = []
         for i in range(n):
             rs.append([i, np.abs(mit.expectation(r, list(range(i))))])
