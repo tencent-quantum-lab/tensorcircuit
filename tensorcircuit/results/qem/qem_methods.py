@@ -282,8 +282,8 @@ def _apply_gate(c: Any, i: int, j: int) -> Any:
     return c
 
 
-global candidate_list
-candidate_list = {}  # type: ignore
+
+candidate_dict = {}  # type: ignore
 
 
 def rc_circuit(c: Any) -> Any:
@@ -291,13 +291,13 @@ def rc_circuit(c: Any) -> Any:
     cnew = Circuit(c.circuit_param["nqubits"])
     for d in qir:
         if len(d["index"]) == 2:
-            if d["gate"].name in list(candidate_list.keys()):
-                rc_cand = candidate_list[d["gate"].name]
+            if d["gate"].name in candidate_dict:
+                rc_cand = candidate_dict[d["gate"].name]
                 rc_list = choice(rc_cand)
             else:
                 rc_cand = rc_candidates(d["gate"])
                 rc_list = choice(rc_cand)
-                candidate_list[d["gate"].name] = rc_cand
+                candidate_dict[d["gate"].name] = rc_cand
 
             cnew = _apply_gate(cnew, rc_list[0], d["index"][0])
             cnew = _apply_gate(cnew, rc_list[1], d["index"][1])
