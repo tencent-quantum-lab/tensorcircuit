@@ -1,5 +1,5 @@
-tensorcircuit.interfaces
-==================================================
+tensorcircuit.interfaces.rst
+================================================================================
 .. toctree::
     interfaces/numpy.rst
     interfaces/scipy.rst

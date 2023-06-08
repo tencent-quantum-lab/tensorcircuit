@@ -1,5 +1,5 @@
 tensorcircuit.cloud.config
-==================================================
+================================================================================
 .. automodule:: tensorcircuit.cloud.config
     :members:
     :undoc-members:

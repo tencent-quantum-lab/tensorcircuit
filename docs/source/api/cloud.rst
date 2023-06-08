@@ -1,5 +1,5 @@
-tensorcircuit.cloud
-==================================================
+tensorcircuit.cloud.rst
+================================================================================
 .. toctree::
     cloud/abstraction.rst
     cloud/apis.rst

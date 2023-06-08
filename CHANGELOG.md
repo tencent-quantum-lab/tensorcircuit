@@ -22,6 +22,8 @@
 
 - make the pulse level control support differentiating the end time
 
+- Add new qem module with qem methods: zne, dd and rc
+
 ### Fixed
 
 - `tc.results.counts.plot_histogram` now can dispatch kws to corresponding qiskit method

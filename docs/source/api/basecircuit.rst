@@ -1,5 +1,5 @@
 tensorcircuit.basecircuit
-==================================================
+================================================================================
 .. automodule:: tensorcircuit.basecircuit
     :members:
     :undoc-members:

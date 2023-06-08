@@ -1,5 +1,5 @@
 tensorcircuit.interfaces.numpy
-==================================================
+================================================================================
 .. automodule:: tensorcircuit.interfaces.numpy
     :members:
     :undoc-members:

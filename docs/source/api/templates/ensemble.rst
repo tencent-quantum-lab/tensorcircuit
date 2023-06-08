@@ -1,5 +1,5 @@
 tensorcircuit.templates.ensemble
-==================================================
+================================================================================
 .. automodule:: tensorcircuit.templates.ensemble
     :members:
     :undoc-members:

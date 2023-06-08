@@ -1,5 +1,5 @@
-tensorcircuit.templates
-==================================================
+tensorcircuit.templates.rst
+================================================================================
 .. toctree::
     templates/blocks.rst
     templates/chems.rst

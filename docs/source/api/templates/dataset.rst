@@ -1,5 +1,5 @@
 tensorcircuit.templates.dataset
-==================================================
+================================================================================
 .. automodule:: tensorcircuit.templates.dataset
     :members:
     :undoc-members:

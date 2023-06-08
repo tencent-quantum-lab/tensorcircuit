@@ -1,5 +1,5 @@
-tensorcircuit.applications
-==================================================
+tensorcircuit.applications.rst
+================================================================================
 .. toctree::
     applications/dqas.rst
     applications/graphdata.rst

@@ -1,6 +1,6 @@
-tensorcircuit.mps_base
+tensorcircuit.results.qem.qem_methods
 ================================================================================
-.. automodule:: tensorcircuit.mps_base
+.. automodule:: tensorcircuit.results.qem.qem_methods
     :members:
     :undoc-members:
     :show-inheritance:

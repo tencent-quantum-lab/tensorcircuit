@@ -1,5 +1,5 @@
-tensorcircuit.backends
-==================================================
+tensorcircuit.backends.rst
+================================================================================
 .. toctree::
     backends/backend_factory.rst
     backends/cupy_backend.rst

@@ -1,5 +1,5 @@
 tensorcircuit.noisemodel
-==================================================
+================================================================================
 .. automodule:: tensorcircuit.noisemodel
     :members:
     :undoc-members:
