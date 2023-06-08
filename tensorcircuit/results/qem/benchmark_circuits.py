@@ -75,7 +75,7 @@ def mirror_circuit(
 
 def QAOA_circuit(
     graph: List[Tuple[int]], weight: List[float], params: List[float]
-) -> Any:
+) -> Any:  # internal API don't use
     nlayers = len(params)
 
     qlist = []

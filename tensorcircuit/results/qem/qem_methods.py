@@ -33,7 +33,8 @@ def apply_zne(
     num_to_average: int = 1,
     **kws: Any,
 ) -> Any:
-    """Apply zero-noise extrapolation (ZNE) and return the mitigated results.
+    """
+    Apply zero-noise extrapolation (ZNE) and return the mitigated results.
 
     :param circuit: The aim circuit.
     :type circuit: Any
@@ -67,7 +68,8 @@ def apply_zne(
 
 
 def prune_ddcircuit(c: Any, qlist: List[int]) -> Any:
-    """Discard DD sequence on idle qubits and Discard identity gate
+    """
+    Discard DD sequence on idle qubits and Discard identity gate
     (no identity/idle gate on device now) filled in DD sequence.
 
     :param c: circuit
@@ -95,7 +97,8 @@ def prune_ddcircuit(c: Any, qlist: List[int]) -> Any:
 
 
 def used_qubits(c: Any) -> List[int]:
-    """Create a qubit list that includes all qubits having gate manipulation.
+    """
+    Create a qubit list that includes all qubits having gate manipulation.
 
     :param c: a circuit
     :type c: Any
@@ -112,7 +115,8 @@ def used_qubits(c: Any) -> List[int]:
 
 
 def add_dd(c: Any, rule: Callable[[int], Any]) -> Any:
-    """Add DD sequence to A circuit
+    """
+    Add DD sequence to A circuit
 
     :param c: circuit
     :type c: Any
@@ -146,7 +150,8 @@ def apply_dd(
 ) -> Union[
     float, Tuple[float, List[Any]], Dict[str, float], Tuple[Dict[str, float], List[Any]]
 ]:
-    """Apply dynamic decoupling (DD) and return the mitigated results.
+    """
+    Apply dynamic decoupling (DD) and return the mitigated results.
 
 
     :param circuit: The aim circuit.
@@ -175,7 +180,8 @@ def apply_dd(
     """
 
     def dd_rule(slack_length: int, spacing: int = -1) -> Any:
-        """Set DD rule.
+        """
+        Set DD rule.
 
         :param slack_length: Length of idle window to fill. Automatically calculated for a circuit.
         :type slack_length: int
@@ -276,12 +282,22 @@ def _apply_gate(c: Any, i: int, j: int) -> Any:
     return c
 
 
+global candidate_list
+candidate_list = {}  # type: ignore
+
+
 def rc_circuit(c: Any) -> Any:
     qir = c.to_qir()
     cnew = Circuit(c.circuit_param["nqubits"])
     for d in qir:
         if len(d["index"]) == 2:
-            rc_list = choice(rc_candidates(d["gate"]))
+            if d["gate"].name in list(candidate_list.keys()):
+                rc_cand = candidate_list[d["gate"].name]
+                rc_list = choice(rc_cand)
+            else:
+                rc_cand = rc_candidates(d["gate"])
+                rc_list = choice(rc_cand)
+                candidate_list[d["gate"].name] = rc_cand
 
             cnew = _apply_gate(cnew, rc_list[0], d["index"][0])
             cnew = _apply_gate(cnew, rc_list[1], d["index"][1])
@@ -315,7 +331,8 @@ def apply_rc(
     iscount: bool = False,
     **kws: Any,
 ) -> Tuple[float, List[Any]]:
-    """Apply Randomized Compiling or Pauli twirling on two-qubit gates.
+    """
+    Apply Randomized Compiling or Pauli twirling on two-qubit gates.
 
     :param circuit: Input circuit
     :type circuit: Any
