@@ -282,7 +282,6 @@ def _apply_gate(c: Any, i: int, j: int) -> Any:
     return c
 
 
-
 candidate_dict = {}  # type: ignore
 
 
