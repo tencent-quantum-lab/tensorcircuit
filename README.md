@@ -121,6 +121,56 @@ We also have [Docker support](/docker).
 
   - API design: quantum for humans, less code, more power
 
+- Batteries included
+
+  <details>
+  <summary> Tons of amazing features and built in tools for research (click for details) </summary>
+
+  - Support **super large circuit simulation** using tensor network engine.
+
+  - Support **noisy simulation** with both Monte Carlo and density matrix (tensor network powered) modes.
+
+  - Support **approximate simulation** with MPS-TEBD modes.
+
+  - Support **analog/digital hybrid simulation** (time dependent Hamiltonian evolution, **pulse** level simulation) with neural ode modes.
+
+  - Support **qudits simulation**.
+
+  - Highly customizable **noise model** with gate error and scalable readout error.
+
+  - Support for **non-unitary** gate and post-selection simulation.
+
+  - Support **real quantum devices access** from different providers.
+
+  - **Scalable readout error mitigation** native to both bitstring and expectation level with automatic qubit mapping consideration.
+
+  - **Advanced quantum error mitigation methods** and pipelines such as ZNE, DD, RC, etc.
+
+  - Support **MPS/MPO** as representations for input states, quantum gates and observables to be measured.
+
+  - Support **vectorized parallelism** on circuit inputs, circuit parameters, circuit structures, circuit measurements and these vectorization can be nested.
+
+  - Gradients can be obtained with both **automatic differenation** and parameter shift (vmap accelerated) modes.
+
+  - **Machine learning interface/layer/model** abstraction in both TensorFlow and PyTorch for both numerical simulation and real QPU experiments.
+
+  - Circuit sampling supports both final state sampling and perfect sampling from tensor networks.
+
+  - Light cone reduction support for local expectation calculation.
+
+  - Highly customizable tensor network contraction path finder with opteinsum interface.
+
+  - Observables are supported in measurement, sparse matrix, dense matrix and MPO format.
+
+  - Super fast weighted sum Pauli string Hamiltonian matrix generation.
+
+  - Reusable common circuit/measurement/problem templates and patterns.
+
+  - SOTA quantum algorithm and model implementations.
+
+  - Support hybrid workflows and pipelines with CPU/GPU/QPU hardware from local/cloud/hpc resources using tf/torch/jax/cupy/numpy frameoworks all at the same time.
+
+  </details>
 
 ## Contributing
 
