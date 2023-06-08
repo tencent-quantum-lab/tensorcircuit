@@ -1,4 +1,4 @@
-tensorcircuit.backends.rst
+tensorcircuit.backends
 ================================================================================
 .. toctree::
     backends/backend_factory.rst

@@ -70,7 +70,7 @@ class RSTGenerator:
             name = f"{self.name}"
             for n in package_parents:
                 name += f".{n}"
-            name += f".{subdir}.rst"
+            name += f".{subdir}"
             content = [
                 name,
                 self.title_line,

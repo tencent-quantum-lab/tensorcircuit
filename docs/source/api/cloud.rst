@@ -1,4 +1,4 @@
-tensorcircuit.cloud.rst
+tensorcircuit.cloud
 ================================================================================
 .. toctree::
     cloud/abstraction.rst

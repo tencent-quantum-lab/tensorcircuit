@@ -1,4 +1,4 @@
-tensorcircuit.applications.rst
+tensorcircuit.applications
 ================================================================================
 .. toctree::
     applications/dqas.rst

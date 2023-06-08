@@ -166,8 +166,8 @@ def apply_dd(
     :param num_trials: The number of independent experiments to average over, defaults to 1
     :type num_trials: int, optional
     :param full_output: If ``False`` only the mitigated expectation value is
-            returned. If ``True`` a dictionary containing all DD data is
-            returned too, defaults to False
+        returned. If ``True`` a dictionary containing all DD data is
+        returned too, defaults to False
     :type full_output: bool, optional
     :param ig_idle_qubit: ignore the DD sequences that added to unused qubits, defaults to True
     :type ig_idle_qubit: bool, optional

@@ -1,4 +1,4 @@
-tensorcircuit.results.qem.rst
+tensorcircuit.results.qem
 ================================================================================
 .. toctree::
     qem/benchmark_circuits.rst

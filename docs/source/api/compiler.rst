@@ -1,4 +1,4 @@
-tensorcircuit.compiler.rst
+tensorcircuit.compiler
 ================================================================================
 .. toctree::
     compiler/composed_compiler.rst

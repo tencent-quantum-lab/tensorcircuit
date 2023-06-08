@@ -1,4 +1,4 @@
-tensorcircuit.templates.rst
+tensorcircuit.templates
 ================================================================================
 .. toctree::
     templates/blocks.rst
