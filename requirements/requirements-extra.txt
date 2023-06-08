@@ -1,6 +1,7 @@
 # extra dependencies for ci
 qiskit
 qiskit-nature
+cirq
 torch
 jupyter
 mthree==1.1.0
