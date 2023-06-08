@@ -11,7 +11,7 @@ setuptools.setup(
     version=__version__,
     author=__author__,
     author_email="shixinzhang@tencent.com",
-    description="Quantum circuits on top of tensor network",
+    description="High performance unified quantum computing framework for the NISQ era",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/tencent-quantum-lab/tensorcircuit",
