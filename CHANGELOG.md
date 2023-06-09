@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.10.0
+
 ### Added
 
 - `c.measure_instruction(*qubits)` now supports multiple ints specified at the same time
