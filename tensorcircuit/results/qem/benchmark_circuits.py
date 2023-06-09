@@ -3,17 +3,24 @@ circuits for quantum chip benchmark
 """
 
 from typing import Any, List, Dict, Tuple
+import logging
 
-from mitiq.benchmarks import (
-    generate_ghz_circuit,
-    generate_mirror_circuit,
-    generate_rb_circuits,
-    generate_w_circuit,
-)
-from mitiq.interface import (
-    convert_from_mitiq,
-)
+logger = logging.getLogger(__name__)
+
 import networkx as nx
+
+try:
+    from mitiq.benchmarks import (
+        generate_ghz_circuit,
+        generate_mirror_circuit,
+        generate_rb_circuits,
+        generate_w_circuit,
+    )
+    from mitiq.interface import (
+        convert_from_mitiq,
+    )
+except ModuleNotFoundError:
+    logger.warning("mitiq is not installed, please ``pip install mitiq`` first")
 
 
 from ... import Circuit
