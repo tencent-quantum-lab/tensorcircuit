@@ -9,12 +9,23 @@ from functools import partial
 import collections
 import operator
 from random import choice
+import logging
+
+logger = logging.getLogger(__name__)
 
 import numpy as np
-from mitiq import zne, ddd
-from mitiq.zne.inference import Factory
-from mitiq.zne.scaling import fold_gates_at_random
 import cirq
+
+try:
+    from mitiq import zne, ddd
+    from mitiq.zne.scaling import fold_gates_at_random
+
+    zne_option = zne
+    dd_option = ddd
+except ModuleNotFoundError:
+    logger.warning("mitiq is not installed, please ``pip install mitiq`` first")
+    zne_option = None
+    dd_option = None
 
 from ... import Circuit
 from ... import backend, gates
@@ -22,14 +33,12 @@ from ...compiler import simple_compiler
 
 Gate = gates.Gate
 
-zne_option = zne
-
 
 def apply_zne(
     circuit: Any,
     executor: Callable[[Union[Any, Sequence[Any]]], Any],
-    factory: Optional[Factory],
-    scale_noise: Callable[[Any, float], Any] = fold_gates_at_random,
+    factory: Optional[Any],
+    scale_noise: Optional[Callable[[Any, float], Any]] = None,
     num_to_average: int = 1,
     **kws: Any,
 ) -> Any:
@@ -50,6 +59,8 @@ def apply_zne(
     :return: Mitigated average value by ZNE.
     :rtype: float
     """
+    if scale_noise is None:
+        scale_noise = fold_gates_at_random
 
     def executortc(c):  # type: ignore
         c = Circuit.from_qiskit(c, c.num_qubits)
@@ -132,16 +143,11 @@ def add_dd(c: Any, rule: Callable[[int], Any]) -> Any:
     return circuit_dd
 
 
-dd_option = ddd
-
-# pylint: disable=dangerous-default-value
-
-
 def apply_dd(
     circuit: Any,
     executor: Callable[[Any], Any],
     rule: Union[Callable[[int], Any], List[str]],
-    rule_args: Dict[str, Any] = {},
+    rule_args: Optional[Dict[str, Any]] = None,
     num_trials: int = 1,
     full_output: bool = False,
     ignore_idle_qubit: bool = True,
@@ -178,6 +184,8 @@ def apply_dd(
     :return: mitigated expectation value or mitigated expectation value and DD circuit information
     :rtype: Union[float, Tuple[float, Dict[str, Any]]]
     """
+    if rule_args is None:
+        rule_args = {}
 
     def dd_rule(slack_length: int, spacing: int = -1) -> Any:
         """
