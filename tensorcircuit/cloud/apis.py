@@ -212,6 +212,7 @@ def set_token(
                     # file_token = backend.tree_map(b64decode_s, file_token)
             except json.JSONDecodeError:
                 logger.warning("token file loading failure, set empty token instead")
+                # TODO(@refraction-ray): better conflict solve with multiprocessing
                 file_token = {}
         else:
             file_token = {}

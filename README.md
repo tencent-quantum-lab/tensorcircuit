@@ -136,6 +136,8 @@ We also have [Docker support](/docker).
 
   - Support **qudits simulation**.
 
+  - Support **parallel** quantum circuit evaluation across **multiple GPUs**.
+
   - Highly customizable **noise model** with gate error and scalable readout error.
 
   - Support for **non-unitary** gate and post-selection simulation.
