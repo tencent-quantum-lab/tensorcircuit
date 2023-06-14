@@ -388,6 +388,8 @@ def repr2array(inputs: str) -> Array:
     return np.array(outputs)
 
 
+# duplicated, will remove later
+# use the version in applications.physics.baseline.py
 def TFIM1Denergy(
     L: int, Jzz: float = 1.0, Jx: float = 1.0, Pauli: bool = True
 ) -> float:

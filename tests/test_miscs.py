@@ -16,6 +16,7 @@ import tensorcircuit as tc
 from tensorcircuit import experimental
 from tensorcircuit.quantum import PauliString2COO, PauliStringSum2COO
 from tensorcircuit.applications.vqes import construct_matrix_v2
+from tensorcircuit.applications.physics.baseline import TFIM1Denergy, Heisenberg1Denergy
 
 i, x, y, z = [t.tensor for t in tc.gates.pauli_gates]
 
@@ -248,3 +249,8 @@ def test_evol(jaxb):
     )
     c.rx(1, theta=np.pi - 0.4)
     np.testing.assert_allclose(c.expectation_ps(z=[1]), 1.0, atol=1e-5)
+
+
+def test_energy_baseline():
+    print(TFIM1Denergy(10))
+    print(Heisenberg1Denergy(10))
