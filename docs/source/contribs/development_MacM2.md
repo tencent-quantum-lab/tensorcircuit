@@ -30,7 +30,7 @@ First, create a virtual environment, and make sure the python version is 3.8.5 b
 conda create --name NewEnv python==3.8.5
 conda activate NewEnv
 ```
-Then, install the TensorFlow from `.whl` file (file is attached in *contribs* folder). This will install TensorFlow version 2.4.1
+Then, install the TensorFlow from `.whl` file (file can be downloaded from this [URL](https://drive.google.com/drive/folders/1oSipZLnoeQB0Awz8U68KYeCPsULy_dQ7)). This will install TensorFlow version 2.4.1
 ```
 pip install ~/Downloads/tensorflow-2.4.1-py3-none-any.whl
 ```
