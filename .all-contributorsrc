@@ -249,6 +249,15 @@
       "contributions": [
         "tutorial"
       ]
+    },
+    {
+      "login": "hongyehu",
+      "name": "Hong-Ye Hu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/50563225?v=4",
+      "profile": "https://scholar.harvard.edu/hongyehu/home",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 6,
@@ -256,5 +265,6 @@
   "repoType": "github",
   "repoHost": "https://github.com",
   "projectName": "tensorcircuit",
-  "projectOwner": "tencent-quantum-lab"
+  "projectOwner": "tencent-quantum-lab",
+  "commitType": "docs"
 }
