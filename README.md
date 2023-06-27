@@ -286,7 +286,7 @@ Reference paper: https://arxiv.org/abs/2303.08154.
 
 [TenCirChem](https://github.com/tencent-quantum-lab/TenCirChem) is an efficient and versatile quantum computation package for molecular properties. TenCirChem is based on TensorCircuit and is optimized for chemistry applications.
 
-Reference paper: https://arxiv.org/abs/2303.10825.
+Reference paper: https://arxiv.org/abs/2303.10825 (published in JCTC).
 
 ### EMQAOA-DARBO
 

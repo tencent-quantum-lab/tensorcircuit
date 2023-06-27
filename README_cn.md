@@ -171,13 +171,13 @@ VQEX 在 MBL 相位识别上的应用见 [教程](/docs/source/tutorials/vqex_mb
 
 利用我们提出的随机量子门激活策略训练优化变分量子算法的实现请参考 [项目](https://github.com/ls-iastu/RAtraining).
 
-参考论文: https://arxiv.org/abs/2303.08154.
+参考论文: https://arxiv.org/abs/2303.08154。
 
 ### TenCirChem
 
 [TenCirChem](https://github.com/tencent-quantum-lab/TenCirChem) 是高效的，专注于处理和计算分子性质的量子计算软件。其基于 TensorCircuit 并为量子化学任务进行了专门的优化。
 
-参考论文: https://arxiv.org/abs/2303.10825。
+参考论文: https://arxiv.org/abs/2303.10825 (JCTC)。
 
 ### EMQAOA-DARBO
 
