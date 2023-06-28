@@ -9,18 +9,19 @@ import numpy as np
 
 NDArray = Any
 kwargus = Any
+model_type = Any
 
 
 class bagging:  # A.K.A. voting
     def __init__(self) -> None:
-        self.models: List[keras.engine.functional.Functional] = []
+        self.models: List[model_type] = []
         self.model_trained: List[bool] = []
         self.count = 0
         self.need_confidence = True  # Help in reducing numbers of get_confidence runs
         self.permit_train = False
 
     def append(
-        self, model: keras.engine.functional.Functional, model_trained: bool
+        self, model: model_type, model_trained: bool
     ) -> None:
         """
         Add model to the voting method
