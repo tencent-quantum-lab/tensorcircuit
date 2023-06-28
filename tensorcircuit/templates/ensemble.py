@@ -20,9 +20,7 @@ class bagging:  # A.K.A. voting
         self.need_confidence = True  # Help in reducing numbers of get_confidence runs
         self.permit_train = False
 
-    def append(
-        self, model: model_type, model_trained: bool
-    ) -> None:
+    def append(self, model: model_type, model_trained: bool) -> None:
         """
         Add model to the voting method
         """
