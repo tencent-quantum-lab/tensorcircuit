@@ -43,18 +43,44 @@ pip install [Package Name]
 
 ### Install Tensorflow (Optional)
 
-#### Install Tensorflow (Recommended Approach)
-
-❗️ Tensorflow with MacOS optimization would not function correctly in version 2.11.0 and before. Do not use this version of tensorflow if you intented to train any machine learning model.
-
-FYI: Error can occur when machine learning training or gpu related code is involved.
-
-⚠️ Tensorflow without macos optimization does not support Metal API and utilizing GPU (both intel chips and M-series chips) until at least tensorflow 2.11. Tensorflow-macos would fail when running `tc.backend.to_dense()`
+#### Install Tensorflow without MacOS optimization
 
 ```
 conda config --add channels conda-forge
 conda config --set channel_priority strict
 conda create -n tc_venv python tensorflow=2.7
+```
+
+#### Verify Tensorflow Installation
+
+```
+import tensorflow as tf
+
+cifar = tf.keras.datasets.cifar100
+(x_train, y_train), (x_test, y_test) = cifar.load_data()
+model = tf.keras.applications.ResNet50(
+    include_top=True,
+    weights=None,
+    input_shape=(32, 32, 3),
+    classes=100,)
+
+loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+model.compile(optimizer="adam", loss=loss_fn, metrics=["accuracy"])
+model.fit(x_train, y_train, epochs=5, batch_size=64)
+```
+
+#### Install Tensorflow with MacOS optimization (Recommended)
+
+For tensorflow version 2.13 or later:
+```
+pip install tensorflow
+pip install tensorflow-metal
+```
+
+For tensorflow version 2.12 or earlier:
+```
+pip install tensorflow-macos
+pip install tensorflow-metal
 ```
 
 #### Verify Tensorflow Installation
@@ -81,7 +107,7 @@ model.fit(x_train, y_train, epochs=5, batch_size=64)
 pip install tensorcircuit
 ```
 
-Testing Platform (Tested Feb 2023)
+Testing Platform (Tested Jun 2023)
 
 - Platform 1:
   - MacOS Ventura 13.1 (Build version 22C65)
@@ -89,3 +115,6 @@ Testing Platform (Tested Feb 2023)
 - Platform 2:
   - MacOS Ventura 13.2 (Build version 22D49)
   - M1 Ultra (Virtual)
+- Platform 4:
+  - MacOS Sonoma 14.0 Beta 2 (Build version 23A5276g)
+  - M2 Max

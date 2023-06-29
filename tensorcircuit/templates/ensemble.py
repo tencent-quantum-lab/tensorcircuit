@@ -4,7 +4,6 @@ Useful utilities for ensemble
 
 from typing import Any, List, Optional
 import tensorflow as tf
-import keras
 import numpy as np
 
 NDArray = Any
@@ -56,7 +55,8 @@ class bagging:  # A.K.A. voting
         self.permit_train = True
         for i in range(self.count):
             if not self.model_trained[i]:
-                self.models[i].compile(**kwargs)
+                dic_kwargs = kwargs.copy()
+                self.models[i].compile(**dic_kwargs)
 
     def __get_confidence(self, model_index: int, input: NDArray) -> NDArray:
         """
