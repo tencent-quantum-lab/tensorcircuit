@@ -170,7 +170,7 @@ We also have [Docker support](/docker).
 
   - SOTA quantum algorithm and model implementations.
 
-  - Support hybrid workflows and pipelines with CPU/GPU/QPU hardware from local/cloud/hpc resources using tf/torch/jax/cupy/numpy frameoworks all at the same time.
+  - Support hybrid workflows and pipelines with CPU/GPU/QPU hardware from local/cloud/hpc resources using tf/torch/jax/cupy/numpy frameworks all at the same time.
 
   </details>
 
@@ -293,3 +293,28 @@ Reference paper: https://arxiv.org/abs/2303.10825 (published in JCTC).
 For the numerical simulation and hardware experiments with error mitigation on QAOA, see the [project repo](https://github.com/sherrylixuecheng/EMQAOA-DARBO).
 
 Reference paper: https://arxiv.org/abs/2303.14877.
+
+### More works
+
+ <details>
+  <summary> More research works and code projects using TensorCircuit (click for details) </summary>
+
+- Neural Predictor based Quantum Architecture Search: https://arxiv.org/abs/2103.06524 (published in Machine Learning: Science and Technology).
+
+- Quantum imaginary-time control for accelerating the ground-state preparation: https://arxiv.org/abs/2112.11782 (published in PRR).
+
+- Efficient Quantum Simulation of Electron-Phonon Systems by Variational Basis State Encoder: https://arxiv.org/abs/2301.01442 (published in PRR).
+
+- Understanding quantum machine learning also requires rethinking generalization: https://arxiv.org/abs/2306.13461.
+
+- Decentralized Quantum Federated Learning for Metaverse: Analysis, Design and Implementation: https://arxiv.org/abs/2306.11297. Code: https://github.com/s222416822/BQFL.
+
+- Non-IID quantum federated learning with one-shot communication complexity: https://arxiv.org/abs/2209.00768 (published in Quantum Machine Intelligence). Code: https://github.com/JasonZHM/quantum-fed-infer.
+
+- Quantum generative adversarial imitation learning: https://doi.org/10.1088/1367-2630/acc605 (published in New Journal of Physics).
+
+- GSQAS: Graph Self-supervised Quantum Architecture Search: https://arxiv.org/abs/2303.12381.
+
+  </details>
+
+If you want to highlight your research work here, feel free to add by opening PR.
