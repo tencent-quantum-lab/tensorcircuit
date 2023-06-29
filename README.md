@@ -305,6 +305,8 @@ Reference paper: https://arxiv.org/abs/2303.14877.
 
 - Efficient Quantum Simulation of Electron-Phonon Systems by Variational Basis State Encoder: https://arxiv.org/abs/2301.01442 (published in PRR).
 
+- Variational Quantum Simulations of Finite-Temperature Dynamical Properties via Thermofield Dynamics: https://arxiv.org/abs/2206.05571.
+
 - Understanding quantum machine learning also requires rethinking generalization: https://arxiv.org/abs/2306.13461.
 
 - Decentralized Quantum Federated Learning for Metaverse: Analysis, Design and Implementation: https://arxiv.org/abs/2306.11297. Code: https://github.com/s222416822/BQFL.
