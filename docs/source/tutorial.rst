@@ -6,6 +6,8 @@ Jupyter Tutorials
 
     tutorials/circuit_basics.ipynb
     tutorials/qaoa.ipynb
+    tutorials/qaoa_nae3sat.ipynb
+    tutorials/qaoa_quantum_dropout.ipynb
     tutorials/tfim_vqe.ipynb
     tutorials/mnist_qml.ipynb
     tutorials/torch_qml.ipynb
