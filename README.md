@@ -76,6 +76,32 @@ theta = tc.array_to_tensor(1.0)
 print(g(theta))
 ```
 
+- <details>
+  <summary> More highlight features for TensorCircuit (click for details) </summary>
+
+  - Sparse Hamiltonian generation and expectation evaluation:
+
+  ```python
+  n = 6
+  pauli_structures = []
+  weights = []
+  for i in range(n):
+      pauli_structures.append(tc.quantum.xyz2ps({"z": [i, (i + 1) % n]}, n=n))
+      weights.append(1.0)
+  for i in range(n):
+      pauli_structures.append(tc.quantum.xyz2ps({"x": [i]}, n=n))
+      weights.append(-1.0)
+  h = tc.quantum.PauliStringSum2COO(pauli_structures, weights)
+  print(h)
+  # BCOO(complex64[64, 64], nse=448)
+  c = tc.Circuit(n)
+  c.h(range(n))
+  energy = tc.templates.measurements.operator_expectation(c, h)
+  # -6
+  ```
+
+  </details>
+
 ## Install
 
 The package is written in pure Python and can be obtained via pip as:
