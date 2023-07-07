@@ -46,6 +46,8 @@ def lhs_matrix(theta, psi0):
     vij = tc.backend.vmap(ij, vectorized_argnums=0)
     vvij = tc.backend.vmap(vij, vectorized_argnums=1)
     jacobian = ppsioverptheta(theta, psi0=psi0)
+    # fim = tc.backend.adjoint(jacobian)@jacobian is also ok
+    # speed comparison?
     jacobian = tc.backend.transpose(jacobian)
     fim = vvij(jacobian, jacobian)
     fim = tc.backend.real(fim)
@@ -62,12 +64,16 @@ def rhs_vector(theta, psi0):
         wl = tc.backend.reshape(wl, [1, -1])
         wr = tc.backend.reshape(wr, [-1, 1])
         e = wl @ h @ wr
+        # use sparse matrix if required
         return tc.backend.real(e)[0, 0]
 
     eg = tc.backend.grad(energy, argnums=0)
     rhs = eg(theta, psi0)
     rhs = tc.backend.imag(rhs)
     return rhs
+    # for ITE, imag is replace with real
+    # a simpler way to get rhs in ITE case is to directly evaluate
+    # 0.5*\nabla <H>
 
 
 @tc.backend.jit
