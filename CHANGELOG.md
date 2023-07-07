@@ -6,6 +6,8 @@
 
 - Add multiple GPU VQE examples using jax pmap
 
+- Add benchmark example showcasing new way of implementing matrix product using vmap
+
 ## 0.10.0
 
 ### Added
