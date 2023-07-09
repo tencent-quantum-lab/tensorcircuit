@@ -1573,3 +1573,57 @@ def test_fancy_circuit_indexing(backend):
     assert c.gate_count("h") == 4
     assert c.gate_count("rzz") == 2
     assert c.gate_count("rxx") == 3
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("npb")])
+def test_general_kraus(backend):
+    c = tc.Circuit(2)
+    c.h([0, 1])
+    p = 0.5
+    status = [0.3, 0.8]
+    rs = []
+    for i in range(2):
+        rs.append(
+            c.general_kraus(
+                [
+                    np.sqrt(p) * np.array([[1.0, 0], [0, 0]]),
+                    np.sqrt(p) * np.array([[0, 0], [0, 1.0]]),
+                    np.sqrt(1 - p) * np.eye(2),
+                ],
+                i,
+                status=status[i],
+            )
+        )
+    np.testing.assert_allclose(rs[0], 1)
+    np.testing.assert_allclose(rs[1], 2)
+    np.testing.assert_allclose(c.expectation_ps(z=[0]), -1, atol=1e-5)
+    np.testing.assert_allclose(c.expectation_ps(z=[1]), 0, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("npb")])
+def test_general_kraus_with_prob(backend):
+    c = tc.Circuit(2)
+    c.h([0, 1])
+    p = 0.5
+    status = [0.3, 0.8]
+    rs = []
+    for i in range(2):
+        rs.append(
+            c.general_kraus(
+                [
+                    np.sqrt(p) * np.array([[1.0, 0], [0, 0]]),
+                    np.sqrt(p) * np.array([[0, 0], [0, 1.0]]),
+                    np.sqrt(1 - p) * np.eye(2),
+                ],
+                i,
+                status=status[i],
+                with_prob=True,
+            )
+        )
+    np.testing.assert_allclose(rs[0][0], 1)
+    np.testing.assert_allclose(rs[1][0], 2)
+    np.testing.assert_allclose(c.expectation_ps(z=[0]), -1, atol=1e-5)
+    np.testing.assert_allclose(c.expectation_ps(z=[1]), 0, atol=1e-5)
+    np.testing.assert_allclose(rs[0][1], [0.25, 0.25, 0.5], atol=1e-5)
+    np.testing.assert_allclose(rs[1][1], [0.25, 0.25, 0.5], atol=1e-5)
+    np.testing.assert_allclose(tc.backend.norm(c.state()), 1, atol=1e-5)
