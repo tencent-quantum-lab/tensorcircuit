@@ -25,3 +25,4 @@ Jupyter Tutorials
     tutorials/qaoa_portfolio_optimization.ipynb
     tutorials/imag_time_evo.ipynb
     tutorials/qcloud_sdk_demo.ipynb
+    tutorials/sklearn_svc.ipynb

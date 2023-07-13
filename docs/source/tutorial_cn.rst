@@ -20,3 +20,4 @@
     tutorials/vqex_mbl_cn.ipynb
     tutorials/dqas_cn.ipynb
     tutorials/barren_plateaus_cn.ipynb
+    tutorials/sklearn_svc_cn.ipynb
