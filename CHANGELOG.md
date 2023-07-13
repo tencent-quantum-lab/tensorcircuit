@@ -10,6 +10,8 @@
 
 - Add benchmark example showcasing new way of implementing matrix product using vmap
 
+- Add keras3 example showcasing integration with tc
+
 ## 0.10.0
 
 ### Added
