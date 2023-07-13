@@ -346,6 +346,8 @@ Reference paper: https://arxiv.org/abs/2303.14877.
 
 - GSQAS: Graph Self-supervised Quantum Architecture Search: https://arxiv.org/abs/2303.12381.
 
+- Practical advantage of quantum machine learning in ghost imaging: https://www.nature.com/articles/s42005-023-01290-1 (published in communications physics).
+
   </details>
 
 If you want to highlight your research work here, feel free to add by opening PR.
