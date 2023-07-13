@@ -258,6 +258,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "PeilinZHENG",
+      "name": "peilin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/45784888?v=4",
+      "profile": "https://github.com/PeilinZHENG",
+      "contributions": [
+        "tutorial"
+      ]
     }
   ],
   "contributorsPerLine": 6,

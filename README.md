@@ -76,6 +76,32 @@ theta = tc.array_to_tensor(1.0)
 print(g(theta))
 ```
 
+<details>
+  <summary> More highlight features for TensorCircuit (click for details) </summary>
+
+- Sparse Hamiltonian generation and expectation evaluation:
+
+```python
+n = 6
+pauli_structures = []
+weights = []
+for i in range(n):
+    pauli_structures.append(tc.quantum.xyz2ps({"z": [i, (i + 1) % n]}, n=n))
+    weights.append(1.0)
+for i in range(n):
+    pauli_structures.append(tc.quantum.xyz2ps({"x": [i]}, n=n))
+    weights.append(-1.0)
+h = tc.quantum.PauliStringSum2COO(pauli_structures, weights)
+print(h)
+# BCOO(complex64[64, 64], nse=448)
+c = tc.Circuit(n)
+c.h(range(n))
+energy = tc.templates.measurements.operator_expectation(c, h)
+# -6
+```
+
+</details>
+
 ## Install
 
 The package is written in pure Python and can be obtained via pip as:
@@ -182,11 +208,13 @@ This project is released by [Tencent Quantum Lab](https://quantum.tencent.com/) 
 
 ### Citation
 
-If this project helps in your research, please cite our software whitepaper published in Quantum:
+If this project helps in your research, please cite our software whitepaper to acknowledge the work put into the development of TensorCircuit.
 
-[TensorCircuit: a Quantum Software Framework for the NISQ Era](https://quantum-journal.org/papers/q-2023-02-02-912/)
+[TensorCircuit: a Quantum Software Framework for the NISQ Era](https://quantum-journal.org/papers/q-2023-02-02-912/) (published in Quantum)
 
 which is also a good introduction to the software.
+
+Research works citing TensorCircuit can be highlighted in [Research and Applications section](https://github.com/tencent-quantum-lab/tensorcircuit#research-and-applications).
 
 ### Guidelines
 
@@ -234,6 +262,7 @@ TensorCircuit is open source, released under the Apache License, Version 2.0.
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/WiuYuan"><img src="https://avatars.githubusercontent.com/u/108848998?v=4?s=100" width="100px;" alt="WiuYuan"/><br /><sub><b>WiuYuan</b></sub></a><br /><a href="#example-WiuYuan" title="Examples">💡</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://www.linkedin.com/in/felix-xu-16a153196/"><img src="https://avatars.githubusercontent.com/u/61252303?v=4?s=100" width="100px;" alt="Felix Xu"/><br /><sub><b>Felix Xu</b></sub></a><br /><a href="#tutorial-FelixXu35" title="Tutorials">✅</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://scholar.harvard.edu/hongyehu/home"><img src="https://avatars.githubusercontent.com/u/50563225?v=4?s=100" width="100px;" alt="Hong-Ye Hu"/><br /><sub><b>Hong-Ye Hu</b></sub></a><br /><a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=hongyehu" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/PeilinZHENG"><img src="https://avatars.githubusercontent.com/u/45784888?v=4?s=100" width="100px;" alt="peilin"/><br /><sub><b>peilin</b></sub></a><br /><a href="#tutorial-PeilinZHENG" title="Tutorials">✅</a></td>
     </tr>
   </tbody>
 </table>

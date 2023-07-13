@@ -289,7 +289,7 @@ def simple_compile(
             )
 
     c = replace_r(circuit, **compiled_options)
-    c = replace_u(circuit, **compiled_options)
+    c = replace_u(c, **compiled_options)
     qir = c.to_qir()
     len0 = len(qir)
     qir = merge(qir, **compiled_options)
