@@ -100,6 +100,17 @@ energy = tc.templates.measurements.operator_expectation(c, h)
 # -6
 ```
 
+- Large-scale simulation with tensor network engine
+
+```python
+# tc.set_contractor("cotengra-30-10")
+n=500
+c = tc.Circuit(n)
+c.h(0)
+c.cx(range(n-1), range(1, n))
+c.expectation_ps(z=[0, n-1], reuse=False)
+```
+
 </details>
 
 ## Install
