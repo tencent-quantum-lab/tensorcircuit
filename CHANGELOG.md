@@ -6,6 +6,12 @@
 
 - Add multiple GPU VQE examples using jax pmap
 
+- Add `with_prob` option to `general_kraus` so that the probability of each option can be returned together
+
+- Add benchmark example showcasing new way of implementing matrix product using vmap
+
+- Add keras3 example showcasing integration with tc
+
 ## 0.10.0
 
 ### Added

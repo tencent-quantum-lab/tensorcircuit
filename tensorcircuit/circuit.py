@@ -507,6 +507,7 @@ class Circuit(BaseCircuit):
         kraus: Sequence[Gate],
         *index: int,
         status: Optional[float] = None,
+        with_prob: bool = False,
         name: Optional[str] = None,
     ) -> Tensor:
         # the graph building time is frustratingly slow, several minutes
@@ -554,16 +555,20 @@ class Circuit(BaseCircuit):
             k / backend.cast(backend.sqrt(w) + eps, dtypestr)
             for w, k in zip(prob, kraus_tensor)
         ]
-
-        return self.unitary_kraus(
+        pick = self.unitary_kraus(
             new_kraus, *index, prob=prob, status=status, name=name
         )
+        if with_prob is False:
+            return pick
+        else:
+            return pick, prob
 
     def general_kraus(
         self,
         kraus: Sequence[Gate],
         *index: int,
         status: Optional[float] = None,
+        with_prob: bool = False,
         name: Optional[str] = None,
     ) -> Tensor:
         """
@@ -583,7 +588,9 @@ class Circuit(BaseCircuit):
             when the random number will be generated automatically
         :type status: Optional[float], optional
         """
-        return self._general_kraus_2(kraus, *index, status=status, name=name)
+        return self._general_kraus_2(
+            kraus, *index, status=status, with_prob=with_prob, name=name
+        )
 
     apply_general_kraus = general_kraus
 
