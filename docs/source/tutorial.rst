@@ -23,4 +23,5 @@ Jupyter Tutorials
     tutorials/dqas.ipynb
     tutorials/barren_plateaus.ipynb
     tutorials/qaoa_portfolio_optimization.ipynb
+    tutorials/imag_time_evo.ipynb
     tutorials/qcloud_sdk_demo.ipynb
