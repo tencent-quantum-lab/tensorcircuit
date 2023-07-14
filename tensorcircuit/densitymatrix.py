@@ -86,7 +86,7 @@ class DMCircuit(BaseCircuit):
                 for i, n in enumerate(mps_nodes):
                     mps_nodes[i].tensor = backend.cast(n.tensor, dtypestr)  # type: ignore
                 mps_edges = mps_inputs.out_edges + mps_inputs.in_edges
-                self._nodes, self._front = self.copy(mps_nodes, mps_edges)
+                self._nodes, self._front = self.copy_nodes(mps_nodes, mps_edges)
                 self.coloring_nodes(self._nodes)
                 self._double_nodes_front()
 
@@ -131,7 +131,7 @@ class DMCircuit(BaseCircuit):
         self._extra_qir: List[Dict[str, Any]] = []
 
     def _double_nodes_front(self) -> None:
-        lnodes, lfront = self.copy(self._nodes, self._front, conj=True)
+        lnodes, lfront = self.copy_nodes(self._nodes, self._front, conj=True)
         self._front.extend(lfront)
         self._nodes.extend(lnodes)
 

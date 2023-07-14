@@ -1627,3 +1627,12 @@ def test_general_kraus_with_prob(backend):
     np.testing.assert_allclose(rs[0][1], [0.25, 0.25, 0.5], atol=1e-5)
     np.testing.assert_allclose(rs[1][1], [0.25, 0.25, 0.5], atol=1e-5)
     np.testing.assert_allclose(tc.backend.norm(c.state()), 1, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("npb")])
+def test_circuit_copy(backend):
+    c = tc.Circuit(2)
+    c.h(0)
+    c1 = c.copy()
+    c.rz(0, theta=0.1)
+    assert c1.gate_count() == 1

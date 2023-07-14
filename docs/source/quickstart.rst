@@ -148,6 +148,8 @@ The IR is given as a list, each element is a dict containing information on one 
     >>> c.to_qir()
     [{'gate': cnot, 'index': (0, 1), 'name': 'cnot', 'split': None}, {'gate': crx, 'index': (1, 0), 'name': 'crx', 'split': None, 'parameters': {'theta': 0.2}}]
 
+We can also create new copied circuit via ``c.copy()`` which internally utilize the ``qir``.
+
 
 Programming Paradigm
 -------------------------
