@@ -29,7 +29,7 @@ For more details on docker setup, please refer to `docker readme <https://github
 
 - For Windows, due to the lack of support for Jax, we recommend to use docker or WSL, please refer to `TC via windows docker <contribs/development_windows.html>`_ or `TC via WSL <contribs/development_wsl2.html>`_.
 
-- For MacOS, please refer to `TC on Mac <contribs/development_Mac.html>`_ or `在Mac上安装TC <contribs/development_Mac_cn.html>`_.
+- For MacOS, please refer to `TC on Mac <contribs/development_Mac.html>`_.
 
 Overall, the installation of TensorCircuit is simple, since it is purely in Python and hence very portable. 
 As long as the users can take care of the installation of ML frameworks on the corresponding system, TensorCircuit will work as expected.
