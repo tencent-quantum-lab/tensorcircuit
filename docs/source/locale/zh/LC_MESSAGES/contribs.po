@@ -9,17 +9,126 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tensorcircuit \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-02 14:19+0800\n"
+"POT-Creation-Date: 2023-07-14 15:43+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.12.1\n"
 
+#: ../../source/contribs/development_Mac.md:1
 #: ../../source/contribs/development_MacARM.md:1
+#: ../../source/contribs/development_MacM2.md:1
 msgid "Tensorcircuit Installation Guide on MacOS"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:3
+msgid "Contributed by [_Mark (Zixuan) Song_](https://marksong.tech)"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:5
+msgid ""
+"Apple has updated Tensorflow (for MacOS) so that installation on M-series"
+" (until M2) and Intel-series Mac can follow the exact same procedure."
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:7
+#: ../../source/contribs/development_MacARM.md:8
+#: ../../source/contribs/development_MacM2.md:10
+msgid "Starting From Scratch"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:9
+msgid "For completely new Macos or Macos without Xcode and Homebrew installed."
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:11
+#: ../../source/contribs/development_MacARM.md:12
+#: ../../source/contribs/development_MacM2.md:12
+msgid "Install Xcode Command Line Tools"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:13
+#: ../../source/contribs/development_MacARM.md:14
+#: ../../source/contribs/development_MacM2.md:14
+msgid "<font color=gray><em>Need graphical access to the machine.</em></font>"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:15
+#: ../../source/contribs/development_MacARM.md:16
+#: ../../source/contribs/development_MacM2.md:16
+msgid "Run `xcode-select --install` to install if on optimal internet."
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:17
+msgid ""
+"Or Download it from [Apple](https://developer.apple.com/download/more/) "
+"Command Line Tools installation image then install it if the internet "
+"connection is weak."
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:19
+#: ../../source/contribs/development_MacARM.md:20
+#: ../../source/contribs/development_MacM2.md:20
+msgid "Install Miniconda"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:21
+msgid ""
+"Due to the limitation of MacOS and packages, the latest version of Python"
+" does not always function as desired, thus miniconda installation is "
+"advised to solve the issues."
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:30
+#: ../../source/contribs/development_MacARM.md:37
+msgid "Install TC Backends"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:32
+msgid "There are four backends to choose from, Numpy, Tensorflow, Jax, and Torch."
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:34
+#: ../../source/contribs/development_MacARM.md:41
+msgid "Install Jax, Pytorch, Qiskit, Cirq (Optional)"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:40
+#: ../../source/contribs/development_MacARM.md:47
+msgid "Install Tensorflow (Optional)"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:42
+msgid "Installation"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:44
+msgid "For Tensorflow version 2.13 or later:"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:50
+msgid "For Tensorflow version 2.12 or earlier:"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:56
+#: ../../source/contribs/development_MacARM.md:57
+#: ../../source/contribs/development_MacARM.md:89
+msgid "Verify Tensorflow Installation"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:74
+#: ../../source/contribs/development_MacARM.md:107
+msgid "Install Tensorcircuit"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:80
+msgid ""
+"Until July 2023, this has been tested on Intel Macs running Ventura, M1 "
+"Macs running Ventura, M2 Macs running Ventura, and M2 Macs running Sonoma"
+" beta."
 msgstr ""
 
 #: ../../source/contribs/development_MacARM.md:3
@@ -27,122 +136,93 @@ msgid "Contributed by Mark (Zixuan) Song"
 msgstr ""
 
 #: ../../source/contribs/development_MacARM.md:5
-msgid "Starting From Scratch"
+#: ../../source/contribs/development_MacM2.md:5
+msgid ""
+".. warning::     This page is deprecated. Please visit `the update "
+"tutorial <development_Mac.html>`_ for the latest information."
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:7
+#: ../../source/contribs/development_MacARM.md:10
 msgid "For completely new macos or macos without xcode and brew"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:9
-msgid "Install Xcode Command Line Tools"
-msgstr ""
-
-#: ../../source/contribs/development_MacARM.md:11
-msgid "<font color=gray><em>Need graphical access to the machine.</em></font>"
-msgstr ""
-
-#: ../../source/contribs/development_MacARM.md:13
-msgid "Run `xcode-select --install` to install if on optimal internet."
-msgstr ""
-
-#: ../../source/contribs/development_MacARM.md:15
+#: ../../source/contribs/development_MacARM.md:18
+#: ../../source/contribs/development_MacM2.md:18
 msgid ""
 "Or Download from [Apple](https://developer.apple.com/download/more/) "
 "Command Line Tools installation image then install if internet connection"
 " is weak."
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:17
-msgid "Install Miniconda"
-msgstr ""
-
-#: ../../source/contribs/development_MacARM.md:19
+#: ../../source/contribs/development_MacARM.md:22
 msgid ""
 "Due to the limitation of MacOS and packages, the lastest version of "
 "python does not always function as desired, thus miniconda installation "
 "is advised to solve the issues."
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:28
+#: ../../source/contribs/development_MacARM.md:31
 msgid "Install TC Prerequisites"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:34
-msgid "Install TC Backends"
-msgstr ""
-
-#: ../../source/contribs/development_MacARM.md:36
+#: ../../source/contribs/development_MacARM.md:39
 msgid "There are four backends to choose from, Numpy, Tensorflow, Jax, Torch."
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:38
-msgid "Install Jax, Pytorch, Qiskit, Cirq (Optional)"
+#: ../../source/contribs/development_MacARM.md:49
+msgid "Install Tensorflow without MacOS optimization"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:44
-msgid "Install Tensorflow (Optional)"
+#: ../../source/contribs/development_MacARM.md:75
+msgid "Install Tensorflow with MacOS optimization (Recommended)"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:46
-msgid "Install Tensorflow (Recommended Approach)"
+#: ../../source/contribs/development_MacARM.md:77
+msgid "For tensorflow version 2.13 or later:"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:48
-msgid ""
-"❗️ Tensorflow with MacOS optimization would not function correctly in "
-"version 2.11.0 and before. Do not use this version of tensorflow if you "
-"intented to train any machine learning model."
+#: ../../source/contribs/development_MacARM.md:83
+msgid "For tensorflow version 2.12 or earlier:"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:50
-msgid ""
-"FYI: Error can occur when machine learning training or gpu related code "
-"is involved."
+#: ../../source/contribs/development_MacARM.md:113
+msgid "Testing Platform (Tested Jun 2023)"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:52
-msgid ""
-"⚠️ Tensorflow without macos optimization does not support Metal API and "
-"utilizing GPU (both intel chips and M-series chips) until at least "
-"tensorflow 2.11. Tensorflow-macos would fail when running "
-"`tc.backend.to_dense()`"
-msgstr ""
-
-#: ../../source/contribs/development_MacARM.md:60
-msgid "Verify Tensorflow Installation"
-msgstr ""
-
-#: ../../source/contribs/development_MacARM.md:78
-msgid "Install Tensorcircuit"
-msgstr ""
-
-#: ../../source/contribs/development_MacARM.md:84
-msgid "Testing Platform (Tested Feb 2023)"
-msgstr ""
-
-#: ../../source/contribs/development_MacARM.md:86
+#: ../../source/contribs/development_MacARM.md:115
 msgid "Platform 1:"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:87
+#: ../../source/contribs/development_MacARM.md:116
 msgid "MacOS Ventura 13.1 (Build version 22C65)"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:88
+#: ../../source/contribs/development_MacARM.md:117
 msgid "M1 Ultra"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:89
+#: ../../source/contribs/development_MacARM.md:118
 msgid "Platform 2:"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:90
+#: ../../source/contribs/development_MacARM.md:119
 msgid "MacOS Ventura 13.2 (Build version 22D49)"
 msgstr ""
 
-#: ../../source/contribs/development_MacARM.md:91
+#: ../../source/contribs/development_MacARM.md:120
 msgid "M1 Ultra (Virtual)"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:121
+msgid "Platform 4:"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:122
+msgid "MacOS Sonoma 14.0 Beta 2 (Build version 23A5276g)"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:123
+msgid "M2 Max"
 msgstr ""
 
 #: ../../source/contribs/development_MacM1.rst:2
@@ -156,7 +236,7 @@ msgstr ""
 #: ../../source/contribs/development_MacM1.rst:7
 msgid ""
 "This page is deprecated. Please visit `the update tutorial "
-"<development_MacARM.html>`_ for latest information."
+"<development_Mac.html>`_ for the latest information."
 msgstr ""
 
 #: ../../source/contribs/development_MacM1.rst:11
@@ -254,6 +334,146 @@ msgstr ""
 
 #: ../../source/contribs/development_MacM1.rst:114
 msgid "Then unpackage it, and cd into the folder with \"setup.py\". Conducting"
+msgstr ""
+
+#: ../../source/contribs/development_MacM2.md:3
+msgid "Contributed by [Hong-Ye Hu](https://github.com/hongyehu)"
+msgstr ""
+
+#: ../../source/contribs/development_MacM2.md:8
+msgid ""
+"The key issue addressed in this document is **how to install both "
+"TensorFlow and Jax on a M2 chip MacOS without conflict**."
+msgstr ""
+
+#: ../../source/contribs/development_MacM2.md:22
+msgid ""
+"Due to the limitation of MacOS and packages, the lastest version of "
+"python does not always function as desired, thus miniconda installation "
+"is advised to solve the issues. And use anaconda virtual environment is "
+"always a good habit."
+msgstr ""
+
+#: ../../source/contribs/development_MacM2.md:30
+msgid "Install Packages"
+msgstr ""
+
+#: ../../source/contribs/development_MacM2.md:31
+msgid ""
+"First, create a virtual environment, and make sure the python version is "
+"3.8.5 by"
+msgstr ""
+
+#: ../../source/contribs/development_MacM2.md:36
+msgid ""
+"Then, install the TensorFlow from `.whl` file (file can be downloaded "
+"from this "
+"[URL](https://drive.google.com/drive/folders/1oSipZLnoeQB0Awz8U68KYeCPsULy_dQ7))."
+" This will install TensorFlow version 2.4.1"
+msgstr ""
+
+#: ../../source/contribs/development_MacM2.md:40
+msgid "Next, one need to install **Jax** and **Optax** by"
+msgstr ""
+
+#: ../../source/contribs/development_MacM2.md:45
+msgid ""
+"Now, hopefully, you should be able to use both Jax and TensorFlow in this"
+" environment. But sometimes, it may give you an error \"ERROR: package "
+"Chardet not found.\".  If that is the case, you can install it by `conda "
+"install chardet`. Lastly, install tensorcircuit"
+msgstr ""
+
+#: ../../source/contribs/development_MacM2.md:51
+msgid ""
+"This is the solution that seems to work for M2-chip MacOS. Please let me "
+"know if there is a better solution!"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:1
+msgid "MacOS Tensorcircuit 安装教程"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:3
+msgid "[_Mark (Zixuan) Song_](https://marksong.tech) 撰写"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:5
+msgid "由于苹果更新了Tensorflow，因此M系列（直到M2）和英特尔系列Mac上的安装可以遵循完全相同的过程。"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:7
+msgid "从头开始"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:9
+msgid "对于全新的Macos或未安装Xcode和Homebrew的Macos。"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:11
+msgid "安装Xcode命令行工具"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:13
+msgid "<font color=gray><em>需要对机器的图形访问。</em></font>"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:15
+msgid "如果网络良好，请运行`xcode-select --install`进行安装。"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:17
+msgid "或者，如果网络连接较弱，请从[苹果](https://developer.apple.com/download/more/)下载命令行工具安装映像，然后进行安装。"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:19
+msgid "安装Miniconda"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:21
+msgid "由于MacOS和软件包的限制，因此建议安装miniconda以解决问题。"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:30
+msgid "安装TC后端"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:32
+msgid "有四个后端可供选择，Numpy，Tensorflow，Jax和Torch。"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:34
+msgid "安装Jax，Pytorch，Qiskit，Cirq（可选）"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:40
+msgid "安装Tensorflow（可选）"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:42
+msgid "安装步骤"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:44
+msgid "Tensorflow版本2.13或之后："
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:50
+msgid "Tensorflow版本2.12或之前："
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:56
+msgid "验证Tensorflow安装"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:74
+msgid "安装Tensorcircuit"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:80
+msgid ""
+"直到2023年7月，这已在运行Ventura的英特尔i9 Mac、运行Ventura的M1 Mac、运行Ventura的M2 "
+"Mac、运行Sonoma测试版的M2 Mac上进行了测试。"
 msgstr ""
 
 #: ../../source/contribs/development_windows.rst:2
@@ -664,5 +884,41 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Testing Platform"
+#~ msgstr ""
+
+#~ msgid "Install Tensorflow (Recommended Approach)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "❗️ Tensorflow with MacOS optimization "
+#~ "would not function correctly in version"
+#~ " 2.11.0 and before. Do not use "
+#~ "this version of tensorflow if you "
+#~ "intented to train any machine learning"
+#~ " model."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "FYI: Error can occur when machine "
+#~ "learning training or gpu related code"
+#~ " is involved."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "⚠️ Tensorflow without macos optimization "
+#~ "does not support Metal API and "
+#~ "utilizing GPU (both intel chips and "
+#~ "M-series chips) until at least "
+#~ "tensorflow 2.11. Tensorflow-macos would "
+#~ "fail when running `tc.backend.to_dense()`"
+#~ msgstr ""
+
+#~ msgid "Testing Platform (Tested Feb 2023)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This page is deprecated. Please visit"
+#~ " `the update tutorial <development_MacARM.html>`_"
+#~ " for latest information."
 #~ msgstr ""
 
