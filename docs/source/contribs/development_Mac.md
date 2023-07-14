@@ -6,7 +6,9 @@ Apple has updated Tensorflow (for MacOS) so that installation on M-series (until
 
 ## Starting From Scratch
 
-For completely new Macos or Macos without Xcode and Homebrew installed.
+For completely new Macos or Macos without Xcode installed.
+
+If you have Xcode installed, skip to Install TC backends.
 
 ### Install Xcode Command Line Tools
 
@@ -16,9 +18,22 @@ Run `xcode-select --install` to install if on optimal internet.
 
 Or Download it from [Apple](https://developer.apple.com/download/more/) Command Line Tools installation image then install it if the internet connection is weak.
 
-## Install Miniconda
+## Install TC Backends
 
-Due to the limitation of MacOS and packages, the latest version of Python does not always function as desired, thus miniconda installation is advised to solve the issues.
+There are four backends to choose from, Numpy, Tensorflow, Jax, and Torch.
+
+### Install Jax, Pytorch (Optional)
+
+```bash
+pip install [Package Name]
+```
+### Install Tensorflow (Optional - Recommended)
+
+#### Install Miniconda (Optional - Recommended)
+
+If you wish to install Tensorflow optimized for MacOS (`tensorflow-macos`) or Tensorflow GPU optimized (`tensorflow-metal`) please install miniconda.
+
+If you wish to install Vanilla Tensorflow developed by Google (`tensorflow`) please skip this step.
 
 ```bash
 curl -o ~/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh
@@ -27,29 +42,15 @@ source ~/miniconda/bin/activate
 conda install -c apple tensorflow-deps
 ```
 
-## Install TC Backends
-
-There are four backends to choose from, Numpy, Tensorflow, Jax, and Torch.
-
-### Install Jax, Pytorch, Qiskit, Cirq (Optional)
-
-```bash
-pip install [Package Name]
-```
-
-### Install Tensorflow (Optional)
-
 #### Installation
 
-For Tensorflow version 2.13 or later:
 ```bash
 pip install tensorflow
-pip install tensorflow-metal
 ```
 
-For Tensorflow version 2.12 or earlier:
+If you wish to use tensorflow-metal PluggableDevice, then continue install (not recommended):
+
 ```bash
-pip install tensorflow-macos
 pip install tensorflow-metal
 ```
 
@@ -76,5 +77,37 @@ model.fit(x_train, y_train, epochs=5, batch_size=64)
 ```bash
 pip install tensorcircuit
 ```
+
+## Benchmarking
+
+This data is collected by running `benchmarks/scripts/vqe_tc.py` 10 times and average results.
+
+<table>
+  <tr>
+    <th></th>
+    <th>Vanilla Tensorflow</th>
+    <th>Apple Tensorflow</th>
+    <th>Apple Tensorflow with Metal Plugin</th>
+  </tr>
+  <tr>
+    <td>Construction Time</td>
+    <td>11.49241641s</td>
+    <td>11.31878941s</td>
+    <td>11.6103961s</td>
+  </tr>
+  <tr>
+    <td>Iteration time</td>
+    <td>0.002313011s</td>
+    <td>0.002333004s</td>
+    <td>0.046412581s</td>
+  </tr>
+  <tr>
+    <td>Total time</td>
+    <td>11.72371747s</td>
+    <td>11.55208979s</td>
+    <td>16.25165417s</td>
+  </tr>
+</table>
+
 
 Until July 2023, this has been tested on Intel Macs running Ventura, M1 Macs running Ventura, M2 Macs running Ventura, and M2 Macs running Sonoma beta.
