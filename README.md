@@ -37,7 +37,7 @@ TensorCircuit is built on top of modern machine learning frameworks: Jax, Tensor
 
 Please begin with [Quick Start](/docs/source/quickstart.rst) in the [full documentation](https://tensorcircuit.readthedocs.io/).
 
-For more information on software usage, sota algorithm implementation and engineer paradigm demonstration, please refer to 60+ [example scripts](/examples) and 30+ [tutorial notebooks](https://tensorcircuit.readthedocs.io/en/latest/#tutorials). API docstrings and test cases in [tests](/tests) are also informative.
+For more information on software usage, sota algorithm implementation and engineer paradigm demonstration, please refer to 70+ [example scripts](/examples) and 30+ [tutorial notebooks](https://tensorcircuit.readthedocs.io/en/latest/#tutorials). API docstrings and test cases in [tests](/tests) are also informative.
 
 The following are some minimal demos.
 
@@ -357,7 +357,7 @@ Reference paper: https://arxiv.org/abs/2303.14877.
 
 - GSQAS: Graph Self-supervised Quantum Architecture Search: https://arxiv.org/abs/2303.12381.
 
-- Practical advantage of quantum machine learning in ghost imaging: https://www.nature.com/articles/s42005-023-01290-1 (published in communications physics).
+- Practical advantage of quantum machine learning in ghost imaging: https://www.nature.com/articles/s42005-023-01290-1 (published in Communications Physics).
 
   </details>
 
