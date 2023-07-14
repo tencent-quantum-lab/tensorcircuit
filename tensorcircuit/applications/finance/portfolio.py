@@ -2,7 +2,7 @@
 Supplementary functions for portfolio optimization
 """
 
-from typing import Any
+from typing import Any, List
 
 import numpy as np
 
@@ -44,7 +44,7 @@ class StockData:
     - get_penalty(self, cov, ret, risk_pre, budget, decimals=5): Calculates the penalty factor.
     """
 
-    def __init__(self, data):
+    def __init__(self, data: Tensor):
         """
         Initializes the StockData object.
 
@@ -67,7 +67,7 @@ class StockData:
                 each_stock.append((data[i][j + 1] - data[i][j]) / data[i][j + 1])
             self.daily_change.append(each_stock)
 
-    def get_return(self, decimals=5):
+    def get_return(self, decimals: int = 5) -> List[float]:
         """
         Calculates the annualized return (mu).
 
@@ -78,7 +78,7 @@ class StockData:
         ret = np.prod(change, axis=1) ** (252 / self.n_days)
         return ret.round(decimals)
 
-    def get_covariance(self, decimals=5):
+    def get_covariance(self, decimals: int = 5) -> Tensor:
         """
         Calculates the annualized covariance matrix (sigma).
 
@@ -92,7 +92,9 @@ class StockData:
         cov = 252 / self.n_days * np.dot(relative_change, np.transpose(relative_change))
         return cov.round(decimals)
 
-    def get_penalty(self, cov, ret, risk_pre, budget, decimals=5):
+    def get_penalty(
+        self, cov: Tensor, ret: List[float], risk_pre: float, budget: int, decimals: int = 5
+    ) -> float:
         """
         Calculates the penalty factor.
 

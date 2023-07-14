@@ -2,7 +2,7 @@
 modules for QUBO problems in QAOA
 """
 
-from typing import List, Callable, Any
+from typing import List, Callable, Any, Optional, Tuple
 from functools import partial
 
 import numpy as np
@@ -17,9 +17,10 @@ from ..templates.conversions import QUBO_to_Ising
 
 Circuit = Any
 Tensor = Any
+Array = Any
 
 
-def Ising_loss(c: Circuit, pauli_terms: Tensor, weights: List[float]) -> float:
+def Ising_loss(c: Circuit, pauli_terms: Tensor, weights: List[float]) -> Any:
     """
     computes the loss function for the Ising model based on a given quantum circuit,
     a list of Pauli terms, and corresponding weights.
@@ -88,11 +89,11 @@ def QUBO_QAOA(
     iterations: int,
     vvag: bool = False,
     ncircuits: int = 10,
-    init_params: List[float] = None,
+    init_params: Optional[List[float]] = None,
     mixer: str = "X",
     learning_rate: float = 1e-2,
-    callback: callable = None,
-    full_coupling=False,
+    callback: Optional[Callable] = None,
+    full_coupling: bool = False,
 ) -> List[float]:
     """
     Performs the QAOA on a given QUBO problem.
@@ -298,11 +299,11 @@ def QUBO_QAOA_cvar(
     nlayers: int,
     alpha: int,
     nsamples: int = 1000,
-    callback: callable = None,
+    callback: Optional[callable] = None,
     fake: bool = False,
     maxiter: int = 1000,
-    init_params: List[float] = None,
-) -> List[float]:
+    init_params: Optional[Tuple[float,]] = None,
+) -> Array:
     """
     Perform the QUBO QAOA optimization with CVaR as the loss function.
 

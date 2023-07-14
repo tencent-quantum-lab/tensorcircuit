@@ -32,7 +32,7 @@ def QAOA_ansatz_for_Ising(
     nqubits = len(pauli_terms[0])
     c = Circ(nqubits)
     for i in range(nqubits):
-        c.h(i)  # Apply Hadamard gate to each qubit
+        c.H(i)  # Apply Hadamard gate to each qubit
 
     for j in range(nlayers):
         # cost terms
@@ -42,10 +42,10 @@ def QAOA_ansatz_for_Ising(
                 if term[l] == 1:
                     index_of_ones.append(l)
             if len(index_of_ones) == 1:
-                c.rz(index_of_ones[0], theta=2 * weights[k] * params[2 * j])
+                c.RZ(index_of_ones[0], theta=2 * weights[k] * params[2 * j])
                 # Apply Rz gate with angle determined by weight and current parameter value
             elif len(index_of_ones) == 2:
-                c.rzz(
+                c.RZZ(
                     index_of_ones[0],
                     index_of_ones[1],
                     theta=weights[k] * params[2 * j],
@@ -70,20 +70,20 @@ def QAOA_ansatz_for_Ising(
         # standard mixer
         if mixer == "X":
             for i in range(nqubits):
-                c.rx(
+                c.RX(
                     i, theta=params[2 * j + 1]
                 )  # Apply Rx gate with angle determined by current parameter value
 
         # XY mixer
         elif mixer == "XY":
             for [q0, q1] in pairs:
-                c.rxx(q0, q1, theta=params[2 * j + 1])
-                c.ryy(q0, q1, theta=params[2 * j + 1])
+                c.RXX(q0, q1, theta=params[2 * j + 1])
+                c.RYY(q0, q1, theta=params[2 * j + 1])
 
         # ZZ mixer
         elif mixer == "ZZ":
             for [q0, q1] in pairs:
-                c.rzz(q0, q1, theta=params[2 * j + 1])
+                c.RZZ(q0, q1, theta=params[2 * j + 1])
 
         else:
             raise ValueError("Invalid mixer type.")
