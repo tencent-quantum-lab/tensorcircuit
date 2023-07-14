@@ -93,7 +93,12 @@ class StockData:
         return cov.round(decimals)
 
     def get_penalty(
-        self, cov: Tensor, ret: List[float], risk_pre: float, budget: int, decimals: int = 5
+        self,
+        cov: Tensor,
+        ret: List[float],
+        risk_pre: float,
+        budget: int,
+        decimals: int = 5,
     ) -> float:
         """
         Calculates the penalty factor.
