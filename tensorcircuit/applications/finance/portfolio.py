@@ -64,7 +64,7 @@ class StockData:
         for i in range(self.n_stocks):
             each_stock = []
             for j in range(self.n_days - 1):
-                each_stock.append((data[i][j + 1] - data[i][j]) / data[i][j + 1])
+                each_stock.append((data[i][j + 1] - data[i][j]) / data[i][j])
             self.daily_change.append(each_stock)
 
     def get_return(self, decimals: int = 5) -> List[float]:

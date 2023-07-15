@@ -62,7 +62,7 @@ def QAOA_loss(
     params: List[float],
     full_coupling: bool = False,
     mixer: str = "X",
-) -> float:
+) -> Any:
     """
     computes the loss function for the Quantum Approximate Optimization Algorithm (QAOA) applied to the Ising model.
 
@@ -92,9 +92,9 @@ def QUBO_QAOA(
     init_params: Optional[List[float]] = None,
     mixer: str = "X",
     learning_rate: float = 1e-2,
-    callback: Optional[Callable] = None,
+    callback: Optional[Optional[Callable[[List[float], float], None]]] = None,
     full_coupling: bool = False,
-) -> List[float]:
+) -> Array:
     """
     Performs the QAOA on a given QUBO problem.
     Adam optimizer from TensorFlow is used.
@@ -299,7 +299,7 @@ def QUBO_QAOA_cvar(
     nlayers: int,
     alpha: int,
     nsamples: int = 1000,
-    callback: Optional[callable] = None,
+    callback: Optional[Callable[[List[float], float], None]] = None,
     fake: bool = False,
     maxiter: int = 1000,
     init_params: Optional[Tuple[float,]] = None,
