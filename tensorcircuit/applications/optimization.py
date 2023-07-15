@@ -103,8 +103,10 @@ def QUBO_QAOA(
     :param nlayers: The number of layers (depth) in the QAOA ansatz.
     :param iterations: The number of iterations to run the optimization.
     :param vvag (optional): A flag indicating whether to use vectorized variational adjoint gradient. Default is False.
-    :param ncircuits (optional): The number of circuits when using vectorized variational adjoint gradient. Default is 10.
-    :param init_params (optional): The initial parameters for the ansatz circuit. Default is None, which initializes the parameters randomly.
+    :param ncircuits (optional): The number of circuits when using vectorized variational adjoint gradient.
+        Default is 10.
+    :param init_params (optional): The initial parameters for the ansatz circuit.
+        Default is None, which initializes the parameters randomly.
     :paran mixer (optional): The mixer operator to use. Default is "X". The other options are "XY" and "ZZ".
     :param learning_rate (optional): The learning rate for the Adam optimizer. Default is 1e-2.
     :param callback (optional): A callback function that is executed during each iteration. Default is None.
@@ -115,7 +117,7 @@ def QUBO_QAOA(
         raise ValueError("`QUBO_QAOA` is designed for tensorflow backend.")
         # Check if the backend is set to TensorFlow. Raise an error if it is not.
 
-    pauli_terms, weights, offset = QUBO_to_Ising(Q)
+    pauli_terms, weights, _ = QUBO_to_Ising(Q)
 
     loss_val_grad = backend.value_and_grad(
         partial(
@@ -132,7 +134,7 @@ def QUBO_QAOA(
 
     if init_params is None:
         params = backend.implicit_randn(shape=[2 * nlayers], stddev=0.5)
-        if vvag == True:
+        if vvag is True:
             loss_val_grad = backend.vvag(loss_val_grad, argnums=0, vectorized_argnums=0)
             params = backend.implicit_randn(shape=[ncircuits, 2 * nlayers], stddev=0.1)
             # If init_params is not provided, initialize the parameters randomly.
@@ -147,7 +149,7 @@ def QUBO_QAOA(
     opt = backend.optimizer(tf.keras.optimizers.Adam(learning_rate))
     # Define the optimizer (Adam optimizer) with the specified learning rate.
 
-    for i in range(iterations):
+    for _ in range(iterations):
         loss, grads = loss_val_grad(params)
         # Calculate the loss and gradients using the loss_val_grad_jit function.
 
@@ -278,15 +280,16 @@ def cvar_loss(
     :param params: The parameters for the QAOA ansatz circuit.
     :return: The calculated CVaR loss.
     """
-    pauli_terms, weights, offset = QUBO_to_Ising(Q)
+
+    pauli_terms, weights, _ = QUBO_to_Ising(Q)
 
     c = QAOA_ansatz_for_Ising(params, nlayers, pauli_terms, weights)
     # Generate the QAOA ansatz circuit for the given parameters.
 
-    if fake == False:
+    if fake is False:
         return cvar_from_circuit(c, nsamples, Q, alpha)
         # Calculate CVaR using circuit-based measurement results.
-    elif fake == True:
+    elif fake is True:
         return cvar_from_expectation(c, Q, alpha)
         # Calculate CVaR using expectation values of the circuit.
     else:
@@ -319,7 +322,7 @@ def QUBO_QAOA_cvar(
     """
     loss = partial(cvar_loss, nlayers, Q, nsamples, alpha, fake)
 
-    f_scipy = scipy_interface(loss, shape=[2 * nlayers], jit=False, gradient=False)
+    f_scipy = scipy_interface(loss, shape=(2 * nlayers,), jit=False, gradient=False)
 
     if init_params is None:
         params = backend.implicit_randn(shape=[2 * nlayers], stddev=0.5)

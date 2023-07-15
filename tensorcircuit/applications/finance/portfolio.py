@@ -67,7 +67,7 @@ class StockData:
                 each_stock.append((data[i][j + 1] - data[i][j]) / data[i][j])
             self.daily_change.append(each_stock)
 
-    def get_return(self, decimals: int = 5) -> List[float]:
+    def get_return(self, decimals: int = 5) -> Any:
         """
         Calculates the annualized return (mu).
 
@@ -129,7 +129,7 @@ class StockData:
         # Determine the penalty factor
         mark = False
         penalty = 0  # Initial value
-        while mark == False:
+        while mark is False:
             R = np.diag(ret)
             S = np.ones((self.n_stocks, self.n_stocks)) - 2 * budget * np.diag(
                 np.ones(self.n_stocks)

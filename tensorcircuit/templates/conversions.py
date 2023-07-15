@@ -6,8 +6,6 @@ from typing import Any, Tuple, List
 
 import numpy as np
 
-from ..cons import backend
-
 Tensor = Any
 Array = Any
 

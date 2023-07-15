@@ -5,7 +5,7 @@ Shortcuts for measurement patterns on circuit
 # pylint: disable=invalid-name
 
 from functools import wraps
-from typing import Any, Callable, Optional, Sequence, Tuple, List
+from typing import Any, Callable, Optional, Sequence, Tuple
 
 import numpy as np
 

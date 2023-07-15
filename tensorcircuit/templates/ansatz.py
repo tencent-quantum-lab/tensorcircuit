@@ -50,7 +50,8 @@ def QAOA_ansatz_for_Ising(
                     index_of_ones[1],
                     theta=weights[k] * params[2 * j],
                 )
-                # Apply exp1 gate with a custom unitary (zz_matrix) and angle determined by weight and current parameter value
+                # Apply exp1 gate with a custom unitary (zz_matrix)
+                # and angle determined by weight and current parameter value
             else:
                 raise ValueError("Invalid number of Z terms")
 
