@@ -1172,6 +1172,11 @@ class AbstractCircuit:
         self.__dict__.update(newc.__dict__)
         return self
 
+    def copy(self) -> "AbstractCircuit":
+        qir = self.to_qir()
+        c = type(self).from_qir(qir, self.circuit_param)
+        return c
+
     def expectation(
         self,
         *ops: Tuple[tn.Node, List[int]],

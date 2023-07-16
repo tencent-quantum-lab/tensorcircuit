@@ -37,7 +37,7 @@ TensorCircuit is built on top of modern machine learning frameworks: Jax, Tensor
 
 Please begin with [Quick Start](/docs/source/quickstart.rst) in the [full documentation](https://tensorcircuit.readthedocs.io/).
 
-For more information on software usage, sota algorithm implementation and engineer paradigm demonstration, please refer to 60+ [example scripts](/examples) and 30+ [tutorial notebooks](https://tensorcircuit.readthedocs.io/en/latest/#tutorials). API docstrings and test cases in [tests](/tests) are also informative.
+For more information on software usage, sota algorithm implementation and engineer paradigm demonstration, please refer to 70+ [example scripts](/examples) and 30+ [tutorial notebooks](https://tensorcircuit.readthedocs.io/en/latest/#tutorials). API docstrings and test cases in [tests](/tests) are also informative.
 
 The following are some minimal demos.
 
@@ -98,6 +98,17 @@ c = tc.Circuit(n)
 c.h(range(n))
 energy = tc.templates.measurements.operator_expectation(c, h)
 # -6
+```
+
+- Large-scale simulation with tensor network engine
+
+```python
+# tc.set_contractor("cotengra-30-10")
+n=500
+c = tc.Circuit(n)
+c.h(0)
+c.cx(range(n-1), range(1, n))
+c.expectation_ps(z=[0, n-1], reuse=False)
 ```
 
 </details>
@@ -345,6 +356,8 @@ Reference paper: https://arxiv.org/abs/2303.14877.
 - Quantum generative adversarial imitation learning: https://doi.org/10.1088/1367-2630/acc605 (published in New Journal of Physics).
 
 - GSQAS: Graph Self-supervised Quantum Architecture Search: https://arxiv.org/abs/2303.12381.
+
+- Practical advantage of quantum machine learning in ghost imaging: https://www.nature.com/articles/s42005-023-01290-1 (published in Communications Physics).
 
   </details>
 

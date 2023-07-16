@@ -12,6 +12,12 @@
 
 - Add keras3 example showcasing integration with tc
 
+- Add circuit copy method that avoid shallow copy issue `Circuit.copy()`
+
+### Changed
+
+- The static method `BaseCircuit.copy` is renamed as `BaseCircuit.copy_nodes`
+
 ## 0.10.0
 
 ### Added

@@ -4,7 +4,7 @@ Contributed by (Yuqin Chen)
 
 
 .. warning::
-    This page is deprecated. Please visit `the update tutorial <development_MacARM.html>`_ for latest information.
+    This page is deprecated. Please visit `the update tutorial <development_Mac.html>`_ for the latest information.
 
 
 Why We Can't Run TensorCircuit on TensorlowBackend with Apple M1

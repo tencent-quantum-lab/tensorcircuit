@@ -2,6 +2,9 @@
 
 Contributed by Mark (Zixuan) Song
 
+.. warning::
+    This page is deprecated. Please visit `the update tutorial <development_Mac.html>`_ for the latest information.
+
 ## Starting From Scratch
 
 For completely new macos or macos without xcode and brew

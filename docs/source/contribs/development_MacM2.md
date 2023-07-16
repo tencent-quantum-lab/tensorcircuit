@@ -2,6 +2,9 @@
 
 Contributed by [Hong-Ye Hu](https://github.com/hongyehu)
 
+.. warning::
+    This page is deprecated. Please visit `the update tutorial <development_Mac.html>`_ for the latest information.
+
 The key issue addressed in this document is **how to install both TensorFlow and Jax on a M2 chip MacOS without conflict**. 
 
 ## Starting From Scratch
