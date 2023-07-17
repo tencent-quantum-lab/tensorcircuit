@@ -9,7 +9,7 @@ import numpy as np
 import tensorflow as tf
 import scipy.optimize as optimize
 
-from ..cons import backend, get_backend
+from ..cons import backend
 from ..quantum import measurement_results
 from ..interfaces import scipy_interface
 from ..templates.ansatz import QAOA_ansatz_for_Ising
@@ -113,9 +113,6 @@ def QUBO_QAOA(
     :param full_coupling (optional): A flag indicating whether to use all-to-all coupling in mixers. Default is False.
     :return params: The optimized parameters for the ansatz circuit.
     """
-    if backend != get_backend("tensorflow"):
-        raise ValueError("`QUBO_QAOA` is designed for tensorflow backend.")
-        # Check if the backend is set to TensorFlow. Raise an error if it is not.
 
     pauli_terms, weights, _ = QUBO_to_Ising(Q)
 
@@ -266,7 +263,7 @@ def cvar_loss(
     Q: Tensor,
     nsamples: int,
     alpha: float,
-    fake: bool,
+    expectation_based: bool,
     params: List[float],
 ) -> float:
     """
@@ -276,7 +273,7 @@ def cvar_loss(
     :param Q: The Q-matrix representing the Quadratic Unconstrained Binary Optimization (QUBO) problem.
     :param nsamples: The number of samples to take for measurements in the CVaR calculation.
     :param alpha: The cut-off percentage for CVaR.
-    :param fake: A flag indicating the type of CVaR ansatz (circuit-based or expectation-based).
+    :param expectation_based: A flag indicating the type of CVaR ansatz (measurement-based or expectation-based).
     :param params: The parameters for the QAOA ansatz circuit.
     :return: The calculated CVaR loss.
     """
@@ -286,10 +283,10 @@ def cvar_loss(
     c = QAOA_ansatz_for_Ising(params, nlayers, pauli_terms, weights)
     # Generate the QAOA ansatz circuit for the given parameters.
 
-    if fake is False:
+    if expectation_based is False:
         return cvar_from_circuit(c, nsamples, Q, alpha)
         # Calculate CVaR using circuit-based measurement results.
-    elif fake is True:
+    elif expectation_based is True:
         return cvar_from_expectation(c, Q, alpha)
         # Calculate CVaR using expectation values of the circuit.
     else:
@@ -303,7 +300,7 @@ def QUBO_QAOA_cvar(
     alpha: int,
     nsamples: int = 1000,
     callback: Optional[Callable[[List[float], float], None]] = None,
-    fake: bool = False,
+    expectation_based: bool = False,
     maxiter: int = 1000,
     init_params: Optional[Tuple[float,]] = None,
 ) -> Array:
@@ -316,11 +313,12 @@ def QUBO_QAOA_cvar(
     :param alpha: The cut-off percentage for CVaR.
     :param nsamples: The number of samples for measurements in the CVaR calculation. Default is 1000.
     :param callback: A callback function to be called after each iteration. Default is None.
-    :param fake: A flag indicating the type of CVaR ansatz (circuit-based or expectation-based). Default is False.
+    :param expectation_based: A flag indicating the type of CVaR ansatz (measurement-based or expectation-based).
+        Default is False.
     :param maxiter: The maximum number of iterations for the optimization. Default is 1000.
     :return: The optimized parameters for the ansatz circuit.
     """
-    loss = partial(cvar_loss, nlayers, Q, nsamples, alpha, fake)
+    loss = partial(cvar_loss, nlayers, Q, nsamples, alpha, expectation_based)
 
     f_scipy = scipy_interface(loss, shape=(2 * nlayers,), jit=False, gradient=False)
 

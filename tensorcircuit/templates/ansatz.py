@@ -28,6 +28,7 @@ def QAOA_ansatz_for_Ising(
     :param weights: A list of weights corresponding to each Pauli term.
     :param full_coupling (optional): A flag indicating whether to use all-to-all coupling in mixers. Default is False.
     :paran mixer (optional): The mixer operator to use. Default is "X". The other options are "XY" and "ZZ".
+    :return: QAOA ansatz for Ising model.
     """
     nqubits = len(pauli_terms[0])
     c: Any = Circ(nqubits)
