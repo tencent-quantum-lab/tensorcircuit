@@ -178,3 +178,34 @@ def test_operator_measurement(backend):
 
         np.testing.assert_allclose(v, 0.84147, atol=1e-4)
         np.testing.assert_allclose(g, 0.54032, atol=1e-4)
+
+
+@pytest.fixture
+def symmetric_matrix():
+    matrix = np.array([[-5.0, -2.0], [-2.0, 6.0]])
+    nsym_matrix = np.array(
+        [[1.0, 2.0, 3.0], [2.0, 4.0, 5.0], [3.0, 5.0, 6.0], [8.0, 7.0, 6.0]]
+    )
+    return matrix, nsym_matrix
+
+
+def test_QUBO_to_Ising(symmetric_matrix):
+    matrix1, matrix2 = symmetric_matrix
+    pauli_terms, weights, offset = tc.templates.conversions.QUBO_to_Ising(matrix1)
+    n = matrix1.shape[0]
+    expected_num_terms = n + n * (n - 1) // 2
+    assert len(pauli_terms) == expected_num_terms
+    assert len(weights) == expected_num_terms
+    assert isinstance(pauli_terms, list)
+    assert isinstance(weights, np.ndarray)
+    assert isinstance(offset, float)
+    assert pauli_terms == [
+        [1, 0],
+        [0, 1],
+        [1, 1],
+    ]
+    assert all(weights == np.array([3.5, -2.0, -1.0]))
+    assert offset == -0.5
+
+    with pytest.raises(ValueError):
+        tc.templates.conversions.QUBO_to_Ising(matrix2)
