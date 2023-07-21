@@ -347,6 +347,7 @@ def parameter_shift_grad_v2(
 
 
 # TODO(@refraction-ray): add SPSA gradient wrapper similar to parameter shift
+# -- using noisyopt package instead
 
 
 def finite_difference_differentiator(

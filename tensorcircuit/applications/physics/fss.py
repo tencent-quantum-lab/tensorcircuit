@@ -18,21 +18,24 @@ def data_collapse(
     xL: List[List[float]] = []  # x=(p-pc)L^(1/\nv)
     yL: List[List[float]] = []  # y=S(p,L)-S(pc,L) or S(p,L)
     pc_list = []
+    if not isinstance(p[0], list):
+        p = [p for _ in n]  # type: ignore
     for n0 in range(len(n)):
         xL.append([])
         yL.append([])
-        for p0 in range(len(p)):
-            xL[n0].append((p[p0] - pc) * (n[n0] ** (1 / nu)))
-            pc_L = pc_linear_interpolation(p, obs[n0], pc)
+        for p0 in range(len(p[n0])):  # type: ignore
+            xL[n0].append((p[n0][p0] - pc) * (n[n0] ** (1 / nu)))  # type: ignore
+            pc_L = pc_linear_interpolation(p[n0], obs[n0], pc)  # type: ignore
             if obs_type == 0:
-                yL[n0].append((obs[n0][p0] - pc_L) * n[n0] ** (beta / nu))
+                yL[n0].append((obs[n0][p0] - pc_L) * n[n0] ** beta)
                 # entanglement with only collapse and no crossing
             else:
-                yL[n0].append(obs[n0][p0] * n[n0] ** (beta / nu))
+                yL[n0].append(obs[n0][p0] * n[n0] ** beta)
                 # tripartite mutual information
         pc_list.append(pc_L)
-
-    xL_all = np.reshape(xL, -1)
+    xL_all = []
+    for i in range(len(xL)):
+        xL_all.extend(xL[i])
     yL_ave = []
     loss = []
     for x0 in range(len(xL_all)):
@@ -48,7 +51,7 @@ def data_collapse(
         yL_ave.append(ybar)
     loss = np.sum(loss)
 
-    return pc_list, xL, np.array(yL), loss  # type: ignore
+    return pc_list, xL, yL, loss  # type: ignore
 
 
 def pc_linear_interpolation(p: List[float], SA: List[float], pc_input: float) -> float:

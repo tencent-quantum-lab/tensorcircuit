@@ -12,6 +12,7 @@ import tensorcircuit as tc
 K = tc.set_backend("jax")
 tc.set_dtype("complex128")
 # tf backend is slow (at least on cpu)
+tc.set_contractor("cotengra-16-64")
 
 
 def delete2(pick, plist):
