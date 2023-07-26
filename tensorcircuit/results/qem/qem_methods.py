@@ -66,7 +66,7 @@ def apply_zne(
         c = Circuit.from_qiskit(c, c.num_qubits)
         return executor(c)
 
-    circuit = circuit.to_qiskit()
+    circuit = circuit.to_qiskit(enable_instruction=True)
     result = zne.execute_with_zne(
         circuit=circuit,
         executor=executortc,
