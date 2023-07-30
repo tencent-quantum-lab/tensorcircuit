@@ -544,7 +544,7 @@ def r_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
     General single qubit rotation gate
 
     .. math::
-        R(\theta, \alpha, \phi) = j \cos(\theta) I
+        R(\theta, \alpha, \phi) = \cos(\theta) I
         - j \cos(\phi) \sin(\alpha) \sin(\theta) X
         - j \sin(\phi) \sin(\alpha) \sin(\theta) Y
         - j \sin(\theta) \cos(\alpha) Z
