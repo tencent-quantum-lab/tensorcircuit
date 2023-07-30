@@ -237,9 +237,9 @@ def set_token(
     if cached:
         # file_token = backend.tree_map(b64encode_s, saved_token)
         file_token = {k: b64encode_s(v) for k, v in saved_token.items()}
-
-        with open(authpath, "w") as f:
-            json.dump(file_token, f)
+        if file_token:
+            with open(authpath, "w") as f:
+                json.dump(file_token, f)
 
     return saved_token
 
