@@ -1,4 +1,4 @@
-"""Classical Shadows base class with processing functions"""
+"""Classical Shadows functions"""
 from typing import Optional, Sequence
 from string import ascii_letters as ABC
 from .cons import backend
@@ -275,6 +275,8 @@ def global_snapshot_states2(snapshots, pauli_strings=None, sub: Optional[Sequenc
     v = backend.vmap(tensor_prod, vectorized_argnums=0)
     vv = backend.vmap(v, vectorized_argnums=0)
     return vv(lss_states)
+
+
 
 
 
