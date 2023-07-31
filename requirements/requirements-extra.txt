@@ -1,5 +1,5 @@
 # extra dependencies for ci
-qiskit
+qiskit==0.43
 qiskit-nature
 cirq
 torch
