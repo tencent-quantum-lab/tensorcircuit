@@ -1,5 +1,6 @@
 import numpy as np
 import time
+import pytest
 from tensorcircuit.circuit import Circuit
 from tensorcircuit import set_backend
 from tensorcircuit.shadows import shadow_snapshots, shadow_state, local_snapshot_states, global_snapshot_states, \
@@ -38,7 +39,7 @@ if __name__ == "__main__":
     print("here:", np.median(expc), ent)
     print(expc)
 
-    # git test
+    # jit test
     def classical_shadow(psi, pauli_strings):
         snapshots = shadow_snapshots(psi, pauli_strings, repeat=1)
         # return local_snapshot_states(snapshots, pauli_strings, sub=[1, 3, 5])
