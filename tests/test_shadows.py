@@ -1,6 +1,6 @@
 import numpy as np
 import time
-# import pytest
+import pytest
 from tensorcircuit.circuit import Circuit
 from tensorcircuit import set_backend
 from tensorcircuit.shadows import shadow_snapshots, shadow_state, local_snapshot_states, global_snapshot_states, \

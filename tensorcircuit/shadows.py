@@ -146,7 +146,7 @@ def expection_ps_shadow(snapshots, pauli_strings=None, x: Optional[Sequence[int]
     :type: Optional[Sequence[int]]
     :param z: sites to apply Z gate, defaults to None
     :type: Optional[Sequence[int]]
-    :param ps: or one can apply a ps structures instead of x, y, z, e.g. [0, 1, 3, 0, 2, 2] for X_1Z_2Y_4Y_5 defaults to None, ps can overwrite x, y and z
+    :param ps: or one can apply a ps structures instead of x, y, z, e.g. [1, 1, 0, 2, 3, 0] for X_0X_1Y_3Z_4 defaults to None, ps can overwrite x, y and z
     :type: Optional[Sequence[int]]
     :param k: Number of equal parts to split the shadow snapshot states to compute the median of means. k=1 (default) corresponds to simply taking the mean over all shadow snapshot states.
     :type: int
