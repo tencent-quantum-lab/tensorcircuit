@@ -14,6 +14,10 @@
 
 - Add circuit copy method that avoid shallow copy issue `Circuit.copy()`
 
+### Fixed
+
+- improve the `adaptive_vmap` to support internal jit and pytree output
+
 ### Changed
 
 - The static method `BaseCircuit.copy` is renamed as `BaseCircuit.copy_nodes`
