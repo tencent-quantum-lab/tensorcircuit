@@ -8,7 +8,7 @@ from .circuit import Circuit
 
 
 def shadow_snapshots(psi, pauli_strings, repeat: int = 1):
-    r"""To generate the shadow snapshots from given pauli-string observable on $|\psi\rangle$
+    r"""To generate the shadow snapshots from given pauli string observables on $|\psi\rangle$
 
     :param psi: shape = (2 ** nq, 2 ** nq), where nq is the number of qubits
     :type: Tensor
@@ -28,12 +28,11 @@ def shadow_snapshots(psi, pauli_strings, repeat: int = 1):
     nq = pauli_strings.shape[1]
     assert 2 ** nq == len(psi)
 
+    c_ = Circuit(nq, inputs=psi)
+
     def proj_measure(pauli_string):
-        # pauli_rot = backend.onehot(pauli_string, num=3) @ angles
-        pauli_rot = angles[pauli_string]
-        c_ = Circuit(nq, inputs=psi)
-        for i, (theta, alpha, phi) in enumerate(pauli_rot):
-            c_.R(i, theta=theta, alpha=alpha, phi=phi)
+        for i, idx in enumerate(pauli_string):
+            c_.R(i, theta=angles[idx][0], alpha=angles[idx][1], phi=angles[idx][2])
         return c_.sample(batch=repeat, format="sample_bin")
 
     vpm = backend.vmap(proj_measure, vectorized_argnums=0)
@@ -210,7 +209,7 @@ def entropy_shadow(ss_or_sd, pauli_strings=None, sub: Optional[Sequence[int]] = 
     :type: Optional[Tensor]
     :param sub: qubit indices of subsystem
     :type: Optional[Sequence[int]]
-    :param alpha: order of the Renyi entropy, alpha=1 corresponds to the von Neumann entropy/
+    :param alpha: order of the Renyi entropy, alpha=1 corresponds to the von Neumann entropy
     :type: int
 
     :return Renyi entropy: shape = (1,)

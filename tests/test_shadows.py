@@ -1,6 +1,6 @@
 import numpy as np
 import time
-import pytest
+# import pytest
 from tensorcircuit.circuit import Circuit
 from tensorcircuit import set_backend
 from tensorcircuit.shadows import shadow_snapshots, shadow_state, local_snapshot_states, global_snapshot_states, \
@@ -42,11 +42,12 @@ if __name__ == "__main__":
     # jit test
     def classical_shadow(psi, pauli_strings):
         snapshots = shadow_snapshots(psi, pauli_strings, repeat=1)
-        # return local_snapshot_states(snapshots, pauli_strings, sub=[1, 3, 5])
-        # return global_snapshot_states1(snapshots, pauli_strings, sub=[1, 3, 5])
-        # return shadow_state(snapshots, pauli_strings, sub=[1, 3, 5])
-        # return expection_ps_shadow(snapshots, pauli_strings, ps=ps, k=10)
-        return entropy_shadow(snapshots, pauli_strings, sub=range(3), alpha=1)
+        lss_states = local_snapshot_states(snapshots, pauli_strings)
+        gss_states = global_snapshot_states(lss_states, sub=[1, 3, 5])
+        sdw_state = shadow_state(gss_states)
+        expc = expection_ps_shadow(lss_states, ps=ps, k=10)
+        ent = entropy_shadow(sdw_state, alpha=2)
+        return expc, ent, lss_states.shape, gss_states.shape, sdw_state.shape
 
     csjit = backend.jit(classical_shadow)
 
