@@ -7,10 +7,11 @@ from tensorcircuit.shadows import (
     shadow_snapshots,
     local_snapshot_states,
     global_shadow_state,
-    global_shadow_state1,
-    global_shadow_state2,
     entropy_shadow,
     expection_ps_shadow,
+    global_shadow_state1,
+    global_shadow_state2,
+    slice_sub,
 )
 
 
@@ -58,7 +59,7 @@ def test_jit(backend):
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_state(backend):
-    nq, ns = 2, 6000
+    nq, ns = 2, 10000
 
     c = tc.Circuit(nq)
     c.H(0)
@@ -72,15 +73,13 @@ def test_state(backend):
     lss_states = shadow_snapshots(c.state(), pauli_strings, status)
     sdw_state = global_shadow_state(lss_states)
 
-    R = np.array(sdw_state - bell_state)
-    error = np.sqrt(np.trace(R.conj().T @ R))
-    assert error < 0.1
+    np.allclose(sdw_state, bell_state, atol=0.01)
 
 
 # @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 # def test_expc(backend):
 #     import pennylane as qml
-#     nq, ns = 8, 100000
+#     nq, ns = 8, 200000
 #
 #     c = tc.Circuit(nq)
 #     for i in range(nq):
@@ -100,13 +99,13 @@ def test_state(backend):
 #     )
 #
 #     expc = np.median(expection_ps_shadow(snapshots, pauli_strings, ps=ps, k=9))
-#     ent = entropy_shadow(snapshots, pauli_strings, range(4), alpha=2)
+#     ent = entropy_shadow(slice_sub(snapshots, range(4)), slice_sub(pauli_strings, range(4)), alpha=2)
 #
 #     shadow = qml.ClassicalShadow(np.asarray(snapshots[:, 0]), np.asarray(pauli_strings - 1))   # repeat == 1
 #     H = qml.PauliX(0) @ qml.PauliX(6) @ qml.PauliY(2)@ qml.PauliY(3) @ qml.PauliZ(5) @ qml.PauliZ(7)
 #     pl_expc = shadow.expval(H, k=9)
 #     pl_ent = shadow.entropy(range(4), alpha=2)
 #
-#     print(np.isclose(expc, pl_expc), np.isclose(ent, pl_ent))
-#
+#     assert np.isclose(expc, pl_expc)
+#     assert np.isclose(ent, pl_ent)
 #     assert np.abs(expc - exact) < 0.1
