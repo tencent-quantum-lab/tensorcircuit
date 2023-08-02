@@ -1,18 +1,49 @@
 """
 Classical Shadows functions
 """
-from typing import Any, Optional, Sequence
+from typing import Any, Union, Optional, Sequence
 from string import ascii_letters as ABC
 import numpy as np
 
 from .cons import backend, dtypestr, rdtypestr
 from .circuit import Circuit
-from .quantum import PauliString2COO, QuOperator
 
 Tensor = Any
 
 
-def shadow_snapshots(psi: Tensor, pauli_strings: Tensor, status: Optional[Tensor] = None):
+def shadow_bound(
+    observables: Union[np.ndarray, Sequence[int]], epsilon: float, delta: float = 0.01
+):
+    r"""Calculate the shadow bound of the Pauli observables, please refer to the Theorem S1 and Lemma S3 in Huang, H.-Y., R. Kueng, and J. Preskill, 2020, Nat. Phys. 16, 1050.
+
+    :param observables: shape = (nq,) or (M, nq), where nq is the number of qubits, M is the number of observables
+    :type: Union[numpy.ndarray, Sequence[int]]
+    :param epsilon: error on the estimator
+    :type: float
+    :param delta: rate of failure for the bound to hold
+    :type: float
+
+    :return Nk: number of snapshots
+    :rtype: int
+    :return k: Number of equal parts to split the shadow snapshot states to compute the median of means. k=1 (default) corresponds to simply taking the mean over all shadow snapshot states.
+    :rtype: int
+    """
+    observables = np.sign(np.asarray(observables))
+    if len(observables.shape) == 1:
+        observables = observables[None, :]
+    M = observables.shape[0]
+    k = np.ceil(2 * np.log(2 * M / delta))
+    max_length = np.max(np.sum(observables, axis=1))
+    N = np.ceil((34 / epsilon**2) * 3**max_length)
+    return int(N * k), int(k)
+
+
+def shadow_snapshots(
+    psi: Tensor,
+    pauli_strings: Tensor,
+    status: Optional[Tensor] = None,
+    measurement_only: bool = False,
+):
     r"""To generate the shadow snapshots from given pauli string observables on $|\psi\rangle$
 
     :param psi: shape = (2 ** nq, 2 ** nq), where nq is the number of qubits
@@ -21,39 +52,64 @@ def shadow_snapshots(psi: Tensor, pauli_strings: Tensor, status: Optional[Tensor
     :type: Tensor
     :param status: shape = None or (ns, repeat), where repeat is the times to measure on one pauli string
     :type: Optional[Tensor]
+    :param measurement_only: return snapshots (True) or snapshot states (false), default=False
+    :type: bool
 
     :return snapshots: shape = (ns, repeat, nq)
     :rtype: Tensor
     """
-    pauli_strings = backend.cast(pauli_strings, dtype="int32")
+    pauli_strings = backend.cast(pauli_strings, dtype="int32") - 1
     ns, nq = pauli_strings.shape
-    if 2 ** nq != len(psi):
-        raise RuntimeError(
-            f"The number of qubits of psi and pauli_strings should be the same, but got {nq} and {int(np.log2(len(psi)))}.")
+    if 2**nq != len(psi):
+        raise ValueError(
+            f"The number of qubits of psi and pauli_strings should be the same, but got {nq} and {int(np.log2(len(psi)))}."
+        )
     if status is None:
         status = backend.convert_to_tensor(np.random.rand(ns, 1))
     elif status.shape[0] != ns:
-        raise RuntimeError(f"status.shape[0] should be {ns}, but got {status.shape[0]}.")
+        raise ValueError(f"status.shape[0] should be {ns}, but got {status.shape[0]}.")
     status = backend.cast(status, dtype=rdtypestr)
     repeat = status.shape[1]
 
-    angles = backend.cast(backend.convert_to_tensor(
-        [[-np.pi / 2, np.pi / 4, 0], [np.pi / 3, np.arccos(1 / np.sqrt(3)), np.pi / 4], [0, 0, 0]]),
-                          dtype=rdtypestr)  # (3, 3)
+    angles = backend.cast(
+        backend.convert_to_tensor(
+            [
+                [-np.pi / 2, np.pi / 4, 0],
+                [np.pi / 3, np.arccos(1 / np.sqrt(3)), np.pi / 4],
+                [0, 0, 0],
+            ]
+        ),
+        dtype=rdtypestr,
+    )  # (3, 3)
 
     def proj_measure(pauli_string, st):
         c_ = Circuit(nq, inputs=psi)
         for i in range(nq):
-            c_.R(i, theta=backend.gather1d(backend.gather1d(angles, backend.gather1d(pauli_string, i)), 0),
-                 alpha=backend.gather1d(backend.gather1d(angles, backend.gather1d(pauli_string, i)), 1),
-                 phi=backend.gather1d(backend.gather1d(angles, backend.gather1d(pauli_string, i)), 2))
+            c_.R(
+                i,
+                theta=backend.gather1d(
+                    backend.gather1d(angles, backend.gather1d(pauli_string, i)), 0
+                ),
+                alpha=backend.gather1d(
+                    backend.gather1d(angles, backend.gather1d(pauli_string, i)), 1
+                ),
+                phi=backend.gather1d(
+                    backend.gather1d(angles, backend.gather1d(pauli_string, i)), 2
+                ),
+            )
         return c_.sample(batch=repeat, format="sample_bin", allow_state=True, status=st)
 
     vpm = backend.vmap(proj_measure, vectorized_argnums=(0, 1))
-    return vpm(pauli_strings, status)   # (ns, repeat, nq)
+    snapshots = vpm(pauli_strings, status)  # (ns, repeat, nq)
+    if measurement_only:
+        return snapshots
+    else:
+        return local_snapshot_states(snapshots, pauli_strings + 1)
 
 
-def local_snapshot_states(snapshots: Tensor, pauli_strings: Tensor, sub: Optional[Sequence[int]] = None):
+def local_snapshot_states(
+    snapshots: Tensor, pauli_strings: Tensor, sub: Optional[Sequence[int]] = None
+):
     r"""To generate the local snapshots states from snapshots and pauli strings
 
     :param snapshots: shape = (ns, repeat, nq)
@@ -66,13 +122,25 @@ def local_snapshot_states(snapshots: Tensor, pauli_strings: Tensor, sub: Optiona
     :return lss_states: shape = (ns, repeat, nq, 2, 2)
     :rtype: Tensor
     """
-    pauli_strings = backend.cast(pauli_strings, dtype="int32")
+    pauli_strings = backend.cast(pauli_strings, dtype="int32") - 1
     if len(pauli_strings.shape) < len(snapshots.shape):
-        pauli_strings = backend.tile(pauli_strings[:, None, :], (1, snapshots.shape[1], 1))  # (ns, repeat, nq)
+        pauli_strings = backend.tile(
+            pauli_strings[:, None, :], (1, snapshots.shape[1], 1)
+        )  # (ns, repeat, nq)
 
-    X_dm = backend.cast(backend.convert_to_tensor([[[1, 1], [1, 1]], [[1, -1], [-1, 1]]]) / 2, dtype=dtypestr)
-    Y_dm = backend.cast(backend.convert_to_tensor(np.array([[[1, -1j], [1j, 1]], [[1, 1j], [-1j, 1]]]) / 2), dtype=dtypestr)
-    Z_dm = backend.cast(backend.convert_to_tensor([[[1, 0], [0, 0]], [[0, 0], [0, 1]]]), dtype=dtypestr)
+    X_dm = backend.cast(
+        backend.convert_to_tensor([[[1, 1], [1, 1]], [[1, -1], [-1, 1]]]) / 2,
+        dtype=dtypestr,
+    )
+    Y_dm = backend.cast(
+        backend.convert_to_tensor(
+            np.array([[[1, -1j], [1j, 1]], [[1, 1j], [-1j, 1]]]) / 2
+        ),
+        dtype=dtypestr,
+    )
+    Z_dm = backend.cast(
+        backend.convert_to_tensor([[[1, 0], [0, 0]], [[0, 0], [0, 1]]]), dtype=dtypestr
+    )
     pauli_dm = backend.stack((X_dm, Y_dm, Z_dm), axis=0)  # (3, 2, 2, 2)
 
     def dm(p, s):
@@ -84,17 +152,15 @@ def local_snapshot_states(snapshots: Tensor, pauli_strings: Tensor, sub: Optiona
 
     lss_states = vvv(pauli_strings, snapshots)
     if sub is not None:
-        lss_states = backend.transpose(lss_states, (2, 0, 1, 3, 4))
-        def slice_sub(idx):
-            return backend.gather1d(lss_states, idx)
-
-        v0 = backend.vmap(slice_sub, vectorized_argnums=0)
-        lss_states = backend.transpose(v0(backend.convert_to_tensor(sub)), (1, 2, 0, 3, 4))
-
+        lss_states = slice_sub(lss_states, sub)
     return 3 * lss_states - backend.eye(2)[None, None, None, :, :]
 
 
-def global_shadow_state(snapshots: Tensor, pauli_strings: Optional[Tensor] = None, sub: Optional[Sequence[int]] = None):
+def global_shadow_state(
+    snapshots: Tensor,
+    pauli_strings: Optional[Tensor] = None,
+    sub: Optional[Sequence[int]] = None,
+):
     r"""To generate the global shadow state from local snapshot states or snapshots and pauli strings
 
     :param snapshots: shape = (ns, repeat, nq, 2, 2) or (ns, repeat, nq)
@@ -109,19 +175,15 @@ def global_shadow_state(snapshots: Tensor, pauli_strings: Optional[Tensor] = Non
     """
     if pauli_strings is not None:
         if len(snapshots.shape) != 3:
-            raise RuntimeError(
-                f"snapshots should be 3-d if pauli_strings is not None, got {len(snapshots.shape)}-d instead.")
-        pauli_strings = backend.cast(pauli_strings, dtype="int32")
-        lss_states = local_snapshot_states(snapshots, pauli_strings, sub)  # (ns, repeat, nq_sub, 2, 2)
+            raise ValueError(
+                f"snapshots should be 3-d if pauli_strings is not None, got {len(snapshots.shape)}-d instead."
+            )
+        lss_states = local_snapshot_states(
+            snapshots, pauli_strings, sub
+        )  # (ns, repeat, nq_sub, 2, 2)
     else:
         if sub is not None:
-            lss_states = backend.transpose(snapshots, (2, 0, 1, 3, 4))
-
-            def slice_sub(idx):
-                return backend.gather1d(lss_states, idx)
-
-            v0 = backend.vmap(slice_sub, vectorized_argnums=0)
-            lss_states = backend.transpose(v0(backend.convert_to_tensor(sub)), (1, 2, 0, 3, 4))
+            lss_states = slice_sub(snapshots, sub)
         else:
             lss_states = snapshots  # (ns, repeat, nq, 2, 2)
 
@@ -139,9 +201,15 @@ def global_shadow_state(snapshots: Tensor, pauli_strings: Optional[Tensor] = Non
     return backend.mean(gss_states, axis=(0, 1))
 
 
-def expection_ps_shadow(snapshots: Tensor, pauli_strings: Optional[Tensor] = None, x: Optional[Sequence[int]] = None,
-                        y: Optional[Sequence[int]] = None, z: Optional[Sequence[int]] = None,
-                        ps: Optional[Sequence[int]] = None, k: int = 1):
+def expection_ps_shadow(
+    snapshots: Tensor,
+    pauli_strings: Optional[Tensor] = None,
+    x: Optional[Sequence[int]] = None,
+    y: Optional[Sequence[int]] = None,
+    z: Optional[Sequence[int]] = None,
+    ps: Optional[Sequence[int]] = None,
+    k: int = 1,
+):
     r"""To calculate the expectation value of an observable on shadow snapshot states
 
     :param snapshots: shape = (ns, repeat, nq, 2, 2) or (ns, repeat, nq)
@@ -164,10 +232,12 @@ def expection_ps_shadow(snapshots: Tensor, pauli_strings: Optional[Tensor] = Non
     """
     if pauli_strings is not None:
         if len(snapshots.shape) != 3:
-            raise RuntimeError(
-                f"snapshots should be 3-d if pauli_strings is not None, got {len(snapshots.shape)}-d instead.")
-        pauli_strings = backend.cast(pauli_strings, dtype="int32")
-        lss_states = local_snapshot_states(snapshots, pauli_strings)  # (ns, repeat, nq, 2, 2)
+            raise ValueError(
+                f"snapshots should be 3-d if pauli_strings is not None, got {len(snapshots.shape)}-d instead."
+            )
+        lss_states = local_snapshot_states(
+            snapshots, pauli_strings
+        )  # (ns, repeat, nq, 2, 2)
     else:
         lss_states = snapshots  # (ns, repeat, nq, 2, 2)
     ns, repeat, nq, _, _ = lss_states.shape
@@ -186,13 +256,24 @@ def expection_ps_shadow(snapshots: Tensor, pauli_strings: Optional[Tensor] = Non
             for i in z:
                 ps[i] = 3
     elif len(ps) != nq:
-        raise RuntimeError(
-            f"The number of qubits of the shadow state is {nq}, but got a {len(ps)}-qubit pauli string observable.")
+        raise ValueError(
+            f"The number of qubits of the shadow state is {nq}, but got a {len(ps)}-qubit pauli string observable."
+        )
     ps = backend.cast(backend.convert_to_tensor(ps), dtype="int32")  # (nq,)
 
     paulis = backend.convert_to_tensor(
-        backend.cast(np.array([[[1, 0], [0, 1]], [[0, 1], [1, 0]], [[0, -1j], [1j, 0]], [[1, 0], [0, -1]]]),
-                     dtype=dtypestr))    # (4, 2, 2)
+        backend.cast(
+            np.array(
+                [
+                    [[1, 0], [0, 1]],
+                    [[0, 1], [1, 0]],
+                    [[0, -1j], [1j, 0]],
+                    [[1, 0], [0, -1]],
+                ]
+            ),
+            dtype=dtypestr,
+        )
+    )  # (4, 2, 2)
 
     def trace_paulis_prod(dm, idx):
         return backend.real(backend.trace(backend.gather1d(paulis, idx) @ dm))
@@ -205,13 +286,18 @@ def expection_ps_shadow(snapshots: Tensor, pauli_strings: Optional[Tensor] = Non
     vv = backend.vmap(prod, vectorized_argnums=0)  # (ns,)
 
     batch = int(np.ceil(ns / k))
-    return [backend.mean(vv(ss_states[i: i + batch])) for i in range(0, ns, batch)]
+    return [backend.mean(vv(ss_states[i : i + batch])) for i in range(0, ns, batch)]
 
 
-def entropy_shadow(ss_or_sd: Tensor, pauli_strings: Optional[Tensor] = None, sub: Optional[Sequence[int]] = None, alpha: int = 1):
+def entropy_shadow(
+    snapshots: Tensor,
+    pauli_strings: Optional[Tensor] = None,
+    sub: Optional[Sequence[int]] = None,
+    alpha: int = 2,
+):
     r"""To calculate the Renyi entropy of a subsystem from shadow state or shadow snapshot states
 
-    :param ss_or_sd: shadow state (shape = (2 ** nq, 2 ** nq)) or snapshot states (shape = (ns, repeat, nq, 2, 2) or (ns, repeat, nq))
+    :param snapshots: shape = (ns, repeat, nq, 2, 2) or (ns, repeat, nq)
     :type: Tensor
     :param pauli_strings: shape = None or (ns, nq) or (ns, repeat, nq)
     :type: Optional[Tensor]
@@ -222,16 +308,13 @@ def entropy_shadow(ss_or_sd: Tensor, pauli_strings: Optional[Tensor] = None, sub
 
     :return Renyi entropy: shape = ()
     :rtype: Tensor
+
+    TODO: special case of alpha=2
     """
     if alpha <= 0:
         raise ValueError("Alpha should not be less than 1!")
 
-    if len(ss_or_sd.shape) == 2 and ss_or_sd.shape[0] == ss_or_sd.shape[1]:
-        if sub is not None:
-            raise ValueError("sub should be None if the input is the global shadow state.")
-        sdw_rdm = ss_or_sd
-    else:
-        sdw_rdm = global_shadow_state(ss_or_sd, pauli_strings, sub)   # (2 ** nq, 2 ** nq)
+    sdw_rdm = global_shadow_state(snapshots, pauli_strings, sub)  # (2 ** nq, 2 ** nq)
 
     evs = backend.relu(backend.real(backend.eigvalsh(sdw_rdm)))
     evs /= backend.sum(evs)
@@ -241,7 +324,11 @@ def entropy_shadow(ss_or_sd: Tensor, pauli_strings: Optional[Tensor] = None, sub
         return backend.log(backend.sum(backend.power(evs, alpha))) / (1 - alpha)
 
 
-def global_shadow_state1(snapshots: Tensor, pauli_strings: Optional[Tensor] = None, sub: Optional[Sequence[int]] = None):
+def global_shadow_state1(
+    snapshots: Tensor,
+    pauli_strings: Optional[Tensor] = None,
+    sub: Optional[Sequence[int]] = None,
+):
     r"""To generate the global snapshots states from local snapshot states or snapshots and pauli strings
 
     :param snapshots: shape = (ns, repeat, nq, 2, 2) or (ns, repeat, nq)
@@ -256,35 +343,39 @@ def global_shadow_state1(snapshots: Tensor, pauli_strings: Optional[Tensor] = No
     """
     if pauli_strings is not None:
         if len(snapshots.shape) != 3:
-            raise RuntimeError(
-                f"snapshots should be 3-d if pauli_strings is not None, got {len(snapshots.shape)}-d instead.")
-        pauli_strings = backend.cast(pauli_strings, dtype="int32")
-        lss_states = local_snapshot_states(snapshots, pauli_strings, sub)  # (ns, repeat, nq_sub, 2, 2)
+            raise ValueError(
+                f"snapshots should be 3-d if pauli_strings is not None, got {len(snapshots.shape)}-d instead."
+            )
+        lss_states = local_snapshot_states(
+            snapshots, pauli_strings, sub
+        )  # (ns, repeat, nq_sub, 2, 2)
     else:
         if sub is not None:
-            lss_states = backend.transpose(snapshots, (2, 0, 1, 3, 4))
-
-            def slice_sub(idx):
-                return backend.gather1d(lss_states, idx)
-
-            v0 = backend.vmap(slice_sub, vectorized_argnums=0)
-            lss_states = backend.transpose(v0(backend.convert_to_tensor(sub)), (1, 2, 0, 3, 4))
+            lss_states = slice_sub(snapshots, sub)
         else:
-            lss_states = snapshots    # (ns, repeat, nq, 2, 2)
-    lss_states = backend.transpose(lss_states, (2, 0, 1, 3, 4))   # (nq, ns, repeat, 2, 2)
+            lss_states = snapshots  # (ns, repeat, nq, 2, 2)
+    lss_states = backend.transpose(
+        lss_states, (2, 0, 1, 3, 4)
+    )  # (nq, ns, repeat, 2, 2)
     nq, ns, repeat, _, _ = lss_states.shape
 
     old_indices = [f"ab{ABC[2 + 2 * i: 4 + 2 * i]}" for i in range(nq)]
     new_indices = f"ab{ABC[2:2 * nq + 2:2]}{ABC[3:2 * nq + 2:2]}"
 
     gss_states = backend.reshape(
-        backend.einsum(f'{",".join(old_indices)}->{new_indices}', *lss_states, optimize=True),
-        (ns, repeat, 2 ** nq, 2 ** nq),
+        backend.einsum(
+            f'{",".join(old_indices)}->{new_indices}', *lss_states, optimize=True
+        ),
+        (ns, repeat, 2**nq, 2**nq),
     )
     return backend.mean(gss_states, axis=(0, 1))
 
 
-def global_shadow_state2(snapshots: Tensor, pauli_strings: Optional[Tensor] = None, sub: Optional[Sequence[int]] = None):
+def global_shadow_state2(
+    snapshots: Tensor,
+    pauli_strings: Optional[Tensor] = None,
+    sub: Optional[Sequence[int]] = None,
+):
     r"""To generate the global snapshots states from local snapshot states or snapshots and pauli strings
 
     :param snapshots: shape = (ns, repeat, nq, 2, 2) or (ns, repeat, nq)
@@ -299,19 +390,15 @@ def global_shadow_state2(snapshots: Tensor, pauli_strings: Optional[Tensor] = No
     """
     if pauli_strings is not None:
         if len(snapshots.shape) != 3:
-            raise RuntimeError(
-                f"snapshots should be 3-d if pauli_strings is not None, got {len(snapshots.shape)}-d instead.")
-        pauli_strings = backend.cast(pauli_strings, dtype="int32")
-        lss_states = local_snapshot_states(snapshots, pauli_strings, sub)  # (ns, repeat, nq_sub, 2, 2)
+            raise ValueError(
+                f"snapshots should be 3-d if pauli_strings is not None, got {len(snapshots.shape)}-d instead."
+            )
+        lss_states = local_snapshot_states(
+            snapshots, pauli_strings, sub
+        )  # (ns, repeat, nq_sub, 2, 2)
     else:
         if sub is not None:
-            lss_states = backend.transpose(snapshots, (2, 0, 1, 3, 4))
-
-            def slice_sub(idx):
-                return backend.gather1d(lss_states, idx)
-
-            v0 = backend.vmap(slice_sub, vectorized_argnums=0)
-            lss_states = backend.transpose(v0(backend.convert_to_tensor(sub)), (1, 2, 0, 3, 4))
+            lss_states = slice_sub(snapshots, sub)
         else:
             lss_states = snapshots  # (ns, repeat, nq, 2, 2)
     ns, repeat, nq, _, _ = lss_states.shape
@@ -320,8 +407,12 @@ def global_shadow_state2(snapshots: Tensor, pauli_strings: Optional[Tensor] = No
     new_indices = f"{ABC[0:2 * nq:2]}{ABC[1:2 * nq:2]}"
 
     def tensor_prod(dms):
-        return backend.reshape(backend.einsum(f'{",".join(old_indices)}->{new_indices}', *dms, optimize=True),
-                               (2 ** nq, 2 ** nq))
+        return backend.reshape(
+            backend.einsum(
+                f'{",".join(old_indices)}->{new_indices}', *dms, optimize=True
+            ),
+            (2**nq, 2**nq),
+        )
 
     v = backend.vmap(tensor_prod, vectorized_argnums=0)
     vv = backend.vmap(v, vectorized_argnums=0)
@@ -329,39 +420,22 @@ def global_shadow_state2(snapshots: Tensor, pauli_strings: Optional[Tensor] = No
     return backend.mean(gss_states, axis=(0, 1))
 
 
-def shadow_bound(observables: Tensor, epsilon: float, delta: float = 0.01):
-    r"""Calculate the shadow bound of the Pauli observables, please refer to the Theorem S1 in Huang, H.-Y., R. Kueng, and J. Preskill, 2020, Nat. Phys. 16, 1050.
+def slice_sub(entirety: Tensor, sub: Sequence[int]):
+    r"""To slice off the subsystem
 
-    :param observables: shape = (nq,) or (M, nq), where nq is the number of qubits, M is the number of observables
+    :param entirety: shape = (ns, repeat, nq, 2, 2)
     :type: Tensor
-    :param epsilon: error on the estimator
-    :type: float
-    :param delta: rate of failure for the bound to hold
-    :type: float
+    :param sub: qubit indices of subsystem
+    :type: Sequence[int]
 
-    :return Nk: number of snapshots
-    :rtype: int
-    :return k: Number of equal parts to split the shadow snapshot states to compute the median of means. k=1 (default) corresponds to simply taking the mean over all shadow snapshot states.
-    :rtype: int
+    :return subsystem: shape = (ns, repeat, nq_sub, 2, 2)
+    :rtype: Tensor
     """
-    observables = backend.cast(observables, dtype="int32")
-    M = observables.shape[0]
-    k = int(2 * np.log(2 * M / delta))
 
-    def shadow_norm(o):
-        o = backend.to_dense(PauliString2COO(o))
-        qo = QuOperator.from_tensor(o)
-        # print(qo.eval())
-        n = qo.norm().eval()
-        # print(n)
-        return n ** 2
+    def slc(x, idx):
+        return backend.gather1d(x, idx)
 
-    v = backend.vmap(shadow_norm, vectorized_argnums=0)
-
-    N = int(34 * backend.max(v(observables)) / epsilon ** 2)
-    return N * k, k
-
-
-
-
-
+    v = backend.vmap(slc, vectorized_argnums=(1,))
+    vv = backend.vmap(v, vectorized_argnums=(0,))
+    vvv = backend.vmap(vv, vectorized_argnums=(0,))
+    return vvv(entirety, backend.convert_to_tensor(sub))
