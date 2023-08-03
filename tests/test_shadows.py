@@ -5,14 +5,10 @@ import tensorcircuit as tc
 from tensorcircuit.shadows import (
     shadow_bound,
     shadow_snapshots,
-    local_snapshot_states,
     global_shadow_state,
     entropy_shadow,
     renyi_entropy_2,
     expection_ps_shadow,
-    global_shadow_state1,
-    global_shadow_state2,
-    slice_sub,
 )
 
 
@@ -54,8 +50,8 @@ def test_jit(backend):
     expc, ent = csjit(psi, pauli_strings, status)
     expc = np.median(expc)
 
-    assert np.abs(expc - exact_expc) < error
-    assert np.abs(ent - exact_ent) < 5 * error
+    assert np.isclose(expc, exact_expc, atol=error)
+    assert np.isclose(ent, exact_ent, atol=5 * error)
 
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
@@ -75,6 +71,39 @@ def test_state(backend):
     sdw_state = global_shadow_state(lss_states)
 
     np.allclose(sdw_state, bell_state, atol=0.01)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_ent(backend):
+    nq, ns, repeat = 6, 2000, 1000
+
+    thetas = 2 * np.random.rand(2, nq) - 1
+
+    c = tc.Circuit(nq)
+    for i in range(nq):
+        c.H(i)
+    for i in range(2):
+        for j in range(nq):
+            c.cnot(j, (j + 1) % nq)
+        for j in range(nq):
+            c.rz(j, theta=thetas[i, j] * np.pi)
+
+    sub = [1, 4]
+    psi = c.state()
+
+    pauli_strings = tc.backend.convert_to_tensor(np.random.randint(1, 4, size=(ns, nq)))
+    status = tc.backend.convert_to_tensor(np.random.rand(ns, repeat))
+    snapshots = shadow_snapshots(psi, pauli_strings, status, measurement_only=True)
+
+    exact_rdm = tc.quantum.reduced_density_matrix(
+        psi, cut=[i for i in range(nq) if i not in sub]
+    )
+    exact_ent = tc.quantum.renyi_entropy(exact_rdm, k=2)
+    ent = entropy_shadow(snapshots, pauli_strings, sub, alpha=2)
+    ent2 = renyi_entropy_2(snapshots, sub)
+
+    assert np.isclose(ent, exact_ent, atol=0.1)
+    assert np.isclose(ent2, exact_ent, atol=0.1)
 
 
 # @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])

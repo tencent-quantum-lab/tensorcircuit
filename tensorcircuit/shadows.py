@@ -14,7 +14,8 @@ Tensor = Any
 def shadow_bound(
     observables: Union[Tensor, Sequence[int]], epsilon: float, delta: float = 0.01
 ) -> Tuple[int, int]:
-    r"""Calculate the shadow bound of the Pauli observables, please refer to the Theorem S1 and Lemma S3 in Huang, H.-Y., R. Kueng, and J. Preskill, 2020, Nat. Phys. 16, 1050.
+    r"""Calculate the shadow bound of the Pauli observables, please refer to the Theorem S1 and Lemma S3 in
+    Huang, H.-Y., R. Kueng, and J. Preskill, 2020, Nat. Phys. 16, 1050.
 
     :param observables: shape = (nq,) or (M, nq), where nq is the number of qubits, M is the number of observables
     :type: Union[Tensor, Sequence[int]]
@@ -25,10 +26,11 @@ def shadow_bound(
 
     :return Nk: number of snapshots
     :rtype: int
-    :return k: Number of equal parts to split the shadow snapshot states to compute the median of means. k=1 (default) corresponds to simply taking the mean over all shadow snapshot states.
+    :return k: Number of equal parts to split the shadow snapshot states to compute the median of means.
+               k=1 (default) corresponds to simply taking the mean over all shadow snapshot states.
     :rtype: int
     """
-    count = np.sign(backend.numpy(observables))
+    count = np.sign(np.asarray(observables))
     if len(count.shape) == 1:
         count = count[None, :]
     M = count.shape[0]
@@ -65,7 +67,8 @@ def shadow_snapshots(
     ns, nq = pauli_strings.shape
     if 2**nq != len(psi):
         raise ValueError(
-            f"The number of qubits of psi and pauli_strings should be the same, but got {nq} and {int(np.log2(len(psi)))}."
+            f"The number of qubits of psi and pauli_strings should be the same, "
+            f"but got {nq} and {int(np.log2(len(psi)))}."
         )
     if status is None:
         status = backend.convert_to_tensor(np.random.rand(ns, 1))
@@ -225,9 +228,11 @@ def expection_ps_shadow(
     :type: Optional[Sequence[int]]
     :param z: sites to apply Z gate, defaults to None
     :type: Optional[Sequence[int]]
-    :param ps: or one can apply a ps structures instead of x, y, z, e.g. [1, 1, 0, 2, 3, 0] for X_0X_1Y_3Z_4 defaults to None, ps can overwrite x, y and z
+    :param ps: or one can apply a ps structures instead of x, y, z, e.g. [1, 1, 0, 2, 3, 0] for X_0X_1Y_3Z_4
+               defaults to None, ps can overwrite x, y and z
     :type: Optional[Sequence[int]]
-    :param k: Number of equal parts to split the shadow snapshot states to compute the median of means. k=1 (default) corresponds to simply taking the mean over all shadow snapshot states.
+    :param k: Number of equal parts to split the shadow snapshot states to compute the median of means.
+              k=1 (default) corresponds to simply taking the mean over all shadow snapshot states.
     :type: int
 
     :return expectation values: shape = (k,)
@@ -328,8 +333,8 @@ def entropy_shadow(
 
 
 def renyi_entropy_2(snapshots: Tensor, sub: Optional[Sequence[int]] = None) -> Tensor:
-    r"""To calculate the second order Renyi entropy of a subsystem from snapshot, please refer to Brydges, T. et al. Science 364, 260–263 (2019).
-    This function is not jitable.
+    r"""To calculate the second order Renyi entropy of a subsystem from snapshot, please refer to
+    Brydges, T. et al. Science 364, 260–263 (2019). This function is not jitable.
 
     :param snapshots: shape = (ns, repeat, nq)
     :type: Tensor
@@ -438,7 +443,7 @@ def global_shadow_state2(
             lss_states = slice_sub(snapshots, sub)
         else:
             lss_states = snapshots  # (ns, repeat, nq, 2, 2)
-    ns, repeat, nq, _, _ = lss_states.shape
+    nq = lss_states.shape[2]
 
     old_indices = [f"{ABC[2 * i: 2 + 2 * i]}" for i in range(nq)]
     new_indices = f"{ABC[0:2 * nq:2]}{ABC[1:2 * nq:2]}"
