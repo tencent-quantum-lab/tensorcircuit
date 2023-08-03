@@ -14,6 +14,8 @@
 
 - Add circuit copy method that avoid shallow copy issue `Circuit.copy()`
 
+- Add end to end infrastructures and methods for classical shadow in `shadows.py`
+
 ### Fixed
 
 - improve the `adaptive_vmap` to support internal jit and pytree output
