@@ -8,6 +8,7 @@ from tensorcircuit.shadows import (
     local_snapshot_states,
     global_shadow_state,
     entropy_shadow,
+    Renyi_entropy_2,
     expection_ps_shadow,
     global_shadow_state1,
     global_shadow_state2,
@@ -79,33 +80,49 @@ def test_state(backend):
 # @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 # def test_expc(backend):
 #     import pennylane as qml
-#     nq, ns = 8, 200000
+#
+#     nq, ns, repeat = 6, 2000, 1000
+#
+#     thetas = 2 * np.random.rand(2, nq) - 1
 #
 #     c = tc.Circuit(nq)
 #     for i in range(nq):
 #         c.H(i)
-#     for j in range(nq):
-#         c.cnot(j, (j + 1) % nq)
-#     for j in range(nq):
-#         c.rx(j, theta=0.1 * np.pi)
+#     for i in range(2):
+#         for j in range(nq):
+#             c.cnot(j, (j + 1) % nq)
+#         for j in range(nq):
+#             c.rz(j, theta=thetas[i, j] * np.pi)
 #
-#     ps = [1, 0, 2, 2, 0, 3, 1, 3]
-#     exact = c.expectation_ps(ps=ps)
+#     ps = [1, 0, 0, 0, 0, 3]
+#     sub = [1, 4]
+#     psi = c.state()
 #
 #     pauli_strings = tc.backend.convert_to_tensor(np.random.randint(1, 4, size=(ns, nq)))
-#     status = tc.backend.convert_to_tensor(np.random.rand(ns, 1))
-#     snapshots = shadow_snapshots(
-#         c.state(), pauli_strings, status, measurement_only=True
+#     status = tc.backend.convert_to_tensor(np.random.rand(ns, repeat))
+#     snapshots = shadow_snapshots(psi, pauli_strings, status, measurement_only=True)
+#
+#     exact_expc = c.expectation_ps(ps=ps)
+#     exact_rdm = tc.quantum.reduced_density_matrix(
+#         psi, cut=[i for i in range(nq) if i not in sub]
 #     )
+#     exact_ent = tc.quantum.renyi_entropy(exact_rdm, k=2)
+#     print(exact_expc, exact_ent)
 #
 #     expc = np.median(expection_ps_shadow(snapshots, pauli_strings, ps=ps, k=9))
-#     ent = entropy_shadow(slice_sub(snapshots, range(4)), slice_sub(pauli_strings, range(4)), alpha=2)
+#     ent = entropy_shadow(snapshots, pauli_strings, sub, alpha=2)
+#     ent2 = Renyi_entropy_2(snapshots, sub)
+#     print(expc, ent, ent2)
 #
-#     shadow = qml.ClassicalShadow(np.asarray(snapshots[:, 0]), np.asarray(pauli_strings - 1))   # repeat == 1
-#     H = qml.PauliX(0) @ qml.PauliX(6) @ qml.PauliY(2)@ qml.PauliY(3) @ qml.PauliZ(5) @ qml.PauliZ(7)
+#     pl_snapshots = np.asarray(snapshots).reshape(ns * repeat, nq)
+#     pl_ps = np.tile(np.asarray(pauli_strings - 1)[:, None, :], (1, repeat, 1)).reshape(
+#         ns * repeat, nq
+#     )
+#     shadow = qml.ClassicalShadow(pl_snapshots, pl_ps)
+#     H = qml.PauliX(0) @ qml.PauliZ(5)
 #     pl_expc = shadow.expval(H, k=9)
-#     pl_ent = shadow.entropy(range(4), alpha=2)
+#     pl_ent = shadow.entropy(sub, alpha=2)
+#     print(pl_expc, pl_ent)
 #
 #     assert np.isclose(expc, pl_expc)
 #     assert np.isclose(ent, pl_ent)
-#     assert np.abs(expc - exact) < 0.1

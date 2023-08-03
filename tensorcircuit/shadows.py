@@ -4,7 +4,6 @@ Classical Shadows functions
 from typing import Any, Union, Optional, Sequence, Tuple, List
 from string import ascii_letters as ABC
 import numpy as np
-from numpy import ndarray
 
 from .cons import backend, dtypestr, rdtypestr
 from .circuit import Circuit
@@ -18,7 +17,7 @@ def shadow_bound(
     r"""Calculate the shadow bound of the Pauli observables, please refer to the Theorem S1 and Lemma S3 in Huang, H.-Y., R. Kueng, and J. Preskill, 2020, Nat. Phys. 16, 1050.
 
     :param observables: shape = (nq,) or (M, nq), where nq is the number of qubits, M is the number of observables
-    :type: Union[numpy.ndarray, Sequence[int]]
+    :type: Union[Tensor, Sequence[int]]
     :param epsilon: error on the estimator
     :type: float
     :param delta: rate of failure for the bound to hold
@@ -29,7 +28,7 @@ def shadow_bound(
     :return k: Number of equal parts to split the shadow snapshot states to compute the median of means. k=1 (default) corresponds to simply taking the mean over all shadow snapshot states.
     :rtype: int
     """
-    count = np.sign(np.asarray(observables))
+    count = np.sign(backend.numpy(observables))
     if len(count.shape) == 1:
         count = count[None, :]
     M = count.shape[0]
@@ -89,7 +88,7 @@ def shadow_snapshots(
     def proj_measure(pauli_string: Tensor, st: Tensor) -> Tensor:
         c_ = Circuit(nq, inputs=psi)
         for i in range(nq):
-            c_.r(
+            c_.r(  # type: ignore
                 i,
                 theta=backend.gather1d(
                     backend.gather1d(angles, backend.gather1d(pauli_string, i)), 0
@@ -326,6 +325,40 @@ def entropy_shadow(
         return -backend.sum(evs * backend.log(evs + 1e-12))
     else:
         return backend.log(backend.sum(backend.power(evs, alpha))) / (1 - alpha)
+
+
+def Renyi_entropy_2(snapshots: Tensor, sub: Optional[Sequence[int]] = None) -> Tensor:
+    r"""To calculate the second order Renyi entropy of a subsystem from snapshot, please refer to Brydges, T. et al. Science 364, 260–263 (2019).
+    This function is not jitable.
+
+    :param snapshots: shape = (ns, repeat, nq)
+    :type: Tensor
+    :param sub: qubit indices of subsystem
+    :type: Optional[Sequence[int]]
+
+    :return second order Renyi entropy: shape = ()
+    :rtype: Tensor
+    """
+    if sub is not None:
+        snapshots = slice_sub(snapshots, sub)
+    snapshots = backend.cast(snapshots, dtype="int32")
+    ns, repeat, nq = snapshots.shape
+
+    count = {}
+    for i, ss in enumerate(snapshots):
+        for s in ss:
+            s = tuple(backend.numpy(s))
+            if s not in count:
+                count[s] = np.zeros(ns)
+            count[s][i] += 1
+
+    tr = 0.0
+    for x in count:
+        for y in count:
+            h = np.sum((np.asarray(x) + np.asarray(y)) % 2)
+            pp_mean = np.mean(count[x] * count[y]) / repeat / repeat
+            tr += pp_mean * (-2.0) ** (-h)
+    return -np.log(tr * 2**nq)
 
 
 def global_shadow_state1(
