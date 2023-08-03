@@ -8,7 +8,7 @@ from tensorcircuit.shadows import (
     local_snapshot_states,
     global_shadow_state,
     entropy_shadow,
-    Renyi_entropy_2,
+    renyi_entropy_2,
     expection_ps_shadow,
     global_shadow_state1,
     global_shadow_state2,
@@ -111,7 +111,7 @@ def test_state(backend):
 #
 #     expc = np.median(expection_ps_shadow(snapshots, pauli_strings, ps=ps, k=9))
 #     ent = entropy_shadow(snapshots, pauli_strings, sub, alpha=2)
-#     ent2 = Renyi_entropy_2(snapshots, sub)
+#     ent2 = renyi_entropy_2(snapshots, sub)
 #     print(expc, ent, ent2)
 #
 #     pl_snapshots = np.asarray(snapshots).reshape(ns * repeat, nq)

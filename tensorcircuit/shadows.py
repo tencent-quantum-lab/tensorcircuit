@@ -327,7 +327,7 @@ def entropy_shadow(
         return backend.log(backend.sum(backend.power(evs, alpha))) / (1 - alpha)
 
 
-def Renyi_entropy_2(snapshots: Tensor, sub: Optional[Sequence[int]] = None) -> Tensor:
+def renyi_entropy_2(snapshots: Tensor, sub: Optional[Sequence[int]] = None) -> Tensor:
     r"""To calculate the second order Renyi entropy of a subsystem from snapshot, please refer to Brydges, T. et al. Science 364, 260–263 (2019).
     This function is not jitable.
 
