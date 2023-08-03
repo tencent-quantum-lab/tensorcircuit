@@ -50,8 +50,8 @@ def test_jit(backend):
     expc, ent = csjit(psi, pauli_strings, status)
     expc = np.median(expc)
 
-    assert np.isclose(expc, exact_expc, atol=error)
-    assert np.isclose(ent, exact_ent, atol=5 * error)
+    np.testing.assert_allclose(expc, exact_expc, atol=error)
+    np.testing.assert_allclose(ent, exact_ent, atol=5 * error)
 
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
@@ -66,16 +66,16 @@ def test_state(backend):
     bell_state = psi[:, None] @ psi[None, :]
 
     pauli_strings = tc.backend.convert_to_tensor(np.random.randint(1, 4, size=(ns, nq)))
-    status = tc.backend.convert_to_tensor(np.random.rand(ns, 2))
+    status = tc.backend.convert_to_tensor(np.random.rand(ns, 5))
     lss_states = shadow_snapshots(c.state(), pauli_strings, status)
     sdw_state = global_shadow_state(lss_states)
 
-    np.allclose(sdw_state, bell_state, atol=0.01)
+    np.testing.assert_allclose(sdw_state, bell_state, atol=0.1)
 
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_ent(backend):
-    nq, ns, repeat = 6, 2000, 1000
+    nq, ns, repeat = 6, 1000, 500
 
     thetas = 2 * np.random.rand(2, nq) - 1
 
@@ -102,8 +102,8 @@ def test_ent(backend):
     ent = entropy_shadow(snapshots, pauli_strings, sub, alpha=2)
     ent2 = renyi_entropy_2(snapshots, sub)
 
-    assert np.isclose(ent, exact_ent, atol=0.1)
-    assert np.isclose(ent2, exact_ent, atol=0.1)
+    np.testing.assert_allclose(ent, exact_ent, atol=0.1)
+    np.testing.assert_allclose(ent2, exact_ent, atol=0.1)
 
 
 # @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])

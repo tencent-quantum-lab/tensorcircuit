@@ -49,7 +49,7 @@ def shadow_snapshots(
 ) -> Tensor:
     r"""To generate the shadow snapshots from given pauli string observables on $|\psi\rangle$
 
-    :param psi: shape = (2 ** nq, 2 ** nq), where nq is the number of qubits
+    :param psi: shape = (2 ** nq,), where nq is the number of qubits
     :type: Tensor
     :param pauli_strings: shape = (ns, nq), where ns is the number of pauli strings
     :type: Tensor
@@ -57,10 +57,10 @@ def shadow_snapshots(
     :type: Optional[Tensor]
     :param sub: qubit indices of subsystem
     :type: Optional[Sequence[int]]
-    :param measurement_only: return snapshots (True) or snapshot states (false), default=False
+    :param measurement_only: return snapshots (True) or snapshot states (False), default=False
     :type: bool
 
-    :return snapshots: shape = (ns, repeat, nq)
+    :return snapshots: shape = (ns, repeat, nq) if measurement_only=True otherwise (ns, repeat, nq, 2, 2)
     :rtype: Tensor
     """
     pauli_strings = backend.cast(pauli_strings, dtype="int32") - 1
