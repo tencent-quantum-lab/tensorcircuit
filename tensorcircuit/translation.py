@@ -182,6 +182,16 @@ def qir2cirq(
             ci_name = gate_info["name"]
             cgate = CustomizedCirqGate(gatem, ci_name, len(index))
             cmd.append(cgate.on(*index))
+        elif gate_name == "measure":
+            cmd.append(cirq.MeasurementGate(key=gate_info["name"]).on(*index))
+        elif gate_name == "reset":
+            cmd.append(cirq.ResetChannel().on(*index))
+        elif gate_name in ["ox", "oy", "oz"]:
+            cmd.append(getattr(cirq, gate_name[1:])().controlled().on(*index))
+        elif gate_name in ["orx", "ory", "orz"]:
+            cmd.append(getattr(cirq, gate_name[1:])(_get_float(parameters, "theta")).controlled().on(*index))
+        elif gate_name == "phase":
+            cmd.append(cirq.PhaseGate)
         else:
             # Add Customized Gate if there is no match
             gatem = np.reshape(
