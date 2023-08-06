@@ -25,7 +25,7 @@ def test_any_measurement():
     np.testing.assert_allclose(r2, 0.0, atol=1e-5)
 
 
-@pytest.mark.parametrize("backend", [lf("jaxb"), lf("tfb"), lf("jaxb")])
+@pytest.mark.parametrize("backend", [lf("jaxb"), lf("tfb")])
 def test_parameterized_local_measurement(backend):
     c = tc.Circuit(3)
     c.X(0)
