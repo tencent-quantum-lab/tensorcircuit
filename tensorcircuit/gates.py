@@ -389,6 +389,8 @@ def meta_gate() -> None:
             setattr(thismodule, n + "_gate", temp)
             setattr(thismodule, n, temp)
 
+    setattr(thismodule, "pauli_gates", [i(), x(), y(), z()])  # type: ignore
+
 
 meta_gate()
 
