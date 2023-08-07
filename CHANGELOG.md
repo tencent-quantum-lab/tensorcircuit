@@ -20,9 +20,12 @@
 
 - improve the `adaptive_vmap` to support internal jit and pytree output
 
+- fix `pauli_gates` dtype unchange issue when set new dtype (not recommend to use this property)
+
+- fix rem `apply_correction` bug when non-numpy backend is set
 ### Changed
 
-- The static method `BaseCircuit.copy` is renamed as `BaseCircuit.copy_nodes`
+- The static method `BaseCircuit.copy` is renamed as `BaseCircuit.copy_nodes` (breaking changes)
 
 ## 0.10.0
 
