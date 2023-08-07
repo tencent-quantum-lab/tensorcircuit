@@ -2034,7 +2034,10 @@ def count_vector2dict(count: Tensor, n: int, key: str = "bin") -> Dict[Any, int]
     :return: _description_
     :rtype: _type_
     """
-    d = {i: backend.numpy(count[i]).item() for i in range(2**n)}
+    from .interfaces import which_backend
+
+    b = which_backend(count)
+    d = {i: b.numpy(count[i]).item() for i in range(2**n)}
     if key == "int":
         return d
     else:
