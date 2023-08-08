@@ -189,7 +189,11 @@ def qir2cirq(
         elif gate_name in ["ox", "oy", "oz"]:
             cmd.append(getattr(cirq, gate_name[1:])().controlled().on(*index))
         elif gate_name in ["orx", "ory", "orz"]:
-            cmd.append(getattr(cirq, gate_name[1:])(_get_float(parameters, "theta")).controlled().on(*index))
+            cmd.append(
+                getattr(cirq, gate_name[1:])(_get_float(parameters, "theta"))
+                .controlled()
+                .on(*index)
+            )
         elif gate_name == "phase":
             cmd.append(cirq.PhaseGate)
         else:
