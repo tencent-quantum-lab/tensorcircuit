@@ -8,7 +8,8 @@ from tensorcircuit.shadows import (
     global_shadow_state,
     entropy_shadow,
     renyi_entropy_2,
-    expection_ps_shadow,
+    expectation_ps_shadow,
+    global_shadow_state1,
 )
 
 
@@ -38,7 +39,7 @@ def test_jit(backend):
 
     def classical_shadow(psi, pauli_strings, status):
         lss_states = shadow_snapshots(psi, pauli_strings, status)
-        expc = expection_ps_shadow(lss_states, ps=ps, k=k)
+        expc = expectation_ps_shadow(lss_states, ps=ps, k=k)
         ent = entropy_shadow(lss_states, sub=sub, alpha=2)
         return expc, ent
 
@@ -69,8 +70,10 @@ def test_state(backend):
     status = tc.backend.convert_to_tensor(np.random.rand(ns, 5))
     lss_states = shadow_snapshots(c.state(), pauli_strings, status)
     sdw_state = global_shadow_state(lss_states)
+    sdw_state1 = global_shadow_state1(lss_states)
 
     np.testing.assert_allclose(sdw_state, bell_state, atol=0.1)
+    np.testing.assert_allclose(sdw_state1, bell_state, atol=0.1)
 
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])

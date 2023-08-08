@@ -26,7 +26,7 @@ def shadow_bound(
 
     :return Nk: number of snapshots
     :rtype: int
-    :return k: Number of equal parts to split the shadow snapshot states to compute the median of means.
+    :return k: number of equal parts to split the shadow snapshot states to compute the median of means.
                k=1 (default) corresponds to simply taking the mean over all shadow snapshot states.
     :rtype: int
     """
@@ -207,7 +207,7 @@ def global_shadow_state(
     return backend.mean(gss_states, axis=(0, 1))
 
 
-def expection_ps_shadow(
+def expectation_ps_shadow(
     snapshots: Tensor,
     pauli_strings: Optional[Tensor] = None,
     x: Optional[Sequence[int]] = None,
@@ -316,8 +316,6 @@ def entropy_shadow(
 
     :return Renyi entropy: shape = ()
     :rtype: Tensor
-
-    TODO: special case of alpha=2
     """
     if alpha <= 0:
         raise ValueError("Alpha should not be less than 1!")
