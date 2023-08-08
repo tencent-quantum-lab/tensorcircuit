@@ -1,8 +1,10 @@
 """
-Classical Shadows functions
+Classical shadows functions
 """
+
 from typing import Any, Union, Optional, Sequence, Tuple, List
 from string import ascii_letters as ABC
+
 import numpy as np
 
 from .cons import backend, dtypestr, rdtypestr
