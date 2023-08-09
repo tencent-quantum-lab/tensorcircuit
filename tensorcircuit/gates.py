@@ -13,7 +13,7 @@ import numpy as np
 import tensornetwork as tn
 from scipy.stats import unitary_group
 
-from .cons import backend, dtypestr, npdtype
+from .cons import backend, dtypestr, npdtype, runtime_backend
 from .utils import arg_alias
 
 thismodule = sys.modules[__name__]
@@ -388,6 +388,9 @@ def meta_gate() -> None:
             setattr(thismodule, n + "gate", temp)
             setattr(thismodule, n + "_gate", temp)
             setattr(thismodule, n, temp)
+
+    with runtime_backend("numpy"):  # backward compatibility
+        setattr(thismodule, "pauli_gates", [i(), x(), y(), z()])  # type: ignore
 
 
 meta_gate()
