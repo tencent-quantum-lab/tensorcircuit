@@ -4,6 +4,7 @@ Backend magic inherited from tensornetwork: tensorflow backend
 # pylint: disable=invalid-name
 
 import os
+import re
 from functools import reduce, partial
 from operator import mul
 from typing import Any, Callable, Optional, Sequence, Tuple, Union
@@ -378,6 +379,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend, ExtendedBackend): 
         tf.sparse.SparseTensor.__add__ = tf.sparse.add
         self.minor = int(tf.__version__.split(".")[1])
         self.name = "tensorflow"
+        logger = tf.get_logger()  # .setLevel('ERROR')
+        logger.addFilter(lambda s: not re.match(".*You are casting.*", s.getMessage()))
+        # ignore casting warning by logger
 
     def eye(
         self, N: int, dtype: Optional[str] = None, M: Optional[int] = None

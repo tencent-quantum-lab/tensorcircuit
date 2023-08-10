@@ -205,6 +205,8 @@ We also have [Docker support](/docker).
 
   - Reusable common circuit/measurement/problem templates and patterns.
 
+  - Jittable classical shadow infrastructures.
+
   - SOTA quantum algorithm and model implementations.
 
   - Support hybrid workflows and pipelines with CPU/GPU/QPU hardware from local/cloud/hpc resources using tf/torch/jax/cupy/numpy frameworks all at the same time.
@@ -333,6 +335,12 @@ Reference paper: https://arxiv.org/abs/2303.10825 (published in JCTC).
 For the numerical simulation and hardware experiments with error mitigation on QAOA, see the [project repo](https://github.com/sherrylixuecheng/EMQAOA-DARBO).
 
 Reference paper: https://arxiv.org/abs/2303.14877.
+
+### NN-VQA
+
+For the setup and simulation code of neural network encoded variational quantum eigensolver, see the [demo](/docs/source/tutorials/nnvqe.ipynb).
+
+Reference paper: https://arxiv.org/abs/2308.01068.
 
 ### More works
 
