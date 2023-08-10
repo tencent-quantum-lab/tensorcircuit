@@ -334,6 +334,12 @@ For the numerical simulation and hardware experiments with error mitigation on Q
 
 Reference paper: https://arxiv.org/abs/2303.14877.
 
+### NN-VQA
+
+For the setup and simulation code of neural network encoded variational quantum eigensolver, see the [demo](/docs/source/tutorials/nnvqe.ipynb).
+
+Reference paper: https://arxiv.org/abs/2308.01068.
+
 ### More works
 
  <details>

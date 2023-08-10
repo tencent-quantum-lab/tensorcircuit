@@ -184,3 +184,9 @@ VQEX 在 MBL 相位识别上的应用见 [教程](/docs/source/tutorials/vqex_mb
 数值模拟和带错误消除的真实量子硬件实验验证 QAOA 优化的代码请参考 [项目](https://github.com/sherrylixuecheng/EMQAOA-DARBO)。
 
 参考论文: https://arxiv.org/abs/2303.14877。
+
+### NN-VQA
+
+关于神经网络编码的变分量子算法的实现和工作流, 见 [教程](/docs/source/tutorials/nnvqe.ipynb)。
+
+参考论文: https://arxiv.org/abs/2308.01068。
