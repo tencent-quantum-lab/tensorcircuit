@@ -205,6 +205,8 @@ We also have [Docker support](/docker).
 
   - Reusable common circuit/measurement/problem templates and patterns.
 
+  - Jittable classical shadow infrastructures.
+
   - SOTA quantum algorithm and model implementations.
 
   - Support hybrid workflows and pipelines with CPU/GPU/QPU hardware from local/cloud/hpc resources using tf/torch/jax/cupy/numpy frameworks all at the same time.
