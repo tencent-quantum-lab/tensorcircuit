@@ -49,7 +49,7 @@ def shadow_snapshots(
     sub: Optional[Sequence[int]] = None,
     measurement_only: bool = False,
 ) -> Tensor:
-    r"""To generate the shadow snapshots from given pauli string observables on $|\psi\rangle$
+    r"""To generate the shadow snapshots from given pauli string observables on psi
 
     :param psi: shape = (2 ** nq,), where nq is the number of qubits
     :type: Tensor
