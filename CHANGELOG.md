@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.11.0
+
 ### Added
 
 - Add multiple GPU VQE examples using jax pmap
