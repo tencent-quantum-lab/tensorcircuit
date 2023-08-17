@@ -1122,6 +1122,7 @@ def test_qiskit2tc():
     qisc.crz(np.random.uniform(), 2, 3, ctrl_state=0)
     qisc.crz(np.random.uniform(), 2, 3, ctrl_state=0)
     qisc.crz(np.random.uniform(), 2, 3, ctrl_state=0)
+    qisc.r(np.random.uniform(), np.random.uniform(), 1)
     qisc.unitary(exp_op, [1, 3])
     mcx_g = MCXGate(3, ctrl_state="010")
     qisc.append(mcx_g, [0, 1, 2, 3])
