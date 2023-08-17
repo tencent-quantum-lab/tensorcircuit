@@ -272,6 +272,16 @@
         "test",
         "doc"
       ]
+    },
+    {
+      "login": "EmilianoG-byte",
+      "name": "Cristian Emiliano Godinez Ramirez",
+      "avatar_url": "https://avatars.githubusercontent.com/u/57567043?v=4",
+      "profile": "https://emilianog-byte.github.io",
+      "contributions": [
+        "code",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 6,
