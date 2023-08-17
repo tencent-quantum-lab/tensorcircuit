@@ -66,7 +66,7 @@ def jaxsvd_bwd(r: Sequence[Array], tangents: Sequence[Array]) -> Tuple[Array]:
     return (grad_a,)
 
 
-adaware_svd.defvjp(jaxsvd_fwd, jaxsvd_bwd)
+adaware_svd.defvjp(jaxsvd_fwd, jaxsvd_bwd) # type: ignore
 
 adaware_svd_jit = jax.jit(adaware_svd)
 
@@ -142,6 +142,6 @@ def jaxqr_bwd(res: Sequence[Array], tangents: Sequence[Array]) -> Tuple[Array]:
     return (result,)
 
 
-adaware_qr.defvjp(jaxqr_fwd, jaxqr_bwd)
+adaware_qr.defvjp(jaxqr_fwd, jaxqr_bwd)  # type: ignore
 
 adaware_qr_jit = jax.jit(adaware_qr)
