@@ -486,6 +486,13 @@ def qiskit2tc(
             getattr(tc_circuit, gate_name)(*idx, theta=parameters)
         elif gate_name in ["crx_o0", "cry_o0", "crz_o0"]:
             getattr(tc_circuit, "o" + gate_name[1:-3])(*idx, theta=parameters)
+        elif gate_name in ["r"]:
+            getattr(tc_circuit, "u")(
+                *idx,
+                theta=parameters[0],
+                phi=parameters[1] - np.pi / 2,
+                lbd=-parameters[1] + np.pi / 2,
+            )
         elif gate_name in ["u3", "u"]:
             getattr(tc_circuit, "u")(
                 *idx, theta=parameters[0], phi=parameters[1], lbd=parameters[2]
