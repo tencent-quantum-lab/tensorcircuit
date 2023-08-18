@@ -125,7 +125,7 @@ def qir2cirq(
     support more element in qir, e.g. barrier, measure...
     """
 
-    class CustomizedCirqGate(cirq.Gate):
+    class CustomizedCirqGate(cirq.Gate):  # type: ignore
         def __init__(self, uMatrix: Any, name: str, nqubit: int):
             super(CustomizedCirqGate, self)
             self.uMatrix = uMatrix
