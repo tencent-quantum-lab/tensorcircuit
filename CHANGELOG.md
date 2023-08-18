@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Added
+
+- Add translation of r gate from qiskit
+
+### Changed
+
+- move ensemble module to applications/ai (breaking changes)
+
 ## 0.11.0
 
 ### Added
