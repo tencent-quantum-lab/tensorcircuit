@@ -83,7 +83,7 @@ def shadow_snapshots(
         backend.convert_to_tensor(
             [
                 [-np.pi / 2, np.pi / 4, 0],
-                [np.pi / 3, np.arccos(1 / np.sqrt(3)), np.pi / 4],
+                [np.pi / 4, np.pi / 2, 0],
                 [0, 0, 0],
             ]
         ),
