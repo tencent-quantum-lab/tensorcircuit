@@ -5,7 +5,7 @@ Shortcuts for measurement patterns on circuit
 # pylint: disable=invalid-name
 
 from functools import wraps
-from typing import Any, Callable, Optional, Sequence, Tuple, List
+from typing import Any, Callable, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -199,98 +199,4 @@ def qft(
         if do_swaps:
             for i in range(len(index) // 2):
                 c.swap(index[i], index[len(index) - 1 - i])
-    return c
-
-
-def QAOA_ansatz_for_Ising(
-    params: list,
-    nlayers: int,
-    pauli_terms: Tensor,
-    weights: list,
-    mixer: str = "X",
-    gap: int = 5,
-) -> Circuit:
-    """
-    Construct the QAOA ansatz for the Ising Model.
-    The number of qubits is determined by `pauli_terms`.
-
-    :param params: A list of parameter values used in the QAOA ansatz.
-    :param nlayers: The number of layers in the QAOA ansatz.
-    :pauli_terms: A list of Pauli terms, where each term is represented as a list of 0/1 series.
-    :param weights: A list of weights corresponding to each Pauli term.
-    :param mixer: mixer type. The options are "X", "XY_ring", "XY_par_ring", "XY_full", and "QAMPA".
-    """
-    nqubits = len(pauli_terms[0])
-    c = Circ(nqubits)
-    for i in range(nqubits):
-        c.h(i)  # Apply Hadamard gate to each qubit
-
-    for j in range(nlayers):
-        # cost terms
-        for k in range(len(pauli_terms)):
-            term = pauli_terms[k]
-            index_of_ones = []
-            for l in range(len(term)):
-                if term[l] == 1:
-                    index_of_ones.append(l)
-            if len(index_of_ones) == 1:
-                c.rz(index_of_ones[0], theta=2 * weights[k] * params[2 * j])
-                # Apply Rz gate with angle determined by weight and current parameter value
-            elif len(index_of_ones) == 2:
-                c.exp1(
-                    index_of_ones[0],
-                    index_of_ones[1],
-                    unitary=G._zz_matrix,
-                    theta=weights[k] * params[2 * j],
-                )
-                # Apply exp1 gate with a custom unitary (zz_matrix) and angle determined by weight and current parameter value
-            else:
-                raise ValueError("Invalid number of Z terms")
-
-        # standard mixer
-        if mixer == "X":
-            for i in range(nqubits):
-                c.rx(
-                    i, theta=params[2 * j + 1]
-                )  # Apply Rx gate with angle determined by current parameter value
-        # Parity ring XY mixer
-        elif mixer == "XY":
-            pairs = []
-            for index in [0, 1]:
-                while index + 2 <= nqubits:
-                    pairs.append([index, index + 1])
-                    index += 2
-            for pair in pairs:
-                c.exp1(pair[0], pair[1], unitary=G._xx_matrix, theta=params[2 * j + 1])
-                c.exp1(pair[0], pair[1], unitary=G._yy_matrix, theta=params[2 * j + 1])
-            c.exp1(nqubits - 1, 0, unitary=G._xx_matrix, theta=params[2 * j + 1])
-            c.exp1(nqubits - 1, 0, unitary=G._yy_matrix, theta=params[2 * j + 1])
-
-        # XY mixer with full couplings
-        elif mixer == "XY_full":
-            for q0 in range(nqubits - 1):
-                for q1 in range(q0 + 1, nqubits):
-                    c.exp1(q0, q1, unitary=G._xx_matrix, theta=params[2 * j + 1])
-                    c.exp1(q0, q1, unitary=G._yy_matrix, theta=params[2 * j + 1])
-
-        # Parity ring ZZ mixer
-        elif mixer == "ZZ":
-            pairs = []
-            for index in [0, 1]:
-                while index + 2 <= nqubits:
-                    pairs.append([index, index + 1])
-                    index += 2
-            for pair in pairs:
-                c.exp1(pair[0], pair[1], unitary=G._zz_matrix, theta=params[2 * j + 1])
-            c.exp1(nqubits - 1, 0, unitary=G._zz_matrix, theta=params[2 * j + 1])
-
-        # ZZ mixer with full couplings
-        elif mixer == "ZZ_full":
-            for q0 in range(nqubits - 1):
-                for q1 in range(q0, nqubits):
-                    c.exp1(q0, q1, unitary=G._zz_matrix, theta=params[2 * j + 1])
-
-        else:
-            raise ValueError("Invalid mixer type.")
-
     return c
