@@ -2,26 +2,25 @@
 modules for QUBO problems in QAOA
 """
 
-from typing import List, Callable, Any
-
-import tensorcircuit as tc
-import numpy as np
+from typing import List, Callable, Any, Optional, Tuple
 from functools import partial
+
+import numpy as np
 import tensorflow as tf
 import scipy.optimize as optimize
 
 from ..cons import backend
-from ..templates.blocks import QAOA_ansatz_for_Ising
+from ..quantum import measurement_results
+from ..interfaces import scipy_interface
+from ..templates.ansatz import QAOA_ansatz_for_Ising
 from ..templates.conversions import QUBO_to_Ising
-from tensorflow.python.ops.numpy_ops import np_config
-
-np_config.enable_numpy_behavior()
 
 Circuit = Any
 Tensor = Any
+Array = Any
 
 
-def Ising_loss(c: Circuit, pauli_terms: List[list], weights: list) -> float:
+def Ising_loss(c: Circuit, pauli_terms: Tensor, weights: List[float]) -> Any:
     """
     computes the loss function for the Ising model based on a given quantum circuit,
     a list of Pauli terms, and corresponding weights.
@@ -57,8 +56,13 @@ def Ising_loss(c: Circuit, pauli_terms: List[list], weights: list) -> float:
 
 
 def QAOA_loss(
-    nlayers: int, pauli_terms: List[list], weights: list, params: list, mixer: str = "X"
-) -> float:
+    nlayers: int,
+    pauli_terms: Tensor,
+    weights: List[float],
+    params: List[float],
+    full_coupling: bool = False,
+    mixer: str = "X",
+) -> Any:
     """
     computes the loss function for the Quantum Approximate Optimization Algorithm (QAOA) applied to the Ising model.
 
@@ -66,9 +70,13 @@ def QAOA_loss(
     :param pauli_terms: A list of Pauli terms, where each term is represented as a list of 0/1 series.
     :param weights: A list of weights corresponding to each Pauli term.
     :param params: A list of parameter values used in the QAOA ansatz.
+    :param full_coupling (optional): A flag indicating whether to use all-to-all coupling in mixers. Default is False.
+    :paran mixer (optional): The mixer operator to use. Default is "X". The other options are "XY" and "ZZ".
     :return: The computed loss value.
     """
-    c = QAOA_ansatz_for_Ising(params, nlayers, pauli_terms, weights, mixer=mixer)
+    c = QAOA_ansatz_for_Ising(
+        params, nlayers, pauli_terms, weights, mixer=mixer, full_coupling=full_coupling
+    )
     # Obtain the quantum circuit using QAOA_from_Ising function
 
     return Ising_loss(c, pauli_terms, weights)
@@ -76,17 +84,17 @@ def QAOA_loss(
 
 
 def QUBO_QAOA(
-    Q: List[list],
+    Q: Tensor,
     nlayers: int,
     iterations: int,
     vvag: bool = False,
     ncircuits: int = 10,
-    init_params: list = None,
+    init_params: Optional[List[float]] = None,
     mixer: str = "X",
     learning_rate: float = 1e-2,
-    jit: bool = True,
-    callback: callable = None,
-) -> list:
+    callback: Optional[Optional[Callable[[List[float], float], None]]] = None,
+    full_coupling: bool = False,
+) -> Array:
     """
     Performs the QAOA on a given QUBO problem.
     Adam optimizer from TensorFlow is used.
@@ -95,31 +103,36 @@ def QUBO_QAOA(
     :param nlayers: The number of layers (depth) in the QAOA ansatz.
     :param iterations: The number of iterations to run the optimization.
     :param vvag (optional): A flag indicating whether to use vectorized variational adjoint gradient. Default is False.
-    :param ncircuits (optional): The number of circuits when using vectorized variational adjoint gradient. Default is 10.
-    :param init_params (optional): The initial parameters for the ansatz circuit. Default is None, which initializes the parameters randomly.
-    :paran mixer (optional): The mixer operator to use. Default is "X". The other options are "X", "XY", "XY_full", and "ZZ".
+    :param ncircuits (optional): The number of circuits when using vectorized variational adjoint gradient.
+        Default is 10.
+    :param init_params (optional): The initial parameters for the ansatz circuit.
+        Default is None, which initializes the parameters randomly.
+    :paran mixer (optional): The mixer operator to use. Default is "X". The other options are "XY" and "ZZ".
     :param learning_rate (optional): The learning rate for the Adam optimizer. Default is 1e-2.
-    :param jit (optional): A flag indicating whether to use just-in-time compilation. Default is True.
     :param callback (optional): A callback function that is executed during each iteration. Default is None.
+    :param full_coupling (optional): A flag indicating whether to use all-to-all coupling in mixers. Default is False.
     :return params: The optimized parameters for the ansatz circuit.
     """
-    if backend != tc.set_backend("tensorflow"):
-        raise ValueError("`QUBO_QAOA` is designed for tensorflow backend.")
-        # Check if the backend is set to TensorFlow. Raise an error if it is not.
 
-    pauli_terms, weights, offset = QUBO_to_Ising(Q)
+    pauli_terms, weights, _ = QUBO_to_Ising(Q)
 
     loss_val_grad = backend.value_and_grad(
-        partial(QAOA_loss, nlayers, pauli_terms, weights, mixer=mixer)
+        partial(
+            QAOA_loss,
+            nlayers,
+            pauli_terms,
+            weights,
+            mixer=mixer,
+            full_coupling=full_coupling,
+        )
     )
+    loss_val_grad = backend.jit(loss_val_grad, static_argnums=(1, 2))
     # Define the loss and gradients function using value_and_grad, which calculates both the loss value and gradients.
 
     if init_params is None:
         params = backend.implicit_randn(shape=[2 * nlayers], stddev=0.5)
-        if vvag == True:
-            loss_val_grad = tc.backend.vvag(
-                loss_val_grad, argnums=0, vectorized_argnums=0
-            )
+        if vvag is True:
+            loss_val_grad = backend.vvag(loss_val_grad, argnums=0, vectorized_argnums=0)
             params = backend.implicit_randn(shape=[ncircuits, 2 * nlayers], stddev=0.1)
             # If init_params is not provided, initialize the parameters randomly.
             # If vvag flag is set to True, use vectorized variational adjoint gradient (vvag) with multiple circuits.
@@ -128,15 +141,12 @@ def QUBO_QAOA(
         # If init_params is provided, use the provided parameters.
     # Initialize the parameters for the ansatz circuit.
 
-    if jit == True:
-        loss_val_grad = backend.jit(loss_val_grad, static_argnums=(1, 2))
-        # Use just-in-time compilation (jit) if jit flag is set to True.
     # This can improve the performance by pre-compiling the loss and gradients function.
 
     opt = backend.optimizer(tf.keras.optimizers.Adam(learning_rate))
     # Define the optimizer (Adam optimizer) with the specified learning rate.
 
-    for i in range(iterations):
+    for _ in range(iterations):
         loss, grads = loss_val_grad(params)
         # Calculate the loss and gradients using the loss_val_grad_jit function.
 
@@ -151,7 +161,7 @@ def QUBO_QAOA(
     # Return the optimized parameters for the ansatz circuit.
 
 
-def cvar_value(r: list, p: list, percent: float) -> float:
+def cvar_value(r: List[float], p: List[float], percent: float) -> float:
     """
     Calculate the Conditional Value at Risk (CVaR) according to the measurement results.
 
@@ -184,6 +194,7 @@ def cvar_value(r: list, p: list, percent: float) -> float:
     cvar_result /= percent
     return cvar_result
 
+
 def cvar_from_circuit(
     circuit: Circuit, nsamples: int, Q: Tensor, alpha: float
 ) -> float:
@@ -198,7 +209,7 @@ def cvar_from_circuit(
     :return: The calculated CVaR value.
     """
     s = circuit.state()
-    results = tc.quantum.measurement_results(
+    results = measurement_results(
         s, counts=nsamples, format="count_dict_bin"
     )  # Get readouts from the measurements.
     results = {k: v / nsamples for k, v in results.items()}  # Normalize the results.
@@ -217,7 +228,7 @@ def cvar_from_circuit(
     return cvar_result
 
 
-def cvar_from_expectation(circuit, Q, alpha: float) -> float:
+def cvar_from_expectation(circuit: Circuit, Q: Tensor, alpha: float) -> float:
     """
     Calculate the Conditional Value at Risk (CVaR) from the expectation values of a quantum circuit.
 
@@ -247,7 +258,14 @@ def cvar_from_expectation(circuit, Q, alpha: float) -> float:
     return cvar_result
 
 
-def cvar_loss(nlayers, Q, nsamples, alpha, fake, params):
+def cvar_loss(
+    nlayers: int,
+    Q: Tensor,
+    nsamples: int,
+    alpha: float,
+    expectation_based: bool,
+    params: List[float],
+) -> float:
     """
     Calculate the CVaR loss for a given QUBO problem using the QAOA ansatz.
 
@@ -255,19 +273,20 @@ def cvar_loss(nlayers, Q, nsamples, alpha, fake, params):
     :param Q: The Q-matrix representing the Quadratic Unconstrained Binary Optimization (QUBO) problem.
     :param nsamples: The number of samples to take for measurements in the CVaR calculation.
     :param alpha: The cut-off percentage for CVaR.
-    :param fake: A flag indicating the type of CVaR ansatz (circuit-based or expectation-based).
+    :param expectation_based: A flag indicating the type of CVaR ansatz (measurement-based or expectation-based).
     :param params: The parameters for the QAOA ansatz circuit.
     :return: The calculated CVaR loss.
     """
-    pauli_terms, weights, offset = QUBO_to_Ising(Q)
+
+    pauli_terms, weights, _ = QUBO_to_Ising(Q)
 
     c = QAOA_ansatz_for_Ising(params, nlayers, pauli_terms, weights)
     # Generate the QAOA ansatz circuit for the given parameters.
 
-    if fake == False:
+    if expectation_based is False:
         return cvar_from_circuit(c, nsamples, Q, alpha)
         # Calculate CVaR using circuit-based measurement results.
-    elif fake == True:
+    elif expectation_based is True:
         return cvar_from_expectation(c, Q, alpha)
         # Calculate CVaR using expectation values of the circuit.
     else:
@@ -276,15 +295,15 @@ def cvar_loss(nlayers, Q, nsamples, alpha, fake, params):
 
 
 def QUBO_QAOA_cvar(
-    Q: List[list],
+    Q: Tensor,
     nlayers: int,
     alpha: int,
     nsamples: int = 1000,
-    callback: callable = None,
-    fake: bool = False,
+    callback: Optional[Callable[[List[float], float], None]] = None,
+    expectation_based: bool = False,
     maxiter: int = 1000,
-    init_params: list = None,
-) -> list:
+    init_params: Optional[Tuple[float,]] = None,
+) -> Array:
     """
     Perform the QUBO QAOA optimization with CVaR as the loss function.
 
@@ -294,15 +313,14 @@ def QUBO_QAOA_cvar(
     :param alpha: The cut-off percentage for CVaR.
     :param nsamples: The number of samples for measurements in the CVaR calculation. Default is 1000.
     :param callback: A callback function to be called after each iteration. Default is None.
-    :param fake: A flag indicating the type of CVaR ansatz (circuit-based or expectation-based). Default is False.
+    :param expectation_based: A flag indicating the type of CVaR ansatz (measurement-based or expectation-based).
+        Default is False.
     :param maxiter: The maximum number of iterations for the optimization. Default is 1000.
     :return: The optimized parameters for the ansatz circuit.
     """
-    loss = partial(cvar_loss, nlayers, Q, nsamples, alpha, fake)
+    loss = partial(cvar_loss, nlayers, Q, nsamples, alpha, expectation_based)
 
-    f_scipy = tc.interfaces.scipy_interface(
-        loss, shape=[2 * nlayers], jit=False, gradient=False
-    )
+    f_scipy = scipy_interface(loss, shape=(2 * nlayers,), jit=False, gradient=False)
 
     if init_params is None:
         params = backend.implicit_randn(shape=[2 * nlayers], stddev=0.5)
