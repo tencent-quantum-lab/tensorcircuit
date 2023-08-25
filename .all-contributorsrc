@@ -247,7 +247,9 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/61252303?v=4",
       "profile": "https://www.linkedin.com/in/felix-xu-16a153196/",
       "contributions": [
-        "tutorial"
+        "tutorial",
+        "code",
+        "test"
       ]
     },
     {
@@ -257,6 +259,28 @@
       "profile": "https://scholar.harvard.edu/hongyehu/home",
       "contributions": [
         "doc"
+      ]
+    },
+    {
+      "login": "PeilinZHENG",
+      "name": "peilin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/45784888?v=4",
+      "profile": "https://github.com/PeilinZHENG",
+      "contributions": [
+        "tutorial",
+        "code",
+        "test",
+        "doc"
+      ]
+    },
+    {
+      "login": "EmilianoG-byte",
+      "name": "Cristian Emiliano Godinez Ramirez",
+      "avatar_url": "https://avatars.githubusercontent.com/u/57567043?v=4",
+      "profile": "https://emilianog-byte.github.io",
+      "contributions": [
+        "code",
+        "test"
       ]
     }
   ],

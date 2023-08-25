@@ -21,6 +21,7 @@ tensorcircuit
     ./api/noisemodel.rst
     ./api/quantum.rst
     ./api/results.rst
+    ./api/shadows.rst
     ./api/simplify.rst
     ./api/templates.rst
     ./api/torchnn.rst

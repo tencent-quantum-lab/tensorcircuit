@@ -5,7 +5,7 @@ Quick Start
 Installation
 --------------
 
-- For x86 Linux or Mac, 
+- For x86 Linux, 
 
 ``pip install tensorcircuit`` 
 
@@ -29,7 +29,7 @@ For more details on docker setup, please refer to `docker readme <https://github
 
 - For Windows, due to the lack of support for Jax, we recommend to use docker or WSL, please refer to `TC via windows docker <contribs/development_windows.html>`_ or `TC via WSL <contribs/development_wsl2.html>`_.
 
-- For Mac with M series chips (arm architecture), please refer to `TC on Mac M series <contribs/development_MacARM.html>`_.
+- For MacOS, please refer to `TC on Mac <contribs/development_Mac.html>`_.
 
 Overall, the installation of TensorCircuit is simple, since it is purely in Python and hence very portable. 
 As long as the users can take care of the installation of ML frameworks on the corresponding system, TensorCircuit will work as expected.
@@ -147,6 +147,8 @@ The IR is given as a list, each element is a dict containing information on one 
     >>> c.crx(1, 0, theta=0.2)
     >>> c.to_qir()
     [{'gate': cnot, 'index': (0, 1), 'name': 'cnot', 'split': None}, {'gate': crx, 'index': (1, 0), 'name': 'crx', 'split': None, 'parameters': {'theta': 0.2}}]
+
+We can also create new copied circuit via ``c.copy()`` which internally utilize the ``qir``.
 
 
 Programming Paradigm

@@ -17,6 +17,7 @@ Circuit = Any
 def adaptive_vmap(
     f: Callable[..., Any],
     vectorized_argnums: Union[int, Sequence[int]] = 0,
+    static_argnums: Optional[Union[int, Sequence[int]]] = None,
     chunk_size: Optional[int] = None,
 ) -> Callable[..., Any]:
     if chunk_size is None:
@@ -46,7 +47,10 @@ def adaptive_vmap(
             reshape_args.append(arg)
             if s2 != 0:
                 rest_args.append(arg_rest)
-        _vmap = backend.vmap(f, vectorized_argnums)
+        _vmap = backend.jit(
+            backend.vmap(f, vectorized_argnums=vectorized_argnums),
+            static_argnums=static_argnums,
+        )
         r = []
         for i in range(s1):
             # currently using naive python loop for simplicity
@@ -55,16 +59,16 @@ def adaptive_vmap(
                 for j, a in enumerate(reshape_args)
             ]
             r.append(_vmap(*nreshape_args, **kws))
-        r = backend.stack(r)
-        rshape = list(backend.shape_tuple(r))
-        if len(rshape) == 2:
-            nshape = [rshape[0] * rshape[1]]
-        else:
-            nshape = [rshape[0] * rshape[1], -1]
-        r = backend.reshape(r, nshape)
+        r = backend.tree_map(lambda *x: backend.concat(x), *r)
+        # rshape = list(backend.shape_tuple(r))
+        # if len(rshape) == 2:
+        #     nshape = [rshape[0] * rshape[1]]
+        # else:
+        #     nshape = [rshape[0] * rshape[1], -1]
+        # r = backend.reshape(r, nshape)
         if s2 != 0:
             rest_r = _vmap(*rest_args, **kws)
-            return backend.concat([r, rest_r])
+            return backend.tree_map(lambda *x: backend.concat(x), r, rest_r)
         return r
 
     return wrapper
@@ -347,6 +351,7 @@ def parameter_shift_grad_v2(
 
 
 # TODO(@refraction-ray): add SPSA gradient wrapper similar to parameter shift
+# -- using noisyopt package instead
 
 
 def finite_difference_differentiator(

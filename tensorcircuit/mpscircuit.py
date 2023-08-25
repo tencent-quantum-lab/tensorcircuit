@@ -52,8 +52,9 @@ def split_tensor(
             return backend.qr(tensor)  # type: ignore
 
 
-# TODO(@refraction-ray): AD + MPS can lead to numerical stability issue
+# AD + MPS can lead to numerical stability issue
 # E ./tensorflow/core/kernels/linalg/svd_op_impl.h:110] Eigen::BDCSVD failed with error code 3
+# this is now solved by setting os.environ["TC_BACKENDS_TENSORFLOW_BACKEND__SVD_TF_EPS"]="10"
 
 
 class MPSCircuit(AbstractCircuit):

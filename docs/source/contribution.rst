@@ -146,7 +146,59 @@ We use `sphinx <https://www.sphinx-doc.org/en/master/>`__ to manage the document
 
 The source files for docs are .rst file in docs/source.
 
-For English docs, ``sphinx-build source build/html`` in docs dir is enough. The html version of the docs are in docs/build/html.
+For English docs, ``sphinx-build source build/html`` and ``make latexpdf LATEXMKOPTS="-silent"`` in docs dir are enough.
+The html and pdf version of the docs are in docs/build/html and docs/build/latex, respectively.
+
+**Formula Environment Attention**
+
+It should be noted that the formula environment ``$$CONTENT$$`` in markdown is equivalent to the ``equation`` environment in latex.
+Therefore, in the jupyter notebook documents, do not nest the formula environment in ``$$CONTENT$$`` that is incompatible with
+``equation`` in latex, such as ``eqnarray``, which will cause errors in the pdf file built by ``nbsphinx``.
+However, compatible formula environments can be used. For example, this legal code in markdown
+
+.. code-block:: markdown
+
+    $$
+    \begin{split}
+        X&=Y\\
+        &=Z
+    \end{split}
+    $$
+
+will be convert to
+
+.. code-block:: latex
+
+    \begin{equation}
+        \begin{split}
+            X&=Y\\
+            &=Z
+        \end{split}
+    \end{equation}
+
+in latex automatically by ``nbsphinx``, which is a legal latex code. However, this legal code in markdown
+
+.. code-block:: markdown
+
+    $$
+    \begin{eqnarray}
+        X&=&Y\\
+        &=&Z
+    \end{eqnarray}
+    $$
+
+will be convert to
+
+.. code-block:: latex
+
+    \begin{equation}
+        \begin{eqnarray}
+            X&=&Y\\
+            &=&Z
+        \end{eqnarray}
+    \end{equation}
+
+in latex, which is an illegal latex code.
 
 **Auto Generation of API Docs:**
 

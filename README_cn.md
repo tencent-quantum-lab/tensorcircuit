@@ -35,7 +35,7 @@ TensorCircuit 现在支持真实量子硬件连接和实验，并提供优雅的
 
 请从 [完整文档](https://tensorcircuit.readthedocs.io/zh/latest/) 中的 [快速上手](/docs/source/quickstart.rst) 开始。
 
-有关软件用法，算法实现和工程范式演示的更多信息和介绍，请参阅 60+ [示例脚本](/examples) 和 30+ [案例教程](https://tensorcircuit.readthedocs.io/zh/latest/#tutorials)。 [测试](/tests) 用例和 API docstring 也提供了丰富的使用信息。
+有关软件用法，算法实现和工程范式演示的更多信息和介绍，请参阅 70+ [示例脚本](/examples) 和 30+ [案例教程](https://tensorcircuit.readthedocs.io/zh/latest/#tutorials)。 [测试](/tests) 用例和 API docstring 也提供了丰富的使用信息。
 
 以下是一些最简易的演示。
 
@@ -127,7 +127,7 @@ pip install tensorcircuit-nightly
 
 ### 引用
 
-如果该软件对您的研究有帮助, 请引用我们发表在 Quantum 期刊的白皮书文章:
+如果该软件对您的研究有帮助, 请引用我们发表在 Quantum 期刊的白皮书文章来支持我们的研发付出。
 
 [TensorCircuit: a Quantum Software Framework for the NISQ Era](https://quantum-journal.org/papers/q-2023-02-02-912/).
 
@@ -184,3 +184,9 @@ VQEX 在 MBL 相位识别上的应用见 [教程](/docs/source/tutorials/vqex_mb
 数值模拟和带错误消除的真实量子硬件实验验证 QAOA 优化的代码请参考 [项目](https://github.com/sherrylixuecheng/EMQAOA-DARBO)。
 
 参考论文: https://arxiv.org/abs/2303.14877。
+
+### NN-VQA
+
+关于神经网络编码的变分量子算法的实现和工作流, 见 [教程](/docs/source/tutorials/nnvqe.ipynb)。
+
+参考论文: https://arxiv.org/abs/2308.01068。

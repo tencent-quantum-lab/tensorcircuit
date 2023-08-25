@@ -2,9 +2,38 @@
 
 ## Unreleased
 
+## 0.11.0
+
 ### Added
 
 - Add multiple GPU VQE examples using jax pmap
+
+- Add `with_prob` option to `general_kraus` so that the probability of each option can be returned together
+
+- Add benchmark example showcasing new way of implementing matrix product using vmap
+
+- Add keras3 example showcasing integration with tc
+
+- Add circuit copy method that avoid shallow copy issue `Circuit.copy()`
+
+- Add end to end infrastructures and methods for classical shadow in `shadows.py`
+
+- Add classical shadow tutorial
+
+- Add NN-VQE tutorial
+
+### Fixed
+
+- improve the `adaptive_vmap` to support internal jit and pytree output
+
+- fix `pauli_gates` dtype unchange issue when set new dtype (not recommend to use this attr anymore)
+
+- fix rem `apply_correction` bug when non-numpy backend is set
+
+- fix tf warning for `cast` with higher version of tf
+### Changed
+
+- The static method `BaseCircuit.copy` is renamed as `BaseCircuit.copy_nodes` (breaking changes)
 
 ## 0.10.0
 

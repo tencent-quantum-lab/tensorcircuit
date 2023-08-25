@@ -37,7 +37,7 @@ TensorCircuit is built on top of modern machine learning frameworks: Jax, Tensor
 
 Please begin with [Quick Start](/docs/source/quickstart.rst) in the [full documentation](https://tensorcircuit.readthedocs.io/).
 
-For more information on software usage, sota algorithm implementation and engineer paradigm demonstration, please refer to 60+ [example scripts](/examples) and 30+ [tutorial notebooks](https://tensorcircuit.readthedocs.io/en/latest/#tutorials). API docstrings and test cases in [tests](/tests) are also informative.
+For more information on software usage, sota algorithm implementation and engineer paradigm demonstration, please refer to 70+ [example scripts](/examples) and 30+ [tutorial notebooks](https://tensorcircuit.readthedocs.io/en/latest/#tutorials). API docstrings and test cases in [tests](/tests) are also informative.
 
 The following are some minimal demos.
 
@@ -75,6 +75,43 @@ g = tc.backend.jit(g)
 theta = tc.array_to_tensor(1.0)
 print(g(theta))
 ```
+
+<details>
+  <summary> More highlight features for TensorCircuit (click for details) </summary>
+
+- Sparse Hamiltonian generation and expectation evaluation:
+
+```python
+n = 6
+pauli_structures = []
+weights = []
+for i in range(n):
+    pauli_structures.append(tc.quantum.xyz2ps({"z": [i, (i + 1) % n]}, n=n))
+    weights.append(1.0)
+for i in range(n):
+    pauli_structures.append(tc.quantum.xyz2ps({"x": [i]}, n=n))
+    weights.append(-1.0)
+h = tc.quantum.PauliStringSum2COO(pauli_structures, weights)
+print(h)
+# BCOO(complex64[64, 64], nse=448)
+c = tc.Circuit(n)
+c.h(range(n))
+energy = tc.templates.measurements.operator_expectation(c, h)
+# -6
+```
+
+- Large-scale simulation with tensor network engine
+
+```python
+# tc.set_contractor("cotengra-30-10")
+n=500
+c = tc.Circuit(n)
+c.h(0)
+c.cx(range(n-1), range(1, n))
+c.expectation_ps(z=[0, n-1], reuse=False)
+```
+
+</details>
 
 ## Install
 
@@ -168,6 +205,8 @@ We also have [Docker support](/docker).
 
   - Reusable common circuit/measurement/problem templates and patterns.
 
+  - Jittable classical shadow infrastructures.
+
   - SOTA quantum algorithm and model implementations.
 
   - Support hybrid workflows and pipelines with CPU/GPU/QPU hardware from local/cloud/hpc resources using tf/torch/jax/cupy/numpy frameworks all at the same time.
@@ -182,11 +221,13 @@ This project is released by [Tencent Quantum Lab](https://quantum.tencent.com/) 
 
 ### Citation
 
-If this project helps in your research, please cite our software whitepaper published in Quantum:
+If this project helps in your research, please cite our software whitepaper to acknowledge the work put into the development of TensorCircuit.
 
-[TensorCircuit: a Quantum Software Framework for the NISQ Era](https://quantum-journal.org/papers/q-2023-02-02-912/)
+[TensorCircuit: a Quantum Software Framework for the NISQ Era](https://quantum-journal.org/papers/q-2023-02-02-912/) (published in Quantum)
 
 which is also a good introduction to the software.
+
+Research works citing TensorCircuit can be highlighted in [Research and Applications section](https://github.com/tencent-quantum-lab/tensorcircuit#research-and-applications).
 
 ### Guidelines
 
@@ -232,8 +273,10 @@ TensorCircuit is open source, released under the Apache License, Version 2.0.
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/eurethia"><img src="https://avatars.githubusercontent.com/u/84611606?v=4?s=100" width="100px;" alt="隐公观鱼"/><br /><sub><b>隐公观鱼</b></sub></a><br /><a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=eurethia" title="Code">💻</a> <a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=eurethia" title="Tests">⚠️</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/WiuYuan"><img src="https://avatars.githubusercontent.com/u/108848998?v=4?s=100" width="100px;" alt="WiuYuan"/><br /><sub><b>WiuYuan</b></sub></a><br /><a href="#example-WiuYuan" title="Examples">💡</a></td>
-      <td align="center" valign="top" width="16.66%"><a href="https://www.linkedin.com/in/felix-xu-16a153196/"><img src="https://avatars.githubusercontent.com/u/61252303?v=4?s=100" width="100px;" alt="Felix Xu"/><br /><sub><b>Felix Xu</b></sub></a><br /><a href="#tutorial-FelixXu35" title="Tutorials">✅</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://www.linkedin.com/in/felix-xu-16a153196/"><img src="https://avatars.githubusercontent.com/u/61252303?v=4?s=100" width="100px;" alt="Felix Xu"/><br /><sub><b>Felix Xu</b></sub></a><br /><a href="#tutorial-FelixXu35" title="Tutorials">✅</a> <a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=FelixXu35" title="Code">💻</a> <a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=FelixXu35" title="Tests">⚠️</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://scholar.harvard.edu/hongyehu/home"><img src="https://avatars.githubusercontent.com/u/50563225?v=4?s=100" width="100px;" alt="Hong-Ye Hu"/><br /><sub><b>Hong-Ye Hu</b></sub></a><br /><a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=hongyehu" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/PeilinZHENG"><img src="https://avatars.githubusercontent.com/u/45784888?v=4?s=100" width="100px;" alt="peilin"/><br /><sub><b>peilin</b></sub></a><br /><a href="#tutorial-PeilinZHENG" title="Tutorials">✅</a> <a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=PeilinZHENG" title="Code">💻</a> <a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=PeilinZHENG" title="Tests">⚠️</a> <a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=PeilinZHENG" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://emilianog-byte.github.io"><img src="https://avatars.githubusercontent.com/u/57567043?v=4?s=100" width="100px;" alt="Cristian Emiliano Godinez Ramirez"/><br /><sub><b>Cristian Emiliano Godinez Ramirez</b></sub></a><br /><a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=EmilianoG-byte" title="Code">💻</a> <a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=EmilianoG-byte" title="Tests">⚠️</a></td>
     </tr>
   </tbody>
 </table>
@@ -294,6 +337,12 @@ For the numerical simulation and hardware experiments with error mitigation on Q
 
 Reference paper: https://arxiv.org/abs/2303.14877.
 
+### NN-VQA
+
+For the setup and simulation code of neural network encoded variational quantum eigensolver, see the [demo](/docs/source/tutorials/nnvqe.ipynb).
+
+Reference paper: https://arxiv.org/abs/2308.01068.
+
 ### More works
 
  <details>
@@ -316,6 +365,8 @@ Reference paper: https://arxiv.org/abs/2303.14877.
 - Quantum generative adversarial imitation learning: https://doi.org/10.1088/1367-2630/acc605 (published in New Journal of Physics).
 
 - GSQAS: Graph Self-supervised Quantum Architecture Search: https://arxiv.org/abs/2303.12381.
+
+- Practical advantage of quantum machine learning in ghost imaging: https://www.nature.com/articles/s42005-023-01290-1 (published in Communications Physics).
 
   </details>
 

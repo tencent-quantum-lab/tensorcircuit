@@ -13,7 +13,7 @@ import numpy as np
 import tensornetwork as tn
 from scipy.stats import unitary_group
 
-from .cons import backend, dtypestr, npdtype
+from .cons import backend, dtypestr, npdtype, runtime_backend
 from .utils import arg_alias
 
 thismodule = sys.modules[__name__]
@@ -389,6 +389,9 @@ def meta_gate() -> None:
             setattr(thismodule, n + "_gate", temp)
             setattr(thismodule, n, temp)
 
+    with runtime_backend("numpy"):  # backward compatibility
+        setattr(thismodule, "pauli_gates", [i(), x(), y(), z()])  # type: ignore
+
 
 meta_gate()
 
@@ -544,7 +547,7 @@ def r_gate(theta: float = 0, alpha: float = 0, phi: float = 0) -> Gate:
     General single qubit rotation gate
 
     .. math::
-        R(\theta, \alpha, \phi) = j \cos(\theta) I
+        R(\theta, \alpha, \phi) = \cos(\theta) I
         - j \cos(\phi) \sin(\alpha) \sin(\theta) X
         - j \sin(\phi) \sin(\alpha) \sin(\theta) Y
         - j \sin(\theta) \cos(\alpha) Z

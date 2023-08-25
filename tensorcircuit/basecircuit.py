@@ -81,7 +81,7 @@ class BaseCircuit(AbstractCircuit):
             node.id = getattr(n0, "id", id(n0))
 
     @staticmethod
-    def copy(
+    def copy_nodes(
         nodes: Sequence[tn.Node],
         dangling: Optional[Sequence[tn.Edge]] = None,
         conj: Optional[bool] = False,
@@ -111,7 +111,7 @@ class BaseCircuit(AbstractCircuit):
     def _copy(
         self, conj: Optional[bool] = False
     ) -> Tuple[List[tn.Node], List[tn.Edge]]:
-        return self.copy(self._nodes, self._front, conj)
+        return self.copy_nodes(self._nodes, self._front, conj)
 
     def apply_general_gate(
         self,
@@ -171,7 +171,7 @@ class BaseCircuit(AbstractCircuit):
                         self._front[index[0]] = n1[0]
                         self._front[index[1]] = n2[1]
                         if self.is_dm:
-                            [n1l, n2l], _ = self.copy([n1, n2], conj=True)
+                            [n1l, n2l], _ = self.copy_nodes([n1, n2], conj=True)
                             n1l[1] ^ self._front[index[0] + nq]
                             n2l[2] ^ self._front[index[1] + nq]
                             self._nodes.append(n1l)
@@ -186,7 +186,7 @@ class BaseCircuit(AbstractCircuit):
                         self._front[index[0]] = n1[0]
                         self._front[index[1]] = n2[1]
                         if self.is_dm:
-                            [n1l, n2l], _ = self.copy([n1, n2], conj=True)
+                            [n1l, n2l], _ = self.copy_nodes([n1, n2], conj=True)
                             n2l[1] ^ self._front[index[0] + nq]
                             n1l[2] ^ self._front[index[1] + nq]
                             self._nodes.append(n1l)
@@ -203,7 +203,7 @@ class BaseCircuit(AbstractCircuit):
                 # gate.id = id(gate)
                 self._nodes.append(gate)
                 if self.is_dm:
-                    lgates, _ = self.copy([gate], conj=True)
+                    lgates, _ = self.copy_nodes([gate], conj=True)
                     lgate = lgates[0]
                     self._nodes.append(lgate)
                 for i, ind in enumerate(index):

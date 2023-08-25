@@ -3,7 +3,7 @@ pytest==6.2.4
 pytest-cov
 pytest-benchmark
 pytest-xdist
-black==23.3.0
+black[jupyter]==23.3.0
 sphinx>=4.0
 pytest-lazy-fixture
 pylint==2.11.1
