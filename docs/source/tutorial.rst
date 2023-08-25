@@ -20,5 +20,6 @@ Jupyter Tutorials
     tutorials/vqex_mbl.ipynb
     tutorials/dqas.ipynb
     tutorials/barren_plateaus.ipynb
-    tutorials/qaoa_portfolio_optimization.ipynb
+    tutorials/QUBO_problem.ipynb
+    tutorials/portfolio_optimization.ipynb
     tutorials/qcloud_sdk_demo.ipynb
