@@ -368,6 +368,8 @@ Reference paper: https://arxiv.org/abs/2308.01068.
 
 - Practical advantage of quantum machine learning in ghost imaging: https://www.nature.com/articles/s42005-023-01290-1 (published in Communications Physics).
 
+- Zero and Finite Temperature Quantum Simulations Powered by Quantum Magic: https://arxiv.org/abs/2308.11616.
+
   </details>
 
 If you want to highlight your research work here, feel free to add by opening PR.
