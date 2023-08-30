@@ -6,6 +6,8 @@
 
 - Add translation of r gate from qiskit
 
+- Add `det` method at backends
+
 ### Changed
 
 - move ensemble module to applications/ai (breaking changes)

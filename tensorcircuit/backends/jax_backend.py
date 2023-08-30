@@ -295,7 +295,10 @@ class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
             dtype = npdtype  # type: ignore
         if isinstance(dtype, str):
             dtype = getattr(jnp, dtype)
-        return np.array(1j, dtype=dtype)
+        return jnp.array(1j, dtype=dtype)
+
+    def det(self, a: Tensor) -> Tensor:
+        return jnp.linalg.det(a)
 
     def real(self, a: Tensor) -> Tensor:
         return jnp.real(a)

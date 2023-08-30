@@ -131,6 +131,9 @@ class NumpyBackend(numpy_backend.NumPyBackend, ExtendedBackend):  # type: ignore
     def numpy(self, a: Tensor) -> Tensor:
         return a
 
+    def det(self, a: Tensor) -> Tensor:
+        return np.linalg.det(a)
+
     def i(self, dtype: Any = None) -> Tensor:
         if not dtype:
             dtype = npdtype  # type: ignore

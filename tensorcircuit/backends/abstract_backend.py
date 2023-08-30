@@ -345,6 +345,19 @@ class ExtendedBackend:
         """
         return self.conj(self.transpose(a))
 
+    def det(self: Any, a: Tensor) -> Tensor:
+        """
+        Return the determinant scalar of a tensor ``a``
+
+        :param a: Input tensor
+        :type a: Tensor
+        :return: determinant of ``a``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `det`.".format(self.name)
+        )
+
     def i(self: Any, dtype: str) -> Tensor:
         """
         Return 1.j in as a tensor compatible with the backend.
