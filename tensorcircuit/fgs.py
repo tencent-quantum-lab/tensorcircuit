@@ -175,7 +175,7 @@ class FGSSimulator:
         lbd = backend.relu(lbd)
         eps = 1e-6
 
-        entropy = backend.sum(backend.log(lbd ** n + (1 - lbd) ** n + eps))
+        entropy = backend.sum(backend.log(lbd**n + (1 - lbd) ** n + eps))
         s = 1 / (2 * (1 - n)) * entropy
         return s
 
@@ -371,7 +371,7 @@ class FGSTestSimulator:
 
     @staticmethod
     def get_hmatrix(hc: Tensor, L: int) -> Tensor:
-        hm = np.zeros([2 ** L, 2 ** L], dtype=complex)
+        hm = np.zeros([2**L, 2**L], dtype=complex)
         for i in range(L):
             for j in range(L):
                 op = openfermion.FermionOperator(f"{str(i)}^ {str(j)}")
