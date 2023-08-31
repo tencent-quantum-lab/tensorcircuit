@@ -300,6 +300,9 @@ class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
     def det(self, a: Tensor) -> Tensor:
         return jnp.linalg.det(a)
 
+    def schur(self, a: Tensor, output: str = "real") -> Tuple[Tensor, Tensor]:
+        return jsp.linalg.schur(a, output=output)  # type: ignore
+
     def real(self, a: Tensor) -> Tensor:
         return jnp.real(a)
 

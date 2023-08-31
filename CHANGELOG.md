@@ -8,6 +8,8 @@
 
 - Add `det` method at backends
 
+- Add fermion Gaussian state simulator in `fgs.py`
+
 ### Changed
 
 - move ensemble module to applications/ai (breaking changes)

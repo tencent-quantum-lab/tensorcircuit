@@ -40,6 +40,8 @@ from . import quantum
 from .quantum import QuOperator, QuVector, QuAdjointVector, QuScalar
 from . import compiler
 from . import cloud
+from . import fgs
+from .fgs import FGSSimulator
 
 try:
     from . import keras
