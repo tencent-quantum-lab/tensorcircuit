@@ -2,7 +2,6 @@ import numpy as np
 import pytest
 from pytest_lazyfixture import lazy_fixture as lf
 import tensorflow as tf
-import optax
 
 try:
     import openfermion as _
@@ -43,6 +42,8 @@ def test_cmatrix(backend, highp):
 
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_fgs_ad(backend, highp):
+    import optax
+
     N = 18
 
     def f(chi):
@@ -102,3 +103,64 @@ def test_ground_state(backend, highp):
 
     np.testing.assert_allclose(c.get_cmatrix(), c1.get_cmatrix(), atol=1e-6)
     np.testing.assert_allclose(c1.entropy([0]), c.entropy([0]), atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_post_select(backend, highp):
+    for ind in [0, 1, 2]:
+        for keep in [0, 1]:
+            c = F(3, filled=[0, 2])
+            c.evol_hp(0, 1, 0.2)
+            c.evol_cp(0, 0.5)
+            c.evol_hp(1, 2, 0.3j)
+            c.evol_cp(1, -0.8)
+            c.evol_sp(0, 2, 0.3)
+            c.post_select(ind, keep)
+            c1 = FT(3, filled=[0, 2])
+            c1.evol_hp(0, 1, 0.2)
+            c1.evol_cp(0, 0.5)
+            c1.evol_hp(1, 2, 0.3j)
+            c1.evol_cp(1, -0.8)
+            c1.evol_sp(0, 2, 0.3)
+            c1.post_select(ind, keep)
+            np.testing.assert_allclose(c.get_cmatrix(), c1.get_cmatrix(), atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+def test_jittable_measure(backend):
+    @tc.backend.jit
+    def get_cmatrix(status):
+        r = []
+        c = F(3, filled=[0])
+        c.evol_hp(0, 1, 0.2)
+        c.evol_cp(0, 0.5)
+        c.evol_hp(1, 2, 0.3j)
+        r.append(c.cond_measure(1, status[0]))
+        c.evol_cp(1, -0.8)
+        r.append(c.cond_measure(2, status[1]))
+        r.append(c.cond_measure(1, status[3]))
+        c.evol_sp(0, 2, 0.3)
+        c.evol_hp(2, 1, 0.2)
+        c.evol_hp(0, 1, 0.8)
+        return c.get_cmatrix(), tc.backend.stack(r)
+
+    def get_cmatrix_baseline(status):
+        r = []
+        c = FT(3, filled=[0])
+        c.evol_hp(0, 1, 0.2)
+        c.evol_cp(0, 0.5)
+        c.evol_hp(1, 2, 0.3j)
+        r.append(c.cond_measure(1, status[0]))
+        c.evol_cp(1, -0.8)
+        r.append(c.cond_measure(2, status[1]))
+        r.append(c.cond_measure(1, status[3]))
+        c.evol_sp(0, 2, 0.3)
+        c.evol_hp(2, 1, 0.2)
+        c.evol_hp(0, 1, 0.8)
+        return c.get_cmatrix(), np.array(r)
+
+    status = np.array([0.2, 0.83, 0.61, 0.07])
+    m, his = get_cmatrix(tc.backend.convert_to_tensor(status))
+    m1, his1 = get_cmatrix_baseline(status)
+    np.testing.assert_allclose(m, m1, atol=1e-5)
+    np.testing.assert_allclose(his, his1, atol=1e-5)

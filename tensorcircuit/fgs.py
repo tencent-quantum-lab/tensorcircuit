@@ -10,7 +10,7 @@ try:
 except ModuleNotFoundError:
     pass
 
-from .cons import backend, dtypestr
+from .cons import backend, dtypestr, rdtypestr, get_backend
 from .circuit import Circuit
 from . import quantum
 
@@ -314,12 +314,99 @@ class FGSSimulator:
         )
 
     def get_cmatrix_majorana(self) -> Tensor:
+        """
+        correlation matrix defined in majorana basis
+        convention: gamma_0 = c0 + c0^\dagger
+        gamma_1 = i(c0 - c0^\dagger)
+
+        :return: _description_
+        :rtype: Tensor
+        """
         c = self.get_cmatrix()
         return self.wtransform @ c @ backend.adjoint(self.wtransform)
 
     def get_covariance_matrix(self) -> Tensor:
         m = self.get_cmatrix_majorana()
         return -1.0j * (2 * m - backend.eye(self.L * 2))
+
+    def post_select(self, i: int, keep: int = 1) -> None:
+        """
+        post select (project) the fermion state to occupation eigenstate
+        <n_i> = ``keep``
+
+        :param i: _description_
+        :type i: int
+        :param keep: _description_, defaults to 1
+        :type keep: int, optional
+        """
+        # i is not jittable, keep is jittable
+        L = backend.convert_to_tensor(self.L)
+        i = backend.convert_to_tensor(i)
+        L = backend.cast(L, "int32")
+        i = backend.cast(i, "int32")
+        keep = backend.convert_to_tensor(keep)
+        keep = backend.cast(keep, "int32")
+        alpha = self.alpha
+        # if keep == 0:
+        i = i + L * (1 - keep)
+        i0 = backend.argmax(backend.abs(alpha[(i + L) % (2 * L), :]))
+        i0 = backend.cast(i0, "int32")
+        alpha1 = alpha - backend.reshape(alpha[:, i0], [-1, 1]) @ backend.reshape(
+            alpha[(i + L) % (2 * L), :] / alpha[(i + L) % (2 * L), i0], [1, -1]
+        )
+        mask1 = backend.onehot(i0, alpha.shape[1])
+        mask1 = backend.cast(mask1, dtypestr)
+        mask0 = backend.ones(alpha.shape[1]) - mask1
+        mask12d = backend.tile(mask1[None, :], [alpha.shape[0], 1])
+        mask02d = backend.tile(mask0[None, :], [alpha.shape[0], 1])
+        alpha1 = mask02d * alpha1 + mask12d * alpha
+        r = []
+        for j in range(2 * self.L):
+            indicator = (
+                backend.sign(backend.cast((i - j), rdtypestr) ** 2 - 0.5) + 1
+            ) / 2
+            # i=j indicator = 0, i!=j indicator = 1
+            indicator = backend.cast(indicator, dtypestr)
+            r.append(
+                backend.ones([self.L]) * indicator
+                + backend.ones([self.L]) * mask1 * (1 - indicator)
+            )
+            # if j != i:
+            #     r.append(backend.ones([L]))
+            # else:
+            #     r.append(backend.ones([L]) * mask1)
+        mask2 = backend.stack(r)
+        alpha1 = alpha1 * mask2
+        r = []
+        for j in range(2 * self.L):
+            indicator = (
+                backend.sign(
+                    (backend.cast((i + L) % (2 * L) - j, rdtypestr)) ** 2 - 0.5
+                )
+                + 1
+            ) / 2
+            r.append(1 - indicator)
+        newcol = backend.stack(r)
+        # newcol = np.zeros([2 * self.L])
+        # newcol[(i + L) % (2 * L)] = 1
+        # newcol = backend.convert_to_tensor(newcol)
+        newcol = backend.cast(newcol, dtypestr)
+        alpha1 = alpha1 * mask02d + backend.tile(newcol[:, None], [1, self.L]) * mask12d
+        q, _ = backend.qr(alpha1)
+        self.alpha = q
+
+    def cond_measure(self, ind: int, status: float, with_prob: bool = False) -> Tensor:
+        p0 = backend.real(self.get_cmatrix()[ind, ind])
+        prob = backend.convert_to_tensor([p0, 1 - p0])
+        status = backend.convert_to_tensor(status)
+        status = backend.cast(status, rdtypestr)
+        eps = 1e-12
+        keep = (backend.sign(status - p0 + eps) + 1) / 2
+        self.post_select(ind, keep)
+        if with_prob is False:
+            return keep
+        else:
+            return keep, prob
 
     # def product(self, other):
     #     # self@other
@@ -345,7 +432,15 @@ class FGSSimulator:
     #     )
 
 
+npb = get_backend("numpy")
+
+
 class FGSTestSimulator:
+    """
+    Never use, only for correctness testing
+    stick to numpy backend and no jit/ad/vmap is available
+    """
+
     def __init__(
         self, L: int, filled: Optional[List[int]] = None, hc: Optional[Tensor] = None
     ):
@@ -419,14 +514,12 @@ class FGSTestSimulator:
         return m
 
     def evol_hamiltonian(self, h: Tensor) -> None:
-        self.state = backend.expm(-1 / 2 * 1.0j * h) @ backend.reshape(
-            self.state, [-1, 1]
-        )
-        self.state = backend.reshape(self.state, [-1])
+        self.state = npb.expm(-1 / 2 * 1.0j * h) @ npb.reshape(self.state, [-1, 1])
+        self.state = npb.reshape(self.state, [-1])
 
     def evol_ihamiltonian(self, h: Tensor) -> None:
-        self.state = backend.expm(-1 / 2 * h) @ backend.reshape(self.state, [-1, 1])
-        self.state = backend.reshape(self.state, [-1])
+        self.state = npb.expm(-1 / 2 * h) @ npb.reshape(self.state, [-1, 1])
+        self.state = npb.reshape(self.state, [-1])
         self.orthogonal()
 
     def evol_hp(self, i: int, j: int, chi: Tensor = 0) -> None:
@@ -548,3 +641,25 @@ class FGSTestSimulator:
         rho = rho1 @ rho2
         rho /= backend.trace(rho)
         return rho
+
+    def post_select(self, i: int, keep: int = 1) -> None:
+        c = Circuit(self.L, inputs=self.state)
+        c.post_select(i, keep)
+        s = c.state()
+        s /= backend.norm(s)
+        self.state = s
+
+    def cond_measure(self, ind: int, status: float, with_prob: bool = False) -> Tensor:
+        p0 = self.get_cmatrix()[ind, ind]
+        prob = [p0, 1 - p0]
+        if status < p0:
+            self.post_select(ind, 0)
+            keep = 0
+        else:
+            self.post_select(ind, 1)
+            keep = 1
+
+        if with_prob is False:
+            return keep
+        else:
+            return keep, prob
