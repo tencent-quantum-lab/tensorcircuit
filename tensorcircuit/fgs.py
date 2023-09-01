@@ -58,6 +58,10 @@ class FGSSimulator:
         :type L: int
         :param filled: the fermion site that is fully occupied, defaults to None
         :type filled: Optional[List[int]], optional
+        :param alpha: directly specify the alpha tensor as the input
+        :type alpha: Optional[Tensor], optional
+        :param hc: the input is given as the ground state of quadratic Hamiltonian ``hc``
+        :type hc: Optional[Tensor], optional
         :param cmatrix: only used for debug, defaults to None
         :type cmatrix: Optional[Tensor], optional
         """
@@ -109,7 +113,7 @@ class FGSSimulator:
         alpha = backend.adjoint(u)[:, :L]
         # c' = u@c
         # e_k (c^\dagger_k c_k - c_k c^\dagger_k)
-        return (es, u, alpha)
+        return es, u, alpha
 
     @staticmethod
     def wmatrix(L: int) -> Tensor:
@@ -141,7 +145,10 @@ class FGSSimulator:
     def get_cmatrix(self) -> Tensor:
         if self.cmatrix is not None:
             return self.cmatrix
-        return self.alpha @ backend.adjoint(self.alpha)
+        else:
+            cmatrix = self.alpha @ backend.adjoint(self.alpha)
+            self.cmatrix = cmatrix
+            return cmatrix
 
     def get_reduced_cmatrix(self, subsystems_to_trace_out: List[int]) -> Tensor:
         m = self.get_cmatrix()
@@ -209,6 +216,7 @@ class FGSSimulator:
         # e^{-i/2 H}
         h = backend.cast(h, dtype=dtypestr)
         self.alpha = backend.expm(-1.0j * h) @ self.alpha
+        self.cmatrix = None
 
     def evol_ihamiltonian(self, h: Tensor) -> None:
         r"""
@@ -221,6 +229,7 @@ class FGSSimulator:
         h = backend.cast(h, dtype=dtypestr)
         self.alpha = backend.expm(h) @ self.alpha
         self.orthogonal()
+        self.cmatrix = None
 
     def orthogonal(self) -> None:
         q, _ = backend.qr(self.alpha)
@@ -328,6 +337,45 @@ class FGSSimulator:
     def get_covariance_matrix(self) -> Tensor:
         m = self.get_cmatrix_majorana()
         return -1.0j * (2 * m - backend.eye(self.L * 2))
+
+    def expectation_2body(self, i: int, j: int) -> Tensor:
+        """
+        expectation of two fermion terms
+        convention: (c, c^\dagger)
+        for i>L, c_{i-L}^\dagger is assumed
+
+        :param i: _description_
+        :type i: int
+        :param j: _description_
+        :type j: int
+        :return: _description_
+        :rtype: Tensor
+        """
+        return self.get_cmatrix()[i][j]
+
+    def expectation_4body(self, i: int, j: int, k: int, l: int) -> Tensor:
+        """
+        expectation of four fermion terms using Wick Thm
+        convention: (c, c^\dagger)
+        for i>L, c_{i-L}^\dagger is assumed
+
+        :param i: _description_
+        :type i: int
+        :param j: _description_
+        :type j: int
+        :param k: _description_
+        :type k: int
+        :param l: _description_
+        :type l: int
+        :return: _description_
+        :rtype: Tensor
+        """
+        e = (
+            self.expectation_2body(i, j) * self.expectation_2body(k, l)
+            - self.expectation_2body(i, k) * self.expectation_2body(j, l)
+            + self.expectation_2body(i, l) * self.expectation_2body(j, k)
+        )
+        return e
 
     def post_select(self, i: int, keep: int = 1) -> None:
         """
@@ -619,6 +667,32 @@ class FGSTestSimulator:
                 )
 
         return cmatrix
+
+    def expectation_4body(self, i: int, j: int, k: int, l: int) -> Tensor:
+        s = ""
+        if i < self.L:
+            s += str(i) + ""
+        else:
+            s += str(i) + "^ "
+        if j < self.L:
+            s += str(j) + ""
+        else:
+            s += str(j) + "^ "
+        if k < self.L:
+            s += str(k) + ""
+        else:
+            s += str(k) + "^ "
+        if l < self.L:
+            s += str(l) + ""
+        else:
+            s += str(l) + "^ "
+        op = openfermion.FermionOperator(s)
+        m = openfermion.get_sparse_operator(op, n_qubits=self.L).todense()
+        return (
+            npb.reshape(npb.adjoint(self.state), [1, -1])
+            @ m
+            @ npb.reshape(self.state, [-1, 1])
+        )[0, 0]
 
     def entropy(self, subsystems_to_trace_out: Optional[List[int]] = None) -> Tensor:
         rm = quantum.reduced_density_matrix(self.state, subsystems_to_trace_out)  # type: ignore

@@ -164,3 +164,39 @@ def test_jittable_measure(backend):
     m1, his1 = get_cmatrix_baseline(status)
     np.testing.assert_allclose(m, m1, atol=1e-5)
     np.testing.assert_allclose(his, his1, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_exp_4body(backend):
+    c = F(4, filled=[0, 2])
+    c.evol_hp(0, 1, 0.3)
+    c.evol_hp(2, 3, 0.3)
+    c.evol_sp(0, 3, 0.5)
+    c.evol_sp(0, 2, 0.9)
+    c.evol_cp(0, -0.4)
+
+    c1 = FT(4, filled=[0, 2])
+    c1.evol_hp(0, 1, 0.3)
+    c1.evol_hp(2, 3, 0.3)
+    c1.evol_sp(0, 3, 0.5)
+    c1.evol_sp(0, 2, 0.9)
+    c1.evol_cp(0, -0.4)
+
+    np.testing.assert_allclose(
+        c.expectation_4body(0, 4, 1, 5), c.expectation_4body(0, 4, 1, 5), atol=1e-5
+    )
+    np.testing.assert_allclose(
+        c.expectation_4body(0, 1, 4, 5), c.expectation_4body(0, 1, 4, 5), atol=1e-5
+    )
+    np.testing.assert_allclose(
+        c.expectation_4body(0, 4, 2, 6), c.expectation_4body(0, 4, 2, 6), atol=1e-5
+    )
+    np.testing.assert_allclose(
+        c.expectation_4body(0, 2, 3, 1), c.expectation_4body(0, 2, 3, 1), atol=1e-5
+    )
+    np.testing.assert_allclose(
+        c.expectation_4body(0, 1, 4, 6), c.expectation_4body(0, 1, 4, 6), atol=1e-5
+    )
+    np.testing.assert_allclose(
+        c.expectation_4body(1, 0, 6, 7), c.expectation_4body(1, 0, 6, 7), atol=1e-5
+    )
