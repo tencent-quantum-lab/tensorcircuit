@@ -1,3 +1,6 @@
+Code implementation in this submodule `applications` are not very well maintained and extensively tested. There are indeed many interesting pieces, but try on your own risk.
+
+
 ## Differentiable Quantum Architecture Search
 
 In `applications`, framework and relevant applications of DQAS are implemented, mainly in `vags.py` and `dqas.py`.

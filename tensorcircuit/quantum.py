@@ -1793,6 +1793,16 @@ def truncated_free_energy(
 
 @op2tensor
 def partial_transpose(rho: Tensor, transposed_sites: List[int]) -> Tensor:
+    """
+    _summary_
+
+    :param rho: density matrix
+    :type rho: Tensor
+    :param transposed_sites: sites int list to be transposed
+    :type transposed_sites: List[int]
+    :return: _description_
+    :rtype: Tensor
+    """
     rho = backend.reshape2(rho)
     rho_node = Gate(rho)
     n = len(rho.shape) // 2
@@ -1812,6 +1822,16 @@ def partial_transpose(rho: Tensor, transposed_sites: List[int]) -> Tensor:
 
 @op2tensor
 def entanglement_negativity(rho: Tensor, transposed_sites: List[int]) -> Tensor:
+    """
+    _summary_
+
+    :param rho: _description_
+    :type rho: Tensor
+    :param transposed_sites: _description_
+    :type transposed_sites: List[int]
+    :return: _description_
+    :rtype: Tensor
+    """
     rhot = partial_transpose(rho, transposed_sites)
     es = backend.eigvalsh(rhot)
     rhot_m = backend.sum(backend.abs(es))
@@ -1820,6 +1840,18 @@ def entanglement_negativity(rho: Tensor, transposed_sites: List[int]) -> Tensor:
 
 @op2tensor
 def log_negativity(rho: Tensor, transposed_sites: List[int], base: str = "e") -> Tensor:
+    """
+    _summary_
+
+    :param rho: _description_
+    :type rho: Tensor
+    :param transposed_sites: _description_
+    :type transposed_sites: List[int]
+    :param base: whether use 2 based log or e based log, defaults to "e"
+    :type base: str, optional
+    :return: _description_
+    :rtype: Tensor
+    """
     rhot = partial_transpose(rho, transposed_sites)
     es = backend.eigvalsh(rhot)
     rhot_m = backend.sum(backend.abs(es))
