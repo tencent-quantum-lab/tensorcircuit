@@ -39,6 +39,7 @@ except ImportError:
 from .cons import backend, contractor, dtypestr, npdtype, rdtypestr
 from .backends import get_backend
 from .utils import is_m1mac, arg_alias
+from .gates import Gate
 
 Tensor = Any
 Graph = Any
@@ -1788,6 +1789,44 @@ def truncated_free_energy(
     renyi = -backend.real(backend.trace(tyexpand))
     energy = backend.real(trace_product(rho, h))
     return energy - renyi / beta
+
+
+@op2tensor
+def partial_transpose(rho: Tensor, transposed_sites: List[int]) -> Tensor:
+    rho = backend.reshape2(rho)
+    rho_node = Gate(rho)
+    n = len(rho.shape) // 2
+    left_edges = []
+    right_edges = []
+    for i in range(n):
+        if i not in transposed_sites:
+            left_edges.append(rho_node[i])
+            right_edges.append(rho_node[i + n])
+        else:
+            left_edges.append(rho_node[i + n])
+            right_edges.append(rho_node[i])
+    rhot_op = QuOperator(out_edges=left_edges, in_edges=right_edges)
+    rhot = rhot_op.eval_matrix()
+    return rhot
+
+
+@op2tensor
+def entanglement_negativity(rho: Tensor, transposed_sites: List[int]) -> Tensor:
+    rhot = partial_transpose(rho, transposed_sites)
+    es = backend.eigvalsh(rhot)
+    rhot_m = backend.sum(backend.abs(es))
+    return (backend.log(rhot_m) - 1.0) / 2.0
+
+
+@op2tensor
+def log_negativity(rho: Tensor, transposed_sites: List[int], base: str = "e") -> Tensor:
+    rhot = partial_transpose(rho, transposed_sites)
+    es = backend.eigvalsh(rhot)
+    rhot_m = backend.sum(backend.abs(es))
+    een = backend.log(rhot_m)
+    if base in ["2", 2]:
+        return een / backend.cast(backend.log(2.0), rdtypestr)
+    return een
 
 
 @partial(op2tensor, op_argnums=(0, 1))

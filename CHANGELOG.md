@@ -10,6 +10,8 @@
 
 - Add fermion Gaussian state simulator in `fgs.py`
 
+- Add `partial_transpose` and `entanglement_negativity` method in `quantum.py`
+
 ### Changed
 
 - move ensemble module to applications/ai (breaking changes)
