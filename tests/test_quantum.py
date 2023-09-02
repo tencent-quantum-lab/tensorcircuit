@@ -365,6 +365,18 @@ def test_expectation_quantum(backend):
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_ee(backend):
+    c = tc.Circuit(3)
+    c.h(0)
+    c.cx(0, 1)
+    c.cx(1, 2)
+    s = c.state()
+    np.testing.assert_allclose(
+        tc.quantum.entanglement_entropy(s, [0, 1]), np.log(2.0), atol=1e-5
+    )
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_negativity(backend, highp):
     c = tc.DMCircuit(2)
     c.h(0)
