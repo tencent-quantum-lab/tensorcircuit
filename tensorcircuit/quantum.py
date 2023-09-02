@@ -1583,7 +1583,7 @@ def trace_product(*o: Union[Tensor, QuOperator]) -> Tensor:
 
 
 @op2tensor
-def entanglement_entropy(state: Tensor, cut: Union[int, List[int]]):
+def entanglement_entropy(state: Tensor, cut: Union[int, List[int]]) -> Tensor:
     rho = reduced_density_matrix(state, cut)
     return entropy(rho)
 
