@@ -247,7 +247,7 @@ class FGSSimulator:
 
     def evol_hp(self, i: int, j: int, chi: Tensor = 0) -> None:
         r"""
-        The evolve Hamiltonian is :math:`chi c_i^\dagger c_j +h.c.`
+        The evolve Hamiltonian is :math:`\chi c_i^\dagger c_j +h.c.`
 
         :param i: _description_
         :type i: int
@@ -323,10 +323,10 @@ class FGSSimulator:
         )
 
     def get_cmatrix_majorana(self) -> Tensor:
-        """
+        r"""
         correlation matrix defined in majorana basis
-        convention: gamma_0 = c0 + c0^\dagger
-        gamma_1 = i(c0 - c0^\dagger)
+        convention: :math:`gamma_0 = c_0 + c_0^\dagger`
+        :math:`gamma_1 = i(c_0 - c_0^\dagger)`
 
         :return: _description_
         :rtype: Tensor
