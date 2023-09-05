@@ -16,9 +16,7 @@ try:
         generate_rb_circuits,
         generate_w_circuit,
     )
-    from mitiq.interface import (
-        convert_from_mitiq,
-    )
+    from mitiq.interface import convert_from_mitiq
 except ModuleNotFoundError:
     logger.warning("mitiq is not installed, please ``pip install mitiq`` first")
 
