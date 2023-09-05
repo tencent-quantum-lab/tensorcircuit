@@ -185,7 +185,7 @@ We also have [Docker support](/docker).
 
   - Support **analog/digital hybrid simulation** (time dependent Hamiltonian evolution, **pulse** level simulation) with neural ode modes.
 
-  - Support **Fermion Gaussian state** simulation with expectation, entanglement, measurment, ground state, real and imaginary time evolution.
+  - Support **Fermion Gaussian state** simulation with expectation, entanglement, measurement, ground state, real and imaginary time evolution.
 
   - Support **qudits simulation**.
 

@@ -351,7 +351,7 @@ class FGSSimulator:
         :return: _description_
         :rtype: Tensor
         """
-        return self.get_cmatrix()[i][j]
+        return self.get_cmatrix()[i][(j + self.L) % (2 * self.L)]
 
     def expectation_4body(self, i: int, j: int, k: int, l: int) -> Tensor:
         """

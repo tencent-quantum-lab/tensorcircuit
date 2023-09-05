@@ -167,6 +167,14 @@ def test_jittable_measure(backend):
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_exp_2body(backend):
+    c = F(3, filled=[1])
+    np.testing.assert_allclose(c.expectation_2body(4, 1), 1.0, atol=1e-5)
+    np.testing.assert_allclose(c.expectation_2body(5, 2), 0.0, atol=1e-5)
+    np.testing.assert_allclose(c.expectation_2body(1, 4), 0.0, atol=1e-5)
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_exp_4body(backend):
     c = F(4, filled=[0, 2])
     c.evol_hp(0, 1, 0.3)
