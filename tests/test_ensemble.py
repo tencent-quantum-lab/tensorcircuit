@@ -8,7 +8,7 @@ modulepath = os.path.dirname(os.path.dirname(thisfile))
 
 sys.path.insert(0, modulepath)
 
-from tensorcircuit.templates.ensemble import bagging
+from tensorcircuit.applications.ai.ensemble import bagging
 
 
 def test_ensemble_bagging():
@@ -52,7 +52,7 @@ def test_ensemble_bagging():
     obj_bagging.append(model(), False)
     obj_bagging.compile(
         loss=tf.keras.losses.BinaryCrossentropy(),
-        optimizer=tf.keras.optimizers.Adam(lr),
+        optimizer=tf.keras.optimizers.legacy.Adam(lr),
         metrics=[tf.keras.metrics.AUC(), "acc"],
     )
     obj_bagging.train(

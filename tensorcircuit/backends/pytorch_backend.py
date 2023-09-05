@@ -306,6 +306,9 @@ class PyTorchBackend(pytorch_backend.PyTorchBackend, ExtendedBackend):  # type: 
             dtype = getattr(torchlib, dtype)
         return torchlib.tensor(1j, dtype=dtype)
 
+    def det(self, a: Tensor) -> Tensor:
+        return torchlib.linalg.det(a)
+
     def real(self, a: Tensor) -> Tensor:
         try:
             a = torchlib.real(a)

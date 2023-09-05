@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### Added
+
+- Add translation of r gate from qiskit
+
+- Add `det` method at backends
+
+- Add fermion Gaussian state simulator in `fgs.py`
+
+- Add `partial_transpose` and `entanglement_negativity` method in `quantum.py`
+
+### Changed
+
+- move ensemble module to applications/ai (breaking changes)
+
+- tc2qiskit now record qiskit measure with incremental clbit from 0
+
 ## 0.11.0
 
 ### Added
@@ -31,6 +47,7 @@
 - fix rem `apply_correction` bug when non-numpy backend is set
 
 - fix tf warning for `cast` with higher version of tf
+
 ### Changed
 
 - The static method `BaseCircuit.copy` is renamed as `BaseCircuit.copy_nodes` (breaking changes)

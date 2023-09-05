@@ -171,8 +171,8 @@ def cvar_value(r: List[float], p: List[float], percent: float) -> float:
     :return: The calculated CVaR value.
     """
     sorted_indices = np.argsort(r)
-    p = np.array(p)[sorted_indices]
-    r = np.array(r)[sorted_indices]
+    p = np.array(p)[sorted_indices]  # type: ignore
+    r = np.array(r)[sorted_indices]  # type: ignore
 
     sump = 0.0  # The sum of probabilities.
     count = 0

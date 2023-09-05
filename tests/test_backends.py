@@ -300,6 +300,9 @@ def test_backend_methods_2(backend):
         np.maximum(arr, 0),
         atol=1e-4,
     )
+    np.testing.assert_allclose(
+        tc.backend.det(tc.backend.convert_to_tensor(np.eye(3) * 2)), 8, atol=1e-5
+    )
 
 
 # @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb"), lf("torchb")])
