@@ -26,7 +26,6 @@ def onehot_matrix(i: int, j: int, N: int) -> Tensor:
 
 
 # TODO(@refraction-ray): efficiency benchmark with jit
-# TODO(@refraction-ray): occupation number post-selection/measurement
 # TODO(@refraction-ray): FGS mixed state support?
 # TODO(@refraction-ray): overlap?
 
@@ -490,14 +489,21 @@ class FGSTestSimulator:
     """
 
     def __init__(
-        self, L: int, filled: Optional[List[int]] = None, hc: Optional[Tensor] = None
+        self,
+        L: int,
+        filled: Optional[List[int]] = None,
+        state: Optional[Tensor] = None,
+        hc: Optional[Tensor] = None,
     ):
         if filled is None:
             filled = []
         self.L = L
-        self.state = self.init_state(filled, L)
-        if hc is not None:
+        if state is not None:
+            self.state = state
+        elif hc is not None:
             self.state = self.fermion_diagonalization(hc, L)
+        else:
+            self.state = self.init_state(filled, L)
 
     @staticmethod
     def init_state(filled: List[int], L: int) -> Tensor:
@@ -673,19 +679,19 @@ class FGSTestSimulator:
         if i < self.L:
             s += str(i) + ""
         else:
-            s += str(i) + "^ "
+            s += str(i - self.L) + "^ "
         if j < self.L:
             s += str(j) + ""
         else:
-            s += str(j) + "^ "
+            s += str(j - self.L) + "^ "
         if k < self.L:
             s += str(k) + ""
         else:
-            s += str(k) + "^ "
+            s += str(k - self.L) + "^ "
         if l < self.L:
             s += str(l) + ""
         else:
-            s += str(l) + "^ "
+            s += str(l - self.L) + "^ "
         op = openfermion.FermionOperator(s)
         m = openfermion.get_sparse_operator(op, n_qubits=self.L).todense()
         return (

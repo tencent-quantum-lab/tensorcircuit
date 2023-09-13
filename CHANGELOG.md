@@ -18,6 +18,10 @@
 
 - tc2qiskit now record qiskit measure with incremental clbit from 0
 
+### Fixed
+
+- Support degenerate eigenvalue for jax backend `eigh` method when using AD
+
 ## 0.11.0
 
 ### Added

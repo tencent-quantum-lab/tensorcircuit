@@ -156,12 +156,19 @@ def _rq_jax(
     return r, q
 
 
+def _eigh_jax(self: Any, tensor: Tensor) -> Tensor:
+    from .jax_ops import adaware_eigh_jit as adaware_eigh
+
+    return adaware_eigh(tensor)
+
+
 tensornetwork.backends.jax.jax_backend.JaxBackend.convert_to_tensor = (
     _convert_to_tensor_jax
 )
 tensornetwork.backends.jax.jax_backend.JaxBackend.svd = _svd_jax
 tensornetwork.backends.jax.jax_backend.JaxBackend.qr = _qr_jax
 tensornetwork.backends.jax.jax_backend.JaxBackend.rq = _rq_jax
+tensornetwork.backends.jax.jax_backend.JaxBackend.eigh = _eigh_jax
 
 
 class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
