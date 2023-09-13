@@ -55,8 +55,9 @@ class bagging:  # A.K.A. voting
         self.permit_train = True
         for i in range(self.count):
             if not self.model_trained[i]:
-                dic_kwargs = kwargs.copy()
-                self.models[i].compile(**dic_kwargs)
+                dict_kwargs = kwargs.copy()
+                # TODO(@refraction-ray): still not compatible with new optimizer
+                self.models[i].compile(**dict_kwargs)
 
     def __get_confidence(self, model_index: int, input: NDArray) -> NDArray:
         """

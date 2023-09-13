@@ -345,6 +345,34 @@ class ExtendedBackend:
         """
         return self.conj(self.transpose(a))
 
+    def det(self: Any, a: Tensor) -> Tensor:
+        """
+        Return the determinant scalar of a tensor ``a``
+
+        :param a: Input tensor
+        :type a: Tensor
+        :return: determinant of ``a``
+        :rtype: Tensor
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `det`.".format(self.name)
+        )
+
+    def schur(self: Any, a: Tensor, output: str = "real") -> Tuple[Tensor, Tensor]:
+        """
+        Compute Schur decomposition of a matrix.
+
+        :param a: _description_
+        :type a: Tensor
+        :param output: _description_, defaults to "real"
+        :type output: str, optional
+        :return: T, Z so that ZTZ^H = a
+        :rtype: Tuple[Tensor, Tensor]
+        """
+        raise NotImplementedError(
+            "Backend '{}' has not implemented `schur`.".format(self.name)
+        )
+
     def i(self: Any, dtype: str) -> Tensor:
         """
         Return 1.j in as a tensor compatible with the backend.

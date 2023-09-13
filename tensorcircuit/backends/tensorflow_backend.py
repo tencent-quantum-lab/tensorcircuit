@@ -480,6 +480,9 @@ class TensorFlowBackend(tensorflow_backend.TensorFlowBackend, ExtendedBackend): 
             dtype = getattr(tf, dtype)
         return tf.constant(1j, dtype=dtype)
 
+    def det(self, a: Tensor) -> Tensor:
+        return tf.linalg.det(a)
+
     def min(self, a: Tensor, axis: Optional[int] = None) -> Tensor:
         return tf.reduce_min(a, axis=axis)
 

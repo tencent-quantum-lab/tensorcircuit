@@ -365,6 +365,38 @@ def test_expectation_quantum(backend):
 
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_ee(backend):
+    c = tc.Circuit(3)
+    c.h(0)
+    c.cx(0, 1)
+    c.cx(1, 2)
+    s = c.state()
+    np.testing.assert_allclose(
+        tc.quantum.entanglement_entropy(s, [0, 1]), np.log(2.0), atol=1e-5
+    )
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_negativity(backend, highp):
+    c = tc.DMCircuit(2)
+    c.h(0)
+    c.cnot(0, 1)
+    c.depolarizing(0, px=0.1, py=0.1, pz=0.1)
+    dm = c.state()
+    np.testing.assert_allclose(
+        tc.quantum.log_negativity(dm, [0], base="2"), 0.485427, atol=1e-5
+    )
+    np.testing.assert_allclose(
+        tc.quantum.partial_transpose(tc.quantum.partial_transpose(dm, [0]), [0]),
+        dm,
+        atol=1e-6,
+    )
+    np.testing.assert_allclose(
+        tc.quantum.entanglement_negativity(dm, [1]), -0.33176, atol=1e-5
+    )
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_tn2qop(backend):
     nwires = 6
     dtype = np.complex64

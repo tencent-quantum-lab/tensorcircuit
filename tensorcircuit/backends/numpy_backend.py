@@ -9,7 +9,7 @@ from typing import Any, Callable, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import tensornetwork
-from scipy.linalg import expm, solve
+from scipy.linalg import expm, solve, schur
 from scipy.special import softmax, expit
 from scipy.sparse import coo_matrix, issparse
 from tensornetwork.backends.numpy import numpy_backend
@@ -130,6 +130,12 @@ class NumpyBackend(numpy_backend.NumPyBackend, ExtendedBackend):  # type: ignore
 
     def numpy(self, a: Tensor) -> Tensor:
         return a
+
+    def det(self, a: Tensor) -> Tensor:
+        return np.linalg.det(a)
+
+    def schur(self, a: Tensor, output: str = "real") -> Tuple[Tensor, Tensor]:
+        return schur(a, output=output)  # type: ignore
 
     def i(self, dtype: Any = None) -> Tensor:
         if not dtype:

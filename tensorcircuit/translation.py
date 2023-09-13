@@ -125,7 +125,7 @@ def qir2cirq(
     support more element in qir, e.g. barrier, measure...
     """
 
-    class CustomizedCirqGate(cirq.Gate):
+    class CustomizedCirqGate(cirq.Gate):  # type: ignore
         def __init__(self, uMatrix: Any, name: str, nqubit: int):
             super(CustomizedCirqGate, self)
             self.uMatrix = uMatrix
@@ -235,6 +235,7 @@ def qir2qiskit(
         qiskit_circ = QuantumCircuit(n)
     if initialization is not None:
         qiskit_circ.initialize(initialization)
+    measure_cbit = 0
     for gate_info in qir:
         index = gate_info["index"]
         gate_name = str(gate_info["gatef"])
@@ -325,7 +326,8 @@ def qir2qiskit(
             )
             qiskit_circ.unitary(qop, index[::-1], label=qis_name)
         elif gate_name == "measure":
-            qiskit_circ.measure(index[0], index[0])
+            qiskit_circ.measure(index[0], measure_cbit)
+            measure_cbit += 1
         elif gate_name == "reset":
             qiskit_circ.reset(index[0])
         elif gate_name == "barrier":

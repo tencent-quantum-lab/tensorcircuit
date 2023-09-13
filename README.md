@@ -111,6 +111,20 @@ c.cx(range(n-1), range(1, n))
 c.expectation_ps(z=[0, n-1], reuse=False)
 ```
 
+- Density matrix simulator and quantum info quantities
+
+```python
+c = tc.DMCircuit(2)
+c.h(0)
+c.cx(0, 1)
+c.depolarizing(1, px=0.1, py=0.1, pz=0.1)
+dm = c.state()
+print(tc.quantum.entropy(dm))
+print(tc.quantum.entanglement_entropy(dm, [0]))
+print(tc.quantum.entanglement_negativity(dm, [0]))
+print(tc.quantum.log_negativity(dm, [0]))
+```
+
 </details>
 
 ## Install
@@ -170,6 +184,8 @@ We also have [Docker support](/docker).
   - Support **approximate simulation** with MPS-TEBD modes.
 
   - Support **analog/digital hybrid simulation** (time dependent Hamiltonian evolution, **pulse** level simulation) with neural ode modes.
+
+  - Support **Fermion Gaussian state** simulation with expectation, entanglement, measurement, ground state, real and imaginary time evolution.
 
   - Support **qudits simulation**.
 
@@ -367,6 +383,8 @@ Reference paper: https://arxiv.org/abs/2308.01068.
 - GSQAS: Graph Self-supervised Quantum Architecture Search: https://arxiv.org/abs/2303.12381.
 
 - Practical advantage of quantum machine learning in ghost imaging: https://www.nature.com/articles/s42005-023-01290-1 (published in Communications Physics).
+
+- Zero and Finite Temperature Quantum Simulations Powered by Quantum Magic: https://arxiv.org/abs/2308.11616.
 
   </details>
 

@@ -1,7 +1,7 @@
 numpy
 scipy
-tensorflow==2.7
-tensornetwork
+tensorflow
+tensornetwork-ng
 graphviz
 jax
 jaxlib

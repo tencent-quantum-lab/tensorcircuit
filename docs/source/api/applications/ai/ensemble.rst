@@ -1,6 +1,6 @@
-tensorcircuit.templates.ensemble
+tensorcircuit.applications.ai.ensemble
 ================================================================================
-.. automodule:: tensorcircuit.templates.ensemble
+.. automodule:: tensorcircuit.applications.ai.ensemble
     :members:
     :undoc-members:
     :show-inheritance:

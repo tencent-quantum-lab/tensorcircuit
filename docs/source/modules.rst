@@ -13,6 +13,7 @@ tensorcircuit
     ./api/cons.rst
     ./api/densitymatrix.rst
     ./api/experimental.rst
+    ./api/fgs.rst
     ./api/gates.rst
     ./api/interfaces.rst
     ./api/keras.rst
