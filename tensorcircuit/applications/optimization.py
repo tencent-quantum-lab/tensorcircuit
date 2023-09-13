@@ -5,7 +5,6 @@ modules for QUBO problems in QAOA
 from typing import List, Callable, Any, Optional, Tuple
 from functools import partial
 
-import numpy as np
 import tensorflow as tf
 import scipy.optimize as optimize
 
@@ -161,7 +160,7 @@ def QUBO_QAOA(
     # Return the optimized parameters for the ansatz circuit.
 
 
-def cvar_value(r: List[float], p: List[float], percent: float) -> float:
+def cvar_value(r: List[float], p: List[float], percent: float) -> Any:
     """
     Calculate the Conditional Value at Risk (CVaR) according to the measurement results.
 
@@ -170,17 +169,17 @@ def cvar_value(r: List[float], p: List[float], percent: float) -> float:
     :param percent: The cut-off percentage of CVaR.
     :return: The calculated CVaR value.
     """
-    sorted_indices = np.argsort(r)
-    p = np.array(p)[sorted_indices]
-    r = np.array(r)[sorted_indices]
+    sorted_indices = tf.argsort(r)
+    p = tf.cast(tf.gather(p, sorted_indices), dtype=tf.float32)
+    r = tf.cast(tf.gather(r, sorted_indices), dtype=tf.float32)
 
-    sump = 0.0  # The sum of probabilities.
-    count = 0
-    cvar_result = 0.0
+    sump = tf.constant(0.0, dtype=tf.float32)  # The sum of probabilities.
+    count = tf.constant(0, dtype=tf.int32)
+    cvar_result = tf.constant(0.0, dtype=tf.float32)
 
     # Iterate over the sorted results and calculate CVaR.
     while sump < percent:
-        if round(sump + p[count], 6) >= percent:
+        if tf.math.round(sump + p[count], 6) >= percent:
             # Add the remaining portion of the last result that exceeds the cut-off percentage.
             cvar_result += r[count] * (percent - sump)
             count += 1
@@ -195,9 +194,7 @@ def cvar_value(r: List[float], p: List[float], percent: float) -> float:
     return cvar_result
 
 
-def cvar_from_circuit(
-    circuit: Circuit, nsamples: int, Q: Tensor, alpha: float
-) -> float:
+def cvar_from_circuit(circuit: Circuit, nsamples: int, Q: Tensor, alpha: float) -> Any:
     """
     Directly calculate the Conditional Value at Risk (CVaR) from a circuit.
     The CVaR depends on a bunch of measurements.
@@ -208,27 +205,31 @@ def cvar_from_circuit(
     :param alpha: The cut-off percentage for CVaR.
     :return: The calculated CVaR value.
     """
-    s = circuit.state()
+    # Get measurement results and normalize them.
     results = measurement_results(
-        s, counts=nsamples, format="count_dict_bin"
-    )  # Get readouts from the measurements.
-    results = {k: v / nsamples for k, v in results.items()}  # Normalize the results.
+        circuit.state(), counts=nsamples, format="count_dict_bin"
+    )
+    results = {k: v / nsamples for k, v in results.items()}
+
     values = []  # List to store the measurement values.
     probabilities = []  # List to store the corresponding probabilities.
+    Q_tf = tf.convert_to_tensor(Q, dtype=tf.float32)
 
-    # Iterate over the measurement results and calculate the values and probabilities.
     for k, v in results.items():
-        x = np.array([int(bit) for bit in k])
-        values.append(np.dot(x, np.dot(Q, x)))
+        binary_strings = tf.strings.bytes_split(k)
+        x = tf.reshape(
+            tf.strings.to_number(binary_strings, out_type=tf.float32), (-1, 1)
+        )
+        xT = tf.transpose(x)
+        values.append(tf.squeeze(tf.matmul(xT, tf.matmul(Q_tf, x))))
         probabilities.append(v)
 
     cvar_result = cvar_value(values, probabilities, alpha)
-    # Calculate the CVaR using the cvar_value function.
 
     return cvar_result
 
 
-def cvar_from_expectation(circuit: Circuit, Q: Tensor, alpha: float) -> float:
+def cvar_from_expectation(circuit: Circuit, Q: Tensor, alpha: float) -> Any:
     """
     Calculate the Conditional Value at Risk (CVaR) from the expectation values of a quantum circuit.
 
@@ -237,23 +238,34 @@ def cvar_from_expectation(circuit: Circuit, Q: Tensor, alpha: float) -> float:
     :param alpha: The cut-off percentage for CVaR.
     :return: The calculated CVaR value.
     """
-    prob = circuit.probability()  # Get the probabilities of the circuit states.
-    prob /= np.sum(prob)
-    states = []
 
-    # Generate all possible binary states based on the length of Q.
-    for i in range(2 ** len(Q)):
-        a = f"{bin(i)[2:]:0>{len(Q)}}"
-        states.append(a)
+    # Calculate the probability amplitudes for quantum circuit outcomes.
+    prob = tf.convert_to_tensor(circuit.probability(), dtype=tf.float32)
+
+    # Generate all possible binary states for the given Q-matrix.
+    states = tf.constant(
+        [format(i, "0" + str(len(Q)) + "b") for i in range(2 ** len(Q))]
+    )
+
+    # Convert the Q-matrix to a TensorFlow tensor.
+    Q_tf = tf.convert_to_tensor(Q, dtype=tf.float32)
 
     values = []
-    for state in states:
-        x = np.array([int(bit) for bit in state])
-        values.append(np.dot(x, np.dot(Q, x)))
-    # Calculate the values by taking the dot product of each state with the Q-matrix.
 
+    # Calculate the cost for each binary state.
+    for state in states:
+        binary_strings = tf.strings.bytes_split(state)
+        x = tf.reshape(
+            tf.strings.to_number(binary_strings, out_type=tf.float32), (-1, 1)
+        )
+        xT = tf.transpose(x)  # the transpose
+        value = tf.squeeze(tf.matmul(xT, tf.matmul(Q_tf, x)))
+        values.append(value)
+
+    values = tf.convert_to_tensor(values, dtype=tf.float32)
+
+    # Calculate the CVaR value using the computed values and the probability distribution.
     cvar_result = cvar_value(values, prob, alpha)
-    # Calculate the CVaR using the cvar_value function.
 
     return cvar_result
 
@@ -265,7 +277,7 @@ def cvar_loss(
     alpha: float,
     expectation_based: bool,
     params: List[float],
-) -> float:
+) -> Any:
     """
     Calculate the CVaR loss for a given QUBO problem using the QAOA ansatz.
 
@@ -297,7 +309,7 @@ def cvar_loss(
 def QUBO_QAOA_cvar(
     Q: Tensor,
     nlayers: int,
-    alpha: int,
+    alpha: float,
     nsamples: int = 1000,
     callback: Optional[Callable[[List[float], float], None]] = None,
     expectation_based: bool = False,
@@ -318,9 +330,10 @@ def QUBO_QAOA_cvar(
     :param maxiter: The maximum number of iterations for the optimization. Default is 1000.
     :return: The optimized parameters for the ansatz circuit.
     """
+    tf.config.run_functions_eagerly(True)
     loss = partial(cvar_loss, nlayers, Q, nsamples, alpha, expectation_based)
 
-    f_scipy = scipy_interface(loss, shape=(2 * nlayers,), jit=False, gradient=False)
+    f_scipy = scipy_interface(loss, shape=(2 * nlayers,), jit=True, gradient=False)
 
     if init_params is None:
         params = backend.implicit_randn(shape=[2 * nlayers], stddev=0.5)
