@@ -162,35 +162,35 @@ def QUBO_QAOA(
 
 def cvar_value(r: List[float], p: List[float], percent: float) -> Any:
     """
-    Calculate the Conditional Value at Risk (CVaR) according to the measurement results.
+    Compute the Conditional Value at Risk (CVaR) based on the measurement results.
 
-    :param r: The results showing after measurements.
-    :param p: Probabilities corresponding to each result.
-    :param percent: The cut-off percentage of CVaR.
+    :param r: The observed outcomes after measurements.
+    :param p: Probabilities associated with each observed outcome.
+    :param percent: The cut-off percentage for CVaR computation.
     :return: The calculated CVaR value.
     """
     sorted_indices = tf.argsort(r)
-    p = tf.cast(tf.gather(p, sorted_indices), dtype=tf.float32)
-    r = tf.cast(tf.gather(r, sorted_indices), dtype=tf.float32)
+    p_sorted = tf.cast(tf.gather(p, sorted_indices), dtype=tf.float32)
+    r_sorted = tf.cast(tf.gather(r, sorted_indices), dtype=tf.float32)
 
-    sump = tf.constant(0.0, dtype=tf.float32)  # The sum of probabilities.
-    count = tf.constant(0, dtype=tf.int32)
-    cvar_result = tf.constant(0.0, dtype=tf.float32)
+    # Calculate the cumulative sum of sorted probabilities.
+    cumsum_p = tf.math.cumsum(p_sorted)
 
-    # Iterate over the sorted results and calculate CVaR.
-    while sump < percent:
-        if tf.math.round(sump + p[count], 6) >= percent:
-            # Add the remaining portion of the last result that exceeds the cut-off percentage.
-            cvar_result += r[count] * (percent - sump)
-            count += 1
-            break
-        else:
-            # Add the entire result to the CVaR calculation.
-            sump += p[count]
-            cvar_result += r[count] * p[count]
-            count += 1
+    # Create a tensor that evaluates to 1 if the condition is met, otherwise 0.
+    mask = tf.cast(tf.math.less(cumsum_p, percent), dtype=tf.float32)
 
-    cvar_result /= percent
+    # Use mask to filter and sum the required elements for CVaR.
+    cvar_numerator = tf.reduce_sum(mask * p_sorted * r_sorted)
+
+    # Compute the last remaining portion that exceeds the cut-off percentage.
+    last_portion_index = tf.math.argmax(tf.math.greater_equal(cumsum_p, percent))
+    last_portion = (percent - cumsum_p[last_portion_index - 1]) * r_sorted[
+        last_portion_index
+    ]
+
+    # Calculate the final CVaR.
+    cvar_result = (cvar_numerator + last_portion) / percent
+
     return cvar_result
 
 
@@ -205,25 +205,51 @@ def cvar_from_circuit(circuit: Circuit, nsamples: int, Q: Tensor, alpha: float) 
     :param alpha: The cut-off percentage for CVaR.
     :return: The calculated CVaR value.
     """
-    # Get measurement results and normalize them.
+    # Obtain and normalize measurement results
+    measurement_data = circuit.state()
     results = measurement_results(
-        circuit.state(), counts=nsamples, format="count_dict_bin"
+        measurement_data, counts=nsamples, format="sample_int", jittable=True
     )
-    results = {k: v / nsamples for k, v in results.items()}
+    n_counts = tf.shape(results)[0]
 
-    values = []  # List to store the measurement values.
-    probabilities = []  # List to store the corresponding probabilities.
-    Q_tf = tf.convert_to_tensor(Q, dtype=tf.float32)
+    # Initialize TensorArrays to hold probabilities and values
+    probabilities = tf.TensorArray(dtype=tf.float32, dynamic_size=True, size=0)
+    values = tf.TensorArray(dtype=tf.float32, dynamic_size=True, size=0)
 
-    for k, v in results.items():
-        binary_strings = tf.strings.bytes_split(k)
-        x = tf.reshape(
-            tf.strings.to_number(binary_strings, out_type=tf.float32), (-1, 1)
+    # Determine the number of qubits in the circuit and generate all possible states
+    n_qubits = len(Q)
+    all_states = tf.constant([format(i, f"0{n_qubits}b") for i in range(2**n_qubits)])
+
+    # Convert the Q matrix to a TensorFlow tensor
+    Q_tensor = tf.convert_to_tensor(Q, dtype=tf.float32)
+
+    # Loop through all possible states to calculate the value and probability of each
+    for state_index in tf.range(tf.shape(all_states)[0]):
+        state_str = all_states[state_index]
+        binary_values = tf.strings.bytes_split(state_str)
+        state_vector = tf.reshape(
+            tf.strings.to_number(binary_values, out_type=tf.float32), (-1, 1)
         )
-        xT = tf.transpose(x)
-        values.append(tf.squeeze(tf.matmul(xT, tf.matmul(Q_tf, x))))
-        probabilities.append(v)
 
+        # Compute the value for this binary state
+        value = tf.squeeze(
+            tf.matmul(tf.transpose(state_vector), tf.matmul(Q_tensor, state_vector))
+        )
+        values = values.write(state_index, value)
+
+        # Compute the probability of this state occurring
+        prob_of_state = (
+            tf.reduce_sum(tf.cast(tf.equal(results, state_index), tf.int32)) / n_counts
+        )
+        probabilities = probabilities.write(
+            state_index, tf.cast(prob_of_state, dtype=tf.float32)
+        )
+
+    # Stack TensorArrays to Tensors
+    probabilities = probabilities.stack()
+    values = values.stack()
+
+    # Calculate CVaR
     cvar_result = cvar_value(values, probabilities, alpha)
 
     return cvar_result
@@ -250,19 +276,20 @@ def cvar_from_expectation(circuit: Circuit, Q: Tensor, alpha: float) -> Any:
     # Convert the Q-matrix to a TensorFlow tensor.
     Q_tf = tf.convert_to_tensor(Q, dtype=tf.float32)
 
-    values = []
+    values = tf.TensorArray(dtype=tf.float32, dynamic_size=True, size=0)
 
     # Calculate the cost for each binary state.
-    for state in states:
+    for idx in tf.range(tf.shape(states)[0]):
+        state = states[idx]
         binary_strings = tf.strings.bytes_split(state)
         x = tf.reshape(
             tf.strings.to_number(binary_strings, out_type=tf.float32), (-1, 1)
         )
         xT = tf.transpose(x)  # the transpose
         value = tf.squeeze(tf.matmul(xT, tf.matmul(Q_tf, x)))
-        values.append(value)
+        values = values.write(idx, value)
 
-    values = tf.convert_to_tensor(values, dtype=tf.float32)
+    values = values.stack()
 
     # Calculate the CVaR value using the computed values and the probability distribution.
     cvar_result = cvar_value(values, prob, alpha)
@@ -330,7 +357,6 @@ def QUBO_QAOA_cvar(
     :param maxiter: The maximum number of iterations for the optimization. Default is 1000.
     :return: The optimized parameters for the ansatz circuit.
     """
-    tf.config.run_functions_eagerly(True)
     loss = partial(cvar_loss, nlayers, Q, nsamples, alpha, expectation_based)
 
     f_scipy = scipy_interface(loss, shape=(2 * nlayers,), jit=True, gradient=False)
