@@ -212,42 +212,28 @@ def cvar_from_circuit(circuit: Circuit, nsamples: int, Q: Tensor, alpha: float) 
     )
     n_counts = tf.shape(results)[0]
 
-    # Initialize TensorArrays to hold probabilities and values
-    probabilities = tf.TensorArray(dtype=tf.float32, dynamic_size=True, size=0)
-    values = tf.TensorArray(dtype=tf.float32, dynamic_size=True, size=0)
-
     # Determine the number of qubits in the circuit and generate all possible states
     n_qubits = len(Q)
     all_states = tf.constant([format(i, f"0{n_qubits}b") for i in range(2**n_qubits)])
+    all_binary = tf.reshape(
+        tf.strings.to_number(tf.strings.bytes_split(all_states), tf.float32),
+        (2**n_qubits, n_qubits),
+    )
+    all_decimal = tf.range(2**n_qubits, dtype=tf.int32)
 
     # Convert the Q matrix to a TensorFlow tensor
     Q_tensor = tf.convert_to_tensor(Q, dtype=tf.float32)
 
-    # Loop through all possible states to calculate the value and probability of each
-    for state_index in tf.range(tf.shape(all_states)[0]):
-        state_str = all_states[state_index]
-        binary_values = tf.strings.bytes_split(state_str)
-        state_vector = tf.reshape(
-            tf.strings.to_number(binary_values, out_type=tf.float32), (-1, 1)
-        )
+    # calculate cost values
+    values = tf.reduce_sum(all_binary * tf.matmul(all_binary, Q_tensor), axis=1)
 
-        # Compute the value for this binary state
-        value = tf.squeeze(
-            tf.matmul(tf.transpose(state_vector), tf.matmul(Q_tensor, state_vector))
-        )
-        values = values.write(state_index, value)
-
-        # Compute the probability of this state occurring
-        prob_of_state = (
-            tf.reduce_sum(tf.cast(tf.equal(results, state_index), tf.int32)) / n_counts
-        )
-        probabilities = probabilities.write(
-            state_index, tf.cast(prob_of_state, dtype=tf.float32)
-        )
-
-    # Stack TensorArrays to Tensors
-    probabilities = probabilities.stack()
-    values = values.stack()
+    # Count the occurrences of each state and calculate probabilities
+    state_counts = tf.reduce_sum(
+        tf.cast(tf.equal(tf.reshape(results, [-1, 1]), all_decimal), tf.int32), axis=0
+    )
+    probabilities = tf.cast(state_counts, dtype=tf.float32) / tf.cast(
+        n_counts, dtype=tf.float32
+    )
 
     # Calculate CVaR
     cvar_result = cvar_value(values, probabilities, alpha)
@@ -269,27 +255,21 @@ def cvar_from_expectation(circuit: Circuit, Q: Tensor, alpha: float) -> Any:
     prob = tf.convert_to_tensor(circuit.probability(), dtype=tf.float32)
 
     # Generate all possible binary states for the given Q-matrix.
-    states = tf.constant(
-        [format(i, "0" + str(len(Q)) + "b") for i in range(2 ** len(Q))]
+    n_qubits = len(Q)
+    all_states = tf.constant(
+        [format(i, "0" + str(n_qubits) + "b") for i in range(2 ** len(Q))]
+    )
+    all_binary = tf.reshape(
+        tf.strings.to_number(tf.strings.bytes_split(all_states), tf.float32),
+        (2**n_qubits, n_qubits),
     )
 
     # Convert the Q-matrix to a TensorFlow tensor.
-    Q_tf = tf.convert_to_tensor(Q, dtype=tf.float32)
+    Q_tensor = tf.convert_to_tensor(Q, dtype=tf.float32)
 
-    values = tf.TensorArray(dtype=tf.float32, dynamic_size=True, size=0)
-
-    # Calculate the cost for each binary state.
-    for idx in tf.range(tf.shape(states)[0]):
-        state = states[idx]
-        binary_strings = tf.strings.bytes_split(state)
-        x = tf.reshape(
-            tf.strings.to_number(binary_strings, out_type=tf.float32), (-1, 1)
-        )
-        xT = tf.transpose(x)  # the transpose
-        value = tf.squeeze(tf.matmul(xT, tf.matmul(Q_tf, x)))
-        values = values.write(idx, value)
-
-    values = values.stack()
+    # calculate cost values
+    elementwise_product = tf.multiply(all_binary, tf.matmul(all_binary, Q_tensor))
+    values = tf.reduce_sum(elementwise_product, axis=1)
 
     # Calculate the CVaR value using the computed values and the probability distribution.
     cvar_result = cvar_value(values, prob, alpha)
@@ -377,7 +357,6 @@ def QUBO_QAOA_cvar(
         method="COBYLA",
         callback=callback,
         options={"maxiter": maxiter},
-        # bounds=[(0, (2 - np.mod(i, 2))*np.pi) for i in range(2*nlayers)]
     )
     # Perform the optimization using the COBYLA method from scipy.optimize.
 
