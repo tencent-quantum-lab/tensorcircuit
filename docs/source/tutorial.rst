@@ -23,7 +23,8 @@ Jupyter Tutorials
     tutorials/vqex_mbl.ipynb
     tutorials/dqas.ipynb
     tutorials/barren_plateaus.ipynb
-    tutorials/qaoa_portfolio_optimization.ipynb
+    tutorials/qubo_problem.ipynb
+    tutorials/portfolio_optimization.ipynb
     tutorials/imag_time_evo.ipynb
     tutorials/classical_shadows.ipynb
     tutorials/sklearn_svc.ipynb
