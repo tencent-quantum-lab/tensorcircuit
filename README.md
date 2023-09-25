@@ -321,7 +321,7 @@ Reference paper: https://arxiv.org/abs/2010.08561 (published in QST).
 
 For the application of Variational Quantum-Neural Hybrid Eigensolver, see [applications](/tensorcircuit/applications).
 
-Reference paper: https://arxiv.org/abs/2106.05105 (published in PRL) and https://arxiv.org/abs/2112.10380.
+Reference paper: https://arxiv.org/abs/2106.05105 (published in PRL) and https://arxiv.org/abs/2112.10380 (published in AQT).
 
 ### VQEX-MBL
 
@@ -339,7 +339,7 @@ Reference paper: https://arxiv.org/abs/2208.02866 (published in PRL).
 
 For the numerical simulation of variational quantum algorithm training using random gate activation strategy by us, see the [project repo](https://github.com/ls-iastu/RAtraining).
 
-Reference paper: https://arxiv.org/abs/2303.08154.
+Reference paper: https://arxiv.org/abs/2303.08154 (published in PRR as a Letter).
 
 ### TenCirChem
 
@@ -385,6 +385,8 @@ Reference paper: https://arxiv.org/abs/2308.01068.
 - Practical advantage of quantum machine learning in ghost imaging: https://www.nature.com/articles/s42005-023-01290-1 (published in Communications Physics).
 
 - Zero and Finite Temperature Quantum Simulations Powered by Quantum Magic: https://arxiv.org/abs/2308.11616.
+
+- Comparison of Quantum Simulators for Variational Quantum Search: A Benchmark Study: https://arxiv.org/abs/2309.05924.
 
   </details>
 
