@@ -466,17 +466,20 @@ class FGSSimulator:
     #     cmatrix = backend.adjoint(self.wtransform) @ cm @ self.wtransform * 0.25
     #     return type(self)(self.L, cmatrix=cmatrix)
 
-    # def overlap(self, other):
-    #     # ?
-    #     u, v = self.get_bogoliubov_uv()
-    #     u1, v1 = other.get_bogoliubov_uv()
-    #     return backend.det(
-    #         backend.adjoint(u1) @ u + backend.adjoint(v1) @ v
-    #     ) * backend.det(backend.adjoint(v1) @ v), backend.det(
-    #         backend.adjoint(u1) @ u + backend.adjoint(v1) @ v
-    #     ) * backend.det(
-    #         backend.adjoint(u1) @ u
-    #     )
+    def overlap(self, other: "FGSSimulator") -> Tensor:
+        """
+        overlap upto a U(1) phase
+
+        :param other: _description_
+        :type other: FGSSimulator
+        :return: _description_
+        :rtype: _type_
+        """
+        u, v = self.get_bogoliubov_uv()
+        u1, v1 = other.get_bogoliubov_uv()
+        return backend.sqrt(
+            backend.abs(backend.det(backend.adjoint(u1) @ u + backend.adjoint(v1) @ v))
+        )
 
 
 npb = get_backend("numpy")
