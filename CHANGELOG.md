@@ -12,6 +12,8 @@
 
 - Add `partial_transpose` and `entanglement_negativity` method in `quantum.py`
 
+- Add `reduced_wavefunction` method in `quantum.py` to get reduced pure state
+
 ### Changed
 
 - move ensemble module to applications/ai (breaking changes)

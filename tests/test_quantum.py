@@ -498,3 +498,28 @@ def test_ps2xyz():
     xyz.update({"y": []})
     assert tc.quantum.ps2xyz([0, 1, 3]) == xyz
     assert tc.quantum.ps2xyz([0, 1, 3, 0]) == xyz
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_reduced_wavefunction(backend):
+    c = tc.Circuit(3)
+    c.h(0)
+    c.cnot(0, 1)
+    r = c.cond_measure(0)
+    s = c.state()
+    s1 = tc.quantum.reduced_wavefunction(s, [0, 2], [r, 0])
+    if tc.backend.cast(r, tc.rdtypestr) < 0.5:
+        np.testing.assert_allclose(s1, np.array([1, 0]), atol=1e-5)
+    else:
+        np.testing.assert_allclose(s1, np.array([0, 1]), atol=1e-5)
+
+    c = tc.Circuit(3)
+    c.h(0)
+    c.cnot(0, 1)
+    s = c.state()
+    s1 = tc.quantum.reduced_wavefunction(s, [2], [0])
+
+    c1 = tc.Circuit(2)
+    c1.h(0)
+    c1.cnot(0, 1)
+    np.testing.assert_allclose(s1, c1.state(), atol=1e-5)

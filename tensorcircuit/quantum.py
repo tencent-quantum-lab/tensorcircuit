@@ -1588,6 +1588,45 @@ def entanglement_entropy(state: Tensor, cut: Union[int, List[int]]) -> Tensor:
     return entropy(rho)
 
 
+def reduced_wavefunction(
+    state: Tensor, cut: List[int], measure: Optional[List[int]] = None
+) -> Tensor:
+    """
+    Compute the reduced wavefunction from the quantum state ``state``.
+    The fixed measure result is guaranteed by users,
+    otherwise final normalization may required in the return
+
+    :param state: _description_
+    :type state: Tensor
+    :param cut: the list of position for qubit to be reduced
+    :type cut: List[int]
+    :param measure: the fixed results of given qubits in the same shape list as ``cut``
+    :type measure: List[int]
+    :return: _description_
+    :rtype: Tensor
+    """
+    if measure is None:
+        measure = [0 for _ in cut]
+    s = backend.reshape2(state)
+    n = len(backend.shape_tuple(s))
+    s_node = Gate(s)
+    end_nodes = []
+    for c, m in zip(cut, measure):
+        rt = backend.cast(backend.convert_to_tensor(1 - m), dtypestr) * backend.cast(
+            backend.convert_to_tensor(np.array([1.0, 0.0])), dtypestr
+        ) + backend.cast(backend.convert_to_tensor(m), dtypestr) * backend.cast(
+            backend.convert_to_tensor(np.array([0.0, 1.0])), dtypestr
+        )
+        end_node = Gate(rt)
+        end_nodes.append(end_node)
+        s_node[c] ^ end_node[0]
+    new_node = contractor(
+        [s_node] + end_nodes,
+        output_edge_order=[s_node[i] for i in range(n) if i not in cut],
+    )
+    return backend.reshape(new_node.tensor, [-1])
+
+
 def reduced_density_matrix(
     state: Union[Tensor, QuOperator],
     cut: Union[int, List[int]],
