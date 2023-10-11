@@ -145,3 +145,29 @@ def jaxqr_bwd(res: Sequence[Array], tangents: Sequence[Array]) -> Tuple[Array]:
 adaware_qr.defvjp(jaxqr_fwd, jaxqr_bwd)  # type: ignore
 
 adaware_qr_jit = jax.jit(adaware_qr)
+
+
+@jax.custom_vjp
+def adaware_eigh(A: Array) -> Array:
+    return jnp.linalg.eigh(A)
+
+
+def jaxeigh_fwd(A: Array) -> Array:
+    e, v = jnp.linalg.eigh(A)
+    return (e, v), (A, e, v)
+
+
+def jaxeigh_bwd(r: Array, tangents: Array) -> Array:
+    a, e, v = r
+    de, dv = tangents
+    eye_n = jnp.eye(a.shape[-1], dtype=a.dtype)
+    f = _safe_reciprocal(e[..., jnp.newaxis, :] - e[..., jnp.newaxis] + eye_n) - eye_n
+    middle = jnp.diag(de) + jnp.multiply(f, (v.T @ dv))
+    grad_a = jnp.conj(v) @ middle @ v.T
+    return (grad_a,)
+
+
+# denegerate eigev values lead nan in eigh gradients, while tf has fixed that long ago
+
+adaware_eigh.defvjp(jaxeigh_fwd, jaxeigh_bwd)
+adaware_eigh_jit = jax.jit(adaware_eigh)

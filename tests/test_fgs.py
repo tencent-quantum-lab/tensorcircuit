@@ -208,3 +208,22 @@ def test_exp_4body(backend):
     np.testing.assert_allclose(
         c.expectation_4body(1, 0, 6, 7), c.expectation_4body(1, 0, 6, 7), atol=1e-5
     )
+
+
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_overlap(backend):
+    def compute_overlap(FGScls):
+        c = FGScls(3, filled=[0, 2])
+        c.evol_hp(0, 1, 1.2)
+        c.evol_hp(1, 2, 0.3)
+        c.evol_cp(0, 0.5)
+        c.evol_sp(0, 2, 0.3)
+        c1 = FGScls(3, filled=[0, 2])
+        c1.evol_hp(0, 1, 0.2)
+        c1.evol_hp(1, 2, 0.6)
+        c1.evol_sp(1, 0, -1.1)
+        return tc.backend.abs(c.overlap(c1))
+
+    np.testing.assert_allclose(
+        compute_overlap(tc.FGSSimulator), compute_overlap(tc.fgs.FGSTestSimulator), 1e-5
+    )
