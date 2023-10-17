@@ -35,7 +35,7 @@ Relevant Links
 TensorCircuit is created and maintained by `Shi-Xin Zhang <https://github.com/refraction-ray>`_ and this version is released by `Tencent Quantum Lab <https://quantum.tencent.com/>`_.
 
 The current core authors of TensorCircuit are `Shi-Xin Zhang <https://github.com/refraction-ray>`_ and `Yu-Qin Chen <https://github.com/yutuer21>`_.
-We also thank `contributions <https://github.com/tencent-quantum-lab/tensorcircuit/graphs/contributors>`_ from the lab and the open source community.
+We also thank `contributions <https://github.com/tencent-quantum-lab/tensorcircuit/graphs/contributors>`_ from the open source community.
 
 If you have any further questions or collaboration ideas, please use the issue tracker or forum below, or send email to shixinzhang#tencent.com.
 

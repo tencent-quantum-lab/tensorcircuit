@@ -123,7 +123,7 @@ pip install tensorcircuit-nightly
 
 ### 现况
 
-该项目由[腾讯量子实验室](https://quantum.tencent.com/)发布，由 [Shi-Xin Zhang](https://github.com/refraction-ray) 创造并维护。当前核心作者包括 [Shi-Xin Zhang](https://github.com/refraction-ray) 和 [Yu-Qin Chen](https://github.com/yutuer21)。我们也感谢来自实验室和开源社区的[贡献](https://github.com/tencent-quantum-lab/tensorcircuit/graphs/contributors)。
+该项目由 [Shi-Xin Zhang](https://github.com/refraction-ray) 创造并维护。当前核心作者包括 [Shi-Xin Zhang](https://github.com/refraction-ray) 和 [Yu-Qin Chen](https://github.com/yutuer21)。我们也感谢来自开源社区的[贡献](https://github.com/tencent-quantum-lab/tensorcircuit/graphs/contributors)。
 
 ### 引用
 
