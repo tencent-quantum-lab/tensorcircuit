@@ -388,6 +388,8 @@ Reference paper: https://arxiv.org/abs/2308.01068.
 
 - Comparison of Quantum Simulators for Variational Quantum Search: A Benchmark Study: https://arxiv.org/abs/2309.05924.
 
+- Statistical analysis of quantum state learning process in quantum neural networks: https://arxiv.org/abs/2309.14980 (Pubilshed in NeurIPS).
+
 - Generative quantum machine learning via denoising diffusion probabilistic models: https://arxiv.org/abs/2310.05866.
 
 - Quantum imaginary time evolution and quantum annealing meet topological sector optimization: https://arxiv.org/abs/2310.04291.
