@@ -139,7 +139,7 @@ def qir2cirq(
             return self.uMatrix
 
         def _circuit_diagram_info_(
-            self, args: Optional[cirq.CircuitDiagramInfoArgs]
+            self, *args: Optional[cirq.CircuitDiagramInfoArgs]
         ) -> List[str]:
             return [self.name] * self.nqubit
 
