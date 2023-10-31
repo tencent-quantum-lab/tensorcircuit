@@ -138,7 +138,9 @@ def qir2cirq(
         def _unitary_(self) -> Any:
             return self.uMatrix
 
-        def _circuit_diagram_info_(self) -> List[str]:
+        def _circuit_diagram_info_(
+            self, args: Optional[cirq.CircuitDiagramInfoArgs]
+        ) -> List[str]:
             return [self.name] * self.nqubit
 
     if extra_qir is not None and len(extra_qir) > 0:
