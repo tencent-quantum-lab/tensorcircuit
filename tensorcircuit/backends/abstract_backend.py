@@ -25,7 +25,7 @@ class ExtendedBackend:
 
         :param a: tensor in matrix form
         :type a: Tensor
-        :return: matrix exponential of matrix ``a``
+        :return: the copy tensor of ``a``
         :rtype: Tensor
         """
         raise NotImplementedError(
