@@ -294,6 +294,9 @@ TensorCircuit is open source, released under the Apache License, Version 2.0.
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/PeilinZHENG"><img src="https://avatars.githubusercontent.com/u/45784888?v=4?s=100" width="100px;" alt="peilin"/><br /><sub><b>peilin</b></sub></a><br /><a href="#tutorial-PeilinZHENG" title="Tutorials">✅</a> <a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=PeilinZHENG" title="Code">💻</a> <a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=PeilinZHENG" title="Tests">⚠️</a> <a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=PeilinZHENG" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://emilianog-byte.github.io"><img src="https://avatars.githubusercontent.com/u/57567043?v=4?s=100" width="100px;" alt="Cristian Emiliano Godinez Ramirez"/><br /><sub><b>Cristian Emiliano Godinez Ramirez</b></sub></a><br /><a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=EmilianoG-byte" title="Code">💻</a> <a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=EmilianoG-byte" title="Tests">⚠️</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/ztzhu1"><img src="https://avatars.githubusercontent.com/u/111620128?v=4?s=100" width="100px;" alt="ztzhu"/><br /><sub><b>ztzhu</b></sub></a><br /><a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=ztzhu1" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 

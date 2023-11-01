@@ -282,6 +282,15 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "ztzhu1",
+      "name": "ztzhu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/111620128?v=4",
+      "profile": "https://github.com/ztzhu1",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 6,
