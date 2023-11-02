@@ -5,6 +5,7 @@ DQAS part is modified from: examples/clifford_optimization.py
 """
 
 import sys
+
 sys.path.insert(0, "../")
 
 import numpy as np
@@ -16,9 +17,9 @@ from tensorcircuit.applications.vqes import construct_matrix_v3
 ctype, rtype = tc.set_dtype("complex64")
 K = tc.set_backend("tensorflow")
 
-n = 10 # the number of qubits (must be even for consistency later)
-ncz = 2 # number of cz layers in Schrodinger circuit
-nlayersq = ncz + 1 # Schrodinger parameter layers
+n = 10  # the number of qubits (must be even for consistency later)
+ncz = 2  # number of cz layers in Schrodinger circuit
+nlayersq = ncz + 1  # Schrodinger parameter layers
 
 # training setup
 epochs = 1000
@@ -27,6 +28,7 @@ batch = 1000
 # Hamiltonian
 h6h = np.load("./h6_hamiltonian.npy")  # reported in 0.99 A
 hamiltonian = construct_matrix_v3(h6h.tolist())
+
 
 def hybrid_ansatz(structure, paramq, preprocess="direct", train=True):
     """_summary_
@@ -54,13 +56,13 @@ def hybrid_ansatz(structure, paramq, preprocess="direct", train=True):
         pass
 
     structure = K.cast(structure, ctype)
-    structure = tf.reshape(structure, shape=[n//2, 2])
+    structure = tf.reshape(structure, shape=[n // 2, 2])
 
     # quantum variational in Schrodinger part, first consider a ring topol
     for j in range(nlayersq):
-        if j !=0 and j!=nlayersq-1:
-            for i in range(j%2,n,2):
-                c.cz(i, (i+1)%n)
+        if j != 0 and j != nlayersq - 1:
+            for i in range(j % 2, n, 2):
+                c.cz(i, (i + 1) % n)
         for i in range(n):
             c.rx(i, theta=paramq[j, i, 0])
             c.ry(i, theta=paramq[j, i, 1])
@@ -68,35 +70,36 @@ def hybrid_ansatz(structure, paramq, preprocess="direct", train=True):
 
     # Clifford part, which is actually virtual
     if train:
-        for j in range(0,n//2-1):
+        for j in range(0, n // 2 - 1):
             dis = j + 1
-            for i in range(0,n):
+            for i in range(0, n):
                 c.unitary(
                     i,
-                    (i+dis) % n,
+                    (i + dis) % n,
                     unitary=structure[j, 0] * tc.gates.ii().tensor
                     + structure[j, 1] * tc.gates.cz().tensor,
                 )
 
-        for i in range(0,n//2):
+        for i in range(0, n // 2):
             c.unitary(
                 i,
-                i + n//2,
-                unitary=structure[n//2-1, 0] * tc.gates.ii().tensor
-                + structure[n//2-1, 1] * tc.gates.cz().tensor,
+                i + n // 2,
+                unitary=structure[n // 2 - 1, 0] * tc.gates.ii().tensor
+                + structure[n // 2 - 1, 1] * tc.gates.cz().tensor,
             )
-    else: # if not for training, we just put nontrivial gates
-        for j in range(0,n//2-1):
+    else:  # if not for training, we just put nontrivial gates
+        for j in range(0, n // 2 - 1):
             dis = j + 1
-            for i in range(0,n):
-                if structure[j, 1]==1:
-                    c.cz(i, (i+dis) % n)
+            for i in range(0, n):
+                if structure[j, 1] == 1:
+                    c.cz(i, (i + dis) % n)
 
-        for i in range(0,n//2):
-            if structure[j, 1]==1:
-                c.cz(i, i + n//2)
+        for i in range(0, n // 2):
+            if structure[j, 1] == 1:
+                c.cz(i, i + n // 2)
 
     return c
+
 
 def hybrid_vqe(structure, paramq, preprocess="direct"):
     """_summary_
@@ -118,6 +121,7 @@ def hybrid_vqe(structure, paramq, preprocess="direct"):
     c = hybrid_ansatz(structure, paramq, preprocess)
     return tc.templates.measurements.operator_expectation(c, hamiltonian)
 
+
 def sampling_from_structure(structures, batch=1):
     ch = structures.shape[-1]
     prob = K.softmax(K.real(structures), axis=-1)
@@ -137,7 +141,7 @@ def best_from_structure(structures):
 
 
 def nmf_gradient(structures, oh):
-    """ compute the Monte Carlo gradient with respect of naive mean-field probabilistic model
+    """compute the Monte Carlo gradient with respect of naive mean-field probabilistic model
 
     Parameters
     ----------
@@ -166,21 +170,25 @@ def nmf_gradient(structures, oh):
             indices,
             tf.ones([structures.shape[0]], dtype=ctype),
         )
-    ) # in oh : 1-p, not in oh : -p
+    )  # in oh : 1-p, not in oh : -p
+
 
 # vmap for a batch of structures
-nmf_gradient_vmap = K.jit(
-    K.vmap(nmf_gradient, vectorized_argnums=1))
+nmf_gradient_vmap = K.jit(K.vmap(nmf_gradient, vectorized_argnums=1))
 
 # vvag for a batch of structures
 vvag_hybrid = K.jit(
     K.vectorized_value_and_grad(hybrid_vqe, vectorized_argnums=(0,), argnums=(1,)),
-    static_argnums=(2,))
+    static_argnums=(2,),
+)
 
-def train_hybrid(stddev=0.05, lr=None, epochs=2000, debug_step=50, batch=256, verbose=False):
+
+def train_hybrid(
+    stddev=0.05, lr=None, epochs=2000, debug_step=50, batch=256, verbose=False
+):
     # params = K.implicit_randn([n//2, 2], stddev=stddev)
-    params = K.ones([n//2, 2], dtype=float)
-    paramq = K.implicit_randn([nlayersq, n, 3], stddev=stddev) * 2*np.pi
+    params = K.ones([n // 2, 2], dtype=float)
+    paramq = K.implicit_randn([nlayersq, n, 3], stddev=stddev) * 2 * np.pi
     if lr is None:
         lr = tf.keras.optimizers.schedules.ExponentialDecay(0.6, 100, 0.8)
     structure_opt = K.optimizer(tf.keras.optimizers.Adam(lr))
@@ -197,7 +205,7 @@ def train_hybrid(stddev=0.05, lr=None, epochs=2000, debug_step=50, batch=256, ve
         vs, gq = vvag_hybrid(batched_stucture, paramq, "direct")
         loss_history.append(np.min(vs))
         gq = gq[0]
-        avcost = K.mean(vs) # average cost of the batch
+        avcost = K.mean(vs)  # average cost of the batch
         gs = nmf_gradient_vmap(params, batched_stucture)  # \nabla lnp
         gs = K.mean(K.reshape(vs - avcost2, [-1, 1, 1]) * gs, axis=0)
         # avcost2 is averaged cost in the last epoch
@@ -214,15 +222,14 @@ def train_hybrid(stddev=0.05, lr=None, epochs=2000, debug_step=50, batch=256, ve
             )
 
             # max over choices, min over layers and qubits
-            minp = tf.math.reduce_min(tf.math.reduce_max(tf.math.softmax(params), axis=-1))
+            minp = tf.math.reduce_min(
+                tf.math.reduce_max(tf.math.softmax(params), axis=-1)
+            )
             if minp > 0.5:
                 print("probability converged")
 
             if verbose:
-                print(
-                    "strcuture parameter: \n",
-                    params.numpy()
-                )
+                print("strcuture parameter: \n", params.numpy())
 
             cand_preset = best_from_structure(params)
             print(cand_preset)
@@ -232,6 +239,8 @@ def train_hybrid(stddev=0.05, lr=None, epochs=2000, debug_step=50, batch=256, ve
     return hybrid_vqe(params, paramq, "most"), params, paramq, loss_history
 
 
-print('Train hybrid.')
-ee, params, paramq, loss_history = train_hybrid(epochs=epochs, batch=batch, verbose=True)
-print('Energy:', ee)
+print("Train hybrid.")
+ee, params, paramq, loss_history = train_hybrid(
+    epochs=epochs, batch=batch, verbose=True
+)
+print("Energy:", ee)
