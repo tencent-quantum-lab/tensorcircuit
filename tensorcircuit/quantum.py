@@ -9,6 +9,7 @@ Quantum state and operator class backend by tensornetwork
 """
 # pylint: disable=invalid-name
 
+import os
 from functools import reduce, partial
 import logging
 from operator import or_, mul, matmul
@@ -1503,7 +1504,7 @@ def op2tensor(
 
 
 @op2tensor
-def entropy(rho: Union[Tensor, QuOperator], eps: float = 1e-12) -> Tensor:
+def entropy(rho: Union[Tensor, QuOperator], eps: Optional[float] = None) -> Tensor:
     """
     Compute the entropy from the given density matrix ``rho``.
 
@@ -1541,6 +1542,11 @@ def entropy(rho: Union[Tensor, QuOperator], eps: float = 1e-12) -> Tensor:
     :return: Entropy on the given density matrix.
     :rtype: Tensor
     """
+    eps_env = os.environ.get("TC_QUANTUM_ENTROPY_EPS")
+    if eps is None and eps_env is None:
+        eps = 1e-12
+    elif eps is None and eps_env is not None:
+        eps = 10 ** (-int(eps_env))
     rho += eps * backend.cast(backend.eye(rho.shape[-1]), rho.dtype)  # type: ignore
     lbd = backend.real(backend.eigh(rho)[0])
     lbd = backend.relu(lbd)
