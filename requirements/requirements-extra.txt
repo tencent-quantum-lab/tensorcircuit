@@ -1,9 +1,9 @@
 # extra dependencies for ci
 qiskit==0.43
-qiskit-nature
+# qiskit-nature
+mitiq
 cirq
 torch
 jupyter
 mthree==1.1.0
-mitiq
 openfermion
