@@ -16,6 +16,23 @@ FT = tc.fgs.FGSTestSimulator
 
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_cmatrix(backend, highp):
+    import openfermion
+
+    def asymmetric_hopping(J, gamma, i, j, L):
+        m0 = tc.fgs.onehot_matrix(i, j, 2 * L) - tc.fgs.onehot_matrix(
+            j + L, i + L, 2 * L
+        )
+        m = (J + gamma) * m0 + (J - gamma) * tc.backend.adjoint(m0)
+        return m / 2
+
+    def asymmetric_hopping_jw(J, gamma, i, j, L):
+        op = (J + gamma) * openfermion.FermionOperator(f"{str(i)}^ {str(j)}") + np.conj(
+            J - gamma
+        ) * openfermion.FermionOperator(f"{str(j)}^ {str(i)}")
+        sop = openfermion.transforms.jordan_wigner(op)
+        m = openfermion.get_sparse_operator(sop, n_qubits=L).todense()
+        return m
+
     c = tc.fgs.FGSSimulator(4, [0])
     c1 = tc.fgs.FGSTestSimulator(4, [0])
     c.evol_hp(0, 1, 1.2)
@@ -26,6 +43,8 @@ def test_cmatrix(backend, highp):
     c1.evol_cp(0, -0.8)
     c.evol_sp(1, 0, 0.5)
     c1.evol_sp(1, 0, 0.5)
+    c.evol_ghamiltonian(asymmetric_hopping(1, 0.5, 0, 2, 4))
+    c1.evol_ghamiltonian(np.array(asymmetric_hopping_jw(1, 0.5, 0, 2, 4)))
     c.evol_sp(1, 2, 1.5)
     c1.evol_sp(1, 2, 1.5)
     c.evol_ihamiltonian(c.chemical_potential(1.0, 1, 4))

@@ -230,6 +230,19 @@ class FGSSimulator:
         self.orthogonal()
         self.cmatrix = None
 
+    def evol_ghamiltonian(self, h: Tensor) -> None:
+        r"""
+        Evolve as :math:`e^{-1/2 i \hat{h}}` with h generally non-Hermitian
+
+        :param h: _description_
+        :type h: Tensor
+        """
+        # e^{-1/2 H}
+        h = backend.cast(h, dtype=dtypestr)
+        self.alpha = backend.expm(-1.0j * backend.adjoint(h)) @ self.alpha
+        self.orthogonal()
+        self.cmatrix = None
+
     def orthogonal(self) -> None:
         q, _ = backend.qr(self.alpha)
         self.alpha = q
@@ -576,6 +589,11 @@ class FGSTestSimulator:
 
     def evol_ihamiltonian(self, h: Tensor) -> None:
         self.state = npb.expm(-1 / 2 * h) @ npb.reshape(self.state, [-1, 1])
+        self.state = npb.reshape(self.state, [-1])
+        self.orthogonal()
+
+    def evol_ghamiltonian(self, h: Tensor) -> None:
+        self.state = npb.expm(-1 / 2 * 1.0j * h) @ npb.reshape(self.state, [-1, 1])
         self.state = npb.reshape(self.state, [-1])
         self.orthogonal()
 
