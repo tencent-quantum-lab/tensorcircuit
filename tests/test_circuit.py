@@ -1105,6 +1105,9 @@ def test_qiskit2tc():
     qisc.x(3)
     qisc.y(3)
     qisc.z(3)
+    qisc.cu(
+        5.868768495722669, 2.24809352294186, 3.59102783505607, 2.0223650288392, 1, 3
+    )
     qisc.cnot(0, 1)
     qisc.cy(0, 1)
     qisc.cz(0, 1, ctrl_state=0)

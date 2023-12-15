@@ -24,6 +24,8 @@
 
 - Support degenerate eigenvalue for jax backend `eigh` method when using AD
 
+- Fixed `cu` gate translation from qiskit to avoid qiskit bug
+
 ## 0.11.0
 
 ### Added

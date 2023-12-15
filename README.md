@@ -400,6 +400,10 @@ Reference paper: https://arxiv.org/abs/2308.01068.
 
 - Google Summer of Code 2023 Projects (QML4HEP): https://github.com/ML4SCI/QMLHEP, https://github.com/Gopal-Dahale/qgnn-hep, https://github.com/salcc/QuantumTransformers.
 
+- Absence of barren plateaus in finite local-depth circuits with long-range entanglement: https://arxiv.org/abs/2311.01393.
+
+- Non-Markovianity benefits quantum dynamics simulation: https://arxiv.org/abs/2311.17622.
+
   </details>
 
 If you want to highlight your research work or projects here, feel free to add by opening PR.

@@ -523,7 +523,8 @@ def qiskit2tc(
                 tc_circuit.multicontrol(
                     *idx, ctrl=ctrl_state, unitary=gates._x_matrix, name="x"
                 )
-        elif gate_name[0] == "c" and gate_name[:7] != "circuit":
+        elif gate_name[0] == "c" and gate_name[:7] != "circuit" and gate_name != "cu":
+            # qiskit cu bug, see https://github.com/tencent-quantum-lab/tensorcircuit/issues/199
             for i in range(1, len(gate_name)):
                 if (gate_name[-i] == "o") & (gate_name[-i - 1] == "_"):
                     break
