@@ -1,5 +1,5 @@
 # extra dependencies for ci
-qiskit==0.43
+qiskit
 # qiskit-nature
 mitiq
 cirq
