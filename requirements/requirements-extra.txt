@@ -1,5 +1,6 @@
 # extra dependencies for ci
 qiskit
+qiskit_aer
 # qiskit-nature
 mitiq
 cirq

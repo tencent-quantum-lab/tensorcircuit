@@ -342,7 +342,7 @@ def qir2qiskit(
             qop = qi.Operator(gatem)
             try:
                 qiskit_circ.unitary(qop, index[::-1], label=qis_name)
-            except ExtensionError:
+            except (ExtensionError, ValueError) as _:
                 logger.warning(
                     "omit non unitary gate in tensorcircuit when transforming to qiskit: %s"
                     % gate_name
