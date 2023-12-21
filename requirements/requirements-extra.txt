@@ -4,6 +4,6 @@ qiskit
 mitiq
 cirq
 torch
-jupyter
+# jupyter
 mthree==1.1.0
 openfermion
