@@ -152,7 +152,7 @@ def set_dtype(dtype: Optional[str] = None, set_global: bool = True) -> Tuple[str
         raise ValueError(f"Unsupported data type: {dtype}")
 
     try:
-        from jax.config import config
+        from jax import config
     except ImportError:
         config = None  # type: ignore
 
