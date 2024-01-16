@@ -300,6 +300,15 @@
       "contributions": [
         "example"
       ]
+    },
+    {
+      "login": "king-p3nguin",
+      "name": "Kazuki Tsuoka",
+      "avatar_url": "https://avatars.githubusercontent.com/u/103920010?v=4",
+      "profile": "https://github.com/king-p3nguin",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 6,
