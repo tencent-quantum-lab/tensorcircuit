@@ -1,7 +1,7 @@
 """
 Fermion Gaussian state simulator
 """
-from typing import Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -74,8 +74,10 @@ class FGSSimulator:
                 _, _, self.alpha = self.fermion_diagonalization(hc, L)
         else:
             self.alpha = alpha
+        self.alpha0 = self.alpha
         self.wtransform = self.wmatrix(L)
         self.cmatrix = cmatrix
+        self.otcmatrix: Dict[Tuple[int, int], Tensor] = {}
 
     @classmethod
     def fermion_diagonalization(
@@ -141,12 +143,34 @@ class FGSSimulator:
     def get_alpha(self) -> Tensor:
         return self.alpha
 
-    def get_cmatrix(self) -> Tensor:
-        if self.cmatrix is not None:
+    def get_cmatrix(self, now_i: bool = True, now_j: bool = True) -> Tensor:
+        # otoc in FGS language, see: https://arxiv.org/pdf/1908.03292.pdf
+        # https://journals.aps.org/prb/pdf/10.1103/PhysRevB.99.054205
+        # otoc for non=hermitian system is more subtle due to the undefined normalization
+        # of operator and not considered here, see: https://arxiv.org/pdf/2305.12054.pdf
+        if self.cmatrix is not None and now_i is True and now_j is True:
             return self.cmatrix
-        else:
+        elif now_i is True and now_j is True:
             cmatrix = self.alpha @ backend.adjoint(self.alpha)
             self.cmatrix = cmatrix
+            return cmatrix
+        elif now_i is True:  # new i old j
+            if (1, 0) in self.otcmatrix:
+                return self.otcmatrix[(1, 0)]
+            cmatrix = self.alpha @ backend.adjoint(self.alpha0)
+            self.otcmatrix[(1, 0)] = cmatrix
+            return cmatrix
+        elif now_j is True:  # old i new j
+            if (0, 1) in self.otcmatrix:
+                return self.otcmatrix[(0, 1)]
+            cmatrix = self.alpha0 @ backend.adjoint(self.alpha)
+            self.otcmatrix[(0, 1)] = cmatrix
+            return cmatrix
+        else:  # initial cmatrix
+            if (0, 0) in self.otcmatrix:
+                return self.otcmatrix[(0, 0)]
+            cmatrix = self.alpha0 @ backend.adjoint(self.alpha0)
+            self.otcmatrix[(0, 0)] = cmatrix
             return cmatrix
 
     def get_reduced_cmatrix(self, subsystems_to_trace_out: List[int]) -> Tensor:
@@ -216,6 +240,7 @@ class FGSSimulator:
         h = backend.cast(h, dtype=dtypestr)
         self.alpha = backend.expm(-1.0j * h) @ self.alpha
         self.cmatrix = None
+        self.otcmatrix = {}
 
     def evol_ihamiltonian(self, h: Tensor) -> None:
         r"""
@@ -229,6 +254,7 @@ class FGSSimulator:
         self.alpha = backend.expm(h) @ self.alpha
         self.orthogonal()
         self.cmatrix = None
+        self.otcmatrix = {}
 
     def evol_ghamiltonian(self, h: Tensor) -> None:
         r"""
@@ -242,6 +268,7 @@ class FGSSimulator:
         self.alpha = backend.expm(-1.0j * backend.adjoint(h)) @ self.alpha
         self.orthogonal()
         self.cmatrix = None
+        self.otcmatrix = {}
 
     def orthogonal(self) -> None:
         q, _ = backend.qr(self.alpha)
@@ -350,7 +377,9 @@ class FGSSimulator:
         m = self.get_cmatrix_majorana()
         return -1.0j * (2 * m - backend.eye(self.L * 2))
 
-    def expectation_2body(self, i: int, j: int) -> Tensor:
+    def expectation_2body(
+        self, i: int, j: int, now_i: bool = True, now_j: bool = True
+    ) -> Tensor:
         """
         expectation of two fermion terms
         convention: (c, c^\dagger)
@@ -363,7 +392,7 @@ class FGSSimulator:
         :return: _description_
         :rtype: Tensor
         """
-        return self.get_cmatrix()[i][(j + self.L) % (2 * self.L)]
+        return self.get_cmatrix(now_i, now_j)[i][(j + self.L) % (2 * self.L)]
 
     def expectation_4body(self, i: int, j: int, k: int, l: int) -> Tensor:
         """
@@ -520,6 +549,7 @@ class FGSTestSimulator:
             self.state = self.fermion_diagonalization(hc, L)
         else:
             self.state = self.init_state(filled, L)
+        self.state0 = self.state
 
     @staticmethod
     def init_state(filled: List[int], L: int) -> Tensor:
@@ -620,6 +650,140 @@ class FGSTestSimulator:
 
     def orthogonal(self) -> None:
         self.state /= backend.norm(self.state)
+
+    def get_ot_cmatrix(self, h: Tensor, now_i: bool = True) -> Tensor:
+        alpha1_jw = self.state
+        cmatrix = np.zeros([2 * self.L, 2 * self.L], dtype=complex)
+        for i in range(self.L):
+            for j in range(self.L):
+                op1 = openfermion.FermionOperator(f"{str(i)}")
+                op2 = openfermion.FermionOperator(f"{str(j)}^")
+
+                m1 = openfermion.get_sparse_operator(op1, n_qubits=self.L).todense()
+                m2 = openfermion.get_sparse_operator(op2, n_qubits=self.L).todense()
+                eh = npb.expm(-1 / 2 * 1.0j * h)
+                eh1 = npb.expm(1 / 2 * 1.0j * h)
+                if now_i is True:
+                    cmatrix[i, j] = backend.item(
+                        (
+                            backend.reshape(backend.adjoint(alpha1_jw), [1, -1])
+                            @ eh1
+                            @ m1
+                            @ eh
+                            @ m2
+                            @ backend.reshape(alpha1_jw, [-1, 1])
+                        )[0, 0]
+                    )
+                else:
+                    cmatrix[i, j] = backend.item(
+                        (
+                            backend.reshape(backend.adjoint(alpha1_jw), [1, -1])
+                            @ m1
+                            @ eh1
+                            @ m2
+                            @ eh
+                            @ backend.reshape(alpha1_jw, [-1, 1])
+                        )[0, 0]
+                    )
+        for i in range(self.L, 2 * self.L):
+            for j in range(self.L):
+                op1 = openfermion.FermionOperator(f"{str(i-self.L)}^")
+                op2 = openfermion.FermionOperator(f"{str(j)}^")
+
+                m1 = openfermion.get_sparse_operator(op1, n_qubits=self.L).todense()
+                m2 = openfermion.get_sparse_operator(op2, n_qubits=self.L).todense()
+                eh = npb.expm(-1 / 2 * 1.0j * h)
+                eh1 = npb.expm(1 / 2 * 1.0j * h)
+
+                if now_i is True:
+                    cmatrix[i, j] = backend.item(
+                        (
+                            backend.reshape(backend.adjoint(alpha1_jw), [1, -1])
+                            @ eh1
+                            @ m1
+                            @ eh
+                            @ m2
+                            @ backend.reshape(alpha1_jw, [-1, 1])
+                        )[0, 0]
+                    )
+                else:
+                    cmatrix[i, j] = backend.item(
+                        (
+                            backend.reshape(backend.adjoint(alpha1_jw), [1, -1])
+                            @ m1
+                            @ eh1
+                            @ m2
+                            @ eh
+                            @ backend.reshape(alpha1_jw, [-1, 1])
+                        )[0, 0]
+                    )
+
+        for i in range(self.L):
+            for j in range(self.L, 2 * self.L):
+                op1 = openfermion.FermionOperator(f"{str(i)}")
+                op2 = openfermion.FermionOperator(f"{str(j-self.L)}")
+
+                m1 = openfermion.get_sparse_operator(op1, n_qubits=self.L).todense()
+                m2 = openfermion.get_sparse_operator(op2, n_qubits=self.L).todense()
+                eh = npb.expm(-1 / 2 * 1.0j * h)
+                eh1 = npb.expm(1 / 2 * 1.0j * h)
+
+                if now_i is True:
+                    cmatrix[i, j] = backend.item(
+                        (
+                            backend.reshape(backend.adjoint(alpha1_jw), [1, -1])
+                            @ eh1
+                            @ m1
+                            @ eh
+                            @ m2
+                            @ backend.reshape(alpha1_jw, [-1, 1])
+                        )[0, 0]
+                    )
+                else:
+                    cmatrix[i, j] = backend.item(
+                        (
+                            backend.reshape(backend.adjoint(alpha1_jw), [1, -1])
+                            @ m1
+                            @ eh1
+                            @ m2
+                            @ eh
+                            @ backend.reshape(alpha1_jw, [-1, 1])
+                        )[0, 0]
+                    )
+        for i in range(self.L, 2 * self.L):
+            for j in range(self.L, 2 * self.L):
+                op1 = openfermion.FermionOperator(f"{str(i-self.L)}^ ")
+                op2 = openfermion.FermionOperator(f"{str(j-self.L)}")
+
+                m1 = openfermion.get_sparse_operator(op1, n_qubits=self.L).todense()
+                m2 = openfermion.get_sparse_operator(op2, n_qubits=self.L).todense()
+                eh = npb.expm(-1 / 2 * 1.0j * h)
+                eh1 = npb.expm(1 / 2 * 1.0j * h)
+
+                if now_i is True:
+                    cmatrix[i, j] = backend.item(
+                        (
+                            backend.reshape(backend.adjoint(alpha1_jw), [1, -1])
+                            @ eh1
+                            @ m1
+                            @ eh
+                            @ m2
+                            @ backend.reshape(alpha1_jw, [-1, 1])
+                        )[0, 0]
+                    )
+                else:
+                    cmatrix[i, j] = backend.item(
+                        (
+                            backend.reshape(backend.adjoint(alpha1_jw), [1, -1])
+                            @ m1
+                            @ eh1
+                            @ m2
+                            @ eh
+                            @ backend.reshape(alpha1_jw, [-1, 1])
+                        )[0, 0]
+                    )
+
+        return cmatrix
 
     def get_cmatrix(self) -> Tensor:
         alpha1_jw = self.state

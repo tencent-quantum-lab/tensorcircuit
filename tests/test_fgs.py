@@ -59,6 +59,25 @@ def test_cmatrix(backend, highp):
     )
 
 
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_otoc(backend, highp):
+    c = tc.FGSSimulator(4, [0, 1])
+    c1 = tc.fgs.FGSTestSimulator(4, [0, 1])
+    h = c.hopping(0.6, 1, 2, 4)
+    h += c.hopping(-0.8, 3, 2, 4)
+    h += c.chemical_potential(0.3, 2, 4)
+    h1 = c1.hopping_jw(0.6, 1, 2, 4)
+    h1 += c1.hopping_jw(-0.8, 3, 2, 4)
+    h1 += c1.chemical_potential_jw(0.3, 2, 4)
+    c.evol_hamiltonian(h)
+    m = c.get_cmatrix(now_i=True, now_j=False)
+    m0 = c1.get_ot_cmatrix(h1)
+    np.testing.assert_allclose(m, m0, atol=1e-5)
+    m = c.get_cmatrix(now_i=False, now_j=True)
+    m0 = c1.get_ot_cmatrix(h1, now_i=False)
+    np.testing.assert_allclose(m, m0, atol=1e-5)
+
+
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_fgs_ad(backend, highp):
     import optax
