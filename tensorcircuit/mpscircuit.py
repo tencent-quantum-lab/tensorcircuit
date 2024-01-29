@@ -1,6 +1,7 @@
 """
 Quantum circuit: MPS state simulator
 """
+
 # pylint: disable=invalid-name
 
 from functools import reduce

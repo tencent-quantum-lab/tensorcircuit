@@ -1,6 +1,7 @@
 """
 Quantum circuit: common methods for all circuit classes as MixIn
 """
+
 # pylint: disable=invalid-name
 
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union

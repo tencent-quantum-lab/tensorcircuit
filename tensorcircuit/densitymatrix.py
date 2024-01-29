@@ -1,6 +1,7 @@
 """
 Quantum circuit class but with density matrix simulator
 """
+
 # pylint: disable=invalid-name
 
 from functools import reduce
@@ -333,9 +334,11 @@ class DMCircuit2(DMCircuit):
     ) -> None:
         # incompatible API for now
         kraus = [
-            k
-            if isinstance(k, tn.Node)
-            else Gate(backend.cast(backend.convert_to_tensor(k), dtypestr))
+            (
+                k
+                if isinstance(k, tn.Node)
+                else Gate(backend.cast(backend.convert_to_tensor(k), dtypestr))
+            )
             for k in kraus
         ]
         self.check_kraus(kraus)

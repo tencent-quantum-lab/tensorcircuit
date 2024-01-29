@@ -1,6 +1,7 @@
 """
 Shortcuts for measurement patterns on circuit
 """
+
 # circuit in, circuit out
 # pylint: disable=invalid-name
 

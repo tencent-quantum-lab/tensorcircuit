@@ -1,6 +1,7 @@
 """
 Module for functions adding layers of circuits
 """
+
 import itertools
 import logging
 import sys

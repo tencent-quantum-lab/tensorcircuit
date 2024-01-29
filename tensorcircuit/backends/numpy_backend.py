@@ -1,6 +1,7 @@
 """
 Backend magic inherited from tensornetwork: numpy backend
 """
+
 # pylint: disable=invalid-name
 
 import logging

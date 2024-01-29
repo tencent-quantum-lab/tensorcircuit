@@ -1,6 +1,7 @@
 """
 finite size scaling tools
 """
+
 from typing import List, Tuple, Optional
 
 import numpy as np

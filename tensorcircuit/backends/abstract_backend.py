@@ -1,6 +1,7 @@
 """
 Backend magic inherited from tensornetwork: abstract backend
 """
+
 # pylint: disable=invalid-name
 # pylint: disable=unused-variable
 
@@ -1539,16 +1540,19 @@ class ExtendedBackend:
                     args,
                     tuple(
                         [
-                            self.reshape(
-                                self.eye(self.sizen(arg), dtype=arg.dtype),
-                                [-1] + list(self.shape_tuple(arg)),
-                            )
-                            if i == argnum
-                            else self.reshape(
-                                self.zeros(
-                                    [self.sizen(arg), self.sizen(arg)], dtype=arg.dtype
-                                ),
-                                [-1] + list(self.shape_tuple(arg)),
+                            (
+                                self.reshape(
+                                    self.eye(self.sizen(arg), dtype=arg.dtype),
+                                    [-1] + list(self.shape_tuple(arg)),
+                                )
+                                if i == argnum
+                                else self.reshape(
+                                    self.zeros(
+                                        [self.sizen(arg), self.sizen(arg)],
+                                        dtype=arg.dtype,
+                                    ),
+                                    [-1] + list(self.shape_tuple(arg)),
+                                )
                             )
                             for i, arg in enumerate(args)
                         ]
@@ -1607,16 +1611,18 @@ class ExtendedBackend:
                     args,
                     collect(
                         [
-                            self.reshape(
-                                self.eye(self.sizen(v), dtype=v.dtype),
-                                [-1] + list(self.shape_tuple(v)),
-                            )
-                            if i == k
-                            else self.reshape(
-                                self.zeros(
-                                    [self.sizen(v), self.sizen(v)], dtype=v.dtype
-                                ),
-                                [-1] + list(self.shape_tuple(v)),
+                            (
+                                self.reshape(
+                                    self.eye(self.sizen(v), dtype=v.dtype),
+                                    [-1] + list(self.shape_tuple(v)),
+                                )
+                                if i == k
+                                else self.reshape(
+                                    self.zeros(
+                                        [self.sizen(v), self.sizen(v)], dtype=v.dtype
+                                    ),
+                                    [-1] + list(self.shape_tuple(v)),
+                                )
                             )
                             for i, v in enumerate(values)
                         ]

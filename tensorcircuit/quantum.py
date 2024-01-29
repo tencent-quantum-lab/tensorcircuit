@@ -7,6 +7,7 @@ Quantum state and operator class backend by tensornetwork
 
     import tensorcircuit.quantum as qu
 """
+
 # pylint: disable=invalid-name
 
 import os

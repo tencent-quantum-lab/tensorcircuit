@@ -1,6 +1,7 @@
 """
 Fermion Gaussian state simulator
 """
+
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np

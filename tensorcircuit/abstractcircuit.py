@@ -1,6 +1,7 @@
 """
 Methods for abstract circuits independent of nodes, edges and contractions
 """
+
 # pylint: disable=invalid-name
 
 from typing import Any, Callable, Dict, List, Optional, Sequence, Union, Tuple

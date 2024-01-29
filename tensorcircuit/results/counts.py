@@ -1,6 +1,7 @@
 """
 dict related functionalities
 """
+
 from typing import Any, Dict, Optional, Sequence
 
 import numpy as np

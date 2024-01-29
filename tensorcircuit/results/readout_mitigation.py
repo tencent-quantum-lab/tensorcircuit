@@ -1,6 +1,7 @@
 """
 readout error mitigation functionalities
 """
+
 # Part of the code in this file is from mthree: https://github.com/Qiskit-Partners/mthree (Apache2)
 # https://journals.aps.org/prxquantum/pdf/10.1103/PRXQuantum.2.040326
 
@@ -811,9 +812,11 @@ class ReadoutMit:
                 ]
             else:
                 diagonal_op = [
-                    [1, -1] @ inv_single_qubit_cals[i]
-                    if i in z1
-                    else [1, 1] @ inv_single_qubit_cals[i]
+                    (
+                        [1, -1] @ inv_single_qubit_cals[i]
+                        if i in z1
+                        else [1, 1] @ inv_single_qubit_cals[i]
+                    )
                     for i in range(n)
                 ]
 

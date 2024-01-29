@@ -1,6 +1,7 @@
 """
 Modules for DQAS framework
 """
+
 # possibly deprecated, multiprocessing is not the recommended way to do DQAS task now, using vmap!
 
 import sys
@@ -486,9 +487,9 @@ def qaoa_simple_train(
     if "prob_model_func" in kws:
         pmf = kws["prob_model_func"]
         del kws["prob_model_func"]
-        kws[
-            "prob_model"
-        ] = pmf()  # in case keras model cannot pickled for multiprocessing map
+        kws["prob_model"] = (
+            pmf()
+        )  # in case keras model cannot pickled for multiprocessing map
     if isinstance(graph, list):
 
         def graph_generator() -> Iterator[Graph]:

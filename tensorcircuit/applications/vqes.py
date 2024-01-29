@@ -1,6 +1,7 @@
 """
 VQNHE application
 """
+
 from functools import lru_cache
 from itertools import product
 import time

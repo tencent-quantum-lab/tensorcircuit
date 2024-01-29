@@ -2,6 +2,7 @@
 matrix product: a new twist
 rewrite matrix product in a vmap style
 """
+
 from functools import partial
 
 import numpy as np

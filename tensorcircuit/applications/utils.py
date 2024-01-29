@@ -2,6 +2,7 @@
 A collection of useful function snippets that irrelevant with the main modules
 or await for further refactor
 """
+
 import logging
 from typing import Any, Callable, Iterator, Optional, Sequence, Tuple
 

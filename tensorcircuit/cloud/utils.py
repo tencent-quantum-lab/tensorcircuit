@@ -1,6 +1,7 @@
 """
 utility functions for cloud connection
 """
+
 from typing import Any, Callable, Optional
 from functools import wraps
 import inspect

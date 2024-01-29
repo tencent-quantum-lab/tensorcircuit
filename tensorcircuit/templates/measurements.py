@@ -1,6 +1,7 @@
 """
 Shortcuts for measurement patterns on circuit
 """
+
 # circuit in, scalar out
 
 from typing import Any

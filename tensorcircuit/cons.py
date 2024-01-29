@@ -1,6 +1,7 @@
 """
 Constants and setups
 """
+
 # pylint: disable=invalid-name
 
 import logging

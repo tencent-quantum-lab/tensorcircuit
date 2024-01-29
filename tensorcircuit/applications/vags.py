@@ -1,6 +1,7 @@
 """
 DQAS application kernels as vag functions
 """
+
 from functools import lru_cache, partial, reduce
 import logging
 import operator
