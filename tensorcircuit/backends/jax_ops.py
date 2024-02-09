@@ -14,7 +14,8 @@ Array = Any  # jnp.array
 
 @jax.custom_vjp
 def adaware_svd(A: Array) -> Any:
-    return jnp.linalg.svd(A, full_matrices=False)
+    u, s, v = jnp.linalg.svd(A, full_matrices=False)
+    return (u, s, v)
 
 
 def _safe_reciprocal(x: Array, epsilon: float = 1e-15) -> Array:
@@ -77,8 +78,8 @@ qr_epsilon = 1e-8
 
 @jax.custom_vjp
 def adaware_qr(A: Array) -> Any:
-    # q, r = jnp.linalg.qr(A)
-    return jnp.linalg.qr(A)
+    q, r = jnp.linalg.qr(A)
+    return (q, r)
 
 
 def jaxqr_fwd(A: Array) -> Any:

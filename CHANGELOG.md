@@ -26,6 +26,8 @@
 
 - Fixed `cu` gate translation from qiskit to avoid qiskit bug
 
+- Fixed jax refactoring (0.4.24) where SVD and QR return a namedtuple instead of a tuple
+
 ## 0.11.0
 
 ### Added
