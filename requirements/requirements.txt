@@ -1,6 +1,6 @@
 numpy
 scipy
-tensorflow
+tensorflow<2.16 # tf 2.16 with integration of keras 3 seems a disaster...
 tensornetwork-ng
 graphviz
 jax

@@ -3,6 +3,7 @@ Useful utilities for ensemble
 """
 
 from typing import Any, List, Optional
+from copy import deepcopy
 import tensorflow as tf
 import numpy as np
 
@@ -53,10 +54,12 @@ class bagging:  # A.K.A. voting
 
     def compile(self, **kwargs: kwargus) -> None:
         self.permit_train = True
+
         for i in range(self.count):
             if not self.model_trained[i]:
                 dict_kwargs = kwargs.copy()
                 # TODO(@refraction-ray): still not compatible with new optimizer
+                # https://github.com/tensorflow/tensorflow/issues/58973
                 self.models[i].compile(**dict_kwargs)
 
     def __get_confidence(self, model_index: int, input: NDArray) -> NDArray:

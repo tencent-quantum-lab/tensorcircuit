@@ -2,6 +2,7 @@ import os
 import sys
 import tensorflow as tf
 import numpy as np
+import pytest
 
 thisfile = os.path.abspath(__file__)
 modulepath = os.path.dirname(os.path.dirname(thisfile))
@@ -11,6 +12,9 @@ sys.path.insert(0, modulepath)
 from tensorcircuit.applications.ai.ensemble import bagging
 
 
+@pytest.mark.xfail(
+    int(tf.__version__.split(".")[1]) >= 16, reason="legacy optimizer fails tf>=2.16"
+)
 def test_ensemble_bagging():
     data_amount = 100  # Amount of data to be used
     linear_dimension = 4  # linear demension of the data
