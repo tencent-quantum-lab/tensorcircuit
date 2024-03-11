@@ -55,5 +55,16 @@ try:
 except ModuleNotFoundError:
     pass  # in case torch is not installed
 
+try:
+    import qiskit
+
+    qiskit.QuantumCircuit.cnot = qiskit.QuantumCircuit.cx
+    qiskit.QuantumCircuit.toffoli = qiskit.QuantumCircuit.ccx
+    qiskit.QuantumCircuit.fredkin = qiskit.QuantumCircuit.cswap
+
+    # amazing qiskit 1.0 nonsense...
+except ModuleNotFoundError:
+    pass
+
 # just for fun
 from .asciiart import set_ascii

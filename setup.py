@@ -19,11 +19,11 @@ setuptools.setup(
     include_package_data=True,
     install_requires=["numpy", "scipy", "tensornetwork-ng", "networkx"],
     extras_require={
-        "tensorflow": ["tensorflow"],
+        "tensorflow": ["tensorflow<2.16"],
         "jax": ["jax", "jaxlib"],
         "torch": ["torch"],
-        "qiskit": ["qiskit"],
-        "cloud": ["qiskit", "mthree"],
+        "qiskit": ["qiskit<1.0"],
+        "cloud": ["qiskit<1.0", "mthree"],
     },
     classifiers=[
         "Programming Language :: Python :: 3",
