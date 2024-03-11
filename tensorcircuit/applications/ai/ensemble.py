@@ -3,7 +3,6 @@ Useful utilities for ensemble
 """
 
 from typing import Any, List, Optional
-from copy import deepcopy
 import tensorflow as tf
 import numpy as np
 
