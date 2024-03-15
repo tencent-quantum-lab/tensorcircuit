@@ -356,13 +356,13 @@ Reference paper: https://arxiv.org/abs/2303.10825 (published in JCTC).
 
 For the numerical simulation and hardware experiments with error mitigation on QAOA, see the [project repo](https://github.com/sherrylixuecheng/EMQAOA-DARBO).
 
-Reference paper: https://arxiv.org/abs/2303.14877.
+Reference paper: https://arxiv.org/abs/2303.14877 (published in Communications Physics).
 
 ### NN-VQA
 
 For the setup and simulation code of neural network encoded variational quantum eigensolver, see the [demo](/docs/source/tutorials/nnvqe.ipynb).
 
-Reference paper: https://arxiv.org/abs/2308.01068.
+Reference paper: https://arxiv.org/abs/2308.01068 (published in PRApplied).
 
 ### More works
 
@@ -377,7 +377,7 @@ Reference paper: https://arxiv.org/abs/2308.01068.
 
 - Variational Quantum Simulations of Finite-Temperature Dynamical Properties via Thermofield Dynamics: https://arxiv.org/abs/2206.05571.
 
-- Understanding quantum machine learning also requires rethinking generalization: https://arxiv.org/abs/2306.13461.
+- Understanding quantum machine learning also requires rethinking generalization: https://arxiv.org/abs/2306.13461 (published in Nature Communications).
 
 - Decentralized Quantum Federated Learning for Metaverse: Analysis, Design and Implementation: https://arxiv.org/abs/2306.11297. Code: https://github.com/s222416822/BQFL.
 
@@ -385,7 +385,7 @@ Reference paper: https://arxiv.org/abs/2308.01068.
 
 - Quantum generative adversarial imitation learning: https://doi.org/10.1088/1367-2630/acc605 (published in New Journal of Physics).
 
-- GSQAS: Graph Self-supervised Quantum Architecture Search: https://arxiv.org/abs/2303.12381.
+- GSQAS: Graph Self-supervised Quantum Architecture Search: https://arxiv.org/abs/2303.12381 (published in Physica A: Statistical Mechanics and its Applications).
 
 - Practical advantage of quantum machine learning in ghost imaging: https://www.nature.com/articles/s42005-023-01290-1 (published in Communications Physics).
 
@@ -393,15 +393,15 @@ Reference paper: https://arxiv.org/abs/2308.01068.
 
 - Comparison of Quantum Simulators for Variational Quantum Search: A Benchmark Study: https://arxiv.org/abs/2309.05924.
 
-- Statistical analysis of quantum state learning process in quantum neural networks: https://arxiv.org/abs/2309.14980 (Pubilshed in NeurIPS).
+- Statistical analysis of quantum state learning process in quantum neural networks: https://arxiv.org/abs/2309.14980 (published in NeurIPS).
 
-- Generative quantum machine learning via denoising diffusion probabilistic models: https://arxiv.org/abs/2310.05866.
+- Generative quantum machine learning via denoising diffusion probabilistic models: https://arxiv.org/abs/2310.05866 (published in PRL).
 
 - Quantum imaginary time evolution and quantum annealing meet topological sector optimization: https://arxiv.org/abs/2310.04291.
 
 - Google Summer of Code 2023 Projects (QML4HEP): https://github.com/ML4SCI/QMLHEP, https://github.com/Gopal-Dahale/qgnn-hep, https://github.com/salcc/QuantumTransformers.
 
-- Absence of barren plateaus in finite local-depth circuits with long-range entanglement: https://arxiv.org/abs/2311.01393.
+- Absence of barren plateaus in finite local-depth circuits with long-range entanglement: https://arxiv.org/abs/2311.01393 (published in PRL).
 
 - Non-Markovianity benefits quantum dynamics simulation: https://arxiv.org/abs/2311.17622.
 
