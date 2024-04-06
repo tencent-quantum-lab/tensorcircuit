@@ -4,21 +4,21 @@ Methods for abstract circuits independent of nodes, edges and contractions
 
 # pylint: disable=invalid-name
 
-from typing import Any, Callable, Dict, List, Optional, Sequence, Union, Tuple
+import json
+import logging
 from copy import deepcopy
 from functools import reduce
 from operator import add
-import json
-import logging
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import tensornetwork as tn
 
 from . import gates
 from .cons import backend, dtypestr
-from .vis import qir2tex
 from .quantum import QuOperator
 from .utils import is_sequence
+from .vis import qir2tex
 
 logger = logging.getLogger(__name__)
 
@@ -756,7 +756,7 @@ class AbstractCircuit:
         :type enable_inputs: bool, defaults to False
         :return: A qiskit object of this circuit.
         """
-        from .translation import qir2qiskit, perm_matrix
+        from .translation import perm_matrix, qir2qiskit
 
         qir = self.to_qir()
         if enable_instruction:
@@ -887,7 +887,7 @@ class AbstractCircuit:
             n = qc.num_qubits
 
         return qiskit2tc(  # type: ignore
-            qc.data,
+            qc,
             n,
             inputs,
             circuit_constructor=cls,

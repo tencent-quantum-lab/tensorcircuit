@@ -2,23 +2,26 @@
 Circuit object translation in different packages
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Union, Sequence
-from copy import deepcopy
 import logging
+from copy import deepcopy
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+
 import numpy as np
 
 logger = logging.getLogger(__name__)
 
 
 try:
-    from qiskit import QuantumCircuit
-    from qiskit.circuit.library import XXPlusYYGate
-    from qiskit.extensions import UnitaryGate
     import qiskit.quantum_info as qi
-    from qiskit.extensions.exceptions import ExtensionError
-    from qiskit.circuit.quantumcircuitdata import CircuitInstruction
-    from qiskit.circuit.parametervector import ParameterVectorElement
+    import symengine
+    import sympy
+    from qiskit import QuantumCircuit
     from qiskit.circuit import Parameter, ParameterExpression
+    from qiskit.circuit.library import XXPlusYYGate
+    from qiskit.circuit.parametervector import ParameterVectorElement
+    from qiskit.circuit.quantumcircuitdata import CircuitInstruction
+    from qiskit.extensions import UnitaryGate
+    from qiskit.extensions.exceptions import ExtensionError
 except ImportError:
     logger.warning(
         "Please first ``pip install -U qiskit`` to enable related functionality in translation module"
@@ -34,10 +37,9 @@ except ImportError:
 
 from . import gates
 from .circuit import Circuit
-from .densitymatrix import DMCircuit2
 from .cons import backend
+from .densitymatrix import DMCircuit2
 from .interfaces.tensortrans import tensor_to_numpy
-
 
 Tensor = Any
 
@@ -358,7 +360,7 @@ def _translate_qiskit_params(
     gate_info: CircuitInstruction, binding_params: Any
 ) -> List[float]:
     parameters = []
-    for p in gate_info[0].params:
+    for p in gate_info.operation.params:
         if isinstance(p, ParameterVectorElement):
             parameters.append(binding_params[p.index])
         elif isinstance(p, Parameter):
@@ -367,30 +369,29 @@ def _translate_qiskit_params(
             if len(p.parameters) == 0:
                 parameters.append(float(p))
                 continue
-            if len(p.parameters) != 1:
-                raise ValueError(
-                    f"Can't translate parameter expression with more than 1 parameters: {p}"
-                )
-            p_real = list(p.parameters)[0]
-            if not isinstance(p_real, ParameterVectorElement):
-                raise TypeError(
-                    "Parameters in parameter expression should be ParameterVectorElement"
-                )
+
             # note "sym" != "sim"
             expr = p.sympify().simplify()
-            # only allow simple expressions like 1.0 * theta
-            if not expr.is_Mul:
-                raise ValueError(f"Unsupported parameter expression: {p}")
-            arg1, arg2 = expr.args
-            if arg1.is_number and arg2.is_symbol:
-                coeff = arg1
-            elif arg1.is_symbol and arg2.is_number:
-                coeff = arg2
-            else:
-                raise ValueError(f"Unsupported parameter expression: {p}")
-            # taking real part here because using complex type will result in a type error
-            # for tf backend when the binding parameter is real
-            parameters.append(float(coeff) * binding_params[p_real.index])
+            if isinstance(expr, symengine.Expr):  # qiskit uses symengine if available
+                expr = expr._sympy_()  # sympy.Expr
+
+            for free_symbol in expr.free_symbols:
+                # replace names: theta[0] -> theta_0
+                # ParameterVector creates symbols with brackets like theta[0]
+                # but sympy.lambdify does not allow brackets in symbol names
+                free_symbol.name = free_symbol.name.replace("[", "_").replace("]", "")
+
+            parameter_list = list(p.parameters)
+            sympy_symbols = [param._symbol_expr for param in parameter_list]
+            # replace names again: theta[0] -> theta_0
+            sympy_symbols = [
+                sympy.Symbol(str(symbol).replace("[", "_").replace("]", ""))
+                for symbol in sympy_symbols
+            ]
+            lam_f = sympy.lambdify(sympy_symbols, expr, modules=backend.name)
+            parameters.append(
+                lam_f(*[binding_params[param.index] for param in parameter_list])
+            )
         else:
             # numbers, arrays, etc.
             parameters.append(p)
@@ -403,7 +404,7 @@ def ctrl_str2ctrl_state(ctrl_str: str, nctrl: int) -> List[int]:
 
 
 def qiskit2tc(
-    qcdata: List[CircuitInstruction],
+    qc: QuantumCircuit,
     n: int,
     inputs: Optional[List[float]] = None,
     is_dm: bool = False,
@@ -412,19 +413,18 @@ def qiskit2tc(
     binding_params: Optional[Union[Sequence[float], Dict[Any, float]]] = None,
 ) -> Any:
     r"""
-    Generate a tensorcircuit circuit using the quantum circuit data in qiskit.
+    Generate a tensorcircuit circuit from the qiskit circuit.
 
     :Example:
 
     >>> qisc = QuantumCircuit(2)
     >>> qisc.h(0)
     >>> qisc.x(1)
-    >>> qc = tc.translation.qiskit2tc(qisc.data, 2)
+    >>> qc = tc.translation.qiskit2tc(qisc, 2)
     >>> qc.to_qir()[0]['gatef']
-    h
 
-    :param qcdata: Quantum circuit data from qiskit.
-    :type qcdata: List[CircuitInstruction]
+    :param qc: A quantum circuit in qiskit.
+    :type qc: QuantumCircuit
     :param n: # of qubits
     :type n: int
     :param inputs: Input state of the circuit. Default is None.
@@ -435,7 +435,7 @@ def qiskit2tc(
     :type circuit_params: Optional[Dict[str, Any]]
     :param binding_params: (variational) parameters for the circuit.
         Could be either a sequence or dictionary depending on the type of parameters in the Qiskit circuit.
-        For ``ParameterVectorElement`` use sequence. For ``Parameter`` use dictionary
+        For ``ParameterVectorElement`` use sequence. For ``Parameter`` use dictionary.
     :type binding_params: Optional[Union[Sequence[float], Dict[Any, float]]]
     :return: A quantum circuit in tensorcircuit
     :rtype: Any
@@ -451,17 +451,17 @@ def qiskit2tc(
     if "nqubits" not in circuit_params:
         circuit_params["nqubits"] = n
     if (
-        len(qcdata) > 0
-        and qcdata[0][0].name == "initialize"
+        len(qc.data) > 0
+        and qc.data[0][0].name == "initialize"
         and "inputs" not in circuit_params
     ):
-        circuit_params["inputs"] = perm_matrix(n) @ np.array(qcdata[0][0].params)
+        circuit_params["inputs"] = perm_matrix(n) @ np.array(qc.data[0][0].params)
     if inputs is not None:
         circuit_params["inputs"] = inputs
 
     tc_circuit: Any = Circ(**circuit_params)
-    for gate_info in qcdata:
-        idx = [qb.index for qb in gate_info[1]]
+    for gate_info in qc.data:
+        idx = [qc.find_bit(qb).index for qb in gate_info.qubits]
         gate_name = gate_info[0].name
         parameters = _translate_qiskit_params(gate_info, binding_params)
         if gate_name in [

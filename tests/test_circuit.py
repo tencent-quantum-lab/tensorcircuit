@@ -1,8 +1,9 @@
 # pylint: disable=invalid-name
 
-import sys
 import os
+import sys
 from functools import partial
+
 import numpy as np
 import opt_einsum as oem
 import pytest
@@ -975,6 +976,7 @@ def test_qir2cirq(backend):
 def test_qir2qiskit(backend):
     try:
         import qiskit.quantum_info as qi
+
         from tensorcircuit.translation import perm_matrix
     except ImportError:
         pytest.skip("qiskit is not installed")
@@ -1074,9 +1076,10 @@ def test_qir2qiskit(backend):
 
 def test_qiskit2tc():
     try:
-        from qiskit import QuantumCircuit
         import qiskit.quantum_info as qi
+        from qiskit import QuantumCircuit
         from qiskit.circuit.library.standard_gates import MCXGate, SwapGate
+
         from tensorcircuit.translation import perm_matrix
     except ImportError:
         pytest.skip("qiskit is not installed")
@@ -1149,26 +1152,34 @@ def test_qiskit2tc():
 @pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
 def test_qiskit2tc_parameterized(backend):
     try:
-        from qiskit.circuit import QuantumCircuit, Parameter
-        from qiskit.quantum_info import Operator
+        from qiskit.circuit import Parameter, ParameterVector, QuantumCircuit
         from qiskit.circuit.library import TwoLocal
+        from qiskit.quantum_info import Operator
         from qiskit_nature.second_q.circuit.library import UCCSD
-        from qiskit_nature.second_q.mappers import ParityMapper, QubitConverter
+        from qiskit_nature.second_q.mappers import ParityMapper
     except ImportError:
         pytest.skip("qiskit or qiskit-nature is not installed")
     from tensorcircuit.translation import perm_matrix
 
     mapper = ParityMapper()
-    converter = QubitConverter(mapper=mapper, two_qubit_reduction=True)
-    ansatz1 = UCCSD(2, [1, 1], converter)
+    ansatz1 = UCCSD(2, [1, 1], mapper)
     ansatz2 = TwoLocal(2, rotation_blocks="ry", entanglement_blocks="cz")
     ansatz3 = QuantumCircuit(1)
     ansatz3_param = Parameter("θ")
     ansatz3.rx(ansatz3_param, 0)
-    ansatz_list = [ansatz1, ansatz2, ansatz3]
+    ansatz4 = QuantumCircuit(1)
+    ansatz4_param = ParameterVector("φ", 3)
+    ansatz4.rx(2.0 * ansatz4_param[0] + 5.0, 0)
+    ansatz4.ry(ansatz4_param[0] * ansatz4_param[1] + ansatz4_param[2], 0)
+    ansatz4.rz(
+        np.exp(np.sin(ansatz4_param[0]))
+        + np.abs(ansatz4_param[1]) / np.arctan(ansatz4_param[2]),
+        0,
+    )
+    ansatz_list = [ansatz1, ansatz2, ansatz3, ansatz4]
     for ansatz in ansatz_list:
         n = ansatz.num_qubits
-        if ansatz in [ansatz1, ansatz2]:
+        if ansatz in [ansatz1, ansatz2, ansatz4]:
             params = np.random.rand(ansatz.num_parameters)
         else:
             params = {ansatz3_param: 0.618}
@@ -1178,9 +1189,9 @@ def test_qiskit2tc_parameterized(backend):
 
         # test jit
         @tc.backend.jit
-        def get_unitary(_params):
+        def get_unitary(params):
             return tc.Circuit.from_qiskit(
-                ansatz, inputs=np.eye(2**n), binding_params=_params
+                ansatz, inputs=np.eye(2**n), binding_params=params
             ).state()
 
         tc_unitary = get_unitary(params)
@@ -1191,10 +1202,10 @@ def test_qiskit2tc_parameterized(backend):
         )
 
         # test grad
-        def cost_fn(_params):
-            return tc.backend.real(tc.backend.sum(get_unitary(_params)))
+        def cost_fn(params):
+            return tc.backend.real(tc.backend.sum(get_unitary(params)))
 
-        if ansatz in [ansatz1, ansatz2]:
+        if ansatz in [ansatz1, ansatz2, ansatz4]:
             grad = tc.backend.grad(cost_fn)(tc.backend.convert_to_tensor(params))
             assert np.sum(np.isnan(grad)) == 0
         else:
@@ -1208,8 +1219,8 @@ def test_qiskit2tc_parameterized(backend):
 @pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
 def test_qiskit_vs_tc_intialization(backend):
     try:
-        from qiskit import QuantumCircuit
         import qiskit.quantum_info as qi
+        from qiskit import QuantumCircuit
     except ImportError:
         pytest.skip("qiskit is not installed")
 
