@@ -1171,12 +1171,11 @@ def test_qiskit2tc_parameterized(backend):
     ansatz4_param = ParameterVector("φ", 3)
     ansatz4.rx(2.0 * ansatz4_param[0] + 5.0, 0)
     ansatz4.ry(ansatz4_param[0] * ansatz4_param[1] + ansatz4_param[2], 0)
-    if tc.backend.name != "pytorch":  # pytorch backend with ufuncs is not supported
-        ansatz4.rz(
-            np.exp(np.sin(ansatz4_param[0]))
-            + np.abs(ansatz4_param[1]) / np.arctan(ansatz4_param[2]),
-            0,
-        )
+    ansatz4.rz(
+        np.exp(np.sin(ansatz4_param[0]))
+        + np.abs(ansatz4_param[1]) / np.arctan(ansatz4_param[2]),
+        0,
+    )
     ansatz_list = [ansatz1, ansatz2, ansatz3, ansatz4]
     for ansatz in ansatz_list:
         n = ansatz.num_qubits

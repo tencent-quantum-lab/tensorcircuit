@@ -379,9 +379,7 @@ def _translate_qiskit_params(
                 lambdify_module_name = "numpy"
             else:
                 if backend.name == "pytorch":
-                    raise ValueError(
-                        "pytorch backend does not support sympy lambdify with non-algebraic expressions"
-                    )
+                    lambdify_module_name = "math"
                 else:
                     lambdify_module_name = backend.name
 
