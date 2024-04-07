@@ -1149,7 +1149,7 @@ def test_qiskit2tc():
     np.testing.assert_allclose(qis_unitary2, qis_unitary, atol=1e-5)
 
 
-@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb")])
+@pytest.mark.parametrize("backend", [lf("tfb"), lf("jaxb"), lf("torchb")])
 def test_qiskit2tc_parameterized(backend):
     try:
         from qiskit.circuit import Parameter, ParameterVector, QuantumCircuit
@@ -1171,11 +1171,12 @@ def test_qiskit2tc_parameterized(backend):
     ansatz4_param = ParameterVector("φ", 3)
     ansatz4.rx(2.0 * ansatz4_param[0] + 5.0, 0)
     ansatz4.ry(ansatz4_param[0] * ansatz4_param[1] + ansatz4_param[2], 0)
-    ansatz4.rz(
-        np.exp(np.sin(ansatz4_param[0]))
-        + np.abs(ansatz4_param[1]) / np.arctan(ansatz4_param[2]),
-        0,
-    )
+    if tc.backend.name != "pytorch":  # pytorch backend with ufuncs is not supported
+        ansatz4.rz(
+            np.exp(np.sin(ansatz4_param[0]))
+            + np.abs(ansatz4_param[1]) / np.arctan(ansatz4_param[2]),
+            0,
+        )
     ansatz_list = [ansatz1, ansatz2, ansatz3, ansatz4]
     for ansatz in ansatz_list:
         n = ansatz.num_qubits
@@ -1196,7 +1197,7 @@ def test_qiskit2tc_parameterized(backend):
 
         tc_unitary = get_unitary(params)
         tc_unitary = np.reshape(tc_unitary, [2**n, 2**n])
-        p_mat = perm_matrix(n)
+        p_mat = tc.array_to_tensor(perm_matrix(n))
         np.testing.assert_allclose(
             p_mat @ tc_unitary @ p_mat, qiskit_unitary, atol=1e-5
         )
@@ -1207,7 +1208,7 @@ def test_qiskit2tc_parameterized(backend):
 
         if ansatz in [ansatz1, ansatz2, ansatz4]:
             grad = tc.backend.grad(cost_fn)(tc.backend.convert_to_tensor(params))
-            assert np.sum(np.isnan(grad)) == 0
+            assert tc.backend.sum(tc.num_to_tensor(np.isnan(grad))) == 0
         else:
             # tf only supports tf tensor as input
             grad = tc.backend.grad(cost_fn)(

@@ -375,6 +375,16 @@ def _translate_qiskit_params(
             if isinstance(expr, symengine.Expr):  # qiskit uses symengine if available
                 expr = expr._sympy_()  # sympy.Expr
 
+            if expr.is_algebraic_expr():  # numpy ufuncs are not used
+                lambdify_module_name = "numpy"
+            else:
+                if backend.name == "pytorch":
+                    raise ValueError(
+                        "pytorch backend does not support sympy lambdify with non-algebraic expressions"
+                    )
+                else:
+                    lambdify_module_name = backend.name
+
             for free_symbol in expr.free_symbols:
                 # replace names: theta[0] -> theta_0
                 # ParameterVector creates symbols with brackets like theta[0]
@@ -388,7 +398,7 @@ def _translate_qiskit_params(
                 sympy.Symbol(str(symbol).replace("[", "_").replace("]", ""))
                 for symbol in sympy_symbols
             ]
-            lam_f = sympy.lambdify(sympy_symbols, expr, modules=backend.name)
+            lam_f = sympy.lambdify(sympy_symbols, expr, modules=lambdify_module_name)
             parameters.append(
                 lam_f(*[binding_params[param.index] for param in parameter_list])
             )
