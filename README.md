@@ -297,7 +297,7 @@ TensorCircuit is open source, released under the Apache License, Version 2.0.
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/ztzhu1"><img src="https://avatars.githubusercontent.com/u/111620128?v=4?s=100" width="100px;" alt="ztzhu"/><br /><sub><b>ztzhu</b></sub></a><br /><a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=ztzhu1" title="Code">💻</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/royess"><img src="https://avatars.githubusercontent.com/u/31059422?v=4?s=100" width="100px;" alt="Rabqubit"/><br /><sub><b>Rabqubit</b></sub></a><br /><a href="#example-royess" title="Examples">💡</a></td>
-      <td align="center" valign="top" width="16.66%"><a href="https://github.com/king-p3nguin"><img src="https://avatars.githubusercontent.com/u/103920010?v=4?s=100" width="100px;" alt="Kazuki Tsuoka"/><br /><sub><b>Kazuki Tsuoka</b></sub></a><br /><a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=king-p3nguin" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/king-p3nguin"><img src="https://avatars.githubusercontent.com/u/103920010?v=4?s=100" width="100px;" alt="Kazuki Tsuoka"/><br /><sub><b>Kazuki Tsuoka</b></sub></a><br /><a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=king-p3nguin" title="Code">💻</a> <a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=king-p3nguin" title="Tests">⚠️</a> <a href="https://github.com/tencent-quantum-lab/tensorcircuit/commits?author=king-p3nguin" title="Documentation">📖</a></td>
     </tr>
   </tbody>
 </table>
