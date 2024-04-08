@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add support for parameter expression in qiskit translation
+
 ## 0.12.0
 
 ### Added
