@@ -27,6 +27,7 @@ except ImportError:
         "Please first ``pip install -U qiskit`` to enable related functionality in translation module"
     )
     CircuitInstruction = Any
+    QuantumCircuit = Any
 
 try:
     import cirq

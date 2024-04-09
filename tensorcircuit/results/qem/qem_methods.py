@@ -14,7 +14,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 import numpy as np
-import cirq
 
 try:
     from mitiq import zne, ddd
@@ -205,6 +204,8 @@ def apply_dd(
         return dd_sequence
 
     if isinstance(rule, list):
+        import cirq
+
         gates = []
         for i in rule:
             gates.append(getattr(cirq, i))
