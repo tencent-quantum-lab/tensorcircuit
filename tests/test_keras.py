@@ -129,6 +129,9 @@ def test_keras_hardware(tfb):
 
 
 def test_keras_layer_inputs_dict(tfb):
+    # https://github.com/tensorflow/tensorflow/issues/65306
+    # keras3 for tf2.16+ fails to accept complex valued input for keras layers
+    # which is vital for quantum applications
     n = 3
     p = 0.1
     K = tc.backend
