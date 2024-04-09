@@ -631,7 +631,7 @@ class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
         return isinstance(a, sparse.BCOO)  # type: ignore
 
     def device(self, a: Tensor) -> str:
-        dev = a.devices()
+        (dev,) = a.devices()
         return self._dev2str(dev)
 
     def device_move(self, a: Tensor, dev: Any) -> Tensor:
