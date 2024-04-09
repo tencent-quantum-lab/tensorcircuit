@@ -4,15 +4,16 @@ Backend magic inherited from tensornetwork: jax backend
 
 # pylint: disable=invalid-name
 
-from functools import partial
 import logging
 import warnings
+from functools import partial
 from typing import Any, Callable, Optional, Sequence, Tuple, Union
 
 import numpy as np
-from scipy.sparse import coo_matrix
 import tensornetwork
+from scipy.sparse import coo_matrix
 from tensornetwork.backends.jax import jax_backend
+
 from .abstract_backend import ExtendedBackend
 
 logger = logging.getLogger(__name__)
@@ -196,8 +197,8 @@ class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
                 "Jax not installed, please switch to a different "
                 "backend or install Jax."
             )
-        from jax.experimental import sparse
         import jax.scipy
+        from jax.experimental import sparse
 
         try:
             import optax
@@ -419,7 +420,7 @@ class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
         return jnp.searchsorted(a, v, side)
 
     def tree_map(self, f: Callable[..., Any], *pytrees: Any) -> Any:
-        return libjax.tree_map(f, *pytrees)
+        return libjax.tree_util.tree_map(f, *pytrees)
 
     def tree_flatten(self, pytree: Any) -> Tuple[Any, Any]:
         return libjax.tree_util.tree_flatten(pytree)  # type: ignore
@@ -630,7 +631,7 @@ class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
         return isinstance(a, sparse.BCOO)  # type: ignore
 
     def device(self, a: Tensor) -> str:
-        dev = a.device()
+        (dev,) = a.devices()
         return self._dev2str(dev)
 
     def device_move(self, a: Tensor, dev: Any) -> Tensor:
@@ -757,7 +758,7 @@ class JaxBackend(jax_backend.JaxBackend, ExtendedBackend):  # type: ignore
                 gs = list(gs)
             for i, (j, g) in enumerate(zip(argnums_list, gs)):
                 if j not in vectorized_argnums:  # type: ignore
-                    gs[i] = libjax.tree_map(partial(jnp.sum, axis=0), g)
+                    gs[i] = libjax.tree_util.tree_map(partial(jnp.sum, axis=0), g)
             if isinstance(argnums, int):
                 gs = gs[0]
             else:

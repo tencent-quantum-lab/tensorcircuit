@@ -2,8 +2,8 @@
 compiler interface via qiskit
 """
 
-from typing import Any, Dict, Optional
 import re
+from typing import Any, Dict, Optional
 
 from ..abstractcircuit import AbstractCircuit
 from ..circuit import Circuit
@@ -71,7 +71,7 @@ def _get_positional_logical_mapping_from_qiskit(qc: Any) -> Dict[int, int]:
     positional_logical_mapping = {}
     for inst in qc.data:
         if inst[0].name == "measure":
-            positional_logical_mapping[i] = inst[1][0].index
+            positional_logical_mapping[i] = qc.find_bit(inst[1][0]).index
             i += 1
 
     return positional_logical_mapping
@@ -95,16 +95,17 @@ def _get_logical_physical_mapping_from_qiskit(
     for inst in qc_after.data:
         if inst[0].name == "measure":
             if qc_before is None:
-                logical_q = inst[2][0].index
+                logical_q = qc_after.find_bit(inst[2][0]).index
             else:
                 for instb in qc_before.data:
                     if (
                         instb[0].name == "measure"
-                        and instb[2][0].index == inst[2][0].index
+                        and qc_before.find_bit(instb[2][0]).index
+                        == qc_after.find_bit(inst[2][0]).index
                     ):
-                        logical_q = instb[1][0].index
+                        logical_q = qc_before.find_bit(instb[1][0]).index
                         break
-            logical_physical_mapping[logical_q] = inst[1][0].index
+            logical_physical_mapping[logical_q] = qc_after.find_bit(inst[1][0]).index
     return logical_physical_mapping
 
 
