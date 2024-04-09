@@ -1078,6 +1078,7 @@ def test_qiskit2tc():
     try:
         import qiskit.quantum_info as qi
         from qiskit import QuantumCircuit
+        from qiskit.circuit.library import HamiltonianGate
         from qiskit.circuit.library.standard_gates import MCXGate, SwapGate
 
         from tensorcircuit.translation import perm_matrix
@@ -1090,7 +1091,8 @@ def test_qiskit2tc():
     zz = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
     exp_op = qi.Operator(zz)
     for i in range(n):
-        qisc.hamiltonian(exp_op, time=np.random.uniform(), qubits=[i, (i + 1) % n])
+        gate = HamiltonianGate(exp_op, time=np.random.uniform())
+        qisc.append(gate, [i, (i + 1) % n])
     qisc.fredkin(1, 2, 3)
     qisc.cswap(1, 2, 3)
     qisc.swap(0, 1)

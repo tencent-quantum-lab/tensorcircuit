@@ -17,11 +17,10 @@ try:
     import sympy
     from qiskit import QuantumCircuit
     from qiskit.circuit import Parameter, ParameterExpression
-    from qiskit.circuit.library import XXPlusYYGate
+    from qiskit.circuit.exceptions import CircuitError
+    from qiskit.circuit.library import HamiltonianGate, UnitaryGate, XXPlusYYGate
     from qiskit.circuit.parametervector import ParameterVectorElement
     from qiskit.circuit.quantumcircuitdata import CircuitInstruction
-    from qiskit.extensions import UnitaryGate
-    from qiskit.extensions.exceptions import ExtensionError
 except ImportError:
     logger.warning(
         "Please first ``pip install -U qiskit`` to enable related functionality in translation module"
@@ -311,9 +310,8 @@ def qir2qiskit(
             # Error can be presented if theta is actually complex in this procedure.
             exp_op = qi.Operator(unitary)
             index_reversed = [x for x in index[::-1]]
-            qiskit_circ.hamiltonian(
-                exp_op, time=theta, qubits=index_reversed, label=qis_name
-            )
+            gate = HamiltonianGate(data=exp_op, time=theta, label=qis_name)
+            qiskit_circ.append(gate, index_reversed)
         elif gate_name == "multicontrol":
             unitary = backend.numpy(backend.convert_to_tensor(parameters["unitary"]))
             ctrl_str = "".join(map(str, parameters["ctrl"]))[::-1]
@@ -344,7 +342,7 @@ def qir2qiskit(
             qop = qi.Operator(gatem)
             try:
                 qiskit_circ.unitary(qop, index[::-1], label=qis_name)
-            except (ExtensionError, ValueError) as _:
+            except (CircuitError, ValueError) as _:
                 logger.warning(
                     "omit non unitary gate in tensorcircuit when transforming to qiskit: %s"
                     % gate_name
