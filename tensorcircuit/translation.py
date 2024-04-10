@@ -31,7 +31,7 @@ except ImportError:
 try:
     import cirq
 except ImportError:
-    logger.warning(
+    logger.info(
         "Please first ``pip install -U cirq`` to enable related functionality in translation module"
     )
 
