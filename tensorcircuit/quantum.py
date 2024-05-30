@@ -37,7 +37,6 @@ from tensornetwork.network_operations import (
     remove_node,
 )
 
-from .backends import get_backend
 from .cons import backend, contractor, dtypestr, npdtype, rdtypestr
 from .gates import Gate, num_to_tensor
 from .utils import arg_alias
