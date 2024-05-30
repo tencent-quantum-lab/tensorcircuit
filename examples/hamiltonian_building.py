@@ -9,14 +9,12 @@ import numpy as np
 import quimb
 import scipy
 import tensorflow as tf
-import torch
 
 import tensorcircuit as tc
 
 tc.set_dtype("complex128")
 
 nwires = 20
-# tc with numpy backend outperforms quimb in large nwires
 
 print("--------------------")
 
@@ -51,6 +49,14 @@ h12 = tc.quantum.heisenberg_hamiltonian(
 time1 = time.perf_counter()
 
 print("tc (jax) time: ", time1 - time0)
+
+time0 = time.perf_counter()
+h12 = tc.quantum.heisenberg_hamiltonian(
+    g, hzz=1, hxx=0, hyy=0, hz=0, hx=-1, hy=0, sparse=True
+)
+time1 = time.perf_counter()
+
+print("tc (jax) time (after jit): ", time1 - time0)
 print("--------------------")
 
 # 1.3 tc approach for TFIM (tensorflow backend)
@@ -67,6 +73,15 @@ h13 = tc.quantum.heisenberg_hamiltonian(
 time1 = time.perf_counter()
 
 print("tc (tensorflow) time: ", time1 - time0)
+
+time0 = time.perf_counter()
+h13 = tc.quantum.heisenberg_hamiltonian(
+    g, hzz=1, hxx=0, hyy=0, hz=0, hx=-1, hy=0, sparse=True
+)
+time1 = time.perf_counter()
+
+print("tc (tensorflow) time (after jit): ", time1 - time0)
+
 print("--------------------")
 
 

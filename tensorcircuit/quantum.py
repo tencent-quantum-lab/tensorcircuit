@@ -1330,12 +1330,21 @@ def PauliStringSum2COO(
     if weight is None:
         weight = [1.0 for _ in range(nterms)]
     weight = num_to_tensor(weight)
+    ls = num_to_tensor(ls)
     # rsparse = get_backend("numpy").coo_sparse_matrix(
     #     indices=np.array([[0, 0]], dtype=np.int64),
     #     values=np.array([0.0], dtype=getattr(np, dtypestr)),
     #     shape=(s, s),
     # )
-    rsparses = [backend.numpy(PauliString2COO(ls[i], weight[i])) for i in range(nterms)]  # type: ignore
+    global PauliString2COO_jit
+    if backend.name not in PauliString2COO_jit:
+        PauliString2COO_jit[backend.name] = backend.jit(
+            PauliString2COO, jit_compile=True
+        )
+    rsparses = [
+        backend.numpy(PauliString2COO_jit[backend.name](ls[i], weight[i]))  # type: ignore
+        for i in range(nterms)
+    ]
     rsparse = _dc_sum(rsparses)
     # auto transformed into csr format!!
 
@@ -1372,6 +1381,7 @@ def PauliStringSum2COO_tf(
 ) -> Tensor:
     """
     Generate tensorflow sparse matrix from Pauli string sum
+    [deprecated]
 
     :param ls: 2D Tensor, each row is for a Pauli string,
         e.g. [1, 0, 0, 3, 2] is for :math:`X_0Z_3Y_4`
@@ -1416,24 +1426,35 @@ def PauliString2COO(l: Sequence[int], weight: Optional[float] = None) -> Tensor:
     :rtype: Tensor
     """
     n = len(l)
+    l = backend.cast(l, dtype="int64")
     one = num_to_tensor(0b1, dtype="int64")
     idx_x = num_to_tensor(0b0, dtype="int64")
     idx_y = num_to_tensor(0b0, dtype="int64")
     idx_z = num_to_tensor(0b0, dtype="int64")
     i = num_to_tensor(0, dtype="int64")
-    for j in l:
-        # i, j from enumerate is python, non jittable when cond using tensor
-        if j == 1:  # xi
-            idx_x += backend.left_shift(one, n - i - 1)
-        elif j == 2:  # yi
-            idx_y += backend.left_shift(one, n - i - 1)
-        elif j == 3:  # zi
-            idx_z += backend.left_shift(one, n - i - 1)
+    # for j in l:
+    for j in range(n):
+        oh = backend.onehot(l[j], 4)
+        s = backend.left_shift(one, n - i - 1)
+        oh = backend.cast(oh, dtype="int64")
+        idx_x += oh[1] * s
+        idx_y += oh[2] * s
+        idx_z += oh[3] * s
+
+        # if j == 1:  # xi
+        #     idx_x += backend.left_shift(one, n - i - 1)
+        # elif j == 2:  # yi
+        #     idx_y += backend.left_shift(one, n - i - 1)
+        # elif j == 3:  # zi
+        #     idx_z += backend.left_shift(one, n - i - 1)
         i += 1
 
     if weight is None:
         weight = num_to_tensor(1.0, dtype="complex64")
     return ps2coo_core(idx_x, idx_y, idx_z, weight, n)
+
+
+PauliString2COO_jit = {"numpy": PauliString2COO}
 
 
 def ps2coo_core(

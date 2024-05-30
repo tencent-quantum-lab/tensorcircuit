@@ -4,7 +4,7 @@ qiskit-aer<1.0
 qiskit-nature
 mitiq
 cirq
-torch
+torch==2.2.2
 # jupyter
 mthree==1.1.0
 openfermion
