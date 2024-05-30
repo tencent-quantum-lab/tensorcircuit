@@ -1245,8 +1245,8 @@ def heisenberg_hamiltonian(
             r[node] = 2
             ls.append(r)
             weight.append(hy)
-    ls = tf.constant(ls)
-    weight = tf.constant(weight)
+    ls = num_to_tensor(ls)
+    weight = num_to_tensor(weight)
     ls = get_backend("tensorflow").cast(ls, dtypestr)
     weight = get_backend("tensorflow").cast(weight, dtypestr)
     if sparse:
@@ -1332,22 +1332,18 @@ def PauliStringSum2COO(
     # s = 0b1 << n
     if weight is None:
         weight = [1.0 for _ in range(nterms)]
-    if not (isinstance(weight, tf.Tensor) or isinstance(weight, tf.Variable)):
-        weight = tf.constant(weight, dtype=getattr(tf, dtypestr))
+    weight = num_to_tensor(weight)
     # rsparse = get_backend("numpy").coo_sparse_matrix(
     #     indices=np.array([[0, 0]], dtype=np.int64),
     #     values=np.array([0.0], dtype=getattr(np, dtypestr)),
     #     shape=(s, s),
     # )
-    rsparses = [
-        get_backend("tensorflow").numpy(PauliString2COO(ls[i], weight[i]))  # type: ignore
-        for i in range(nterms)
-    ]
+    rsparses = [backend.numpy(PauliString2COO(ls[i], weight[i])) for i in range(nterms)]  # type: ignore
     rsparse = _dc_sum(rsparses)
     # auto transformed into csr format!!
 
     # for i in range(nterms):
-    #     rsparse += get_backend("tensorflow").numpy(PauliString2COO(ls[i], weight[i]))  # type: ignore
+    #     rsparse += get_backend("tensorflow").numpy(PauliString2COO(ls[i], weight[i]))
     rsparse = rsparse.tocoo()
     if numpy:
         return rsparse
@@ -1389,6 +1385,8 @@ def PauliStringSum2COO_tf(
     :return: the tensorflow coo sparse matrix
     :rtype: Tensor
     """
+    import tensorflow as tf
+
     nterms = len(ls)
     n = len(ls[0])
     s = 0b1 << n
@@ -1409,7 +1407,7 @@ def PauliStringSum2COO_tf(
 
 def PauliString2COO(l: Sequence[int], weight: Optional[float] = None) -> Tensor:
     """
-    Generate tensorflow sparse matrix from Pauli string sum
+    Generate sparse matrix from Pauli string sum
 
     :param l: 1D Tensor representing for a Pauli string,
         e.g. [1, 0, 0, 3, 2] is for :math:`X_0Z_3Y_4`
@@ -1429,41 +1427,40 @@ def PauliString2COO(l: Sequence[int], weight: Optional[float] = None) -> Tensor:
     for j in l:
         # i, j from enumerate is python, non jittable when cond using tensor
         if j == 1:  # xi
-            idx_x += tf.bitwise.left_shift(one, n - i - 1)
+            idx_x += backend.left_shift(one, n - i - 1)
         elif j == 2:  # yi
-            idx_y += tf.bitwise.left_shift(one, n - i - 1)
+            idx_y += backend.left_shift(one, n - i - 1)
         elif j == 3:  # zi
-            idx_z += tf.bitwise.left_shift(one, n - i - 1)
+            idx_z += backend.left_shift(one, n - i - 1)
         i += 1
 
     if weight is None:
-        weight = tf.constant(1.0, dtype=tf.complex64)
+        weight = num_to_tensor(1.0, dtype="complex64")
     return ps2coo_core(idx_x, idx_y, idx_z, weight, n)
 
 
 def ps2coo_core(
     idx_x: Tensor, idx_y: Tensor, idx_z: Tensor, weight: Tensor, nqubits: int
 ) -> Tuple[Tensor, Tensor]:
-    dtype = weight.dtype
     s = 0b1 << nqubits
-    idx1 = tf.cast(tf.range(s), dtype=tf.int64)
+    idx1 = num_to_tensor(backend.arange(s), dtype="int64")
     idx2 = (idx1 ^ idx_x) ^ (idx_y)
-    indices = tf.transpose(tf.stack([idx1, idx2]))
+    indices = backend.transpose(backend.stack([idx1, idx2]))
     tmp = idx1 & (idx_y | idx_z)
     e = idx1 * 0
     ny = 0
     for i in range(nqubits):
         # if tmp[i] is power of 2 (non zero), then e[i] = 1
-        e ^= tf.bitwise.right_shift(tmp, i) & 0b1
+        e ^= backend.right_shift(tmp, i) & 0b1
         # how many 1 contained in idx_y
-        ny += tf.bitwise.right_shift(idx_y, i) & 0b1
-    ny = tf.math.mod(ny, 4)
+        ny += backend.right_shift(idx_y, i) & 0b1
+    ny = backend.mod(ny, 4)
     values = (
-        tf.cast((1 - 2 * e), dtype)
-        * tf.math.pow(tf.constant(-1.0j, dtype=dtype), tf.cast(ny, dtype))
+        num_to_tensor(1 - 2 * e)
+        * ((num_to_tensor(-1.0j) ** num_to_tensor(ny)))
         * weight
     )
-    return tf.SparseTensor(indices=indices, values=values, dense_shape=(s, s))  # type: ignore
+    return backend.coo_sparse_matrix(indices=indices, values=values, shape=(s, s))  # type: ignore
 
 
 # some quantum quatities below

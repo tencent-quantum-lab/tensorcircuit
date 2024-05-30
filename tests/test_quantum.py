@@ -1,13 +1,13 @@
 # pylint: disable=invalid-name
 
-from functools import partial
 import os
 import sys
+from functools import partial
 
 import numpy as np
 import pytest
-from pytest_lazyfixture import lazy_fixture as lf
 import tensornetwork as tn
+from pytest_lazyfixture import lazy_fixture as lf
 
 thisfile = os.path.abspath(__file__)
 modulepath = os.path.dirname(os.path.dirname(thisfile))
@@ -312,7 +312,8 @@ def test_extract_from_measure(backend):
     np.testing.assert_allclose(r, 1, atol=1e-5)
 
 
-def test_heisenberg_ham(tfb):
+@pytest.mark.parametrize("backend", [lf("npb"), lf("tfb"), lf("jaxb")])
+def test_heisenberg_ham(backend):
     g = tc.templates.graphs.Line1D(6)
     h = tc.quantum.heisenberg_hamiltonian(g, sparse=False)
     e, _ = tc.backend.eigh(h)
