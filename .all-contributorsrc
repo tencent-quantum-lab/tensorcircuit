@@ -309,7 +309,8 @@
       "contributions": [
         "code",
         "test",
-        "doc"
+        "doc",
+        "example"
       ]
     }
   ],
