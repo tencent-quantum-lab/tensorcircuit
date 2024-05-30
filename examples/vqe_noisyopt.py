@@ -9,7 +9,7 @@ import optax
 import tensorcircuit as tc
 from tensorcircuit import experimental as E
 from noisyopt import minimizeCompass, minimizeSPSA
-from tabulate import tabulate
+from tabulate import tabulate  # pip install tabulate
 
 seed = 42
 np.random.seed(seed)
@@ -20,10 +20,14 @@ K = tc.set_backend("jax")
 n = 6
 nlayers = 4
 
+# initial value of the parameters
+initial_value = np.random.uniform(size=[n * nlayers * 2])
+
 result = {
     "Algorithm / Optimization": ["Without Shot Noise", "With Shot Noise"],
-    "Gradient Free": [],
-    "Gradient based": [],
+    "SPSA (Gradient Free)": [],
+    "Compass Search (Gradient Free)": [],
+    "Adam (Gradient based)": [],
 }
 
 # We use OBC 1D TFIM Hamiltonian in this script
@@ -113,14 +117,26 @@ print(">>> VQE without shot noise")
 
 r = minimizeSPSA(
     func=exp_val_analytical,
-    x0=np.random.uniform(size=[n * nlayers * 2]),
+    x0=initial_value,
     niter=6000,
     paired=False,
 )
 
 print(r)
-print(">> Converged as (Gradient Free) :", exp_val_analytical(r.x))
-result["Gradient Free"].append(exp_val_analytical(r.x))
+print(">> SPSA converged as:", exp_val_analytical(r.x))
+result["SPSA (Gradient Free)"].append(exp_val_analytical(r.x))
+
+r = minimizeCompass(
+    func=exp_val_analytical,
+    x0=initial_value,
+    deltatol=0.1,
+    feps=1e-3,
+    paired=False,
+)
+
+print(r)
+print(">> Compass converged as:", exp_val_analytical(r.x))
+result["Compass Search (Gradient Free)"].append(exp_val_analytical(r.x))
 
 # 1.2 VQE with numerically exact expectation: gradient based
 
@@ -128,16 +144,16 @@ exponential_decay_scheduler = optax.exponential_decay(
     init_value=1e-2, transition_steps=500, decay_rate=0.9
 )
 opt = K.optimizer(optax.adam(exponential_decay_scheduler))
-param = K.implicit_randn([n, nlayers, 2], stddev=0.1)  # zeros stall the gradient
+param = initial_value.reshape((n, nlayers, 2))  # zeros stall the gradient
 exp_val_grad_analytical = K.jit(K.value_and_grad(exp_val_analytical))
 for i in range(1000):
     e, g = exp_val_grad_analytical(param)
     param = opt.update(g, param)
     if i % 100 == 99:
-        print(e)
+        print(f"Expectation value at iteration {i}: {e}")
 
-print(">> Converged as (Gradient based):", exp_val_grad_analytical(param)[0])
-result["Gradient based"].append(exp_val_grad_analytical(param)[0])
+print(">> Adam converged as:", exp_val_grad_analytical(param)[0])
+result["Adam (Gradient based)"].append(exp_val_grad_analytical(param)[0])
 
 # 2.1 VQE with finite shot noise: gradient free
 
@@ -145,7 +161,7 @@ print("==================================================================")
 print(">>> VQE with shot noise")
 
 
-rkey = K.get_random_state(42)
+rkey = K.get_random_state(seed)
 
 
 def exp_val_wrapper(param):
@@ -158,13 +174,26 @@ def exp_val_wrapper(param):
 
 r = minimizeSPSA(
     func=exp_val_wrapper,
-    x0=np.random.uniform(size=[n * nlayers * 2]),
+    x0=initial_value,
     niter=6000,
     paired=False,
 )
 print(r)
-print(">> Converged as (Gradient Free) :", exp_val_wrapper(r["x"]))
-result["Gradient Free"].append(exp_val_wrapper(r["x"]))
+print(">> SPSA converged as:", exp_val_wrapper(r["x"]))
+result["SPSA (Gradient Free)"].append(exp_val_wrapper(r["x"]))
+
+r = minimizeCompass(
+    func=exp_val_wrapper,
+    x0=initial_value,
+    deltatol=0.1,
+    feps=1e-2,
+    paired=False,
+)
+
+print(r)
+print(">> Compass converged as:", exp_val_wrapper(r["x"]))
+result["Compass Search (Gradient Free)"].append(exp_val_wrapper(r["x"]))
+
 
 # 2.2 VQE with finite shot noise: gradient based
 
@@ -172,9 +201,9 @@ exponential_decay_scheduler = optax.exponential_decay(
     init_value=1e-2, transition_steps=500, decay_rate=0.9
 )
 opt = K.optimizer(optax.adam(exponential_decay_scheduler))
-param = K.implicit_randn([n, nlayers, 2], stddev=0.1)  # zeros stall the gradient
+param = initial_value.reshape((n, nlayers, 2))  # zeros stall the gradient
 exp_grad = E.parameter_shift_grad_v2(exp_val, argnums=0, random_argnums=1)
-rkey = K.get_random_state(42)
+rkey = K.get_random_state(seed)
 
 for i in range(1000):
     rkey, skey = K.random_split(rkey)
@@ -182,13 +211,13 @@ for i in range(1000):
     param = opt.update(g, param)
     if i % 100 == 99:
         rkey, skey = K.random_split(rkey)
-        print(exp_val(param, skey))
+        print(f"Expectation value at iteration {i}: {exp_val(param, skey)}")
 
 # the real energy position after optimization
-print(">> Converged as (Gradient based):", exp_val_analytical(param))
-result["Gradient based"].append(exp_val_analytical(param))
+print(">> Adam converged as:", exp_val_analytical(param))
+result["Adam (Gradient based)"].append(exp_val_analytical(param))
 
 print("==================================================================")
 print(">>> Benchmark")
 print(">> Exact ground state energy: ", exact_gs_energy)
-print(tabulate(result, headers="keys"))
+print(tabulate(result, headers="keys", tablefmt="github"))
