@@ -10,10 +10,10 @@ Quantum state and operator class backend by tensornetwork
 
 # pylint: disable=invalid-name
 
-import os
-from functools import reduce, partial
 import logging
-from operator import or_, mul, matmul
+import os
+from functools import partial, reduce
+from operator import matmul, mul, or_
 from typing import (
     Any,
     Callable,
@@ -28,20 +28,19 @@ from typing import (
 )
 
 import numpy as np
-from tensornetwork.network_components import AbstractNode, Node, Edge, connect
-from tensornetwork.network_components import CopyNode
-from tensornetwork.network_operations import get_all_nodes, copy, reachable
-from tensornetwork.network_operations import get_subgraph_dangling, remove_node
+from tensornetwork.network_components import AbstractNode, CopyNode, Edge, Node, connect
+from tensornetwork.network_operations import (
+    copy,
+    get_all_nodes,
+    get_subgraph_dangling,
+    reachable,
+    remove_node,
+)
 
-try:
-    import tensorflow as tf
-except ImportError:
-    pass
-
-from .cons import backend, contractor, dtypestr, npdtype, rdtypestr
 from .backends import get_backend
-from .utils import is_m1mac, arg_alias
-from .gates import Gate
+from .cons import backend, contractor, dtypestr, npdtype, rdtypestr
+from .gates import Gate, num_to_tensor
+from .utils import arg_alias
 
 Tensor = Any
 Graph = Any
@@ -1162,318 +1161,310 @@ def quimb2qop(qb_mpo: Any) -> QuOperator:
     return qop
 
 
-try:
+def heisenberg_hamiltonian(
+    g: Graph,
+    hzz: float = 1.0,
+    hxx: float = 1.0,
+    hyy: float = 1.0,
+    hz: float = 0.0,
+    hx: float = 0.0,
+    hy: float = 0.0,
+    sparse: bool = True,
+    numpy: bool = False,
+) -> Tensor:
+    """
+    Generate Heisenberg Hamiltonian with possible external fields.
+    Currently requires tensorflow installed
 
-    def _id(x: Any) -> Any:
-        return x
+    :Example:
 
-    if is_m1mac():
-        compiled_jit = _id
-    else:
-        compiled_jit = partial(get_backend("tensorflow").jit, jit_compile=True)
+    >>> g = tc.templates.graphs.Line1D(6)
+    >>> h = qu.heisenberg_hamiltonian(g, sparse=False)
+    >>> tc.backend.eigh(h)[0][:10]
+    array([-11.2111025,  -8.4721365,  -8.472136 ,  -8.472136 ,  -6.       ,
+            -5.123106 ,  -5.123106 ,  -5.1231055,  -5.1231055,  -5.1231055],
+        dtype=float32)
 
-    def heisenberg_hamiltonian(
-        g: Graph,
-        hzz: float = 1.0,
-        hxx: float = 1.0,
-        hyy: float = 1.0,
-        hz: float = 0.0,
-        hx: float = 0.0,
-        hy: float = 0.0,
-        sparse: bool = True,
-        numpy: bool = False,
-    ) -> Tensor:
-        """
-        Generate Heisenberg Hamiltonian with possible external fields.
-        Currently requires tensorflow installed
+    :param g: input circuit graph
+    :type g: Graph
+    :param hzz: zz coupling, default is 1.0
+    :type hzz: float
+    :param hxx: xx coupling, default is 1.0
+    :type hxx: float
+    :param hyy: yy coupling, default is 1.0
+    :type hyy: float
+    :param hz: External field on z direction, default is 0.0
+    :type hz: float
+    :param hx: External field on y direction, default is 0.0
+    :type hx: float
+    :param hy: External field on x direction, default is 0.0
+    :type hy: float
+    :param sparse: Whether to return sparse Hamiltonian operator, default is True.
+    :type sparse: bool, defalts True
+    :param numpy: whether return the matrix in numpy or tensorflow form
+    :type numpy: bool, defaults False,
 
-        :Example:
-
-        >>> g = tc.templates.graphs.Line1D(6)
-        >>> h = qu.heisenberg_hamiltonian(g, sparse=False)
-        >>> tc.backend.eigh(h)[0][:10]
-        array([-11.2111025,  -8.4721365,  -8.472136 ,  -8.472136 ,  -6.       ,
-                -5.123106 ,  -5.123106 ,  -5.1231055,  -5.1231055,  -5.1231055],
-            dtype=float32)
-
-        :param g: input circuit graph
-        :type g: Graph
-        :param hzz: zz coupling, default is 1.0
-        :type hzz: float
-        :param hxx: xx coupling, default is 1.0
-        :type hxx: float
-        :param hyy: yy coupling, default is 1.0
-        :type hyy: float
-        :param hz: External field on z direction, default is 0.0
-        :type hz: float
-        :param hx: External field on y direction, default is 0.0
-        :type hx: float
-        :param hy: External field on x direction, default is 0.0
-        :type hy: float
-        :param sparse: Whether to return sparse Hamiltonian operator, default is True.
-        :type sparse: bool, defalts True
-        :param numpy: whether return the matrix in numpy or tensorflow form
-        :type numpy: bool, defaults False,
-
-        :return: Hamiltonian measurements
-        :rtype: Tensor
-        """
-        n = len(g.nodes)
-        ls = []
-        weight = []
-        for e in g.edges:
-            if hzz != 0:
-                r = [0 for _ in range(n)]
-                r[e[0]] = 3
-                r[e[1]] = 3
-                ls.append(r)
-                weight.append(hzz)
-            if hxx != 0:
-                r = [0 for _ in range(n)]
-                r[e[0]] = 1
-                r[e[1]] = 1
-                ls.append(r)
-                weight.append(hxx)
-            if hyy != 0:
-                r = [0 for _ in range(n)]
-                r[e[0]] = 2
-                r[e[1]] = 2
-                ls.append(r)
-                weight.append(hyy)
-        for node in g.nodes:
-            if hz != 0:
-                r = [0 for _ in range(n)]
-                r[node] = 3
-                ls.append(r)
-                weight.append(hz)
-            if hx != 0:
-                r = [0 for _ in range(n)]
-                r[node] = 1
-                ls.append(r)
-                weight.append(hx)
-            if hy != 0:
-                r = [0 for _ in range(n)]
-                r[node] = 2
-                ls.append(r)
-                weight.append(hy)
-        ls = tf.constant(ls)
-        weight = tf.constant(weight)
-        ls = get_backend("tensorflow").cast(ls, dtypestr)
-        weight = get_backend("tensorflow").cast(weight, dtypestr)
-        if sparse:
-            r = PauliStringSum2COO_numpy(ls, weight)
-            if numpy:
-                return r
-            return backend.coo_sparse_matrix_from_numpy(r)
-        return PauliStringSum2Dense(ls, weight, numpy=numpy)
-
-    def PauliStringSum2Dense(
-        ls: Sequence[Sequence[int]],
-        weight: Optional[Sequence[float]] = None,
-        numpy: bool = False,
-    ) -> Tensor:
-        """
-        Generate dense matrix from Pauli string sum.
-        Currently requires tensorflow installed.
-
-
-        :param ls: 2D Tensor, each row is for a Pauli string,
-            e.g. [1, 0, 0, 3, 2] is for :math:`X_0Z_3Y_4`
-        :type ls: Sequence[Sequence[int]]
-        :param weight: 1D Tensor, each element corresponds the weight for each Pauli string
-            defaults to None (all Pauli strings weight 1.0)
-        :type weight: Optional[Sequence[float]], optional
-        :param numpy: default False. If True, return numpy coo
-            else return backend compatible sparse tensor
-        :type numpy: bool
-        :return: the tensorflow dense matrix
-        :rtype: Tensor
-        """
-        sparsem = PauliStringSum2COO_numpy(ls, weight)
+    :return: Hamiltonian measurements
+    :rtype: Tensor
+    """
+    n = len(g.nodes)
+    ls = []
+    weight = []
+    for e in g.edges:
+        if hzz != 0:
+            r = [0 for _ in range(n)]
+            r[e[0]] = 3
+            r[e[1]] = 3
+            ls.append(r)
+            weight.append(hzz)
+        if hxx != 0:
+            r = [0 for _ in range(n)]
+            r[e[0]] = 1
+            r[e[1]] = 1
+            ls.append(r)
+            weight.append(hxx)
+        if hyy != 0:
+            r = [0 for _ in range(n)]
+            r[e[0]] = 2
+            r[e[1]] = 2
+            ls.append(r)
+            weight.append(hyy)
+    for node in g.nodes:
+        if hz != 0:
+            r = [0 for _ in range(n)]
+            r[node] = 3
+            ls.append(r)
+            weight.append(hz)
+        if hx != 0:
+            r = [0 for _ in range(n)]
+            r[node] = 1
+            ls.append(r)
+            weight.append(hx)
+        if hy != 0:
+            r = [0 for _ in range(n)]
+            r[node] = 2
+            ls.append(r)
+            weight.append(hy)
+    ls = tf.constant(ls)
+    weight = tf.constant(weight)
+    ls = get_backend("tensorflow").cast(ls, dtypestr)
+    weight = get_backend("tensorflow").cast(weight, dtypestr)
+    if sparse:
+        r = PauliStringSum2COO_numpy(ls, weight)
         if numpy:
-            return sparsem.todense()
-        sparsem = backend.coo_sparse_matrix_from_numpy(sparsem)
-        densem = backend.to_dense(sparsem)
-        return densem
+            return r
+        return backend.coo_sparse_matrix_from_numpy(r)
+    return PauliStringSum2Dense(ls, weight, numpy=numpy)
 
-    # already implemented as backend method
-    #
-    # def _tf2numpy_sparse(a: Tensor) -> Tensor:
-    #     return get_backend("numpy").coo_sparse_matrix(
-    #         indices=a.indices,
-    #         values=a.values,
-    #         shape=a.get_shape(),
-    #     )
 
-    # def _numpy2tf_sparse(a: Tensor) -> Tensor:
-    #     return get_backend("tensorflow").coo_sparse_matrix(
-    #         indices=np.array([a.row, a.col]).T,
-    #         values=a.data,
-    #         shape=a.shape,
-    #     )
+def PauliStringSum2Dense(
+    ls: Sequence[Sequence[int]],
+    weight: Optional[Sequence[float]] = None,
+    numpy: bool = False,
+) -> Tensor:
+    """
+    Generate dense matrix from Pauli string sum.
+    Currently requires tensorflow installed.
 
-    def PauliStringSum2COO(
-        ls: Sequence[Sequence[int]],
-        weight: Optional[Sequence[float]] = None,
-        numpy: bool = False,
-    ) -> Tensor:
-        """
-        Generate sparse tensor from Pauli string sum.
-        Currently requires tensorflow installed
 
-        :param ls: 2D Tensor, each row is for a Pauli string,
-            e.g. [1, 0, 0, 3, 2] is for :math:`X_0Z_3Y_4`
-        :type ls: Sequence[Sequence[int]]
-        :param weight: 1D Tensor, each element corresponds the weight for each Pauli string
-            defaults to None (all Pauli strings weight 1.0)
-        :type weight: Optional[Sequence[float]], optional
-        :param numpy: default False. If True, return numpy coo
-            else return backend compatible sparse tensor
-        :type numpy: bool
-        :return: the scipy coo sparse matrix
-        :rtype: Tensor
-        """
-        # numpy version is 3* faster!
+    :param ls: 2D Tensor, each row is for a Pauli string,
+        e.g. [1, 0, 0, 3, 2] is for :math:`X_0Z_3Y_4`
+    :type ls: Sequence[Sequence[int]]
+    :param weight: 1D Tensor, each element corresponds the weight for each Pauli string
+        defaults to None (all Pauli strings weight 1.0)
+    :type weight: Optional[Sequence[float]], optional
+    :param numpy: default False. If True, return numpy coo
+        else return backend compatible sparse tensor
+    :type numpy: bool
+    :return: the tensorflow dense matrix
+    :rtype: Tensor
+    """
+    sparsem = PauliStringSum2COO_numpy(ls, weight)
+    if numpy:
+        return sparsem.todense()
+    sparsem = backend.coo_sparse_matrix_from_numpy(sparsem)
+    densem = backend.to_dense(sparsem)
+    return densem
 
-        nterms = len(ls)
-        # n = len(ls[0])
-        # s = 0b1 << n
-        if weight is None:
-            weight = [1.0 for _ in range(nterms)]
-        if not (isinstance(weight, tf.Tensor) or isinstance(weight, tf.Variable)):
-            weight = tf.constant(weight, dtype=getattr(tf, dtypestr))
-        # rsparse = get_backend("numpy").coo_sparse_matrix(
-        #     indices=np.array([[0, 0]], dtype=np.int64),
-        #     values=np.array([0.0], dtype=getattr(np, dtypestr)),
-        #     shape=(s, s),
-        # )
-        rsparses = [
-            get_backend("tensorflow").numpy(PauliString2COO(ls[i], weight[i]))  # type: ignore
-            for i in range(nterms)
-        ]
-        rsparse = _dc_sum(rsparses)
-        # auto transformed into csr format!!
 
-        # for i in range(nterms):
-        #     rsparse += get_backend("tensorflow").numpy(PauliString2COO(ls[i], weight[i]))  # type: ignore
-        rsparse = rsparse.tocoo()
-        if numpy:
-            return rsparse
-        return backend.coo_sparse_matrix_from_numpy(rsparse)
+# already implemented as backend method
+#
+# def _tf2numpy_sparse(a: Tensor) -> Tensor:
+#     return get_backend("numpy").coo_sparse_matrix(
+#         indices=a.indices,
+#         values=a.values,
+#         shape=a.get_shape(),
+#     )
 
-    def _dc_sum(l: List[Any]) -> Any:
-        """
-        For the sparse sum, the speed is determined by the non zero terms,
-        so the DC way to do the sum can indeed bring some speed advantage (several times)
+# def _numpy2tf_sparse(a: Tensor) -> Tensor:
+#     return get_backend("tensorflow").coo_sparse_matrix(
+#         indices=np.array([a.row, a.col]).T,
+#         values=a.data,
+#         shape=a.shape,
+#     )
 
-        :param l: _description_
-        :type l: List[Any]
-        :return: _description_
-        :rtype: Any
-        """
-        n = len(l)
-        if n > 2:
-            return _dc_sum(l[: n // 2]) + _dc_sum(l[n // 2 :])
-        else:
-            return sum(l)
 
-    PauliStringSum2COO_numpy = partial(PauliStringSum2COO, numpy=True)
+def PauliStringSum2COO(
+    ls: Sequence[Sequence[int]],
+    weight: Optional[Sequence[float]] = None,
+    numpy: bool = False,
+) -> Tensor:
+    """
+    Generate sparse tensor from Pauli string sum.
+    Currently requires tensorflow installed
 
-    def PauliStringSum2COO_tf(
-        ls: Sequence[Sequence[int]], weight: Optional[Sequence[float]] = None
-    ) -> Tensor:
-        """
-        Generate tensorflow sparse matrix from Pauli string sum
+    :param ls: 2D Tensor, each row is for a Pauli string,
+        e.g. [1, 0, 0, 3, 2] is for :math:`X_0Z_3Y_4`
+    :type ls: Sequence[Sequence[int]]
+    :param weight: 1D Tensor, each element corresponds the weight for each Pauli string
+        defaults to None (all Pauli strings weight 1.0)
+    :type weight: Optional[Sequence[float]], optional
+    :param numpy: default False. If True, return numpy coo
+        else return backend compatible sparse tensor
+    :type numpy: bool
+    :return: the scipy coo sparse matrix
+    :rtype: Tensor
+    """
+    # numpy version is 3* faster!
 
-        :param ls: 2D Tensor, each row is for a Pauli string,
-            e.g. [1, 0, 0, 3, 2] is for :math:`X_0Z_3Y_4`
-        :type ls: Sequence[Sequence[int]]
-        :param weight: 1D Tensor, each element corresponds the weight for each Pauli string
-            defaults to None (all Pauli strings weight 1.0)
-        :type weight: Optional[Sequence[float]], optional
-        :return: the tensorflow coo sparse matrix
-        :rtype: Tensor
-        """
-        nterms = len(ls)
-        n = len(ls[0])
-        s = 0b1 << n
-        if weight is None:
-            weight = [1.0 for _ in range(nterms)]
-        if not (isinstance(weight, tf.Tensor) or isinstance(weight, tf.Variable)):
-            weight = tf.constant(weight, dtype=getattr(tf, dtypestr))
-        rsparse = tf.SparseTensor(
-            indices=tf.constant([[0, 0]], dtype=tf.int64),
-            values=tf.constant([0.0], dtype=weight.dtype),  # type: ignore
-            dense_shape=(s, s),
-        )
-        for i in range(nterms):
-            rsparse = tf.sparse.add(rsparse, PauliString2COO(ls[i], weight[i]))  # type: ignore
-            # very slow sparse.add?
+    nterms = len(ls)
+    # n = len(ls[0])
+    # s = 0b1 << n
+    if weight is None:
+        weight = [1.0 for _ in range(nterms)]
+    if not (isinstance(weight, tf.Tensor) or isinstance(weight, tf.Variable)):
+        weight = tf.constant(weight, dtype=getattr(tf, dtypestr))
+    # rsparse = get_backend("numpy").coo_sparse_matrix(
+    #     indices=np.array([[0, 0]], dtype=np.int64),
+    #     values=np.array([0.0], dtype=getattr(np, dtypestr)),
+    #     shape=(s, s),
+    # )
+    rsparses = [
+        get_backend("tensorflow").numpy(PauliString2COO(ls[i], weight[i]))  # type: ignore
+        for i in range(nterms)
+    ]
+    rsparse = _dc_sum(rsparses)
+    # auto transformed into csr format!!
+
+    # for i in range(nterms):
+    #     rsparse += get_backend("tensorflow").numpy(PauliString2COO(ls[i], weight[i]))  # type: ignore
+    rsparse = rsparse.tocoo()
+    if numpy:
         return rsparse
+    return backend.coo_sparse_matrix_from_numpy(rsparse)
 
-    @compiled_jit
-    def PauliString2COO(l: Sequence[int], weight: Optional[float] = None) -> Tensor:
-        """
-        Generate tensorflow sparse matrix from Pauli string sum
 
-        :param l: 1D Tensor representing for a Pauli string,
-            e.g. [1, 0, 0, 3, 2] is for :math:`X_0Z_3Y_4`
-        :type l: Sequence[int]
-        :param weight: the weight for the Pauli string
-            defaults to None (all Pauli strings weight 1.0)
-        :type weight: Optional[float], optional
-        :return: the tensorflow sparse matrix
-        :rtype: Tensor
-        """
-        n = len(l)
-        one = tf.constant(0b1, dtype=tf.int64)
-        idx_x = tf.constant(0b0, dtype=tf.int64)
-        idx_y = tf.constant(0b0, dtype=tf.int64)
-        idx_z = tf.constant(0b0, dtype=tf.int64)
-        i = tf.constant(0, dtype=tf.int64)
-        for j in l:
-            # i, j from enumerate is python, non jittable when cond using tensor
-            if j == 1:  # xi
-                idx_x += tf.bitwise.left_shift(one, n - i - 1)
-            elif j == 2:  # yi
-                idx_y += tf.bitwise.left_shift(one, n - i - 1)
-            elif j == 3:  # zi
-                idx_z += tf.bitwise.left_shift(one, n - i - 1)
-            i += 1
+def _dc_sum(l: List[Any]) -> Any:
+    """
+    For the sparse sum, the speed is determined by the non zero terms,
+    so the DC way to do the sum can indeed bring some speed advantage (several times)
 
-        if weight is None:
-            weight = tf.constant(1.0, dtype=tf.complex64)
-        return ps2coo_core(idx_x, idx_y, idx_z, weight, n)
+    :param l: _description_
+    :type l: List[Any]
+    :return: _description_
+    :rtype: Any
+    """
+    n = len(l)
+    if n > 2:
+        return _dc_sum(l[: n // 2]) + _dc_sum(l[n // 2 :])
+    else:
+        return sum(l)
 
-    @compiled_jit
-    def ps2coo_core(
-        idx_x: Tensor, idx_y: Tensor, idx_z: Tensor, weight: Tensor, nqubits: int
-    ) -> Tuple[Tensor, Tensor]:
-        dtype = weight.dtype
-        s = 0b1 << nqubits
-        idx1 = tf.cast(tf.range(s), dtype=tf.int64)
-        idx2 = (idx1 ^ idx_x) ^ (idx_y)
-        indices = tf.transpose(tf.stack([idx1, idx2]))
-        tmp = idx1 & (idx_y | idx_z)
-        e = idx1 * 0
-        ny = 0
-        for i in range(nqubits):
-            # if tmp[i] is power of 2 (non zero), then e[i] = 1
-            e ^= tf.bitwise.right_shift(tmp, i) & 0b1
-            # how many 1 contained in idx_y
-            ny += tf.bitwise.right_shift(idx_y, i) & 0b1
-        ny = tf.math.mod(ny, 4)
-        values = (
-            tf.cast((1 - 2 * e), dtype)
-            * tf.math.pow(tf.constant(-1.0j, dtype=dtype), tf.cast(ny, dtype))
-            * weight
-        )
-        return tf.SparseTensor(indices=indices, values=values, dense_shape=(s, s))  # type: ignore
 
-except (NameError, ImportError):
-    logger.info(
-        "tensorflow is not installed, and sparse Hamiltonian generation utilities are disabled"
+PauliStringSum2COO_numpy = partial(PauliStringSum2COO, numpy=True)
+
+
+def PauliStringSum2COO_tf(
+    ls: Sequence[Sequence[int]], weight: Optional[Sequence[float]] = None
+) -> Tensor:
+    """
+    Generate tensorflow sparse matrix from Pauli string sum
+
+    :param ls: 2D Tensor, each row is for a Pauli string,
+        e.g. [1, 0, 0, 3, 2] is for :math:`X_0Z_3Y_4`
+    :type ls: Sequence[Sequence[int]]
+    :param weight: 1D Tensor, each element corresponds the weight for each Pauli string
+        defaults to None (all Pauli strings weight 1.0)
+    :type weight: Optional[Sequence[float]], optional
+    :return: the tensorflow coo sparse matrix
+    :rtype: Tensor
+    """
+    nterms = len(ls)
+    n = len(ls[0])
+    s = 0b1 << n
+    if weight is None:
+        weight = [1.0 for _ in range(nterms)]
+    if not (isinstance(weight, tf.Tensor) or isinstance(weight, tf.Variable)):
+        weight = tf.constant(weight, dtype=getattr(tf, dtypestr))
+    rsparse = tf.SparseTensor(
+        indices=tf.constant([[0, 0]], dtype=tf.int64),
+        values=tf.constant([0.0], dtype=weight.dtype),  # type: ignore
+        dense_shape=(s, s),
     )
+    for i in range(nterms):
+        rsparse = tf.sparse.add(rsparse, PauliString2COO(ls[i], weight[i]))  # type: ignore
+        # very slow sparse.add?
+    return rsparse
+
+
+def PauliString2COO(l: Sequence[int], weight: Optional[float] = None) -> Tensor:
+    """
+    Generate tensorflow sparse matrix from Pauli string sum
+
+    :param l: 1D Tensor representing for a Pauli string,
+        e.g. [1, 0, 0, 3, 2] is for :math:`X_0Z_3Y_4`
+    :type l: Sequence[int]
+    :param weight: the weight for the Pauli string
+        defaults to None (all Pauli strings weight 1.0)
+    :type weight: Optional[float], optional
+    :return: the tensorflow sparse matrix
+    :rtype: Tensor
+    """
+    n = len(l)
+    one = num_to_tensor(0b1, dtype="int64")
+    idx_x = num_to_tensor(0b0, dtype="int64")
+    idx_y = num_to_tensor(0b0, dtype="int64")
+    idx_z = num_to_tensor(0b0, dtype="int64")
+    i = num_to_tensor(0, dtype="int64")
+    for j in l:
+        # i, j from enumerate is python, non jittable when cond using tensor
+        if j == 1:  # xi
+            idx_x += tf.bitwise.left_shift(one, n - i - 1)
+        elif j == 2:  # yi
+            idx_y += tf.bitwise.left_shift(one, n - i - 1)
+        elif j == 3:  # zi
+            idx_z += tf.bitwise.left_shift(one, n - i - 1)
+        i += 1
+
+    if weight is None:
+        weight = tf.constant(1.0, dtype=tf.complex64)
+    return ps2coo_core(idx_x, idx_y, idx_z, weight, n)
+
+
+def ps2coo_core(
+    idx_x: Tensor, idx_y: Tensor, idx_z: Tensor, weight: Tensor, nqubits: int
+) -> Tuple[Tensor, Tensor]:
+    dtype = weight.dtype
+    s = 0b1 << nqubits
+    idx1 = tf.cast(tf.range(s), dtype=tf.int64)
+    idx2 = (idx1 ^ idx_x) ^ (idx_y)
+    indices = tf.transpose(tf.stack([idx1, idx2]))
+    tmp = idx1 & (idx_y | idx_z)
+    e = idx1 * 0
+    ny = 0
+    for i in range(nqubits):
+        # if tmp[i] is power of 2 (non zero), then e[i] = 1
+        e ^= tf.bitwise.right_shift(tmp, i) & 0b1
+        # how many 1 contained in idx_y
+        ny += tf.bitwise.right_shift(idx_y, i) & 0b1
+    ny = tf.math.mod(ny, 4)
+    values = (
+        tf.cast((1 - 2 * e), dtype)
+        * tf.math.pow(tf.constant(-1.0j, dtype=dtype), tf.cast(ny, dtype))
+        * weight
+    )
+    return tf.SparseTensor(indices=indices, values=values, dense_shape=(s, s))  # type: ignore
+
 
 # some quantum quatities below
 
