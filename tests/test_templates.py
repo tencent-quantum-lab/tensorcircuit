@@ -1,7 +1,8 @@
 # pylint: disable=invalid-name
 
-import sys
 import os
+import sys
+
 import numpy as np
 import pytest
 from pytest_lazyfixture import lazy_fixture as lf
@@ -160,10 +161,6 @@ def test_operator_measurement(backend):
     )
     dense = tc.array_to_tensor(np.kron(tc.gates._x_matrix, np.eye(2)))
     sparse = tc.quantum.PauliString2COO([1, 0])
-    if tc.backend.name == "jax":
-        sparse = tc.backend.coo_sparse_matrix(
-            sparse.indices, sparse.values, sparse.shape
-        )
 
     for h in [dense, sparse, mpo]:
 
