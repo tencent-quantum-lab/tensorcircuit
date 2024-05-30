@@ -4,12 +4,11 @@ VQE with finite measurement shot noise
 
 from functools import partial
 import numpy as np
-from scipy import optimize
 import optax
-import tensorcircuit as tc
-from tensorcircuit import experimental as E
 from noisyopt import minimizeCompass, minimizeSPSA
 from tabulate import tabulate  # pip install tabulate
+import tensorcircuit as tc
+from tensorcircuit import experimental as E
 
 seed = 42
 np.random.seed(seed)
