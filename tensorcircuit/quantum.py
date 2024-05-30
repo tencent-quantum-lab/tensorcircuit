@@ -1426,7 +1426,8 @@ def PauliString2COO(l: Sequence[int], weight: Optional[float] = None) -> Tensor:
     :rtype: Tensor
     """
     n = len(l)
-    l = backend.cast(l, dtype="int64")
+    l = num_to_tensor(l, dtype="int64")
+    # l = backend.cast(l, dtype="int64")
     one = num_to_tensor(0b1, dtype="int64")
     idx_x = num_to_tensor(0b0, dtype="int64")
     idx_y = num_to_tensor(0b0, dtype="int64")
