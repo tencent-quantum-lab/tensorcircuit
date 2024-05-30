@@ -1247,8 +1247,6 @@ def heisenberg_hamiltonian(
             weight.append(hy)
     ls = num_to_tensor(ls)
     weight = num_to_tensor(weight)
-    ls = get_backend("tensorflow").cast(ls, dtypestr)
-    weight = get_backend("tensorflow").cast(weight, dtypestr)
     if sparse:
         r = PauliStringSum2COO_numpy(ls, weight)
         if numpy:
