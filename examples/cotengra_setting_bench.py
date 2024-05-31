@@ -1,6 +1,5 @@
 """
 Optimization for performance comparison with different cotengra settings.
-(random layouts averaged).
 """
 
 import itertools
