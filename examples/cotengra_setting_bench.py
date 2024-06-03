@@ -41,17 +41,16 @@ def generate_circuit(param, g, n, nlayers):
     return c
 
 
-def trigger_cotengra_optimization(n, nlayers, d):
-    g = nx.random_regular_graph(d, n)
+def trigger_cotengra_optimization(n, nlayers, graph):
 
     # define the loss function
     def loss_f(params, n, nlayers):
 
-        c = generate_circuit(params, g, n, nlayers)
+        c = generate_circuit(params, graph, n, nlayers)
 
         # calculate the loss function, max cut
         loss = 0.0
-        for e in g.edges:
+        for e in graph.edges:
             loss += c.expectation_ps(z=[e[0], e[1]])
 
         return K.real(loss)
@@ -60,12 +59,28 @@ def trigger_cotengra_optimization(n, nlayers, d):
 
     # run only once to trigger the compilation
     K.jit(
-        K.value_and_grad(loss_f, argnums=0),
+        loss_f,
         static_argnums=(1, 2),
     )(params, n, nlayers)
 
 
+# define the benchmark parameters
+n = 10
+nlayers = 15
+
 # define the cotengra optimizer parameters
+graph_args = {
+    "1D lattice": nx.convert_node_labels_to_integers(
+        nx.grid_graph((n, 1))
+    ),  # 1D lattice
+    "2D lattice": nx.convert_node_labels_to_integers(
+        nx.grid_graph((n // 5, n // (n // 5)))
+    ),  # 2D lattice
+    "all-to-all connected": nx.convert_node_labels_to_integers(
+        nx.complete_graph(n)
+    ),  # all-to-all connected
+}
+
 methods_args = [  # https://cotengra.readthedocs.io/en/latest/advanced.html#drivers
     "greedy",
     "kahypar",
@@ -79,10 +94,10 @@ methods_args = [  # https://cotengra.readthedocs.io/en/latest/advanced.html#driv
 ]
 
 optlib_args = [  # https://cotengra.readthedocs.io/en/latest/advanced.html#optimization-library
-    "optuna",  # pip install optuna
-    "random",
+    # "optuna",  # pip install optuna
+    "random",  # default when no library is installed
     # "baytune",  # pip install baytune
-    # "nevergrad",  # pip install nevergrad
+    "nevergrad",  # pip install nevergrad
     # "chocolate",  # pip install git+https://github.com/AIworx-Labs/chocolate@master
     # "skopt",  # pip install scikit-optimize
 ]
@@ -95,47 +110,56 @@ post_processing_args = [  # https://cotengra.readthedocs.io/en/latest/advanced.h
     ("simulated_annealing_opts", {}),
 ]
 
+minimize_args = [  # https://cotengra.readthedocs.io/en/main/advanced.html#objective
+    "flops",  # minimize the total number of scalar operations
+    "size",  # minimize the size of the largest intermediate tensor
+    "write",  # minimize the sum of sizes of all intermediate tensors
+    "combo",  # minimize the sum of FLOPS + α * WRITE where α is 64
+]
 
-def get_optimizer(method, optlib, post_processing):
+
+def get_optimizer(method, optlib, post_processing, minimize):
     if post_processing[0] is None:
         return ctg.HyperOptimizer(
             methods=method,
             optlib=optlib,
-            minimize="flops",
+            minimize=minimize,
             parallel=True,
             max_time=30,
-            max_repeats=30,
+            max_repeats=128,
             progbar=True,
         )
     else:
         return ctg.HyperOptimizer(
             methods=method,
             optlib=optlib,
-            minimize="flops",
+            minimize=minimize,
             parallel=True,
             max_time=30,
-            max_repeats=30,
+            max_repeats=128,
             progbar=True,
             **{post_processing[0]: post_processing[1]},
         )
 
 
 if __name__ == "__main__":
-    # define the parameters
-    n = 20
-    nlayers = 15
-    d = 3
-
-    for method, optlib, post_processing in itertools.product(
-        methods_args, optlib_args, post_processing_args
+    for graph, method, optlib, post_processing, minimize in itertools.product(
+        graph_args.keys(),
+        methods_args,
+        optlib_args,
+        post_processing_args,
+        minimize_args,
     ):
-        print(f"method: {method}, optlib: {optlib}, post_processing: {post_processing}")
+        print(
+            f"graph: {graph}, method: {method}, optlib: {optlib}, "
+            f"post_processing: {post_processing}, minimize: {minimize}"
+        )
         tc.set_contractor(
             "custom",
-            optimizer=get_optimizer(method, optlib, post_processing),
+            optimizer=get_optimizer(method, optlib, post_processing, minimize),
             contraction_info=True,
             preprocessing=True,
             debug_level=2,  # no computation
         )
-        trigger_cotengra_optimization(n, nlayers, d)
+        trigger_cotengra_optimization(n, nlayers, graph_args[graph])
         print("-------------------------")
