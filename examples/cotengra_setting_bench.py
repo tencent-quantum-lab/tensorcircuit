@@ -48,10 +48,7 @@ def trigger_cotengra_optimization(n, nlayers, graph):
 
         c = generate_circuit(params, graph, n, nlayers)
 
-        # calculate the loss function, max cut
-        loss = 0.0
-        for e in graph.edges:
-            loss += c.expectation_ps(z=[e[0], e[1]])
+        loss = c.expectation_ps(z=[0, 1, 2], reuse=False)
 
         return K.real(loss)
 
@@ -65,8 +62,8 @@ def trigger_cotengra_optimization(n, nlayers, graph):
 
 
 # define the benchmark parameters
-n = 10
-nlayers = 15
+n = 12
+nlayers = 12
 
 # define the cotengra optimizer parameters
 graph_args = {
@@ -84,7 +81,7 @@ graph_args = {
 methods_args = [  # https://cotengra.readthedocs.io/en/latest/advanced.html#drivers
     "greedy",
     "kahypar",
-    "labels",
+    # "labels",
     # "spinglass",  # requires igraph
     # "labelprop",  # requires igraph
     # "betweenness",  # requires igraph
@@ -94,26 +91,26 @@ methods_args = [  # https://cotengra.readthedocs.io/en/latest/advanced.html#driv
 ]
 
 optlib_args = [  # https://cotengra.readthedocs.io/en/latest/advanced.html#optimization-library
-    # "optuna",  # pip install optuna
-    "random",  # default when no library is installed
+    "optuna",  # pip install optuna
+    # "random",  # default when no library is installed
     # "baytune",  # pip install baytune
-    "nevergrad",  # pip install nevergrad
+    # "nevergrad",  # pip install nevergrad
     # "chocolate",  # pip install git+https://github.com/AIworx-Labs/chocolate@master
     # "skopt",  # pip install scikit-optimize
 ]
 
 post_processing_args = [  # https://cotengra.readthedocs.io/en/latest/advanced.html#slicing-and-subtree-reconfiguration
     (None, None),
-    ("slicing_opts", {"target_size": 2**28}),
-    ("slicing_reconf_opts", {"target_size": 2**28}),
+    # ("slicing_opts", {"target_size": 2**28}),
+    # ("slicing_reconf_opts", {"target_size": 2**28}),
     ("reconf_opts", {}),
     ("simulated_annealing_opts", {}),
 ]
 
 minimize_args = [  # https://cotengra.readthedocs.io/en/main/advanced.html#objective
-    "flops",  # minimize the total number of scalar operations
-    "size",  # minimize the size of the largest intermediate tensor
-    "write",  # minimize the sum of sizes of all intermediate tensors
+    # "flops",  # minimize the total number of scalar operations
+    # "size",  # minimize the size of the largest intermediate tensor
+    # "write",  # minimize the sum of sizes of all intermediate tensors
     "combo",  # minimize the sum of FLOPS + α * WRITE where α is 64
 ]
 
@@ -125,7 +122,7 @@ def get_optimizer(method, optlib, post_processing, minimize):
             optlib=optlib,
             minimize=minimize,
             parallel=True,
-            max_time=30,
+            max_time=60,
             max_repeats=128,
             progbar=True,
         )
@@ -135,7 +132,7 @@ def get_optimizer(method, optlib, post_processing, minimize):
             optlib=optlib,
             minimize=minimize,
             parallel=True,
-            max_time=30,
+            max_time=60,
             max_repeats=128,
             progbar=True,
             **{post_processing[0]: post_processing[1]},
