@@ -56,8 +56,8 @@ def convert_tc_circuit_to_stim_circuit(tc_circuit):
         else:
             raise ValueError(f"Unsupported gate: {gate_name}")
     for measurement in tc_circuit._extra_qir:
-        qubit = measurement["index"]
-        stim_circuit.append("M", qubit)
+        qubits = measurement["index"]
+        stim_circuit.append("M", qubits)
     return stim_circuit
 
 
@@ -65,31 +65,26 @@ def convert_tc_circuit_to_stim_circuit(tc_circuit):
 def get_binary_matrix(z_stabilizers):
     N = len(z_stabilizers)
     binary_matrix = np.zeros((N, 2 * N))
-    r = 0  # Row number
-    for row in z_stabilizers:
-        c = 0  # Column number
-        for i in row:
-            if i == 3:  # Pauli Z
-                binary_matrix[r, N + c] = 1
-            if i == 2:  # Pauli Y
-                binary_matrix[r, N + c] = 1
-                binary_matrix[r, c] = 1
-            if i == 1:  # Pauli X
-                binary_matrix[r, c] = 1
-            c += 1
-        r += 1
-
+    for row_idx, row in enumerate(z_stabilizers):
+        for col_idx, col in enumerate(row):
+            if col == 3:  # Pauli Z
+                binary_matrix[row_idx, N + col_idx] = 1
+            if col == 2:  # Pauli Y
+                binary_matrix[row_idx, N + col_idx] = 1
+                binary_matrix[row_idx, col_idx] = 1
+            if col == 1:  # Pauli X
+                binary_matrix[row_idx, col_idx] = 1
     return binary_matrix
 
 
 def get_bipartite_binary_matrix(binary_matrix, cut):
     N = len(binary_matrix)
-    cutMatrix = np.zeros((N, 2 * cut))
+    bipartite_binary_matrix = np.zeros((N, 2 * cut))
 
-    cutMatrix[:, :cut] = binary_matrix[:, :cut]
-    cutMatrix[:, cut:] = binary_matrix[:, N : N + cut]
+    bipartite_binary_matrix[:, :cut] = binary_matrix[:, :cut]
+    bipartite_binary_matrix[:, cut:] = binary_matrix[:, N : N + cut]
 
-    return cutMatrix
+    return bipartite_binary_matrix
 
 
 # ref: https://gist.github.com/StuartGordonReid/eb59113cb29e529b8105?permalink_comment_id=3268301#gistcomment-3268301
@@ -122,15 +117,16 @@ def simulate_stim_circuit_with_mid_measurement(stim_circuit):
     for instruction in stim_circuit.flattened():
         if instruction.name == "M":
             for t in instruction.targets_copy():
-                expectaction = simulator.peek_z(t.value)
-                desired = 0
-                if expectaction == -1:
-                    desired = 1
-                simulator.postselect_z(t.value, desired_value=desired)
+                expectaction_value = simulator.peek_z(t.value)
+                desired_measurement_outcome = 0
+                if expectaction_value == -1:  # zero probability to measure "0"
+                    desired_measurement_outcome = 1
+                simulator.postselect_z(
+                    t.value,
+                    desired_value=desired_measurement_outcome,
+                )
         else:
-            c = stim.Circuit()
-            c.append(instruction)
-            simulator.do_circuit(c)
+            simulator.do(instruction)
 
     return simulator.current_inverse_tableau() ** -1
 
@@ -148,15 +144,16 @@ if __name__ == "__main__":
     stabilizer_tableau = simulate_stim_circuit_with_mid_measurement(stim_circuit)
     zs = [stabilizer_tableau.z_output(k) for k in range(len(stabilizer_tableau))]
     binary_matrix = get_binary_matrix(zs)
-    cut_matrix = get_bipartite_binary_matrix(binary_matrix, num_qubits // 2)
-    custom_entropy = (gf2_rank(cut_matrix.tolist()) - num_qubits // 2) * np.log(2)
-    print("Stim Entanglement Entropy:", custom_entropy)
+    bipartite_matrix = get_bipartite_binary_matrix(binary_matrix, num_qubits // 2)
+    stim_entropy = (gf2_rank(bipartite_matrix.tolist()) - num_qubits // 2) * np.log(2)
+    print("Stim Entanglement Entropy:", stim_entropy)
 
     # Entanglement entropy calculation using TensorCircuit
     state_vector = tc_circuit.wavefunction()
     assert np.linalg.norm(state_vector) > 0
+    # Normalize the state vector because mid-measurement operation is not unitary
     state_vector /= np.linalg.norm(state_vector)
-    baseline_entropy = tc.quantum.entanglement_entropy(state_vector, num_qubits // 2)
-    print("TensorCircuit Entanglement Entropy:", baseline_entropy)
+    tc_entropy = tc.quantum.entanglement_entropy(state_vector, num_qubits // 2)
+    print("TensorCircuit Entanglement Entropy:", tc_entropy)
 
-    np.testing.assert_allclose(custom_entropy, baseline_entropy, atol=1e-8)
+    np.testing.assert_allclose(stim_entropy, tc_entropy, atol=1e-8)
