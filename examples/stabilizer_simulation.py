@@ -67,14 +67,12 @@ def get_binary_matrix(z_stabilizers):
     return binary_matrix
 
 
-def get_bipartite_binary_matrix(binary_matrix, cut):
+def get_cut_binary_matrix(binary_matrix, cut):
     N = len(binary_matrix)
-    bipartite_binary_matrix = np.zeros((N, 2 * cut))
-
-    bipartite_binary_matrix[:, :cut] = binary_matrix[:, :cut]
-    bipartite_binary_matrix[:, cut:] = binary_matrix[:, N : N + cut]
-
-    return bipartite_binary_matrix
+    new_indices = [i for i in range(N) if i not in set(cut)] + [
+        i + N for i in range(N) if i not in set(cut)
+    ]
+    return binary_matrix[:, new_indices]
 
 
 # ref: https://gist.github.com/StuartGordonReid/eb59113cb29e529b8105?permalink_comment_id=3268301#gistcomment-3268301
@@ -107,8 +105,9 @@ def simulate_stim_circuit_with_mid_measurement(stim_circuit):
     for instruction in stim_circuit.flattened():
         if instruction.name == "M":
             for t in instruction.targets_copy():
-                expectaction_value = simulator.peek_z(t.value)
-                if expectaction_value != -1:  # non-zero probability to measure "0"
+                expectaction_value = simulator.peek_z(t.value)  # 1, 0, -1
+                # there is a non-zero probability to measure "0" if expectaction_value is not -1
+                if expectaction_value != -1:
                     simulator.postselect_z(t.value, desired_value=0)
         else:
             simulator.do(instruction)
@@ -117,8 +116,12 @@ def simulate_stim_circuit_with_mid_measurement(stim_circuit):
 
 
 if __name__ == "__main__":
-    num_qubits = 10
-    depth = 20
+    # Number of qubits
+    num_qubits = 8
+    # Depth of the circuit
+    depth = 10
+    # index list that is traced out to calculate the entanglement entropy
+    cut = [i for i in range(num_qubits // 2)]
 
     tc_circuit, op_list = random_clifford_circuit_with_mid_measurement(
         num_qubits, depth
@@ -131,8 +134,8 @@ if __name__ == "__main__":
     stabilizer_tableau = simulate_stim_circuit_with_mid_measurement(stim_circuit)
     zs = [stabilizer_tableau.z_output(k) for k in range(len(stabilizer_tableau))]
     binary_matrix = get_binary_matrix(zs)
-    bipartite_matrix = get_bipartite_binary_matrix(binary_matrix, num_qubits // 2)
-    stim_entropy = (gf2_rank(bipartite_matrix.tolist()) - num_qubits // 2) * np.log(2)
+    bipartite_matrix = get_cut_binary_matrix(binary_matrix, cut)
+    stim_entropy = (gf2_rank(bipartite_matrix.tolist()) - len(cut)) * np.log(2)
     print("Stim Entanglement Entropy:", stim_entropy)
 
     # Entanglement entropy calculation using TensorCircuit
@@ -140,7 +143,8 @@ if __name__ == "__main__":
     assert np.linalg.norm(state_vector) > 0
     # Normalize the state vector because mid-measurement operation is not unitary
     state_vector /= np.linalg.norm(state_vector)
-    tc_entropy = tc.quantum.entanglement_entropy(state_vector, num_qubits // 2)
+    tc_entropy = tc.quantum.entanglement_entropy(state_vector, cut)
     print("TensorCircuit Entanglement Entropy:", tc_entropy)
 
+    # Check if the entanglement entropies are close
     np.testing.assert_allclose(stim_entropy, tc_entropy, atol=1e-8)
