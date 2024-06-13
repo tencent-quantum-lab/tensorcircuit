@@ -69,8 +69,8 @@ def get_binary_matrix(z_stabilizers):
 
 def get_cut_binary_matrix(binary_matrix, cut):
     N = len(binary_matrix)
-    new_indices = [i for i in range(N) if i not in set(cut)] + [
-        i + N for i in range(N) if i not in set(cut)
+    new_indices = [i for i in range(N) if i in set(cut)] + [
+        i + N for i in range(N) if i in set(cut)
     ]
     return binary_matrix[:, new_indices]
 
@@ -117,11 +117,11 @@ def simulate_stim_circuit_with_mid_measurement(stim_circuit):
 
 if __name__ == "__main__":
     # Number of qubits
-    num_qubits = 8
+    num_qubits = 10
     # Depth of the circuit
-    depth = 10
+    depth = 30
     # index list that is traced out to calculate the entanglement entropy
-    cut = [i for i in range(num_qubits // 2)]
+    cut = [i for i in range(num_qubits // 3)]
 
     tc_circuit, op_list = random_clifford_circuit_with_mid_measurement(
         num_qubits, depth
@@ -134,8 +134,8 @@ if __name__ == "__main__":
     stabilizer_tableau = simulate_stim_circuit_with_mid_measurement(stim_circuit)
     zs = [stabilizer_tableau.z_output(k) for k in range(len(stabilizer_tableau))]
     binary_matrix = get_binary_matrix(zs)
-    bipartite_matrix = get_cut_binary_matrix(binary_matrix, cut)
-    stim_entropy = (gf2_rank(bipartite_matrix.tolist()) - len(cut)) * np.log(2)
+    cur_matrix = get_cut_binary_matrix(binary_matrix, cut)
+    stim_entropy = (gf2_rank(cur_matrix.tolist()) - len(cut)) * np.log(2)
     print("Stim Entanglement Entropy:", stim_entropy)
 
     # Entanglement entropy calculation using TensorCircuit
