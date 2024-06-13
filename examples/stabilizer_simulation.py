@@ -7,8 +7,8 @@ np.random.seed(0)
 
 tc.set_dtype("complex128")
 
-clifford_one_qubit_gates = ["h", "x", "y", "z", "s"]
-clifford_two_qubit_gates = ["cnot"]
+clifford_one_qubit_gates = ["H", "X", "Y", "Z", "S"]
+clifford_two_qubit_gates = ["CNOT"]
 clifford_gates = clifford_one_qubit_gates + clifford_two_qubit_gates
 
 
@@ -22,42 +22,32 @@ def genpair(num_qubits, count):
 
 def random_clifford_circuit_with_mid_measurement(num_qubits, depth):
     c = tc.Circuit(num_qubits)
+    operation_list = []
     for _ in range(depth):
         for j, k in genpair(num_qubits, 2):
             c.cnot(j, k)
+            operation_list.append(("CNOT", (j, k)))
         for j in range(num_qubits):
-            getattr(c, np.random.choice(clifford_one_qubit_gates))(j)
+            gate_name = np.random.choice(clifford_one_qubit_gates)
+            getattr(c, gate_name)(j)
+            operation_list.append((gate_name, (j,)))
         measured_qubit = np.random.randint(0, num_qubits - 1)
         sample, p = c.measure_reference(measured_qubit, with_prob=True)
         # Check if there is a non-zero probability to measure "0" for post-selection
-        if (sample == "0" and p > 0.0) or (sample == "1" and p < 1.0):
+        if (sample == "0" and not np.isclose(p, 0.0)) or (
+            sample == "1" and not np.isclose(p, 1.0)
+        ):
             c.mid_measurement(measured_qubit, keep=0)
-            c.measure_instruction(measured_qubit)
-    return c
+            operation_list.append(("M", (measured_qubit,)))
+    return c, operation_list
 
 
-def convert_tc_circuit_to_stim_circuit(tc_circuit):
+def convert_operation_list_to_stim_circuit(operation_list):
     stim_circuit = stim.Circuit()
-    for instruction in tc_circuit._qir:
-        gate_name = instruction["gate"].name
-        qubits = instruction.get("index", [])
-        if gate_name == "x":
-            stim_circuit.append("X", qubits)
-        elif gate_name == "y":
-            stim_circuit.append("Y", qubits)
-        elif gate_name == "z":
-            stim_circuit.append("Z", qubits)
-        elif gate_name == "h":
-            stim_circuit.append("H", qubits)
-        elif gate_name == "cnot":
-            stim_circuit.append("CNOT", qubits)
-        elif gate_name == "s":
-            stim_circuit.append("S", qubits)
-        else:
-            raise ValueError(f"Unsupported gate: {gate_name}")
-    for measurement in tc_circuit._extra_qir:
-        qubits = measurement["index"]
-        stim_circuit.append("M", qubits)
+    for instruction in operation_list:
+        gate_name = instruction[0]
+        qubits = instruction[1]
+        stim_circuit.append(gate_name, qubits)
     return stim_circuit
 
 
@@ -118,13 +108,8 @@ def simulate_stim_circuit_with_mid_measurement(stim_circuit):
         if instruction.name == "M":
             for t in instruction.targets_copy():
                 expectaction_value = simulator.peek_z(t.value)
-                desired_measurement_outcome = 0
-                if expectaction_value == -1:  # zero probability to measure "0"
-                    desired_measurement_outcome = 1
-                simulator.postselect_z(
-                    t.value,
-                    desired_value=desired_measurement_outcome,
-                )
+                if expectaction_value != -1:  # non-zero probability to measure "0"
+                    simulator.postselect_z(t.value, desired_value=0)
         else:
             simulator.do(instruction)
 
@@ -133,12 +118,14 @@ def simulate_stim_circuit_with_mid_measurement(stim_circuit):
 
 if __name__ == "__main__":
     num_qubits = 10
-    depth = 8
+    depth = 20
 
-    tc_circuit = random_clifford_circuit_with_mid_measurement(num_qubits, depth)
+    tc_circuit, op_list = random_clifford_circuit_with_mid_measurement(
+        num_qubits, depth
+    )
     print(tc_circuit.draw(output="text"))
 
-    stim_circuit = convert_tc_circuit_to_stim_circuit(tc_circuit)
+    stim_circuit = convert_operation_list_to_stim_circuit(op_list)
 
     # Entanglement entropy calculation using stabilizer formalism
     stabilizer_tableau = simulate_stim_circuit_with_mid_measurement(stim_circuit)
