@@ -31,14 +31,15 @@ def random_clifford_circuit_with_mid_measurement(num_qubits, depth):
             gate_name = np.random.choice(clifford_one_qubit_gates)
             getattr(c, gate_name)(j)
             operation_list.append((gate_name, (j,)))
-        measured_qubit = np.random.randint(0, num_qubits - 1)
-        sample, p = c.measure_reference(measured_qubit, with_prob=True)
-        # Check if there is a non-zero probability to measure "0" for post-selection
-        if (sample == "0" and not np.isclose(p, 0.0)) or (
-            sample == "1" and not np.isclose(p, 1.0)
-        ):
-            c.mid_measurement(measured_qubit, keep=0)
-            operation_list.append(("M", (measured_qubit,)))
+        if np.random.uniform() < 0.2:
+            measured_qubit = np.random.randint(0, num_qubits - 1)
+            sample, p = c.measure_reference(measured_qubit, with_prob=True)
+            # Check if there is a non-zero probability to measure "0" for post-selection
+            if (sample == "0" and not np.isclose(p, 0.0)) or (
+                sample == "1" and not np.isclose(p, 1.0)
+            ):
+                c.mid_measurement(measured_qubit, keep=0)
+                operation_list.append(("M", (measured_qubit,)))
     return c, operation_list
 
 
@@ -117,9 +118,9 @@ def simulate_stim_circuit_with_mid_measurement(stim_circuit):
 
 if __name__ == "__main__":
     # Number of qubits
-    num_qubits = 10
+    num_qubits = 12
     # Depth of the circuit
-    depth = 30
+    depth = 24
     # index list that is traced out to calculate the entanglement entropy
     cut = [i for i in range(num_qubits // 3)]
 
