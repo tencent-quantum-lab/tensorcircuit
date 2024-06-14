@@ -143,13 +143,6 @@ pip install tensorcircuit[tensorflow]
 
 Other optional dependencies include `[torch]`, `[jax]`, `[qiskit]` and `[cloud]`.
 
-For the nightly build of tensorcircuit with new features, try:
-
-```python
-pip uninstall tensorcircuit
-pip install tensorcircuit-nightly
-```
-
 We also have [Docker support](/docker).
 
 ## Advantages
