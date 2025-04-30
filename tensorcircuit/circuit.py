@@ -129,8 +129,8 @@ class Circuit(BaseCircuit):
 
     def to_tqasm(self) -> str:
         qasm_lines = []
-        qasm_lines.append("OPENQASM 3;")
-        qasm_lines.append(f"qubit[{self._nqubits}] q;")
+        qasm_lines.append("TQASM 0.2;")
+        qasm_lines.append(f"QREG q[{self._nqubits}];")
 
         for gate in self._qir:
             gname = gate["name"]
@@ -139,7 +139,7 @@ class Circuit(BaseCircuit):
 
         for cal in getattr(self, "calibrations", []):
             pname = ", ".join(cal["parameters"])
-            qasm_lines.append(f"\ndefcal {cal['name']}({pname}) {{")
+            qasm_lines.append(f"\ndefcal {cal['name']} {pname} {{")
             for inst in cal["instructions"]:
                 if inst["type"] == "frame":
                     qasm_lines.append(f"  frame {inst['frame']} = newframe({inst['qubit']});")
