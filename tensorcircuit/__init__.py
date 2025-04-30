@@ -24,8 +24,9 @@ from .cons import (
 )  # prerun of set hooks
 from . import gates
 from . import basecircuit
+from . import waveforms
 from .gates import Gate
-from .circuit import Circuit, expectation
+from .circuit import Circuit, expectation, Param
 from .mpscircuit import MPSCircuit
 from .densitymatrix import DMCircuit as DMCircuit_reference
 from .densitymatrix import DMCircuit2

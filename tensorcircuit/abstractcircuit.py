@@ -79,6 +79,14 @@ class AbstractCircuit:
     mpogates = mpogates
     gate_aliases = gate_aliases
 
+    def __init__(self, nqubits: int, *args, **kwargs):
+        self._nqubits = nqubits
+        self._qir = []
+        self._extra_qir = []
+        self.inputs = None
+        self.circuit_param = {}
+        self.is_mps = False
+
     def apply_general_gate(
         self,
         gate: Union[Gate, QuOperator],
@@ -114,6 +122,7 @@ class AbstractCircuit:
             gate_dict = {
                 "gatef": gatef,
                 "index": index,
+                "target": list(index),
                 "name": localname,
                 "split": split,
                 "mpo": mpo,
