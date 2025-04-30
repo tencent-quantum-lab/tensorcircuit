@@ -1,5 +1,6 @@
 import sys
 import os
+import matplotlib.pyplot as plt
 
 # Add the directory containing your module to Python's search path
 module_path = ".."
@@ -15,7 +16,7 @@ set_provider("tencent")
 ds = list_devices()
 print(ds)
 
-def test_parametric_waveform():
+def test_parametric_waveform(t):
     qc = Circuit(2)
 
     param0 = Param("a")
@@ -23,26 +24,11 @@ def test_parametric_waveform():
 
     builder = qc.calibrate("my_gate", [param0, param1])
     builder.new_frame("f0", param0)
-    builder.play("f0", waveforms.CosineDrag(10, 0.2, "0.5*PI", 0.01))
-    builder.new_frame("f1", param1)
-    builder.play("f1", waveforms.CosineDrag(20, 0.01, "0", 0))
+    builder.play("f0", waveforms.CosineDrag(t, 0.2, 0.0, 0.01))
+    builder.new_frame("f1", param0)
+    builder.play("f1", waveforms.CosineDrag(t, 0.2, 0.0, 0.01))
     builder.build()
 
-    tqasm_code = qc.to_tqasm()
-    tqasm_code = tqasm_code + '\nmygate q[0], q[1]'
-    print(tqasm_code)  
-
-    assert "TQASM 0.2;" in tqasm_code
-    assert "defcal my_gate a, b" in tqasm_code
-    assert "frame f0 = newframe(a);" in tqasm_code
-    assert "play(f0, cosine_drag(10, 0.2, 0.5*PI, 0.01));" in tqasm_code
-    assert "frame f1 = newframe(b);" in tqasm_code
-    assert "play(f1, cosine_drag(20, 0.01, 0, 0));" in tqasm_code
-    assert re.search(r"defcal my_gate [^\)]* \s*\{", tqasm_code)
-    
-    
-    #tc.cloud.apis.set_token("xu1LTrkf0nP6sI8oh.bDPdk35RlOQZYy9hQPU6jK2J4d5AdINAOszCNPxTNGZ3-opBPhWcLcruYuSrvX8is1D9tKgw-O4Zg.Qf7fLp83AtSPP19jD6Na4piICkygomdfyxIjzhO6Zu-s5hgBu2709ZW=")
-    #tc.cloud.apis.set_provider("tencent")
     device_name = "tianji_m2" 
     d = get_device(device_name)
     t = submit_task(
@@ -53,7 +39,65 @@ def test_parametric_waveform():
     enable_qos_qubit_mapping=False,
     )
     rf = t.results()
-    print(rf)
+    return rf
+
+data = {
+    '00': [],
+    '01': [],
+    '10': [],
+    '11': []
+}
+for i in range(1,5):
+    result = test_parametric_waveform(i)
+    print(i, result['00'], result['01'], result['10'], result['11'])
+
+    for key in data:
+        data[key].append(result[key])
+    
+
+plt.figure(figsize=(10, 6))
+
+colors = ['blue', 'green', 'red', 'purple']  
+marker_size = 4  
+
+# for idx, (state, values) in enumerate(data.items()):
+#     plt.plot(
+#         range(1, 5), 
+#         values,
+#         marker='o',        
+#         markersize=marker_size,
+#         linestyle='-',     
+#         linewidth=1.2,
+#         color=colors[idx],
+#         label=state
+#     )
+
+# plt.xlabel('Parameter i')
+# plt.ylabel('Counts')
+# plt.title('State Distribution by Parameter')
+# plt.legend()
+# plt.grid(True, alpha=0.3)
 
 
-test_parametric_waveform()
+# 子图
+for idx, (state, values) in enumerate(data.items()):
+    plt.subplot(2, 2, idx+1) 
+    
+    plt.plot(
+        range(1, 5),
+        values,
+        marker='o',
+        markersize=4,
+        linestyle='-',
+        linewidth=1.2,
+        color=colors[idx]
+    )
+    
+    plt.xlabel('Parameter i')
+    plt.ylabel('Counts')
+    plt.title(f'State {state}')
+    plt.grid(True, alpha=0.3)
+
+
+plt.tight_layout()
+plt.show()
