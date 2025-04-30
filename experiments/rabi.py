@@ -18,8 +18,8 @@ print(ds)
 def test_parametric_waveform():
     qc = Circuit(2)
 
-    param0 = Param("param0")
-    param1 = Param("param1")
+    param0 = Param("a")
+    param1 = Param("b")
 
     builder = qc.calibrate("my_gate", [param0, param1])
     builder.new_frame("f0", param0)
@@ -33,10 +33,10 @@ def test_parametric_waveform():
     print(tqasm_code)  
 
     assert "TQASM 0.2;" in tqasm_code
-    assert "defcal my_gate param0, param1" in tqasm_code
-    assert "frame f0 = newframe(param0);" in tqasm_code
+    assert "defcal my_gate a, b" in tqasm_code
+    assert "frame f0 = newframe(a);" in tqasm_code
     assert "play(f0, cosine_drag(10, 0.2, 0.5*PI, 0.01));" in tqasm_code
-    assert "frame f1 = newframe(param1);" in tqasm_code
+    assert "frame f1 = newframe(b);" in tqasm_code
     assert "play(f1, cosine_drag(20, 0.01, 0, 0));" in tqasm_code
     assert re.search(r"defcal my_gate [^\)]* \s*\{", tqasm_code)
     
