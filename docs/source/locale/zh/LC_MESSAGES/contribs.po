@@ -1,0 +1,924 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, The TensorCircuit Authors
+# This file is distributed under the same license as the tensorcircuit
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: tensorcircuit \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-07-14 15:43+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.12.1\n"
+
+#: ../../source/contribs/development_Mac.md:1
+#: ../../source/contribs/development_MacARM.md:1
+#: ../../source/contribs/development_MacM2.md:1
+msgid "Tensorcircuit Installation Guide on MacOS"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:3
+msgid "Contributed by [_Mark (Zixuan) Song_](https://marksong.tech)"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:5
+msgid ""
+"Apple has updated Tensorflow (for MacOS) so that installation on M-series"
+" (until M2) and Intel-series Mac can follow the exact same procedure."
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:7
+#: ../../source/contribs/development_MacARM.md:8
+#: ../../source/contribs/development_MacM2.md:10
+msgid "Starting From Scratch"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:9
+msgid "For completely new Macos or Macos without Xcode and Homebrew installed."
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:11
+#: ../../source/contribs/development_MacARM.md:12
+#: ../../source/contribs/development_MacM2.md:12
+msgid "Install Xcode Command Line Tools"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:13
+#: ../../source/contribs/development_MacARM.md:14
+#: ../../source/contribs/development_MacM2.md:14
+msgid "<font color=gray><em>Need graphical access to the machine.</em></font>"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:15
+#: ../../source/contribs/development_MacARM.md:16
+#: ../../source/contribs/development_MacM2.md:16
+msgid "Run `xcode-select --install` to install if on optimal internet."
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:17
+msgid ""
+"Or Download it from [Apple](https://developer.apple.com/download/more/) "
+"Command Line Tools installation image then install it if the internet "
+"connection is weak."
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:19
+#: ../../source/contribs/development_MacARM.md:20
+#: ../../source/contribs/development_MacM2.md:20
+msgid "Install Miniconda"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:21
+msgid ""
+"Due to the limitation of MacOS and packages, the latest version of Python"
+" does not always function as desired, thus miniconda installation is "
+"advised to solve the issues."
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:30
+#: ../../source/contribs/development_MacARM.md:37
+msgid "Install TC Backends"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:32
+msgid "There are four backends to choose from, Numpy, Tensorflow, Jax, and Torch."
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:34
+#: ../../source/contribs/development_MacARM.md:41
+msgid "Install Jax, Pytorch, Qiskit, Cirq (Optional)"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:40
+#: ../../source/contribs/development_MacARM.md:47
+msgid "Install Tensorflow (Optional)"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:42
+msgid "Installation"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:44
+msgid "For Tensorflow version 2.13 or later:"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:50
+msgid "For Tensorflow version 2.12 or earlier:"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:56
+#: ../../source/contribs/development_MacARM.md:57
+#: ../../source/contribs/development_MacARM.md:89
+msgid "Verify Tensorflow Installation"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:74
+#: ../../source/contribs/development_MacARM.md:107
+msgid "Install Tensorcircuit"
+msgstr ""
+
+#: ../../source/contribs/development_Mac.md:80
+msgid ""
+"Until July 2023, this has been tested on Intel Macs running Ventura, M1 "
+"Macs running Ventura, M2 Macs running Ventura, and M2 Macs running Sonoma"
+" beta."
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:3
+msgid "Contributed by Mark (Zixuan) Song"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:5
+#: ../../source/contribs/development_MacM2.md:5
+msgid ""
+".. warning::     This page is deprecated. Please visit `the update "
+"tutorial <development_Mac.html>`_ for the latest information."
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:10
+msgid "For completely new macos or macos without xcode and brew"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:18
+#: ../../source/contribs/development_MacM2.md:18
+msgid ""
+"Or Download from [Apple](https://developer.apple.com/download/more/) "
+"Command Line Tools installation image then install if internet connection"
+" is weak."
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:22
+msgid ""
+"Due to the limitation of MacOS and packages, the lastest version of "
+"python does not always function as desired, thus miniconda installation "
+"is advised to solve the issues."
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:31
+msgid "Install TC Prerequisites"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:39
+msgid "There are four backends to choose from, Numpy, Tensorflow, Jax, Torch."
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:49
+msgid "Install Tensorflow without MacOS optimization"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:75
+msgid "Install Tensorflow with MacOS optimization (Recommended)"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:77
+msgid "For tensorflow version 2.13 or later:"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:83
+msgid "For tensorflow version 2.12 or earlier:"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:113
+msgid "Testing Platform (Tested Jun 2023)"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:115
+msgid "Platform 1:"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:116
+msgid "MacOS Ventura 13.1 (Build version 22C65)"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:117
+msgid "M1 Ultra"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:118
+msgid "Platform 2:"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:119
+msgid "MacOS Ventura 13.2 (Build version 22D49)"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:120
+msgid "M1 Ultra (Virtual)"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:121
+msgid "Platform 4:"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:122
+msgid "MacOS Sonoma 14.0 Beta 2 (Build version 23A5276g)"
+msgstr ""
+
+#: ../../source/contribs/development_MacARM.md:123
+msgid "M2 Max"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:2
+msgid "Run TensorCircuit on TensorlowBackend with Apple M1"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:3
+msgid "Contributed by (Yuqin Chen)"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:7
+msgid ""
+"This page is deprecated. Please visit `the update tutorial "
+"<development_Mac.html>`_ for the latest information."
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:11
+msgid "Why We Can't Run TensorCircuit on TensorlowBackend with Apple M1"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:12
+msgid ""
+"TensorCircuit requires Tensorflow to support TensorflowBackend. However "
+"for Apple M1, Tensorflow package cannot be properly installed by a usual "
+"method like \"pip install tensorflow\". As well, the TensorCircuit "
+"package cannot be properly installed by a usual method \"pip install "
+"tensorcircuit\" All we need is to properly install tensorflow on Apple M1"
+" Pro and then download the TensorCircuit package to the local and install"
+" it."
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:16
+msgid "Install tensorflow on Apple M1"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:17
+msgid ""
+"According to the instructions below or the installation manual on Apple's"
+" official website `tensorflow-metal PluggableDevice "
+"<https://developer.apple.com/metal/tensorflow-plugin/>`_, you can install"
+" tensorflow step by step."
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:19
+msgid "**Step1: Environment setup**"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:21
+msgid "x86 : AMD Create virtual environment (recommended):"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:32
+msgid "NOTE: python version 3.8 required"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:34
+msgid "arm64 : Apple Silicon"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:36
+msgid "Download and install Conda env:"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:46
+msgid "Install the TensorFlow dependencies:"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:52
+msgid "When upgrading to new base TensorFlow version, recommend:"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:70
+msgid "tensorflow-deps versions are following base TensorFlow versions so:"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:72
+msgid "for v2.5"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:80
+msgid "for v2.6"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:87
+msgid "**Step2: Install base TensorFlow**"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:93
+msgid "**Step3: Install tensorflow-metal plugin**"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:101
+msgid "Install TensorCircuit on Apple M1"
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:102
+msgid ""
+"After properly install tensorflow, you can continue install "
+"TensorCircuit. Up to now, for Apple M1, the Tensorcircuit package can not"
+" be installed by simply conducting \"pip install tensorcircuit\", which "
+"will lead to improper way for Tensorflow installation. One need to "
+"download the installation package to the local, only in this way the "
+"installation proceess can recognize the Apple M1 environment."
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:107
+msgid "One should download the TensorCircuit package to local at first."
+msgstr ""
+
+#: ../../source/contribs/development_MacM1.rst:114
+msgid "Then unpackage it, and cd into the folder with \"setup.py\". Conducting"
+msgstr ""
+
+#: ../../source/contribs/development_MacM2.md:3
+msgid "Contributed by [Hong-Ye Hu](https://github.com/hongyehu)"
+msgstr ""
+
+#: ../../source/contribs/development_MacM2.md:8
+msgid ""
+"The key issue addressed in this document is **how to install both "
+"TensorFlow and Jax on a M2 chip MacOS without conflict**."
+msgstr ""
+
+#: ../../source/contribs/development_MacM2.md:22
+msgid ""
+"Due to the limitation of MacOS and packages, the lastest version of "
+"python does not always function as desired, thus miniconda installation "
+"is advised to solve the issues. And use anaconda virtual environment is "
+"always a good habit."
+msgstr ""
+
+#: ../../source/contribs/development_MacM2.md:30
+msgid "Install Packages"
+msgstr ""
+
+#: ../../source/contribs/development_MacM2.md:31
+msgid ""
+"First, create a virtual environment, and make sure the python version is "
+"3.8.5 by"
+msgstr ""
+
+#: ../../source/contribs/development_MacM2.md:36
+msgid ""
+"Then, install the TensorFlow from `.whl` file (file can be downloaded "
+"from this "
+"[URL](https://drive.google.com/drive/folders/1oSipZLnoeQB0Awz8U68KYeCPsULy_dQ7))."
+" This will install TensorFlow version 2.4.1"
+msgstr ""
+
+#: ../../source/contribs/development_MacM2.md:40
+msgid "Next, one need to install **Jax** and **Optax** by"
+msgstr ""
+
+#: ../../source/contribs/development_MacM2.md:45
+msgid ""
+"Now, hopefully, you should be able to use both Jax and TensorFlow in this"
+" environment. But sometimes, it may give you an error \"ERROR: package "
+"Chardet not found.\".  If that is the case, you can install it by `conda "
+"install chardet`. Lastly, install tensorcircuit"
+msgstr ""
+
+#: ../../source/contribs/development_MacM2.md:51
+msgid ""
+"This is the solution that seems to work for M2-chip MacOS. Please let me "
+"know if there is a better solution!"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:1
+msgid "MacOS Tensorcircuit 安装教程"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:3
+msgid "[_Mark (Zixuan) Song_](https://marksong.tech) 撰写"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:5
+msgid "由于苹果更新了Tensorflow，因此M系列（直到M2）和英特尔系列Mac上的安装可以遵循完全相同的过程。"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:7
+msgid "从头开始"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:9
+msgid "对于全新的Macos或未安装Xcode和Homebrew的Macos。"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:11
+msgid "安装Xcode命令行工具"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:13
+msgid "<font color=gray><em>需要对机器的图形访问。</em></font>"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:15
+msgid "如果网络良好，请运行`xcode-select --install`进行安装。"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:17
+msgid "或者，如果网络连接较弱，请从[苹果](https://developer.apple.com/download/more/)下载命令行工具安装映像，然后进行安装。"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:19
+msgid "安装Miniconda"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:21
+msgid "由于MacOS和软件包的限制，因此建议安装miniconda以解决问题。"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:30
+msgid "安装TC后端"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:32
+msgid "有四个后端可供选择，Numpy，Tensorflow，Jax和Torch。"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:34
+msgid "安装Jax，Pytorch，Qiskit，Cirq（可选）"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:40
+msgid "安装Tensorflow（可选）"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:42
+msgid "安装步骤"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:44
+msgid "Tensorflow版本2.13或之后："
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:50
+msgid "Tensorflow版本2.12或之前："
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:56
+msgid "验证Tensorflow安装"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:74
+msgid "安装Tensorcircuit"
+msgstr ""
+
+#: ../../source/contribs/development_Mac_cn.md:80
+msgid ""
+"直到2023年7月，这已在运行Ventura的英特尔i9 Mac、运行Ventura的M1 Mac、运行Ventura的M2 "
+"Mac、运行Sonoma测试版的M2 Mac上进行了测试。"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:2
+msgid "Run TensorCircuit on Windows Machine with Docker"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:4
+msgid ""
+"Contributed by `SexyCarrots <https://github.com/SexyCarrots>`_ (Xinghan "
+"Yang)"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:6
+msgid ""
+"(For linux machines, please review the `Docker README for linux "
+"<https://github.com/tencent-quantum-"
+"lab/tensorcircuit/blob/master/docker/README.md>`_ )"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:8
+msgid ""
+"This note is only a step-by-step tutorial to help you build and run a "
+"Docker Container for Windows Machine users with the given dockerfile. If "
+"you want to have a deeper dive in to Docker, please check the official "
+"`Docker Orientation <https://docs.docker.com/get-started/>`_ and free "
+"courses on `YouTube "
+"<https://www.youtube.com/results?search_query=docker+tutorial>`_."
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:13
+msgid "Why We Can't Run TensorCircuit on Windows Machine"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:15
+msgid ""
+"Due to the compatability issue with the `JAX "
+"<https://jax.readthedocs.io/en/latest/index.html>`_ backend on Windows, "
+"we could not directly use jax backend for TensorCircuit on Windows "
+"machines. Please be aware that it is possible to `install JAX on Windows "
+"<https://jax.readthedocs.io/en/latest/developer.html>`_, but it is tricky"
+" and not recommended unless you have solid understanding of Windows "
+"environment and C++ tools. Virtual machine is also an option for "
+"development if you are familiar with it. In this tutorial we would "
+"discuss the deployment of Docker for TensorCircuit since it use the most "
+"convenient and workable solution for beginners."
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:23
+msgid "What Is Docker"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:25
+msgid ""
+"Docker is an open platform for developing, shipping, and running "
+"applications. Docker enables you to separate your applications from your "
+"infrastructure so you can deliver software quickly. With Docker, you can "
+"manage your infrastructure in the same way as you manage your "
+"applications. By taking advantage of Docker's methodologies for shipping,"
+" testing, and deploying code quickly, you can significantly reduce the "
+"delay between writing code and running it in production."
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:28
+msgid "(Source: https://docs.docker.com/get-started/overview/)"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:30
+msgid ""
+"For more information and tutorials on Docker, you could check the `Docker"
+" Documentation <https://docs.docker.com/get-started/overview/>`_."
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:33
+msgid "Install Docker and Docker Desktop"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:35
+msgid ""
+"`Download Docker Desktop for Windows "
+"<https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe>`_"
+" for and install it by following its instructions."
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:37
+msgid ""
+"*Following information is from the official Docker Doc: "
+"https://docs.docker.com/desktop/windows/install/*"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:39
+msgid "**Install interactively**"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:41
+msgid ""
+"If you haven't already downloaded the installer (Docker Desktop "
+"Installer.exe), you can get it from Docker Hub. It typically downloads to"
+" your Downloads folder, or you can run it from the recent downloads bar "
+"at the bottom of your web browser."
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:43
+msgid ""
+"When prompted, ensure the Use WSL 2 instead of Hyper-V option on the "
+"Configuration page is selected or not depending on your choice of "
+"backend."
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:45
+msgid ""
+"If your system only supports one of the two options, you will not be able"
+" to select which backend to use."
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:47
+msgid ""
+"Follow the instructions on the installation wizard to authorize the "
+"installer and proceed with the install."
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:49
+msgid ""
+"When the installation is successful, click Close to complete the "
+"installation process."
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:51
+msgid ""
+"If your admin account is different to your user account, you must add the"
+" user to the docker-users group."
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:52
+msgid ""
+"Run Computer Management as an administrator and navigate to Local Users "
+"and Groups > Groups > docker-users. Right-click to add the user to the "
+"group. Log out and log back in for the changes to take effect."
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:54
+msgid "**Install from the command line**"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:56
+msgid ""
+"After downloading Docker Desktop Installer.exe, run the following command"
+" in a terminal to install Docker Desktop:"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:62
+msgid "If you're using PowerShell you should run it as:"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:68
+msgid "If using the Windows Command Prompt:"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:75
+msgid "Build Image in through PyCharm or Command Line Interface"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:77
+msgid "**First of all**, run docker desktop."
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:79
+msgid "**For CLI command:**"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:81
+msgid ""
+"Go to your local ``./tensorcircuit/docker`` directory, then open your "
+"local CLI."
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:87
+msgid "Use the command:"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:93
+msgid ""
+"It could take more than fifteen minutes to build the docker image, "
+"depending on your internet and computer hardware. Please keep your "
+"computer active while building the docker image. You need to build the "
+"image again from scratch if there is any interruption during the "
+"building."
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:97
+msgid "**For PyCharm:**"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:99
+msgid ""
+"Install the docker plugin within Pycharm, than open the dockerfile in the"
+" ``./tensorcircuit/docker`` directory. Choose Dockerfile to be the "
+"configuration, then run the dockerfile. Please keep your computer active "
+"while building the docker image. You need to build the image again from "
+"scratch if there is any interruption during the building."
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:105
+msgid "Run Docker Image and Examples in TensorCircuit"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:107
+msgid "Open your CLI"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:109
+msgid "Find your local images by:"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:115
+msgid "Run image as a container by:"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:121
+msgid "List existing containers by:"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:127
+msgid "Then, open docker desktop and open docker CLI:"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:133
+msgid "You would see all files and directories in ``./tensorcircuit/`` listed."
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:135
+msgid "Go to the dir where all examples are:"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:141
+msgid "Again, to see all the examples:"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:147
+msgid "We would run noisy_qml.py to see what would happen:"
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:153
+msgid ""
+"See the result and play with other example for a while. Latter you could "
+"start developing your own projects within the docker container we just "
+"built. Enjoy your time with TensorCircuit."
+msgstr ""
+
+#: ../../source/contribs/development_windows.rst:156
+msgid ""
+"*Please don't hesitate to create a New issue in GitHub if you find "
+"problems or have anything for discussion with other contributors*"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:2
+msgid "Run TensorCirit on Windows with WSL2 (Windows Subsystem for Linux 2)"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:4
+msgid "Contributed by `YHPeter <https://github.com/YHPeter>`_ (Peter Yu)"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:6
+msgid ""
+"Reminder, if you are not supposed to use JAX, you can still use "
+"Numpy/Tensorflow/Pytorch backend to run demonstrations."
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:8
+msgid ""
+"Step 1. Install WSL2, follow the official installation instruction: "
+"https://docs.microsoft.com/en-us/windows/wsl/install"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:11
+msgid ""
+"Step 2. Install CUDA for GPU support, if you want to used GPU "
+"accelerator. The official CUDA installation for WSL2: "
+"https://docs.nvidia.com/cuda/wsl-user-guide/index.html#ch02-getting-"
+"started"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:15
+msgid "Step 3. Follow the Linux Installation Instructions to finish installing."
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:18
+msgid "**System Support Summary**"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:21
+msgid "Backend"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:22
+msgid "Numpy"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:23
+msgid "TensorFlow"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:24
+msgid "JAX"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:25
+msgid "Pytorch"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:26
+msgid "Suggested Package Version"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:27
+msgid ">= 1.20.0"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:28
+msgid ">= 2.7.0"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:29
+msgid ">= 0.3.0"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:30
+msgid ">= 1.12"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:31
+msgid "OS Support without GPU Accelerator"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:32
+#: ../../source/contribs/development_wsl2.rst:33
+#: ../../source/contribs/development_wsl2.rst:34
+#: ../../source/contribs/development_wsl2.rst:35
+msgid "Windows/MacOS/Linux"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:36
+msgid "OS Support with GPU Accelerator"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:37
+msgid "No Support for GPU"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:38
+msgid ""
+"Windows(WSL2, docker)/`MacOS <https://developer.apple.com/metal"
+"/tensorflow-plugin>`_/Linux"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:39
+msgid "Windows(WSL2, docker)/MacOS/Linux"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:40
+msgid "Windows(WSL2, docker)/MacOS(torch>=1.12)/Linux"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:41
+msgid "Platform with TPU Accelerator"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:42
+msgid "No Support for TPU"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:43
+msgid ""
+"`GCP - Tensorflow with TPU <https://cloud.google.com/tpu/docs/run-"
+"calculation-tensorflow>`_"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:44
+msgid ""
+"`GCP - JAX with TPU <https://cloud.google.com/tpu/docs/run-calculation-"
+"jax>`_"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:45
+msgid ""
+"`GCP - Pytorch with TPU <https://cloud.google.com/tpu/docs/run-"
+"calculation-pytorch>`_"
+msgstr ""
+
+#: ../../source/contribs/development_wsl2.rst:47
+msgid "Tips: Currently, we don't suggest you to use TPU accelerator."
+msgstr ""
+
+#~ msgid ""
+#~ "Or Download from "
+#~ "[Apple](https://developer.apple.com/download/more/)  Command "
+#~ "Line Tools installation image then "
+#~ "install if internet connection is weak."
+#~ msgstr ""
+
+#~ msgid "There are four backends to choose from, Tensorflow, Jax, Torch."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "FYI:  Error can occur when machine "
+#~ "learning training or gpu related code"
+#~ " is involved."
+#~ msgstr ""
+
+#~ msgid "Testing Platform"
+#~ msgstr ""
+
+#~ msgid "Install Tensorflow (Recommended Approach)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "❗️ Tensorflow with MacOS optimization "
+#~ "would not function correctly in version"
+#~ " 2.11.0 and before. Do not use "
+#~ "this version of tensorflow if you "
+#~ "intented to train any machine learning"
+#~ " model."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "FYI: Error can occur when machine "
+#~ "learning training or gpu related code"
+#~ " is involved."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "⚠️ Tensorflow without macos optimization "
+#~ "does not support Metal API and "
+#~ "utilizing GPU (both intel chips and "
+#~ "M-series chips) until at least "
+#~ "tensorflow 2.11. Tensorflow-macos would "
+#~ "fail when running `tc.backend.to_dense()`"
+#~ msgstr ""
+
+#~ msgid "Testing Platform (Tested Feb 2023)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This page is deprecated. Please visit"
+#~ " `the update tutorial <development_MacARM.html>`_"
+#~ " for latest information."
+#~ msgstr ""
+

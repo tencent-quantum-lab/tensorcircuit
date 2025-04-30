@@ -1,0 +1,173 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, The TensorCircuit Authors
+# This file is distributed under the same license as the tensorcircuit
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: tensorcircuit \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-05-07 10:47+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../source/sharpbits.rst:3
+msgid "TensorCircuit: The Sharp Bits 🔪"
+msgstr "TensorCircuit: 常见错误 🔪"
+
+#: ../../source/sharpbits.rst:5
+msgid ""
+"Be fast is never for free, though much cheaper in TensorCircuit, but you "
+"have to be cautious especially in terms of AD, JIT compatibility. We will"
+" go through the main sharp edges 🔪 in this note."
+msgstr "虽然在TensorCircuit中速度很快，但是你必须小心，尤其是在AD和JIT兼容性方面。"
+
+#: ../../source/sharpbits.rst:9
+msgid "Jit Compatibility"
+msgstr "Jit 兼容性"
+
+#: ../../source/sharpbits.rst:12
+msgid "Non tensor input or varying shape tensor input"
+msgstr "非向量输入或者变化形状的向量输入"
+
+#: ../../source/sharpbits.rst:14
+msgid ""
+"The input must be in tensor form and the input tensor shape must be fixed"
+" otherwise the recompilation is incurred which is time-consuming. "
+"Therefore, if there are input args that are non-tensor or varying shape "
+"tensors and frequently change, jit is not recommend."
+msgstr "输入必须是张量形式，且输入张量的形状必须固定，否则会重新编译，这是非常耗时的。因此，如果有输入参数是非张量或者变化形状的张量，且经常变化，不建议使用jit。"
+
+#: ../../source/sharpbits.rst:38
+msgid "Mix use of numpy and ML backend APIs"
+msgstr "混合使用numpy和ML后端API"
+
+#: ../../source/sharpbits.rst:40
+msgid ""
+"To make the function jittable and ad-aware, every ops in the function "
+"should be called via ML backend (``tc.backend`` API or direct API for the"
+" chosen backend ``tf`` or ``jax``). This is because the ML backend has to"
+" create the computational graph to carry out AD and JIT transformation. "
+"For numpy ops, they will be only called in jit staging time (the first "
+"run)."
+msgstr ""
+"为了使函数可jit和可AD，函数中的每个操作都应该通过ML后端（``tc.backend`` API或者直接调用后端API ``tf`` 或者 "
+"``jax``）。这是因为ML后端必须创建计算图来\"进行AD和JIT转换。对于numpy操作，它们只会在jit编译阶段被调用（第一次运行）。"
+
+#: ../../source/sharpbits.rst:54
+msgid ""
+"Numpy call inside jitted function can be helpful if you are sure of the "
+"behavior is what you expect."
+msgstr "如果你确定numpy调用的行为是你期望的，那么在jit函数中调用numpy是有帮助的。"
+
+#: ../../source/sharpbits.rst:83
+msgid "list append under if"
+msgstr "if下的list append"
+
+#: ../../source/sharpbits.rst:85
+msgid ""
+"Append something to a Python list within if whose condition is based on "
+"tensor values will lead to wrong results. Actually values of both branch "
+"will be attached to the list. See example below."
+msgstr "在if条件基于张量值的情况下，将内容附加到Python列表中会导致错误的结果。实际上，两个分支的值都会被附加到列表中。参见下面的例子。"
+
+#: ../../source/sharpbits.rst:108
+msgid ""
+"The above code raise ``ConcretizationTypeError`` exception directly for "
+"Jax backend since Jax jit doesn't support tensor value if condition."
+msgstr "上面的代码直接为Jax后端引发了``ConcretizationTypeError``异常，因为Jax jit不支持张量值if条件。"
+
+#: ../../source/sharpbits.rst:110
+msgid "Similarly, conditional gate application must be takend carefully."
+msgstr "类似地，必须小心地应用条件门。"
+
+#: ../../source/sharpbits.rst:145
+msgid "Tensor variables consistency"
+msgstr ""
+
+#: ../../source/sharpbits.rst:148
+msgid ""
+"All tensor variables' backend (tf vs jax vs ..), dtype (float vs "
+"complex), shape and device (cpu vs gpu) must be compatible/consistent."
+msgstr ""
+
+#: ../../source/sharpbits.rst:150
+msgid "Inspect the backend, dtype, shape and device using the following codes."
+msgstr ""
+
+#: ../../source/sharpbits.rst:162
+msgid ""
+"If the backend is inconsistent, one can convert the tensor backend via "
+":py:meth:`tensorcircuit.interfaces.tensortrans.general_args_to_backend`."
+msgstr ""
+
+#: ../../source/sharpbits.rst:173
+msgid ""
+"If the dtype is inconsistent, one can convert the tensor dtype using "
+"``tc.backend.cast``."
+msgstr ""
+
+#: ../../source/sharpbits.rst:184
+msgid ""
+"Also note the jax issue on float64/complex128, see `jax gotcha "
+"<https://github.com/google/jax#current-gotchas>`_."
+msgstr ""
+
+#: ../../source/sharpbits.rst:186
+msgid ""
+"If the shape is not consistent, one can convert the shape by "
+"``tc.backend.reshape``."
+msgstr ""
+
+#: ../../source/sharpbits.rst:188
+msgid ""
+"If the device is not consistent, one can move the tensor between devices "
+"by ``tc.backend.device_move``."
+msgstr ""
+
+#: ../../source/sharpbits.rst:192
+msgid "AD Consistency"
+msgstr "AD一致性"
+
+#: ../../source/sharpbits.rst:194
+msgid ""
+"TF and JAX backend manage the differentiation rules differently for "
+"complex-valued function (actually up to a complex conjuagte). See issue "
+"discussion `tensorflow issue "
+"<https://github.com/tensorflow/tensorflow/issues/3348>`_."
+msgstr ""
+"TF和JAX后端对复值函数的微分规则的管理方式不同（实际上是复共轭）。参见讨论 `tensorflow issue "
+"<https://github.com/tensorflow/tensorflow/issues/3348>`_。"
+
+#: ../../source/sharpbits.rst:196
+msgid ""
+"In TensorCircuit, currently we make the difference in AD transparent, "
+"namely, when switching the backend, the AD behavior and result for "
+"complex valued function can be different and determined by the nature "
+"behavior of the corresponding backend framework. All AD relevant ops such"
+" as ``grad`` or ``jacrev`` may be affected. Therefore, the user must be "
+"careful when dealing with AD on complex valued function in a backend "
+"agnostic way in TensorCircuit."
+msgstr ""
+"在TensorCircuit中，我们目前使AD的差异透明，即在切换后端时，复值函数的AD行为和结果可能不同，并由相应后端框架的本质行为决定。所有与AD相关的操作，如"
+" ``grad`` 或者 ``jacrev`` "
+"都可能受到影响。因此，用户在TensorCircuit中以后端无关的方式处理复值函数的AD时必须小心。"
+
+#: ../../source/sharpbits.rst:199
+msgid ""
+"See example script on computing Jacobian with different modes on "
+"different backends: `jacobian_cal.py <https://github.com/tencent-quantum-"
+"lab/tensorcircuit/blob/master/examples/jacobian_cal.py>`_. Also see the "
+"code below for a reference:"
+msgstr ""
+"参考不同后端的不同模式下计算Jacobian的示例脚本：`jacobian_cal.py <https://github.com/tencent-"
+"quantum-"
+"lab/tensorcircuit/blob/master/examples/jacobian_cal.py>`_。另外请参考下面的代码:"
+

@@ -1,0 +1,47 @@
+torch>2.0 # 2.0.1
+jax[cuda11_pip]==0.4.7
+tensorflow==2.11
+# tf 2.12 can make torch 2 hangs with runtime error
+# check with hybrid_gpu_pipeline.py example
+cupy-cuda11x==12.0.0
+tensornetwork==0.4.6
+graphviz
+numpy==1.23.5
+scipy==1.10.1
+sympy==1.12
+cirq==1.1.0
+qiskit
+matplotlib
+jupyter
+cotengra
+networkx
+optax==0.1.5
+kahypar
+optuna
+baytune
+nevergrad
+scikit-learn==1.2.2
+scikit-optimize
+openfermion
+quimb
+openfermionpyscf
+pennylane==0.30.0
+mthree==1.1.0
+mitiq==0.26.0
+# below is for development
+mypy==1.3.0
+pytest
+pytest-cov
+pytest-benchmark
+pytest-xdist
+pytest-lazy-fixture
+black==23.3.0
+sphinx>=4.0
+sphinx-intl
+sphinx-copybutton
+nbsphinx
+furo
+myst-parser
+pylint
+sphinx-design
+# made in 202306

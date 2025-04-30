@@ -1,0 +1,395 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, The TensorCircuit Authors
+# This file is distributed under the same license as the tensorcircuit
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version:  TensorCircuit\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-06-27 20:10+0800\n"
+"PO-Revision-Date: 2022-04-12 09:18+0800\n"
+"Last-Translator: Xinghan Yang\n"
+"Language: zh\n"
+"Language-Team: \n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../source/contribution.rst:2
+msgid "Guide for Contributors"
+msgstr "开发者指南"
+
+#: ../../source/contribution.rst:4
+#, fuzzy
+msgid ""
+"We welcome everyone’s contributions! The development of TensorCircuit is "
+"open-sourced and centered on `GitHub <https://github.com/tencent-quantum-"
+"lab/tensorcircuit>`_."
+msgstr ""
+"我们欢迎每一位贡献者！TensorCircuit 的开发是开源的，并以 `GitHub <https://github.com/quclub"
+"/tensorcircuit-dev>`_ 为中心。"
+
+#: ../../source/contribution.rst:6
+msgid "There are various ways to contribute:"
+msgstr "参与贡献有很多方式："
+
+#: ../../source/contribution.rst:8
+msgid "Answering questions on the discussions page or issue page."
+msgstr "回答讨论区或是 issue page 上的问题。"
+
+#: ../../source/contribution.rst:10
+msgid "Raising issues such as bug reports or feature requests on the issue page."
+msgstr "在 issue page 报告漏洞或是提出新的功能需求。"
+
+#: ../../source/contribution.rst:12
+msgid "Improving the documentation (docstrings/tutorials) by pull requests."
+msgstr "通过拉取请求改进文档（文档字符串/教程）。"
+
+#: ../../source/contribution.rst:14
+msgid "Contributing to the codebase by pull requests."
+msgstr "通过拉取请求为代码库做出贡献。"
+
+#: ../../source/contribution.rst:19
+msgid "Pull Request Guidelines"
+msgstr "拉取请求指南"
+
+#: ../../source/contribution.rst:21
+msgid ""
+"We welcome pull requests from everyone. For large PRs involving feature "
+"enhancement or API changes, we ask that you first open a GitHub issue to "
+"discuss your proposal."
+msgstr "我们欢迎大家提出拉取请求。对于涉及功能增强或 API 更改的大型拉取请求，我们需要您首先打开一个 GitHub issue 来讨论您的企划。"
+
+#: ../../source/contribution.rst:23
+msgid "The following git workflow is recommended for contribution by PR:"
+msgstr "拉取请求推荐使用以下 git 工作流进行贡献： "
+
+#: ../../source/contribution.rst:25
+msgid ""
+"Configure your git username and email so that they match your GitHub "
+"account if you haven't."
+msgstr "配置您的 git 用户名和电子邮件，以使它们与您的 GitHub 帐户匹配（如果没有）。"
+
+#: ../../source/contribution.rst:32
+msgid ""
+"Fork the TensorCircuit repository by clicking the Fork button on GitHub. "
+"This will create an independent version of the codebase in your own "
+"GitHub account."
+msgstr "通过点击 GitHub 上的 Fork 按钮来分叉 TensorCircuit 库。 这将在您自己的 GitHub 帐户中创建一个独立版本的代码库。"
+
+#: ../../source/contribution.rst:34
+msgid ""
+"Clone your forked repository and set up an ``upstream`` reference to the "
+"official TensorCircuit repository."
+msgstr "克隆您的分叉存储库并设置对官方 TensorCircuit 存储库的 ``upstream`` 引用。"
+
+#: ../../source/contribution.rst:42
+msgid ""
+"Configure the python environment locally for development. The following "
+"commands are recommended:"
+msgstr "在本地配置 python 环境以进行开发。推荐使用以下命令："
+
+#: ../../source/contribution.rst:49
+msgid "Extra packages may be required for specific development tasks."
+msgstr "特定的开发任务可能需要额外的软件包。"
+
+#: ../../source/contribution.rst:51
+msgid ""
+"Pip installing your fork from the source. This allows you to modify the "
+"code locally and immediately test it out."
+msgstr "从源代码 pip 安装你的 fork。这允许您在本地修改代码并立即对其进行测试。"
+
+#: ../../source/contribution.rst:57
+msgid ""
+"Create a feature branch where you can make modifications and "
+"developments. DON'T open PR from your master/main branch."
+msgstr "创建一个功能分支，您可以在其中进行修改和开发、不要从你的 ``master/main`` 分支打开拉取请求。"
+
+#: ../../source/contribution.rst:63
+msgid ""
+"Make sure your changes can pass all checks by running: "
+"``./check_all.sh``. (See the :ref:`Checks` section below for details)"
+msgstr "运行 ``./check_all.sh`` 以确保你的修改能够通过所有检查（参考 :ref:`Checks` 部分以获取更多细节）。"
+
+#: ../../source/contribution.rst:65
+msgid "Once you are satisfied with your changes, create a commit as follows:"
+msgstr "一旦您对更改感到满意，请按如下方式创建提交："
+
+#: ../../source/contribution.rst:72
+msgid "You should sync your code with the official repo:"
+msgstr "您应该将您的代码与官方库进行同步："
+
+#: ../../source/contribution.rst:79
+msgid ""
+"Note that PRs typically comprise a single git commit, you should squash "
+"all your commits in the feature branch. Using ``git rebase -i`` for "
+"commits squash, see `instructions <https://www.internalpointers.com/post"
+"/squash-commits-into-one-git>`_"
+msgstr ""
+"请注意，拉取请求通常包含一个 git 提交，您应该在功能分支中压缩所有提交。使用  ``git rebase -i`` 压缩修改，参考  `教程 "
+"<https://www.internalpointers.com/post/squash-commits-into-one-git>`_。"
+
+#: ../../source/contribution.rst:81
+msgid ""
+"Push your commit from your feature branch. This will create a remote "
+"branch in your forked repository on GitHub, from which you will raise a "
+"PR."
+msgstr "从您的功能分支上传您的提交。这将在您在 GitHub 上的分叉存储库中创建一个远程分支，您将从该分支中提出拉取请求。"
+
+#: ../../source/contribution.rst:87
+msgid ""
+"Create a PR from the official TensorCircuit repository and send it for "
+"review. Some comments and remarks attached with the PR are recommended. "
+"If the PR is not finally finished, please add [WIP] at the beginning of "
+"the title of your PR."
+msgstr ""
+"从官方 TensorCircuit "
+"存储库创建拉取请求并将其发送以供审核。建议在拉取请求中附上一些评论和备注。如果拉取请求没有最终完成，请在您的拉取请求的标题前加上 [WIP]。"
+
+#: ../../source/contribution.rst:89
+msgid ""
+"The PR will be reviewed by the developers and may get approved or change "
+"requested. In the latter case, you can further revise the PR according to"
+" suggestions and feedback from the code reviewers."
+msgstr "拉取请求将由开发人员审核，并可能获得批准或被要求完善。在后一种情况下，您可以根据代码审查者的建议和反馈进一步修改拉取请求。"
+
+#: ../../source/contribution.rst:91
+msgid ""
+"The PR you opened can be automatically updated once you further push "
+"commits to your forked repository. Please remember to ping the code "
+"reviewers in the PR conversation soon."
+msgstr "一旦您进一步将提交上传到您的分叉存储库，您打开的拉取请求就会自动更新。请记得尽快在拉取请求对话中提醒代码审阅者。"
+
+#: ../../source/contribution.rst:93
+msgid ""
+"Please always include new docs and tests for your PR if possible and "
+"record your changes on CHANGELOG."
+msgstr "请尽可能始终为您的拉取请求包含新的文档和测试，并在 CHANGELOG 上记录您的更改。"
+
+#: ../../source/contribution.rst:97
+msgid "Checks"
+msgstr "检查"
+
+#: ../../source/contribution.rst:99
+msgid ""
+"The simplest way to ensure the codebase is ok with checks and tests is to"
+" run one-in-all scripts ``./check_all.sh`` (you may need to ``chmod +x "
+"check_all.sh`` to grant permissions on this file)."
+msgstr ""
+"确保代码库可以进行检查和测试的最简单方法是运行一体化脚本  ``./check_all.sh`` （你可能需要 ``chmod +x "
+"check_all.sh`` 以在文件中获得批准）。"
+
+#: ../../source/contribution.rst:101
+msgid "The scripts include the following components:"
+msgstr "此脚本包含下面的部分："
+
+#: ../../source/contribution.rst:103
+msgid "black"
+msgstr "black 库"
+
+#: ../../source/contribution.rst:105
+msgid ""
+"mypy: configure file is ``mypy.ini``, results strongly correlated with "
+"the version of numpy, we fix ``numpy==1.21.5`` as mypy standard in CI."
+msgstr ""
+"mypy: 设置文件是 ``mypy.ini``, 结果与 numpy 的版本强烈相关，我们设置 ``numpy==1.21.5`` "
+"作为持续集成中的 mypy 标准。"
+
+#: ../../source/contribution.rst:107
+msgid "pylint: configure file is ``.pylintrc``"
+msgstr "pylint: 设置文件是 ``.pylintrc``。"
+
+#: ../../source/contribution.rst:109
+msgid "pytest: see :ref:`Pytest` sections for details."
+msgstr "pytest: 阅读 :ref:`Pytest` 部分以获取更多细节。"
+
+#: ../../source/contribution.rst:111
+msgid "sphinx doc builds: see :ref:`Docs` section for details."
+msgstr "sphinx 文档产生: 参考 :ref:`Docs` 部分以获取更多细节。"
+
+#: ../../source/contribution.rst:113
+msgid "Make sure the scripts check are successful by 💐."
+msgstr "通过💐确保脚本检查成功。"
+
+#: ../../source/contribution.rst:115
+msgid ""
+"Similar tests and checks are also available via GitHub action as CI "
+"infrastructures."
+msgstr "类似的测试和检查也可以通过 GitHub 持续集成基础设的施操作来实现。"
+
+#: ../../source/contribution.rst:117
+msgid ""
+"Please also include corresponding changes for CHANGELOG.md and docs for "
+"the PR."
+msgstr "还请在 CHANGELOG.md 和拉取请求的文档中包括相应更改。"
+
+#: ../../source/contribution.rst:121
+msgid "Pytest"
+msgstr "Pytest"
+
+#: ../../source/contribution.rst:123
+msgid ""
+"For pytest, one can speed up the test by ``pip install pytest-xdist``, "
+"and then run parallelly as ``pytest -v -n [number of processes]``. We "
+"also have included some micro-benchmark tests, which work with ``pip "
+"install pytest-benchmark``."
+msgstr ""
+"关于 pytest，你可以通过 ``pip install pytest-xdist``，然后并行运行 ``pytest -v -n "
+"[number of processes]`` 来加快测试速度。我们还包含了一些与 ``pip install pytest-"
+"benchmark`` 一起使用的微基准测试。"
+
+#: ../../source/contribution.rst:126
+msgid "**Fixtures:**"
+msgstr "**Fixtures:**"
+
+#: ../../source/contribution.rst:128
+msgid ""
+"There are some pytest fixtures defined in the conftest file, which are "
+"for customization on backends and dtype in function level. ``highp`` is a"
+" fixture for complex128 simulation. While ``npb``, ``tfb``, ``jaxb`` and "
+"``torchb`` are fixtures for global numpy, tensorflow, jax and pytorch "
+"backends, respectively. To test different backends in one function, we "
+"need to use the parameterized fixture, which is enabled by ``pip install "
+"pytest-lazy-fixture``. Namely, we have the following approach to test "
+"different backends in one function."
+msgstr ""
+"我们在 conftest 文件中定义了一些 pytest fixture，用于后端自定义和函数级别的 dtype 。``highp`` 是 "
+"complex128 模拟的 fixture 。 而 ``npb``、``tfb``、``jaxb`` 和 ``torchb`` 分别是全局 "
+"numpy、tensorflow、jax 和 pytorch 后端的 fixtures 。 要在一个函数中测试不同的后端，我们需要使用参数化的 "
+"fixtures，它由 ``pip install pytest-lazy-fixture`` "
+"启动。也就是说，我们有以下方法在一个函数中测试不同的后端。"
+
+#: ../../source/contribution.rst:143
+msgid "Docs"
+msgstr "文档"
+
+#: ../../source/contribution.rst:145
+msgid ""
+"We use `sphinx <https://www.sphinx-doc.org/en/master/>`__ to manage the "
+"documentation."
+msgstr "我们使用 `sphinx <https://www.sphinx-doc.org/en/master/>`__ 来管理文档。"
+
+#: ../../source/contribution.rst:147
+msgid "The source files for docs are .rst file in docs/source."
+msgstr "文档的源文件是在 ``docs/source`` 文件夹中的 .rst 文件。"
+
+#: ../../source/contribution.rst:149
+msgid ""
+"For English docs, ``sphinx-build source build/html`` in docs dir is "
+"enough. The html version of the docs are in docs/build/html."
+msgstr ""
+"对于英文文档, ``sphinx-build source build/html`` 在 docs dir 中就足够了。HTML 版本在储存在 "
+"``docs/build/html`` 文件夹中。"
+
+#: ../../source/contribution.rst:151
+msgid "**Auto Generation of API Docs:**"
+msgstr "**自动生成 API 文档：**"
+
+#: ../../source/contribution.rst:153
+msgid ""
+"We utilize a python script to generate/refresh all API docs rst files "
+"under /docs/source/api based on the codebase /tensorcircuit."
+msgstr ""
+"我们利用 python 脚本根据代码库 /tensorcircuit 生成/刷新 /docs/source/api 下的所有 API rst "
+"文档文件。"
+
+#: ../../source/contribution.rst:160
+msgid "**i18n:**"
+msgstr "**国际化**"
+
+#: ../../source/contribution.rst:162
+#, fuzzy
+msgid ""
+"For Chinese docs, we refer to the standard i18n workflow provided by "
+"sphinx, see `here <https://www.sphinx-"
+"doc.org/en/master/usage/advanced/intl.html>`__."
+msgstr ""
+"对于中文版文档, 我们参考 sphinx 提供的国际化标准工作流，请参考 `这里 <https://www.sphinx-"
+"doc.org/en/master/usage/advanced/intl.html>`__ 。"
+
+#: ../../source/contribution.rst:164
+msgid "To update the po file from updated English rst files, using"
+msgstr "为从更新的英文 rst 文件中更新 .po 文件，使用"
+
+#: ../../source/contribution.rst:173
+#, fuzzy
+msgid ""
+"Edit these .po files to add translations (`poedit "
+"<https://poedit.net/>`__ recommended). These files are in "
+"docs/source/locale/zh/LC_MESSAGES."
+msgstr ""
+"通过编辑这些 .po 文件来翻译文档，推荐使用 (`poedit <https://poedit.net/>`__ )。 这些文件在 "
+"``docs/source/locale/cn/LC_MESSAGES`` 中。"
+
+#: ../../source/contribution.rst:175
+msgid ""
+"To generate the Chinese version of the documentation: ``sphinx-build "
+"source -D language=\"zh\" build/html_cn`` which is in the separate "
+"directory ``.../build/html_cn/index.html``, whereas English version is in"
+" the directory ``.../build/html/index.html``."
+msgstr ""
+
+#: ../../source/contribution.rst:179
+msgid "Releases"
+msgstr ""
+
+#: ../../source/contribution.rst:181
+msgid ""
+"Firstly, ensure that the version numbers in __init__.py and CHANGELOG are"
+" correctly updated."
+msgstr ""
+
+#: ../../source/contribution.rst:183
+#, fuzzy
+msgid "**GitHub Release**"
+msgstr "**Fixtures:**"
+
+#: ../../source/contribution.rst:191
+msgid "And from GitHub page choose draft a release from tag."
+msgstr ""
+
+#: ../../source/contribution.rst:193
+msgid "**PyPI Release**"
+msgstr ""
+
+#: ../../source/contribution.rst:202
+msgid "**DockerHub Release**"
+msgstr ""
+
+#: ../../source/contribution.rst:204
+msgid "Make sure the DockerHub account is logged in via ``docker login``."
+msgstr ""
+
+#: ../../source/contribution.rst:212
+#, fuzzy
+msgid "**Binder Release**"
+msgstr "**Fixtures:**"
+
+#: ../../source/contribution.rst:214
+msgid ""
+"One may need to update the tensorcirucit version for binder environment "
+"by pushing new commit in refraction-ray/tc-env repo with new version "
+"update in its ``requriements.txt``. See `mybind setup "
+"<https://discourse.jupyter.org/t/tip-speed-up-binder-launches-by-pulling-"
+"github-content-in-a-binder-link-with-nbgitpuller/922>`_ for speed up via "
+"nbgitpuller."
+msgstr ""
+
+#~ msgid ""
+#~ "To generate the Chinese version of "
+#~ "the documentation: ``sphinx-build source "
+#~ "-D language=\"zh\" -D master_doc=index_cn "
+#~ "build/html_cn`` which is in the separate"
+#~ " directory ``.../build/html_cn/index_cn.html``, whereas"
+#~ " English version is in the directory"
+#~ " ``.../build/html/index.html``."
+#~ msgstr ""
+#~ "生成简体中文文档： ``sphinx-build source -D "
+#~ "language=\"cn\" build/html_cn`` 储存在单独的文件夹 "
+#~ "``.../build/html_cn`` 中, 而英文版本则储存在 "
+#~ "``.../build/html`` 文件夹中。"
+

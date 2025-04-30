@@ -1,0 +1,203 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, The TensorCircuit Authors
+# This file is distributed under the same license as the tensorcircuit
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version:  tensorcircuit\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-01-13 11:04+0800\n"
+"PO-Revision-Date: 2022-04-11 07:50+0800\n"
+"Last-Translator: Xinghan Yang\n"
+"Language: cn\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../source/advance.rst:3
+msgid "Advanced Usage"
+msgstr "高级用法"
+
+#: ../../source/advance.rst:6
+msgid "MPS Simulator"
+msgstr "MPS 模拟器"
+
+#: ../../source/advance.rst:8
+msgid "(Still experimental support)"
+msgstr "施工中"
+
+#: ../../source/advance.rst:10
+msgid ""
+"Very simple, we provide the same set of API for ``MPSCircuit`` as "
+"``Circuit``, the only new line is to set the bond dimension for the new "
+"simulator."
+msgstr ""
+
+#: ../../source/advance.rst:18
+msgid ""
+"The larger bond dimension we set, the better approximation ratio (of "
+"course the more computational cost we pay)"
+msgstr ""
+
+#: ../../source/advance.rst:21
+msgid "Split Two-qubit Gates"
+msgstr "分解双量子比特门"
+
+#: ../../source/advance.rst:23
+msgid ""
+"The two-qubit gates applied on the circuit can be decomposed via SVD, "
+"which may further improve the optimality of the contraction pathfinding."
+msgstr "应用在电路上的双量子比特门可以通过 SVD 进行分解，这可以进一步提高收缩路径查找的最优性。"
+
+#: ../../source/advance.rst:25
+msgid "`split` configuration can be set at circuit-level or gate-level."
+msgstr "`split` 配置可以在电路级或门级设置。"
+
+#: ../../source/advance.rst:46
+msgid ""
+"Note ``max_singular_values`` must be specified to make the whole "
+"procedure static and thus jittable."
+msgstr "请注意 ``max_singular_values`` 必须被指定明以使整个过程成为静态的，因此是可即时编译的。"
+
+#: ../../source/advance.rst:50
+msgid "Jitted Function Save/Load"
+msgstr "即时编译函的保存/加载"
+
+#: ../../source/advance.rst:52
+msgid ""
+"To reuse the jitted function, we can save it on the disk via support from"
+" the TensorFlow `SavedModel "
+"<https://www.tensorflow.org/guide/saved_model>`_. That is to say, only "
+"jitted quantum function on the TensorFlow backend can be saved on the "
+"disk."
+msgstr ""
+"要重新使用可即时编译函数，我们可以通过 TensorFlow `SavedModel "
+"<https://www.tensorflow.org/guide/saved_model>`_. 的帮助将其保存在磁盘上。也就是说，只有 "
+"TensorFlow 后端的可即时编译量子函数才能保存在磁盘上。"
+
+#: ../../source/advance.rst:54
+msgid ""
+"For the JAX-backend quantum function, one can first transform them into "
+"the tf-backend function via JAX experimental support: `jax2tf "
+"<https://github.com/google/jax/tree/main/jax/experimental/jax2tf>`_."
+msgstr ""
+"对于 jax-backend 量子函数，可以先通过 jax 实验支持将它们转换为 tf-backend 函数: `jax2tf "
+"<https://github.com/google/jax/tree/main/jax/experimental/jax2tf>`_。"
+
+#: ../../source/advance.rst:56
+msgid ""
+"We wrap the tf-backend `SavedModel` as very easy-to-use function "
+":py:meth:`tensorcircuit.keras.save_func` and "
+":py:meth:`tensorcircuit.keras.load_func`."
+msgstr ""
+"我们将 tf-backend `SavedModel` 包装为非常易于使用的函数 "
+":py:meth:`tensorcircuit.keras.save_func` 和 "
+":py:meth:`tensorcircuit.keras.load_func`。"
+
+#: ../../source/advance.rst:59
+msgid "Parameterized Measurements"
+msgstr "参数化测量"
+
+#: ../../source/advance.rst:61
+msgid ""
+"For plain measurements API on a ``tc.Circuit``, eg. `c = "
+"tc.Circuit(n=3)`, if we want to evaluate the expectation "
+":math:`<Z_1Z_2>`, we need to call the API as "
+"``c.expectation((tc.gates.z(), [1]), (tc.gates.z(), [2]))``."
+msgstr ""
+"对于 ``tc.Circuit`` 上的普通测量 API, 例如 `c = tc.Circuit(n=3)`, 如果我们要评估期望 "
+":math:`<Z_1Z_2>`, 我们需要调用API为 ``c.expectation((tc.gates.z(), [1]), "
+"(tc.gates.z(), [2]))``。"
+
+#: ../../source/advance.rst:63
+msgid ""
+"In some cases, we may want to tell the software what to measure but in a "
+"tensor fashion. For example, if we want to get the above expectation, we "
+"can use the following API: "
+":py:meth:`tensorcircuit.templates.measurements.parameterized_measurements`."
+msgstr ""
+"在某些情况下，我们可能希望以张量形式告诉软件要测量什么。例如，如果我们想获得上述期望，我们可以使用以下 API ： "
+":py:meth:`tensorcircuit.templates.measurements.parameterized_measurements`。"
+
+#: ../../source/advance.rst:70
+msgid ""
+"This API corresponds to measure :math:`I_0Z_1Z_2I_3` where 0, 1, 2, 3 are"
+" for local I, X, Y, and Z operators respectively."
+msgstr "此 API 对应于测量 :math:`I_0Z_1Z_2I_3`， 其中 0、1、2、3 分别用于 I、X、Y、Z 局部运算符。"
+
+#: ../../source/advance.rst:73
+msgid "Sparse Matrix"
+msgstr "稀疏矩阵"
+
+#: ../../source/advance.rst:75
+msgid ""
+"We support COO format sparse matrix as most backends only support this "
+"format, and some common backend methods for sparse matrices are listed "
+"below:"
+msgstr "我们只支持 COO 格式的稀疏矩阵，因为大多数后端只支持这种格式，下面列出了一些常用的稀疏矩阵后端方法："
+
+#: ../../source/advance.rst:90
+msgid ""
+"The sparse matrix is specifically useful to evaluate Hamiltonian "
+"expectation on the circuit, where sparse matrix representation has a good"
+" tradeoff between space and time. Please refer to "
+":py:meth:`tensorcircuit.templates.measurements.sparse_expectation` for "
+"more detail."
+msgstr ""
+"稀疏矩阵对于评估电路上的哈密顿期望特别有用，其中稀疏矩阵表示在空间和时间之间具有良好的效率。请参阅 "
+":py:meth:`tensorcircuit.templates.measurements.sparse_expectation` "
+"了解更多详细信息。"
+
+#: ../../source/advance.rst:93
+msgid ""
+"For different representations to evaluate Hamiltonian expectation in "
+"tensorcircuit, please refer to :doc:`tutorials/tfim_vqe_diffreph`."
+msgstr "对于在张量电路中评估哈密顿期望的不同表示，请参阅 :doc:`tutorials/tfim_vqe_diffreph` 。"
+
+#: ../../source/advance.rst:96
+msgid "Randoms, Jit, Backend Agnostic, and Their Interplay"
+msgstr "随机数，即时编译，后端无关特性，和他们的相互作用"
+
+#: ../../source/advance.rst:139
+msgid ""
+"Therefore, a unified jittable random infrastructure with backend agnostic"
+" can be formulated as"
+msgstr "因此，一个与后端无关并且统一可即时编译的随机基础设施可以表述为"
+
+#: ../../source/advance.rst:167
+msgid "And a more neat approach to achieve this is as follows:"
+msgstr "实现这一目标的更简洁的方法如下："
+
+#: ../../source/advance.rst:182
+msgid ""
+"It is worth noting that since ``Circuit.unitary_kraus`` and "
+"``Circuit.general_kraus`` call ``implicit_rand*`` API, the correct usage "
+"of these APIs is the same as above."
+msgstr ""
+"值得注意的是，由于 ``Circuit.unitary_kraus`` 和 ``Circuit.general_kraus`` 调用 "
+"``implicit_rand*`` API，这些 API 的正确用法与上面相同。"
+
+#: ../../source/advance.rst:184
+msgid ""
+"One may wonder why random numbers are dealt in such a complicated way, "
+"please refer to the `Jax design note "
+"<https://github.com/google/jax/blob/main/docs/design_notes/prng.md>`_ for"
+" some hints."
+msgstr ""
+"有人可能想知道为什么以如此复杂的方式处理随机数，请参阅 `Jax 设计说明 "
+"<https://github.com/google/jax/blob/main/docs/design_notes/prng.md>`_  "
+"提示。"
+
+#: ../../source/advance.rst:186
+msgid ""
+"If vmap is also involved apart from jit, I currently find no way to "
+"maintain the backend agnosticity as TensorFlow seems to have no support "
+"of vmap over random keys (ping me on GitHub if you think you have a way "
+"to do this). I strongly recommend the users using Jax backend in the "
+"vmap+random setup."
+msgstr ""
+

@@ -1,0 +1,478 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, The TensorCircuit Authors
+# This file is distributed under the same license as the tensorcircuit
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version:  tensorcircuit\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-05-27 18:52+0800\n"
+"PO-Revision-Date: 2022-04-18 20:44+0800\n"
+"Last-Translator: Xinghan Yang\n"
+"Language: cn\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../source/infras.rst:3
+msgid "TensorCircuit: What is inside?"
+msgstr "TensorCircuit：里面有什么？"
+
+#: ../../source/infras.rst:5
+msgid ""
+"This part of the documentation is mainly for advanced users and "
+"developers who want to learn more about what happened behind the scene "
+"and delve into the codebase."
+msgstr "这部分文档主要面向希望了解更多后端原理与并深入研究代码库的高级用户和开发人员。"
+
+#: ../../source/infras.rst:9
+msgid "Overview of Modules"
+msgstr "模块概述"
+
+#: ../../source/infras.rst:11
+msgid "**Core Modules:**"
+msgstr "**核心模块：**"
+
+#: ../../source/infras.rst:13
+msgid ""
+":py:mod:`tensorcircuit.abstractcircuit` and "
+":py:mod:`tensorcircuit.basecircuit`: Hierarchical abstraction of circuit "
+"class."
+msgstr ""
+
+#: ../../source/infras.rst:15
+msgid ""
+":py:mod:`tensorcircuit.circuit`: The core object "
+":py:obj:`tensorcircuit.circuit.Circuit`. It supports circuit "
+"construction, simulation, representation, and visualization without noise"
+" or with noise using the Monte Carlo trajectory approach."
+msgstr ""
+":py:mod:`tensorcircuit.circuit`: 核心对象 "
+":py:obj:`tensorcircuit.circuit.Circuit`.它支持使用蒙特卡洛轨迹方法的无噪声或有噪声的电路构建、仿真、表示和可视化。"
+
+#: ../../source/infras.rst:17
+msgid ""
+":py:mod:`tensorcircuit.cons`: Runtime ML backend, dtype and contractor "
+"setups. We provide three sets of set methods for global setup, function "
+"level setup using function decorators, and context setup using ``with`` "
+"context managers. We also include customized contractor infrastructures "
+"in this module."
+msgstr ""
+":py:mod:`tensorcircuit.cons`: 运行时的机器学习后端、数据类型和 contractor 设置。 "
+"我们为全局设置、使用函数装饰器的函数级别设置和使用 ``with`` 上下文管理器的上下文设置提供了三组设置方法.我们还在此模块中提供了定制的 "
+"contractor 基础设施。"
+
+#: ../../source/infras.rst:19
+msgid ""
+":py:mod:`tensorcircuit.gates`: Definition of quantum gates, either fixed "
+"ones or parameterized ones, as well as "
+":py:obj:`tensorcircuit.gates.GateF` class for gates."
+msgstr ""
+":py:mod:`tensorcircuit.gates`: 固定或参数化的量子门的定义，以及用于门的 "
+":py:obj:`tensorcircuit.gates.GateF` 类。"
+
+#: ../../source/infras.rst:21
+msgid "**Backend Agnostic Abstraction:**"
+msgstr "**后端无关抽象：**"
+
+#: ../../source/infras.rst:23
+msgid ""
+":py:mod:`tensorcircuit.backends` provides a set of backend API and the "
+"corresponding implementation on Numpy, Jax, TensorFlow, and PyTorch "
+"backends. These backends are inherited from the TensorNetwork package and"
+" are highly customized."
+msgstr ""
+":py:mod:`tensorcircuit.backends` 提供了一组后端 API 以及在 Numpy、Jax、TensorFlow 和 "
+"PyTorch 后端上的对应实现。这些后端继承自 TensorNetwork 包并且是高度定制的。"
+
+#: ../../source/infras.rst:25
+msgid "**Noisy Simulation Related Modules:**"
+msgstr "**噪声模拟相关模块：**"
+
+#: ../../source/infras.rst:27
+msgid ":py:mod:`tensorcircuit.channels`: Definition of quantum noise channels."
+msgstr ":py:mod:`tensorcircuit.channels`: 量子噪声通道的定义。"
+
+#: ../../source/infras.rst:29
+#, fuzzy
+msgid ""
+":py:mod:`tensorcircuit.densitymatrix`: Referenced and highly efficient "
+"implementation of ``tc.DMCircuit`` class, with similar set API of "
+"``tc.Circuit`` while simulating the noise in the full form of the density"
+" matrix."
+msgstr ""
+":py:mod:`tensorcircuit.densitymatrix`: Referenced implementation of "
+"``tc.DMCircuit`` 类的引用实现，具有 ``tc.Circuit`` 的类似集合 API，同时以密度矩阵的完整形式模拟噪声。"
+
+#: ../../source/infras.rst:31
+#, fuzzy
+msgid ""
+":py:mod:`tensorcircuit.noisemodel`: The global noise configuration and "
+"circuit noisy method APIs"
+msgstr ":py:mod:`tensorcircuit.vis`: 用于电路可视化的代码"
+
+#: ../../source/infras.rst:33
+msgid "**ML Interfaces Related Modules:**"
+msgstr "**机器学习接口相关模块：**"
+
+#: ../../source/infras.rst:35
+#, fuzzy
+msgid ""
+":py:mod:`tensorcircuit.interfaces`: Provide interfaces when quantum "
+"simulation backend is different from neural libraries. Currently include "
+"PyTorch, TensorFlow, NumPy and SciPy optimizer interfaces."
+msgstr ""
+":py:mod:`tensorcircuit.interfaces`: 当量子模拟后端与神经库不同时提供接口。 目前包括 PyTorch 和 "
+"scipy 优化器接口。"
+
+#: ../../source/infras.rst:37
+msgid ""
+":py:mod:`tensorcircuit.keras`: Provide TensorFlow Keras layers, as well "
+"as wrappers of jitted function, save/load from tf side."
+msgstr ""
+":py:mod:`tensorcircuit.keras`: 提供 TensorFlow Keras 层，以及可及时编译函数的包装器，从 "
+"TensorFlow 端保存/加载."
+
+#: ../../source/infras.rst:39
+msgid ":py:mod:`tensorcircuit.torchnn`: Provide PyTorch nn Modules."
+msgstr ""
+
+#: ../../source/infras.rst:41
+msgid "**MPS and MPO Utiliy Modules:**"
+msgstr "**MPS 和 MPO 实用模块：**"
+
+#: ../../source/infras.rst:43
+msgid ""
+":py:mod:`tensorcircuit.quantum`: Provide definition and classes for "
+"Matrix Product States as well as Matrix Product Operators, we also "
+"include various quantum physics and quantum information quantities in "
+"this module."
+msgstr ""
+":py:mod:`tensorcircuit.quantum`: "
+"提供矩阵乘积状态以及矩阵乘积算子的定义和类，我们还在这个模块中包含了各种量子物理和量子信息量。"
+
+#: ../../source/infras.rst:45
+msgid "**MPS Based Simulator Modules:**"
+msgstr "**基于 MPS 的模拟器模块：**"
+
+#: ../../source/infras.rst:47
+msgid ""
+":py:mod:`tensorcircuit.mps_base`: Customized and jit/AD compatible MPS "
+"class from TensorNetwork package."
+msgstr ""
+":py:mod:`tensorcircuit.mps_base`: 来自 TensorNetwork 包的自定义并且即时编译/自动微分兼容的 "
+"MPS 类。"
+
+#: ../../source/infras.rst:49
+msgid ""
+":py:mod:`tensorcircuit.mpscircuit`: "
+":py:obj:`tensorcircuit.mpscircuit.MPSCircuit` class with similar (but "
+"subtly different) APIs as ``tc.Circuit``, where the simulation engine is "
+"based on MPS TEBD."
+msgstr ""
+":py:mod:`tensorcircuit.mpscircuit`: "
+":py:obj:`tensorcircuit.mpscircuit.MPSCircuit` 类具有与 "
+"``tc.Circuit``，类似（但略有不同）的 API，其中仿真引擎基于 MPS TEBD。"
+
+#: ../../source/infras.rst:51
+msgid "**Supplemental Modules:**"
+msgstr "**支持模块：**"
+
+#: ../../source/infras.rst:53
+msgid ""
+":py:mod:`tensorcircuit.simplify`: Provide tools and utility functions to "
+"simplify the tensornetworks before the real contractions."
+msgstr ":py:mod:`tensorcircuit.simplify`: 提供工具和实用函数以在真正收缩之前简化张量网络。"
+
+#: ../../source/infras.rst:55
+msgid ""
+":py:mod:`tensorcircuit.experimental`: Experimental functions, long and "
+"stable support is not guaranteed."
+msgstr ":py:mod:`tensorcircuit.experimental`: 实验函数，不保证有持久且稳定的支持。"
+
+#: ../../source/infras.rst:57
+msgid ""
+":py:mod:`tensorcircuit.utils`: Some general function tools that are not "
+"quantum at all."
+msgstr ":py:mod:`tensorcircuit.utils`: 一些与量子完全无关的通用工具函数。"
+
+#: ../../source/infras.rst:59
+msgid ":py:mod:`tensorcircuit.vis`: Visualization code for circuit drawing."
+msgstr ":py:mod:`tensorcircuit.vis`: 用于电路可视化的代码"
+
+#: ../../source/infras.rst:61
+msgid ""
+":py:mod:`tensorcircuit.translation`: Translate circuit object to circuit "
+"object in other quantum packages."
+msgstr ":py:mod:`tensorcircuit.translation`: 将电路对象转换为其他量子包中的电路对象。"
+
+#: ../../source/infras.rst:63
+msgid "**Processing and error mitigation on sample results:**"
+msgstr ""
+
+#: ../../source/infras.rst:65
+msgid ""
+":py:mod:`tensorcircuit.results`: Provide tools to process count dict and "
+"to apply error mitigation."
+msgstr ""
+
+#: ../../source/infras.rst:67
+msgid "**Cloud quantum hardware access module:**"
+msgstr ""
+
+#: ../../source/infras.rst:69
+msgid ""
+":py:mod:`tensorcircuit.cloud`: Provide quantum cloud SDK that can access "
+"and program the real quantum hardware."
+msgstr ""
+
+#: ../../source/infras.rst:71
+msgid ""
+":py:mod:`tensorcircuit.compiler`: Provide compiler chains to compile and "
+"transform quantum circuits."
+msgstr ""
+
+#: ../../source/infras.rst:73
+msgid "**Shortcuts and Templates for Circuit Manipulation:**"
+msgstr "**电路操作的快捷方式和模板：**"
+
+#: ../../source/infras.rst:75
+msgid ""
+":py:mod:`tensorcircuit.templates`: provide handy shortcuts functions for "
+"expectation or circuit building patterns."
+msgstr ":py:mod:`tensorcircuit.templates`: 为期望或电路构建模式提供方便的快捷函数。"
+
+#: ../../source/infras.rst:77
+msgid "**Applications:**"
+msgstr "**应用：**"
+
+#: ../../source/infras.rst:79
+msgid ""
+":py:mod:`tensorcircuit.applications`: most code here is not maintained "
+"and deprecated, use at your own risk."
+msgstr ":py:mod:`tensorcircuit.applications`: 这里的大多数代码都没有维护并且被弃用了，使用风险自负。"
+
+#: ../../source/infras.rst:83
+msgid ""
+"Recommend reading order -- only read the part of code you care about for "
+"your purpose. If you want to get an overview of the codebase, please read"
+" ``tc.circuit`` followed by ``tc.cons`` and ``tc.gates``."
+msgstr ""
+"推荐阅读顺序——只阅读你关心的部分代码。如果您想了解代码库的概述，之后可以阅读 ``tc.circuit`` 后面的 ``tc.cons`` 和 "
+"``tc.gates``。"
+
+#: ../../source/infras.rst:88
+msgid "Relation between TensorCircuit and TensorNetwork"
+msgstr "TensorCircuit 和 TensorNetwork 之间的关系"
+
+#: ../../source/infras.rst:90
+msgid ""
+"TensorCircuit has a strong connection with the `TensorNetwork package "
+"<https://github.com/google/TensorNetwork>`_ released by Google. Since the"
+" TensorNetwork package has poor documentation and tutorials, most of the "
+"time, we need to delve into the codebase of TensorNetwork to figure out "
+"what happened. In other words, to read the TensorCircuit codebase, one "
+"may have to frequently refer to the TensorNetwork codebase."
+msgstr ""
+"TensorCircuit 与谷歌发布的 `TensorNetwork "
+"<https://github.com/google/TensorNetwork>`_ 有很强的联系。由于 TensorNetwork "
+"包的文档和教程很差，大多数时候，我们需要深入研究 TensorNetwork 的代码库来弄清楚发生了什么。换句话说，要阅读 "
+"TensorCircuit 代码库，可能需要经常参考 TensorNetwork 代码库。"
+
+#: ../../source/infras.rst:92
+msgid ""
+"Inside TensorCircuit, we heavily utilize TensorNetwork-related APIs from "
+"the TensorNetwork package and highly customized several modules from "
+"TensorNetwork by inheritance and rewriting:"
+msgstr ""
+"在 TensorCircuit 内部，我们大量使用了 TensorNetwork 包中与 TensorNetwork 相关的 "
+"API，并通过继承和重写从 TensorNetwork 中高度定制了几个模块："
+
+#: ../../source/infras.rst:94
+msgid ""
+"We implement our own /backends from TensorNetwork's /backends by adding "
+"much more APIs and fixing lots of bugs in TensorNetwork's implementations"
+" on certain backends via monkey patching. (The upstream is inactive and "
+"not that responsive anyhow.)"
+msgstr ""
+"我们从 TensorNetwork 的后端实现我们自己的后端，方法是添加更多 API，并通过猴子补丁修复 TensorNetwork "
+"在某些后端的实现中的许多错误。（上游是不活跃的，反馈不够灵敏）"
+
+#: ../../source/infras.rst:96
+msgid ""
+"We borrow TensorNetwork's code in /quantum to our ``tc.quantum`` module, "
+"since TensorNetwork has no ``__init__.py`` file to export these MPO and "
+"MPS related objects. Of course, we have made substantial improvements "
+"since then."
+msgstr ""
+"我们将 /quantum 中的 TensorNetwork 代码借用到我们的 ``tc.quantum`` 模块中，因为 "
+"TensorNetwork 没有 ``__init__.py`` 文件来导出这些 MPO 和 MPS "
+"相关对象。当然，从那时起，我们已经取得了实质性的代码改进。"
+
+#: ../../source/infras.rst:98
+msgid ""
+"We borrow the TensorNetwork's code in /matrixproductstates as "
+"``tc.mps_base`` for bug fixing and jit/AD compatibility, so that we have "
+"better support for our MPS based quantum circuit simulator."
+msgstr ""
+"我们借用 /matrixproductstates 中 TensorNetwork 的代码作为 ``tc.mps_base`` "
+"用于错误修复和即时编译/自动微分兼容性，以便我们更好地支持基于 MPS 的量子电路模拟器。"
+
+#: ../../source/infras.rst:102
+msgid "Relations of Circuit-like classes"
+msgstr ""
+
+#: ../../source/infras.rst:114
+msgid "QuOperator/QuVector and MPO/MPS"
+msgstr "QuOperator/QuVector 和 MPO/MPS"
+
+#: ../../source/infras.rst:116
+msgid ""
+":py:class:`tensorcircuit.quantum.QuOperator`, "
+":py:class:`tensorcircuit.quantum.QuVector` and "
+":py:class:`tensorcircuit.quantum.QuAdjointVector` are classes adopted "
+"from TensorNetwork package. They behave like a matrix/vector (column or "
+"row) when interacting with other ingredients while the inner structure is"
+" maintained by the tensornetwork for efficiency and compactness."
+msgstr ""
+":py:class:`tensorcircuit.quantum.QuOperator`, "
+":py:class:`tensorcircuit.quantum.QuVector` 和 "
+":py:class:`tensorcircuit.quantum.QuAdjointVector` 是从 TensorNetwork "
+"包中采用的类。它们的行为类似于与其他成分交互时的矩阵/向量（列或行），而内部结构由张量网络维护以提高效率和紧凑性。"
+
+#: ../../source/infras.rst:119
+msgid ""
+"We use code examples and associated tensor diagrams to illustrate these "
+"object abstractions."
+msgstr "我们使用代码示例和相关的张量图来说明这些对象抽象。"
+
+#: ../../source/infras.rst:123
+msgid ""
+"``QuOperator`` can express MPOs and ``QuVector`` can express MPSs, but "
+"they can express more than these fixed structured tensor networks."
+msgstr "``QuOperator`` 可以表达 MPO，``QuVector`` 可以表达 MPS，但它们可以表达的不仅仅是这些固定的结构化张量网络。"
+
+#: ../../source/infras.rst:151
+msgid ""
+"Note how in this example, ``matrix`` is not a typical MPO but still can "
+"be expressed as ``QuOperator``. Indeed, any tensor network with two sets "
+"of dangling edges of the same dimension can be treated as ``QuOperator``."
+" ``QuVector`` is even more flexible since we can treat all dangling edges"
+" as the vector dimension."
+msgstr ""
+"请注意，在这个例子中，``matrix`` 不是一个典型的 MPO，但仍然可以表示为 "
+"``QuOperator``。事实上，任何具有两组相同维度的悬边的张量网络都可以被视为 `` QuOperator``。``QuVector`` "
+"更加灵活，因为我们可以将所有悬空边视为向量维度。"
+
+#: ../../source/infras.rst:153
+msgid ""
+"Also, note how ``^`` is overloaded as ``tn.connect`` to connect edges "
+"between different nodes in TensorNetwork. And indexing the node gives the"
+" edges of the node, eg. ``n1[0]`` means the first edge of node ``n1``."
+msgstr ""
+"还要注意 ``^`` 是如何被重载为 ``tn.connect`` 以连接 TensorNetwork "
+"中不同节点之间的边。索引节点给出了节点的边，例如 ``n1[0]`` 意味着 ``节点 n1``  的第一条边。"
+
+#: ../../source/infras.rst:155
+msgid ""
+"The convention to define the ``QuOperator`` is firstly giving "
+"``out_edges`` (left index or row index of the matrix) and then giving "
+"``in_edges`` (right index or column index of the matrix). The edges list "
+"contains edge objects from the TensorNetwork library."
+msgstr ""
+"定义 ``QuOperator`` 的惯例是首先给出 ``out_edges``（矩阵的左索引或行索引），然后给出 "
+"``in_edges``（矩阵的右索引或列索引)。边列表包含来自 TensorNetwork 库的边对象。"
+
+#: ../../source/infras.rst:157
+msgid ""
+"Such QuOperator/QuVector abstraction support various calculations only "
+"possible on matrix/vectors, such as matmul (``@``), adjoint "
+"(``.adjoint()``), scalar multiplication (``*``), tensor product (``|``), "
+"and partial trace (``.partial_trace(subsystems_to_trace_out)``). To "
+"extract the matrix information of these objects, we can use ``.eval()`` "
+"or ``.eval_matrix()``, the former keeps the shape information of the "
+"tensor network while the latter gives the matrix representation with "
+"shape rank 2."
+msgstr ""
+"这样的 QuOperator/QuVector 抽象支持只能在矩阵/向量上进行的各种计算，例如 matmul (``@``)、伴随 "
+"(``.adjoint()``)、标量乘法 "
+"(``*``)、张量乘积（``|``）和偏迹（``.partial_trace(subsystems_to_trace_out)``）。要提取这些对象的矩阵信息，我们可以使用"
+" ``.eval()`` 或 ``.eval_matrix() ``，前者保留了张量网络的形状信息，而后者给出了形状秩为2的矩阵表示。"
+
+#: ../../source/infras.rst:162
+msgid "Quantum Cloud SDK: Layerwise API design"
+msgstr ""
+
+#: ../../source/infras.rst:164
+msgid "From lower level to higher level, a view of API layers invoking QPU calls"
+msgstr ""
+
+#: ../../source/infras.rst:166
+msgid ""
+"Vendor specific implementation of functional API in, e.g., "
+":py:mod:`tensorcircuit.cloud.tencent`"
+msgstr ""
+
+#: ../../source/infras.rst:168
+msgid ""
+"Provider agnostic functional lower level API for task/device management "
+"in :py:mod:`tensorcircuit.cloud.apis`"
+msgstr ""
+
+#: ../../source/infras.rst:170
+msgid ""
+"Object oriented abstraction for Provider/Device/Task in "
+":py:mod:`tensorcircuit.cloud.abstraction`"
+msgstr ""
+
+#: ../../source/infras.rst:172
+msgid ""
+"Unified batch submission interface as standarized in "
+":py:meth:`tensorcircuit.cloud.wrapper.batch_submit_template`"
+msgstr ""
+
+#: ../../source/infras.rst:174
+msgid ""
+"Numerical and experimental unified all-in-one interface as "
+":py:meth:`tensorcircuit.cloud.wrapper.batch_expectation_ps`"
+msgstr ""
+
+#: ../../source/infras.rst:176
+msgid ""
+"Application level code with QPU calls built directly on "
+"``batch_expectation_ps`` or more fancy algorithms can be built on "
+"``batch_submit_func`` so that these algorithms can be reused as long as "
+"one function ``batch_submit_func`` is defined for a given vendor (cheaper"
+" than defining a new provider from lower level)."
+msgstr ""
+
+#: ../../source/infras.rst:181
+msgid ""
+"For compiler, error mitigation and results post-processing parts, they "
+"can be carefully designed to decouple with the QPU calls, so they are "
+"separately implemented in :py:mod:`tensorcircuit.compiler` and "
+":py:mod:`tensorcircuit.results`, and they can be independently useful "
+"even without tc's cloud access."
+msgstr ""
+
+#~ msgid ""
+#~ ":py:mod:`tensorcircuit.densitymatrix2`: Highly efficient"
+#~ " implementation of "
+#~ ":py:obj:`tensorcircuit.densitymatrix2.DMCircuit2` class, "
+#~ "always preferred than the referenced "
+#~ "implementation."
+#~ msgstr ""
+#~ ":py:mod:`tensorcircuit.densitymatrix2`:  "
+#~ ":py:obj:`tensorcircuit.densitymatrix2.DMCircuit2` "
+#~ "类的高效实现，总是比参考的实现更适用。"
+
+#~ msgid ""
+#~ ":py:mod:`tensorcircuit.results`: Provide tools to"
+#~ " process count dict and to apply "
+#~ "error mitigation"
+#~ msgstr ""
+

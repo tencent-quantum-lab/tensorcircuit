@@ -1,0 +1,17 @@
+**/*DS_Store
+**/*coverage
+**/*idea
+**/*mypy_cache
+**/*pytest_cache
+**/*develop
+**/*dist
+**/*build
+**/*htmlcov
+**/*__pycache__
+**/*.pyc
+**/*.outdated
+**/*.result
+**/*.results
+**/*.data
+**/*.egg-info
+**/*examples-ng

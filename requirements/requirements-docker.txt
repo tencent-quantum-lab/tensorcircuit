@@ -1,0 +1,42 @@
+numpy
+scipy
+cirq
+tensorflow==2.7
+tensornetwork==0.4.6
+graphviz
+jax==0.3.4
+# jaxlib indepedent specify the version in Dockerfile
+torch
+torchvision
+networkx
+optax
+kahypar
+optuna
+baytune
+nevergrad
+scikit-optimize
+matplotlib
+jupyter
+qiskit
+openfermion
+quimb
+openfermionpyscf
+pennylane
+# tensorflow_quantum==0.6.1
+mthree
+mitiq
+# below is for development
+mypy==1.2.0
+pytest
+pytest-cov
+pytest-benchmark
+pytest-xdist
+pytest-lazy-fixture
+black==23.3.0
+sphinx>=4.0
+sphinx-intl
+sphinx-copybutton
+nbsphinx
+furo
+myst-parser
+pylint
