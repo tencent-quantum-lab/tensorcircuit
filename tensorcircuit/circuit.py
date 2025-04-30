@@ -1065,7 +1065,7 @@ class DefcalBuilder:
             raise TypeError("Unsupported waveform type")
 
         waveform_type = waveform.qasm_name()
-        args = list(waveform.__dict__.values())
+        args = waveform.to_args()
         if start_time is not None:
             args = [start_time] + args
 

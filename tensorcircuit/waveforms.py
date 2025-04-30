@@ -21,6 +21,8 @@ class Gaussian:
     sigma: ParamType
     def qasm_name(self) -> str:
         return "gaussian"
+    def to_args(self) -> List[ParamType]:
+        return [self.amp, self.duration, self.sigma]
 
 @dataclass
 class GaussianSquare:
@@ -30,6 +32,8 @@ class GaussianSquare:
     width: ParamType
     def qasm_name(self) -> str:
         return "gaussian_square"
+    def to_args(self) -> List[ParamType]:
+        return [self.amp, self.duration, self.sigma, self.width]
 
 @dataclass
 class Drag:
@@ -39,6 +43,8 @@ class Drag:
     beta: ParamType
     def qasm_name(self) -> str:
         return "drag"
+    def to_args(self) -> List[ParamType]:
+        return [self.amp, self.duration, self.sigma, self.beta]
 
 @dataclass
 class Constant:
@@ -46,7 +52,8 @@ class Constant:
     duration: int
     def qasm_name(self) -> str:
         return "constant"
-
+    def to_args(self) -> List[ParamType]:
+        return [self.amp, self.duration]
 
 @dataclass
 class Sine:
@@ -55,7 +62,8 @@ class Sine:
     duration: int
     def qasm_name(self) -> str:
         return "sine"
-
+    def to_args(self) -> List[ParamType]:
+        return [self.amp, self.frequency, self.duration]
 
 @dataclass
 class Cosine:
@@ -64,7 +72,8 @@ class Cosine:
     duration: int
     def qasm_name(self) -> str:
         return "cosine"
-
+    def to_args(self) -> List[ParamType]:
+        return [self.amp, self.frequency, self.duration]
 
 @dataclass
 class CosineDrag:
@@ -74,7 +83,8 @@ class CosineDrag:
     alpha: ParamType
     def qasm_name(self) -> str:
         return "cosine_drag"
-
+    def to_args(self) -> List[ParamType]:
+        return [self.amp, self.duration, self.phase, self.alpha]
 
 @dataclass
 class Flattop:
@@ -83,3 +93,5 @@ class Flattop:
     duration: int
     def qasm_name(self) -> str:
         return "flattop"
+    def to_args(self) -> List[ParamType]:
+        return [self.amp, self.width, self.duration]
