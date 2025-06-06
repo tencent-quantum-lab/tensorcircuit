@@ -213,7 +213,7 @@ def submit_task(
                     s = c.qasm()
                     # nq = c.num_qubits
                 else:
-                    s = c.to_tqasm() + '\nmy_gate q[0], q[1];'
+                    s = c.to_tqasm() + '\nrabi_test q[0];'
                     print(s)
                     #s = c.to_openqasm()
                     # nq = c._nqubits

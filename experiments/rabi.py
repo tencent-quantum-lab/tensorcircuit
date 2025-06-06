@@ -10,30 +10,45 @@ from tensorcircuit import Circuit, Param, gates, waveforms
 from tensorcircuit.cloud.apis import submit_task, get_device, set_provider, set_token, list_devices
 import re
 
+shots_const = 1000
+
 print("✅ TEST FILE LOADED")
-set_token("xu1LTrkf0nP6sI8oh.bDPdk35RlOQZYy9hQPU6jK2J4d5AdINAOszCNPxTNGZ3-opBPhWcLcruYuSrvX8is1D9tKgw-O4Zg.Qf7fLp83AtSPP19jD6Na4piICkygomdfyxIjzhO6Zu-s5hgBu2709ZW=")
+set_token("")
 set_provider("tencent")
 ds = list_devices()
 print(ds)
 
-def test_parametric_waveform(t):
+# TQASM 0.2;
+# QREG a[1];
+# defcal rabi_test a {
+# frame drive_frame = newframe(a); 
+# play(drive_frame, cosine_drag($formatted_t, 0.2, 0.0, 0.0)); } 
+# rabi_test a[0];
+# MEASZ a[0];
+
+def gen_parametric_waveform_circuit(t):
     qc = Circuit(2)
 
     param0 = Param("a")
-    param1 = Param("b")
 
-    builder = qc.calibrate("my_gate", [param0, param1])
-    builder.new_frame("f0", param0)
-    builder.play("f0", waveforms.CosineDrag(t, 0.2, 0.0, 0.01))
-    builder.new_frame("f1", param0)
-    builder.play("f1", waveforms.CosineDrag(t, 0.2, 0.0, 0.01))
+    builder = qc.calibrate("rabi_test", [param0])
+    builder.new_frame("drive_frame", param0)
+    builder.play("drive_frame", waveforms.CosineDrag(t, 0.2, 0.0, 0.01))
+
     builder.build()
+    
+    tqasm_code = qc.to_tqasm()
 
+    print(tqasm_code)
+    return qc
+
+
+def run_circuit(qc):
     device_name = "tianji_m2" 
     d = get_device(device_name)
     t = submit_task(
     circuit=qc,
-    shots=8192,
+    shots=shots_const,
     device=d,
     enable_qos_gate_decomposition=False,
     enable_qos_qubit_mapping=False,
@@ -41,63 +56,50 @@ def test_parametric_waveform(t):
     rf = t.results()
     return rf
 
-data = {
-    '00': [],
-    '01': [],
-    '10': [],
-    '11': []
-}
-for i in range(1,5):
-    result = test_parametric_waveform(i)
-    print(i, result['00'], result['01'], result['10'], result['11'])
 
-    for key in data:
-        data[key].append(result[key])
+
+def exp_rabi():
+    result_lst = []
+    for t in range(1, 4, 2):
+        qc = gen_parametric_waveform_circuit(t)
+        result = run_circuit(qc)
+        result['duration'] = t
+        result_lst.append(result)
+    return result_lst
+
+
+
+def draw_rabi(result_lst):
+    data = {
+        'duration': [],
+        '0': [],
+        '1': []
+    }
     
-
-plt.figure(figsize=(10, 6))
-
-colors = ['blue', 'green', 'red', 'purple']  
-marker_size = 4  
-
-# for idx, (state, values) in enumerate(data.items()):
-#     plt.plot(
-#         range(1, 5), 
-#         values,
-#         marker='o',        
-#         markersize=marker_size,
-#         linestyle='-',     
-#         linewidth=1.2,
-#         color=colors[idx],
-#         label=state
-#     )
-
-# plt.xlabel('Parameter i')
-# plt.ylabel('Counts')
-# plt.title('State Distribution by Parameter')
-# plt.legend()
-# plt.grid(True, alpha=0.3)
+    for result in result_lst:
+        data['0'].append(int(result['0']) / shots_const)
+        data['1'].append(int(result['1']) / shots_const)
+        data['duration'].append(result['duration'])
 
 
-# 子图
-for idx, (state, values) in enumerate(data.items()):
-    plt.subplot(2, 2, idx+1) 
-    
-    plt.plot(
-        range(1, 5),
-        values,
-        marker='o',
-        markersize=4,
-        linestyle='-',
-        linewidth=1.2,
-        color=colors[idx]
-    )
-    
-    plt.xlabel('Parameter i')
-    plt.ylabel('Counts')
-    plt.title(f'State {state}')
-    plt.grid(True, alpha=0.3)
+        
+
+    plt.figure(figsize=(10,6))
+    plt.plot(data['duration'], data['0'], 'b-o', label='State |0>')
+    plt.plot(data['duration'], data['1'], 'r--s', label='State |1>')
 
 
-plt.tight_layout()
-plt.show()
+    plt.title('Rabi Oscillation Experiment')
+    plt.xlabel('Duration (dt)')
+    plt.ylabel('Probability')
+    plt.grid(alpha=0.3)
+    plt.legend()
+    plt.tight_layout()
+
+
+    plt.savefig('rabi.png', dpi=300)
+    plt.show()
+
+
+data = exp_rabi()
+draw_rabi(data)
