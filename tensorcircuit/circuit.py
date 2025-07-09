@@ -128,12 +128,11 @@ class Circuit(BaseCircuit):
         })
 
     def add_calibration(
-        self, name: str, parameters: List[str], instructions: List[Dict]
+        self, name: str, parameters: List[str]
     ) -> None:
         self.calibration_invokes.append({
             "name": name,
-            "parameters": parameters,
-            "instructions": instructions
+            "parameters": parameters
         })
 
 

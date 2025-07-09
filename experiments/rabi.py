@@ -36,7 +36,7 @@ def gen_parametric_waveform_circuit(t):
     builder.play("drive_frame", waveforms.CosineDrag(t, 0.2, 0.0, 0.0))
 
     builder.build()
-    qc.add_calibration(builder, ['q[0]']) //'rabi_test q[0]'
+    qc.add_calibration('rabi_test', ['q[0]']) 
     
     tqasm_code = qc.to_tqasm()
 
