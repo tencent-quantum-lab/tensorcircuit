@@ -27,7 +27,7 @@ print(ds)
 # MEASZ a[0];
 
 def gen_parametric_waveform_circuit(t):
-    qc = Circuit(2)
+    qc = Circuit(1)
 
     param0 = Param("a")
 
