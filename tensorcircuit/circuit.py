@@ -64,6 +64,7 @@ class Circuit(BaseCircuit):
             nqubits=nqubits, inputs=inputs, mps_inputs=mps_inputs, split=split
         )
         self.calibrations = []
+        self.calibration_invokes = []
 
         self.inputs = inputs
         self.mps_inputs = mps_inputs
@@ -117,10 +118,19 @@ class Circuit(BaseCircuit):
         self._qir: List[Dict[str, Any]] = []
         self._extra_qir: List[Dict[str, Any]] = []
     
-    def add_calibration(
+    def def_calibration(
         self, name: str, parameters: List[str], instructions: List[Dict]
     ) -> None:
         self.calibrations.append({
+            "name": name,
+            "parameters": parameters,
+            "instructions": instructions
+        })
+
+    def add_calibration(
+        self, name: str, parameters: List[str], instructions: List[Dict]
+    ) -> None:
+        self.calibration_invokes.append({
             "name": name,
             "parameters": parameters,
             "instructions": instructions
@@ -148,6 +158,10 @@ class Circuit(BaseCircuit):
                     wf_type = inst["waveform_type"]
                     qasm_lines.append(f"  play({inst['frame']}, {wf_type}({args_str}));")
             qasm_lines.append("}")
+
+        for cal in getattr(self, "calibration_invokes", []):
+            pname = ", ".join(cal["parameters"])
+            qasm_lines.append(f"\n {cal['name']} {pname};")
 
         return "\n".join(qasm_lines)
     
@@ -1078,7 +1092,7 @@ class DefcalBuilder:
         return self
 
     def build(self):
-        self.circuit.add_calibration(
+        self.circuit.def_calibration(
             name=self.name,
             parameters=[p.name for p in self.parameters],
             instructions=self.instructions,
