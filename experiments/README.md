@@ -2,10 +2,8 @@
 
 ## 下载安装
 ```
-git clone https://github.com/ruan-prog/tensorcircuit.git
+git clone https://github.com/tencent-quantum-lab/tensorcircuit.git
 cd tensorcircuit
-git checkout rabi_test
-
 cd experiments
 pip install -r requirements.txt
 ```
