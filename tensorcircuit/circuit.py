@@ -60,6 +60,12 @@ class Circuit(BaseCircuit):
             ``max_singular_values`` and ``max_truncation_err``.
         :type split: Optional[Dict[str, Any]]
         """
+        super().__init__(
+            nqubits=nqubits, inputs=inputs, mps_inputs=mps_inputs, split=split
+        )
+        self.calibrations = []
+        self.calibration_invokes = []
+
         self.inputs = inputs
         self.mps_inputs = mps_inputs
         self.split = split
@@ -111,6 +117,55 @@ class Circuit(BaseCircuit):
         # self._qcode += str(self._nqubits) + "\n"
         self._qir: List[Dict[str, Any]] = []
         self._extra_qir: List[Dict[str, Any]] = []
+    
+    def def_calibration(
+        self, name: str, parameters: List[str], instructions: List[Dict]
+    ) -> None:
+        self.calibrations.append({
+            "name": name,
+            "parameters": parameters,
+            "instructions": instructions
+        })
+
+    def add_calibration(
+        self, name: str, parameters: List[str]
+    ) -> None:
+        self.calibration_invokes.append({
+            "name": name,
+            "parameters": parameters
+        })
+
+
+    def to_tqasm(self) -> str:
+        qasm_lines = []
+        qasm_lines.append("TQASM 0.2;")
+        qasm_lines.append(f"QREG q[{self._nqubits}];")
+
+        for gate in self._qir:
+            gname = gate["name"]
+            targets = ", ".join(f"q[{i}]" for i in gate["target"])
+            qasm_lines.append(f"{gname} {targets};")
+
+        for cal in getattr(self, "calibrations", []):
+            pname = ", ".join(cal["parameters"])
+            qasm_lines.append(f"\ndefcal {cal['name']} {pname} {{")
+            for inst in cal["instructions"]:
+                if inst["type"] == "frame":
+                    qasm_lines.append(f"  frame {inst['frame']} = newframe({inst['qubit']});")
+                elif inst["type"] == "play":
+                    args_str = ", ".join(str(x) for x in inst["args"])
+                    wf_type = inst["waveform_type"]
+                    qasm_lines.append(f"  play({inst['frame']}, {wf_type}({args_str}));")
+            qasm_lines.append("}")
+
+        for cal in getattr(self, "calibration_invokes", []):
+            pname = ", ".join(cal["parameters"])
+            qasm_lines.append(f"\n {cal['name']} {pname};")
+
+        return "\n".join(qasm_lines)
+    
+    def calibrate(self, name: str, parameters: List["Param"]) -> "DefcalBuilder":
+        return DefcalBuilder(self, name, parameters)
 
     def replace_mps_inputs(self, mps_inputs: QuOperator) -> None:
         """
@@ -998,3 +1053,46 @@ def expectation(
         else:
             den = 1.0
         return num / den
+
+class Param:
+    def __init__(self, name: str):
+        self.name = name
+    
+class DefcalBuilder:
+    def __init__(self, circuit, name: str, parameters: List["Param"]):
+        self.circuit = circuit
+        self.name = name
+        self.parameters = parameters
+        self.instructions = []
+
+    def new_frame(self, frame_name: str, param: "Param"):
+        self.instructions.append({
+            "type": "frame",
+            "frame": frame_name,
+            "qubit": param.name,
+        })
+        return self
+
+    def play(self, frame_name: str, waveform: Any, start_time: int = None):
+        if not hasattr(waveform, "__dataclass_fields__"):
+            raise TypeError("Unsupported waveform type")
+
+        waveform_type = waveform.qasm_name()
+        args = waveform.to_args()
+        if start_time is not None:
+            args = [start_time] + args
+
+        self.instructions.append({
+            "type": "play",
+            "frame": frame_name,
+            "waveform_type": waveform_type,
+            "args": args,
+        })
+        return self
+
+    def build(self):
+        self.circuit.def_calibration(
+            name=self.name,
+            parameters=[p.name for p in self.parameters],
+            instructions=self.instructions,
+        )

@@ -214,7 +214,8 @@ class NumpyBackend(numpy_backend.NumPyBackend, ExtendedBackend):  # type: ignore
 
     def cast(self, a: Tensor, dtype: str) -> Tensor:
         with warnings.catch_warnings():
-            warnings.simplefilter("ignore", np.ComplexWarning)
+            #warnings.simplefilter("ignore", np.ComplexWarning)
+            warnings.simplefilter("ignore", DeprecationWarning)
             if isinstance(dtype, str):
                 return a.astype(getattr(np, dtype))
             return a.astype(dtype)
