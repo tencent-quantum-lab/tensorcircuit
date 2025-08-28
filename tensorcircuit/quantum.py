@@ -1645,6 +1645,7 @@ def reduced_density_matrix(
     state: Union[Tensor, QuOperator],
     cut: Union[int, List[int]],
     p: Optional[Tensor] = None,
+    normalize: bool = True,
 ) -> Union[Tensor, QuOperator]:
     """
     Compute the reduced density matrix from the quantum state ``state``.
@@ -1658,6 +1659,7 @@ def reduced_density_matrix(
     :type p: Optional[Tensor]
     :return: The reduced density matrix.
     :rtype: Union[Tensor, QuOperator]
+    :normalize: if True, returns a trace 1 density matrix. Otherwise does not normalize.
     """
     if isinstance(cut, list) or isinstance(cut, tuple) or isinstance(cut, set):
         traceout = list(cut)
@@ -1700,7 +1702,9 @@ def reduced_density_matrix(
         rho = backend.reshape(
             rho, [2 ** (freedom - len(traceout)), 2 ** (freedom - len(traceout))]
         )
-        rho /= backend.trace(rho)
+        if normalize:
+            rho /= backend.trace(rho)
+
 
     else:
         w = state / backend.norm(state)
@@ -1715,7 +1719,9 @@ def reduced_density_matrix(
             rho = w @ backend.adjoint(w)
         else:
             rho = w @ backend.diagflat(p) @ backend.adjoint(w)
-            rho /= backend.trace(rho)
+            if normalize:
+                rho /= backend.trace(rho)
+
     return rho
 
 
