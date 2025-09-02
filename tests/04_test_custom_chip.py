@@ -40,16 +40,18 @@ def run_circuit(qc):
 # 以下是两种映射方式
     tp = Topology(d)
     # tp.map_qubits([6,3,4,1])
-    # tp.map_qubits([6,3,4,1], [3,2,1,0])
+    tp.map_qubits([6,3,4,1], [3,2,1,0])
 
-    tp.map_qubit(0, 6)
-    tp.map_qubit(1, 3)
-    tp.map_qubit(2, 4)
-    tp.map_qubit(3, 1)
+    # tp.map_qubit(6, 0)
+    # tp.map_qubit(3, 1)
+    # tp.map_qubit(4, 2)
+    # tp.map_qubit(1, 3)
 
-    tp.pair_qubit(0, 1)
-    tp.pair_qubit(0, 2)
-    tp.pair_qubit(1, 3)
+    # tp.pair_qubit(0, 1)
+    # tp.pair_qubit(0, 2)
+    # tp.pair_qubit(1, 3)
+    pragma = tp.pragma()
+    print(qc.to_tqasm(pragma=pragma))
     t = submit_task(
         circuit=qc,
         shots=shots_const,

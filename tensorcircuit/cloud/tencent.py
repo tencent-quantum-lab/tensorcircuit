@@ -44,7 +44,8 @@ class Topology:
             
         self._used_chip_qubits = chip_addrs
         self._used_user_qubits = user_addrs
-        self._used_user_pairs = [e for e in self._qubit_pairs if e[0] in chip_addrs and e[1] in user_addrs]
+        inherited_pairs = [e for e in self._qubit_pairs if e[0] in chip_addrs and e[1] in chip_addrs]
+        self._used_user_pairs = [(user_addrs[chip_addrs.index(e[0])], user_addrs[chip_addrs.index(e[1])]) for e in inherited_pairs]
 
     def map_qubit(self, chip_addr: int, user_addr: int) -> None:
         if chip_addr not in self._qubits:
@@ -59,16 +60,15 @@ class Topology:
         return
     
     def pair_qubit(self, user_addr1: int, user_addr2: int, dual: bool = True, add_remove: bool = True) -> None:
-        original_pair = (user_addr1, user_addr2)
-        
         def update_pairs(user_addr1: int, user_addr2: int, add_remove: bool = True):
+            original_pair = (user_addr1, user_addr2)
             if add_remove:
                 if original_pair in getattr(self, "_used_user_pairs", []):
                     return
-                self._qubit_mapping = getattr(self, "_used_user_pairs", []) + [original_pair]
+                self._used_user_pairs = getattr(self, "_used_user_pairs", []) + [original_pair]
             else:
                 try:
-                    self._qubit_mapping = getattr(self, "_used_user_pairs", []) - [original_pair]
+                    self._used_user_pairs = getattr(self, "_used_user_pairs", []) - [original_pair]
                 except ValueError:
                     raise ValueError(f"Qubit pair {user_addr1}-{user_addr2} does not exist to remove")
         update_pairs(user_addr1, user_addr2, add_remove)
