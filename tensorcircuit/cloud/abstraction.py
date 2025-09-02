@@ -416,8 +416,7 @@ class Task:
             s = self.state()
             if s != "completed":
                 raise TaskUnfinished(self.id_, s)
-            r = self.details()["multi_results"]
-            r = counts.sort_count(r)  # type: ignore
+            r = self.details()["multi_result"]
         else:
             s = self.state()
             tries = 0
