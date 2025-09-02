@@ -32,12 +32,12 @@ def gen_multi_measure_circuit(t):
     # qc.rxx(0, 5, theta=1.04632)
 
 # 需添加测量指令
-    qc.measure(0, 1)
+    qc.measz(0, 1)
     qc.cz(0, 1)
-    qc.measure(0, 1)
+    qc.measz(0, 1)
 
 
-    # print(qc.to_tqasm())
+    print(qc.to_tqasm())
     return qc
 
 

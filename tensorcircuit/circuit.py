@@ -66,6 +66,7 @@ class Circuit(BaseCircuit):
         )
         self.calibrations = []
         self.calibration_invokes = []
+        self.measz_invokes = []
 
         self.inputs = inputs
         self.mps_inputs = mps_inputs
@@ -136,6 +137,14 @@ class Circuit(BaseCircuit):
             "parameters": parameters,
             "pos": len(self._qir)
         })
+    
+    def measz(self, *index: int) -> None:
+        self.measz_invokes.append({
+            "name": "measz",
+            "index": index,
+            "pos": len(self._qir)
+        })
+        return
 
 
     def to_tqasm(self, pragma: Optional[str]= None) -> str:
@@ -169,8 +178,18 @@ class Circuit(BaseCircuit):
             pos = cal.get("pos", len(self._qir))
             cals_by_pos[pos].append(cal)
 
+        measz_by_pos = defaultdict(list)
+        for m in getattr(self, "measz_invokes", []):
+            # pos 记录的是加入时的 len(self._qir)
+            pos = m.get("pos", len(self._qir))
+            measz_by_pos[pos].append(m)
+
         # 交错输出：在第 i 个门之前输出所有 pos == i 的校准
         for i, gate in enumerate(self._qir):
+            for m in measz_by_pos.get(i, []):
+                targets = ", ".join(f"q[{idx}]" for idx in m["index"])
+                qasm_lines.append(f"MEASZ {targets};")
+
             for cal in cals_by_pos.get(i, []):
                 # print(cal)
                 pname = ", ".join(f"q[{x}]" for x in cal.get("parameters", []))
@@ -187,6 +206,10 @@ class Circuit(BaseCircuit):
                 qasm_lines.append(f"{gname} ({theta}) {targets};")
             else:
                 qasm_lines.append(f"{gname} {targets};")
+
+        for m in measz_by_pos.get(len(self._qir), []):
+                targets = ", ".join(f"q[{idx}]" for idx in m["index"])
+                qasm_lines.append(f"MEASZ {targets};")
 
         # 收尾：把 pos == len(self._qir) 的校准放在最后
         for cal in cals_by_pos.get(len(self._qir), []):
