@@ -40,8 +40,6 @@ class Topology:
             raise ValueError("user_addrs and chip_addrs should have the same length")
         for addr in chip_addrs:
             if addr not in self._qubits:
-                print(addr)
-                print(self._qubits)
                 raise ValueError(f"chip_addr {addr} not in the device")
             
         self._used_chip_qubits = chip_addrs
