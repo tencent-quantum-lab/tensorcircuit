@@ -17,6 +17,7 @@ from .cons import backend, contractor, dtypestr, npdtype
 from .quantum import QuOperator, identity
 from .simplify import _full_light_cone_cancel
 from .basecircuit import BaseCircuit
+from .pulse import DefcalBuilder, Param, Frame
 
 Gate = gates.Gate
 Tensor = Any
@@ -137,21 +138,22 @@ class Circuit(BaseCircuit):
         })
 
 
-    def to_tqasm(self, pragma: str) -> str:
+    def to_tqasm(self, pragma: Optional[str]= None) -> str:
         qasm_lines = []
-        if pragma:
-            qasm_lines.append(pragma)
 
         qasm_lines.append("TQASM 0.2;")
+
+        if pragma:
+            qasm_lines.append(pragma)
 
         qasm_lines.append(f"QREG q[{self._nqubits}];")
 
         for cal in getattr(self, "calibrations", []):
             pname = ", ".join(cal["parameters"])
-            qasm_lines.append(f"\ndefcal {cal['name']} {pname} {{")
+            qasm_lines.append(f"defcal {cal['name']} {pname} {{")
             for inst in cal["instructions"]:
                 if inst["type"] == "frame":
-                    qasm_lines.append(f"  frame {inst['frame']} = newframe({inst['qubit']});")
+                    qasm_lines.append(f"  frame {inst['frame'].name} = newframe({inst['qubit']});")
                 elif inst["type"] == "play":
                     args_str = ", ".join(str(x) for x in inst["args"])
                     wf_type = inst["waveform_type"]
@@ -171,7 +173,7 @@ class Circuit(BaseCircuit):
         for i, gate in enumerate(self._qir):
             for cal in cals_by_pos.get(i, []):
                 # print(cal)
-                pname = ", ".join(cal.get("parameters", []))
+                pname = ", ".join(f"q[{x}]" for x in cal.get("parameters", []))
                 qasm_lines.append(f"{cal['name']} {pname};")
 
             # print(gate)
@@ -189,7 +191,7 @@ class Circuit(BaseCircuit):
         # 收尾：把 pos == len(self._qir) 的校准放在最后
         for cal in cals_by_pos.get(len(self._qir), []):
             # print(cal)
-            pname = ", ".join(cal.get("parameters", []))
+            pname = ", ".join(f"q[{x}]" for x in cal.get("parameters", []))
             qasm_lines.append(f"{cal['name']} {pname};")
 
         return ("\n".join(qasm_lines))
@@ -1083,51 +1085,3 @@ def expectation(
         else:
             den = 1.0
         return num / den
-
-class Param:
-    def __init__(self, name: str):
-        self.name = name
-
-class Frame:
-    def __init__(self, name: str):
-        self.name = name
-
-class DefcalBuilder:
-    def __init__(self, circuit, name: str, parameters: List["Param"]):
-        self.circuit = circuit
-        self.name = name
-        self.parameters = parameters
-        self.instructions = []
-
-    def new_frame(self, frame_name: str, param: "Param"):
-        frame = Frame(frame_name)
-        self.instructions.append({
-            "type": "frame",
-            "frame": frame,
-            "qubit": param.name,
-        })
-        return frame
-
-    def play(self, frame: Frame, waveform: Any, start_time: int = None):
-        if not hasattr(waveform, "__dataclass_fields__"):
-            raise TypeError("Unsupported waveform type")
-
-        waveform_type = waveform.qasm_name()
-        args = waveform.to_args()
-        if start_time is not None:
-            args = [start_time] + args
-
-        self.instructions.append({
-            "type": "play",
-            "frame": frame.name,
-            "waveform_type": waveform_type,
-            "args": args,
-        })
-        return self
-
-    def build(self):
-        self.circuit.def_calibration(
-            name=self.name,
-            parameters=[p.name for p in self.parameters],
-            instructions=self.instructions,
-        )

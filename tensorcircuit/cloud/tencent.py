@@ -76,7 +76,7 @@ class Topology:
             update_pairs(user_addr2, user_addr1, add_remove)
         return
     
-    def pragmam(self) -> str:
+    def pragma(self) -> str:
         lines = []
         if self._used_chip_qubits == [] or self._used_user_qubits == []:
             return None
@@ -89,7 +89,7 @@ class Topology:
         pragma = pragma[:-2] + "]"
         lines.append(pragma)
 
-        pragma = "#pragma qubits.coupling []"
+        pragma = "#pragma qubits.coupling ["
         for u1, u2 in getattr(self, "_used_user_pairs", []):
             pragma += f"[{u1}, {u2}], "
         pragma = pragma[:-2] + "]"
@@ -295,7 +295,7 @@ def submit_task(
                 else:
                     prag = None
                     if topology is not None:
-                        prag = topology.praggam()
+                        prag = topology.pragma()
                     s = c.to_tqasm(prag)
                     lang = "TQASM"
                     #s = c.to_openqasm()
