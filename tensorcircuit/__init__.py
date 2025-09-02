@@ -26,7 +26,8 @@ from . import gates
 from . import basecircuit
 from . import waveforms
 from .gates import Gate
-from .circuit import Circuit, expectation, Param
+from .circuit import Circuit, expectation
+from .pulse import Param
 from .mpscircuit import MPSCircuit
 from .densitymatrix import DMCircuit as DMCircuit_reference
 from .densitymatrix import DMCircuit2

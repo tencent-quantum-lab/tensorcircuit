@@ -23,8 +23,9 @@ ds = list_devices()
 print(ds)
 
 def gen_custom_chip_circuit(t):
-    qc = Circuit(2)
+    qc = Circuit(3)
 
+    # qc.h(0)
     qc.cnot(0, 2)
     # qc.cnot(1, 3)
     # qc.cnot(0, 3)
