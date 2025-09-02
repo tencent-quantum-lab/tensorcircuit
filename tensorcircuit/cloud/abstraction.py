@@ -380,6 +380,57 @@ class Task:
         from .apis import resubmit_task
 
         return resubmit_task(self)
+    
+    @partial(arg_alias, alias_dict={"format": ["format_"], "blocked": ["wait"]})
+    def m_results(
+        self,
+        format: Optional[str] = None,
+        blocked: bool = True,
+        mitigated: bool = False,
+        calibriation_options: Optional[Dict[str, Any]] = None,
+        readout_mit: Optional[rem.ReadoutMit] = None,
+        mitigation_options: Optional[Dict[str, Any]] = None,
+    ) -> counts.ct:
+        """
+        get task results of the qjob
+
+        :param format: unsupported now, defaults to None, which is "count_dict_bin"
+        :type format: Optional[str], optional
+        :param blocked: whether blocked to wait until the result is returned, defaults to False,
+            which raise error when the task is unfinished
+        :type blocked: bool, optional
+        :param mitigated: whether enable readout error mitigation, defaults to False
+        :type mitigated: bool, optional
+        :param calibriation_options: option dict for ``ReadoutMit.cals_from_system``,
+            defaults to None
+        :type calibriation_options: Optional[Dict[str, Any]], optional
+        :param readout_mit: if given, directly use the calibriation info on ``readout_mit``,
+            defaults to None
+        :type readout_mit: Optional[rem.ReadoutMit], optional
+        :param mitigation_options: option dict for ``ReadoutMit.apply_correction``, defaults to None
+        :type mitigation_options: Optional[Dict[str, Any]], optional
+        :return: count dict results
+        :rtype: Any
+        """
+        if not blocked:
+            s = self.state()
+            if s != "completed":
+                raise TaskUnfinished(self.id_, s)
+            r = self.details()["multi_results"]
+            r = counts.sort_count(r)  # type: ignore
+        else:
+            s = self.state()
+            tries = 0
+            while s != "completed":
+                if s in ["failed"]:
+                    err = self.details().get("err", "")
+                    raise TaskFailed(self.id_, s, err)
+                time.sleep(0.5 + tries / 10)
+                tries += 1
+                s = self.state()
+            r = self.m_results(format=format, blocked=False, mitigated=False)
+        
+        return r  # type: ignore
 
     @partial(arg_alias, alias_dict={"format": ["format_"], "blocked": ["wait"]})
     def results(

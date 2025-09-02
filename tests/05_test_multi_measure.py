@@ -54,7 +54,9 @@ def run_circuit(qc):
     # print(qc.to_tqasm())
     # n = qc._nqubits
     rf = t.results()  # 需返回 multi_results
+    rf = t.m_results()  # 需返回 multi_results
     print(rf)
 
 qc = gen_multi_measure_circuit(1.0)
 result = run_circuit(qc)
+print(result)

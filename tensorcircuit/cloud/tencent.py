@@ -19,6 +19,84 @@ from ..translation import eqasm2tc
 logger = logging.getLogger(__name__)
 
 
+class Topology:
+    def __init__(self, device: Device) -> None:
+        topology = device.topology()
+
+        self._qubits = list(set(num for row in topology for num in row))
+        self._qubit_pairs = topology
+
+        self._used_chip_qubits = []
+        self._used_user_qubits = []
+        self._used_user_pairs = []
+
+    def map_qubits(self, chip_addrs: Optional[List[int]], user_addrs: List[int] = None) -> None:
+        """
+        Map chip address to user address, and remove other unused chip addresses.
+        """
+        if user_addrs is None:
+            user_addrs = range(len(chip_addrs))
+        if len(user_addrs) != len(chip_addrs):
+            raise ValueError("user_addrs and chip_addrs should have the same length")
+        for addr in chip_addrs:
+            if addr not in self._qubits:
+                raise ValueError(f"chip_addr {addr} not in the device")
+            
+        self._used_chip_qubits = chip_addrs
+        self._used_user_qubits = user_addrs
+        self._used_user_pairs = [e for e in self._qubit_pairs if e[0] in chip_addrs and e[1] in user_addrs]
+
+    def map_qubit(self, chip_addr: int, user_addr: int) -> None:
+        if chip_addr not in self._qubits:
+            raise ValueError(f"chip_addr {chip_addr} not in the device")
+        try:
+            subscript = self._used_chip_qubits.index(chip_addr)
+            if self._used_user_qubits[subscript] != user_addr:
+                raise ValueError(f"chip_addr {chip_addr} is already mapped to user_addr {self._used_user_qubits[subscript]}")
+        except ValueError: # not found, so add it.
+            self._used_chip_qubits.append(chip_addr)
+            self._used_user_qubits.append(user_addr)
+        return
+    
+    def pair_qubit(self, user_addr1: int, user_addr2: int, dual: bool = True, add_remove: bool = True) -> None:
+        original_pair = (user_addr1, user_addr2)
+        
+        def update_pairs(user_addr1: int, user_addr2: int, add_remove: bool = True):
+            if add_remove:
+                if original_pair in getattr(self, "_used_user_pairs", []):
+                    return
+                self._qubit_mapping = getattr(self, "_used_user_pairs", []) + [original_pair]
+            else:
+                try:
+                    self._qubit_mapping = getattr(self, "_used_user_pairs", []) - [original_pair]
+                except ValueError:
+                    raise ValueError(f"Qubit pair {user_addr1}-{user_addr2} does not exist to remove")
+        update_pairs(user_addr1, user_addr2, add_remove)
+        if dual:
+            update_pairs(user_addr2, user_addr1, add_remove)
+        return
+    
+    def pragmam(self) -> str:
+        lines = []
+        if self._used_chip_qubits == [] or self._used_user_qubits == []:
+            return None
+        if len(self._used_user_pairs) == 0:
+            raise ValueError("No qubit pairs are defined, please use pair_qubit to define qubit pairs")
+        
+        pragma = "#pragma qubits.mapping ["
+        for c, u in zip(self._used_chip_qubits, self._used_user_qubits):
+            pragma += f"[{u}, {c}], "
+        pragma = pragma[:-2] + "]"
+        lines.append(pragma)
+
+        pragma = "#pragma qubits.coupling []"
+        for u1, u2 in getattr(self, "_used_user_pairs", []):
+            pragma += f"[{u1}, {u2}], "
+        pragma = pragma[:-2] + "]"
+        lines.append(pragma)
+        
+        return "\n".join(lines)
+
 def tencent_headers(token: Optional[str] = None) -> Dict[str, str]:
     if token is None:
         token = "ANY;0"
@@ -133,6 +211,7 @@ def submit_task(
     enable_qos_gate_decomposition: bool = True,
     enable_qos_initial_mapping: bool = False,
     qos_dry_run: bool = False,
+    topology: Optional[Topology] = None,
     **kws: Any
 ) -> List[Task]:
     """
@@ -211,10 +290,14 @@ def submit_task(
             else:
                 if isinstance(c, QuantumCircuit):
                     s = c.qasm()
+                    lang = "OPENQASM"
                     # nq = c.num_qubits
                 else:
-                    s = c.to_tqasm()
-                    print(s)
+                    prag = None
+                    if topology is not None:
+                        prag = topology.praggam()
+                    s = c.to_tqasm(prag)
+                    lang = "TQASM"
                     #s = c.to_openqasm()
                     # nq = c._nqubits
             # s = _free_pi(s) # tQuk translation now supports this
@@ -227,13 +310,12 @@ def submit_task(
             #     slist.append("")
             #     s = "\n".join(slist)
             s = _replace_rz_to_st(s)
-            return s  # type: ignore
+            return s, lang  # type: ignore
 
         if is_sequence(circuit):
             source = [c2qasm(c, compiling) for c in circuit]  # type: ignore
         else:
-            source = c2qasm(circuit, compiling)
-        lang = "OPENQASM"
+            source, lang = c2qasm(circuit, compiling)
 
     if len(device.name.split("?")) > 1:
         device_str = device.name
@@ -363,6 +445,10 @@ def get_task_details(
                 r["task"]["results"] = r["task"]["result"]["counts"]
             else:
                 r["task"]["results"] = r["task"]["result"]
+        if "multi_results" in r["task"]:
+            for i, res in enumerate(r["task"]["multi_results"]):
+                if "counts" in res:
+                    r["task"]["multi_results"][i] = counts.sort_count(res["counts"])
         if "optimization" in r["task"]:
             if (
                 "pairs" in r["task"]["optimization"]
@@ -413,4 +499,5 @@ def get_task_details(
     '101': 135,
     '110': 128,
     '111': 131}
+    'multi_results': [{'000': 123, '001': 126, ...}, {...}, ...]
     """

@@ -58,3 +58,4 @@ def run_circuit(qc):
 
 qc = gen_gate_pulse_mix_circuit(1.0)
 result = run_circuit(qc)
+print(result)

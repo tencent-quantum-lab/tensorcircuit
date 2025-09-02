@@ -128,23 +128,23 @@ class Circuit(BaseCircuit):
         })
 
     def add_calibration(
-        self, name: str, parameters: List[str]
+        self, builder: DefcalBuilder, parameters: List[str]
     ) -> None:
         self.calibration_invokes.append({
-            "name": name,
-            "parameters": parameters
+            "name": builder.name,
+            "parameters": parameters,
+            "pos": len(self._qir)
         })
 
 
-    def to_tqasm(self) -> str:
+    def to_tqasm(self, pragma: str) -> str:
         qasm_lines = []
-        qasm_lines.append("TQASM 0.2;")
-        qasm_lines.append(f"QREG q[{self._nqubits}];")
+        if pragma:
+            qasm_lines.append(pragma)
 
-        for gate in self._qir:
-            gname = gate["name"]
-            targets = ", ".join(f"q[{i}]" for i in gate["target"])
-            qasm_lines.append(f"{gname} {targets};")
+        qasm_lines.append("TQASM 0.2;")
+
+        qasm_lines.append(f"QREG q[{self._nqubits}];")
 
         for cal in getattr(self, "calibrations", []):
             pname = ", ".join(cal["parameters"])
@@ -158,12 +158,42 @@ class Circuit(BaseCircuit):
                     qasm_lines.append(f"  play({inst['frame']}, {wf_type}({args_str}));")
             qasm_lines.append("}")
 
-        for cal in getattr(self, "calibration_invokes", []):
-            pname = ", ".join(cal["parameters"])
-            qasm_lines.append(f"\n {cal['name']} {pname};")
 
-        return "\n".join(qasm_lines)
-    
+        # 先把 calibration_invokes 按 pos 分组，并保留同 pos 内的插入顺序
+        from collections import defaultdict
+        cals_by_pos = defaultdict(list)
+        for cal in getattr(self, "calibration_invokes", []):
+            # pos 记录的是加入时的 len(self._qir)
+            pos = cal.get("pos", len(self._qir))
+            cals_by_pos[pos].append(cal)
+
+        # 交错输出：在第 i 个门之前输出所有 pos == i 的校准
+        for i, gate in enumerate(self._qir):
+            for cal in cals_by_pos.get(i, []):
+                # print(cal)
+                pname = ", ".join(cal.get("parameters", []))
+                qasm_lines.append(f"{cal['name']} {pname};")
+
+            # print(gate)
+            gname = gate["name"]
+            gname = gname.upper()
+            if gname == "CNOT":
+                gname = "CX"
+            targets = ", ".join(f"q[{idx}]" for idx in gate["index"])
+            if (gname == "RX") or (gname == "RY") or (gname == "RZ"):
+                theta = gate["parameters"]["theta"]
+                qasm_lines.append(f"{gname} ({theta}) {targets};")
+            else:
+                qasm_lines.append(f"{gname} {targets};")
+
+        # 收尾：把 pos == len(self._qir) 的校准放在最后
+        for cal in cals_by_pos.get(len(self._qir), []):
+            # print(cal)
+            pname = ", ".join(cal.get("parameters", []))
+            qasm_lines.append(f"{cal['name']} {pname};")
+
+        return ("\n".join(qasm_lines))
+
     def calibrate(self, name: str, parameters: List["Param"]) -> "DefcalBuilder":
         return DefcalBuilder(self, name, parameters)
 
@@ -1057,7 +1087,11 @@ def expectation(
 class Param:
     def __init__(self, name: str):
         self.name = name
-    
+
+class Frame:
+    def __init__(self, name: str):
+        self.name = name
+
 class DefcalBuilder:
     def __init__(self, circuit, name: str, parameters: List["Param"]):
         self.circuit = circuit
@@ -1066,14 +1100,15 @@ class DefcalBuilder:
         self.instructions = []
 
     def new_frame(self, frame_name: str, param: "Param"):
+        frame = Frame(frame_name)
         self.instructions.append({
             "type": "frame",
-            "frame": frame_name,
+            "frame": frame,
             "qubit": param.name,
         })
-        return self
+        return frame
 
-    def play(self, frame_name: str, waveform: Any, start_time: int = None):
+    def play(self, frame: Frame, waveform: Any, start_time: int = None):
         if not hasattr(waveform, "__dataclass_fields__"):
             raise TypeError("Unsupported waveform type")
 
@@ -1084,7 +1119,7 @@ class DefcalBuilder:
 
         self.instructions.append({
             "type": "play",
-            "frame": frame_name,
+            "frame": frame.name,
             "waveform_type": waveform_type,
             "args": args,
         })
