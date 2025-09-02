@@ -27,6 +27,13 @@ def gen_parametric_waveform_circuit(t):
 
     param0 = Param("a")
 
+    # builder = qc.calibrate("basic_pulse", [param0])
+    # builder.new_frame("drive_frame", param0)
+    # builder.play("drive_frame", waveforms.CosineDrag(t, 0.2, 0.0, 0.0))
+
+    # builder.build()
+    # qc.add_calibration('basic_pulse', ['q[0]'])
+
 # 需根据以下定义的方式，修改代码
     builder = qc.calibrate("basic_pulse", [param0])
     frame = builder.new_frame("drive_frame", param0)
@@ -36,7 +43,7 @@ def gen_parametric_waveform_circuit(t):
 
     qc.add_calibration(builder, [0])
 
-    # print(qc.to_tqasm())
+    print(qc.to_tqasm())
     return qc
 
 
@@ -53,7 +60,8 @@ def run_circuit(qc):
     # print(qc.to_tqasm())
     # n = qc._nqubits
     rf = t.results()
-    print(rf)
+    # print(rf)
+    return rf
 
 qc = gen_parametric_waveform_circuit(1.0)
 result = run_circuit(qc)

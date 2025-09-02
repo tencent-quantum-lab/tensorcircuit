@@ -128,7 +128,7 @@ class Circuit(BaseCircuit):
         })
 
     def add_calibration(
-        self, builder: DefcalBuilder, parameters: List[str]
+        self, builder: "DefcalBuilder", parameters: List[str]
     ) -> None:
         self.calibration_invokes.append({
             "name": builder.name,
@@ -137,21 +137,22 @@ class Circuit(BaseCircuit):
         })
 
 
-    def to_tqasm(self, pragma: str) -> str:
+    def to_tqasm(self, pragma: Optional[str]= None) -> str:
         qasm_lines = []
-        if pragma:
-            qasm_lines.append(pragma)
 
         qasm_lines.append("TQASM 0.2;")
+
+        if pragma:
+            qasm_lines.append(pragma)
 
         qasm_lines.append(f"QREG q[{self._nqubits}];")
 
         for cal in getattr(self, "calibrations", []):
             pname = ", ".join(cal["parameters"])
-            qasm_lines.append(f"\ndefcal {cal['name']} {pname} {{")
+            qasm_lines.append(f"defcal {cal['name']} {pname} {{")
             for inst in cal["instructions"]:
                 if inst["type"] == "frame":
-                    qasm_lines.append(f"  frame {inst['frame']} = newframe({inst['qubit']});")
+                    qasm_lines.append(f"  frame {inst['frame'].name} = newframe({inst['qubit']});")
                 elif inst["type"] == "play":
                     args_str = ", ".join(str(x) for x in inst["args"])
                     wf_type = inst["waveform_type"]
@@ -171,7 +172,7 @@ class Circuit(BaseCircuit):
         for i, gate in enumerate(self._qir):
             for cal in cals_by_pos.get(i, []):
                 # print(cal)
-                pname = ", ".join(cal.get("parameters", []))
+                pname = ", ".join(f"q[{x}]" for x in cal.get("parameters", []))
                 qasm_lines.append(f"{cal['name']} {pname};")
 
             # print(gate)
@@ -189,7 +190,7 @@ class Circuit(BaseCircuit):
         # 收尾：把 pos == len(self._qir) 的校准放在最后
         for cal in cals_by_pos.get(len(self._qir), []):
             # print(cal)
-            pname = ", ".join(cal.get("parameters", []))
+            pname = ", ".join(f"q[{x}]" for x in cal.get("parameters", []))
             qasm_lines.append(f"{cal['name']} {pname};")
 
         return ("\n".join(qasm_lines))

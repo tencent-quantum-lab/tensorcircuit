@@ -54,7 +54,7 @@ def run_circuit(qc):
     # print(qc.to_tqasm())
     # n = qc._nqubits
     rf = t.results()
-    print(rf)
+    return rf
 
 qc = gen_gate_pulse_mix_circuit(1.0)
 result = run_circuit(qc)

@@ -40,6 +40,8 @@ class Topology:
             raise ValueError("user_addrs and chip_addrs should have the same length")
         for addr in chip_addrs:
             if addr not in self._qubits:
+                print(addr)
+                print(self._qubits)
                 raise ValueError(f"chip_addr {addr} not in the device")
             
         self._used_chip_qubits = chip_addrs
@@ -89,7 +91,7 @@ class Topology:
         pragma = pragma[:-2] + "]"
         lines.append(pragma)
 
-        pragma = "#pragma qubits.coupling []"
+        pragma = "#pragma qubits.coupling ["
         for u1, u2 in getattr(self, "_used_user_pairs", []):
             pragma += f"[{u1}, {u2}], "
         pragma = pragma[:-2] + "]"
@@ -295,8 +297,9 @@ def submit_task(
                 else:
                     prag = None
                     if topology is not None:
-                        prag = topology.praggam()
+                        prag = topology.pragmam()
                     s = c.to_tqasm(prag)
+                    print(s)
                     lang = "TQASM"
                     #s = c.to_openqasm()
                     # nq = c._nqubits
