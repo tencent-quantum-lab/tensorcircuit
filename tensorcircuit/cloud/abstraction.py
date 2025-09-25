@@ -381,55 +381,6 @@ class Task:
 
         return resubmit_task(self)
     
-    @partial(arg_alias, alias_dict={"format": ["format_"], "blocked": ["wait"]})
-    def m_results(
-        self,
-        format: Optional[str] = None,
-        blocked: bool = True,
-        mitigated: bool = False,
-        calibriation_options: Optional[Dict[str, Any]] = None,
-        readout_mit: Optional[rem.ReadoutMit] = None,
-        mitigation_options: Optional[Dict[str, Any]] = None,
-    ) -> counts.ct:
-        """
-        get task results of the qjob
-
-        :param format: unsupported now, defaults to None, which is "count_dict_bin"
-        :type format: Optional[str], optional
-        :param blocked: whether blocked to wait until the result is returned, defaults to False,
-            which raise error when the task is unfinished
-        :type blocked: bool, optional
-        :param mitigated: whether enable readout error mitigation, defaults to False
-        :type mitigated: bool, optional
-        :param calibriation_options: option dict for ``ReadoutMit.cals_from_system``,
-            defaults to None
-        :type calibriation_options: Optional[Dict[str, Any]], optional
-        :param readout_mit: if given, directly use the calibriation info on ``readout_mit``,
-            defaults to None
-        :type readout_mit: Optional[rem.ReadoutMit], optional
-        :param mitigation_options: option dict for ``ReadoutMit.apply_correction``, defaults to None
-        :type mitigation_options: Optional[Dict[str, Any]], optional
-        :return: count dict results
-        :rtype: Any
-        """
-        if not blocked:
-            s = self.state()
-            if s != "completed":
-                raise TaskUnfinished(self.id_, s)
-            r = self.details()["multi_result"]
-        else:
-            s = self.state()
-            tries = 0
-            while s != "completed":
-                if s in ["failed"]:
-                    err = self.details().get("err", "")
-                    raise TaskFailed(self.id_, s, err)
-                time.sleep(0.5 + tries / 10)
-                tries += 1
-                s = self.state()
-            r = self.m_results(format=format, blocked=False, mitigated=False)
-        
-        return r  # type: ignore
 
     @partial(arg_alias, alias_dict={"format": ["format_"], "blocked": ["wait"]})
     def results(
@@ -466,8 +417,16 @@ class Task:
             s = self.state()
             if s != "completed":
                 raise TaskUnfinished(self.id_, s)
-            r = self.details()["results"]
-            r = counts.sort_count(r)  # type: ignore
+            single_measz = "results" in self.details()
+            multi_measz = "multi_result" in self.details()
+            if not single_measz and not multi_measz:
+                raise ValueError("No results field in task details")
+            if single_measz:
+                r = self.details()["results"]
+                r = counts.sort_count(r)  # type: ignore
+            if multi_measz:
+                r = self.details()["multi_result"]
+                r = [counts.sort_count(rr) for rr in r]  # type: ignore
         else:
             s = self.state()
             tries = 0
@@ -481,42 +440,47 @@ class Task:
             r = self.results(format=format, blocked=False, mitigated=False)
         if mitigated is False:
             return r  # type: ignore
-        nqubit = len(list(r.keys())[0])
+        def mitigated_assertion(rr: Any) -> None:
+            nqubit = len(list(r.keys())[0])
 
-        # mitigated is True:
-        device = self.get_device()
-        if device.provider.name != "tencent":
-            raise ValueError("Only tencent provider supports auto readout mitigation")
-        if readout_mit is None and getattr(device, "readout_mit", None) is None:
+            # mitigated is True:
+            device = self.get_device()
+            if device.provider.name != "tencent":
+                raise ValueError("Only tencent provider supports auto readout mitigation")
+            if readout_mit is None and getattr(device, "readout_mit", None) is None:
 
-            def run(cs: Any, shots: Any) -> Any:
-                """
-                current workaround for batch
-                """
-                from .apis import submit_task
+                def run(cs: Any, shots: Any) -> Any:
+                    """
+                    current workaround for batch
+                    """
+                    from .apis import submit_task
 
-                ts = submit_task(circuit=cs, shots=shots, device=device.name + "?o=0")
-                return [t.results(blocked=True) for t in ts]  # type: ignore
+                    ts = submit_task(circuit=cs, shots=shots, device=device.name + "?o=0")
+                    return [t.results(blocked=True) for t in ts]  # type: ignore
 
-            shots = self.details()["shots"]
-            readout_mit = rem.ReadoutMit(run)
-            if calibriation_options is None:
-                calibriation_options = {}
-            readout_mit.cals_from_system(
-                list(range(nqubit)), shots, **calibriation_options
+                shots = self.details()["shots"]
+                readout_mit = rem.ReadoutMit(run)
+                if calibriation_options is None:
+                    calibriation_options = {}
+                readout_mit.cals_from_system(
+                    list(range(nqubit)), shots, **calibriation_options
+                )
+                device.readout_mit = readout_mit
+            elif readout_mit is None:
+                readout_mit = device.readout_mit
+
+            if mitigation_options is None:
+                try:
+                    mitigation_options = {
+                        "logical_physical_mapping": self.details()["optimization"]["pairs"]
+                    }
+                except KeyError:
+                    mitigation_options = {}
+            return readout_mit.apply_correction(
+                r, list(range(nqubit)), **mitigation_options
             )
-            device.readout_mit = readout_mit
-        elif readout_mit is None:
-            readout_mit = device.readout_mit
-
-        if mitigation_options is None:
-            try:
-                mitigation_options = {
-                    "logical_physical_mapping": self.details()["optimization"]["pairs"]
-                }
-            except KeyError:
-                mitigation_options = {}
-        miti_count = readout_mit.apply_correction(
-            r, list(range(nqubit)), **mitigation_options
-        )
-        return counts.sort_count(miti_count)
+        if single_measz:
+            miti_count = mitigated_assertion(r)
+            return counts.sort_count(miti_count)  # type: ignore
+        if multi_measz:
+            return [counts.sort_count(mitigated_assertion(rr)) for rr in r]  # type: ignore
