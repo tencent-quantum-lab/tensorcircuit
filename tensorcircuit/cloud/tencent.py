@@ -449,6 +449,8 @@ def get_task_details(
             for i, res in enumerate(r["task"]["multi_results"]):
                 if "counts" in res:
                     r["task"]["multi_results"][i] = counts.sort_count(res["counts"])
+        if "multi_raw" in r["task"]:
+            r["task"]["multi_raw"] = r["task"]["multi_raw"]
         if "optimization" in r["task"]:
             if (
                 "pairs" in r["task"]["optimization"]
@@ -462,7 +464,6 @@ def get_task_details(
 
         # if not "logical_physical_mapping" in r["task"]:
         # r["task"]["logical_physical_mapping"] = None
-
         if prettify is False:
             return r["task"]  # type: ignore
         # make the results more readable
@@ -472,6 +473,7 @@ def get_task_details(
         if "ts" in r:
             for k in r["ts"]:
                 r["ts"][k] = datetime.fromtimestamp(r["ts"][k] / 1e6)
+        
         if r["lang"] == "TQASM":
             return r
         if "source" in r:

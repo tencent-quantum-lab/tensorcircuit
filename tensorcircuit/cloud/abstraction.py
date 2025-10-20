@@ -417,6 +417,8 @@ class Task:
             s = self.state()
             if s != "completed":
                 raise TaskUnfinished(self.id_, s)
+            if format is not None and format == "raw":
+                return self.details().get("multi_raw", {})
             single_measz = "results" in self.details()
             multi_measz = "multi_result" in self.details()
             if not single_measz and not multi_measz:
