@@ -346,9 +346,9 @@ def submit_task(
                 {
                     "device": device_str,
                     "shots": sh,
-                    "source": sc,
+                    "source": sc[0],
                     "version": version,
-                    "lang": lang,
+                    "lang": sc[1],
                     "prior": prior,
                     "remarks": remarks,
                     "group": group,
