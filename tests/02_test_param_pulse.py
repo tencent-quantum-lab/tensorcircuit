@@ -23,26 +23,29 @@ print(ds)
 
 
 def gen_parametric_waveform_circuit(t):
-    qc = Circuit(2)
-
+    qc = Circuit(3)
     param0 = Param("a")
+    builder0 = qc.calibrate("test01", [param0])
+    frame0 = builder0.new_frame("drive_frame", param0)
+    builder0.play(frame0, waveforms.CosineDrag(115.0, 0.2, 1.0, 0.0))
+    builder0.build()
+    param1 = Param("a")
+    builder1 = qc.calibrate("test02", [param1])
+    frame1 = builder1.new_frame("drive_frame", param1)
+    builder1.play(frame1, waveforms.CosineDrag(115.0, 0.2, 1.0, 0.0))
+    builder1.play(frame1, waveforms.Flattop(115.0, 0.2, 0.0))
+    builder1.play(frame1, waveforms.Sine(115.0, 0.2, 0.1, 0.1, 0.0))
+    
+    builder1.build()
+    param2 = Param("a")
+    builder2 = qc.calibrate("test03", [param2])
+    frame2 = builder2.new_frame("drive_frame", param2)
+    builder2.play(frame2, waveforms.Gaussian(115.0, 0.2, 1.0, 0.0))
+    builder2.build()
 
-    # builder = qc.calibrate("basic_pulse", [param0])
-    # builder.new_frame("drive_frame", param0)
-    # builder.play("drive_frame", waveforms.CosineDrag(t, 0.2, 0.0, 0.0))
-
-    # builder.build()
-    # qc.add_calibration('basic_pulse', ['q[0]'])
-
-# 需根据以下定义的方式，修改代码
-    builder = qc.calibrate("basic_pulse", [param0])
-    frame = builder.new_frame("drive_frame", param0)
-    builder.play(frame, waveforms.CosineDrag(t, 0.2, 0.0, 0.0))
-
-    builder.build()
-
-    qc.add_calibration(builder, [0])
-
+    qc.add_calibration(builder0, [0])  
+    qc.add_calibration(builder1, [1]) 
+    qc.add_calibration(builder2, [2]) 
     print(qc.to_tqasm())
     return qc
 
