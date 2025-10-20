@@ -296,8 +296,13 @@ def submit_task(
                     prag = None
                     if topology is not None:
                         prag = topology.pragma()
-                    s = c.to_tqasm(prag)
-                    lang = "TQASM"
+                    
+                    if c.is_openqasm() and topology is None:
+                        lang = "OPENQASM"
+                        s = c.to_openqasm()
+                    else:
+                        lang = "TQASM"
+                        s = c.to_tqasm(prag)
                     #s = c.to_openqasm()
                     # nq = c._nqubits
             # s = _free_pi(s) # tQuk translation now supports this

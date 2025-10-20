@@ -78,6 +78,7 @@ class AbstractCircuit:
     vgates = vgates
     mpogates = mpogates
     gate_aliases = gate_aliases
+    __is_openqasm = True
 
     def __init__(self, nqubits: int, *args, **kwargs):
         self._nqubits = nqubits
@@ -101,6 +102,12 @@ class AbstractCircuit:
         """
         raise NotImplementedError
 
+    def disable_openqasm(self):
+        self.__is_openqasm = False
+        
+    def is_openqasm(self):
+        return self.__is_openqasm
+    
     @staticmethod
     def apply_general_variable_gate_delayed(
         gatef: Callable[..., Gate],

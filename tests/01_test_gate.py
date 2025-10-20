@@ -27,8 +27,6 @@ def gen_gate_circuit(t):
     qc.h(0)
     qc.cnot(0, 1)
 
-    print(qc.to_tqasm())
-
     return qc
 
 
@@ -45,7 +43,7 @@ def run_circuit(qc):
     # print(qc.to_tqasm())
     # n = qc._nqubits
     rf = t.results()
-    # print(rf)
+    t.details(prettify=True)["backend"].draw(output="mpl")
     return rf
 
 qc = gen_gate_circuit(1.0)

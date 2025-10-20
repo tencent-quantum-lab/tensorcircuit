@@ -132,6 +132,7 @@ class Circuit(BaseCircuit):
     def add_calibration(
         self, builder: DefcalBuilder, parameters: List[str]
     ) -> None:
+        self.disable_openqasm()
         self.calibration_invokes.append({
             "name": builder.name,
             "parameters": parameters,
@@ -139,6 +140,7 @@ class Circuit(BaseCircuit):
         })
     
     def measz(self, *index: int) -> None:
+        self.disable_openqasm()
         self.measz_invokes.append({
             "name": "measz",
             "index": index,

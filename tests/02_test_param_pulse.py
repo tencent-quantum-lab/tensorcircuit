@@ -65,7 +65,7 @@ def run_circuit(qc):
     rf = t.results()
     # print(rf)
 
-    t.details(prettify=True)
+    
     return rf
 
 qc = gen_parametric_waveform_circuit(1.0)
