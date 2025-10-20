@@ -735,6 +735,8 @@ def eqasm2tc(
             elif inst_list[2] == "-Z/2":
                 c.rz(*index, theta=np.pi / 2)  # type: ignore
             # TODO(@refraction-ray): Z/2 convention to be double checked
+            elif inst_list[2].startswith("MEAS"):
+                continue
             else:
                 gate_name = inst_list[2].lower()
                 if len(inst_list) == 4:
