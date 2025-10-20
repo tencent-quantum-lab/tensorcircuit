@@ -34,6 +34,7 @@ def gen_multi_measure_circuit(t):
 # 需添加测量指令
     qc.measz(0, 1)
     qc.cz(0, 1)
+    qc.h(1)
     qc.measz(0, 1)
 
 

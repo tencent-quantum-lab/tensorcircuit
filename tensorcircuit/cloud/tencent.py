@@ -472,6 +472,8 @@ def get_task_details(
         if "ts" in r:
             for k in r["ts"]:
                 r["ts"][k] = datetime.fromtimestamp(r["ts"][k] / 1e6)
+        if r["lang"] == "TQASM":
+            return r
         if "source" in r:
             r["frontend"] = Circuit.from_openqasm(r["source"])
         if "optimization" in r and r["state"] == "completed":
