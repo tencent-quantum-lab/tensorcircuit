@@ -37,7 +37,7 @@ def gen_gate_pulse_mix_circuit(t):
 
     qc.i(0)
     qc.x(0)
-
+    print(qc.to_tqasm())
     return qc
 
 
