@@ -67,6 +67,7 @@ class Circuit(BaseCircuit):
         self.calibrations = []
         self.calibration_invokes = []
         self.measz_invokes = []
+        self._event_seq = 0
 
         self.inputs = inputs
         self.mps_inputs = mps_inputs
@@ -136,7 +137,8 @@ class Circuit(BaseCircuit):
         self.calibration_invokes.append({
             "name": builder.name,
             "parameters": parameters,
-            "pos": len(self._qir)
+            "pos": len(self._qir),
+            "seq": self._record_event()
         })
     
     def measz(self, *index: int) -> None:
@@ -144,10 +146,15 @@ class Circuit(BaseCircuit):
         self.measz_invokes.append({
             "name": "measz",
             "index": index,
-            "pos": len(self._qir)
+            "pos": len(self._qir),
+            "seq": self._record_event()
         })
         return
 
+    def _record_event(self):
+        seq = self._event_seq
+        self._event_seq += 1
+        return seq
 
     def to_tqasm(self, pragma: Optional[str]= None) -> str:
         qasm_lines = []
@@ -186,17 +193,27 @@ class Circuit(BaseCircuit):
             pos = m.get("pos", len(self._qir))
             measz_by_pos[pos].append(m)
 
+        events_by_pos = defaultdict(list)
+
+        for pos, items in cals_by_pos.items():
+            for cal in items:
+                events_by_pos[pos].append(("cal", cal))
+
+        for pos, items in measz_by_pos.items():
+            for m in items:
+                events_by_pos[pos].append(("measz", m))
+
         # 交错输出：在第 i 个门之前输出所有 pos == i 的校准
         for i, gate in enumerate(self._qir):
-            for m in measz_by_pos.get(i, []):
-                targets = ", ".join(f"q[{idx}]" for idx in m["index"])
-                qasm_lines.append(f"MEASZ {targets};")
-
-            for cal in cals_by_pos.get(i, []):
-                # print(cal)
-                pname = ", ".join(f"q[{x}]" for x in cal.get("parameters", []))
-                qasm_lines.append(f"{cal['name']} {pname};")
-
+            events = sorted(events_by_pos.get(i, []), key=lambda item: item[1]["seq"])
+            for event_type, event in events:
+                if event_type == "measz":
+                    targets = ", ".join(f"q[{idx}]" for idx in event["index"])
+                    qasm_lines.append(f"MEASZ {targets};")
+                elif event_type == "cal":
+                    pname = ", ".join(f"q[{x}]" for x in event.get("parameters", []))
+                    qasm_lines.append(f"{event['name']} {pname};")
+            
             # print(gate)
             gname = gate["name"]
             gname = gname.upper()
