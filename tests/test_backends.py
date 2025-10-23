@@ -243,6 +243,16 @@ def test_backend_methods_2(backend):
         atol=1e-5,
     )
     np.testing.assert_allclose(
+        tc.backend.sin(0.5 * tc.backend.ones([2], dtype="float32")),
+        np.sin(0.5 * tc.backend.ones([2])),
+        atol=1e-5,
+    )
+    np.testing.assert_allclose(
+        tc.backend.cos(0.5 * tc.backend.ones([2], dtype="float32")),
+        np.cos(0.5 * tc.backend.ones([2])),
+        atol=1e-5,
+    )
+    np.testing.assert_allclose(
         tc.backend.eigvalsh(tc.backend.ones([2, 2])), np.array([0, 2]), atol=1e-5
     )
     np.testing.assert_allclose(
@@ -274,6 +284,13 @@ def test_backend_methods_2(backend):
         tc.backend.arange(1, 5, 2),
         np.array([1, 3]),
     )
+    arr = np.random.normal(size=(6, 6))
+    np.testing.assert_allclose(
+        tc.backend.copy(arr),
+        arr,
+        atol=1e-5,
+    )
+    np.testing.assert_allclose(tc.backend.power(arr, 6), np.power(arr, 6), atol=1e-5)
     assert tc.backend.dtype(tc.backend.ones([])) == "complex64"
     edges = [-1, 3.3, 9.1, 10.0]
     values = tc.backend.convert_to_tensor(np.array([0.0, 4.1, 12.0], dtype=np.float32))
