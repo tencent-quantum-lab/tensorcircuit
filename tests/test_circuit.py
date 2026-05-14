@@ -1653,3 +1653,15 @@ def test_circuit_copy(backend):
     c1 = c.copy()
     c.rz(0, theta=0.1)
     assert c1.gate_count() == 1
+
+def test_qiskit_circuitinstruction_conversion():
+    c = tc.Circuit(2)
+    c.x(0)
+    c.cx(0, 1)
+    q_circuit = c.to_qiskit()
+
+    # This should succeed without raising AttributeError for 'index' or 'qubits'
+    c_ = tc.Circuit.from_qiskit(q_circuit)
+
+    # Verify the circuits are equivalent
+    np.testing.assert_allclose(c.state(), c_.state(), atol=1e-8)

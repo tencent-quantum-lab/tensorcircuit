@@ -22,8 +22,8 @@ setuptools.setup(
         "tensorflow": ["tensorflow<2.16"],
         "jax": ["jax", "jaxlib"],
         "torch": ["torch"],
-        "qiskit": ["qiskit<1.0"],
-        "cloud": ["qiskit<1.0", "mthree"],
+        "qiskit": ["qiskit"],
+        "cloud": ["qiskit", "mthree"],
     },
     classifiers=[
         "Programming Language :: Python :: 3",

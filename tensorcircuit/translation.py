@@ -356,10 +356,11 @@ def qir2qiskit(
 
 
 def _translate_qiskit_params(
-    gate_info: CircuitInstruction, binding_params: Any
+    gate_info: Any, binding_params: Any
 ) -> List[float]:
     parameters = []
-    for p in gate_info.operation.params:
+    operation = gate_info.operation if hasattr(gate_info, "operation") else gate_info[0]
+    for p in operation.params:
         if isinstance(p, ParameterVectorElement):
             parameters.append(binding_params[p.index])
         elif isinstance(p, Parameter):
@@ -468,8 +469,10 @@ def qiskit2tc(
 
     tc_circuit: Any = Circ(**circuit_params)
     for gate_info in qc.data:
-        idx = [qc.find_bit(qb).index for qb in gate_info.qubits]
-        gate_name = gate_info[0].name
+        qubits = gate_info.qubits if hasattr(gate_info, "qubits") else gate_info[1]
+        idx = [qb.index if hasattr(qb, "index") else qc.find_bit(qb).index for qb in qubits]
+        operation = gate_info.operation if hasattr(gate_info, "operation") else gate_info[0]
+        gate_name = operation.name
         parameters = _translate_qiskit_params(gate_info, binding_params)
         if gate_name in [
             "h",
@@ -536,14 +539,14 @@ def qiskit2tc(
                 if (gate_name[-i] == "o") & (gate_name[-i - 1] == "_"):
                     break
             if i == len(gate_name) - 1:
-                base_gate = gate_info[0].base_gate
+                base_gate = operation.base_gate
                 ctrl_state = [1] * base_gate.num_qubits
                 idx = idx[: -base_gate.num_qubits] + idx[-base_gate.num_qubits :][::-1]
                 tc_circuit.multicontrol(
                     *idx, ctrl=ctrl_state, unitary=base_gate.to_matrix()
                 )
             else:
-                base_gate = gate_info[0].base_gate
+                base_gate = operation.base_gate
                 ctrl_state = ctrl_str2ctrl_state(
                     gate_name[-i + 1 :], len(idx) - base_gate.num_qubits
                 )
@@ -566,11 +569,11 @@ def qiskit2tc(
         elif gate_name == "initialize":
             # already taken care of when initializing
             continue
-        elif not hasattr(gate_info[0], "__array__"):
+        elif not hasattr(operation, "__array__"):
             # an instruction containing a lot of gates.
             # the condition is based on
             # https://github.com/Qiskit/qiskit-terra/blob/2f5944d60140ceb6e30d5b891e8ffec735247ce9/qiskit/circuit/gate.py#L43
-            qiskit_circuit = gate_info[0].definition
+            qiskit_circuit = operation.definition
             if qiskit_circuit is None:
                 logger.warning(
                     f"qiskit to tc translation doesn't support {gate_name} instruction, skipping"
@@ -580,7 +583,7 @@ def qiskit2tc(
             tc_circuit.append(c, idx)
         else:  # unitary gate
             idx_inverse = (x for x in idx[::-1])
-            tc_circuit.any(*idx_inverse, unitary=gate_info[0].to_matrix())
+            tc_circuit.any(*idx_inverse, unitary=operation.to_matrix())
     return tc_circuit
 
 
